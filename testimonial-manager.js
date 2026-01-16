@@ -452,45 +452,63 @@ console.log('   Protecting', Object.keys(originalGroupsData).length, 'groups');
 console.log('   ALLOWING function definitions');
 
 // ===================================================
-// 🚑 EMERGENCY FUNCTION RESTORATION
+// 🔧 SIMPLE BUTTON FIX
 // ===================================================
 
-// Restore missing functions that the manager needs
-setTimeout(() => {
-    console.log('🔧 Checking for missing manager functions...');
-    
-    // List of essential functions the manager UI needs
-    const essentialFunctions = [
-        'setupEventListeners',
-        'clearGroupForm', 
-        'showAddTestimonialGroupModal',
-        'createTestimonialGroup',
-        'updateGroupType',
-        'updateTriggerSections'
-    ];
-    
-    let restoredCount = 0;
-    essentialFunctions.forEach(funcName => {
-        if (typeof window[funcName] !== 'function') {
-            console.log(`   ⚠️ ${funcName} is missing, creating placeholder`);
+document.addEventListener('DOMContentLoaded', function() {
+    // Fix the "Add Video Group" button
+    const addGroupBtn = document.getElementById('addTestimonialGroupBtn');
+    if (addGroupBtn) {
+        // Remove any existing onclick
+        addGroupBtn.onclick = null;
+        addGroupBtn.removeAttribute('onclick');
+        
+        // Add simple click handler
+        addGroupBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🎬 Opening group creator');
             
-            // Create safe placeholder function
-            window[funcName] = function() {
-                console.warn(`⚠️ ${funcName}() called but not fully implemented`);
-                console.log('   This function was restored by surgical fix');
-                return null;
-            };
-            
-            restoredCount++;
-        }
-    });
-    
-    if (restoredCount > 0) {
-        console.log(`✅ Restored ${restoredCount} missing functions`);
-    } else {
-        console.log('✅ All essential functions present');
+            // Use our fixed clearGroupForm function
+            if (typeof clearGroupForm === 'function') {
+                clearGroupForm();
+            } else {
+                // Fallback
+                const modal = document.getElementById('addTestimonialGroupModal');
+                if (modal) modal.style.display = 'flex';
+            }
+        });
+        
+        console.log('✅ Fixed Add Video Group button');
     }
-}, 500);
+});
+
+// ===================================================
+// 🎯 MINIMAL GROUP CREATOR (Fixes line 1115 error)
+// ===================================================
+
+if (typeof GroupCreator === 'undefined') {
+    class GroupCreator {
+        constructor() {
+            console.log('🔧 GroupCreator defined');
+        }
+        
+        show() {
+            console.log('🎬 GroupCreator.show() called');
+            return clearGroupForm(); // Use our fixed function
+        }
+        
+        hide() {
+            if (typeof hideAddTestimonialGroupModal === 'function') {
+                return hideAddTestimonialGroupModal();
+            }
+            return false;
+        }
+    }
+    
+    window.GroupCreator = GroupCreator;
+    console.log('✅ GroupCreator now defined');
+}
 
 // ===================================================
 // 🎯 DATA INTEGRITY CHECK (Run on load)
@@ -1111,8 +1129,94 @@ class EnhancedGroupCreator {
     }
 }
 
-// Make it globally available
+// ====================================================
+// 🎯 GROUP CREATOR DEFINITION (REPLACE lines around 1115)
+// ====================================================
+
+// First, define the GroupCreator class
+class GroupCreator {
+    constructor() {
+        console.log('🔧 GroupCreator initialized');
+        this.selectedTriggers = [];
+        this.currentType = 'testimonial';
+        this.groupName = '';
+    }
+    
+    show() {
+        console.log('🎬 GroupCreator.show() - Opening group creator');
+        
+        // Method 1: Use existing function
+        if (typeof showAddTestimonialGroupModal === 'function') {
+            console.log('✅ Using showAddTestimonialGroupModal()');
+            showAddTestimonialGroupModal();
+            return;
+        }
+        
+        // Method 2: Show modal directly
+        const modal = document.getElementById('addTestimonialGroupModal');
+        if (modal) {
+            console.log('✅ Showing modal directly');
+            modal.style.display = 'flex';
+            
+            // Clear form
+            if (typeof clearGroupForm === 'function') {
+                clearGroupForm();
+            }
+            
+            // Focus on name input
+            setTimeout(() => {
+                const nameInput = modal.querySelector('#newGroupName');
+                if (nameInput) nameInput.focus();
+            }, 100);
+        } else {
+            console.error('❌ No modal found');
+            alert('Group creator modal not found. Please refresh the page.');
+        }
+    }
+    
+    hide() {
+        console.log('👋 GroupCreator.hide()');
+        
+        // Method 1: Use existing function
+        if (typeof hideAddTestimonialGroupModal === 'function') {
+            hideAddTestimonialGroupModal();
+            return;
+        }
+        
+        // Method 2: Hide modal directly
+        const modal = document.getElementById('addTestimonialGroupModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    // These methods might be called by other parts of your code
+    toggleTrigger(triggerKey, isSelected) {
+        console.log(`🔔 Toggle trigger: ${triggerKey} = ${isSelected}`);
+    }
+    
+    createGroup() {
+        console.log('🏗️ GroupCreator.createGroup()');
+        if (typeof addNewTestimonialGroup === 'function') {
+            addNewTestimonialGroup();
+        }
+    }
+    
+    updateSelectedTags() {
+        console.log('🏷️ GroupCreator.updateSelectedTags()');
+    }
+    
+    updateCreateButton() {
+        console.log('🔄 GroupCreator.updateCreateButton()');
+    }
+}
+
+// NOW make it globally available
 window.GroupCreator = GroupCreator;
+
+// Also create an instance for convenience
+window.groupCreator = new GroupCreator();
+console.log('✅ GroupCreator defined and available globally');
 
 // ===================================================
 // 🚨 CRITICAL FIX: ADD MISSING bindEvents METHOD
@@ -1655,93 +1759,6 @@ function populateConcernsCheckboxes() {
     console.log(`✅ Added ${Object.keys(testimonialConcerns).length} testimonial and ${Object.keys(informationalConcerns).length} informational concerns`);
 }
 
-// NEW: Auto-update checkboxes based on group type
-function updateConcernCheckboxesForGroupType(groupType) {
-    console.log('🔄 Updating concern checkboxes for:', groupType);
-    
-    const testimonialSection = document.getElementById('testimonialTriggers');
-    const informationalSection = document.getElementById('informationalTriggers');
-    
-    if (!testimonialSection || !informationalSection) return;
-    
-    if (groupType === 'informational') {
-        testimonialSection.style.display = 'none';
-        informationalSection.style.display = 'block';
-    } else {
-        testimonialSection.style.display = 'block';
-        informationalSection.style.display = 'none';
-    }
-}
-
-// Initialize modal when shown
-function initGroupCreationModal() {
-    console.log('🎯 Initializing group creation modal...');
-    
-    // Set default type
-    const typeSelect = document.getElementById('newGroupType');
-    if (typeSelect) {
-        updateGroupType(typeSelect.value);
-    }
-    
-    // Populate concerns
-    populateConcernsCheckboxes();
-    
-    // Clear form
-    document.getElementById('newGroupName').value = '';
-    document.getElementById('newGroupSlug').value = '';
-    document.getElementById('newGroupDescription').value = '';
-    
-    // Uncheck all checkboxes
-    document.querySelectorAll('.concern-checkbox').forEach(cb => {
-        cb.checked = false;
-    });
-}
-
-// Hook into existing show function
-const originalShowModal = window.showAddTestimonialGroupModal;
-if (originalShowModal) {
-    window.showAddTestimonialGroupModal = function() {
-        originalShowModal();
-        setTimeout(initGroupCreationModal, 50); // Wait for modal to be visible
-    };
-}
-
-// Also run on page load to pre-populate
-setTimeout(populateConcernsCheckboxes, 2000);
-
-// ADD THESE TWO FUNCTIONS AT THE VERY TOP OF THE FILE
-// (before any other code)
-
-function updateGroupType(value) {
-    console.log('🎯 updateGroupType called with:', value);
-    
-    const newGroupIcon = document.getElementById('newGroupIcon');
-    const testimonialTriggers = document.getElementById('testimonialTriggers');
-    const informationalTriggers = document.getElementById('informationalTriggers');
-    
-    if (!newGroupIcon || !testimonialTriggers || !informationalTriggers) {
-        console.error('❌ Required elements not found');
-        return;
-    }
-    
-    // Set icon based on type - FIXED LOGIC!
-    if (value === '3' || value === 'informational') {
-        console.log('🔄 Switching to INFORMATIONAL');
-        newGroupIcon.value = '📚';
-        testimonialTriggers.style.display = 'none';   // HIDE testimonial
-        informationalTriggers.style.display = 'block'; // SHOW informational
-    } else {
-        console.log('🔄 Switching to TESTIMONIAL');
-        newGroupIcon.value = '🎬';
-        testimonialTriggers.style.display = 'block';  // SHOW testimonial
-        informationalTriggers.style.display = 'none';  // HIDE informational
-    }
-    
-    // Debug: Verify
-    console.log('Testimonial display:', testimonialTriggers.style.display);
-    console.log('Informational display:', informationalTriggers.style.display);
-}
-
 function populateTriggersSections() {
     console.log('🔧 Populating triggers sections...');
     
@@ -1791,52 +1808,50 @@ function populateTriggersSections() {
     }
 }
 
-// Also update your clearGroupForm function to handle these checkboxes
+// ===================================================
+// 🧹 FIXED clearGroupForm FUNCTION (REPLACEMENT)
+// ===================================================
+
 function clearGroupForm() {
-    console.log('🧹 Clearing group form');
+    console.log('🎬 Opening group creator (fixed clearGroupForm)');
     
-    // Clear inputs
-    const inputs = ['newGroupName', 'newGroupIcon', 'newGroupConcern', 'newGroupTags'];
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (!modal) {
+        console.error('❌ Modal not found');
+        alert('Group creator not available. Please refresh.');
+        return false;
+    }
     
-    // SET TYPE DEFAULT
+    // Show the modal
+    modal.style.display = 'flex';
+    
+    // Reset form to defaults
+    const nameInput = document.getElementById('newGroupName');
+    const slugInput = document.getElementById('newGroupSlug');
     const typeSelect = document.getElementById('newGroupType');
-    if (typeSelect) {
-        typeSelect.value = 'testimonial'; // This should match your dropdown
-    }
+    const descInput = document.getElementById('newGroupDescription');
+    const iconInput = document.getElementById('newGroupIcon');
     
-    // Set icon default
-    if (document.getElementById('newGroupIcon')) {
-        document.getElementById('newGroupIcon').value = '🎬';
-    }
+    if (nameInput) nameInput.value = '';
+    if (slugInput) slugInput.value = '';
+    if (typeSelect) typeSelect.value = 'testimonial';
+    if (descInput) descInput.value = '';
+    if (iconInput) iconInput.value = '🎬';
     
-    // Clear checkboxes
-    document.querySelectorAll('#testimonialTriggers input[type="checkbox"], #informationalTriggers input[type="checkbox"]').forEach(cb => {
-        cb.checked = false;
-    });
+    // Our new trigger selector will handle the rest automatically
+    // when the modal opens (it watches for display changes)
     
-    // IMPORTANT: This should show testimonial, hide informational
-    updateGroupType('testimonial');
+    // Focus on name field
+    setTimeout(() => {
+        if (nameInput) nameInput.focus();
+    }, 100);
+    
+    console.log('✅ Modal shown and form cleared');
+    return true;
 }
 
-// Add this to initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function() {
-        // Populate triggers sections
-        populateTriggersSections();
-        
-        // Set up dropdown listener
-        const typeSelect = document.getElementById('newGroupType');
-        if (typeSelect) {
-            typeSelect.addEventListener('change', function() {
-                updateGroupType(this.value);
-            });
-        }
-    }, 500);
-});
+// Make it globally available
+window.clearGroupForm = clearGroupForm;
 
 // ===================================================
 // COMPLETE ENHANCED EVENT LISTENERS SETUP
@@ -1879,41 +1894,36 @@ function setupEventListeners() {
     }
     
     // ============================================
-    // 2. YOUR EXISTING LISTENERS (Keep these)
-    // ============================================
-    
-    // Add Group Button
+// 🔧 SIMPLE BUTTON FIX (Replace the deleted section)
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Fix the "Add Video Group" button
     const addGroupBtn = document.getElementById('addTestimonialGroupBtn');
     if (addGroupBtn) {
-        addGroupBtn.addEventListener('click', function() {
-            if (typeof resetGroupForm === 'function') {
-                resetGroupForm();
-            }
-            showAddTestimonialGroupModal();
-        });
-        console.log('✅ Added listener for addTestimonialGroupBtn');
-    }
-    
-    // Group Type Selector Change
-    const groupTypeSelect = document.getElementById('group-type-selector');
-    if (groupTypeSelect) {
-        groupTypeSelect.addEventListener('change', function() {
-            console.log('🔄 Group type changed to:', this.value);
-            if (typeof updateConcernCheckboxesForGroupType === 'function') {
-                updateConcernCheckboxesForGroupType(this.value);
-            }
+        // Remove any existing onclick
+        addGroupBtn.onclick = null;
+        addGroupBtn.removeAttribute('onclick');
+        
+        // Add simple click handler
+        addGroupBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🎬 Opening group creator');
             
-            // Auto-update icon based on type
-            const iconInput = document.getElementById('group-icon-input');
-            if (iconInput) {
-                iconInput.value = this.value === 'informational' ? '📚' : '⭐';
+            // Use our fixed clearGroupForm function
+            if (typeof clearGroupForm === 'function') {
+                clearGroupForm();
+            } else {
+                // Fallback
+                const modal = document.getElementById('addTestimonialGroupModal');
+                if (modal) modal.style.display = 'flex';
             }
         });
-        console.log('✅ Added listener for group-type-selector');
+        
+        console.log('✅ Fixed Add Video Group button');
     }
-    
-    // Continue with all your existing listeners...
-    // [Keep all your existing code from line 7 to the end]
+});
     
     // ============================================
     // 3. NEW: Video Addition Form Listeners
@@ -1986,45 +1996,6 @@ function updateVideoFormForType(videoType) {
     }
 }
 
-// NEW: Reset group form when opening modal
-function resetGroupForm() {
-    console.log('🔄 Resetting group form...');
-    
-    // Reset inputs
-    const inputs = [
-        'group-name-input',
-        'group-slug-input',
-        'group-icon-input',
-        'group-description-input'
-    ];
-    
-    inputs.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.value = '';
-        }
-    });
-    
-    // Reset selectors to defaults
-    const typeSelect = document.getElementById('group-type-selector');
-    if (typeSelect) typeSelect.value = 'testimonial';
-    
-    const concernSelect = document.getElementById('group-concern-selector');
-    if (concernSelect) concernSelect.value = 'general_info';
-    
-    // Uncheck all concern checkboxes
-    document.querySelectorAll('.concern-checkbox').forEach(cb => {
-        cb.checked = false;
-    });
-    
-    // Update checkbox display
-    updateConcernCheckboxesForGroupType('testimonial');
-    
-    // Set default icon
-    const iconInput = document.getElementById('group-icon-input');
-    if (iconInput) iconInput.value = '⭐';
-}
-
 // NEW: Update selected group info in video manager
 function updateSelectedGroupInfo(groupId) {
     console.log('📁 Selected group:', groupId);
@@ -2069,131 +2040,54 @@ function displayGroupsInUI() {
     });
 }
 
-// ===================================================
-// GROUP MANAGEMENT
-// ===================================================
 function showAddTestimonialGroupModal() {
+    console.log('🎬 showAddTestimonialGroupModal called');
+    
     const modal = document.getElementById('addTestimonialGroupModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        document.getElementById('newGroupName').focus();
-        
-        // Populate concern checkboxes
-        populateConcernCheckboxes();
+    if (!modal) {
+        console.error('❌ Modal not found');
+        return false;
     }
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Clear form (use our fixed version)
+    if (typeof clearGroupForm === 'function') {
+        clearGroupForm();
+    } else {
+        // Simple clear as fallback
+        const nameInput = document.getElementById('newGroupName');
+        const typeSelect = document.getElementById('newGroupType');
+        if (nameInput) nameInput.value = '';
+        if (typeSelect) typeSelect.value = 'testimonial';
+        
+        setTimeout(() => {
+            if (nameInput) nameInput.focus();
+        }, 100);
+    }
+    
+    console.log('✅ Modal shown');
+    return true;
 }
 
 function hideAddTestimonialGroupModal() {
+    console.log('👋 Hiding group creator modal');
+    
     const modal = document.getElementById('addTestimonialGroupModal');
     if (modal) {
         modal.style.display = 'none';
         
-        // Clear form
-        document.getElementById('newGroupName').value = '';
-        document.getElementById('newGroupSlug').value = '';
-        document.getElementById('newGroupIcon').value = '📁';
-        document.getElementById('newGroupDescription').value = '';
-        
-        // Clear checkboxes
-        const checkboxes = document.querySelectorAll('.concern-checkbox');
-        checkboxes.forEach(cb => cb.checked = false);
+        // ✅ Optional: Clear form (but our trigger selector handles this)
+        // document.getElementById('newGroupName').value = '';
+        // document.getElementById('newGroupSlug').value = '';
+        // document.getElementById('newGroupIcon').value = '🎬';
+        // document.getElementById('newGroupDescription').value = '';
     }
+    
+    return true;
 }
 
-function populateConcernCheckboxes() {
-    const container = document.getElementById('concernsCheckboxContainer');
-    if (!container) return;
-    
-    const concerns = {
-        'price': '💰 See What Others Say About Value',
-        'time': '⏰ Hear From Busy Professionals',
-        'trust': '🤝 Real Client Experiences',
-        'general': '⭐ What Our Clients Say',
-        'results': '📈 See The Results Others Got'
-    };
-    
-    container.innerHTML = '';
-    
-    for (const [key, label] of Object.entries(concerns)) {
-        const checkboxId = `concern_${key}`;
-        const html = `
-            <div class="concern-checkbox-item">
-                <input type="checkbox" 
-                       id="${checkboxId}" 
-                       class="concern-checkbox" 
-                       value="${key}">
-                <label for="${checkboxId}" class="concern-checkbox-label">
-                    ${label}
-                </label>
-            </div>
-        `;
-        container.innerHTML += html;
-    }
-}
-
-function createTestimonialGroup() {
-    // Get form values
-    const name = document.getElementById('newGroupName').value.trim();
-    const slug = document.getElementById('newGroupSlug').value.trim();
-    const icon = document.getElementById('newGroupIcon').value.trim() || '📁';
-    const description = document.getElementById('newGroupDescription').value.trim();
-    
-    // Validation
-    if (!name) {
-        showError('Please enter a group name');
-        return;
-    }
-    
-    if (!slug) {
-        showError('Please enter a group slug (URL-friendly name)');
-        return;
-    }
-    
-    // Get selected concerns
-    const selectedConcerns = [];
-    const checkboxes = document.querySelectorAll('.concern-checkbox:checked');
-    checkboxes.forEach(cb => {
-        selectedConcerns.push(cb.value);
-    });
-    
-    // Create group ID
-    const groupId = 'group_' + slug.replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
-    
-    // Create new group object
-    const newGroup = {
-        id: groupId,
-        name: name,
-        slug: slug,
-        icon: icon,
-        description: description,
-        concerns: selectedConcerns,
-        testimonials: [],
-        createdAt: new Date().toISOString(),
-        viewCount: 0
-    };
-    
-    // Add to data structure
-    testimonialData.testimonialGroups[groupId] = newGroup;
-    
-    // Update statistics
-    updateStatistics();
-    
-    // Save to localStorage
-    saveToLocalStorage();
-    
-    // Update ALL UI components
-    updateGroupsDisplay();
-    updateGroupDropdown();
-    selectGroup(groupId); // Auto-select the new group
-    
-    // Close modal and show success
-    hideAddTestimonialGroupModal();
-    showSuccess(`✅ Group "${name}" created successfully!`);
-    
-    console.log('Created new group:', newGroup);
-}
-
-// NEW FUNCTION: UPDATE GROUP DROPDOWN
 function updateGroupDropdown() {
     const dropdown = document.getElementById('selectGroupDropdown');
     if (!dropdown) return;
@@ -2203,12 +2097,15 @@ function updateGroupDropdown() {
         dropdown.remove(1);
     }
     
-    if (!window.testimonialData || !window.testimonialData.testimonialGroups) {
+    // ❌ OLD: window.testimonialData.testimonialGroups
+    // ✅ NEW: window.testimonialData.groups
+    if (!window.testimonialData || !window.testimonialData.groups) {
+        console.log('ℹ️ No groups found for dropdown');
         return;
     }
     
     // Sort groups: Informational first, then Testimonial
-    const groups = Object.entries(window.testimonialData.testimonialGroups);
+    const groups = Object.entries(window.testimonialData.groups);
     groups.sort(([keyA, groupA], [keyB, groupB]) => {
         const typeA = groupA.type || 'testimonial';
         const typeB = groupB.type || 'testimonial';
@@ -2226,7 +2123,7 @@ function updateGroupDropdown() {
         const typeBadge = videoType === 'informational' ? '📚' : '🎬';
         const typeText = videoType === 'informational' ? ' (Informational)' : ' (Testimonial)';
         
-        option.textContent = `${typeBadge} ${group.title || groupId}${typeText}`;
+        option.textContent = `${typeBadge} ${group.name || groupId}${typeText}`; // Changed: group.title → group.name
         option.title = group.description || `Type: ${videoType} videos`;
         
         // Add data attribute for type
@@ -2663,7 +2560,8 @@ function selectGroup(groupId, scroll = false, source = 'sidebar') {
         return;
     }
     
-    const group = window.testimonialData.testimonialGroups[groupId];
+    // ✅ CORRECTED: Use groups, not testimonialGroups
+    const group = window.testimonialData.groups[groupId];
     if (!group) {
         console.error('❌ Group not found:', groupId);
         return;
@@ -2682,11 +2580,12 @@ function selectGroup(groupId, scroll = false, source = 'sidebar') {
             '<span class="type-badge informational" title="Informational Videos">📚 Informational</span>' : 
             '<span class="type-badge testimonial" title="Testimonial Videos">🎬 Testimonial</span>';
         
+        // ✅ CORRECTED: Use group.name, not group.title
         mainContent.innerHTML = `
             <div class="content-header">
                 <h2>
                     <span class="group-icon">${group.icon || '📁'}</span>
-                    ${group.title || groupId}
+                    ${group.name || groupId} <!-- Changed: title → name -->
                     ${typeBadge}
                 </h2>
                 <div class="header-actions">
@@ -2724,14 +2623,14 @@ function selectGroup(groupId, scroll = false, source = 'sidebar') {
     } else if (isInManagerContext) {
         // 🆕 MANAGER MODE: Just update manager UI, don't trigger modals
         console.log('✅ Manager mode: Group selected for testimonial addition');
-        console.log('   Group:', group.title || groupId);
+        console.log('   Group:', group.name || groupId); // Changed: title → name
         console.log('   Type:', group.type || 'testimonial');
         
         // Update manager header if it exists
         const managerHeader = document.querySelector('.manager-header, .selected-group-header');
         if (managerHeader) {
             managerHeader.innerHTML = `
-                <h3>${group.icon || '📁'} ${group.title || groupId}</h3>
+                <h3>${group.icon || '📁'} ${group.name || groupId}</h3> <!-- Changed: title → name -->
                 <p class="text-muted">${group.description || 'Ready to add testimonials'}</p>
             `;
         }
@@ -2739,6 +2638,10 @@ function selectGroup(groupId, scroll = false, source = 'sidebar') {
         console.log('⚠️ mainContent element not found, skipping UI update');
         // 🆕 CRITICAL: Don't trigger any modals here!
     }
+    
+    // Display group content (testimonials/videos)
+    displayGroupTestimonials(groupId);
+}
     
     // ============================================
     // FIXED: Use existing functions instead of non-existent ones
@@ -2772,7 +2675,6 @@ function selectGroup(groupId, scroll = false, source = 'sidebar') {
     
     // Add type badges to sidebar groups
     addTypeBadgesToGroups();
-}
 
 function showTestimonialOverlay(groupId) {
     const group = testimonialData.testimonialGroups[groupId];
@@ -2861,28 +2763,56 @@ function displayGroupTestimonials(group) {
     updateCodeOutput(); // For now, update the code output
 }
 
-// Add this helper function to get all video triggers for debugging
+// ===================================================
+// 🎯 SIMPLIFIED TRIGGER HELPER FUNCTION
+// ===================================================
+
 function getAllVideoTriggers() {
-    const triggers = [];
+    console.log('🔍 Getting all video triggers...');
     
-    // Get testimonial triggers from existing system
-    if (window.testimonialData && window.testimonialData.testimonialGroups) {
-        Object.values(window.testimonialData.testimonialGroups).forEach(group => {
-            if (group.testimonials) {
-                group.testimonials.forEach(testimonial => {
-                    if (testimonial.concernType) triggers.push(testimonial.concernType);
-                    if (testimonial.tags) triggers.push(...testimonial.tags);
-                });
-            }
-            if (group.videos) {
-                group.videos.forEach(video => {
-                    if (video.tags) triggers.push(...video.tags);
-                });
-            }
-        });
+    const triggers = new Set(); // Use Set to automatically deduplicate
+    
+    // Check if data exists
+    if (!window.testimonialData || !window.testimonialData.groups) {
+        console.log('⚠️ No groups data found');
+        return [];
     }
     
-    return [...new Set(triggers)]; // Remove duplicates
+    // Loop through all groups
+    Object.values(window.testimonialData.groups).forEach(group => {
+        // Check triggers on the group itself
+        if (group.triggers && Array.isArray(group.triggers)) {
+            group.triggers.forEach(trigger => triggers.add(trigger));
+        }
+        
+        // Check videos in the group (standardized property)
+        if (group.videos && Array.isArray(group.videos)) {
+            group.videos.forEach(video => {
+                if (video.tags && Array.isArray(video.tags)) {
+                    video.tags.forEach(tag => triggers.add(tag));
+                }
+                if (video.concernType) {
+                    triggers.add(video.concernType);
+                }
+            });
+        }
+        
+        // Also check old property name for compatibility
+        if (group.testimonials && Array.isArray(group.testimonials)) {
+            group.testimonials.forEach(testimonial => {
+                if (testimonial.tags && Array.isArray(testimonial.tags)) {
+                    testimonial.tags.forEach(tag => triggers.add(tag));
+                }
+                if (testimonial.concernType) {
+                    triggers.add(testimonial.concernType);
+                }
+            });
+        }
+    });
+    
+    const result = Array.from(triggers);
+    console.log(`✅ Found ${result.length} unique triggers`);
+    return result;
 }
 
 // Export it
@@ -3126,138 +3056,98 @@ function updateTriggerSections() {
 }
 
 // ===================================================
-// 🎯 ENHANCED GROUP CREATION FUNCTION
-// Combines your existing logic with enhanced concerns system
+// 🎯 SIMPLIFIED GROUP CREATION FUNCTION
 // ===================================================
 function addNewTestimonialGroup() {
-    console.log('🎯 Creating ENHANCED testimonial group...');
+    console.log('🎯 Creating testimonial group...');
     
-    // 1. GET FORM VALUES (keep your existing IDs)
-    const groupName = document.getElementById('newGroupName').value.trim();
-    const groupSlug = document.getElementById('newGroupSlug').value.trim();
-    const videoType = document.getElementById('newGroupType').value; // 'testimonial' or 'informational'
-    const groupIcon = document.getElementById('newGroupIcon').value;
-    const groupDescription = document.getElementById('newGroupDescription').value.trim();
+    // 1. GET FORM VALUES
+    const groupName = document.getElementById('newGroupName')?.value.trim();
+    const groupSlug = document.getElementById('newGroupSlug')?.value.trim() || 
+                     groupName?.toLowerCase().replace(/\s+/g, '-');
+    const videoType = document.getElementById('newGroupType')?.value || 'testimonial';
+    const groupIcon = document.getElementById('newGroupIcon')?.value || '🎬';
+    const groupDescription = document.getElementById('newGroupDescription')?.value.trim() || '';
     
-    // 2. VALIDATION (keep your existing)
+    // 2. VALIDATION
     if (!groupName) {
-        showNotification('❌ Please enter a group name', 'error');
+        alert('❌ Please enter a group name');
+        document.getElementById('newGroupName')?.focus();
         return;
     }
     
-    if (!groupSlug) {
-        showNotification('❌ Please enter a group slug/ID', 'error');
-        return;
+    // 3. GET SELECTED TRIGGERS (from our new trigger selector)
+    const selectedTriggers = [];
+    
+    // Method 1: Use our new trigger selector if available
+    if (window.triggerSelector && window.triggerSelector.selectedTriggers) {
+        selectedTriggers.push(...window.triggerSelector.selectedTriggers);
+        console.log(`🔍 Got ${selectedTriggers.length} triggers from triggerSelector`);
     }
     
-    if (!['testimonial', 'informational'].includes(videoType)) {
-        showNotification('❌ Please select a valid video type', 'error');
-        return;
-    }
-    
-    // 3. 🆕 ENHANCED: Get selected concerns using new system
-    const selectedConcerns = [];
-    
-    // Determine which section is active
-    const activeSectionId = videoType === 'testimonial' ? 'testimonialTriggers' : 'informationalTriggers';
-    const activeSection = document.getElementById(activeSectionId);
-    
-    if (activeSection) {
-        // Get checked checkboxes from active section
-        const activeCheckboxes = activeSection.querySelectorAll('.concern-checkbox:checked');
-        
-        activeCheckboxes.forEach(checkbox => {
-            selectedConcerns.push(checkbox.value);
+    // Method 2: Fallback to checkboxes
+    if (selectedTriggers.length === 0) {
+        const checkboxes = document.querySelectorAll('.concern-checkbox:checked');
+        checkboxes.forEach(cb => {
+            if (cb.value) selectedTriggers.push(cb.value);
         });
-        
-        console.log(`🔍 Selected ${selectedConcerns.length} concerns from ${activeSectionId}`);
-    } else {
-        // Fallback: Use all checkboxes
-        const allCheckboxes = document.querySelectorAll('.concern-checkbox:checked');
-        allCheckboxes.forEach(checkbox => {
-            selectedConcerns.push(checkbox.value);
-        });
-        console.log('⚠️ Using fallback concern selection');
+        console.log(`🔍 Got ${selectedTriggers.length} triggers from checkboxes`);
     }
     
-    if (selectedConcerns.length === 0) {
-        showNotification('❌ Please select at least one trigger phrase', 'error');
-        return;
+    if (selectedTriggers.length === 0) {
+        if (!confirm('⚠️ No triggers selected. Create group anyway?')) {
+            return;
+        }
     }
     
-    // 4. CREATE GROUP OBJECT (enhanced structure)
+    // 4. CREATE GROUP OBJECT (CLEAN VERSION)
+    const groupId = 'group_' + groupSlug.replace(/[^a-z0-9-_]/gi, '_');
+    
     const newGroup = {
-        id: groupSlug,
-        name: groupName, // 🆕 Changed from 'title' to 'name' for consistency
+        id: groupId,
+        name: groupName,
         slug: groupSlug,
         type: videoType,
-        icon: groupIcon || (videoType === 'informational' ? '📚' : '⭐'),
+        icon: videoType === 'informational' ? '📚' : '🎬',
         description: groupDescription,
-        primaryConcern: selectedConcerns[0], // 🆕 First selected is primary
-        concerns: selectedConcerns, // 🆕 Uses enhanced keys (price_expensive, time_busy, etc.)
-        videoIds: [], // 🆕 Will hold video IDs added to this group
+        triggers: selectedTriggers, // ✅ Simple triggers array
+        videos: [], // ✅ Empty videos array
         createdAt: new Date().toISOString(),
-        viewCount: 0,
-        lastUpdated: new Date().toISOString() // 🆕 Track updates
+        viewCount: 0
     };
     
     console.log('📝 New group created:', newGroup);
     
-    // Ensure unified structure exists
+    // 5. SAVE TO DATA STRUCTURE
+    // ✅ CORRECTED: Ensure groups property exists
+    if (!window.testimonialData) {
+        window.testimonialData = { groups: {}, videos: {}, statistics: {} };
+    }
+    
     if (!window.testimonialData.groups) {
         window.testimonialData.groups = {};
-        
-        // 🆕 Migrate existing data if present
-        if (window.testimonialData.testimonialGroups || window.testimonialData.informationalGroups) {
-            console.log('🔄 Migrating to unified groups structure...');
-            
-            // Migrate testimonial groups
-            if (window.testimonialData.testimonialGroups) {
-                Object.entries(window.testimonialData.testimonialGroups).forEach(([id, group]) => {
-                    window.testimonialData.groups[id] = {
-                        ...group,
-                        type: group.type || 'testimonial',
-                        videoIds: group.videoIds || []
-                    };
-                });
-            }
-            
-            // Migrate informational groups  
-            if (window.testimonialData.informationalGroups) {
-                Object.entries(window.testimonialData.informationalGroups).forEach(([id, group]) => {
-                    window.testimonialData.groups[id] = {
-                        ...group,
-                        type: group.type || 'informational',
-                        videoIds: group.videoIds || []
-                    };
-                });
-            }
-        }
     }
     
     // Check if group already exists
-    if (window.testimonialData.groups[groupSlug]) {
-        showNotification('❌ Group with this ID already exists', 'error');
+    if (window.testimonialData.groups[groupId]) {
+        alert('❌ Group with this name already exists');
         return;
     }
     
-    // Save to unified groups
-    window.testimonialData.groups[groupSlug] = newGroup;
+    // Save the group
+    window.testimonialData.groups[groupId] = newGroup;
+    console.log('💾 Group saved to testimonialData.groups');
     
-    // 6. 🆕 ENHANCED: Update statistics for unified system
+    // 6. UPDATE STATISTICS
     if (!window.testimonialData.statistics) {
         window.testimonialData.statistics = {
             totalGroups: 0,
             totalTestimonialGroups: 0,
             totalInformationalGroups: 0,
-            totalVideos: 0,
-            totalTestimonials: 0,
-            totalInformationalVideos: 0,
-            totalViews: 0
+            totalVideos: 0
         };
     }
     
-    // Update counts
     window.testimonialData.statistics.totalGroups = Object.keys(window.testimonialData.groups).length;
     
     if (videoType === 'testimonial') {
@@ -3266,101 +3156,55 @@ function addNewTestimonialGroup() {
         window.testimonialData.statistics.totalInformationalGroups++;
     }
     
-    console.log(`📊 Statistics updated: ${window.testimonialData.statistics.totalGroups} total groups`);
+    console.log(`📊 Statistics: ${window.testimonialData.statistics.totalGroups} groups total`);
     
-    // 7. Save data (keep your existing logic)
-    if (window.saveTestimonialData) {
-        window.saveTestimonialData();
-        console.log('💾 Saved testimonial data');
-    } else if (window.saveAllData) {
-        window.saveAllData();
-        console.log('💾 Saved all data');
+    // 7. CLEAR FORM
+    const nameInput = document.getElementById('newGroupName');
+    const typeSelect = document.getElementById('newGroupType');
+    const iconInput = document.getElementById('newGroupIcon');
+    const descInput = document.getElementById('newGroupDescription');
+    
+    if (nameInput) nameInput.value = '';
+    if (typeSelect) typeSelect.value = 'testimonial';
+    if (iconInput) iconInput.value = '🎬';
+    if (descInput) descInput.value = '';
+    
+    // Clear triggers in our selector if it exists
+    if (window.triggerSelector) {
+        window.triggerSelector.selectedTriggers = [];
+        window.triggerSelector.updateSelectedTags();
     }
     
-    // 8. Clear form
-    document.getElementById('newGroupName').value = '';
-    document.getElementById('newGroupSlug').value = '';
-    document.getElementById('newGroupDescription').value = '';
-    
-    // 🆕 Clear concern checkboxes
-    document.querySelectorAll('.concern-checkbox:checked').forEach(cb => {
-        cb.checked = false;
-    });
-    
-    // 9. Update UI (keep your existing with enhancements)
-    console.log('🔄 Updating UI...');
-    
-    // Try your existing render functions in order
-    if (typeof renderGroups === 'function') {
-        renderGroups();
-        console.log('✅ Called renderGroups()');
-    } else if (typeof refreshGroupUI === 'function') {
-        refreshGroupUI();
-        console.log('✅ Called refreshGroupUI()');
-    } else if (typeof updateGroupRendering === 'function') {
-        updateGroupRendering();
-        console.log('✅ Called updateGroupRendering()');
-    } else {
-        console.log('⚠️ No standard render function found');
-        
-        // Manual UI update
-        setTimeout(() => {
-            if (window.addTypeBadgesToGroups) {
-                window.addTypeBadgesToGroups();
-            }
-            
-            if (window.updateGroupDropdown) {
-                window.updateGroupDropdown();
-            }
-            
-            // 🆕 Enhanced: Update group dropdown with new group
-            const groupSelect = document.getElementById('groupSelect');
-            if (groupSelect) {
-                // Add option if not exists
-                if (!Array.from(groupSelect.options).some(opt => opt.value === groupSlug)) {
-                    const option = document.createElement('option');
-                    option.value = groupSlug;
-                    option.textContent = `${groupIcon} ${groupName} (${videoType})`;
-                    groupSelect.appendChild(option);
-                }
-                
-                // Select the new group
-                groupSelect.value = groupSlug;
-            }
-            
-            console.log('✅ Manually updated UI');
-        }, 500);
+    // 8. CLOSE MODAL
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (modal) {
+        modal.style.display = 'none';
     }
     
-    // 10. Close modal and show success
-    hideAddTestimonialGroupModal();
-    showNotification(`✅ ${videoType === 'testimonial' ? 'Testimonial' : 'Informational'} group "${groupName}" created!`);
-    
-    // 11. 🆕 ENHANCED: Auto-select this group in video manager dropdown
+    // 9. UPDATE UI
     setTimeout(() => {
-        const groupSelect = document.getElementById('groupSelect');
-        if (groupSelect) {
-            groupSelect.value = groupSlug;
-            
-            // Update selected group info display
-            const selectedGroupInfo = document.getElementById('selectedGroupInfo');
-            if (selectedGroupInfo) {
-                selectedGroupInfo.innerHTML = `
-                    Adding to: <strong>${groupName}</strong> 
-                    <span class="video-type-indicator video-type-${videoType}">
-                        ${videoType === 'informational' ? '📚 Informational' : '🎬 Testimonial'}
-                    </span>
-                `;
-            }
-            
-            console.log(`✅ Auto-selected group: ${groupSlug}`);
+        // Update dropdown
+        if (typeof updateGroupDropdown === 'function') {
+            updateGroupDropdown();
         }
         
-        // 🆕 Trigger concern checkboxes update
-        if (window.updateConcernCheckboxesForGroupType) {
-            updateConcernCheckboxesForGroupType(videoType);
+        // Update sidebar
+        if (typeof addTypeBadgesToGroups === 'function') {
+            addTypeBadgesToGroups();
         }
-    }, 300);
+        
+        // Show in console for debugging
+        console.log('✅ Group created successfully!');
+        console.log('   Name:', groupName);
+        console.log('   Type:', videoType);
+        console.log('   Triggers:', selectedTriggers.length);
+        console.log('   All groups:', Object.keys(window.testimonialData.groups));
+    }, 100);
+    
+    // 10. SHOW SUCCESS
+    alert(`✅ ${videoType === 'informational' ? '📚 Informational' : '🎬 Testimonial'} group "${groupName}" created!`);
+    
+    return newGroup;
 }
 
 // ===================================================
@@ -3656,8 +3500,11 @@ function saveGroupChanges(groupId = null) {
         // ... other existing properties
     };
     
-    // Update data structure
-    window.testimonialData.testimonialGroups[groupId || newGroupId] = groupData;
+    // ✅ CORRECTED: Use groups, not testimonialGroups
+    if (!window.testimonialData.groups) {
+        window.testimonialData.groups = {};
+    }
+    window.testimonialData.groups[groupId || newGroupId] = groupData;
     
     // Update UI
     updateGroupDropdown();
@@ -3665,9 +3512,10 @@ function saveGroupChanges(groupId = null) {
     // Show appropriate message
     const typeText = videoType === 'informational' ? 'Informational video' : 'Testimonial';
     showNotification(`✅ ${typeText} group ${groupId ? 'updated' : 'created'} successfully`);
+    
+    return groupData;
 }
 
-// Function to add type badges to all groups in sidebar
 function addTypeBadgesToGroups() {
     const groupElements = document.querySelectorAll('.testimonial-group-btn, [id*="group-btn"]');
     
@@ -3677,9 +3525,10 @@ function addTypeBadgesToGroups() {
         const match = onclickAttr?.match(/selectGroup\('([^']+)'/);
         const groupId = match ? match[1] : null;
         
-        if (!groupId || !window.testimonialData?.testimonialGroups?.[groupId]) return;
+        // ✅ CORRECTED: Use groups, not testimonialGroups
+        if (!groupId || !window.testimonialData?.groups?.[groupId]) return;
         
-        const group = window.testimonialData.testimonialGroups[groupId];
+        const group = window.testimonialData.groups[groupId];
         const videoType = group.type || 'testimonial';
         
         // Check if badge already exists
@@ -3703,24 +3552,19 @@ function addTypeBadgesToGroups() {
     });
 }
 
-// Call this after any data changes
-function refreshGroupUI() {
-    updateGroupDropdown();
-    addTypeBadgesToGroups();
-}
-
 // Function to delete a group
 function deleteGroup(groupId) {
-    if (!groupId || !window.testimonialData?.testimonialGroups?.[groupId]) {
+    // ✅ CORRECTED: Use groups, not testimonialGroups
+    if (!groupId || !window.testimonialData?.groups?.[groupId]) {
         console.error('❌ Cannot delete: Group not found');
         return;
     }
     
-    const group = window.testimonialData.testimonialGroups[groupId];
+    const group = window.testimonialData.groups[groupId];
     const videoType = group.type || 'testimonial';
-    const videoCount = (videoType === 'informational' ? group.videos : group.testimonials)?.length || 0;
+    const videoCount = group.videos?.length || 0; // ✅ Simplified
     
-    const confirmation = confirm(`🗑️ DELETE "${group.title || groupId}" GROUP?\n\n` +
+    const confirmation = confirm(`🗑️ DELETE "${group.name || groupId}" GROUP?\n\n` + // ✅ Changed: group.title → group.name
                                `Type: ${videoType === 'informational' ? 'Informational Videos' : 'Testimonial Videos'}\n` +
                                `Videos: ${videoCount}\n\n` +
                                `This will permanently delete the group and all ${videoCount} videos inside it.\n` +
@@ -3730,8 +3574,8 @@ function deleteGroup(groupId) {
     
     console.log(`🗑️ Deleting ${videoType} group "${groupId}" with ${videoCount} videos`);
     
-    // Remove from data structure
-    delete window.testimonialData.testimonialGroups[groupId];
+    // ✅ CORRECTED: Remove from groups, not testimonialGroups
+    delete window.testimonialData.groups[groupId];
     
     // Clear selection if this was the selected group
     if (window.selectedGroupId === groupId) {
@@ -3739,8 +3583,13 @@ function deleteGroup(groupId) {
     }
     
     // Update UI
-    updateGroupDropdown();
-    selectGroup(null); // Clear the main content
+    if (typeof updateGroupDropdown === 'function') {
+        updateGroupDropdown();
+    }
+    
+    if (typeof selectGroup === 'function') {
+        selectGroup(null); // Clear the main content
+    }
     
     // If you have a sidebar render function, update it too
     if (typeof renderGroups === 'function') {
@@ -3748,10 +3597,14 @@ function deleteGroup(groupId) {
     }
     
     // Save changes
-    saveAllData();
+    if (typeof saveAllData === 'function') {
+        saveAllData();
+    }
     
     // Show notification
-    showNotification(`✅ ${videoType === 'informational' ? 'Informational' : 'Testimonial'} group deleted successfully`, 'success');
+    if (typeof showNotification === 'function') {
+        showNotification(`✅ ${videoType === 'informational' ? 'Informational' : 'Testimonial'} group deleted successfully`, 'success');
+    }
 }
 
 // 🔧 CORRECTED renderGroups() FUNCTION
@@ -3882,59 +3735,69 @@ function updateGroupDropdown() {
      // Add delete buttons
     setTimeout(addDeleteButtonsToGroups, 100);
 
-// Add this to your testimonial-manager.js
+// ===================================================
+// 🏷️ SIMPLE TYPE BADGES FUNCTION
+// ===================================================
+
 function addTypeBadgesToGroups() {
     console.log('🎯 Adding video type badges...');
     
-    // WAIT for data to be loaded
-    if (!window.testimonialManagerData && !window.testimonialData) {
-        console.log('⏳ Data not loaded yet, will retry...');
-        setTimeout(addTypeBadgesToGroups, 500); // Retry in 500ms
+    // Check if data is available
+    if (!window.testimonialData || !window.testimonialData.groups) {
+        console.log('⏳ Data not loaded yet');
         return;
     }
     
-    const groupButtons = document.querySelectorAll('.testimonial-group-btn');
+    const groupButtons = document.querySelectorAll('.testimonial-group-btn, .group-btn, [onclick*="selectGroup"]');
     
-    groupButtons.forEach(groupBtn => {
-        // Get group ID
-        const onclickAttr = groupBtn.getAttribute('onclick');
-        const groupIdMatch = onclickAttr?.match(/selectGroup\('([^']+)'/);
-        const groupId = groupIdMatch ? groupIdMatch[1] : null;
+    if (groupButtons.length === 0) {
+        console.log('ℹ️ No group buttons found');
+        return;
+    }
+    
+    groupButtons.forEach(button => {
+        // Get group ID from onclick attribute
+        const onclick = button.getAttribute('onclick') || '';
+        const match = onclick.match(/selectGroup\('([^']+)'/);
+        const groupId = match ? match[1] : null;
         
-        // Check BOTH data sources
         if (!groupId) return;
         
-        // Try testimonialManagerData first, then testimonialData
-        let group = null;
-        if (window.testimonialManagerData?.testimonialGroups?.[groupId]) {
-            group = window.testimonialManagerData.testimonialGroups[groupId];
-        } else if (window.testimonialData?.testimonialGroups?.[groupId]) {
-            group = window.testimonialData.testimonialGroups[groupId];
+        // Get group data
+        const group = window.testimonialData.groups[groupId];
+        if (!group) return;
+        
+        const videoType = group.type || 'testimonial';
+        
+        // Remove existing badge if any
+        const existingBadge = button.querySelector('.type-badge');
+        if (existingBadge) {
+            existingBadge.remove();
         }
         
-        if (!group) {
-            console.log(`⚠️ Group ${groupId} not found in any data source`);
-            return;
-        }
-        
-        const videoType = group.type || 'testimonial'; // Default to testimonial
-        
-        // Check if badge already exists
-        if (groupBtn.querySelector('.type-badge')) return;
-        
-        // Create badge element
-        const badge = document.createElement('div');
-        badge.className = `type-badge ${videoType}`;
-        badge.textContent = videoType === 'informational' ? '📚 Info' : '🎬 Testimonial';
+        // Create new badge
+        const badge = document.createElement('span');
+        badge.className = 'type-badge';
+        badge.innerHTML = videoType === 'informational' ? '📚' : '🎬';
+        badge.title = videoType === 'informational' ? 'Informational Videos' : 'Testimonial Videos';
+        badge.style.cssText = `
+            margin-left: 8px;
+            font-size: 12px;
+            opacity: 0.8;
+            vertical-align: middle;
+        `;
         
         // Add to button
-        groupBtn.appendChild(badge);
-        
-        console.log(`✅ Added ${videoType} badge to "${group.title || groupId}"`);
+        button.appendChild(badge);
     });
     
-    console.log(`✅ Processed ${groupButtons.length} group buttons`);
+    console.log(`✅ Added badges to ${groupButtons.length} group buttons`);
 }
+
+// Run when data changes or page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(addTypeBadgesToGroups, 1000);
+});
 
 // Update your existing group rendering to include type
 function updateGroupRendering() {
@@ -4021,15 +3884,18 @@ function updateCodeOutput() {
     
     const jsonString = JSON.stringify(formattedData, null, 2);
     
+    // ✅ CORRECTED: Use groups, not testimonialGroups
+    const totalGroups = Object.keys(formattedData.groups || {}).length;
+    
     codeOutput.textContent = `// ===================================================\n` +
                              `// 🎬 TESTIMONIALS DATA - GENERATED\n` +
                              `// Generated: ${new Date().toLocaleString()}\n` +
-                             `// Total Groups: ${formattedData.statistics?.totalGroups || 0}\n` +
+                             `// Total Groups: ${totalGroups}\n` + // ✅ Fixed
                              `// Total Videos: ${formattedData.statistics?.totalVideos || 0}\n` +
                              `// ===================================================\n\n` +
                              `window.testimonialData = ${jsonString};\n\n` +
                              `console.log('✅ Testimonials Data Loaded:', \n` +
-                             `  Object.keys(window.testimonialData.testimonialGroups).length, 'groups');\n` +
+                             `  ${totalGroups}, 'groups');\n` + // ✅ Fixed
                              `console.log('🎬 Videos:', window.testimonialData.statistics?.totalVideos || 0);`;
 }
 
@@ -4214,24 +4080,6 @@ function getSelectedConcernKeys() {
     return selected;
 }
 
-// NEW: Pre-select concerns when editing a group
-function preSelectConcernsForGroup(concernKeys) {
-    console.log('📝 Pre-selecting concerns:', concernKeys);
-    
-    // Uncheck all first
-    document.querySelectorAll('.concern-checkbox').forEach(cb => {
-        cb.checked = false;
-    });
-    
-    // Check the specified ones
-    concernKeys.forEach(key => {
-        const checkbox = document.getElementById(`concern_${key}`);
-        if (checkbox) {
-            checkbox.checked = true;
-        }
-    });
-}
-
 // ===================================================
 // UTILITY FUNCTIONS
 // ===================================================
@@ -4356,56 +4204,428 @@ setTimeout(() => {
 }, 1000);
 
 // ===================================================
-// 🩹 PERMANENT FIX FOR GROUP BUTTON DISPLAY
+// 🎯 SIMPLE GROUP CREATOR (ADD TO END OF FILE)
 // ===================================================
 
-// Fix button display whenever groups are updated
-function fixGroupButtonDisplays() {
-    console.log('🔧 Fixing group button displays...');
+console.log('🔧 Loading Simple Group Creator...');
+
+// 1. Show the modal (works with your existing HTML)
+function showSimpleGroupCreator() {
+    console.log('🎬 Opening group creator');
     
-    document.querySelectorAll('.testimonial-group-btn').forEach(btn => {
-        const onclick = btn.getAttribute('onclick') || '';
-        const match = onclick.match(/selectGroup\('([^']+)'\)/);
-        
-        if (match) {
-            const groupId = match[1];
-            const group = window.testimonialData?.groups?.[groupId];
-            
-            if (group && group.name) {
-                btn.textContent = `${group.type === 'informational' ? '📚' : '🎬'} ${group.name}`;
-            }
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (!modal) {
+        console.error('❌ Modal not found!');
+        alert('Group creator not available. Please refresh.');
+        return;
+    }
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Reset form to defaults
+    const nameInput = document.getElementById('newGroupName');
+    const slugInput = document.getElementById('newGroupSlug');
+    const typeSelect = document.getElementById('newGroupType');
+    const descInput = document.getElementById('newGroupDescription');
+    const iconInput = document.getElementById('newGroupIcon');
+    
+    if (nameInput) nameInput.value = '';
+    if (slugInput) slugInput.value = '';
+    if (typeSelect) typeSelect.value = 'testimonial';
+    if (descInput) descInput.value = '';
+    if (iconInput) iconInput.value = '🎬';
+    
+    // Update trigger sections based on type
+    if (typeSelect) {
+        updateTriggerSections(typeSelect.value);
+    }
+    
+    // Focus on name field
+    setTimeout(() => {
+        if (nameInput) nameInput.focus();
+    }, 100);
+    
+    console.log('✅ Modal shown');
+}
+
+// 2. Create group (simple version)
+function createSimpleGroup() {
+    console.log('🏗️ Creating group...');
+    
+    // Get values
+    const nameInput = document.getElementById('newGroupName');
+    const slugInput = document.getElementById('newGroupSlug');
+    const typeSelect = document.getElementById('newGroupType');
+    const descInput = document.getElementById('newGroupDescription');
+    const iconInput = document.getElementById('newGroupIcon');
+    
+    if (!nameInput || !typeSelect) {
+        alert('Form fields missing. Please refresh.');
+        return;
+    }
+    
+    const name = nameInput.value.trim();
+    const type = typeSelect.value; // "testimonial" or "informational"
+    
+    if (!name) {
+        alert('Please enter a group name');
+        nameInput.focus();
+        return;
+    }
+    
+    // Get selected triggers
+    const selectedTriggers = getSelectedTriggers();
+    if (selectedTriggers.length === 0) {
+        if (!confirm('No triggers selected. Create group anyway?')) {
+            return;
+        }
+    }
+    
+    // Create group ID
+    const slug = slugInput?.value.trim() || 
+                name.toLowerCase()
+                    .replace(/[^\w\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-');
+    
+    const groupId = 'group_' + slug.replace(/-/g, '_');
+    
+    // Create group object
+    const group = {
+        id: groupId,
+        name: name,
+        type: type,
+        slug: slug,
+        description: descInput?.value.trim() || '',
+        icon: iconInput?.value.trim() || (type === 'informational' ? '📚' : '🎬'),
+        triggers: selectedTriggers,
+        videos: [],
+        createdAt: new Date().toISOString(),
+        viewCount: 0
+    };
+    
+    console.log('📦 Group created:', group);
+    
+    // Add to data structure
+    if (!window.testimonialData) {
+        window.testimonialData = { groups: {}, videos: {}, statistics: {} };
+    }
+    
+    if (!window.testimonialData.groups) {
+        window.testimonialData.groups = {};
+    }
+    
+    window.testimonialData.groups[groupId] = group;
+    
+    // Update statistics
+    if (!window.testimonialData.statistics) {
+        window.testimonialData.statistics = {
+            totalGroups: 0,
+            totalTestimonialGroups: 0,
+            totalInformationalGroups: 0
+        };
+    }
+    
+    window.testimonialData.statistics.totalGroups = 
+        Object.keys(window.testimonialData.groups).length;
+    
+    window.testimonialData.statistics.totalTestimonialGroups = 
+        Object.values(window.testimonialData.groups).filter(g => g.type === 'testimonial').length;
+    
+    window.testimonialData.statistics.totalInformationalGroups = 
+        Object.values(window.testimonialData.groups).filter(g => g.type === 'informational').length;
+    
+    // Hide modal
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    // Update UI
+    updateGroupSidebar();
+    
+    // Show success
+    alert(`✅ Group "${name}" created!`);
+    console.log('✅ Group saved to testimonialData');
+    
+    return group;
+}
+
+// 3. Get selected triggers from checkboxes
+function getSelectedTriggers() {
+    const selected = [];
+    const checkboxes = document.querySelectorAll('.concern-checkbox:checked');
+    
+    checkboxes.forEach(cb => {
+        if (cb.value) {
+            selected.push(cb.value);
         }
     });
+    
+    console.log(`📋 Selected ${selected.length} triggers:`, selected);
+    return selected;
 }
 
-// Run on page load
+// 4. Update trigger sections when type changes
+function updateTriggerSections(type) {
+    console.log(`🔄 Updating triggers for type: ${type}`);
+    
+    // Show/hide trigger sections
+    const testimonialSection = document.getElementById('testimonialTriggersCheckboxes');
+    const infoSection = document.getElementById('informationalTriggersCheckboxes');
+    
+    if (testimonialSection) {
+        testimonialSection.style.display = type === 'testimonial' ? 'block' : 'none';
+    }
+    
+    if (infoSection) {
+        infoSection.style.display = type === 'informational' ? 'block' : 'none';
+    }
+    
+    // Also update icon
+    const iconInput = document.getElementById('newGroupIcon');
+    if (iconInput) {
+        iconInput.value = type === 'informational' ? '📚' : '🎬';
+    }
+}
+
+// 5. Update sidebar with groups
+function updateGroupSidebar() {
+    console.log('📋 Updating group sidebar...');
+    
+    // Find sidebar container
+    const sidebar = document.querySelector('.sidebar-groups, .groups-list, [data-groups-container]') ||
+                   document.getElementById('groupsContainer');
+    
+    if (!sidebar) {
+        console.log('ℹ️ No sidebar found for groups');
+        return;
+    }
+    
+    // Clear existing
+    sidebar.innerHTML = '';
+    
+    // Add groups
+    if (window.testimonialData && window.testimonialData.groups) {
+        const groups = Object.values(window.testimonialData.groups);
+        
+        if (groups.length === 0) {
+            sidebar.innerHTML = '<p class="empty">No groups yet</p>';
+            return;
+        }
+        
+        groups.forEach(group => {
+            const groupEl = document.createElement('div');
+            groupEl.className = 'group-item';
+            groupEl.innerHTML = `
+                <div class="group-icon">${group.icon || '📁'}</div>
+                <div class="group-info">
+                    <strong>${group.name}</strong>
+                    <small>${group.type === 'testimonial' ? '🎬 Testimonial' : '📚 Informational'}</small>
+                </div>
+                <div class="group-stats">
+                    <span>${group.videos?.length || 0} videos</span>
+                </div>
+            `;
+            
+            sidebar.appendChild(groupEl);
+        });
+        
+        console.log(`✅ Added ${groups.length} groups to sidebar`);
+    }
+}
+
+// 6. Fix all "Create Group" buttons
+function fixCreateGroupButtons() {
+    console.log('🔧 Fixing Create Group buttons...');
+    
+    // Method 1: Find by onclick attribute
+    const buttons = document.querySelectorAll('button, a, .btn');
+    
+    buttons.forEach(btn => {
+        const onclick = btn.getAttribute('onclick') || '';
+        const text = btn.textContent.trim();
+        
+        // Fix if it calls addNewTestimonialGroup() directly
+        if (onclick.includes('addNewTestimonialGroup()') || 
+            (text.includes('Create Group') && onclick === '')) {
+            
+            console.log('🔨 Fixing button:', text);
+            
+            // Replace with our simple function
+            btn.setAttribute('onclick', 'showSimpleGroupCreator()');
+            
+            // Also add event listener
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showSimpleGroupCreator();
+            }, true);
+        }
+    });
+    
+    // Method 2: Add a backup button if none exists
+    setTimeout(() => {
+        const hasCreateButton = Array.from(buttons).some(btn => 
+            btn.textContent.includes('Create Group')
+        );
+        
+        if (!hasCreateButton) {
+            console.log('➕ Adding backup Create Group button');
+            
+            const backupBtn = document.createElement('button');
+            backupBtn.id = 'backupCreateGroupBtn';
+            backupBtn.className = 'btn btn-primary';
+            backupBtn.innerHTML = '🎬 Create Video Group';
+            backupBtn.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 9999;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                border: none;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            `;
+            
+            backupBtn.addEventListener('click', showSimpleGroupCreator);
+            document.body.appendChild(backupBtn);
+        }
+    }, 2000);
+}
+
+// 7. Initialize everything when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(fixGroupButtonDisplays, 1000);
+    console.log('🚀 Simple Group Creator Initializing...');
+    
+    // Wait a bit for everything to load
+    setTimeout(() => {
+        // Fix buttons
+        fixCreateGroupButtons();
+        
+        // Set up modal event listeners
+        const modal = document.getElementById('addTestimonialGroupModal');
+        if (modal) {
+            // Close buttons
+            const closeBtns = modal.querySelectorAll('.modal-close, .modal-backdrop, .btn-secondary');
+            closeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    modal.style.display = 'none';
+                });
+            });
+            
+            // Type change listener
+            const typeSelect = modal.querySelector('#newGroupType');
+            if (typeSelect) {
+                typeSelect.addEventListener('change', function() {
+                    updateTriggerSections(this.value);
+                });
+            }
+            
+            // Create button in modal
+            const createBtn = modal.querySelector('.btn-primary');
+            if (createBtn && createBtn.textContent.includes('Create')) {
+                createBtn.setAttribute('onclick', 'createSimpleGroup()');
+                createBtn.addEventListener('click', createSimpleGroup);
+            }
+        }
+        
+        // Initialize sidebar
+        updateGroupSidebar();
+        
+        console.log('✅ Simple Group Creator Ready!');
+        console.log('💡 Click any "Create Group" button or use window.showSimpleGroupCreator()');
+    }, 1000);
 });
 
-// Hook into any group update functions
-const originalUpdateGroupsDisplay = window.updateGroupsDisplay;
-if (originalUpdateGroupsDisplay) {
-    window.updateGroupsDisplay = function() {
-        const result = originalUpdateGroupsDisplay.apply(this, arguments);
-        setTimeout(fixGroupButtonDisplays, 100);
-        return result;
-    };
+// ===================================================
+// 🔧 AUTOMATIC BUTTON FIXER
+// ===================================================
+
+function fixSidebarButton() {
+    console.log('🔧 Looking for sidebar button...');
+    
+    // Method 1: Find by ID (your button)
+    const sidebarBtn = document.getElementById('addTestimonialGroupBtn');
+    if (sidebarBtn) {
+        console.log('✅ Found sidebar button:', sidebarBtn.textContent);
+        
+        // Fix the onclick
+        sidebarBtn.setAttribute('onclick', 'showSimpleGroupCreator()');
+        
+        // Also add event listener
+        sidebarBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🖱️ Sidebar Add Video Group clicked');
+            showSimpleGroupCreator();
+        });
+        
+        // Make it look nice
+        sidebarBtn.innerHTML = `
+            <span class="btn-icon">🎬</span>
+            <span class="btn-text">Add Video Group</span>
+        `;
+        
+        sidebarBtn.style.cssText = `
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        `;
+        
+        // Hover effect
+        sidebarBtn.onmouseover = () => {
+            sidebarBtn.style.transform = 'translateY(-2px)';
+            sidebarBtn.style.boxShadow = '0 6px 12px rgba(0,0,0,0.15)';
+        };
+        sidebarBtn.onmouseout = () => {
+            sidebarBtn.style.transform = 'translateY(0)';
+            sidebarBtn.style.boxShadow = 'none';
+        };
+        
+        console.log('✅ Sidebar button fixed');
+    } else {
+        console.log('❌ Sidebar button not found by ID');
+        
+        // Method 2: Search for button with "Add Video Group" text
+        const allButtons = document.querySelectorAll('button');
+        allButtons.forEach(btn => {
+            if (btn.textContent.includes('Add Video Group')) {
+                console.log('🔍 Found button by text:', btn);
+                btn.setAttribute('onclick', 'showSimpleGroupCreator()');
+                btn.addEventListener('click', showSimpleGroupCreator);
+            }
+        });
+    }
 }
 
-const originalCreateTestimonialGroup = window.createTestimonialGroup;
-if (originalCreateTestimonialGroup) {
-    window.createTestimonialGroup = function() {
-        const result = originalCreateTestimonialGroup.apply(this, arguments);
-        setTimeout(fixGroupButtonDisplays, 100);
-        return result;
-    };
-}
+// Run when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(fixSidebarButton, 500);
+});
 
-console.log('✅ Permanent button display fix loaded');
+// 8. Make functions globally available
+window.showSimpleGroupCreator = showSimpleGroupCreator;
+window.createSimpleGroup = createSimpleGroup;
+window.updateGroupSidebar = updateGroupSidebar;
 
-// Export to window
-window.hideAllTestimonialsModal = hideAllTestimonialsModal;
+console.log('✅ Simple Group Creator functions loaded');
 
 // ===================================================
 // EXPORT FUNCTIONS TO WINDOW OBJECT
@@ -4416,7 +4636,6 @@ window.updateGroupDropdown = updateGroupDropdown; // ADD THIS LINE
 window.selectGroup = selectGroup;
 window.showAddTestimonialGroupModal = showAddTestimonialGroupModal;
 window.hideAddTestimonialGroupModal = hideAddTestimonialGroupModal;
-window.createTestimonialGroup = createTestimonialGroup;
 window.addVideoTestimonial = addVideoTestimonial;
 window.addTextTestimonial = addTextTestimonial;
 window.playTestimonialVideo = playTestimonialVideo;

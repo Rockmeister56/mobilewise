@@ -2651,353 +2651,243 @@ select option[data-type="testimonial"] {
     }
 
     /* ============================================
-   🎯 ENHANCED TRIGGER SELECTION SYSTEM
+   🎯 GROUP CREATOR - TRIGGER SELECTION SYSTEM
    ============================================ */
 
-/* Overlay Structure */
-.group-creator-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    padding: 20px;
+/* Modal Background */
+#addTestimonialGroupModal .modal-backdrop {
+    background: rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(5px) !important;
 }
 
-.group-creator-overlay .overlay-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: -1;
-}
-
-.group-creator-overlay .overlay-content {
-    background: #1a1a2e;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
-    overflow-y: auto;
-    border: 2px solid #2196F3;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    animation: modalSlideIn 0.3s ease;
-}
-
-@keyframes modalSlideIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+/* Modal Content */
+#addTestimonialGroupModal .modal-dialog {
+    background: #1a1a2e !important;
+    border: 2px solid #2196F3 !important;
+    border-radius: 12px !important;
+    color: white !important;
+    max-width: 800px !important;
+    width: 90% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
 }
 
 /* Header */
-.overlay-header {
-    padding: 20px 25px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+#addTestimonialGroupModal .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 20px 25px !important;
 }
 
-.overlay-header h2 {
-    margin: 0;
-    color: white;
-    font-size: 22px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+#addTestimonialGroupModal .modal-title {
+    color: white !important;
+    font-size: 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
 }
 
-.header-emoji {
-    font-size: 24px;
+/* Form Groups */
+#addTestimonialGroupModal .form-group {
+    margin-bottom: 25px !important;
 }
 
-.close-btn {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 28px;
-    cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
+#addTestimonialGroupModal .form-label {
+    color: #8ab4f8 !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+    font-size: 16px !important;
 }
 
-.close-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+#addTestimonialGroupModal .form-control,
+#addTestimonialGroupModal .form-select,
+#addTestimonialGroupModal .form-input {
+    width: 100% !important;
+    padding: 12px 15px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px !important;
+    color: white !important;
+    font-size: 15px !important;
 }
 
-/* Form Sections */
-.form-sections {
-    padding: 25px;
-}
-
-.form-section {
-    margin-bottom: 30px;
-}
-
-.form-label {
-    display: block;
-    color: #8ab4f8;
-    font-weight: 600;
-    margin-bottom: 10px;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.label-emoji {
-    font-size: 18px;
-}
-
-.form-input {
-    width: 100%;
-    padding: 12px 15px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: white;
-    font-size: 15px;
-    transition: all 0.2s;
-}
-
-.form-input:focus {
-    outline: none;
-    border-color: #2196F3;
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
-}
-
-.helper-text {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 13px;
-    margin-top: 5px;
-    margin-bottom: 0;
-}
-
-/* Type Selector */
-.type-selector {
-    display: flex;
-    gap: 15px;
-    margin-top: 10px;
-}
-
-.type-btn {
-    flex: 1;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    text-align: left;
-}
-
-.type-btn:hover {
-    border-color: rgba(33, 150, 243, 0.3);
-    background: rgba(33, 150, 243, 0.1);
-}
-
-.type-btn.active {
-    border-color: #2196F3;
-    background: rgba(33, 150, 243, 0.2);
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
-}
-
-.btn-emoji {
-    font-size: 24px;
-}
-
-.btn-content strong {
-    display: block;
-    font-size: 16px;
-    margin-bottom: 4px;
-}
-
-.btn-content small {
-    display: block;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 13px;
-    line-height: 1.4;
+#addTestimonialGroupModal .form-control:focus,
+#addTestimonialGroupModal .form-select:focus {
+    outline: none !important;
+    border-color: #2196F3 !important;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2) !important;
 }
 
 /* ============================================
-   🎯 ENHANCED TRIGGER BUTTONS SYSTEM
+   🎯 TRIGGER SELECTION CONTAINER
    ============================================ */
 
-.enhanced-triggers-container {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 15px;
-    max-height: 350px;
-    overflow-y: auto;
+.enhanced-triggers-section {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    padding: 20px !important;
+    margin-top: 15px !important;
+    max-height: 350px !important;
+    overflow-y: auto !important;
 }
 
-.concern-subgroup {
-    margin-bottom: 25px;
+.trigger-category {
+    margin-bottom: 25px !important;
 }
 
-.concern-subgroup:last-child {
-    margin-bottom: 0;
+.trigger-category:last-child {
+    margin-bottom: 0 !important;
 }
 
-.concern-subgroup-title {
-    color: #8ab4f8;
-    font-weight: 600;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    font-size: 15px;
+.trigger-category-title {
+    color: #8ab4f8 !important;
+    font-weight: 600 !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    font-size: 15px !important;
 }
 
-.concern-checkbox-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 12px;
+/* ============================================
+   🎯 TRIGGER BUTTONS (CHECKBOX STYLE)
+   ============================================ */
+
+.trigger-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+    gap: 12px !important;
 }
 
-.concern-checkbox-item {
-    position: relative;
+.trigger-item {
+    position: relative !important;
 }
 
-.concern-checkbox {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.concern-checkbox-label {
-    display: flex;
-    align-items: center;
-    padding: 14px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s;
-    gap: 12px;
-    font-size: 14px;
-    user-select: none;
-}
-
-.concern-checkbox-label:hover {
-    border-color: rgba(33, 150, 243, 0.3);
-    background: rgba(33, 150, 243, 0.1);
-    transform: translateY(-2px);
-}
-
-.concern-checkbox:checked + .concern-checkbox-label {
-    border-color: #2196F3;
-    background: rgba(33, 150, 243, 0.2);
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
-    padding-right: 40px;
-}
-
-.concern-checkbox:checked + .concern-checkbox-label::after {
-    content: "✓";
-    position: absolute;
-    right: 16px;
-    color: #2196F3;
-    font-weight: bold;
-    font-size: 16px;
-}
-
-.trigger-emoji {
-    font-size: 18px;
+.trigger-checkbox {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .trigger-label {
-    font-weight: 500;
-    flex: 1;
+    display: flex !important;
+    align-items: center !important;
+    padding: 14px 16px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    color: white !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    gap: 12px !important;
+    font-size: 14px !important;
+    user-select: none !important;
 }
 
-.concern-keywords {
-    position: absolute;
-    bottom: -18px;
-    left: 0;
-    right: 0;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 11px;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.trigger-label:hover {
+    border-color: rgba(33, 150, 243, 0.3) !important;
+    background: rgba(33, 150, 243, 0.1) !important;
+    transform: translateY(-2px) !important;
+}
+
+.trigger-checkbox:checked + .trigger-label {
+    border-color: #2196F3 !important;
+    background: rgba(33, 150, 243, 0.2) !important;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15) !important;
+    padding-right: 40px !important;
+}
+
+.trigger-checkbox:checked + .trigger-label::after {
+    content: "✓" !important;
+    position: absolute !important;
+    right: 16px !important;
+    color: #2196F3 !important;
+    font-weight: bold !important;
+    font-size: 16px !important;
+}
+
+.trigger-emoji {
+    font-size: 18px !important;
+}
+
+.trigger-text {
+    font-weight: 500 !important;
+    flex: 1 !important;
+}
+
+.trigger-keywords {
+    position: absolute !important;
+    bottom: -18px !important;
+    left: 0 !important;
+    right: 0 !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+    font-size: 11px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
 /* ============================================
-   ✅ SELECTED TAGS SECTION
+   ✅ SELECTED TRIGGERS DISPLAY (TAGS)
    ============================================ */
 
-.selected-triggers-section {
-    margin-top: 25px;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s;
+.selected-triggers-container {
+    margin-top: 25px !important;
+    padding: 20px !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    transition: all 0.3s ease !important;
 }
 
-.selected-triggers-section.has-selection {
-    border-color: #4CAF50;
-    background: rgba(76, 175, 80, 0.05);
+.selected-triggers-container.has-triggers {
+    border-color: #4CAF50 !important;
+    background: rgba(76, 175, 80, 0.05) !important;
 }
 
-.selected-triggers-section h4 {
-    color: #8ab4f8;
-    margin-top: 0;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
+.selected-triggers-title {
+    color: #8ab4f8 !important;
+    margin-top: 0 !important;
+    margin-bottom: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-size: 16px !important;
 }
 
-.selected-tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    min-height: 50px;
-    align-items: center;
+.selected-triggers-list {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    min-height: 50px !important;
+    align-items: center !important;
 }
 
-.empty-message {
-    color: rgba(255, 255, 255, 0.4);
-    font-style: italic;
-    margin: 0;
-    font-size: 14px;
+.no-triggers-message {
+    color: rgba(255, 255, 255, 0.4) !important;
+    font-style: italic !important;
+    margin: 0 !important;
+    font-size: 14px !important;
 }
 
-/* Tag Styles */
-.tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, rgba(33, 150, 243, 0.2), rgba(33, 150, 243, 0.1));
-    color: white;
-    padding: 10px 16px;
-    border-radius: 25px;
-    font-size: 14px;
-    border: 1px solid rgba(33, 150, 243, 0.3);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-    animation: tagPopIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+/* ============================================
+   🏷️ TRIGGER TAGS (THE BEAUTIFUL TAGS!)
+   ============================================ */
+
+.trigger-tag {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.2), rgba(33, 150, 243, 0.1)) !important;
+    color: white !important;
+    padding: 10px 16px !important;
+    border-radius: 25px !important;
+    font-size: 14px !important;
+    border: 1px solid rgba(33, 150, 243, 0.3) !important;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
+    animation: tagPopIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
 }
 
 @keyframes tagPopIn {
@@ -3006,116 +2896,89 @@ select option[data-type="testimonial"] {
 }
 
 .tag-emoji {
-    font-size: 16px;
+    font-size: 16px !important;
 }
 
 .tag-text {
-    font-weight: 500;
+    font-weight: 500 !important;
 }
 
-.remove-tag {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: rgba(255, 255, 255, 0.7);
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 0;
-    margin-left: 2px;
-    transition: all 0.2s;
+.remove-tag-btn {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: none !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    font-size: 16px !important;
+    padding: 0 !important;
+    margin-left: 2px !important;
+    transition: all 0.2s !important;
 }
 
-.remove-tag:hover {
-    background: rgba(244, 67, 54, 0.3);
-    color: white;
-    transform: scale(1.1);
+.remove-tag-btn:hover {
+    background: rgba(244, 67, 54, 0.3) !important;
+    color: white !important;
+    transform: scale(1.1) !important;
 }
 
 /* ============================================
    🎯 ACTION BUTTONS
    ============================================ */
 
-.form-buttons {
-    padding: 20px 25px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
+#addTestimonialGroupModal .modal-actions {
+    padding: 20px 25px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 15px !important;
 }
 
-.btn {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.2s;
-    min-width: 120px;
+#addTestimonialGroupModal .btn {
+    padding: 12px 25px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    min-width: 120px !important;
+    transition: all 0.2s !important;
 }
 
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+#addTestimonialGroupModal .btn-secondary {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
 }
 
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
+#addTestimonialGroupModal .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: translateY(-2px) !important;
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, #2196F3, #1976D2);
-    color: white;
-    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+#addTestimonialGroupModal .btn-primary {
+    background: linear-gradient(135deg, #2196F3, #1976D2) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3) !important;
 }
 
-.btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #1976D2, #0D47A1);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+#addTestimonialGroupModal .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1976D2, #0D47A1) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4) !important;
 }
 
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+#addTestimonialGroupModal .btn-primary:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
     transform: none !important;
-}
-
-/* ============================================
-   📱 RESPONSIVE
-   ============================================ */
-
-@media (max-width: 768px) {
-    .group-creator-overlay .overlay-content {
-        width: 95%;
-        margin: 10px;
-    }
-    
-    .type-selector {
-        flex-direction: column;
-    }
-    
-    .concern-checkbox-group {
-        grid-template-columns: 1fr;
-    }
-    
-    .form-buttons {
-        flex-direction: column;
-    }
-    
-    .btn {
-        width: 100%;
-    }
 }
     
 }
