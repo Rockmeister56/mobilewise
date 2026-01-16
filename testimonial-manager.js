@@ -550,9 +550,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===================================================
-// 🎯 MINIMAL GROUP CREATOR (Fixes line 1115 error)
+// 🎯 MINIMAL GROUP CREATOR (Fixes line 1115 error) - REMOVED (duplicate)
 // ===================================================
-
+/*
 if (typeof GroupCreator === 'undefined') {
     class GroupCreator {
         constructor() {
@@ -575,6 +575,7 @@ if (typeof GroupCreator === 'undefined') {
     window.GroupCreator = GroupCreator;
     console.log('✅ GroupCreator now defined');
 }
+*/
 
 // ===================================================
 // 🎯 DATA INTEGRITY CHECK (Run on load)
