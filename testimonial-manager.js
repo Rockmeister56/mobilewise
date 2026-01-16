@@ -693,6 +693,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // 🎨 GROUP CREATOR CLASS (ADD THIS AFTER TRIGGER SYSTEM)
 // ===================================================
 
+// ===================================================
+// 🎨 GROUP CREATOR CLASS (FIXED & COMPLETE VERSION)
+// ===================================================
+
 class GroupCreator {
     constructor() {
         this.selectedTriggers = [];
@@ -717,14 +721,19 @@ class GroupCreator {
         }, 100);
     }
     
+    hide() {
+        const overlay = document.getElementById('group-creator-overlay');
+        if (overlay) overlay.remove();
+    }
+    
     generateHTML() {
-        const triggers = window.triggerSystem.getAllTriggersForDisplay();
-        const currentTriggers = triggers[this.currentType];
+        const triggers = window.triggerSystem?.getAllTriggersForDisplay?.() || {};
+        const currentTriggers = triggers[this.currentType] || {};
         
         return `
         <div class="group-creator-overlay" id="group-creator-overlay">
             <div class="overlay-backdrop"></div>
-            <div class="overlay-content">
+            <div class="overlay-content" style="max-width: 800px;">
                 <div class="overlay-header">
                     <h2><span class="header-emoji">🎬</span> Create Video Group</h2>
                     <button class="close-btn" aria-label="Close">&times;</button>
@@ -769,21 +778,21 @@ class GroupCreator {
                         </div>
                     </div>
 
-                    <!-- TRIGGER SELECTION -->
+                    <!-- TRIGGER SELECTION - FIXED LAYOUT -->
                     <div class="form-section">
                         <label class="form-label">
                             <span class="label-emoji">🔔</span> When to Show These Videos
                         </label>
                         <p class="helper-text">Click triggers to select (choose multiple)</p>
                         
-                        <div class="triggers-container" id="triggers-container">
-                            ${this.generateTriggerButtons(currentTriggers)}
+                        <div class="triggers-grid" id="triggers-container">
+                            ${this.generateTriggerCheckboxes(currentTriggers)}
                         </div>
 
                         <!-- SELECTED TRIGGERS PREVIEW -->
                         <div class="selected-triggers ${this.selectedTriggers.length > 0 ? 'has-selection' : ''}" 
                              id="selected-triggers">
-                            <h4>Selected Triggers:</h4>
+                            <h4><span class="label-emoji">✅</span> Selected Triggers:</h4>
                             <div class="selected-tags" id="selected-tags">
                                 ${this.generateSelectedTags(currentTriggers)}
                             </div>
@@ -798,7 +807,7 @@ class GroupCreator {
                     <button class="btn btn-secondary cancel-btn">
                         <span class="btn-emoji">❌</span> Cancel
                     </button>
-                    <button class="btn btn-primary create-btn">
+                    <button class="btn btn-primary create-btn" ${this.selectedTriggers.length === 0 ? 'disabled' : ''}>
                         <span class="btn-emoji">✅</span> Create Group
                     </button>
                 </div>
@@ -806,23 +815,65 @@ class GroupCreator {
         </div>`;
     }
     
-    generateTriggerButtons(triggers) {
+    generateTriggerCheckboxes(triggers) {
         if (!triggers || Object.keys(triggers).length === 0) {
             return '<div class="no-triggers">No triggers available for this type</div>';
         }
         
-        let html = '';
-        for (const [key, trigger] of Object.entries(triggers)) {
-            const isSelected = this.selectedTriggers.includes(key);
-            html += `
-                <button class="trigger-btn ${isSelected ? 'selected' : ''}" 
-                        data-trigger="${key}" 
-                        data-type="${trigger.type}"
-                        title="${trigger.description || trigger.label}">
-                    <span class="trigger-emoji">${trigger.emoji}</span>
-                    <span class="trigger-label">${trigger.label.replace(trigger.emoji, '').trim()}</span>
-                </button>`;
+        // Group triggers by category (similar to HTML version)
+        const categories = {
+            '💰 Price Concerns': ['expensive', 'cost', 'affordability'],
+            '⏰ Time Concerns': ['busy', 'speed'],
+            '🤝 Trust Concerns': ['skepticism', 'legitimacy'],
+            '📈 Results Concerns': ['effectiveness', 'worry'],
+            '⭐ General Feedback': ['info', 'demo']
+        };
+        
+        if (this.currentType === 'informational') {
+            // Different categories for informational videos
+            Object.keys(categories).forEach(key => delete categories[key]);
+            
+            categories['📊 Conversion & Results'] = ['conversions_boost', 'roi_improvement'];
+            categories['🔥 Leads & Quality'] = ['pre_qualified', 'lead_quality'];
+            categories['⚡ Implementation & Setup'] = ['easy_setup', 'integration'];
+            categories['🎙️ Podcast & Content'] = ['podcast_leads', 'content_monetization'];
+            categories['❓ How It Works'] = ['process_explanation', 'testimonial_leverage'];
         }
+        
+        let html = '';
+        
+        for (const [categoryName, triggerKeys] of Object.entries(categories)) {
+            const categoryTriggers = triggerKeys
+                .map(key => ({ key, trigger: triggers[key] }))
+                .filter(item => item.trigger);
+            
+            if (categoryTriggers.length === 0) continue;
+            
+            html += `
+                <div class="concern-category">
+                    <div class="category-title">${categoryName}</div>
+                    <div class="category-items">`;
+            
+            categoryTriggers.forEach(({ key, trigger }) => {
+                const isSelected = this.selectedTriggers.includes(key);
+                html += `
+                    <div class="trigger-checkbox-item">
+                        <input type="checkbox" 
+                               id="trigger_${key}" 
+                               class="trigger-checkbox" 
+                               value="${key}"
+                               ${isSelected ? 'checked' : ''}>
+                        <label for="trigger_${key}" class="trigger-checkbox-label">
+                            <span class="trigger-emoji">${trigger.emoji}</span>
+                            <span class="trigger-text">${trigger.label.replace(trigger.emoji, '').trim()}</span>
+                        </label>
+                        <div class="trigger-keywords">Triggers: ${trigger.triggers?.join(', ') || trigger.description || 'Various keywords'}</div>
+                    </div>`;
+            });
+            
+            html += `</div></div>`;
+        }
+        
         return html;
     }
     
@@ -846,12 +897,506 @@ class GroupCreator {
         return html;
     }
     
-    // [Rest of the methods: bindEvents(), toggleTrigger(), etc.]
-    // Add all the methods from the previous Group Creator class
+    bindEvents() {
+        const overlay = document.getElementById('group-creator-overlay');
+        if (!overlay) return;
+        
+        // Close buttons
+        overlay.querySelector('.close-btn').addEventListener('click', () => this.hide());
+        overlay.querySelector('.overlay-backdrop').addEventListener('click', () => this.hide());
+        overlay.querySelector('.cancel-btn').addEventListener('click', () => this.hide());
+        
+        // Video type selector
+        overlay.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const type = e.currentTarget.dataset.type;
+                this.currentType = type;
+                this.selectedTriggers = []; // Reset selection when type changes
+                this.hide();
+                setTimeout(() => this.show(), 10); // Re-render
+            });
+        });
+        
+        // Checkbox changes
+        overlay.addEventListener('change', (e) => {
+            if (e.target.classList.contains('trigger-checkbox')) {
+                this.toggleTrigger(e.target.value, e.target.checked);
+            }
+        });
+        
+        // Remove tag buttons
+        overlay.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-tag')) {
+                const triggerKey = e.target.dataset.trigger;
+                this.toggleTrigger(triggerKey, false);
+                e.preventDefault();
+            }
+        });
+        
+        // Create button
+        overlay.querySelector('.create-btn').addEventListener('click', () => {
+            this.createGroup();
+        });
+        
+        // Name input
+        const nameInput = overlay.querySelector('#group-name-input');
+        if (nameInput) {
+            nameInput.addEventListener('input', (e) => {
+                this.groupName = e.target.value;
+                this.updateCreateButton();
+            });
+        }
+    }
+    
+    toggleTrigger(triggerKey, isSelected) {
+        if (isSelected) {
+            if (!this.selectedTriggers.includes(triggerKey)) {
+                this.selectedTriggers.push(triggerKey);
+            }
+        } else {
+            this.selectedTriggers = this.selectedTriggers.filter(t => t !== triggerKey);
+        }
+        this.updateSelectedTags();
+        this.updateCreateButton();
+    }
+    
+    updateSelectedTags() {
+        const overlay = document.getElementById('group-creator-overlay');
+        if (!overlay) return;
+        
+        const triggers = window.triggerSystem?.getAllTriggersForDisplay?.() || {};
+        const currentTriggers = triggers[this.currentType] || {};
+        const tagsContainer = overlay.querySelector('#selected-tags');
+        const selectedSection = overlay.querySelector('#selected-triggers');
+        
+        if (tagsContainer) {
+            tagsContainer.innerHTML = this.generateSelectedTags(currentTriggers);
+        }
+        
+        if (selectedSection) {
+            if (this.selectedTriggers.length > 0) {
+                selectedSection.classList.add('has-selection');
+                const emptyMsg = selectedSection.querySelector('.empty-message');
+                if (emptyMsg) emptyMsg.remove();
+            } else {
+                selectedSection.classList.remove('has-selection');
+                if (!selectedSection.querySelector('.empty-message')) {
+                    selectedSection.querySelector('.selected-tags').insertAdjacentHTML('afterend', 
+                        '<p class="empty-message">No triggers selected yet</p>');
+                }
+            }
+        }
+        
+        // Also update checkboxes
+        overlay.querySelectorAll('.trigger-checkbox').forEach(checkbox => {
+            const isSelected = this.selectedTriggers.includes(checkbox.value);
+            checkbox.checked = isSelected;
+        });
+    }
+    
+    updateCreateButton() {
+        const overlay = document.getElementById('group-creator-overlay');
+        if (!overlay) return;
+        
+        const createBtn = overlay.querySelector('.create-btn');
+        const isValid = this.groupName.trim() && this.selectedTriggers.length > 0;
+        
+        createBtn.disabled = !isValid;
+        createBtn.style.opacity = isValid ? '1' : '0.6';
+        createBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
+    }
+    
+    createGroup() {
+        if (!this.groupName.trim() || this.selectedTriggers.length === 0) {
+            alert('Please enter a group name and select at least one trigger.');
+            return;
+        }
+        
+        const groupData = {
+            name: this.groupName.trim(),
+            type: this.currentType,
+            triggers: [...this.selectedTriggers],
+            slug: this.groupName.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+            icon: this.currentType === 'testimonial' ? '🎬' : '📚',
+            description: '',
+            createdAt: new Date().toISOString()
+        };
+        
+        console.log('Creating group:', groupData);
+        
+        // Integrate with your actual group creation logic here
+        // Example: window.testimonialManager?.createGroup?.(groupData);
+        // Or: window.saveGroupToDatabase?.(groupData);
+        
+        this.hide();
+        alert(`Group "${groupData.name}" created successfully with ${groupData.triggers.length} triggers!`);
+        
+        // Clear for next use
+        this.groupName = '';
+        this.selectedTriggers = [];
+    }
 }
 
 // Make it globally available
 window.GroupCreator = GroupCreator;
+
+// Inject the CSS for the fixed layout
+const groupCreatorCSS = `
+.group-creator-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.group-creator-overlay .overlay-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.group-creator-overlay .overlay-content {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.overlay-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.overlay-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 4px 12px;
+    border-radius: 4px;
+}
+
+.close-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.form-sections {
+    padding: 24px;
+}
+
+.form-section {
+    margin-bottom: 28px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.helper-text {
+    margin-top: 6px;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.type-selector {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.type-btn {
+    flex: 1;
+    padding: 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.type-btn:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+}
+
+.type-btn.active {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.btn-emoji {
+    font-size: 24px;
+}
+
+.btn-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.btn-content strong {
+    font-size: 0.95rem;
+    color: #1f2937;
+}
+
+.btn-content small {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* FIXED TRIGGERS LAYOUT */
+.triggers-grid {
+    margin-top: 16px;
+}
+
+.concern-category {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.category-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: #374151;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.category-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+}
+
+.trigger-checkbox-item {
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+.trigger-checkbox-item:hover {
+    border-color: #3b82f6;
+}
+
+.trigger-checkbox-item:has(input:checked) {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.trigger-checkbox {
+    margin-bottom: 8px;
+}
+
+.trigger-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1f2937;
+    cursor: pointer;
+}
+
+.trigger-emoji {
+    font-size: 18px;
+}
+
+.trigger-keywords {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* SELECTED TRIGGERS */
+.selected-triggers {
+    margin-top: 24px;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.selected-triggers h4 {
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 40px;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 20px;
+    font-size: 0.875rem;
+}
+
+.tag-emoji {
+    font-size: 16px;
+}
+
+.tag-text {
+    color: #374151;
+}
+
+.remove-tag {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 0 4px;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.remove-tag:hover {
+    color: #ef4444;
+}
+
+.empty-message {
+    margin: 12px 0 0 0;
+    color: #9ca3af;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* BUTTONS */
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #f3f4f6;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #2563eb;
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+`;
+
+// Inject the CSS
+document.addEventListener('DOMContentLoaded', () => {
+    // Remove old CSS if exists
+    const oldStyle = document.getElementById('group-creator-css');
+    if (oldStyle) oldStyle.remove();
+    
+    // Add new CSS
+    const style = document.createElement('style');
+    style.id = 'group-creator-css';
+    style.textContent = groupCreatorCSS;
+    document.head.appendChild(style);
+    
+    // Clean up old HTML modal
+    const oldModal = document.getElementById('addTestimonialGroupModal');
+    if (oldModal) {
+        console.log('🧹 Removing legacy HTML group creator modal');
+        oldModal.remove();
+    }
+});
 
 // At the top of testimonial-manager.js, after ENHANCED_CONCERNS is defined:
 function ensureCleanConcerns() {
@@ -874,229 +1419,7 @@ function ensureCleanConcerns() {
 // Call it when DOM loads
 document.addEventListener('DOMContentLoaded', ensureCleanConcerns);
 
-// ===================================================
-// 🚨 CRITICAL FIX: ADD MISSING bindEvents METHOD
-// ===================================================
 
-console.log('🔧 Adding missing bindEvents method to GroupCreator...');
-
-// Check if GroupCreator exists and is missing bindEvents
-if (window.GroupCreator && !window.GroupCreator.prototype.bindEvents) {
-    
-    // Add the missing bindEvents method
-    window.GroupCreator.prototype.bindEvents = function() {
-        console.log('🔗 bindEvents called - setting up event handlers');
-        const overlay = document.getElementById('group-creator-overlay');
-        if (!overlay) {
-            console.error('❌ No overlay found for bindEvents');
-            return;
-        }
-        
-        console.log('✅ Overlay found, binding events...');
-        
-        // 1. Type selection buttons
-        const typeButtons = overlay.querySelectorAll('.type-btn');
-        typeButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                console.log('🎯 Type button clicked:', e.target.dataset.type);
-                
-                // Update active state
-                typeButtons.forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-                
-                // Update current type
-                this.currentType = e.currentTarget.dataset.type;
-                this.selectedTriggers = []; // Clear selection
-                
-                // Refresh display
-                this.refreshTriggerDisplay();
-            });
-        });
-        
-        // 2. Trigger buttons
-        overlay.addEventListener('click', (e) => {
-            const triggerBtn = e.target.closest('.trigger-btn');
-            if (triggerBtn) {
-                const triggerKey = triggerBtn.dataset.trigger;
-                console.log('🔔 Trigger clicked:', triggerKey);
-                
-                // Toggle selection
-                this.toggleTrigger(triggerKey);
-            }
-            
-            // Remove tag buttons
-            const removeBtn = e.target.closest('.remove-tag');
-            if (removeBtn) {
-                const triggerKey = removeBtn.dataset.trigger;
-                console.log('🗑️ Removing tag:', triggerKey);
-                this.removeTrigger(triggerKey);
-            }
-        });
-        
-        // 3. Close buttons
-        const closeBtn = overlay.querySelector('.close-btn');
-        const cancelBtn = overlay.querySelector('.cancel-btn');
-        const backdrop = overlay.querySelector('.overlay-backdrop');
-        
-        if (closeBtn) closeBtn.addEventListener('click', () => this.close());
-        if (cancelBtn) cancelBtn.addEventListener('click', () => this.close());
-        if (backdrop) backdrop.addEventListener('click', () => this.close());
-        
-        // 4. Create button
-        const createBtn = overlay.querySelector('.create-btn');
-        if (createBtn) {
-            createBtn.addEventListener('click', () => {
-                console.log('🏗️ Create button clicked');
-                this.createGroup();
-            });
-        }
-        
-        // 5. Form input
-        const nameInput = overlay.querySelector('#group-name-input');
-        if (nameInput) {
-            nameInput.addEventListener('input', (e) => {
-                this.groupName = e.target.value;
-            });
-        }
-        
-        console.log('✅ All events bound successfully');
-    };
-    
-    // Also add other missing methods
-    window.GroupCreator.prototype.toggleTrigger = function(triggerKey) {
-        console.log('🔔 toggleTrigger called for:', triggerKey);
-        const index = this.selectedTriggers.indexOf(triggerKey);
-        if (index === -1) {
-            this.selectedTriggers.push(triggerKey);
-            console.log('✅ Added trigger:', triggerKey);
-        } else {
-            this.selectedTriggers.splice(index, 1);
-            console.log('❌ Removed trigger:', triggerKey);
-        }
-        this.refreshTriggerDisplay();
-    };
-    
-    window.GroupCreator.prototype.removeTrigger = function(triggerKey) {
-        console.log('🗑️ removeTrigger called for:', triggerKey);
-        this.selectedTriggers = this.selectedTriggers.filter(t => t !== triggerKey);
-        this.refreshTriggerDisplay();
-    };
-    
-    window.GroupCreator.prototype.refreshTriggerDisplay = function() {
-        console.log('🔄 refreshTriggerDisplay called');
-        const overlay = document.getElementById('group-creator-overlay');
-        if (!overlay) return;
-        
-        // Get current triggers
-        const triggers = window.triggerSystem?.getTriggersByType(this.currentType) || {};
-        
-        // Update trigger button states
-        const triggerButtons = overlay.querySelectorAll('.trigger-btn');
-        triggerButtons.forEach(btn => {
-            const triggerKey = btn.dataset.trigger;
-            if (this.selectedTriggers.includes(triggerKey)) {
-                btn.classList.add('selected');
-            } else {
-                btn.classList.remove('selected');
-            }
-        });
-        
-        // Update selected tags
-        const tagsContainer = overlay.querySelector('.selected-tags');
-        if (tagsContainer) {
-            if (this.selectedTriggers.length === 0) {
-                tagsContainer.innerHTML = '<span class="empty-tag">No triggers selected</span>';
-            } else {
-                let tagsHTML = '';
-                this.selectedTriggers.forEach(triggerKey => {
-                    const trigger = triggers[triggerKey];
-                    if (trigger) {
-                        tagsHTML += `
-                            <span class="tag" data-trigger="${triggerKey}">
-                                ${trigger.emoji || '🎯'} ${trigger.label || triggerKey}
-                                <button class="remove-tag" data-trigger="${triggerKey}">&times;</button>
-                            </span>`;
-                    }
-                });
-                tagsContainer.innerHTML = tagsHTML;
-            }
-        }
-        
-        console.log('📋 Current selection:', this.selectedTriggers);
-    };
-    
-    window.GroupCreator.prototype.createGroup = function() {
-        console.log('🏗️ createGroup called');
-        const nameInput = document.getElementById('group-name-input');
-        const name = nameInput ? nameInput.value.trim() : '';
-        
-        if (!name) {
-            alert('Please enter a group name');
-            return;
-        }
-        
-        if (this.selectedTriggers.length === 0) {
-            alert('Please select at least one trigger');
-            return;
-        }
-        
-        console.log('✅ Creating group:', {
-            name: name,
-            type: this.currentType,
-            triggers: this.selectedTriggers
-        });
-        
-        // Create group object
-        const group = {
-            id: this.generateSlug(name),
-            name: name,
-            type: this.currentType,
-            triggers: [...this.selectedTriggers],
-            videos: [],
-            createdAt: new Date().toISOString()
-        };
-        
-        // Save to testimonialData
-        if (!window.testimonialData.groups) {
-            window.testimonialData.groups = {};
-        }
-        
-        window.testimonialData.groups[group.id] = group;
-        console.log('💾 Group saved:', group);
-        
-        // Update UI
-        this.updateSidebar(group);
-        
-        // Close
-        this.close();
-        
-        alert(`✅ Group "${name}" created!`);
-    };
-    
-    window.GroupCreator.prototype.generateSlug = function(name) {
-        return name.toLowerCase()
-            .replace(/[^\w\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/--+/g, '-')
-            .trim();
-    };
-    
-    window.GroupCreator.prototype.updateSidebar = function(group) {
-        console.log('📌 Updating sidebar with group:', group.name);
-        // Your existing sidebar update logic here
-    };
-    
-    window.GroupCreator.prototype.close = function() {
-        console.log('👋 Closing group creator');
-        const overlay = document.getElementById('group-creator-overlay');
-        if (overlay) {
-            overlay.remove();
-            console.log('✅ Overlay removed');
-        }
-    };
-    
-    console.log('✅ All missing methods added to GroupCreator');
-}
 
 // ===================================================
 // 🔧 AUTO-FIX FOR testimonials-data.js
