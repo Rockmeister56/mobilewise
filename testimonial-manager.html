@@ -10,6 +10,228 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📁</text></svg>">
+
+    <style>
+/* 🎯 GROUP CREATOR - SPECIFIC BUTTON STYLES */
+
+/* Target the overlay by ID */
+#group-creator-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.85) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 10000 !important;
+    padding: 20px !important;
+}
+
+/* Overlay content */
+#group-creator-overlay .overlay-content {
+    background: #1a1a2e !important;
+    border-radius: 12px !important;
+    max-width: 800px !important;
+    width: 100% !important;
+    border: 2px solid #2196F3 !important;
+    max-height: 90vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* TRIGGER BUTTONS - FIXED! */
+#group-creator-overlay .trigger-btn {
+    padding: 12px 16px !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: white !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-size: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-align: left !important;
+    margin: 0 !important;
+    min-height: 50px !important;
+}
+
+#group-creator-overlay .trigger-btn:hover {
+    border-color: #2196F3 !important;
+    background: rgba(33, 150, 243, 0.1) !important;
+    transform: translateY(-2px) !important;
+}
+
+#group-creator-overlay .trigger-btn.selected {
+    border-color: #2196F3 !important;
+    background: rgba(33, 150, 243, 0.2) !important;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.25) !important;
+    padding-right: 35px !important;
+    position: relative !important;
+}
+
+#group-creator-overlay .trigger-btn.selected::after {
+    content: "✓" !important;
+    position: absolute !important;
+    right: 12px !important;
+    color: #2196F3 !important;
+    font-weight: bold !important;
+    font-size: 16px !important;
+}
+
+/* TYPE BUTTONS */
+#group-creator-overlay .type-btn {
+    padding: 20px !important;
+    border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: white !important;
+    cursor: pointer !important;
+    font-size: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    flex: 1 !important;
+    transition: all 0.2s ease !important;
+}
+
+#group-creator-overlay .type-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: #2196F3 !important;
+}
+
+#group-creator-overlay .type-btn.active {
+    border-color: #2196F3 !important;
+    background: rgba(33, 150, 243, 0.2) !important;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15) !important;
+}
+
+/* CLOSE BUTTON */
+#group-creator-overlay .close-btn {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: none !important;
+    color: white !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    font-size: 24px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#group-creator-overlay .close-btn:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* FORM ELEMENTS */
+#group-creator-overlay input {
+    padding: 12px 16px !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px !important;
+    color: white !important;
+    font-size: 16px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+#group-creator-overlay input:focus {
+    outline: none !important;
+    border-color: #2196F3 !important;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15) !important;
+}
+
+/* TAGS */
+#group-creator-overlay .tag {
+    background: rgba(33, 150, 243, 0.2) !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
+    font-size: 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    border: 1px solid rgba(33, 150, 243, 0.3) !important;
+    margin: 4px !important;
+}
+
+#group-creator-overlay .remove-tag {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: none !important;
+    color: white !important;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin-left: 4px !important;
+}
+
+#group-creator-overlay .remove-tag:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* LAYOUT STYLES */
+#group-creator-overlay .type-selector {
+    display: flex !important;
+    gap: 15px !important;
+    margin: 15px 0 !important;
+}
+
+#group-creator-overlay .triggers-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    gap: 12px !important;
+    padding: 15px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    margin: 15px 0 !important;
+}
+
+#group-creator-overlay .selected-tags {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+}
+
+/* ACTION BUTTONS */
+#group-creator-overlay .btn {
+    padding: 12px 24px !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    font-size: 16px !important;
+}
+
+#group-creator-overlay .btn-primary {
+    background: #2196F3 !important;
+    color: white !important;
+    border: none !important;
+}
+
+#group-creator-overlay .btn-secondary {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+</style>
+
 </head>
 <body>
     <div class="container">
