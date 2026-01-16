@@ -14,122 +14,266 @@
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📁</text></svg>">
 
     <style>
-/* 🎯 GROUP CREATOR - BUTTON STYLES (FINAL) */
 
-/* Overlay */
-#group-creator-overlay {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    background: rgba(0, 0, 0, 0.85) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    z-index: 10000 !important;
-    padding: 20px !important;
-}
+/* =========================================== */
+/* CSS FIX FOR GROUP CREATOR MODAL - PART 1 */
+/* =========================================== */
 
-/* Content */
-#group-creator-overlay .overlay-content {
-    background: #1a1a2e !important;
-    border-radius: 12px !important;
+/* Modal container */
+#addTestimonialGroupModal .modal-dialog {
     max-width: 800px !important;
-    width: 100% !important;
-    border: 2px solid #2196F3 !important;
-    max-height: 90vh !important;
-    display: flex !important;
-    flex-direction: column !important;
+    width: 90% !important;
+    margin: 40px auto !important;
 }
 
-/* TRIGGER BUTTONS - FINAL STYLES */
-#group-creator-overlay .trigger-btn {
-    padding: 12px 16px !important;
-    border: 2px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 8px !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    color: white !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-    font-size: 14px !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    text-align: left !important;
-    margin: 0 !important;
-}
-
-#group-creator-overlay .trigger-btn:hover {
-    border-color: #2196F3 !important;
-    background: rgba(33, 150, 243, 0.1) !important;
-    transform: translateY(-2px) !important;
-}
-
-#group-creator-overlay .trigger-btn.selected {
-    border-color: #2196F3 !important;
-    background: rgba(33, 150, 243, 0.2) !important;
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.25) !important;
-    padding-right: 35px !important;
-    position: relative !important;
-}
-
-#group-creator-overlay .trigger-btn.selected::after {
-    content: "✓" !important;
-    position: absolute !important;
-    right: 12px !important;
-    color: #2196F3 !important;
-    font-weight: bold !important;
-    font-size: 16px !important;
-}
-
-/* TYPE BUTTONS */
-#group-creator-overlay .type-btn {
-    padding: 15px 20px !important;
-    border: 2px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 8px !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    color: white !important;
-    cursor: pointer !important;
-    font-size: 14px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    flex: 1 !important;
-}
-
-#group-creator-overlay .type-btn.active {
-    border-color: #2196F3 !important;
-    background: rgba(33, 150, 243, 0.2) !important;
-}
-
-/* LAYOUT */
-#group-creator-overlay .triggers-container {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
-    gap: 12px !important;
-    padding: 15px !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 10px !important;
-    background: rgba(0, 0, 0, 0.3) !important;
-    max-height: 300px !important;
+/* Trigger container */
+#concernsCheckboxContainer {
+    max-height: 350px !important;
     overflow-y: auto !important;
-    margin: 15px 0 !important;
+    padding: 20px !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    background: #f8fafc !important;
+    margin-top: 10px !important;
 }
 
-/* TAGS */
-#group-creator-overlay .tag {
-    background: rgba(33, 150, 243, 0.2) !important;
-    color: white !important;
-    padding: 8px 16px !important;
-    border-radius: 20px !important;
-    font-size: 14px !important;
+/* Trigger sections */
+.concern-section {
+    display: block !important;
+}
+
+.concern-section-title {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
+    margin-bottom: 15px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #3b82f6 !important;
+}
+
+/* Concern subgroups */
+.concern-subgroup {
+    margin-bottom: 20px !important;
+}
+
+.concern-subgroup-title {
+    font-weight: 600 !important;
+    color: #374151 !important;
+    margin-bottom: 12px !important;
+    font-size: 1rem !important;
+}
+
+/* CHECKBOX GRID - This is key! */
+.concern-checkbox-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 12px !important;
+}
+
+/* Individual checkbox items */
+.concern-checkbox-item {
+    padding: 12px 14px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    background: white !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.concern-checkbox-item:hover {
+    border-color: #3b82f6 !important;
+    background: #f0f9ff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1) !important;
+}
+
+.concern-checkbox-item:has(input:checked) {
+    border-color: #10b981 !important;
+    background: #f0fdf4 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Checkbox styling */
+.concern-checkbox {
+    margin-right: 8px !important;
+    transform: scale(1.1) !important;
+    cursor: pointer !important;
+}
+
+.concern-checkbox-label {
+    display: flex !important;
+    align-items: center !important;
+    font-weight: 500 !important;
+    color: #1f2937 !important;
+    font-size: 0.95rem !important;
+    cursor: pointer !important;
+    margin-bottom: 6px !important;
+}
+
+.trigger-emoji {
+    margin-right: 8px !important;
+    font-size: 18px !important;
+}
+
+/* Keywords styling */
+.concern-keywords {
+    font-size: 0.8rem !important;
+    color: #6b7280 !important;
+    font-style: italic !important;
+    margin-top: 6px !important;
+    line-height: 1.4 !important;
+    padding-left: 24px !important;
+}
+
+/* =========================================== */
+/* CSS FIX FOR GROUP CREATOR MODAL - PART 2 */
+/* =========================================== */
+
+/* Selected triggers preview */
+#selectedTriggersPreview {
+    min-height: 50px !important;
+    padding: 15px !important;
+    background: white !important;
+    border-radius: 8px !important;
+    border: 2px solid #d1d5db !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    align-items: center !important;
+}
+
+#selectedTriggersPreview p {
+    margin: 0 !important;
+    color: #9ca3af !important;
+    font-style: italic !important;
+}
+
+/* Selected tags styling */
+.selected-tag {
     display: inline-flex !important;
     align-items: center !important;
     gap: 8px !important;
-    border: 1px solid rgba(33, 150, 243, 0.3) !important;
-    margin: 4px !important;
+    padding: 8px 16px !important;
+    background: #3b82f6 !important;
+    color: white !important;
+    border-radius: 20px !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    animation: fadeIn 0.3s ease !important;
+}
+
+.selected-tag .tag-emoji {
+    font-size: 16px !important;
+}
+
+.selected-tag .tag-text {
+    margin-right: 4px !important;
+}
+
+.selected-tag .remove-tag {
+    background: none !important;
+    border: none !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    cursor: pointer !important;
+    font-size: 18px !important;
+    padding: 0 4px !important;
+    line-height: 1 !important;
+}
+
+.selected-tag .remove-tag:hover {
+    color: white !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* =========================================== */
+/* CSS FIX FOR GROUP CREATOR MODAL - PART 3 */
+/* =========================================== */
+
+/* Form styling */
+.form-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+.form-group {
+    margin-bottom: 20px !important;
+}
+
+.form-label {
+    display: block !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+    color: #374151 !important;
+    font-size: 0.95rem !important;
+}
+
+.form-control, .form-select {
+    width: 100% !important;
+    padding: 10px 14px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    font-size: 1rem !important;
+    transition: border-color 0.2s ease !important;
+}
+
+.form-control:focus, .form-select:focus {
+    outline: none !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.form-help {
+    display: block !important;
+    margin-top: 6px !important;
+    font-size: 0.875rem !important;
+    color: #6b7280 !important;
+}
+
+/* Buttons */
+.modal-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 12px !important;
+    margin-top: 30px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid #e5e7eb !important;
+}
+
+.btn {
+    padding: 10px 24px !important;
+    border-radius: 6px !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-secondary {
+    background: white !important;
+    border: 1px solid #d1d5db !important;
+    color: #374151 !important;
+}
+
+.btn-secondary:hover {
+    background: #f3f4f6 !important;
+}
+
+.btn-primary {
+    background: #3b82f6 !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background: #2563eb !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
 }
 
 </style>
@@ -748,6 +892,148 @@
         </div>
     </div>
 </div>
+
+<script>
+
+// ===========================================
+// JAVASCRIPT TO RESTORE TRIGGER FUNCTIONALITY
+// ===========================================
+
+// Wait for the page to load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎯 Initializing trigger functionality...');
+    
+    // Wait a bit for everything to be ready
+    setTimeout(initializeTriggerFunctionality, 1000);
+});
+
+function initializeTriggerFunctionality() {
+    console.log('🔧 Setting up trigger click functionality...');
+    
+    // Find the trigger container
+    const container = document.getElementById('concernsCheckboxContainer');
+    if (!container) {
+        console.log('❌ Trigger container not found');
+        return;
+    }
+    
+    console.log('✅ Found trigger container');
+    
+    // Add click handlers to all checkboxes
+    const checkboxes = container.querySelectorAll('.concern-checkbox');
+    console.log(`📊 Found ${checkboxes.length} trigger checkboxes`);
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            console.log(`Checkbox changed: ${this.value}`);
+            updateSelectedTriggers();
+        });
+    });
+    
+    // Make the entire checkbox item clickable
+    const checkboxItems = container.querySelectorAll('.concern-checkbox-item');
+    checkboxItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            // Don't trigger if clicking directly on the checkbox
+            if (!e.target.matches('.concern-checkbox')) {
+                const checkbox = this.querySelector('.concern-checkbox');
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            }
+        });
+    });
+    
+    // Initialize the display
+    updateSelectedTriggers();
+    
+    // Set up video type change handler
+    const typeSelect = document.getElementById('newGroupType');
+    if (typeSelect) {
+        typeSelect.addEventListener('change', function() {
+            console.log(`Video type changed to: ${this.value}`);
+            // Clear selected triggers when type changes
+            const checkboxes = document.querySelectorAll('.concern-checkbox:checked');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+            });
+            updateSelectedTriggers();
+        });
+    }
+    
+    console.log('✅ Trigger functionality initialized');
+}
+
+function updateSelectedTriggers() {
+    console.log('🔄 Updating selected triggers display...');
+    
+    const container = document.getElementById('concernsCheckboxContainer');
+    const preview = document.getElementById('selectedTriggersPreview');
+    
+    if (!container || !preview) {
+        console.log('❌ Container or preview not found');
+        return;
+    }
+    
+    // Find all checked checkboxes
+    const selectedCheckboxes = container.querySelectorAll('.concern-checkbox:checked');
+    const selectedTriggers = [];
+    
+    selectedCheckboxes.forEach(checkbox => {
+        const label = container.querySelector(`label[for="${checkbox.id}"]`);
+        if (label) {
+            selectedTriggers.push({
+                id: checkbox.id,
+                text: label.textContent.trim(),
+                value: checkbox.value
+            });
+        }
+    });
+    
+    console.log(`📊 Selected triggers: ${selectedTriggers.length}`);
+    
+    // Update the preview area
+    if (selectedTriggers.length > 0) {
+        let html = '';
+        
+        selectedTriggers.forEach(trigger => {
+            // Extract emoji from text
+            const emojiMatch = trigger.text.match(/[^\w\s]/);
+            const emoji = emojiMatch ? emojiMatch[0] : '✅';
+            
+            // Remove emoji from text for display
+            const textWithoutEmoji = trigger.text.replace(/[^\w\s]/g, '').trim();
+            
+            html += `
+                <span class="selected-tag" data-trigger="${trigger.value}">
+                    <span class="tag-emoji">${emoji}</span>
+                    <span class="tag-text">${textWithoutEmoji}</span>
+                    <button class="remove-tag" onclick="removeTrigger('${trigger.value}')" title="Remove">
+                        ×
+                    </button>
+                </span>
+            `;
+        });
+        
+        preview.innerHTML = html;
+    } else {
+        preview.innerHTML = '<p style="margin: 0; color: #9ca3af; font-style: italic;">No triggers selected yet</p>';
+    }
+}
+
+// Make removeTrigger function available globally
+window.removeTrigger = function(triggerValue) {
+    console.log(`🗑️ Removing trigger: ${triggerValue}`);
+    
+    const checkbox = document.querySelector(`.concern-checkbox[value="${triggerValue}"]`);
+    if (checkbox) {
+        checkbox.checked = false;
+        checkbox.dispatchEvent(new Event('change'));
+    }
+};
+
+</script>
     
     <!-- =========================================== -->
     <!-- STATUS MESSAGES -->
