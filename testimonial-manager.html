@@ -7,6 +7,8 @@
     
     <!-- External CSS -->
     <link rel="stylesheet" href="testimonial-manager.css">
+   
+    <script src="testimonial-manager.js"></script>
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📁</text></svg>">
@@ -128,127 +130,6 @@
     gap: 8px !important;
     border: 1px solid rgba(33, 150, 243, 0.3) !important;
     margin: 4px !important;
-}
-
-/* =========================================== */
-/* CSS FIXES FOR HTML MODAL (ADD TO YOUR EXISTING CSS) */
-/* =========================================== */
-
-#addTestimonialGroupModal .modal-dialog {
-    max-width: 800px !important;
-    width: 90% !important;
-}
-
-/* Fix the trigger checkbox grid layout */
-#concernsCheckboxContainer .concern-checkbox-grid {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
-    gap: 12px !important;
-    margin-top: 10px !important;
-}
-
-/* Make checkboxes more compact */
-.concern-checkbox-item {
-    padding: 10px 12px !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 6px !important;
-    background: white !important;
-    transition: all 0.2s ease !important;
-}
-
-.concern-checkbox-item:hover {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1) !important;
-}
-
-.concern-checkbox-item:has(input:checked) {
-    border-color: #10b981 !important;
-    background: #f0fdf4 !important;
-}
-
-/* Make checkbox labels more compact */
-.concern-checkbox-label {
-    display: block !important;
-    font-size: 0.9rem !important;
-    margin-bottom: 4px !important;
-    cursor: pointer !important;
-}
-
-.concern-keywords {
-    font-size: 0.8rem !important;
-    color: #6b7280 !important;
-    font-style: italic !important;
-    line-height: 1.4 !important;
-}
-
-/* Group titles */
-.concern-section-title {
-    font-size: 1rem !important;
-    font-weight: 600 !important;
-    margin-bottom: 15px !important;
-    padding-bottom: 8px !important;
-    border-bottom: 2px solid #3b82f6 !important;
-    color: #374151 !important;
-}
-
-.concern-subgroup-title {
-    font-weight: 600 !important;
-    margin-bottom: 10px !important;
-    color: #374151 !important;
-    font-size: 0.95rem !important;
-}
-
-/* Scrollable container */
-#concernsCheckboxContainer {
-    max-height: 350px !important;
-    overflow-y: auto !important;
-    padding: 15px !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 8px !important;
-    background: #f9fafb !important;
-}
-
-/* Selected triggers preview */
-#selectedTriggersPreview {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-    min-height: 40px !important;
-    padding: 10px !important;
-}
-
-#selectedTriggersPreview .selected-tag {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    padding: 6px 12px !important;
-    background: #eff6ff !important;
-    border: 1px solid #bfdbfe !important;
-    border-radius: 20px !important;
-    font-size: 0.875rem !important;
-}
-
-/* Two-column layout for form fields */
-.form-row {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 20px !important;
-    margin-bottom: 20px !important;
-}
-
-/* Better spacing */
-.form-group {
-    margin-bottom: 20px !important;
-}
-
-.modal-body {
-    padding: 25px !important;
-}
-
-.modal-actions {
-    margin-top: 20px !important;
-    padding-top: 20px !important;
-    border-top: 1px solid #e5e7eb !important;
 }
 
 </style>
