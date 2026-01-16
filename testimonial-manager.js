@@ -853,6 +853,230 @@ class GroupCreator {
 // Make it globally available
 window.GroupCreator = GroupCreator;
 
+// ===================================================
+// 🚨 CRITICAL FIX: ADD MISSING bindEvents METHOD
+// ===================================================
+
+console.log('🔧 Adding missing bindEvents method to GroupCreator...');
+
+// Check if GroupCreator exists and is missing bindEvents
+if (window.GroupCreator && !window.GroupCreator.prototype.bindEvents) {
+    
+    // Add the missing bindEvents method
+    window.GroupCreator.prototype.bindEvents = function() {
+        console.log('🔗 bindEvents called - setting up event handlers');
+        const overlay = document.getElementById('group-creator-overlay');
+        if (!overlay) {
+            console.error('❌ No overlay found for bindEvents');
+            return;
+        }
+        
+        console.log('✅ Overlay found, binding events...');
+        
+        // 1. Type selection buttons
+        const typeButtons = overlay.querySelectorAll('.type-btn');
+        typeButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                console.log('🎯 Type button clicked:', e.target.dataset.type);
+                
+                // Update active state
+                typeButtons.forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                
+                // Update current type
+                this.currentType = e.currentTarget.dataset.type;
+                this.selectedTriggers = []; // Clear selection
+                
+                // Refresh display
+                this.refreshTriggerDisplay();
+            });
+        });
+        
+        // 2. Trigger buttons
+        overlay.addEventListener('click', (e) => {
+            const triggerBtn = e.target.closest('.trigger-btn');
+            if (triggerBtn) {
+                const triggerKey = triggerBtn.dataset.trigger;
+                console.log('🔔 Trigger clicked:', triggerKey);
+                
+                // Toggle selection
+                this.toggleTrigger(triggerKey);
+            }
+            
+            // Remove tag buttons
+            const removeBtn = e.target.closest('.remove-tag');
+            if (removeBtn) {
+                const triggerKey = removeBtn.dataset.trigger;
+                console.log('🗑️ Removing tag:', triggerKey);
+                this.removeTrigger(triggerKey);
+            }
+        });
+        
+        // 3. Close buttons
+        const closeBtn = overlay.querySelector('.close-btn');
+        const cancelBtn = overlay.querySelector('.cancel-btn');
+        const backdrop = overlay.querySelector('.overlay-backdrop');
+        
+        if (closeBtn) closeBtn.addEventListener('click', () => this.close());
+        if (cancelBtn) cancelBtn.addEventListener('click', () => this.close());
+        if (backdrop) backdrop.addEventListener('click', () => this.close());
+        
+        // 4. Create button
+        const createBtn = overlay.querySelector('.create-btn');
+        if (createBtn) {
+            createBtn.addEventListener('click', () => {
+                console.log('🏗️ Create button clicked');
+                this.createGroup();
+            });
+        }
+        
+        // 5. Form input
+        const nameInput = overlay.querySelector('#group-name-input');
+        if (nameInput) {
+            nameInput.addEventListener('input', (e) => {
+                this.groupName = e.target.value;
+            });
+        }
+        
+        console.log('✅ All events bound successfully');
+    };
+    
+    // Also add other missing methods
+    window.GroupCreator.prototype.toggleTrigger = function(triggerKey) {
+        console.log('🔔 toggleTrigger called for:', triggerKey);
+        const index = this.selectedTriggers.indexOf(triggerKey);
+        if (index === -1) {
+            this.selectedTriggers.push(triggerKey);
+            console.log('✅ Added trigger:', triggerKey);
+        } else {
+            this.selectedTriggers.splice(index, 1);
+            console.log('❌ Removed trigger:', triggerKey);
+        }
+        this.refreshTriggerDisplay();
+    };
+    
+    window.GroupCreator.prototype.removeTrigger = function(triggerKey) {
+        console.log('🗑️ removeTrigger called for:', triggerKey);
+        this.selectedTriggers = this.selectedTriggers.filter(t => t !== triggerKey);
+        this.refreshTriggerDisplay();
+    };
+    
+    window.GroupCreator.prototype.refreshTriggerDisplay = function() {
+        console.log('🔄 refreshTriggerDisplay called');
+        const overlay = document.getElementById('group-creator-overlay');
+        if (!overlay) return;
+        
+        // Get current triggers
+        const triggers = window.triggerSystem?.getTriggersByType(this.currentType) || {};
+        
+        // Update trigger button states
+        const triggerButtons = overlay.querySelectorAll('.trigger-btn');
+        triggerButtons.forEach(btn => {
+            const triggerKey = btn.dataset.trigger;
+            if (this.selectedTriggers.includes(triggerKey)) {
+                btn.classList.add('selected');
+            } else {
+                btn.classList.remove('selected');
+            }
+        });
+        
+        // Update selected tags
+        const tagsContainer = overlay.querySelector('.selected-tags');
+        if (tagsContainer) {
+            if (this.selectedTriggers.length === 0) {
+                tagsContainer.innerHTML = '<span class="empty-tag">No triggers selected</span>';
+            } else {
+                let tagsHTML = '';
+                this.selectedTriggers.forEach(triggerKey => {
+                    const trigger = triggers[triggerKey];
+                    if (trigger) {
+                        tagsHTML += `
+                            <span class="tag" data-trigger="${triggerKey}">
+                                ${trigger.emoji || '🎯'} ${trigger.label || triggerKey}
+                                <button class="remove-tag" data-trigger="${triggerKey}">&times;</button>
+                            </span>`;
+                    }
+                });
+                tagsContainer.innerHTML = tagsHTML;
+            }
+        }
+        
+        console.log('📋 Current selection:', this.selectedTriggers);
+    };
+    
+    window.GroupCreator.prototype.createGroup = function() {
+        console.log('🏗️ createGroup called');
+        const nameInput = document.getElementById('group-name-input');
+        const name = nameInput ? nameInput.value.trim() : '';
+        
+        if (!name) {
+            alert('Please enter a group name');
+            return;
+        }
+        
+        if (this.selectedTriggers.length === 0) {
+            alert('Please select at least one trigger');
+            return;
+        }
+        
+        console.log('✅ Creating group:', {
+            name: name,
+            type: this.currentType,
+            triggers: this.selectedTriggers
+        });
+        
+        // Create group object
+        const group = {
+            id: this.generateSlug(name),
+            name: name,
+            type: this.currentType,
+            triggers: [...this.selectedTriggers],
+            videos: [],
+            createdAt: new Date().toISOString()
+        };
+        
+        // Save to testimonialData
+        if (!window.testimonialData.groups) {
+            window.testimonialData.groups = {};
+        }
+        
+        window.testimonialData.groups[group.id] = group;
+        console.log('💾 Group saved:', group);
+        
+        // Update UI
+        this.updateSidebar(group);
+        
+        // Close
+        this.close();
+        
+        alert(`✅ Group "${name}" created!`);
+    };
+    
+    window.GroupCreator.prototype.generateSlug = function(name) {
+        return name.toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/--+/g, '-')
+            .trim();
+    };
+    
+    window.GroupCreator.prototype.updateSidebar = function(group) {
+        console.log('📌 Updating sidebar with group:', group.name);
+        // Your existing sidebar update logic here
+    };
+    
+    window.GroupCreator.prototype.close = function() {
+        console.log('👋 Closing group creator');
+        const overlay = document.getElementById('group-creator-overlay');
+        if (overlay) {
+            overlay.remove();
+            console.log('✅ Overlay removed');
+        }
+    };
+    
+    console.log('✅ All missing methods added to GroupCreator');
+}
+
 // At the top of testimonial-manager.js, after ENHANCED_CONCERNS is defined:
 function ensureCleanConcerns() {
     if (!window.ENHANCED_CONCERNS || Object.keys(window.ENHANCED_CONCERNS).length === 0) {
