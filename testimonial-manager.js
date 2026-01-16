@@ -484,6 +484,72 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===================================================
+// 🚀 COMPLETE GROUP CREATOR FIX
+// ===================================================
+
+// 1. Make functions global
+window.showAddTestimonialGroupModal = function() {
+    console.log('🎬 Opening group creator');
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        return true;
+    }
+    console.error('❌ Modal not found');
+    return false;
+};
+
+window.clearGroupForm = function() {
+    console.log('🧹 Clearing form');
+    return window.showAddTestimonialGroupModal();
+};
+
+window.addNewTestimonialGroup = function() {
+    console.log('🏗️ Creating group (simple)');
+    
+    const name = document.getElementById('newGroupName')?.value.trim();
+    if (!name) {
+        alert('Enter group name');
+        return;
+    }
+    
+    const group = {
+        id: 'group_' + Date.now(),
+        name: name,
+        type: document.getElementById('newGroupType')?.value || 'testimonial',
+        videos: []
+    };
+    
+    if (!window.testimonialData.groups) window.testimonialData.groups = {};
+    window.testimonialData.groups[group.id] = group;
+    
+    alert(`✅ Group "${name}" created!`);
+    document.getElementById('addTestimonialGroupModal').style.display = 'none';
+    
+    return group;
+};
+
+// 2. Fix GroupCreator
+window.GroupCreator = class GroupCreator {
+    show() { return window.showAddTestimonialGroupModal(); }
+    hide() { 
+        const modal = document.getElementById('addTestimonialGroupModal');
+        if (modal) modal.style.display = 'none';
+    }
+};
+
+// 3. Fix button
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('addTestimonialGroupBtn');
+    if (btn) {
+        btn.onclick = function() { window.showAddTestimonialGroupModal(); };
+    }
+    
+    console.log('✅ Group creator system ready');
+    console.log('💡 Click "Add Video Group" or run: showAddTestimonialGroupModal()');
+});
+
+// ===================================================
 // 🎯 MINIMAL GROUP CREATOR (Fixes line 1115 error)
 // ===================================================
 
@@ -4619,6 +4685,57 @@ function fixSidebarButton() {
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(fixSidebarButton, 500);
 });
+
+// ===================================================
+// 🚨 CRITICAL: EXPORT ESSENTIAL FUNCTIONS TO WINDOW
+// ===================================================
+
+// Make sure essential functions are globally available
+if (typeof showAddTestimonialGroupModal === 'function') {
+    window.showAddTestimonialGroupModal = showAddTestimonialGroupModal;
+    console.log('✅ Exported showAddTestimonialGroupModal to window');
+}
+
+if (typeof addNewTestimonialGroup === 'function') {
+    window.addNewTestimonialGroup = addNewTestimonialGroup;
+    console.log('✅ Exported addNewTestimonialGroup to window');
+}
+
+if (typeof clearGroupForm === 'function') {
+    window.clearGroupForm = clearGroupForm;
+    console.log('✅ Exported clearGroupForm to window');
+}
+
+// Also fix GroupCreator error
+if (typeof GroupCreator === 'undefined') {
+    console.log('🔧 Creating missing GroupCreator...');
+    window.GroupCreator = class GroupCreator {
+        constructor() {
+            console.log('🔧 GroupCreator instance created');
+        }
+        
+        show() {
+            console.log('🎬 GroupCreator.show() called');
+            if (typeof showAddTestimonialGroupModal === 'function') {
+                return showAddTestimonialGroupModal();
+            } else if (typeof clearGroupForm === 'function') {
+                return clearGroupForm();
+            } else {
+                console.error('❌ No group creator function available');
+                return false;
+            }
+        }
+        
+        hide() {
+            console.log('👋 GroupCreator.hide() called');
+            if (typeof hideAddTestimonialGroupModal === 'function') {
+                return hideAddTestimonialGroupModal();
+            }
+            return false;
+        }
+    };
+    console.log('✅ GroupCreator defined and added to window');
+}
 
 // 8. Make functions globally available
 window.showSimpleGroupCreator = showSimpleGroupCreator;

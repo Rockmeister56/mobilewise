@@ -24,7 +24,7 @@
             </div>
             
             <!-- ADD GROUP BUTTON -->
-            <button id="addTestimonialGroupBtn" class="btn btn-primary btn-add-group" onclick="showSimpleGroupCreator()">
+           <button id="addTestimonialGroupBtn" class="btn btn-primary btn-add-group" onclick="showAddTestimonialGroupModal()">
     <span class="btn-icon">+</span>
     <span class="btn-text">Add Video Group</span>
 </button>
@@ -625,34 +625,6 @@
         </div>
     </div>
 </div>
-
-<script>
-
-// Fix the "Create Group" button onclick
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        // Find button with onclick="addNewTestimonialGroup()"
-        const buttons = document.querySelectorAll('button, a');
-        buttons.forEach(btn => {
-            if (btn.getAttribute('onclick') === 'addNewTestimonialGroup()') {
-                console.log('🔧 Fixing button onclick');
-                btn.setAttribute('onclick', 'showAddTestimonialGroupModal()');
-                
-                // Also add event listener
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (window.GroupCreator && window.GroupCreator.show) {
-                        window.GroupCreator.show();
-                    } else if (typeof showAddTestimonialGroupModal === 'function') {
-                        showAddTestimonialGroupModal();
-                    }
-                });
-            }
-        });
-    }, 1000);
-});
-
-</script>
     
     <!-- =========================================== -->
     <!-- STATUS MESSAGES -->
