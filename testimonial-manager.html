@@ -129,6 +129,128 @@
     border: 1px solid rgba(33, 150, 243, 0.3) !important;
     margin: 4px !important;
 }
+
+/* =========================================== */
+/* CSS FIXES FOR HTML MODAL (ADD TO YOUR EXISTING CSS) */
+/* =========================================== */
+
+#addTestimonialGroupModal .modal-dialog {
+    max-width: 800px !important;
+    width: 90% !important;
+}
+
+/* Fix the trigger checkbox grid layout */
+#concernsCheckboxContainer .concern-checkbox-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+    gap: 12px !important;
+    margin-top: 10px !important;
+}
+
+/* Make checkboxes more compact */
+.concern-checkbox-item {
+    padding: 10px 12px !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    background: white !important;
+    transition: all 0.2s ease !important;
+}
+
+.concern-checkbox-item:hover {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1) !important;
+}
+
+.concern-checkbox-item:has(input:checked) {
+    border-color: #10b981 !important;
+    background: #f0fdf4 !important;
+}
+
+/* Make checkbox labels more compact */
+.concern-checkbox-label {
+    display: block !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 4px !important;
+    cursor: pointer !important;
+}
+
+.concern-keywords {
+    font-size: 0.8rem !important;
+    color: #6b7280 !important;
+    font-style: italic !important;
+    line-height: 1.4 !important;
+}
+
+/* Group titles */
+.concern-section-title {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 15px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2px solid #3b82f6 !important;
+    color: #374151 !important;
+}
+
+.concern-subgroup-title {
+    font-weight: 600 !important;
+    margin-bottom: 10px !important;
+    color: #374151 !important;
+    font-size: 0.95rem !important;
+}
+
+/* Scrollable container */
+#concernsCheckboxContainer {
+    max-height: 350px !important;
+    overflow-y: auto !important;
+    padding: 15px !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    background: #f9fafb !important;
+}
+
+/* Selected triggers preview */
+#selectedTriggersPreview {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    min-height: 40px !important;
+    padding: 10px !important;
+}
+
+#selectedTriggersPreview .selected-tag {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 6px 12px !important;
+    background: #eff6ff !important;
+    border: 1px solid #bfdbfe !important;
+    border-radius: 20px !important;
+    font-size: 0.875rem !important;
+}
+
+/* Two-column layout for form fields */
+.form-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+/* Better spacing */
+.form-group {
+    margin-bottom: 20px !important;
+}
+
+.modal-body {
+    padding: 25px !important;
+}
+
+.modal-actions {
+    margin-top: 20px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid #e5e7eb !important;
+}
+
 </style>
 </head>
 <body>
@@ -411,10 +533,252 @@
             </div>
         </div>
     </div>
+    
+  <!-- =========================================== -->
+<!-- MODALS -->
+<!-- =========================================== -->
+
+<!-- ADD VIDEO GROUP MODAL - FIXED LAYOUT -->
+<div id="addTestimonialGroupModal" class="modal">
+    <div class="modal-backdrop" onclick="hideAddTestimonialGroupModal()"></div>
+    <div class="modal-dialog" style="max-width: 800px;">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <span class="modal-icon">➕</span>
+                Add Video Group
+            </h2>
+            <button class="modal-close" onclick="hideAddTestimonialGroupModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <!-- BASIC INFO SECTION -->
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="newGroupName" class="form-label">Group Name</label>
+                    <input type="text" id="newGroupName" class="form-control" 
+                           placeholder="Enter group name (e.g., Price Concerns)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="newGroupSlug" class="form-label">Group Slug</label>
+                    <input type="text" id="newGroupSlug" class="form-control" 
+                           placeholder="price-concerns (URL-friendly, lowercase)">
+                    <small class="form-help">Use lowercase with hyphens, no spaces</small>
+                </div>
+            </div>
             
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="hideAddTestimonialGroupModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="addNewTestimonialGroup()">Create Video Group</button>
+            <!-- VIDEO TYPE SELECTOR -->
+            <div class="form-group">
+                <label for="newGroupType" class="form-label">Video Type</label>
+                <select class="form-select" id="newGroupType" name="type">
+                    <option value="testimonial">🎬 Testimonial Video</option>
+                    <option value="informational">📚 Informational Video</option>
+                </select>
+                <small class="form-help">
+                    Testimonial: Real client stories | Informational: How-to & educational
+                </small>
+            </div>
+
+            <!-- ICON & DESCRIPTION -->
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 20px;">
+                <div class="form-group">
+                    <label for="newGroupIcon" class="form-label">Icon Emoji</label>
+                    <input type="text" id="newGroupIcon" class="form-control" 
+                           placeholder="💰" value="🎬">
+                    <small class="form-help">Auto-sets based on video type</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="newGroupDescription" class="form-label">Description (Optional)</label>
+                    <textarea id="newGroupDescription" class="form-control" rows="2"
+                              placeholder="Describe this video group..."></textarea>
+                </div>
+            </div>
+
+            <!-- TRIGGERS SECTION - FIXED LAYOUT -->
+            <div class="form-group">
+                <label class="form-label" style="font-size: 1.1rem; margin-bottom: 15px;">
+                    🎯 When to Show These Videos
+                </label>
+                
+                <!-- TRIGGER SELECTION AREA -->
+                <div id="concernsCheckboxContainer" class="concerns-checkbox-container" 
+                     style="max-height: 300px; overflow-y: auto; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb;">
+                    
+                    <!-- TESTIMONIAL TRIGGERS -->
+                    <div class="concern-section" id="testimonialTriggersCheckboxes">
+                        <div class="concern-section-title" style="font-size: 1rem; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #3b82f6;">
+                            🎬 Testimonial Triggers
+                        </div>
+                        
+                        <!-- 💰 PRICE CONCERNS -->
+                        <div class="concern-subgroup" style="margin-bottom: 20px;">
+                            <div class="concern-subgroup-title" style="font-weight: 600; margin-bottom: 10px; color: #374151;">💰 Price Concerns</div>
+                            <div class="concern-checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
+                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                    <input type="checkbox" id="concern_price_expensive" class="concern-checkbox" value="price_expensive">
+                                    <label for="concern_price_expensive" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                        💰 Expensive (expensive, too much)
+                                    </label>
+                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                        Triggers: expensive, too much, high price
+                                    </div>
+                                </div>
+                                
+                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                    <input type="checkbox" id="concern_price_cost" class="concern-checkbox" value="price_cost">
+                                    <label for="concern_price_cost" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                        💰 Cost/Price (cost, price, how much)
+                                    </label>
+                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                        Triggers: cost, price, pricing, how much
+                                    </div>
+                                </div>
+                                
+                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                    <input type="checkbox" id="concern_price_affordability" class="concern-checkbox" value="price_affordability">
+                                    <label for="concern_price_affordability" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                        💰 Affordability (afford, worth it, budget)
+                                    </label>
+                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                        Triggers: afford, budget, money, worth it
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- ⏰ TIME CONCERNS -->
+                        <div class="concern-subgroup" style="margin-bottom: 20px;">
+                            <div class="concern-subgroup-title" style="font-weight: 600; margin-bottom: 10px; color: #374151;">⏰ Time Concerns</div>
+                            <div class="concern-checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
+                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                    <input type="checkbox" id="concern_time_busy" class="concern-checkbox" value="time_busy">
+                                    <label for="concern_time_busy" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                        ⏰ Too Busy (busy, no time, overwhelmed)
+                                    </label>
+                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                        Triggers: busy, no time, hectic, overwhelmed
+                                    </div>
+                                </div>
+                                
+                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                    <input type="checkbox" id="concern_time_speed" class="concern-checkbox" value="time_speed">
+                                    <label for="concern_time_speed" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                        ⏰ Speed/Timing (time, when, long, fast)
+                                    </label>
+                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                        Triggers: time, when, long, fast, quick
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 🤝 TRUST CONCERNS -->
+                        <div class="concern-subgroup" style="margin-bottom: 20px;">
+                            <div class="concern-subgroup-title" style="font-weight: 600; margin-bottom: 10px; color: #374151;">🤝 Trust Concerns</div>
+                            <div class="concern-checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
+                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                    <input type="checkbox" id="concern_trust_skepticism" class="concern-checkbox" value="trust_skepticism">
+                                    <label for="concern_trust_skepticism" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                        🤝 Skepticism (skeptical, not sure, doubt)
+                                    </label>
+                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                        Triggers: skeptical, not sure, doubt, unsure
+                                    </div>
+                                </div>
+                                
+                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                    <input type="checkbox" id="concern_trust_legitimacy" class="concern-checkbox" value="trust_legitimacy">
+                                    <label for="concern_trust_legitimacy" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                        🤝 Legitimacy (scam, real, trust, believe)
+                                    </label>
+                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                        Triggers: scam, real, legit, trust, believe
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 📈 RESULTS CONCERNS -->
+                        <div class="concern-subgroup" style="margin-bottom: 20px;">
+                            <div class="concern-subgroup-title" style="font-weight: 600; margin-bottom: 10px; color: #374151;">📈 Results Concerns</div>
+                            <div class="concern-checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
+                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                    <input type="checkbox" id="concern_results_effectiveness" class="concern-checkbox" value="results_effectiveness">
+                                    <label for="concern_results_effectiveness" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                        📈 Effectiveness (work, results, effective)
+                                    </label>
+                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                        Triggers: work, actually work, results, effective
+                                    </div>
+                                </div>
+                                
+                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                    <input type="checkbox" id="concern_results_worry" class="concern-checkbox" value="results_worry">
+                                    <label for="concern_results_worry" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                        📈 Worry/Concern (worried, concerned, afraid)
+                                    </label>
+                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                        Triggers: worried, concerned, afraid, nervous
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- ⭐ GENERAL CONCERNS -->
+                        <div class="concern-subgroup" style="margin-bottom: 20px;">
+                            <div class="concern-subgroup-title" style="font-weight: 600; margin-bottom: 10px; color: #374151;">⭐ General Feedback</div>
+                            <div class="concern-checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
+                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                    <input type="checkbox" id="concern_general_info" class="concern-checkbox" value="general_info">
+                                    <label for="concern_general_info" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                        ⭐ General Information (information, explain)
+                                    </label>
+                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                        Triggers: information, details, explain, how it works
+                                    </div>
+                                </div>
+                                
+                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                    <input type="checkbox" id="concern_general_demo" class="concern-checkbox" value="general_demo">
+                                    <label for="concern_general_demo" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                        ⭐ Demo Request (show me, demonstrate, demo)
+                                    </label>
+                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                        Triggers: show me, demonstrate, demo, see it, watch
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- INFORMATIONAL TRIGGERS (Hidden by default) -->
+                    <div class="concern-section" id="informationalTriggersCheckboxes" style="display: none;">
+                        <!-- Similar structure for informational triggers -->
+                        <!-- (Keep your existing informational triggers HTML here) -->
+                    </div>
+                </div>
+                
+                <small class="form-help" style="display: block; margin-top: 10px;">
+                    Select triggers to determine when these videos should appear
+                </small>
+            </div>
+            
+            <!-- SELECTED TRIGGERS PREVIEW -->
+            <div class="form-group" style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e5e7eb;">
+                <label class="form-label" style="font-size: 1rem; margin-bottom: 10px;">
+                    ✅ Selected Triggers Preview:
+                </label>
+                <div id="selectedTriggersPreview" style="min-height: 40px; padding: 10px; background: white; border-radius: 6px; border: 1px solid #d1d5db;">
+                    <p style="margin: 0; color: #9ca3af; font-style: italic;">No triggers selected yet</p>
+                </div>
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="modal-actions" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                <button type="button" class="btn btn-secondary" 
+                        onclick="hideAddTestimonialGroupModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" 
+                        onclick="addNewTestimonialGroup()">Create Group</button>
             </div>
         </div>
     </div>
