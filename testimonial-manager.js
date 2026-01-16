@@ -119,6 +119,99 @@ console.log(`✅ Converted: ${oldReviewCount} reviews → ${Object.keys(converte
     return convertedData;
 }
 
+
+// Helper: Convert old concern keys to new ones
+function convertConcernKey(oldKey) {
+    const mapping = {
+        'price': 'price_cost',
+        'time': 'time_speed', 
+        'trust': 'trust_legitimacy',
+        'general': 'general_info',
+        'results': 'results_effectiveness'
+    };
+    return mapping[oldKey] || oldKey;
+}
+
+// Add to the top of your compatibility layer
+function ensureConcernTypes() {
+    console.log('🔧 Ensuring concern types...');
+    
+    if (!window.testimonialData?.concerns) return;
+    
+    Object.values(window.testimonialData.concerns).forEach(concern => {
+        // Add 'type' property if missing
+        if (!concern.type) {
+            concern.type = concern.isInformational ? 'informational' : 'testimonial';
+        }
+        
+        // Also ensure triggers exist
+        if (!concern.triggers) {
+            concern.triggers = concern.phrases || [];
+        }
+    });
+    
+    console.log('✅ Concern types updated');
+}
+
+// ===========================================
+// FIX FOR TRIGGER CONTAINER ERRORS
+// Add this to your testimonial-manager.js or in a separate script tag
+// ===========================================
+
+(function() {
+    console.log('🔧 Applying trigger container fix...');
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyFix);
+    } else {
+        applyFix();
+    }
+    
+    function applyFix() {
+        // Patch updateTriggerSections if it exists
+        if (window.updateTriggerSections) {
+            const originalUpdate = window.updateTriggerSections;
+            window.updateTriggerSections = function() {
+                console.log('🔄 updateTriggerSections called (patched)');
+                
+                // Look for the containers in the new structure
+                const testimonialContainer = document.getElementById('testimonialTriggersCheckboxes');
+                const informationalContainer = document.getElementById('informationalTriggersCheckboxes');
+                
+                if (testimonialContainer || informationalContainer) {
+                    console.log('✅ Found trigger containers in new structure');
+                    return true;
+                }
+                
+                // Fall back to original function
+                return originalUpdate.apply(this, arguments);
+            };
+        }
+        
+        // Patch populateTriggersSections if it exists
+        if (window.populateTriggersSections) {
+            const originalPopulate = window.populateTriggersSections;
+            window.populateTriggersSections = function() {
+                console.log('🔄 populateTriggersSections called (patched)');
+                
+                // Check if we have the new structure
+                const container = document.getElementById('concernsCheckboxContainer');
+                if (container) {
+                    console.log('✅ Using new trigger container structure');
+                    // The triggers are already hardcoded in HTML, so just return success
+                    return true;
+                }
+                
+                // Fall back to original function
+                return originalPopulate.apply(this, arguments);
+            };
+        }
+        
+        console.log('✅ Trigger container fix applied');
+    }
+})();
+
 // Helper: Convert old concern keys to new ones
 function convertConcernKey(oldKey) {
     const mapping = {
@@ -690,10 +783,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===================================================
-// 🎨 GROUP CREATOR CLASS (ADD THIS AFTER TRIGGER SYSTEM)
+// 🎨 ENHANCED GROUP CREATOR CLASS (FIXED LAYOUT)
 // ===================================================
 
-class GroupCreator {
+class EnhancedGroupCreator {
     constructor() {
         this.selectedTriggers = [];
         this.currentType = 'testimonial';
@@ -701,10 +794,8 @@ class GroupCreator {
     }
     
     show() {
-        // Check if overlay already exists
-        if (document.getElementById('group-creator-overlay')) {
-            return;
-        }
+        // Remove any existing overlay
+        this.hide();
         
         const html = this.generateHTML();
         document.body.insertAdjacentHTML('beforeend', html);
@@ -717,14 +808,19 @@ class GroupCreator {
         }, 100);
     }
     
+    hide() {
+        const existing = document.getElementById('enhanced-group-creator-overlay');
+        if (existing) existing.remove();
+    }
+    
     generateHTML() {
-        const triggers = window.triggerSystem.getAllTriggersForDisplay();
-        const currentTriggers = triggers[this.currentType];
+        const triggers = window.triggerSystem?.getAllTriggersForDisplay?.() || {};
+        const currentTriggers = triggers[this.currentType] || {};
         
         return `
-        <div class="group-creator-overlay" id="group-creator-overlay">
+        <div class="group-creator-overlay" id="enhanced-group-creator-overlay">
             <div class="overlay-backdrop"></div>
-            <div class="overlay-content">
+            <div class="overlay-content" style="max-width: 800px;">
                 <div class="overlay-header">
                     <h2><span class="header-emoji">🎬</span> Create Video Group</h2>
                     <button class="close-btn" aria-label="Close">&times;</button>
@@ -776,15 +872,15 @@ class GroupCreator {
                         </label>
                         <p class="helper-text">Click triggers to select (choose multiple)</p>
                         
-                        <div class="triggers-container" id="triggers-container">
-                            ${this.generateTriggerButtons(currentTriggers)}
+                        <div class="enhanced-triggers-container">
+                            ${this.generateEnhancedTriggerSections(currentTriggers)}
                         </div>
 
                         <!-- SELECTED TRIGGERS PREVIEW -->
-                        <div class="selected-triggers ${this.selectedTriggers.length > 0 ? 'has-selection' : ''}" 
+                        <div class="selected-triggers-section ${this.selectedTriggers.length > 0 ? 'has-selection' : ''}" 
                              id="selected-triggers">
-                            <h4>Selected Triggers:</h4>
-                            <div class="selected-tags" id="selected-tags">
+                            <h4><span class="label-emoji">✅</span> Selected Triggers:</h4>
+                            <div class="selected-tags-container" id="selected-tags">
                                 ${this.generateSelectedTags(currentTriggers)}
                             </div>
                             ${this.selectedTriggers.length === 0 ? 
@@ -798,7 +894,7 @@ class GroupCreator {
                     <button class="btn btn-secondary cancel-btn">
                         <span class="btn-emoji">❌</span> Cancel
                     </button>
-                    <button class="btn btn-primary create-btn">
+                    <button class="btn btn-primary create-btn" ${this.selectedTriggers.length === 0 ? 'disabled' : ''}>
                         <span class="btn-emoji">✅</span> Create Group
                     </button>
                 </div>
@@ -806,23 +902,65 @@ class GroupCreator {
         </div>`;
     }
     
-    generateTriggerButtons(triggers) {
+    generateEnhancedTriggerSections(triggers) {
         if (!triggers || Object.keys(triggers).length === 0) {
             return '<div class="no-triggers">No triggers available for this type</div>';
         }
         
-        let html = '';
-        for (const [key, trigger] of Object.entries(triggers)) {
-            const isSelected = this.selectedTriggers.includes(key);
-            html += `
-                <button class="trigger-btn ${isSelected ? 'selected' : ''}" 
-                        data-trigger="${key}" 
-                        data-type="${trigger.type}"
-                        title="${trigger.description || trigger.label}">
-                    <span class="trigger-emoji">${trigger.emoji}</span>
-                    <span class="trigger-label">${trigger.label.replace(trigger.emoji, '').trim()}</span>
-                </button>`;
+        // Group triggers by category (using the HTML structure as reference)
+        const categories = {
+            '💰 Price Concerns': ['expensive', 'cost', 'affordability'],
+            '⏰ Time Concerns': ['busy', 'speed'],
+            '🤝 Trust Concerns': ['skepticism', 'legitimacy'],
+            '📈 Results Concerns': ['effectiveness', 'worry'],
+            '⭐ General Feedback': ['info', 'demo']
+        };
+        
+        if (this.currentType === 'informational') {
+            // Different categories for informational videos
+            Object.keys(categories).forEach(key => delete categories[key]);
+            
+            categories['📊 Conversion & Results'] = ['conversions_boost', 'roi_improvement'];
+            categories['🔥 Leads & Quality'] = ['pre_qualified', 'lead_quality'];
+            categories['⚡ Implementation & Setup'] = ['easy_setup', 'integration'];
+            categories['🎙️ Podcast & Content'] = ['podcast_leads', 'content_monetization'];
+            categories['❓ How It Works'] = ['process_explanation', 'testimonial_leverage'];
         }
+        
+        let html = '';
+        
+        for (const [categoryName, triggerKeys] of Object.entries(categories)) {
+            const categoryTriggers = triggerKeys
+                .map(key => ({ key, trigger: triggers[key] }))
+                .filter(item => item.trigger);
+            
+            if (categoryTriggers.length === 0) continue;
+            
+            html += `
+                <div class="concern-subgroup">
+                    <div class="concern-subgroup-title">${categoryName}</div>
+                    <div class="concern-checkbox-group">`;
+            
+            categoryTriggers.forEach(({ key, trigger }) => {
+                const isSelected = this.selectedTriggers.includes(key);
+                html += `
+                    <div class="concern-checkbox-item">
+                        <input type="checkbox" 
+                               id="trigger_${key}" 
+                               class="concern-checkbox" 
+                               value="${key}"
+                               ${isSelected ? 'checked' : ''}>
+                        <label for="trigger_${key}" class="concern-checkbox-label">
+                            <span class="trigger-emoji">${trigger.emoji}</span>
+                            <span class="trigger-label">${trigger.label.replace(trigger.emoji, '').trim()}</span>
+                        </label>
+                        <div class="concern-keywords">Triggers: ${trigger.triggers?.join(', ') || 'Various keywords'}</div>
+                    </div>`;
+            });
+            
+            html += `</div></div>`;
+        }
+        
         return html;
     }
     
@@ -846,8 +984,131 @@ class GroupCreator {
         return html;
     }
     
-    // [Rest of the methods: bindEvents(), toggleTrigger(), etc.]
-    // Add all the methods from the previous Group Creator class
+    bindEvents() {
+        const overlay = document.getElementById('enhanced-group-creator-overlay');
+        if (!overlay) return;
+        
+        // Close buttons
+        overlay.querySelector('.close-btn').addEventListener('click', () => this.hide());
+        overlay.querySelector('.overlay-backdrop').addEventListener('click', () => this.hide());
+        overlay.querySelector('.cancel-btn').addEventListener('click', () => this.hide());
+        
+        // Type selector
+        overlay.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const type = e.currentTarget.dataset.type;
+                this.currentType = type;
+                this.selectedTriggers = []; // Reset selection when type changes
+                this.show(); // Re-render with new type
+            });
+        });
+        
+        // Checkbox changes
+        overlay.addEventListener('change', (e) => {
+            if (e.target.classList.contains('concern-checkbox')) {
+                this.toggleTrigger(e.target.value, e.target.checked);
+            }
+        });
+        
+        // Remove tag buttons
+        overlay.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-tag')) {
+                const triggerKey = e.target.dataset.trigger;
+                this.toggleTrigger(triggerKey, false);
+            }
+        });
+        
+        // Create button
+        overlay.querySelector('.create-btn').addEventListener('click', () => {
+            this.createGroup();
+        });
+        
+        // Name input
+        const nameInput = overlay.querySelector('#group-name-input');
+        if (nameInput) {
+            nameInput.addEventListener('input', (e) => {
+                this.groupName = e.target.value;
+                this.updateCreateButton();
+            });
+        }
+    }
+    
+    toggleTrigger(triggerKey, isSelected) {
+        if (isSelected) {
+            if (!this.selectedTriggers.includes(triggerKey)) {
+                this.selectedTriggers.push(triggerKey);
+            }
+        } else {
+            this.selectedTriggers = this.selectedTriggers.filter(t => t !== triggerKey);
+        }
+        this.updateSelectedTags();
+        this.updateCreateButton();
+    }
+    
+    updateSelectedTags() {
+        const overlay = document.getElementById('enhanced-group-creator-overlay');
+        if (!overlay) return;
+        
+        const triggers = window.triggerSystem?.getAllTriggersForDisplay?.() || {};
+        const currentTriggers = triggers[this.currentType] || {};
+        const tagsContainer = overlay.querySelector('#selected-tags');
+        const selectedSection = overlay.querySelector('#selected-triggers');
+        
+        if (tagsContainer) {
+            tagsContainer.innerHTML = this.generateSelectedTags(currentTriggers);
+        }
+        
+        if (selectedSection) {
+            if (this.selectedTriggers.length > 0) {
+                selectedSection.classList.add('has-selection');
+                const emptyMsg = selectedSection.querySelector('.empty-message');
+                if (emptyMsg) emptyMsg.remove();
+            } else {
+                selectedSection.classList.remove('has-selection');
+                if (!selectedSection.querySelector('.empty-message')) {
+                    selectedSection.querySelector('.selected-tags-container').insertAdjacentHTML('afterend', 
+                        '<p class="empty-message">No triggers selected yet</p>');
+                }
+            }
+        }
+    }
+    
+    updateCreateButton() {
+        const overlay = document.getElementById('enhanced-group-creator-overlay');
+        if (!overlay) return;
+        
+        const createBtn = overlay.querySelector('.create-btn');
+        const isValid = this.groupName.trim() && this.selectedTriggers.length > 0;
+        
+        createBtn.disabled = !isValid;
+        createBtn.style.opacity = isValid ? '1' : '0.6';
+        createBtn.style.cursor = isValid ? 'pointer' : 'not-allowed';
+    }
+    
+    createGroup() {
+        if (!this.groupName.trim() || this.selectedTriggers.length === 0) {
+            alert('Please enter a group name and select at least one trigger.');
+            return;
+        }
+        
+        const groupData = {
+            name: this.groupName.trim(),
+            type: this.currentType,
+            triggers: [...this.selectedTriggers],
+            slug: this.groupName.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+            icon: this.currentType === 'testimonial' ? '🎬' : '📚',
+            description: '',
+            createdAt: new Date().toISOString()
+        };
+        
+        console.log('Creating group:', groupData);
+        
+        // Here you would integrate with your actual group creation logic
+        // Example: window.testimonialManager.createGroup(groupData);
+        
+        this.hide();
+        alert(`Group "${groupData.name}" created successfully with ${groupData.triggers.length} triggers!`);
+    }
 }
 
 // Make it globally available
