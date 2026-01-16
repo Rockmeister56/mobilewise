@@ -2710,37 +2710,37 @@ function selectGroup(groupId, scroll = false, source = 'sidebar') {
 }
     
     // ============================================
-    // FIXED: Use existing functions instead of non-existent ones
-    // ============================================
-    const videoType = group.type || 'testimonial';
-    
-    // Update current group display (if function exists)
-    if (typeof updateCurrentGroupDisplay === 'function') {
-        updateCurrentGroupDisplay(group);
+// FIXED: Use existing functions instead of non-existent ones
+// ============================================
+const videoType = group.type || 'testimonial';
+
+// Update current group display (if function exists)
+if (typeof updateCurrentGroupDisplay === 'function') {
+    updateCurrentGroupDisplay(group);
+}
+
+// 🚨 CRITICAL FIX: Check SOURCE parameter
+// If called from manager, DON'T show testimonials modal!
+if (source === 'manager') {
+    console.log('🛑 Manager source detected: Skipping showTestimonialsForGroup()');
+    // Still call addTypeBadgesToGroups
+    if (typeof addTypeBadgesToGroups === 'function') {
+        addTypeBadgesToGroups();
     }
-    
-    // 🚨 CRITICAL FIX: Check SOURCE parameter
-    // If called from manager, DON'T show testimonials modal!
-    if (source === 'manager') {
-        console.log('🛑 Manager source detected: Skipping showTestimonialsForGroup()');
-        // Still call addTypeBadgesToGroups
-        if (typeof addTypeBadgesToGroups === 'function') {
-            addTypeBadgesToGroups();
-        }
-        return; // STOP HERE - don't show modal!
-    }
-    
-    // Show testimonials for the group (ONLY for sidebar source)
-    if (typeof showTestimonialsForGroup === 'function') {
-        showTestimonialsForGroup(groupId);
-    } else if (typeof displayGroupTestimonials === 'function') {
-        displayGroupTestimonials(group);
-    } else {
-        console.log('⚠️ No function found to display group testimonials');
-    }
-    
-    // Add type badges to sidebar groups
-    addTypeBadgesToGroups();
+    return; // STOP HERE - don't show modal!
+} // ← THIS CLOSING BRACE WAS MISSING
+
+// Show testimonials for the group (ONLY for sidebar source)
+if (typeof showTestimonialsForGroup === 'function') {
+    showTestimonialsForGroup(groupId);
+} else if (typeof displayGroupTestimonials === 'function') {
+    displayGroupTestimonials(group);
+} else {
+    console.log('⚠️ No function found to display group testimonials');
+}
+
+// Add type badges to sidebar groups
+addTypeBadgesToGroups();
 
 function showTestimonialOverlay(groupId) {
     const group = testimonialData.testimonialGroups[groupId];
