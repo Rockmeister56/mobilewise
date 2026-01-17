@@ -577,6 +577,43 @@ if (typeof GroupCreator === 'undefined') {
 }
 */
 
+// This will remove ALL white/light backgrounds from the modal
+function forceDarkModal() {
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (!modal) return;
+    
+    // Find all elements with light backgrounds
+    const allElements = modal.querySelectorAll('*');
+    const lightColors = [
+        '#f8f9fa', '#e9ecef', '#ffffff', '#fff', 
+        'rgb(248, 249, 250)', 'rgb(233, 236, 239)',
+        'rgba(248, 249, 250', 'rgba(233, 236, 239'
+    ];
+    
+    allElements.forEach(el => {
+        const bg = window.getComputedStyle(el).backgroundColor;
+        const color = window.getComputedStyle(el).color;
+        
+        // Check if background is light
+        const isLightBackground = lightColors.some(light => bg.includes(light));
+        const isLightText = color.includes('rgb(0, 0, 0)') || color.includes('#000');
+        
+        if (isLightBackground) {
+            el.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            console.log('Fixed background on:', el.className || el.tagName);
+        }
+        
+        if (isLightText) {
+            el.style.color = 'white';
+        }
+    });
+    
+    console.log('✅ Forced dark theme on modal');
+}
+
+// Run it
+forceDarkModal();
+
 // ===================================================
 // 🎯 DATA INTEGRITY CHECK (Run on load)
 // ===================================================
