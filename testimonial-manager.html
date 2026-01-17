@@ -10,6 +10,31 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📁</text></svg>">
+<script>
+// Add this RIGHT BEFORE your modal HTML
+document.addEventListener('DOMContentLoaded', function() {
+    // Watch for modal opening
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (modal) {
+        modal.addEventListener('show.bs.modal', function() {
+            // Force styles after a tiny delay
+            setTimeout(() => {
+                const body = modal.querySelector('.modal-body');
+                if (body) {
+                    body.style.backgroundColor = '#1a1a1a';
+                    body.style.color = 'white';
+                }
+                
+                const header = modal.querySelector('.modal-header h2');
+                if (header) {
+                    header.style.color = '#8ab4f8';
+                }
+            }, 10);
+        });
+    }
+});
+</script>
+
 </head>
 <body>
     <div class="container">
