@@ -3017,55 +3017,109 @@ select option[data-type="testimonial"] {
     color: rgba(255, 255, 255, 0.8) !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
 }
+/* =========================================== */
+/* TESTIMONIAL GROUP MODAL - SINGLE FIX BLOCK */
+/* =========================================== */
 
-/* ============================== */
-/* TESTIMONIAL GROUP MODAL FIXES */
-/* ============================== */
-
-/* Fix modal header/heading colors */
-#addTestimonialGroupModal .modal-header h2 {
-    color: #8ab4f8 !important; /* Blue for visibility */
-    font-weight: 600;
+#addTestimonialGroupModal {
+    /* Force dark theme */
+    color-scheme: dark !important;
 }
 
-/* Fix selected triggers buttons - blue gradient */
+#addTestimonialGroupModal .modal-content {
+    background: rgba(0, 0, 0, 0.95) !important;
+    border: 1px solid rgba(138, 180, 248, 0.3) !important;
+    border-radius: 12px !important;
+}
+
+#addTestimonialGroupModal .modal-header {
+    background: rgba(0, 0, 0, 0.9) !important;
+    border-bottom: 1px solid rgba(138, 180, 248, 0.2) !important;
+    padding: 20px 30px !important;
+}
+
+#addTestimonialGroupModal .modal-header h2 {
+    color: #8ab4f8 !important;
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+}
+
+#addTestimonialGroupModal .modal-body {
+    background: rgba(0, 0, 0, 0.85) !important;
+    color: #e8eaed !important;
+    padding: 25px 30px !important;
+}
+
+/* Fix ALL form elements */
+#addTestimonialGroupModal .form-control,
+#addTestimonialGroupModal input,
+#addTestimonialGroupModal textarea,
+#addTestimonialGroupModal select {
+    background: rgba(30, 30, 40, 0.9) !important;
+    border: 1px solid rgba(138, 180, 248, 0.3) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+}
+
+/* Fix checkboxes and labels */
+#addTestimonialGroupModal .concern-item,
+#addTestimonialGroupModal .concern-label {
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+#addTestimonialGroupModal input[type="checkbox"] {
+    accent-color: #8ab4f8 !important;
+}
+
+/* Fix selected triggers buttons */
 .selected-triggers-container .btn-primary {
     background: linear-gradient(135deg, #1a73e8 0%, #8ab4f8 100%) !important;
     color: white !important;
-    border: 1px solid #5c9ce6 !important;
+    border: none !important;
     border-radius: 20px !important;
     padding: 6px 16px !important;
     font-weight: 500 !important;
+    margin: 4px !important;
+    box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3) !important;
 }
 
-/* Fix modal body background for dark theme */
-#addTestimonialGroupModal .modal-body {
-    background-color: rgba(0, 0, 0, 0.7) !important;
-    color: #e8eaed !important;
+/* Fix submit button */
+#addTestimonialGroupModal .modal-footer {
+    background: rgba(0, 0, 0, 0.9) !important;
+    border-top: 1px solid rgba(138, 180, 248, 0.2) !important;
+    padding: 20px 30px !important;
 }
 
-/* Fix checkbox labels */
-#addTestimonialGroupModal .concern-label {
-    color: #e8eaed !important;
+#addTestimonialGroupModal button[type="submit"] {
+    background: linear-gradient(135deg, #1a73e8 0%, #8ab4f8 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 30px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+#addTestimonialGroupModal button[type="submit"]:disabled {
+    background: #5a6268 !important;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+}
+
+#addTestimonialGroupModal button[type="submit"]:not(:disabled):hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(26, 115, 232, 0.4) !important;
 }
 
 /* Fix "No triggers" message */
 #addTestimonialGroupModal .no-triggers {
     color: #9aa0a6 !important;
-    font-style: italic;
-}
-
-/* Fix submit button */
-#addTestimonialGroupModal button[type="submit"] {
-    background: linear-gradient(135deg, #1a73e8 0%, #8ab4f8 100%) !important;
-    color: white !important;
-    border: none !important;
-}
-
-#addTestimonialGroupModal button[type="submit"]:disabled {
-    background: #5a6268 !important;
-    opacity: 0.6 !important;
-    cursor: not-allowed !important;
+    font-style: italic !important;
+    font-size: 0.95rem !important;
+    padding: 10px !important;
+    text-align: center !important;
 }
     
 }
