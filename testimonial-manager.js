@@ -2222,79 +2222,63 @@ function setupCheckboxListenersForModal() {
     console.log('✅ Checkbox listeners setup complete');
 }
 
-// 🎯 NUCLEAR: Replace function with simple test
-function nuclearFunctionReplace() {
-    console.log('🚀 Nuclear function replacement...');
+// Make sure this is at the TOP LEVEL (not inside another function)
+function updateSelectedDisplay() {
+    console.log('🔄 updateSelectedDisplay called');
     
-    // Completely replace updateSelectedDisplay
-    window.updateSelectedDisplay = function() {
-        console.log('🧪 NUCLEAR VERSION CALLED');
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (!modal) return;
+    
+    const checkboxes = modal.querySelectorAll('input.concern-checkbox:checked');
+    const preview = document.getElementById('selectedTriggersPreview');
+    const nameInput = modal.querySelector('#newGroupName');
+    const submitBtn = modal.querySelector('button[type="submit"]');
+    
+    if (!preview) return;
+    
+    // Update preview display
+    if (checkboxes.length > 0) {
+        const selected = Array.from(checkboxes).map(cb => {
+            const label = modal.querySelector(`label[for="${cb.id}"]`);
+            return label ? label.textContent.trim() : cb.value;
+        });
         
-        const modal = document.getElementById('addTestimonialGroupModal');
-        if (!modal) {
-            console.log('❌ No modal');
-            return;
-        }
-        
-        const checkboxes = modal.querySelectorAll('input.concern-checkbox:checked');
-        const preview = document.getElementById('selectedTriggersPreview');
-        
-        if (!preview) {
-            console.log('❌ No preview');
-            return;
-        }
-        
-        const selected = Array.from(checkboxes).map(cb => cb.value);
-        
-        // SIMPLE, OBVIOUS HTML
         preview.innerHTML = `
-            <div style="color: red; font-size: 20px; font-weight: bold;">
-                🔴 TEST: Selected (${selected.length})
+            <div style="margin-bottom: 10px; font-weight: 600; color: #8ab4f8;">
+                ✅ Selected (${selected.length}):
             </div>
-            <div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                 ${selected.map(item => 
                     `<span style="
-                        background: #ff0000;
-                        color: #ffffff;
-                        padding: 10px;
-                        border: 3px solid #000000;
-                        font-size: 16px;
-                        font-weight: bold;
-                        display: inline-block;
-                        margin: 5px;
+                        background: linear-gradient(135deg, #1e293b, #0f172a);
+                        color: #f1f5f9;
+                        padding: 8px 16px;
+                        border-radius: 20px;
+                        border: 2px solid #3b82f6;
+                        font-size: 14px;
+                        font-weight: 600;
+                        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
                     ">${item}</span>`
                 ).join('')}
             </div>
         `;
-        
-        console.log('✅ Set RED test buttons. Are they visible?');
-    };
+    } else {
+        preview.innerHTML = `
+            <p style="margin: 0; color: #9ca3af; font-style: italic;">
+                No triggers selected yet. Click checkboxes above to select.
+            </p>
+        `;
+    }
     
-    console.log('✅ Replaced function with nuclear test');
-    
-    // Test it
-    setTimeout(() => {
-        console.log('\n🧪 Testing nuclear function...');
-        showAddTestimonialGroupModal();
-        
-        setTimeout(() => {
-            const modal = document.getElementById('addTestimonialGroupModal');
-            if (!modal) return;
-            
-            // Check a box
-            const checkboxes = modal.querySelectorAll('input.concern-checkbox');
-            if (checkboxes.length > 0) {
-                checkboxes[0].checked = true;
-                checkboxes[0].dispatchEvent(new Event('change'));
-                
-                console.log('✅ Triggered change. Look for RED buttons!');
-            }
-        }, 300);
-    }, 500);
+    // Update submit button
+    if (submitBtn && nameInput) {
+        const hasSelection = checkboxes.length > 0;
+        const hasName = nameInput.value.trim().length > 0;
+        submitBtn.disabled = !(hasSelection && hasName);
+        submitBtn.style.opacity = (hasSelection && hasName) ? '1' : '0.5';
+        submitBtn.style.cursor = (hasSelection && hasName) ? 'pointer' : 'not-allowed';
+    }
 }
-
-// Run nuclear replacement
-// nuclearFunctionReplace();
 
 // 🎯 FIX: Checkbox event listeners for selectedTriggersPreview
 function setupCheckboxListenersForModal() {
@@ -4819,6 +4803,52 @@ function fixCreateGroupButtons() {
             document.body.appendChild(backupBtn);
         }
     }, 2000);
+}
+
+function setupCheckboxListenersForModal() {
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (!modal) {
+        console.log('❌ Modal not found in setup');
+        return;
+    }
+    
+    console.log('🔧 Setting up checkbox listeners...');
+    
+    const checkboxes = modal.querySelectorAll('input.concern-checkbox');
+    const preview = document.getElementById('selectedTriggersPreview');
+    
+    if (!preview) {
+        console.log('❌ selectedTriggersPreview not found');
+        return;
+    }
+    
+    console.log(`Found ${checkboxes.length} checkboxes`);
+    
+    // Remove old listeners and add new ones
+    checkboxes.forEach(checkbox => {
+        // Clone to remove existing listeners
+        const newCheckbox = checkbox.cloneNode(true);
+        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+        
+        // ✅ CRITICAL: Add event listener that calls updateSelectedDisplay
+        newCheckbox.addEventListener('change', function() {
+            updateSelectedDisplay();
+        });
+    });
+    
+    // Also listen to name input
+    const nameInput = modal.querySelector('#newGroupName');
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            updateSelectedDisplay();
+        });
+        console.log('✅ Added listener to name input');
+    }
+    
+    // ✅ CRITICAL: Initial update
+    updateSelectedDisplay();
+    
+    console.log('✅ Checkbox listeners setup complete');
 }
 
 // 7. Initialize everything when page loads
