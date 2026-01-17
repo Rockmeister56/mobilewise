@@ -2240,29 +2240,25 @@ function updateSelectedDisplay() {
             return label ? label.textContent.trim() : cb.value;
         });
         
-        preview.innerHTML = `
-            <div style="margin-bottom: 10px; font-weight: 600; color: #8ab4f8;">
-                ✅ Selected (${selected.length}):
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                ${selected.map(item => 
-                    `<span style="
-                        background: rgba(33, 150, 243, 0.2);
-                        color: white;
-                        padding: 6px 12px;
-                        border-radius: 20px;
-                        border: 1px solid rgba(33, 150, 243, 0.3);
-                        font-size: 14px;
-                    ">${item}</span>`
-                ).join('')}
-            </div>
-        `;
-    } else {
-        preview.innerHTML = `
-            <p style="margin: 0; color: #9ca3af; font-style: italic;">
-                No triggers selected yet. Click checkboxes above to select.
-            </p>
-        `;
+       preview.innerHTML = `
+    <div style="margin-bottom: 10px; font-weight: 600; color: #8ab4f8;">
+        ✅ Selected (${selected.length}):
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        ${selected.map(item => 
+            `<span style="
+                background: rgba(30, 41, 59, 0.8);
+                color: #f1f5f9;
+                padding: 8px 16px;
+                border-radius: 20px;
+                border: 2px solid #3b82f6;
+                font-size: 14px;
+                font-weight: 600;
+                backdrop-filter: blur(10px);
+            ">${item}</span>`
+        ).join('')}
+    </div>
+`;
     }
     
     // Update submit button
