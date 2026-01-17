@@ -484,26 +484,23 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===================================================
-// 🚀 COMPLETE GROUP CREATOR FIX
+// 🚀 COMPLETE GROUP CREATOR FIX (UPDATED)
 // ===================================================
 
-// 1. Make functions global
-window.showAddTestimonialGroupModal = function() {
-    console.log('🎬 Opening group creator');
-    const modal = document.getElementById('addTestimonialGroupModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        return true;
+// 1. Make functions global - BUT DON'T DEFINE showAddTestimonialGroupModal HERE
+// It will be defined properly later in the file
+
+// Keep clearGroupForm - it just calls showAddTestimonialGroupModal
+window.clearGroupForm = function() {
+    console.log('🧹 Clearing form');
+    if (typeof window.showAddTestimonialGroupModal === 'function') {
+        return window.showAddTestimonialGroupModal();
     }
-    console.error('❌ Modal not found');
+    console.error('❌ showAddTestimonialGroupModal not found');
     return false;
 };
 
-window.clearGroupForm = function() {
-    console.log('🧹 Clearing form');
-    return window.showAddTestimonialGroupModal();
-};
-
+// Keep addNewTestimonialGroup
 window.addNewTestimonialGroup = function() {
     console.log('🏗️ Creating group (simple)');
     
@@ -529,20 +526,32 @@ window.addNewTestimonialGroup = function() {
     return group;
 };
 
-// 2. Fix GroupCreator
+// 2. Fix GroupCreator - but make it use the enhanced version
 window.GroupCreator = class GroupCreator {
-    show() { return window.showAddTestimonialGroupModal(); }
+    show() { 
+        if (typeof window.showAddTestimonialGroupModal === 'function') {
+            return window.showAddTestimonialGroupModal();
+        }
+        console.error('❌ showAddTestimonialGroupModal not found');
+        return false;
+    }
     hide() { 
         const modal = document.getElementById('addTestimonialGroupModal');
         if (modal) modal.style.display = 'none';
     }
 };
 
-// 3. Fix button
+// 3. Fix button - defer to when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     const btn = document.getElementById('addTestimonialGroupBtn');
     if (btn) {
-        btn.onclick = function() { window.showAddTestimonialGroupModal(); };
+        btn.onclick = function() { 
+            if (typeof window.showAddTestimonialGroupModal === 'function') {
+                window.showAddTestimonialGroupModal();
+            } else {
+                console.error('❌ showAddTestimonialGroupModal not available');
+            }
+        };
     }
     
     console.log('✅ Group creator system ready');
@@ -2152,8 +2161,10 @@ function displayGroupsInUI() {
     });
 }
 
+// ✅ ENHANCED VERSION - Replace lines 2155-2170 with this:
+
 function showAddTestimonialGroupModal() {
-    console.log('🎬 Opening group creator');
+    console.log('🎬 Opening group creator (ENHANCED)');
     const modal = document.getElementById('addTestimonialGroupModal');
     if (modal) {
         modal.style.display = 'flex';
@@ -2167,6 +2178,103 @@ function showAddTestimonialGroupModal() {
     }
     console.error('❌ Modal not found');
     return false;
+}
+
+// 🎯 ADD THESE HELPER FUNCTIONS RIGHT AFTER showAddTestimonialGroupModal:
+
+function setupCheckboxListenersForModal() {
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (!modal) {
+        console.log('❌ Modal not found in setup');
+        return;
+    }
+    
+    console.log('🔧 Setting up checkbox listeners...');
+    
+    const checkboxes = modal.querySelectorAll('input.concern-checkbox');
+    const preview = document.getElementById('selectedTriggersPreview');
+    
+    if (!preview) {
+        console.log('❌ selectedTriggersPreview not found');
+        return;
+    }
+    
+    console.log(`Found ${checkboxes.length} checkboxes`);
+    
+    // Remove old listeners and add new ones
+    checkboxes.forEach(checkbox => {
+        // Clone to remove existing listeners
+        const newCheckbox = checkbox.cloneNode(true);
+        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+        
+        newCheckbox.addEventListener('change', updateSelectedDisplay);
+    });
+    
+    // Also listen to name input
+    const nameInput = modal.querySelector('#newGroupName');
+    if (nameInput) {
+        nameInput.addEventListener('input', updateSelectedDisplay);
+        console.log('✅ Added listener to name input');
+    }
+    
+    // Initial update
+    updateSelectedDisplay();
+    console.log('✅ Checkbox listeners setup complete');
+}
+
+function updateSelectedDisplay() {
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (!modal) return;
+    
+    const checkboxes = modal.querySelectorAll('input.concern-checkbox:checked');
+    const preview = document.getElementById('selectedTriggersPreview');
+    const nameInput = modal.querySelector('#newGroupName');
+    const submitBtn = modal.querySelector('button[type="submit"]');
+    
+    if (!preview) return;
+    
+    // Update preview display
+    if (checkboxes.length > 0) {
+        const selected = Array.from(checkboxes).map(cb => {
+            const label = modal.querySelector(`label[for="${cb.id}"]`);
+            return label ? label.textContent.trim() : cb.value;
+        });
+        
+        preview.innerHTML = `
+            <div style="margin-bottom: 10px; font-weight: 600; color: #8ab4f8;">
+                ✅ Selected (${selected.length}):
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                ${selected.map(item => 
+                    `<span style="
+                        background: rgba(33, 150, 243, 0.2);
+                        color: white;
+                        padding: 6px 12px;
+                        border-radius: 20px;
+                        border: 1px solid rgba(33, 150, 243, 0.3);
+                        font-size: 14px;
+                    ">${item}</span>`
+                ).join('')}
+            </div>
+        `;
+    } else {
+        preview.innerHTML = `
+            <p style="margin: 0; color: #9ca3af; font-style: italic;">
+                No triggers selected yet. Click checkboxes above to select.
+            </p>
+        `;
+    }
+    
+    // Update submit button
+    if (submitBtn && nameInput) {
+        const hasSelection = checkboxes.length > 0;
+        const hasName = nameInput.value.trim().length > 0;
+        submitBtn.disabled = !(hasSelection && hasName);
+        submitBtn.style.opacity = (hasSelection && hasName) ? '1' : '0.5';
+        submitBtn.style.cursor = (hasSelection && hasName) ? 'pointer' : 'not-allowed';
+        
+        console.log(`🎯 Submit button: hasName=${hasName}, hasSelection=${hasSelection}, disabled=${submitBtn.disabled}`);
+    }
 }
 
 // 🎯 FIX: Checkbox event listeners for selectedTriggersPreview
@@ -2229,7 +2337,7 @@ function updateSelectedPreview() {
         });
         
         preview.innerHTML = `
-            <div style="margin-bottom: 10px; font-weight: 600; color: #ffffffff;">
+            <div style="margin-bottom: 10px; font-weight: 600; color: #8ab4f8;">
                 ✅ Selected (${selected.length}):
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 8px;">
