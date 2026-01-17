@@ -1,47 +1,8 @@
 // ===================================================
-// 🧹 CLEAN START: Ensure clean data loading
+// 🎬 DUAL VIDEO SYSTEM DATA
+// Generated: 1/12/2026
 // ===================================================
 
-// FIRST: Clear any existing corrupted data
-window.testimonialData = null;
-window.ENHANCED_CONCERNS = null;
-
-// Clear all corrupted data from localStorage
-const keysToRemove = [
-  'enhancedTestimonialData',
-  'testimonialData', 
-  'testimonialGroups',
-  'testimonialVideos',
-  'testimonialData_v5',
-  'testimonialGroups_v5'
-];
-
-console.log('🧹 Clearing localStorage to prevent data corruption...');
-keysToRemove.forEach(key => {
-  try {
-    localStorage.removeItem(key);
-    console.log(`   Removed: ${key}`);
-  } catch (e) {
-    // Ignore errors
-  }
-});
-
-// Also clear any sessionStorage
-try {
-  sessionStorage.clear();
-} catch (e) {
-  // Ignore
-}
-
-console.log('✅ Storage cleared. Starting with clean data.');
-
-// ===================================================
-// 🎬 ENHANCED TESTIMONIAL SYSTEM DATA
-// Generated: 1/14/2026
-// Version: 6.0-final-correct
-// ===================================================
-
-// 🚨🚨🚨 CRITICAL FIX: Create window.testimonialData DIRECTLY! 🚨🚨🚨
 window.testimonialData = {
   "videoUrls": {
     "skeptical": "",
@@ -55,173 +16,149 @@ window.testimonialData = {
     "convinced": 20000,
     "excited": 20000
   },
-
-  // ========================
-  // 🎯 ENHANCED CONCERNS (12 Detailed Types - COMPLETE)
-  // ========================
   "concerns": {
-    // 💰 PRICE CONCERNS
-    "price_expensive": {
-      "title": "Expensive",
+    "price": {
+      "title": "Price Concerns",
       "icon": "💰",
-      "videoType": "skeptical",
-      "triggers": ["expensive", "too much", "high price", "overpriced"],
-      "description": "When users say it's too expensive"
+      "videoType": "skeptical"
     },
-    "price_cost": {
-      "title": "Cost/Price",
-      "icon": "💰",
-      "videoType": "skeptical",
-      "triggers": ["cost", "price", "pricing", "how much"],
-      "description": "When users ask about cost or pricing"
-    },
-    "price_affordability": {
-      "title": "Affordability",
-      "icon": "💰",
-      "videoType": "skeptical",
-      "triggers": ["afford", "budget", "money", "worth it"],
-      "description": "When users worry about affordability"
-    },
-    
-    // ⏰ TIME CONCERNS
-    "time_busy": {
-      "title": "Too Busy",
+    "time": {
+      "title": "Time/Speed",
       "icon": "⏰",
-      "videoType": "speed",
-      "triggers": ["busy", "no time", "hectic", "overwhelmed"],
-      "description": "When users say they're too busy"
+      "videoType": "speed"
     },
-    "time_speed": {
-      "title": "Speed/Timing",
-      "icon": "⏰",
-      "videoType": "speed",
-      "triggers": ["time", "when", "long", "fast", "quick"],
-      "description": "When users ask about timing or speed"
-    },
-    
-    // 🤝 TRUST CONCERNS
-    "trust_skepticism": {
-      "title": "Skepticism",
+    "trust": {
+      "title": "Trust/Reliability",
       "icon": "🤝",
-      "videoType": "skeptical",
-      "triggers": ["skeptical", "not sure", "doubt", "unsure"],
-      "description": "When users express skepticism or doubt"
+      "videoType": "skeptical"
     },
-    "trust_legitimacy": {
-      "title": "Legitimacy",
-      "icon": "🤝",
-      "videoType": "skeptical",
-      "triggers": ["scam", "real", "legit", "trust", "believe"],
-      "description": "When users question legitimacy or trust"
-    },
-    
-    // 📈 RESULTS CONCERNS
-    "results_effectiveness": {
-      "title": "Effectiveness",
+    "results": {
+      "title": "Results/Effectiveness",
       "icon": "📈",
-      "videoType": "convinced",
-      "triggers": ["work", "actually work", "results", "effective"],
-      "description": "When users ask if it works or gets results"
+      "videoType": "convinced"
     },
-    "results_worry": {
-      "title": "Worry/Concern",
-      "icon": "📈",
-      "videoType": "convinced",
-      "triggers": ["worried", "concerned", "afraid", "nervous"],
-      "description": "When users express worry or concern"
-    },
-    
-    // ⭐ GENERAL CONCERNS
-    "general_info": {
-      "title": "General Information",
+    "general": {
+      "title": "General Feedback",
       "icon": "⭐",
-      "videoType": "skeptical",
-      "triggers": ["information", "details", "explain", "how it works", "what is"],
-      "description": "When users ask for general information"
-    },
-    "general_demo": {
-      "title": "Demo Request",
-      "icon": "⭐",
-      "videoType": "skeptical",
-      "triggers": ["show me", "demonstrate", "demo", "see it", "watch"],
-      "description": "When users ask to see a demo"
-    },
-    
-    // 📚 INFORMATIONAL CONCERNS
-    "info_conversions_boost": {
-      "title": "Conversion Boost",
-      "icon": "📈",
-      "videoType": "convinced",
-      "triggers": ["300%", "triple", "more conversions", "boost sales"],
-      "description": "How to get 300% more conversions",
-      "isInformational": true
-    },
-    "info_pre_qualified": {
-      "title": "Pre-Qualified Leads",
-      "icon": "🔥",
-      "videoType": "convinced",
-      "triggers": ["pre qualified", "qualified leads", "hot leads", "sales ready"],
-      "description": "How to get pre-qualified hot leads",
-      "isInformational": true
+      "videoType": "skeptical"
     }
   },
 
   // ========================
-  // 📁 UNIFIED GROUPS (CLEAN - NO "test" GROUP!)
+  // ⭐ TESTIMONIALS ONLY (Social Proof)
   // ========================
-  "groups": {
-    // Testimonial Group
-    "group_conversion_boost": {
-      "id": "group_conversion_boost",
-      "type": "testimonial",
+  "testimonialGroups": {
+    "group_conversion_boost_1767901787532": {
+      "id": "group_conversion_boost_1767901787532",
+      "type": "testimonial", // ⭐ CRITICAL: Marks as testimonial
       "name": "PPC Conversion Boost",
       "slug": "conversion-boost",
       "icon": "📁",
-      "description": "Real stories from clients who got 300%+ conversion increases",
-      "primaryConcern": "results_effectiveness",
-      "concerns": ["results_effectiveness", "price_affordability", "trust_legitimacy"],
-      "videoIds": [],
+      "description": "AI smart voice chat increases average conversion 300% and more for professional organizations and the like",
+      "concerns": ["time", "trust", "general", "results"],
+      "testimonials": [
+        {
+          "id": "testimonial_1767902304439",
+          "title": "312% conversion increase from a form",
+          "concernType": "results",
+          "videoUrl": "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/sign/video-testimonials/legal-personal-injury.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9lNjg4MGUyOC0zMDRhLTQ5NzItYmNiMS1iY2U5YjNkOWU1YTkiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ2aWRlby10ZXN0aW1vbmlhbHMvbGVnYWwtcGVyc29uYWwtaW5qdXJ5Lm1wNCIsImlhdCI6MTc2NzkwMjA3NywiZXhwIjoxNzk5NDM4MDc3fQ.mEn-TmcfRJhFZfGsqSELw63etf1txlZESZaG7KQcic0",
+          "author": "Ted Johnson, Esq",
+          "text": "",
+          "addedAt": "2026-01-08T19:58:24.439Z",
+          "views": 11
+        }
+      ],
       "createdAt": "2026-01-08T19:49:47.532Z",
-      "viewCount": 0
-    },
-    
-    // Informational Group
-    "group_how_it_works": {
-      "id": "group_how_it_works",
-      "type": "informational",
-      "name": "How It Works",
-      "slug": "how-it-works",
-      "icon": "📚",
-      "description": "Educational videos explaining our system",
-      "primaryConcern": "general_info",
-      "concerns": ["general_info", "general_demo", "info_conversions_boost"],
-      "videoIds": [],
-      "createdAt": "2026-01-14T00:00:00.000Z",
-      "viewCount": 0
+      "viewCount": 11
     }
   },
 
   // ========================
-  // 🎬 ALL VIDEOS (EMPTY - FRESH START)
+  // 📚 INFORMATIONAL VIDEOS ONLY (Educational)
   // ========================
-  "videos": {},
-
-  // ========================
-  // 📊 STATISTICS (UPDATED FOR EMPTY VIDEOS)
-  // ========================
-  "statistics": {
-    "totalGroups": 2,
-    "totalTestimonialGroups": 1,
-    "totalInformationalGroups": 1,
-    "totalVideos": 0,
-    "totalTestimonials": 0,
-    "totalInformationalVideos": 0,
-    "totalViews": 0
+  "informationalGroups": {
+    "group_how_it_works_12345": {
+      "id": "group_how_it_works_12345",
+      "type": "informational", // 📚 CRITICAL: Marks as informational
+      "name": "📚 How It Works",
+      "slug": "informational",
+      "icon": "📚",
+      "description": "Watch our explainer videos to learn how the system works",
+      "concerns": ["general", "results", "time", "trust"],
+      "videos": [ // NOTE: "videos" NOT "testimonials"
+        {
+          "id": "info_300_conversions",
+          "title": "300% More Conversions",
+          "concernType": "results",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "description": "How AI transforms your conversion rates overnight",
+          "addedAt": "2026-01-12T00:00:00.000Z",
+          "views": 0
+        },
+        {
+          "id": "info_pre_qualified",
+          "title": "Pre-Qualified Hot Leads",
+          "concernType": "general",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "description": "Stop wasting time on tire-kickers",
+          "addedAt": "2026-01-12T00:00:00.000Z",
+          "views": 0
+        },
+        {
+          "id": "info_ai_process",
+          "title": "AI Conversion Process",
+          "concernType": "general",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "description": "Step-by-step: How AI identifies and converts visitors",
+          "addedAt": "2026-01-12T00:00:00.000Z",
+          "views": 0
+        },
+        {
+          "id": "info_testimonial_leverage",
+          "title": "Testimonials → Sales",
+          "concernType": "trust",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "description": "Using social proof to close skeptical buyers",
+          "addedAt": "2026-01-12T00:00:00.000Z",
+          "views": 0
+        },
+        {
+          "id": "info_easy_setup",
+          "title": "5-Minute Website Setup",
+          "concernType": "time",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "description": "No tech skills needed - copy, paste, done",
+          "addedAt": "2026-01-12T00:00:00.000Z",
+          "views": 0
+        },
+        {
+          "id": "info_podcast_leads",
+          "title": "Podcast → Leads Automatically",
+          "concernType": "general",
+          "videoUrl": "", // Will be populated by testimonial manager
+          "author": "System Explanation",
+          "description": "Turn listeners into booked appointments while you sleep",
+          "addedAt": "2026-01-12T00:00:00.000Z",
+          "views": 0
+        }
+      ],
+      "createdAt": "2026-01-12T00:00:00.000Z",
+      "viewCount": 0
+    }
   },
 
-  // ========================
-  // ⚙️ PLAYER CONFIGURATION
-  // ========================
+  "statistics": {
+    "totalTestimonialGroups": 1, // Only testimonial groups
+    "totalInformationalGroups": 1, // Only informational groups
+    "totalTestimonials": 1, // Only real testimonials
+    "totalInformationalVideos": 6 // Only informational videos
+  },
+
   "playerConfig": {
     "desktop": {
       "width": 854,
@@ -239,663 +176,262 @@ window.testimonialData = {
     "resumeMessage": "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?"
   },
 
-  // ========================
-  // 🛠️ HELPER FUNCTIONS
-  // ========================
-  "__version": "6.0-final-correct",
-  "__generated": "2026-01-14T00:00:00.000Z",
-  "__notes": "CORRECT: window.testimonialData created directly - no 'test' group"
+  "__version": "3.0-dual-system", // Updated version
+  "__generated": "2026-01-12T00:00:00.000Z",
+  "__notes": "Separated testimonials (social proof) from informational videos (educational)"
 };
 
-console.log('✅ window.testimonialData created with clean data');
-console.log('Groups:', Object.keys(window.testimonialData.groups));
+console.log('✅ DUAL VIDEO SYSTEM LOADED:');
+console.log('   ⭐ Testimonial Groups:', window.testimonialData.statistics.totalTestimonialGroups);
+console.log('   📚 Informational Groups:', window.testimonialData.statistics.totalInformationalGroups);
+console.log('   🎬 Total Videos:', 
+  window.testimonialData.statistics.totalTestimonials + 
+  window.testimonialData.statistics.totalInformationalVideos);
 
 // ===================================================
-// 🎯 ESSENTIAL: ENHANCED_CONCERNS for AI Trigger System
+// PLAYER INTEGRATION FUNCTIONS (ADDED BY MANAGER)
 // ===================================================
 
-// This is CRITICAL for mobile wise AI to know when to show testimonials!
-window.ENHANCED_CONCERNS = { /* ... copy your concerns object here ... */ };
-
-console.log('🎯 ENHANCED_CONCERNS loaded for AI system (12 concerns)');
-
-// ===================================================
-// 🔧 ADD HELPER FUNCTIONS TO DATA OBJECT FIRST
-// ===================================================
-
-// 🎯 Get videos for a specific concern
-window.testimonialData.getConcernVideos = function(concernKey) {  // ✅ CHANGED!
-  console.log('🔍 Searching videos for concern:', concernKey);
-  const results = [];
-  
-  if (!this.videos) {
-    console.error('❌ No videos found in data');
+// Get testimonials for a specific concern
+window.testimonialData.getConcernTestimonials = function(concernKey) {
+    const results = [];
+    
+    if (!this.testimonialGroups) return results;
+    
+    for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
+        if (group.concerns && group.concerns.includes(concernKey)) {
+            if (group.testimonials) {
+                results.push(...group.testimonials.map(t => ({
+                    ...t,
+                    groupName: group.name,
+                    groupIcon: group.icon
+                })));
+            }
+        }
+    }
+    
     return results;
-  }
-  
-  // Search through all videos
-  for (const [videoId, video] of Object.entries(this.videos)) {
-    if (video.concernType === concernKey) {
-      // Get group info
-      const group = this.groups[video.groupId] || {};
-      
-      results.push({
-        ...video,
-        groupName: group.name || "Uncategorized",
-        groupIcon: group.icon || (video.type === 'testimonial' ? '⭐' : '📚'),
-        groupType: group.type
-      });
-    }
-  }
-  
-  console.log(`✅ Found ${results.length} videos for "${concernKey}"`);
-  return results;
 };
 
-// 🎯 Map AI patterns to concern keys
-window.testimonialData.mapPatternToConcern = function(pattern) {  // ✅ CHANGED!
-  const patternMap = {
-    // ... keep all the pattern mapping ...
-  };
-  
-  const concernKey = patternMap[pattern] || "general_info";
-  console.log(`🗺️ Mapping pattern "${pattern}" → "${concernKey}"`);
-  return concernKey;
-};
-
-// 🎯 Get all videos for AI detection
-window.testimonialData.getAllVideosByGroup = function(groupId) {  // ✅ CHANGED!
-  const results = [];
-  
-  for (const [videoId, video] of Object.entries(this.videos)) {
-    if (video.groupId === groupId) {
-      results.push(video);
-    }
-  }
-  
-  return results;
-};
-
-// 🎯 Get available concerns for UI
-window.testimonialData.getAvailableConcerns = function() {  // ✅ CHANGED!
-  const concerns = [];
-  for (const [key, data] of Object.entries(this.concerns)) {
-    concerns.push({
-      key: key,
-      title: data.title,
-      icon: data.icon,
-      videoType: data.videoType,
-      triggers: data.triggers || [],
-      description: data.description || ""
-    });
-  }
-  return concerns;
-};
-
-// 🎯 Validate data integrity - SIMPLIFIED
-window.testimonialData.validateData = function() {  // ✅ CHANGED!
-  console.log('🔧 Validating testimonial data...');
-  
-  let warnings = [];
-  
-  // Quick validation - just check counts
-  const groupCount = Object.keys(this.groups || {}).length;
-  const videoCount = Object.keys(this.videos || {}).length;
-  const concernCount = Object.keys(this.concerns || {}).length;
-  
-  if (groupCount !== 2) warnings.push(`Expected 2 groups, found ${groupCount}`);
-  if (videoCount !== 0) warnings.push(`Expected 0 videos, found ${videoCount}`);  // ✅ Changed from 2 to 0
-  if (concernCount !== 12) warnings.push(`Expected 12 concerns, found ${concernCount}`);
-  
-  if (warnings.length === 0) {
-    console.log('✅ All data is valid!');
-    return { valid: true, warnings: [] };
-  } else {
-    console.log('⚠️ Validation warnings:', warnings);
-    return { valid: true, warnings: warnings };
-  }
-};
-
-// 🎯 Enhanced concern detection for AI - FIXED VERSION
-window.testimonialData.detectConcerns = function(userMessage) {  // ✅ CHANGED!
-  const lowerMsg = userMessage.toLowerCase();
-  const detected = [];
-  
-  // Check all concerns - FIXED: Add safety check for triggers
-  for (const [concernKey, concern] of Object.entries(this.concerns)) {
-    if (!concern || !concern.triggers || !Array.isArray(concern.triggers)) {
-      console.warn(`Skipping concern ${concernKey}: invalid triggers`);
-      continue;
-    }
-    
-    for (const trigger of concern.triggers) {
-      if (trigger && lowerMsg.includes(trigger.toLowerCase())) {
-        detected.push({
-          concernKey: concernKey,
-          concernTitle: concern.title || concernKey,
-          trigger: trigger,
-          icon: concern.icon || "❓",
-          confidence: 1.0
+// Get all available concerns for button display
+window.testimonialData.getAvailableConcerns = function() {
+    const concerns = [];
+    for (const [key, data] of Object.entries(this.concerns)) {
+        concerns.push({
+            key: key,
+            title: data.buttonText || data.title,
+            icon: data.icon,
+            videoType: data.videoType
         });
-        break; // Found one trigger, move to next concern
-      }
     }
-  }
-  
-  return detected;
+    return concerns;
 };
 
 // ===================================================
-// 🛡️ DATA PROTECTION: Create smarter Proxy
+// 🎬 VIDEO PLAYER WITH PROPER SIZE & VISIBLE CLOSE BUTTON
 // ===================================================
 
-// Create testimonialData with a smarter Proxy that allows function addition
-window.testimonialData = new Proxy(window.testimonialData, {  // ✅ CHANGED! Use window.testimonialData
-  set(target, property, value) {
-    // Allow setting new functions or properties that don't start with underscore
-    if (typeof value === 'function' || !property.startsWith('_')) {
-      console.log(`✅ Allowed: Setting testimonialData.${property}`);
-      target[property] = value;
-      return true;
+window.playTestimonialVideoWithOverlay = function(testimonial) {
+    console.log('🎬 Playing video with proper size:', testimonial.title);
+    
+    if (!testimonial.videoUrl) {
+        console.error('❌ No video URL');
+        return;
     }
     
-    // Block modifications to core data properties
-    const protectedProps = ['concerns', 'groups', 'videos', 'statistics', 'videoUrls', 'videoDurations', 'playerConfig'];
-    if (protectedProps.includes(property)) {
-      console.warn(`🛡️ Blocked: Cannot modify core data property testimonialData.${property}`);
-      console.trace('Modification attempted from:');
-      return false;
-    }
+    // 🛡️ Set protection flags
+    window.avatarCurrentlyPlaying = true;
+    window.testimonialSessionActive = true;
     
-    // Allow other modifications
-    target[property] = value;
-    return true;
-  },
-  
-  deleteProperty(target, property) {
-    console.warn(`🛡️ Blocked: Cannot delete testimonialData.${property}`);
-    console.trace('Deletion attempted from:');
-    return false;
-  }
-});
+    // Remove any existing overlay first
+    const existingOverlay = document.getElementById('testimonial-video-overlay');
+    if (existingOverlay) existingOverlay.remove();
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'testimonial-video-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.95);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    // Create MAIN CONTAINER (properly sized)
+    const container = document.createElement('div');
+    container.style.cssText = `
+        position: relative;
+        width: 350px;                 /* Mobile-like width */
+        max-width: 90vw;              /* Responsive */
+        background: rgba(20,20,30,0.9);
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+        border: 1px solid rgba(255,255,255,0.15);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    `;
+    
+    // Create HEADER with title
+    const header = document.createElement('div');
+    header.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: white;
+        font-family: 'Segoe UI', sans-serif;
+    `;
+    
+    // Determine if this is testimonial or informational
+let videoType = 'testimonial';
+let icon = '🎬';
+let subtitle = 'Real story from a satisfied client';
+let gradient = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
 
-console.log('🛡️ testimonialData protected (allows function additions)');
+// Check if this is informational (has 'description' field instead of 'text')
+if (testimonial.description || testimonial.author === 'System Explanation') {
+    videoType = 'informational';
+    icon = '📚';
+    subtitle = 'Educational video & system explanation';
+    gradient = 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)';
+}
 
-// ===================================================
-// 🎬 GLOBAL VIDEO PLAYER & UI FUNCTIONS
-// ===================================================
-
-// 🎬 Main video player function
-window.playTestimonialVideoWithOverlay = function(videoData, autoClose = true) {
-  console.log('🎬 Playing video:', videoData?.title || 'Unknown');
-  
-  if (!videoData || !videoData.videoUrl) {
-    console.error('❌ Invalid video data');
-    return;
-  }
-  
-  // Create overlay container
-  const overlay = document.createElement('div');
-  overlay.id = 'testimonialVideoOverlay';
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999999;
-    backdrop-filter: blur(5px);
-  `;
-  
-  // Create video container
-  const videoContainer = document.createElement('div');
-  videoContainer.style.cssText = `
-    position: relative;
-    max-width: 90%;
-    max-height: 90%;
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  `;
-  
-  // Create close button
-  const closeBtn = document.createElement('button');
-  closeBtn.innerHTML = '×';
-  closeBtn.style.cssText = `
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 40px;
-    height: 40px;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  `;
-  
-  closeBtn.onmouseover = () => closeBtn.style.background = 'rgba(0, 0, 0, 0.8)';
-  closeBtn.onmouseout = () => closeBtn.style.background = 'rgba(0, 0, 0, 0.6)';
-  
-  // Create video element
-  const video = document.createElement('video');
-  video.src = videoData.videoUrl;
-  video.controls = true;
-  video.autoplay = true;
-  video.style.cssText = `
-    display: block;
-    width: 100%;
-    height: auto;
-    max-height: 80vh;
-  `;
-  
-  // Create info panel
-  const infoPanel = document.createElement('div');
-  infoPanel.style.cssText = `
-    background: #f8f9fa;
-    padding: 20px;
-    border-top: 1px solid #e9ecef;
-  `;
-  
-  // Add title and author
-  infoPanel.innerHTML = `
-    <h3 style="margin: 0 0 5px 0; color: #333; font-size: 18px;">${videoData.title}</h3>
-    <p style="margin: 0; color: #666; font-size: 14px; font-weight: 500;">${videoData.author}</p>
-    ${videoData.description ? `<p style="margin: 10px 0 0 0; color: #777; font-size: 14px;">${videoData.description}</p>` : ''}
-  `;
-  
-  // Assemble components
-  videoContainer.appendChild(closeBtn);
-  videoContainer.appendChild(video);
-  videoContainer.appendChild(infoPanel);
-  overlay.appendChild(videoContainer);
-  document.body.appendChild(overlay);
-  
-  // Close functionality
-  const closeVideo = () => {
-    video.pause();
-    document.body.removeChild(overlay);
-    document.body.style.overflow = 'auto';
-  };
-  
-  closeBtn.onclick = closeVideo;
-  overlay.onclick = (e) => {
-    if (e.target === overlay) closeVideo();
-  };
-  
-  // Auto-close after video ends if enabled
-  if (autoClose) {
-    video.onended = closeVideo;
-  }
-  
-  // Prevent body scrolling
-  document.body.style.overflow = 'hidden';
-  
-  // Escape key to close
-  document.addEventListener('keydown', function escHandler(e) {
-    if (e.key === 'Escape') {
-      closeVideo();
-      document.removeEventListener('keydown', escHandler);
-    }
-  });
-  
-  return { overlay, video, closeVideo };
-};
-
-// 📱 Responsive video player
-window.showResponsiveTestimonial = function(videoId) {
-  const videoData = window.testimonialData.videos[videoId];
-  if (!videoData) {
-    console.error('Video not found:', videoId);
-    return;
-  }
-  
-  window.playTestimonialVideoWithOverlay(videoData);
-};
-
-// 🎯 AI Response Integration - FIXED
-window.getVideoResponseForMessage = function(userMessage) {
-  const concerns = window.testimonialData.detectConcerns(userMessage);
-  
-  if (concerns.length === 0) {
-    console.log('No concerns detected');
-    const generalVideos = window.testimonialData.getConcernVideos('general_info');
-    if (generalVideos.length > 0) {
-      return {
-        video: generalVideos[0],
-        concern: window.testimonialData.concerns.general_info || { title: 'General Info' },
-        confidence: 0.3
-      };
-    }
-    return null;
-  }
-  
-  // Sort by confidence
-  concerns.sort((a, b) => b.confidence - a.confidence);
-  const topConcern = concerns[0];
-  const videos = window.testimonialData.getConcernVideos(topConcern.concernKey);
-  
-  if (videos.length > 0) {
-    return {
-      video: videos[0],
-      concern: topConcern,
-      confidence: topConcern.confidence,
-      alternatives: videos.slice(1)
+header.innerHTML = `
+    <div style="
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: ${gradient};
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        flex-shrink: 0;
+    ">${icon}</div>
+    <div>
+        <h3 style="margin: 0 0 5px 0; font-size: 18px; font-weight: 600;">
+            ${testimonial.title || (videoType === 'informational' ? 'How It Works' : 'Client Testimonial')}
+        </h3>
+        <p style="margin: 0; opacity: 0.7; font-size: 13px;">
+            ${subtitle}
+        </p>
+    </div>
+`;
+    
+    // Create VIDEO CONTAINER (proper aspect ratio)
+    const videoContainer = document.createElement('div');
+    videoContainer.style.cssText = `
+        position: relative;
+        width: 100%;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid rgba(255,255,255,0.1);
+    `;
+    
+    // Create VIDEO element
+    const video = document.createElement('video');
+    video.style.cssText = `
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 10px;
+    `;
+    video.controls = true;
+    video.autoplay = true;
+    
+    const source = document.createElement('source');
+    source.src = testimonial.videoUrl;
+    source.type = 'video/mp4';
+    video.appendChild(source);
+    
+    // Create CLOSE BUTTON (VISIBLE - outside video container)
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = `
+        <span style="font-size: 16px; margin-right: 8px;">✕</span>
+        Close & Choose Next Step
+    `;
+    closeButton.style.cssText = `
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    `;
+    
+    // Add hover effects
+    closeButton.onmouseenter = function() {
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 10px 30px rgba(102, 126, 234, 0.4)';
+        this.style.opacity = '0.95';
     };
-  }
-  
-  return null;
+    
+    closeButton.onmouseleave = function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = 'none';
+        this.style.opacity = '1';
+    };
+    
+    // 🎯 CLOSE BUTTON ACTION
+    closeButton.onclick = function() {
+        console.log('🎯 Close button clicked');
+        
+        // Stop video
+        video.pause();
+        video.currentTime = 0;
+        
+        // Remove overlay
+        overlay.remove();
+        
+        // Show decision panel
+        if (window.showTestimonialNavigationOptions) {
+            setTimeout(() => {
+                window.showTestimonialNavigationOptions();
+            }, 300);
+        } else {
+            console.log('❌ Navigation function not found');
+            // Reset flags and return to chat
+            window.avatarCurrentlyPlaying = false;
+            window.testimonialSessionActive = false;
+        }
+    };
+    
+    // Assemble everything
+    videoContainer.appendChild(video);
+    container.appendChild(header);
+    container.appendChild(videoContainer);
+    container.appendChild(closeButton);
+    overlay.appendChild(container);
+    
+    // Add to page
+    document.body.appendChild(overlay);
+    
+    // Handle video end
+    video.addEventListener('ended', function() {
+        console.log('✅ Video ended');
+        setTimeout(() => {
+            closeButton.click(); // Trigger close button
+        }, 1000);
+    });
+    
+    console.log('✅ Video player created with proper size and visible button');
 };
-
-// 🎬 Play video based on user message
-window.playRelevantTestimonial = function(userMessage) {
-  const response = window.getVideoResponseForMessage(userMessage);
-  
-  if (response && response.video) {
-    console.log('🎯 Playing relevant testimonial:', response.video.title);
-    window.showResponsiveTestimonial(response.video.id);
-    return { success: true, video: response.video };
-  }
-  
-  console.log('❌ No relevant video found');
-  return { success: false, message: 'No relevant video found' };
-};
-
-// 📊 Get statistics for dashboard
-window.getTestimonialStats = function() {
-  return {
-    ...window.testimonialData.statistics,
-    concerns: Object.keys(window.testimonialData.concerns).length,
-    groupsByType: {
-      testimonial: Object.values(window.testimonialData.groups).filter(g => g.type === 'testimonial').length,
-      informational: Object.values(window.testimonialData.groups).filter(g => g.type === 'informational').length
-    }
-  };
-};
-
-// 🔄 Update video data
-window.updateTestimonialVideo = function(videoId, updates) {
-  const video = window.testimonialData.videos[videoId];
-  if (!video) {
-    console.error('Video not found:', videoId);
-    return false;
-  }
-  
-  Object.assign(video, updates);
-  console.log('✅ Updated video:', videoId, updates);
-  return true;
-};
-
-// ➕ Add new video
-window.addTestimonialVideo = function(videoData) {
-  if (!videoData.id) {
-    videoData.id = `video_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-  
-  if (window.testimonialData.videos[videoData.id]) {
-    console.error('Video ID already exists:', videoData.id);
-    return false;
-  }
-  
-  // Set default values
-  videoData.views = videoData.views || 0;
-  videoData.addedAt = videoData.addedAt || new Date().toISOString();
-  
-  window.testimonialData.videos[videoData.id] = videoData;
-  
-  // Add to group if specified
-  if (videoData.groupId && window.testimonialData.groups[videoData.groupId]) {
-    const group = window.testimonialData.groups[videoData.groupId];
-    if (!group.videoIds.includes(videoData.id)) {
-      group.videoIds.push(videoData.id);
-    }
-  }
-  
-  // Update statistics
-  window.testimonialData.statistics.totalVideos += 1;
-  if (videoData.type === 'testimonial') {
-    window.testimonialData.statistics.totalTestimonials += 1;
-  } else if (videoData.type === 'informational') {
-    window.testimonialData.statistics.totalInformationalVideos += 1;
-  }
-  
-  console.log('✅ Added new video:', videoData.id);
-  return videoData.id;
-};
-
-// 🗑️ Remove video
-window.removeTestimonialVideo = function(videoId) {
-  const video = window.testimonialData.videos[videoId];
-  if (!video) {
-    console.error('Video not found:', videoId);
-    return false;
-  }
-  
-  // Remove from group
-  if (video.groupId && window.testimonialData.groups[video.groupId]) {
-    const group = window.testimonialData.groups[video.groupId];
-    group.videoIds = group.videoIds.filter(id => id !== videoId);
-  }
-  
-  // Remove video
-  delete window.testimonialData.videos[videoId];
-  
-  // Update statistics
-  window.testimonialData.statistics.totalVideos -= 1;
-  if (video.type === 'testimonial') {
-    window.testimonialData.statistics.totalTestimonials -= 1;
-  } else if (video.type === 'informational') {
-    window.testimonialData.statistics.totalInformationalVideos -= 1;
-  }
-  
-  console.log('🗑️ Removed video:', videoId);
-  return true;
-};
-
-// 🔧 Initialize testimonial system
-window.initializeTestimonialSystem = function() {
-  console.log('🚀 Initializing Testimonial System v5.0');
-  
-  // Validate data
-  const validation = window.testimonialData.validateData();
-  
-  if (validation.warnings.length > 0) {
-    console.warn('⚠️ System warnings:', validation.warnings);
-  }
-  
-  // Set up global shortcuts
-  window.showTestimonial = window.showResponsiveTestimonial;
-  window.findTestimonial = window.getVideoResponseForMessage;
-  
-  console.log('✅ Testimonial system ready');
-  console.log('   Available concerns:', Object.keys(window.testimonialData.concerns).length);
-  console.log('   Available videos:', Object.keys(window.testimonialData.videos).length);
-  console.log('   Total views:', window.testimonialData.statistics.totalViews);
-  
-  return true;
-};
-
-// ===================================================
-// 🔧 SURGICAL FIX: Attach missing functions to testimonialData
-// ===================================================
-
-console.log('🔧 Applying surgical fix for missing functions...');
-
-// Fix 1: Check if testimonialData exists
-if (!window.testimonialData) {
-  console.error('❌ testimonialData does not exist!');
-} else { 
-
-  console.log('✅ testimonialData exists, attaching functions...');
-  
-  // Attach functions that should be on testimonialData
-  const functionsToAttach = [
-    'getConcernVideos',
-    'validateData', 
-    'detectConcerns',
-    'mapPatternToConcern',
-    'getAvailableConcerns',
-    'getAllVideosByGroup'
-  ];
-  
-  functionsToAttach.forEach(funcName => {
-    if (typeof window[funcName] === 'function') {
-      console.log(`   Attaching ${funcName} from window...`);
-      window.testimonialData[funcName] = window[funcName];
-    } else {
-      console.log(`   ❌ ${funcName} not found in window, creating it...`);
-      
-      // Create missing functions
-      switch(funcName) {
-        case 'getConcernVideos':
-          window.testimonialData.getConcernVideos = function(concernKey) {
-            console.log('🔍 Searching videos for concern:', concernKey);
-            const results = [];
-            
-            for (const [videoId, video] of Object.entries(this.videos || {})) {
-              if (video.concernType === concernKey) {
-                const group = this.groups[video.groupId] || {};
-                results.push({
-                  ...video,
-                  groupName: group.name || "Uncategorized",
-                  groupIcon: group.icon || "📁",
-                  groupType: group.type
-                });
-              }
-            }
-            
-            return results;
-          };
-          break;
-          
-        case 'validateData':
-          window.testimonialData.validateData = function() {
-            console.log('🔧 Quick validation...');
-            const warnings = [];
-            if (Object.keys(this.concerns || {}).length !== 12) {
-              warnings.push(`Expected 12 concerns, found ${Object.keys(this.concerns || {}).length}`);
-            }
-            return { valid: true, warnings };
-          };
-          break;
-          
-        case 'detectConcerns':
-          window.testimonialData.detectConcerns = function(userMessage) {
-            const lowerMsg = userMessage.toLowerCase();
-            const detected = [];
-            
-            for (const [concernKey, concern] of Object.entries(this.concerns || {})) {
-              if (concern && concern.triggers && Array.isArray(concern.triggers)) {
-                for (const trigger of concern.triggers) {
-                  if (trigger && lowerMsg.includes(trigger.toLowerCase())) {
-                    detected.push({
-                      concernKey,
-                      concernTitle: concern.title || concernKey,
-                      trigger,
-                      icon: concern.icon || "❓",
-                      confidence: 1.0
-                    });
-                    break;
-                  }
-                }
-              }
-            }
-            
-            return detected;
-          };
-          break;
-          
-        case 'mapPatternToConcern':
-          window.testimonialData.mapPatternToConcern = function(pattern) {
-            const patternMap = {
-              "expensive": "price_expensive",
-              "too much": "price_expensive",
-              "cost": "price_cost",
-              "price": "price_cost",
-              "how much": "price_cost",
-              "afford": "price_affordability",
-              "worth it": "price_affordability",
-              "budget": "price_affordability",
-              "time": "time_speed",
-              "busy": "time_busy",
-              "no time": "time_busy",
-              "when": "time_speed",
-              "long": "time_speed",
-              "fast": "time_speed",
-              "quick": "time_speed",
-              "trust": "trust_legitimacy",
-              "believe": "trust_legitimacy",
-              "skeptical": "trust_skepticism",
-              "scam": "trust_legitimacy",
-              "real": "trust_legitimacy",
-              "legit": "trust_legitimacy",
-              "doubt": "trust_skepticism",
-              "work": "results_effectiveness",
-              "actually work": "results_effectiveness",
-              "results": "results_effectiveness",
-              "worried": "results_worry",
-              "concerned": "results_worry",
-              "afraid": "results_worry",
-              "information": "general_info",
-              "details": "general_info",
-              "explain": "general_info",
-              "how it works": "general_info",
-              "show me": "general_demo",
-              "demonstrate": "general_demo",
-              "demo": "general_demo",
-              "300%": "info_conversions_boost",
-              "triple": "info_conversions_boost",
-              "more conversions": "info_conversions_boost",
-              "pre qualified": "info_pre_qualified",
-              "qualified leads": "info_pre_qualified",
-              "hot leads": "info_pre_qualified"
-            };
-            
-            return patternMap[pattern] || "general_info";
-          };
-          break;
-          
-        case 'getAvailableConcerns':
-          window.testimonialData.getAvailableConcerns = function() {
-            const concerns = [];
-            for (const [key, data] of Object.entries(this.concerns || {})) {
-              concerns.push({
-                key: key,
-                title: data.title || key,
-                icon: data.icon || "❓",
-                videoType: data.videoType || "skeptical",
-                triggers: data.triggers || [],
-                description: data.description || ""
-              });
-            }
-            return concerns;
-          };
-          break;
-          
-        case 'getAllVideosByGroup':
-          window.testimonialData.getAllVideosByGroup = function(groupId) {
-            const results = [];
-            for (const [videoId, video] of Object.entries(this.videos || {})) {
-              if (video.groupId === groupId) {
-                results.push(video);
-              }
-            }
-            return results;
-          };
-          break;
-      }
-    }
-  });
-  }
-  console.log('✅ Functions attached to testimonialData');
