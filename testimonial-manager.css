@@ -2981,6 +2981,56 @@ select option[data-type="testimonial"] {
     transform: none !important;
 }
 
+/* ============================== */
+/* TESTIMONIAL GROUP MODAL FIXES */
+/* ============================== */
+
+/* Fix modal header/heading colors */
+#addTestimonialGroupModal .modal-header h2 {
+    color: #8ab4f8 !important; /* Blue for visibility */
+    font-weight: 600;
+}
+
+/* Fix selected triggers buttons - blue gradient */
+.selected-triggers-container .btn-primary {
+    background: linear-gradient(135deg, #1a73e8 0%, #8ab4f8 100%) !important;
+    color: white !important;
+    border: 1px solid #5c9ce6 !important;
+    border-radius: 20px !important;
+    padding: 6px 16px !important;
+    font-weight: 500 !important;
+}
+
+/* Fix modal body background for dark theme */
+#addTestimonialGroupModal .modal-body {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    color: #e8eaed !important;
+}
+
+/* Fix checkbox labels */
+#addTestimonialGroupModal .concern-label {
+    color: #e8eaed !important;
+}
+
+/* Fix "No triggers" message */
+#addTestimonialGroupModal .no-triggers {
+    color: #9aa0a6 !important;
+    font-style: italic;
+}
+
+/* Fix submit button */
+#addTestimonialGroupModal button[type="submit"] {
+    background: linear-gradient(135deg, #1a73e8 0%, #8ab4f8 100%) !important;
+    color: white !important;
+    border: none !important;
+}
+
+#addTestimonialGroupModal button[type="submit"]:disabled {
+    background: #5a6268 !important;
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+}
+
 /* ============================================
    🚀 ULTIMATE OVERRIDE FOR INLINE STYLES
    ============================================ */
