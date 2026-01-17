@@ -2980,6 +2980,36 @@ select option[data-type="testimonial"] {
     cursor: not-allowed !important;
     transform: none !important;
 }
+
+/* Group Creator Modal - Clean Fix */
+#addTestimonialGroupModal .modal-content {
+    background: #1a1a1a;
+}
+
+#addTestimonialGroupModal .modal-header {
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+}
+
+#addTestimonialGroupModal .modal-header h2 {
+    color: #8ab4f8;
+}
+
+#addTestimonialGroupModal .modal-body {
+    background: #1a1a1a;
+    color: white;
+}
+
+#addTestimonialGroupModal .form-check-label,
+#addTestimonialGroupModal .concern-label {
+    color: white;
+}
+
+.selected-triggers-container .btn {
+    background: #1a73e8;
+    color: white;
+    border: none;
+}
     
 }
 
