@@ -2980,6 +2980,39 @@ select option[data-type="testimonial"] {
     cursor: not-allowed !important;
     transform: none !important;
 }
+
+/* ============================================
+   🚀 ULTIMATE OVERRIDE FOR GROUP CREATOR MODAL
+   ============================================ */
+
+#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .triggers-section,
+#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .concerns-grid,
+#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .concern-checkbox-item,
+#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .concern-label,
+#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .form-check.concern-checkbox {
+    background: rgba(255, 255, 255, 0.05) !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-image: none !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .triggers-section h4,
+#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .concern-text,
+#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .concern-checkbox-label,
+#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .form-check-label {
+    color: white !important;
+    background: transparent !important;
+}
+
+/* Kill any light backgrounds with extreme prejudice */
+#addTestimonialGroupModal *[style*="background"] {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+#addTestimonialGroupModal *[style*="color"] {
+    color: white !important;
+}
     
 }
 
