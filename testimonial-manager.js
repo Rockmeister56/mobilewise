@@ -2243,25 +2243,26 @@ function updateSelectedDisplay() {
             return label ? label.textContent.trim() : cb.value;
         });
         
-        preview.innerHTML = `
-            <div style="margin-bottom: 10px; font-weight: 600; color: #8ab4f8;">
-                ✅ Selected (${selected.length}):
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                ${selected.map(item => 
-                    `<span style="
-                        background: linear-gradient(135deg, #1e293b, #0f172a);
-                        color: #f1f5f9;
-                        padding: 8px 16px;
-                        border-radius: 20px;
-                        border: 2px solid #3b82f6;
-                        font-size: 14px;
-                        font-weight: 600;
-                        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-                    ">${item}</span>`
-                ).join('')}
-            </div>
-        `;
+      preview.innerHTML = `
+    <div style="margin-bottom: 10px; font-weight: 600; color: #3b82f6;">
+        ✅ Selected (${selected.length}):
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        ${selected.map(item => 
+            `<span style="
+                background: linear-gradient(135deg, #3b82f6, #2563eb);
+                color: white;
+                padding: 8px 16px;
+                border-radius: 20px;
+                border: 2px solid #60a5fa;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            ">${item}</span>`
+        ).join('')}
+    </div>
+`;
     } else {
         preview.innerHTML = `
             <p style="margin: 0; color: #9ca3af; font-style: italic;">
