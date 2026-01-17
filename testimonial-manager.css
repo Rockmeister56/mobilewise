@@ -2829,166 +2829,18 @@ select option[data-type="testimonial"] {
     text-overflow: ellipsis !important;
 }
 
-/* ============================================
-   ✅ SELECTED TRIGGERS DISPLAY (TAGS)
-   ============================================ */
+/* ============================================ */
+/* GROUP CREATOR MODAL - CLEAN & SIMPLE */
+/* ============================================ */
 
-.selected-triggers-container {
-    margin-top: 25px !important;
-    padding: 20px !important;
-    background: rgba(0, 0, 0, 0.4) !important;
-    border-radius: 10px !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    transition: all 0.3s ease !important;
-}
-
-.selected-triggers-container.has-triggers {
-    border-color: #4CAF50 !important;
-    background: rgba(76, 175, 80, 0.05) !important;
-}
-
-.selected-triggers-title {
-    color: #8ab4f8 !important;
-    margin-top: 0 !important;
-    margin-bottom: 15px !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    font-size: 16px !important;
-}
-
-.selected-triggers-list {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 10px !important;
-    min-height: 50px !important;
-    align-items: center !important;
-}
-
-.no-triggers-message {
-    color: rgba(255, 255, 255, 0.4) !important;
-    font-style: italic !important;
-    margin: 0 !important;
-    font-size: 14px !important;
-}
-
-/* ============================================
-   🏷️ TRIGGER TAGS (THE BEAUTIFUL TAGS!)
-   ============================================ */
-
-.trigger-tag {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-    background: linear-gradient(135deg, rgba(33, 150, 243, 0.2), rgba(33, 150, 243, 0.1)) !important;
-    color: white !important;
-    padding: 10px 16px !important;
-    border-radius: 25px !important;
-    font-size: 14px !important;
-    border: 1px solid rgba(33, 150, 243, 0.3) !important;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
-    animation: tagPopIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
-}
-
-@keyframes tagPopIn {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.tag-emoji {
-    font-size: 16px !important;
-}
-
-.tag-text {
-    font-weight: 500 !important;
-}
-
-.remove-tag-btn {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border: none !important;
-    color: rgba(255, 255, 255, 0.7) !important;
-    width: 22px !important;
-    height: 22px !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    font-size: 16px !important;
-    padding: 0 !important;
-    margin-left: 2px !important;
-    transition: all 0.2s !important;
-}
-
-.remove-tag-btn:hover {
-    background: rgba(244, 67, 54, 0.3) !important;
-    color: white !important;
-    transform: scale(1.1) !important;
-}
-
-/* ============================================
-   🎯 ACTION BUTTONS
-   ============================================ */
-
-#addTestimonialGroupModal .modal-actions {
-    padding: 20px 25px !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-    display: flex !important;
-    justify-content: flex-end !important;
-    gap: 15px !important;
-}
-
-#addTestimonialGroupModal .btn {
-    padding: 12px 25px !important;
-    border: none !important;
-    border-radius: 8px !important;
-    font-size: 15px !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    min-width: 120px !important;
-    transition: all 0.2s !important;
-}
-
-#addTestimonialGroupModal .btn-secondary {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
-}
-
-#addTestimonialGroupModal .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.2) !important;
-    transform: translateY(-2px) !important;
-}
-
-#addTestimonialGroupModal .btn-primary {
-    background: linear-gradient(135deg, #2196F3, #1976D2) !important;
-    color: white !important;
-    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3) !important;
-}
-
-#addTestimonialGroupModal .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #1976D2, #0D47A1) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4) !important;
-}
-
-#addTestimonialGroupModal .btn-primary:disabled {
-    opacity: 0.5 !important;
-    cursor: not-allowed !important;
-    transform: none !important;
-}
-
-/* Group Creator Modal - Clean Fix */
+/* Modal container - DARK THEME */
 #addTestimonialGroupModal .modal-content {
-    background: #1a1a1a;
+    background: #1a1a2e;
 }
 
 #addTestimonialGroupModal .modal-header {
-    background: #1a1a1a;
-    border-bottom: 1px solid #333;
+    background: #1a1a2e;
+    border-bottom: 1px solid #444;
 }
 
 #addTestimonialGroupModal .modal-header h2 {
@@ -2996,19 +2848,62 @@ select option[data-type="testimonial"] {
 }
 
 #addTestimonialGroupModal .modal-body {
-    background: #1a1a1a;
+    background: #1a1a2e;
     color: white;
 }
 
-#addTestimonialGroupModal .form-check-label,
-#addTestimonialGroupModal .concern-label {
+/* Form elements */
+#addTestimonialGroupModal .form-control,
+#addTestimonialGroupModal .form-select,
+#addTestimonialGroupModal textarea {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #444;
     color: white;
 }
 
+#addTestimonialGroupModal .form-label {
+    color: #e8eaed;
+}
+
+/* Trigger checkboxes */
+#addTestimonialGroupModal .concern-checkbox-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #444;
+}
+
+#addTestimonialGroupModal .concern-checkbox-label {
+    color: white;
+}
+
+/* Selected triggers preview */
+#addTestimonialGroupModal .form-group {
+    background: transparent;
+}
+
+#addTestimonialGroupModal #selectedTriggersPreview {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #444;
+}
+
+#addTestimonialGroupModal #selectedTriggersPreview p {
+    color: #9ca3af;
+}
+
+/* Selected trigger tags */
 .selected-triggers-container .btn {
     background: #1a73e8;
     color: white;
     border: none;
+}
+
+/* Modal footer buttons */
+#addTestimonialGroupModal .modal-actions {
+    border-top: 1px solid #444;
+}
+
+#addTestimonialGroupModal .btn-primary {
+    background: #1a73e8;
+    color: white;
 }
     
 }

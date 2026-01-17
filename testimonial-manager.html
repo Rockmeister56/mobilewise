@@ -317,14 +317,14 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
     
-  <!-- =========================================== -->
-<!-- MODALS -->
+ <!-- =========================================== -->
+<!-- MODALS - CLEAN VERSION (NO INLINE STYLES) -->
 <!-- =========================================== -->
 
-<!-- ADD VIDEO GROUP MODAL - FIXED LAYOUT -->
-<div id="addTestimonialGroupModal" class="modal">
+<!-- ADD VIDEO GROUP MODAL - CLEAN LAYOUT -->
+<div id="addTestimonialGroupModal" class="modal testimonial-group-modal">
     <div class="modal-backdrop" onclick="hideAddTestimonialGroupModal()"></div>
-    <div class="modal-dialog" style="max-width: 800px;">
+    <div class="modal-dialog">
         <div class="modal-header">
             <h2 class="modal-title">
                 <span class="modal-icon">➕</span>
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         <div class="modal-body">
             <!-- BASIC INFO SECTION -->
-            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div class="form-row two-column">
                 <div class="form-group">
                     <label for="newGroupName" class="form-label">Group Name</label>
                     <input type="text" id="newGroupName" class="form-control" 
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
 
             <!-- ICON & DESCRIPTION -->
-            <div class="form-row" style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 20px;">
+            <div class="form-row two-column">
                 <div class="form-group">
                     <label for="newGroupIcon" class="form-label">Icon Emoji</label>
                     <input type="text" id="newGroupIcon" class="form-control" 
@@ -377,52 +377,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
 
-            <!-- TRIGGERS SECTION - FIXED LAYOUT -->
-            <div class="form-group">
-                <label class="form-label" style="font-size: 1.1rem; margin-bottom: 15px;">
+            <!-- TRIGGERS SECTION - CLEAN LAYOUT -->
+            <div class="form-group triggers-section">
+                <label class="form-label trigger-section-label">
                     🎯 When to Show These Videos
                 </label>
                 
                 <!-- TRIGGER SELECTION AREA -->
-                <div id="concernsCheckboxContainer" class="concerns-checkbox-container" 
-                     style="max-height: 300px; overflow-y: auto; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb;">
+                <div id="concernsCheckboxContainer" class="concerns-checkbox-container">
                     
                     <!-- TESTIMONIAL TRIGGERS -->
                     <div class="concern-section" id="testimonialTriggersCheckboxes">
-                        <div class="concern-section-title" style="font-size: 1rem; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #3b82f6;">
+                        <div class="concern-section-title">
                             🎬 Testimonial Triggers
                         </div>
                         
                         <!-- 💰 PRICE CONCERNS -->
-                        <div class="concern-subgroup" style="margin-bottom: 20px;">
-                            <div class="concern-subgroup-title" style="font-weight: 600; margin-bottom: 10px; color: #374151;">💰 Price Concerns</div>
-                            <div class="concern-checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
-                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                        <div class="concern-subgroup">
+                            <div class="concern-subgroup-title">💰 Price Concerns</div>
+                            <div class="concern-checkbox-grid">
+                                <div class="concern-checkbox-item">
                                     <input type="checkbox" id="concern_price_expensive" class="concern-checkbox" value="price_expensive">
-                                    <label for="concern_price_expensive" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                    <label for="concern_price_expensive" class="concern-checkbox-label">
                                         💰 Expensive (expensive, too much)
                                     </label>
-                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                    <div class="concern-keywords">
                                         Triggers: expensive, too much, high price
                                     </div>
                                 </div>
                                 
-                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                <div class="concern-checkbox-item">
                                     <input type="checkbox" id="concern_price_cost" class="concern-checkbox" value="price_cost">
-                                    <label for="concern_price_cost" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                    <label for="concern_price_cost" class="concern-checkbox-label">
                                         💰 Cost/Price (cost, price, how much)
                                     </label>
-                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                    <div class="concern-keywords">
                                         Triggers: cost, price, pricing, how much
                                     </div>
                                 </div>
                                 
-                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                <div class="concern-checkbox-item">
                                     <input type="checkbox" id="concern_price_affordability" class="concern-checkbox" value="price_affordability">
-                                    <label for="concern_price_affordability" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                    <label for="concern_price_affordability" class="concern-checkbox-label">
                                         💰 Affordability (afford, worth it, budget)
                                     </label>
-                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                    <div class="concern-keywords">
                                         Triggers: afford, budget, money, worth it
                                     </div>
                                 </div>
@@ -430,25 +429,25 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         
                         <!-- ⏰ TIME CONCERNS -->
-                        <div class="concern-subgroup" style="margin-bottom: 20px;">
-                            <div class="concern-subgroup-title" style="font-weight: 600; margin-bottom: 10px; color: #374151;">⏰ Time Concerns</div>
-                            <div class="concern-checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
-                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                        <div class="concern-subgroup">
+                            <div class="concern-subgroup-title">⏰ Time Concerns</div>
+                            <div class="concern-checkbox-grid">
+                                <div class="concern-checkbox-item">
                                     <input type="checkbox" id="concern_time_busy" class="concern-checkbox" value="time_busy">
-                                    <label for="concern_time_busy" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                    <label for="concern_time_busy" class="concern-checkbox-label">
                                         ⏰ Too Busy (busy, no time, overwhelmed)
                                     </label>
-                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                    <div class="concern-keywords">
                                         Triggers: busy, no time, hectic, overwhelmed
                                     </div>
                                 </div>
                                 
-                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                <div class="concern-checkbox-item">
                                     <input type="checkbox" id="concern_time_speed" class="concern-checkbox" value="time_speed">
-                                    <label for="concern_time_speed" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                    <label for="concern_time_speed" class="concern-checkbox-label">
                                         ⏰ Speed/Timing (time, when, long, fast)
                                     </label>
-                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                    <div class="concern-keywords">
                                         Triggers: time, when, long, fast, quick
                                     </div>
                                 </div>
@@ -456,25 +455,25 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         
                         <!-- 🤝 TRUST CONCERNS -->
-                        <div class="concern-subgroup" style="margin-bottom: 20px;">
-                            <div class="concern-subgroup-title" style="font-weight: 600; margin-bottom: 10px; color: #374151;">🤝 Trust Concerns</div>
-                            <div class="concern-checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
-                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                        <div class="concern-subgroup">
+                            <div class="concern-subgroup-title">🤝 Trust Concerns</div>
+                            <div class="concern-checkbox-grid">
+                                <div class="concern-checkbox-item">
                                     <input type="checkbox" id="concern_trust_skepticism" class="concern-checkbox" value="trust_skepticism">
-                                    <label for="concern_trust_skepticism" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                    <label for="concern_trust_skepticism" class="concern-checkbox-label">
                                         🤝 Skepticism (skeptical, not sure, doubt)
                                     </label>
-                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                    <div class="concern-keywords">
                                         Triggers: skeptical, not sure, doubt, unsure
                                     </div>
                                 </div>
                                 
-                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                <div class="concern-checkbox-item">
                                     <input type="checkbox" id="concern_trust_legitimacy" class="concern-checkbox" value="trust_legitimacy">
-                                    <label for="concern_trust_legitimacy" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                    <label for="concern_trust_legitimacy" class="concern-checkbox-label">
                                         🤝 Legitimacy (scam, real, trust, believe)
                                     </label>
-                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                    <div class="concern-keywords">
                                         Triggers: scam, real, legit, trust, believe
                                     </div>
                                 </div>
@@ -482,25 +481,25 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         
                         <!-- 📈 RESULTS CONCERNS -->
-                        <div class="concern-subgroup" style="margin-bottom: 20px;">
-                            <div class="concern-subgroup-title" style="font-weight: 600; margin-bottom: 10px; color: #374151;">📈 Results Concerns</div>
-                            <div class="concern-checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
-                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                        <div class="concern-subgroup">
+                            <div class="concern-subgroup-title">📈 Results Concerns</div>
+                            <div class="concern-checkbox-grid">
+                                <div class="concern-checkbox-item">
                                     <input type="checkbox" id="concern_results_effectiveness" class="concern-checkbox" value="results_effectiveness">
-                                    <label for="concern_results_effectiveness" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                    <label for="concern_results_effectiveness" class="concern-checkbox-label">
                                         📈 Effectiveness (work, results, effective)
                                     </label>
-                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                    <div class="concern-keywords">
                                         Triggers: work, actually work, results, effective
                                     </div>
                                 </div>
                                 
-                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                <div class="concern-checkbox-item">
                                     <input type="checkbox" id="concern_results_worry" class="concern-checkbox" value="results_worry">
-                                    <label for="concern_results_worry" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                    <label for="concern_results_worry" class="concern-checkbox-label">
                                         📈 Worry/Concern (worried, concerned, afraid)
                                     </label>
-                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                    <div class="concern-keywords">
                                         Triggers: worried, concerned, afraid, nervous
                                     </div>
                                 </div>
@@ -508,25 +507,25 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         
                         <!-- ⭐ GENERAL CONCERNS -->
-                        <div class="concern-subgroup" style="margin-bottom: 20px;">
-                            <div class="concern-subgroup-title" style="font-weight: 600; margin-bottom: 10px; color: #374151;">⭐ General Feedback</div>
-                            <div class="concern-checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
-                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                        <div class="concern-subgroup">
+                            <div class="concern-subgroup-title">⭐ General Feedback</div>
+                            <div class="concern-checkbox-grid">
+                                <div class="concern-checkbox-item">
                                     <input type="checkbox" id="concern_general_info" class="concern-checkbox" value="general_info">
-                                    <label for="concern_general_info" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                    <label for="concern_general_info" class="concern-checkbox-label">
                                         ⭐ General Information (information, explain)
                                     </label>
-                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                    <div class="concern-keywords">
                                         Triggers: information, details, explain, how it works
                                     </div>
                                 </div>
                                 
-                                <div class="concern-checkbox-item" style="padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: white;">
+                                <div class="concern-checkbox-item">
                                     <input type="checkbox" id="concern_general_demo" class="concern-checkbox" value="general_demo">
-                                    <label for="concern_general_demo" class="concern-checkbox-label" style="display: block; margin-bottom: 4px;">
+                                    <label for="concern_general_demo" class="concern-checkbox-label">
                                         ⭐ Demo Request (show me, demonstrate, demo)
                                     </label>
-                                    <div class="concern-keywords" style="font-size: 0.8rem; color: #6b7280;">
+                                    <div class="concern-keywords">
                                         Triggers: show me, demonstrate, demo, see it, watch
                                     </div>
                                 </div>
@@ -535,29 +534,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     
                     <!-- INFORMATIONAL TRIGGERS (Hidden by default) -->
-                    <div class="concern-section" id="informationalTriggersCheckboxes" style="display: none;">
+                    <div class="concern-section" id="informationalTriggersCheckboxes">
                         <!-- Similar structure for informational triggers -->
                         <!-- (Keep your existing informational triggers HTML here) -->
                     </div>
                 </div>
                 
-                <small class="form-help" style="display: block; margin-top: 10px;">
+                <small class="form-help">
                     Select triggers to determine when these videos should appear
                 </small>
             </div>
             
             <!-- SELECTED TRIGGERS PREVIEW -->
-            <div class="form-group" style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e5e7eb;">
-                <label class="form-label" style="font-size: 1rem; margin-bottom: 10px;">
+            <div class="form-group selected-triggers-preview-section">
+                <label class="form-label">
                     ✅ Selected Triggers Preview:
                 </label>
-                <div id="selectedTriggersPreview" style="min-height: 40px; padding: 10px; background: white; border-radius: 6px; border: 1px solid #d1d5db;">
-                    <p style="margin: 0; color: #9ca3af; font-style: italic;">No triggers selected yet</p>
+                <div id="selectedTriggersPreview" class="selected-triggers-preview">
+                    <p class="no-triggers-message">No triggers selected yet</p>
                 </div>
             </div>
 
             <!-- BUTTONS -->
-            <div class="modal-actions" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            <div class="modal-actions">
                 <button type="button" class="btn btn-secondary" 
                         onclick="hideAddTestimonialGroupModal()">Cancel</button>
                 <button type="button" class="btn btn-primary" 
@@ -580,7 +579,6 @@ document.addEventListener('DOMContentLoaded', function() {
             <button class="modal-close" onclick="hideAllTestimonialsModal()">×</button>
         </div>
         <div class="modal-body">
-            <!-- Testimonials grid will be populated by JavaScript -->
             <div id="allTestimonialsContent" class="testimonials-grid-container">
                 <!-- Content loaded dynamically -->
             </div>
@@ -610,28 +608,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- TESTIMONIAL OVERLAY -->
-<div id="testimonialOverlay" class="testimonial-overlay" style="display: none;">
-    <div class="testimonial-container">
-        <div class="testimonial-header">
-            <button class="btn-close-overlay" onclick="hideTestimonialOverlay()">×</button>
-            <h2 id="overlayGroupName">Group Testimonials</h2>
-            <p id="overlayGroupDescription">Click a testimonial to play</p>
-        </div>
-        
-        <div id="overlayTestimonialsGrid" class="testimonial-selection-grid">
-            <!-- Testimonials will be loaded here -->
-        </div>
-        
-        <div class="testimonial-footer">
-            <button class="btn-skip-testimonials" onclick="hideTestimonialOverlay()">
-                Skip Testimonials
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- TESTIMONIAL OVERLAY -->
-<div id="testimonialOverlay" class="testimonial-overlay" style="display: none;">
+<div id="testimonialOverlay" class="testimonial-overlay">
     <div class="testimonial-container">
         <div class="testimonial-header">
             <button class="btn-close-overlay" onclick="hideTestimonialOverlay()">×</button>
