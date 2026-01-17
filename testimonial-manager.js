@@ -2,6 +2,123 @@
 // TESTIMONIAL MANAGER JS - GROUPS SYSTEM
 // ===================================================
 
+// ============================================
+// 🚀 REMOVE LOCALSTORAGE - DIRECT FILE EDITING
+// ============================================
+
+console.log('🔧 Removing localStorage dependency...');
+
+// 1. DISABLE/REMOVE saveToLocalStorage
+window.saveToLocalStorage = function() {
+    console.log('⚠️ saveToLocalStorage() disabled - using direct file editing instead');
+    return true;
+};
+
+// 2. FIX addVideoTestimonial to work without localStorage
+if (typeof addVideoTestimonial === 'function') {
+    console.log('🔧 Fixing addVideoTestimonial function...');
+    
+    // Get the original function
+    const originalAddVideo = addVideoTestimonial.toString();
+    
+    // Remove saveToLocalStorage call
+    const fixedFunction = originalAddVideo.replace(
+        /saveToLocalStorage\(\);/g, 
+        'console.log("✅ Testimonial added to window.testimonialData");'
+    );
+    
+    // Update the function
+    eval('addVideoTestimonial = ' + fixedFunction);
+    
+    console.log('✅ addVideoTestimonial fixed - no longer uses localStorage');
+}
+
+// 3. CREATE PROPER SAVE FUNCTION
+window.saveAllData = function() {
+    console.log('💾 Saving directly to testimonials-data.js file...');
+    
+    // Get current data
+    const dataToSave = window.testimonialData || {};
+    
+    // Clean structure
+    const cleanData = {
+        version: dataToSave.version || "3.0",
+        lastUpdated: new Date().toISOString(),
+        
+        // Video configurations
+        videoUrls: dataToSave.videoUrls || {},
+        videoDurations: dataToSave.videoDurations || {},
+        concerns: dataToSave.concerns || {},
+        
+        // ⭐ TESTIMONIALS
+        testimonialGroups: dataToSave.testimonialGroups || {},
+        
+        // 📚 INFORMATIONAL VIDEOS
+        informationalGroups: dataToSave.informationalGroups || {},
+        
+        // Statistics
+        statistics: {
+            totalTestimonialGroups: Object.keys(dataToSave.testimonialGroups || {}).length,
+            totalInformationalGroups: Object.keys(dataToSave.informationalGroups || {}).length,
+            totalTestimonials: Object.values(dataToSave.testimonialGroups || {})
+                .reduce((sum, g) => sum + (g.testimonials?.length || 0), 0),
+            totalInformationalVideos: Object.values(dataToSave.informationalGroups || {})
+                .reduce((sum, g) => sum + (g.videos?.length || 0), 0)
+        },
+        
+        // Player config
+        playerConfig: dataToSave.playerConfig || {},
+        
+        // Metadata
+        __version: "3.0-direct-edit",
+        __generated: new Date().toISOString(),
+        __notes: "Direct edit - no localStorage"
+    };
+    
+    // Remove any old .groups structure
+    delete cleanData.groups;
+    
+    // Create the JS file
+    const jsContent = `// ===================================================
+// 🎬 TESTIMONIALS DATA FILE
+// Generated: ${new Date().toLocaleString()}
+// Direct Edit Mode - No localStorage
+// ===================================================
+
+window.testimonialData = ${JSON.stringify(cleanData, null, 2)};`;
+    
+    // Download
+    const blob = new Blob([jsContent], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'testimonials-data.js';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    
+    setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        console.log('✅ File downloaded: testimonials-data.js');
+    }, 100);
+    
+    // Show success
+    if (typeof showSuccess === 'function') {
+        showSuccess('✅ Data saved to testimonials-data.js file!');
+    } else {
+        alert('✅ testimonials-data.js file downloaded!\n\nReplace your current file with this one.');
+    }
+    
+    return true;
+};
+
+console.log('✅ System converted to direct file editing!');
+console.log('\n🎯 Now when you:');
+console.log('1. Add testimonials → Updates window.testimonialData directly');
+console.log('2. Click "Save Data" → Downloads updated testimonials-data.js file');
+console.log('3. No localStorage used!');
+
 // ===================================================
 // 🧩 COMPATIBILITY LAYER FOR TESTIMONIAL MANAGER
 // Add this to the TOP of testimonial-manager.js
