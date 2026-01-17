@@ -2981,6 +2981,43 @@ select option[data-type="testimonial"] {
     transform: none !important;
 }
 
+/* ============================================
+   🚀 ULTIMATE OVERRIDE FOR INLINE STYLES
+   ============================================ */
+
+/* Override inline styles with !important */
+#addTestimonialGroupModal .concerns-checkbox-container[style],
+#addTestimonialGroupModal .concern-checkbox-item[style],
+#addTestimonialGroupModal .concern-subgroup[style],
+#addTestimonialGroupModal .concern-subgroup-title[style],
+#addTestimonialGroupModal .concern-checkbox-label[style],
+#addTestimonialGroupModal .concern-keywords[style] {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Specifically target white backgrounds */
+#addTestimonialGroupModal [style*="background: white"],
+#addTestimonialGroupModal [style*="background: rgb(255, 255, 255)"],
+#addTestimonialGroupModal [style*="background: rgb(249, 250, 251)"] {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Specifically target dark text colors */
+#addTestimonialGroupModal [style*="color: rgb(55, 65, 81)"],
+#addTestimonialGroupModal [style*="color: rgb(107, 114, 128)"] {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Override ALL inline styles in modal */
+#addTestimonialGroupModal [style] {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
 /* ============================== */
 /* TESTIMONIAL GROUP MODAL FIXES */
 /* ============================== */
@@ -3029,43 +3066,6 @@ select option[data-type="testimonial"] {
     background: #5a6268 !important;
     opacity: 0.6 !important;
     cursor: not-allowed !important;
-}
-
-/* ============================================
-   🚀 ULTIMATE OVERRIDE FOR INLINE STYLES
-   ============================================ */
-
-/* Override inline styles with !important */
-#addTestimonialGroupModal .concerns-checkbox-container[style],
-#addTestimonialGroupModal .concern-checkbox-item[style],
-#addTestimonialGroupModal .concern-subgroup[style],
-#addTestimonialGroupModal .concern-subgroup-title[style],
-#addTestimonialGroupModal .concern-checkbox-label[style],
-#addTestimonialGroupModal .concern-keywords[style] {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* Specifically target white backgrounds */
-#addTestimonialGroupModal [style*="background: white"],
-#addTestimonialGroupModal [style*="background: rgb(255, 255, 255)"],
-#addTestimonialGroupModal [style*="background: rgb(249, 250, 251)"] {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Specifically target dark text colors */
-#addTestimonialGroupModal [style*="color: rgb(55, 65, 81)"],
-#addTestimonialGroupModal [style*="color: rgb(107, 114, 128)"] {
-    color: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* Override ALL inline styles in modal */
-#addTestimonialGroupModal [style] {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
 }
     
 }
