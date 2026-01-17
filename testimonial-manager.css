@@ -1712,40 +1712,6 @@ select option[data-type="testimonial"] {
 /* TESTIMONIAL PLAYER OVERLAY */
 /* =================================================== */
 
-.testimonial-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.85);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    animation: fadeIn 0.3s ease;
-}
-
-.testimonial-container {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border-radius: 20px;
-    max-width: 900px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    border: 2px solid #2196F3;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    position: relative;
-}
-
-.testimonial-header {
-    padding: 25px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    text-align: center;
-    position: relative;
-}
-
 .testimonial-header h2 {
     color: #fff;
     font-size: 28px;
