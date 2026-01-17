@@ -2982,36 +2982,40 @@ select option[data-type="testimonial"] {
 }
 
 /* ============================================
-   🚀 ULTIMATE OVERRIDE FOR GROUP CREATOR MODAL
+   🚀 ULTIMATE OVERRIDE FOR INLINE STYLES
    ============================================ */
 
-#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .triggers-section,
-#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .concerns-grid,
-#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .concern-checkbox-item,
-#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .concern-label,
-#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .form-check.concern-checkbox {
-    background: rgba(255, 255, 255, 0.05) !important;
+/* Override inline styles with !important */
+#addTestimonialGroupModal .concerns-checkbox-container[style],
+#addTestimonialGroupModal .concern-checkbox-item[style],
+#addTestimonialGroupModal .concern-subgroup[style],
+#addTestimonialGroupModal .concern-subgroup-title[style],
+#addTestimonialGroupModal .concern-checkbox-label[style],
+#addTestimonialGroupModal .concern-keywords[style] {
     background-color: rgba(255, 255, 255, 0.05) !important;
-    background-image: none !important;
-    color: white !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
 }
 
-#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .triggers-section h4,
-#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .concern-text,
-#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .concern-checkbox-label,
-#addTestimonialGroupModal body .modal-dialog .modal-content .modal-body .form-check-label {
-    color: white !important;
-    background: transparent !important;
-}
-
-/* Kill any light backgrounds with extreme prejudice */
-#addTestimonialGroupModal *[style*="background"] {
+/* Specifically target white backgrounds */
+#addTestimonialGroupModal [style*="background: white"],
+#addTestimonialGroupModal [style*="background: rgb(255, 255, 255)"],
+#addTestimonialGroupModal [style*="background: rgb(249, 250, 251)"] {
+    background-color: rgba(255, 255, 255, 0.05) !important;
     background: rgba(255, 255, 255, 0.05) !important;
 }
 
-#addTestimonialGroupModal *[style*="color"] {
-    color: white !important;
+/* Specifically target dark text colors */
+#addTestimonialGroupModal [style*="color: rgb(55, 65, 81)"],
+#addTestimonialGroupModal [style*="color: rgb(107, 114, 128)"] {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Override ALL inline styles in modal */
+#addTestimonialGroupModal [style] {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
 }
     
 }

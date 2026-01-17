@@ -577,42 +577,50 @@ if (typeof GroupCreator === 'undefined') {
 }
 */
 
-// This will remove ALL white/light backgrounds from the modal
-function forceDarkModal() {
+// Fix only the problematic elements
+function fixSpecificElements() {
     const modal = document.getElementById('addTestimonialGroupModal');
     if (!modal) return;
     
-    // Find all elements with light backgrounds
-    const allElements = modal.querySelectorAll('*');
-    const lightColors = [
-        '#f8f9fa', '#e9ecef', '#ffffff', '#fff', 
-        'rgb(248, 249, 250)', 'rgb(233, 236, 239)',
-        'rgba(248, 249, 250', 'rgba(233, 236, 239'
-    ];
+    // 1. Fix the container background (rgb(249, 250, 251))
+    const containers = modal.querySelectorAll('.concerns-checkbox-container');
+    containers.forEach(el => {
+        el.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        el.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        console.log('Fixed container');
+    });
     
-    allElements.forEach(el => {
-        const bg = window.getComputedStyle(el).backgroundColor;
-        const color = window.getComputedStyle(el).color;
-        
-        // Check if background is light
-        const isLightBackground = lightColors.some(light => bg.includes(light));
-        const isLightText = color.includes('rgb(0, 0, 0)') || color.includes('#000');
-        
-        if (isLightBackground) {
-            el.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-            console.log('Fixed background on:', el.className || el.tagName);
-        }
-        
-        if (isLightText) {
-            el.style.color = 'white';
+    // 2. Fix checkbox items (background: white)
+    const checkboxItems = modal.querySelectorAll('.concern-checkbox-item');
+    checkboxItems.forEach(el => {
+        el.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        el.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        el.style.color = 'white';
+        console.log('Fixed checkbox item');
+    });
+    
+    // 3. Fix subgroup backgrounds (rgba(0, 0, 0, 0.03))
+    const subgroups = modal.querySelectorAll('.concern-subgroup');
+    subgroups.forEach(el => {
+        el.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+        console.log('Fixed subgroup');
+    });
+    
+    // 4. Fix dark text colors (rgb(55, 65, 81) and rgb(107, 114, 128))
+    const darkTexts = modal.querySelectorAll('.concern-subgroup-title, .concern-keywords, .concern-checkbox-label');
+    darkTexts.forEach(el => {
+        if (window.getComputedStyle(el).color.includes('55, 65, 81') || 
+            window.getComputedStyle(el).color.includes('107, 114, 128')) {
+            el.style.color = 'rgba(255, 255, 255, 0.8)';
+            console.log('Fixed text color on:', el.className);
         }
     });
     
-    console.log('✅ Forced dark theme on modal');
+    console.log('✅ All specific elements fixed');
 }
 
 // Run it
-forceDarkModal();
+fixSpecificElements();
 
 // ===================================================
 // 🎯 DATA INTEGRITY CHECK (Run on load)
