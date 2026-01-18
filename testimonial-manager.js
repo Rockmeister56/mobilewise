@@ -2679,46 +2679,57 @@ function addNewTestimonialGroup() {
     }
     
     // Check if group already exists
-    if (window.testimonialData.groups[groupSlug]) {
-        showNotification('❌ Group with this ID already exists', 'error');
-        return;
+if (window.testimonialData.groups[groupSlug]) {
+    showNotification('❌ Group with this ID already exists', 'error');
+    return;
+}
+
+// Save to unified groups
+window.testimonialData.groups[groupSlug] = newGroup;
+
+// 6. 🆕 ENHANCED: Update statistics for unified system
+if (!window.testimonialData.statistics) {
+    window.testimonialData.statistics = {
+        totalGroups: 0,
+        totalTestimonialGroups: 0,
+        totalInformationalGroups: 0,
+        totalVideos: 0,
+        totalTestimonials: 0,
+        totalInformationalVideos: 0,
+        totalViews: 0
+    };
+}
+
+// 7. 🎯 CRITICAL FIX: Save to BOTH locations for backward compatibility
+console.log('💾 Saving group data to ALL locations...');
+
+// Save to type-specific array (for backward compatibility with selectGroup)
+if (videoType === 'testimonial') {
+    if (!window.testimonialData.testimonialGroups) {
+        window.testimonialData.testimonialGroups = {};
     }
-    
-    // Save to unified groups
-    window.testimonialData.groups[groupSlug] = newGroup;
-    
-    // 6. 🆕 ENHANCED: Update statistics for unified system
-    if (!window.testimonialData.statistics) {
-        window.testimonialData.statistics = {
-            totalGroups: 0,
-            totalTestimonialGroups: 0,
-            totalInformationalGroups: 0,
-            totalVideos: 0,
-            totalTestimonials: 0,
-            totalInformationalVideos: 0,
-            totalViews: 0
-        };
+    window.testimonialData.testimonialGroups[groupSlug] = newGroup;
+    console.log(`✅ Saved to testimonialGroups (total: ${Object.keys(window.testimonialData.testimonialGroups).length})`);
+} else {
+    if (!window.testimonialData.informationalGroups) {
+        window.testimonialData.informationalGroups = {};
     }
-    
-    // Update counts
-    window.testimonialData.statistics.totalGroups = Object.keys(window.testimonialData.groups).length;
-    
-    if (videoType === 'testimonial') {
-        window.testimonialData.statistics.totalTestimonialGroups++;
-    } else {
-        window.testimonialData.statistics.totalInformationalGroups++;
-    }
-    
-    console.log(`📊 Statistics updated: ${window.testimonialData.statistics.totalGroups} total groups`);
-    
-    // 7. Save data (keep your existing logic)
-    if (window.saveTestimonialData) {
-        window.saveTestimonialData();
-        console.log('💾 Saved testimonial data');
-    } else if (window.saveAllData) {
-        window.saveAllData();
-        console.log('💾 Saved all data');
-    }
+    window.testimonialData.informationalGroups[groupSlug] = newGroup;
+    console.log(`✅ Saved to informationalGroups (total: ${Object.keys(window.testimonialData.informationalGroups).length})`);
+}
+
+// Update counts - FIXED: Use actual counts, not increments
+window.testimonialData.statistics.totalGroups = Object.keys(window.testimonialData.groups).length;
+window.testimonialData.statistics.totalTestimonialGroups = Object.keys(window.testimonialData.testimonialGroups || {}).length;
+window.testimonialData.statistics.totalInformationalGroups = Object.keys(window.testimonialData.informationalGroups || {}).length;
+
+console.log(`📊 Statistics updated: ${window.testimonialData.statistics.totalGroups} total groups`);
+
+// 8. 🎯 RELIABLE DATA SAVING - Call saveAllData (which calls saveToLocalStorage)
+console.log('💾 Saving to localStorage...');
+saveAllData();  // This will call the fixed saveToLocalStorage function
+
+console.log('✅ Data save process completed');
     
     // 8. Clear form
     document.getElementById('newGroupName').value = '';
@@ -3427,42 +3438,65 @@ function updateStatisticsDisplay() {
 
 function saveToLocalStorage() {
     try {
-        // Save COMPLETE testimonialData object
-        if (window.testimonialData) {
-            // Ensure all required structures exist
-            if (!window.testimonialData.groups) window.testimonialData.groups = {};
-            if (!window.testimonialData.testimonialGroups) window.testimonialData.testimonialGroups = {};
-            if (!window.testimonialData.informationalGroups) window.testimonialData.informationalGroups = {};
-            if (!window.testimonialData.concerns) window.testimonialData.concerns = {};
-            if (!window.testimonialData.statistics) window.testimonialData.statistics = {};
-            
-            // Update statistics to reflect actual counts
-            const totalGroups = Object.keys(window.testimonialData.groups).length;
-            const totalTestimonialGroups = Object.keys(window.testimonialData.testimonialGroups).length;
-            const totalInformationalGroups = Object.keys(window.testimonialData.informationalGroups).length;
-            
-            window.testimonialData.statistics.totalGroups = totalGroups;
-            window.testimonialData.statistics.totalTestimonialGroups = totalTestimonialGroups;
-            window.testimonialData.statistics.totalInformationalGroups = totalInformationalGroups;
-            
-            // Save with the CORRECT key
-            localStorage.setItem('testimonialData', JSON.stringify(window.testimonialData));
-            console.log('💾 COMPLETE data saved to localStorage');
-            console.log(`   - Groups: ${totalGroups}`);
-            console.log(`   - TestimonialGroups: ${totalTestimonialGroups}`);
-            console.log(`   - InformationalGroups: ${totalInformationalGroups}`);
-        } else {
+        console.log('💾 saveToLocalStorage: Saving complete data...');
+        
+        // Make sure we have all required structures
+        if (!window.testimonialData) {
             console.error('❌ No testimonialData to save!');
+            return;
         }
+        
+        // ✅ KEEP YOUR EXISTING structure initialization
+        if (!window.testimonialData.groups) window.testimonialData.groups = {};
+        if (!window.testimonialData.testimonialGroups) window.testimonialData.testimonialGroups = {};
+        if (!window.testimonialData.informationalGroups) window.testimonialData.informationalGroups = {};
+        if (!window.testimonialData.concerns) window.testimonialData.concerns = {};
+        if (!window.testimonialData.statistics) {
+            window.testimonialData.statistics = {
+                totalGroups: 0,
+                totalTestimonialGroups: 0,
+                totalInformationalGroups: 0,
+                totalVideos: 0,
+                totalViews: 0
+            };
+        }
+        
+        // ✅ KEEP sync logic for backward compatibility
+        Object.values(window.testimonialData.groups).forEach(group => {
+            if (group.type === 'testimonial') {
+                window.testimonialData.testimonialGroups[group.id] = group;
+            } else if (group.type === 'informational') {
+                window.testimonialData.informationalGroups[group.id] = group;
+            }
+        });
+        
+        // ✅ KEEP statistics update
+        const totalGroups = Object.keys(window.testimonialData.groups).length;
+        const totalTestimonialGroups = Object.keys(window.testimonialData.testimonialGroups).length;
+        const totalInformationalGroups = Object.keys(window.testimonialData.informationalGroups).length;
+        
+        window.testimonialData.statistics.totalGroups = totalGroups;
+        window.testimonialData.statistics.totalTestimonialGroups = totalTestimonialGroups;
+        window.testimonialData.statistics.totalInformationalGroups = totalInformationalGroups;
+        
+        // 🎯 CRITICAL FIX 1: Save COMPLETE testimonialData object
+        // 🎯 CRITICAL FIX 2: Use CORRECT key: 'testimonialData'
+        localStorage.setItem('testimonialData', JSON.stringify(window.testimonialData));
+        
+        console.log('✅ COMPLETE data saved to localStorage');
+        console.log(`   📊 Groups: ${totalGroups}`);
+        console.log(`   🎬 TestimonialGroups: ${totalTestimonialGroups}`);
+        console.log(`   📚 InformationalGroups: ${totalInformationalGroups}`);
+        
     } catch (e) {
         console.error('❌ Error saving to localStorage:', e);
     }
 }
 
 function saveAllData() {
-    console.log('💾 saveAllData called');
+    console.log('💾 saveAllData: Starting save process...');
     saveToLocalStorage();
-    // REMOVE the showSuccess call here - let the caller show the banner
+    // REMOVE the showSuccess call to prevent double banners
     // showSuccess('✅ All data saved successfully!');
 }
 
