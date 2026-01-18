@@ -1,5 +1,5 @@
 // ===================================================
-// 🎬 DUAL VIDEO SYSTEM DATA
+// 🎬 CLEAN DUAL VIDEO SYSTEM DATA - FRESH START
 // Generated: 1/12/2026
 // ===================================================
 
@@ -48,115 +48,47 @@ window.testimonialData = {
   // ⭐ TESTIMONIALS ONLY (Social Proof)
   // ========================
   "testimonialGroups": {
-    "group_conversion_boost_1767901787532": {
-      "id": "group_conversion_boost_1767901787532",
-      "type": "testimonial", // ⭐ CRITICAL: Marks as testimonial
-      "name": "PPC Conversion Boost",
-      "slug": "conversion-boost",
-      "icon": "📁",
-      "description": "AI smart voice chat increases average conversion 300% and more for professional organizations and the like",
-      "concerns": ["time", "trust", "general", "results"],
-      "testimonials": [
-        {
-          "id": "testimonial_1767902304439",
-          "title": "312% conversion increase from a form",
-          "concernType": "results",
-          "videoUrl": "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/sign/video-testimonials/legal-personal-injury.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9lNjg4MGUyOC0zMDRhLTQ5NzItYmNiMS1iY2U5YjNkOWU1YTkiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ2aWRlby10ZXN0aW1vbmlhbHMvbGVnYWwtcGVyc29uYWwtaW5qdXJ5Lm1wNCIsImlhdCI6MTc2NzkwMjA3NywiZXhwIjoxNzk5NDM4MDc3fQ.mEn-TmcfRJhFZfGsqSELw63etf1txlZESZaG7KQcic0",
-          "author": "Ted Johnson, Esq",
-          "text": "",
-          "addedAt": "2026-01-08T19:58:24.439Z",
-          "views": 11
-        }
-      ],
-      "createdAt": "2026-01-08T19:49:47.532Z",
-      "viewCount": 11
-    }
+    // EMPTY - READY FOR YOU TO ADD NEW GROUPS
+    // Example structure when you add groups:
+    // "group_unique_id_here": {
+    //   "id": "group_unique_id_here",
+    //   "type": "testimonial",
+    //   "name": "Your Group Name",
+    //   "slug": "your-group-slug",
+    //   "icon": "📁",
+    //   "description": "Description of this testimonial group",
+    //   "concerns": ["results", "trust"], // Which concerns this group addresses
+    //   "testimonials": [], // Empty array - will be filled with testimonials
+    //   "createdAt": "2026-01-12T00:00:00.000Z",
+    //   "viewCount": 0
+    // }
   },
 
   // ========================
   // 📚 INFORMATIONAL VIDEOS ONLY (Educational)
   // ========================
   "informationalGroups": {
-    "group_how_it_works_12345": {
-      "id": "group_how_it_works_12345",
-      "type": "informational", // 📚 CRITICAL: Marks as informational
-      "name": "📚 How It Works",
-      "slug": "informational",
-      "icon": "📚",
-      "description": "Watch our explainer videos to learn how the system works",
-      "concerns": ["general", "results", "time", "trust"],
-      "videos": [ // NOTE: "videos" NOT "testimonials"
-        {
-          "id": "info_300_conversions",
-          "title": "300% More Conversions",
-          "concernType": "results",
-          "videoUrl": "", // Will be populated by testimonial manager
-          "author": "System Explanation",
-          "description": "How AI transforms your conversion rates overnight",
-          "addedAt": "2026-01-12T00:00:00.000Z",
-          "views": 0
-        },
-        {
-          "id": "info_pre_qualified",
-          "title": "Pre-Qualified Hot Leads",
-          "concernType": "general",
-          "videoUrl": "", // Will be populated by testimonial manager
-          "author": "System Explanation",
-          "description": "Stop wasting time on tire-kickers",
-          "addedAt": "2026-01-12T00:00:00.000Z",
-          "views": 0
-        },
-        {
-          "id": "info_ai_process",
-          "title": "AI Conversion Process",
-          "concernType": "general",
-          "videoUrl": "", // Will be populated by testimonial manager
-          "author": "System Explanation",
-          "description": "Step-by-step: How AI identifies and converts visitors",
-          "addedAt": "2026-01-12T00:00:00.000Z",
-          "views": 0
-        },
-        {
-          "id": "info_testimonial_leverage",
-          "title": "Testimonials → Sales",
-          "concernType": "trust",
-          "videoUrl": "", // Will be populated by testimonial manager
-          "author": "System Explanation",
-          "description": "Using social proof to close skeptical buyers",
-          "addedAt": "2026-01-12T00:00:00.000Z",
-          "views": 0
-        },
-        {
-          "id": "info_easy_setup",
-          "title": "5-Minute Website Setup",
-          "concernType": "time",
-          "videoUrl": "", // Will be populated by testimonial manager
-          "author": "System Explanation",
-          "description": "No tech skills needed - copy, paste, done",
-          "addedAt": "2026-01-12T00:00:00.000Z",
-          "views": 0
-        },
-        {
-          "id": "info_podcast_leads",
-          "title": "Podcast → Leads Automatically",
-          "concernType": "general",
-          "videoUrl": "", // Will be populated by testimonial manager
-          "author": "System Explanation",
-          "description": "Turn listeners into booked appointments while you sleep",
-          "addedAt": "2026-01-12T00:00:00.000Z",
-          "views": 0
-        }
-      ],
-      "createdAt": "2026-01-12T00:00:00.000Z",
-      "viewCount": 0
-    }
+    // EMPTY - READY FOR YOU TO ADD NEW GROUPS
+    // Example structure when you add groups:
+    // "group_info_unique_id": {
+    //   "id": "group_info_unique_id",
+    //   "type": "informational",
+    //   "name": "📚 Your Info Group Name",
+    //   "slug": "info-group-slug",
+    //   "icon": "📚",
+    //   "description": "Description of this informational group",
+    //   "concerns": ["general", "results"],
+    //   "videos": [], // Empty array - will be filled with informational videos
+    //   "createdAt": "2026-01-12T00:00:00.000Z",
+    //   "viewCount": 0
+    // }
   },
 
   "statistics": {
-    "totalTestimonialGroups": 1, // Only testimonial groups
-    "totalInformationalGroups": 1, // Only informational groups
-    "totalTestimonials": 1, // Only real testimonials
-    "totalInformationalVideos": 6 // Only informational videos
+    "totalTestimonialGroups": 0, // Start from zero
+    "totalInformationalGroups": 0, // Start from zero
+    "totalTestimonials": 0, // Start from zero
+    "totalInformationalVideos": 0 // Start from zero
   },
 
   "playerConfig": {
@@ -176,20 +108,189 @@ window.testimonialData = {
     "resumeMessage": "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?"
   },
 
-  "__version": "3.0-dual-system", // Updated version
+  "__version": "3.0-dual-system-clean",
   "__generated": "2026-01-12T00:00:00.000Z",
-  "__notes": "Separated testimonials (social proof) from informational videos (educational)"
+  "__notes": "Fresh clean slate - no hardcoded groups or testimonials"
 };
 
-console.log('✅ DUAL VIDEO SYSTEM LOADED:');
-console.log('   ⭐ Testimonial Groups:', window.testimonialData.statistics.totalTestimonialGroups);
-console.log('   📚 Informational Groups:', window.testimonialData.statistics.totalInformationalGroups);
-console.log('   🎬 Total Videos:', 
-  window.testimonialData.statistics.totalTestimonials + 
-  window.testimonialData.statistics.totalInformationalVideos);
+// ===================================================
+// INITIALIZATION FOR FRESH START
+// ===================================================
+
+console.log('✅ CLEAN DUAL VIDEO SYSTEM LOADED:');
+console.log('   📊 Starting fresh with empty groups');
+console.log('   ⭐ Ready for you to create new testimonial groups');
+console.log('   📚 Ready for you to create new informational groups');
 
 // ===================================================
-// PLAYER INTEGRATION FUNCTIONS (ADDED BY MANAGER)
+// HELPER FUNCTIONS FOR NEW SYSTEM
+// ===================================================
+
+// Initialize empty structure if needed
+window.initializeFreshTestimonialData = function() {
+  console.log('🔄 Initializing fresh testimonial data structure...');
+  
+  if (!window.testimonialData.testimonialGroups) {
+    window.testimonialData.testimonialGroups = {};
+  }
+  
+  if (!window.testimonialData.informationalGroups) {
+    window.testimonialData.informationalGroups = {};
+  }
+  
+  if (!window.testimonialData.statistics) {
+    window.testimonialData.statistics = {
+      totalTestimonialGroups: 0,
+      totalInformationalGroups: 0,
+      totalTestimonials: 0,
+      totalInformationalVideos: 0
+    };
+  }
+  
+  console.log('✅ Fresh data structure initialized');
+  return window.testimonialData;
+};
+
+// Generate unique ID for new groups
+window.generateGroupId = function(type = 'testimonial') {
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 10000);
+  return `${type === 'informational' ? 'info' : 'group'}_${timestamp}_${random}`;
+};
+
+// Generate unique ID for new testimonials/videos
+window.generateTestimonialId = function(type = 'testimonial') {
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 10000);
+  return `${type === 'informational' ? 'info' : 'testimonial'}_${timestamp}_${random}`;
+};
+
+// Create a new testimonial group
+window.createNewTestimonialGroup = function(name, description, icon = '📁', concerns = []) {
+  const groupId = generateGroupId('testimonial');
+  const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  
+  const newGroup = {
+    id: groupId,
+    type: 'testimonial',
+    name: name,
+    slug: slug,
+    icon: icon,
+    description: description || `Testimonials about ${name}`,
+    concerns: concerns.length > 0 ? concerns : ['general'],
+    testimonials: [], // Empty array - ready for testimonials
+    createdAt: new Date().toISOString(),
+    viewCount: 0
+  };
+  
+  window.testimonialData.testimonialGroups[groupId] = newGroup;
+  window.testimonialData.statistics.totalTestimonialGroups++;
+  
+  console.log(`✅ Created new testimonial group: "${name}" (${groupId})`);
+  return newGroup;
+};
+
+// Create a new informational group
+window.createNewInformationalGroup = function(name, description, icon = '📚', concerns = []) {
+  const groupId = generateGroupId('informational');
+  const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  
+  const newGroup = {
+    id: groupId,
+    type: 'informational',
+    name: name,
+    slug: slug,
+    icon: icon,
+    description: description || `Informational videos about ${name}`,
+    concerns: concerns.length > 0 ? concerns : ['general'],
+    videos: [], // Empty array - ready for videos
+    createdAt: new Date().toISOString(),
+    viewCount: 0
+  };
+  
+  window.testimonialData.informationalGroups[groupId] = newGroup;
+  window.testimonialData.statistics.totalInformationalGroups++;
+  
+  console.log(`✅ Created new informational group: "${name}" (${groupId})`);
+  return newGroup;
+};
+
+// Add a testimonial to a group
+window.addTestimonialToGroup = function(groupId, title, videoUrl, author, concernType = 'general', text = '') {
+  const group = window.testimonialData.testimonialGroups[groupId];
+  if (!group) {
+    console.error(`❌ Group not found: ${groupId}`);
+    return null;
+  }
+  
+  const testimonialId = generateTestimonialId('testimonial');
+  
+  const newTestimonial = {
+    id: testimonialId,
+    title: title,
+    concernType: concernType,
+    videoUrl: videoUrl,
+    author: author,
+    text: text || '',
+    addedAt: new Date().toISOString(),
+    views: 0
+  };
+  
+  group.testimonials.push(newTestimonial);
+  window.testimonialData.statistics.totalTestimonials++;
+  
+  console.log(`✅ Added testimonial "${title}" to group "${group.name}"`);
+  return newTestimonial;
+};
+
+// Add an informational video to a group
+window.addInformationalVideoToGroup = function(groupId, title, videoUrl, description, concernType = 'general') {
+  const group = window.testimonialData.informationalGroups[groupId];
+  if (!group) {
+    console.error(`❌ Informational group not found: ${groupId}`);
+    return null;
+  }
+  
+  const videoId = generateTestimonialId('informational');
+  
+  const newVideo = {
+    id: videoId,
+    title: title,
+    concernType: concernType,
+    videoUrl: videoUrl,
+    author: 'System Explanation',
+    description: description || '',
+    addedAt: new Date().toISOString(),
+    views: 0
+  };
+  
+  group.videos.push(newVideo);
+  window.testimonialData.statistics.totalInformationalVideos++;
+  
+  console.log(`✅ Added informational video "${title}" to group "${group.name}"`);
+  return newVideo;
+};
+
+// Get sample group data for testing
+window.getSampleGroupData = function() {
+  return {
+    testimonial: {
+      name: "Client Success Stories",
+      description: "Real stories from satisfied clients",
+      icon: "⭐",
+      concerns: ["results", "trust", "general"]
+    },
+    informational: {
+      name: "📚 How It Works",
+      description: "Educational videos explaining our system",
+      icon: "📚",
+      concerns: ["general", "results", "time"]
+    }
+  };
+};
+
+// ===================================================
+// PLAYER FUNCTIONS (KEEP THESE - THEY WORK)
 // ===================================================
 
 // Get testimonials for a specific concern
@@ -228,210 +329,23 @@ window.testimonialData.getAvailableConcerns = function() {
 };
 
 // ===================================================
-// 🎬 VIDEO PLAYER WITH PROPER SIZE & VISIBLE CLOSE BUTTON
+// READY TO USE
 // ===================================================
 
-window.playTestimonialVideoWithOverlay = function(testimonial) {
-    console.log('🎬 Playing video with proper size:', testimonial.title);
-    
-    if (!testimonial.videoUrl) {
-        console.error('❌ No video URL');
-        return;
-    }
-    
-    // 🛡️ Set protection flags
-    window.avatarCurrentlyPlaying = true;
-    window.testimonialSessionActive = true;
-    
-    // Remove any existing overlay first
-    const existingOverlay = document.getElementById('testimonial-video-overlay');
-    if (existingOverlay) existingOverlay.remove();
-    
-    // Create overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'testimonial-video-overlay';
-    overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.95);
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(10px);
-        animation: fadeIn 0.3s ease;
-    `;
-    
-    // Create MAIN CONTAINER (properly sized)
-    const container = document.createElement('div');
-    container.style.cssText = `
-        position: relative;
-        width: 350px;                 /* Mobile-like width */
-        max-width: 90vw;              /* Responsive */
-        background: rgba(20,20,30,0.9);
-        border-radius: 20px;
-        padding: 25px;
-        box-shadow: 0 30px 80px rgba(0,0,0,0.8);
-        border: 1px solid rgba(255,255,255,0.15);
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    `;
-    
-    // Create HEADER with title
-    const header = document.createElement('div');
-    header.style.cssText = `
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        color: white;
-        font-family: 'Segoe UI', sans-serif;
-    `;
-    
-    // Determine if this is testimonial or informational
-let videoType = 'testimonial';
-let icon = '🎬';
-let subtitle = 'Real story from a satisfied client';
-let gradient = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+console.log('\n🚀 SYSTEM READY FOR FRESH START');
+console.log('================================');
+console.log('Available functions:');
+console.log('• initializeFreshTestimonialData() - Ensures clean structure');
+console.log('• createNewTestimonialGroup(name, description, icon, concerns)');
+console.log('• createNewInformationalGroup(name, description, icon, concerns)');
+console.log('• addTestimonialToGroup(groupId, title, videoUrl, author, concernType, text)');
+console.log('• addInformationalVideoToGroup(groupId, title, videoUrl, description, concernType)');
+console.log('• getSampleGroupData() - Returns sample data for testing');
+console.log('\n📊 Current stats:');
+console.log(`   Testimonial Groups: ${window.testimonialData.statistics.totalTestimonialGroups}`);
+console.log(`   Informational Groups: ${window.testimonialData.statistics.totalInformationalGroups}`);
+console.log(`   Total Testimonials: ${window.testimonialData.statistics.totalTestimonials}`);
+console.log(`   Total Informational Videos: ${window.testimonialData.statistics.totalInformationalVideos}`);
 
-// Check if this is informational (has 'description' field instead of 'text')
-if (testimonial.description || testimonial.author === 'System Explanation') {
-    videoType = 'informational';
-    icon = '📚';
-    subtitle = 'Educational video & system explanation';
-    gradient = 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)';
-}
-
-header.innerHTML = `
-    <div style="
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: ${gradient};
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        flex-shrink: 0;
-    ">${icon}</div>
-    <div>
-        <h3 style="margin: 0 0 5px 0; font-size: 18px; font-weight: 600;">
-            ${testimonial.title || (videoType === 'informational' ? 'How It Works' : 'Client Testimonial')}
-        </h3>
-        <p style="margin: 0; opacity: 0.7; font-size: 13px;">
-            ${subtitle}
-        </p>
-    </div>
-`;
-    
-    // Create VIDEO CONTAINER (proper aspect ratio)
-    const videoContainer = document.createElement('div');
-    videoContainer.style.cssText = `
-        position: relative;
-        width: 100%;
-        background: #000;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 2px solid rgba(255,255,255,0.1);
-    `;
-    
-    // Create VIDEO element
-    const video = document.createElement('video');
-    video.style.cssText = `
-        width: 100%;
-        height: auto;
-        display: block;
-        border-radius: 10px;
-    `;
-    video.controls = true;
-    video.autoplay = true;
-    
-    const source = document.createElement('source');
-    source.src = testimonial.videoUrl;
-    source.type = 'video/mp4';
-    video.appendChild(source);
-    
-    // Create CLOSE BUTTON (VISIBLE - outside video container)
-    const closeButton = document.createElement('button');
-    closeButton.innerHTML = `
-        <span style="font-size: 16px; margin-right: 8px;">✕</span>
-        Close & Choose Next Step
-    `;
-    closeButton.style.cssText = `
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        padding: 16px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 10px;
-    `;
-    
-    // Add hover effects
-    closeButton.onmouseenter = function() {
-        this.style.transform = 'translateY(-2px)';
-        this.style.boxShadow = '0 10px 30px rgba(102, 126, 234, 0.4)';
-        this.style.opacity = '0.95';
-    };
-    
-    closeButton.onmouseleave = function() {
-        this.style.transform = 'translateY(0)';
-        this.style.boxShadow = 'none';
-        this.style.opacity = '1';
-    };
-    
-    // 🎯 CLOSE BUTTON ACTION
-    closeButton.onclick = function() {
-        console.log('🎯 Close button clicked');
-        
-        // Stop video
-        video.pause();
-        video.currentTime = 0;
-        
-        // Remove overlay
-        overlay.remove();
-        
-        // Show decision panel
-        if (window.showTestimonialNavigationOptions) {
-            setTimeout(() => {
-                window.showTestimonialNavigationOptions();
-            }, 300);
-        } else {
-            console.log('❌ Navigation function not found');
-            // Reset flags and return to chat
-            window.avatarCurrentlyPlaying = false;
-            window.testimonialSessionActive = false;
-        }
-    };
-    
-    // Assemble everything
-    videoContainer.appendChild(video);
-    container.appendChild(header);
-    container.appendChild(videoContainer);
-    container.appendChild(closeButton);
-    overlay.appendChild(container);
-    
-    // Add to page
-    document.body.appendChild(overlay);
-    
-    // Handle video end
-    video.addEventListener('ended', function() {
-        console.log('✅ Video ended');
-        setTimeout(() => {
-            closeButton.click(); // Trigger close button
-        }, 1000);
-    });
-    
-    console.log('✅ Video player created with proper size and visible button');
-};
+// Auto-initialize
+window.initializeFreshTestimonialData();
