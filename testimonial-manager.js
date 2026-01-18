@@ -2046,6 +2046,135 @@ function updateTriggerSections() {
     }
 }
 
+// ===========================================
+// FIX FOR TRIGGER CONTAINER ERRORS
+// Add this to your testimonial-manager.js or in a separate script tag
+// ===========================================
+
+(function() {
+    console.log('🔧 Applying trigger container fix...');
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyFix);
+    } else {
+        applyFix();
+    }
+    
+    function applyFix() {
+        // Patch updateTriggerSections if it exists
+        if (window.updateTriggerSections) {
+            const originalUpdate = window.updateTriggerSections;
+            window.updateTriggerSections = function() {
+                console.log('🔄 updateTriggerSections called (patched)');
+                
+                // Look for the containers in the new structure
+                const testimonialContainer = document.getElementById('testimonialTriggersCheckboxes');
+                const informationalContainer = document.getElementById('informationalTriggersCheckboxes');
+                
+                if (testimonialContainer || informationalContainer) {
+                    console.log('✅ Found trigger containers in new structure');
+                    return true;
+                }
+                
+                // Fall back to original function
+                return originalUpdate.apply(this, arguments);
+            };
+        }
+        
+        // Patch populateTriggersSections if it exists
+        if (window.populateTriggersSections) {
+            const originalPopulate = window.populateTriggersSections;
+            window.populateTriggersSections = function() {
+                console.log('🔄 populateTriggersSections called (patched)');
+                
+                // Check if we have the new structure
+                const container = document.getElementById('concernsCheckboxContainer');
+                if (container) {
+                    console.log('✅ Using new trigger container structure');
+                    // The triggers are already hardcoded in HTML, so just return success
+                    return true;
+                }
+                
+                // Fall back to original function
+                return originalPopulate.apply(this, arguments);
+            };
+        }
+        
+        console.log('✅ Trigger container fix applied');
+    }
+})();
+
+// Helper: Convert old concern keys to new ones
+function convertConcernKey(oldKey) {
+    const mapping = {
+        'price': 'price_cost',
+        'time': 'time_speed', 
+        'trust': 'trust_legitimacy',
+        'general': 'general_info',
+        'results': 'results_effectiveness'
+    };
+    return mapping[oldKey] || oldKey;
+}
+
+// Add to the top of your compatibility layer
+function ensureConcernTypes() {
+    console.log('🔧 Ensuring concern types...');
+    
+    if (!window.testimonialData?.concerns) return;
+    
+    Object.values(window.testimonialData.concerns).forEach(concern => {
+        // Add 'type' property if missing
+        if (!concern.type) {
+            concern.type = concern.isInformational ? 'informational' : 'testimonial';
+        }
+        
+        // Also ensure triggers exist
+        if (!concern.triggers) {
+            concern.triggers = concern.phrases || [];
+        }
+    });
+    
+    console.log('✅ Concern types updated');
+}
+
+// 2. INTEGRATE WITH MANAGER'S initializeTestimonialData()
+const originalInitializeTestimonialData = window.initializeTestimonialData;
+window.initializeTestimonialData = function() {
+    console.log('🚀 Initializing with compatibility layer...');
+    
+    // First, apply compatibility fix
+    if (window.testimonialData) {
+        window.testimonialData = ensureCompatibleStructure(window.testimonialData);
+    }
+    
+    // Then run the original initialization
+    if (typeof originalInitializeTestimonialData === 'function') {
+        return originalInitializeTestimonialData();
+    }
+    
+    // Fallback if original doesn't exist
+    console.log('⚠️ Using compatibility layer fallback initialization');
+    
+    // Ensure ENHANCED_CONCERNS exists
+    if (!window.ENHANCED_CONCERNS) {
+        window.ENHANCED_CONCERNS = window.testimonialData?.concerns || {};
+    }
+    
+    // Merge concerns (ENHANCED_CONCERNS takes priority)
+    if (window.testimonialData) {
+        window.testimonialData.concerns = {
+            ...window.testimonialData.concerns,
+            ...window.ENHANCED_CONCERNS
+        };
+    }
+    
+    return window.testimonialData;
+};
+
+console.log('✅ Compatibility layer loaded');
+
+
 // ===================================================
 // 🎯 ENHANCED GROUP CREATION FUNCTION
 // Combines your existing logic with enhanced concerns system
