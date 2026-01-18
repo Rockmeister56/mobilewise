@@ -950,13 +950,17 @@ function updateGroupType(value) {
     console.log('🎯 updateGroupType called with:', value);
     
     const newGroupIcon = document.getElementById('newGroupIcon');
-    const testimonialTriggers = document.getElementById('testimonialTriggers');
-    const informationalTriggers = document.getElementById('informationalTriggers');
     
-    if (!newGroupIcon || !testimonialTriggers || !informationalTriggers) {
-        console.error('❌ Required elements not found');
-        return;
-    }
+    if (!newGroupIcon) {
+    console.error('❌ newGroupIcon element not found');
+    return;
+}
+
+// The triggers are now handled by concernsCheckboxContainer
+const concernsContainer = document.getElementById('concernsCheckboxContainer');
+if (!concernsContainer) {
+    console.warn('⚠️ concernsCheckboxContainer not found, but continuing anyway');
+}
     
     // Set icon based on type - FIXED LOGIC!
     if (value === '3' || value === 'informational') {
