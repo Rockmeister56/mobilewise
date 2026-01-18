@@ -263,71 +263,57 @@ body::before {
     min-height: 100px;
 }
 
-/* Testimonial Group Button */
-.testimonial-group-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-light);
-    padding: var(--spacing-md) var(--spacing-lg);
-    border-radius: var(--radius-md);
-    color: var(--text-primary);
+/* ============================================
+   GROUP BUTTON STYLES - PERMANENT FIX
+   ============================================ */
+   
+.testimonial-group-btn, 
+.group-btn {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all 0.3s ease;
+    position: relative;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-weight: 500;
+}
+
+.testimonial-group-btn[data-group-type="informational"],
+.group-btn[data-group-type="informational"] {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.testimonial-group-btn:hover,
+.group-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+/* Button inner layout */
+.testimonial-group-btn > div,
+.group-btn > div {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
 }
 
-.testimonial-group-btn::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 3px;
-    background: var(--primary);
-    transform: scaleY(0);
-    transition: transform var(--transition-normal);
+/* Icon spacing */
+.testimonial-group-btn > div:first-child,
+.group-btn > div:first-child {
+    gap: 8px;
 }
 
-.testimonial-group-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--primary);
-    transform: translateX(5px);
-}
-
-.testimonial-group-btn:hover::before {
-    transform: scaleY(1);
-}
-
-.testimonial-group-btn:active {
-    transform: translateX(2px);
-}
-
-.testimonial-group-btn .group-icon {
-    font-size: 1.25rem;
-    margin-right: var(--spacing-sm);
-    min-width: 24px;
-}
-
-.testimonial-group-btn .group-name {
-    font-weight: 500;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.testimonial-group-btn .group-count {
-    background: rgba(33, 150, 243, 0.2);
-    color: var(--primary);
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 10px;
-    min-width: 20px;
-    text-align: center;
+/* Count badge spacing */
+.testimonial-group-btn > div:last-child,
+.group-btn > div:last-child {
+    gap: 4px;
 }
 
 /* Empty State */

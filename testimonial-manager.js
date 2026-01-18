@@ -2338,6 +2338,178 @@ function updateTriggerSections() {
     }
 }
 
+// ============================================
+// 🎯 PERMANENT FIX FOR GROUP BUTTON DISPLAY
+// ============================================
+// Fixes group buttons to show names instead of IDs
+// Add this AFTER your existing group rendering code
+// ============================================
+
+(function() {
+    'use strict';
+    
+    console.log('🎯 Loading Group Button Display Fix...');
+    
+    // 1. MAIN FIX FUNCTION
+    function fixGroupButtonDisplay() {
+        const groupList = document.querySelector('#testimonialGroupsContainer, .group-list, .sidebar-groups, .groups-container');
+        
+        if (!groupList) return;
+        
+        const groupButtons = groupList.querySelectorAll('.testimonial-group-btn, .group-btn');
+        
+        groupButtons.forEach(btn => {
+            // Get current HTML and extract ID if present
+            const currentHTML = btn.innerHTML;
+            const idMatch = currentHTML.match(/group_[a-zA-Z0-9_]+/);
+            
+            if (idMatch) {
+                const groupId = idMatch[0];
+                let groupName = null;
+                let groupType = 'testimonial';
+                
+                // Look for group in testimonialData
+                if (window.testimonialData) {
+                    if (window.testimonialData.testimonialGroups && window.testimonialData.testimonialGroups[groupId]) {
+                        groupName = window.testimonialData.testimonialGroups[groupId].name;
+                        groupType = 'testimonial';
+                    } else if (window.testimonialData.informationalGroups && window.testimonialData.informationalGroups[groupId]) {
+                        groupName = window.testimonialData.informationalGroups[groupId].name;
+                        groupType = 'informational';
+                    }
+                }
+                
+                if (groupName) {
+                    // Create proper HTML structure
+                    const icon = groupType === 'informational' ? '📚' : '📁';
+                    const typeIcon = groupType === 'informational' ? '📚' : '🎬';
+                    
+                    btn.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 1.2em;">${icon}</span>
+                            <span style="flex-grow: 1; font-weight: 500;">${groupName}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span style="font-size: 0.9em;">${typeIcon}</span>
+                            <span style="font-size: 0.9em;">0</span>
+                        </div>
+                    `;
+                    
+                    // Set data attributes
+                    btn.setAttribute('data-group-id', groupId);
+                    btn.setAttribute('data-group-type', groupType);
+                    
+                    // Apply correct styling
+                    const bgColor = groupType === 'informational' 
+                        ? 'linear-gradient(135deg, #10b981, #059669)'
+                        : 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+                    
+                    btn.style.cssText = `
+                        background: ${bgColor};
+                        color: white;
+                        border: none;
+                        border-radius: 10px;
+                        padding: 12px 15px;
+                        margin-bottom: 8px;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                        position: relative;
+                        width: 100%;
+                    `;
+                    
+                    // Add hover effects
+                    btn.onmouseenter = () => {
+                        btn.style.transform = 'translateY(-2px)';
+                        btn.style.boxShadow = '0 5px 15px rgba(0,0,0,0.15)';
+                    };
+                    
+                    btn.onmouseleave = () => {
+                        btn.style.transform = 'translateY(0)';
+                        btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+                    };
+                }
+            }
+        });
+    }
+    
+    // 2. WRAP EXISTING RENDERING FUNCTIONS
+    function wrapRenderingFunctions() {
+        const functionNames = ['renderGroups', 'updateGroupsDisplay', 'loadGroups'];
+        
+        functionNames.forEach(funcName => {
+            if (typeof window[funcName] === 'function') {
+                const originalFunc = window[funcName];
+                window[funcName] = function(...args) {
+                    // Call original function
+                    const result = originalFunc.apply(this, args);
+                    
+                    // Fix buttons after rendering
+                    setTimeout(fixGroupButtonDisplay, 100);
+                    
+                    return result;
+                };
+            }
+        });
+    }
+    
+    // 3. INITIAL SETUP
+    function initGroupButtonFix() {
+        // Wrap existing rendering functions
+        wrapRenderingFunctions();
+        
+        // Run initial fix
+        setTimeout(fixGroupButtonDisplay, 500);
+        
+        // Set up mutation observer for dynamic changes
+        const groupObserver = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1) {
+                            const isGroupButton = node.classList && 
+                                (node.classList.contains('testimonial-group-btn') || 
+                                 node.classList.contains('group-btn'));
+                            
+                            const containsGroupButton = node.querySelector && 
+                                node.querySelector('.testimonial-group-btn, .group-btn');
+                            
+                            if (isGroupButton || containsGroupButton) {
+                                setTimeout(fixGroupButtonDisplay, 50);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        
+        // Find and observe group container
+        const container = document.querySelector('#testimonialGroupsContainer, .group-list, .sidebar-groups');
+        if (container) {
+            groupObserver.observe(container, {
+                childList: true,
+                subtree: true
+            });
+        }
+        
+        console.log('✅ Group Button Display Fix loaded');
+    }
+    
+    // 4. WAIT FOR PAGE TO LOAD AND INITIALIZE
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGroupButtonFix);
+    } else {
+        initGroupButtonFix();
+    }
+    
+    // 5. EXPOSE FOR DEBUGGING (optional)
+    window.fixGroupButtons = fixGroupButtonDisplay;
+    
+})();
+
 // ===================================================
 // 🎯 ENHANCED GROUP CREATION FUNCTION
 // Combines your existing logic with enhanced concerns system
