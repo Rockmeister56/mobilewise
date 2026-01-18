@@ -946,38 +946,33 @@ setTimeout(populateConcernsCheckboxes, 2000);
 // ADD THESE TWO FUNCTIONS AT THE VERY TOP OF THE FILE
 // (before any other code)
 
-function updateGroupType(value) {
-    console.log('🎯 updateGroupType called with:', value);
+function updateGroupType(type) {
+    console.log(`🎯 updateGroupType called with: ${type}`);
     
+    // FIXED: Only check for newGroupIcon
     const newGroupIcon = document.getElementById('newGroupIcon');
     
     if (!newGroupIcon) {
-    console.error('❌ newGroupIcon element not found');
-    return;
-}
-
-// The triggers are now handled by concernsCheckboxContainer
-const concernsContainer = document.getElementById('concernsCheckboxContainer');
-if (!concernsContainer) {
-    console.warn('⚠️ concernsCheckboxContainer not found, but continuing anyway');
-}
-    
-    // Set icon based on type - FIXED LOGIC!
-    if (value === '3' || value === 'informational') {
-        console.log('🔄 Switching to INFORMATIONAL');
-        newGroupIcon.value = '📚';
-        testimonialTriggers.style.display = 'none';   // HIDE testimonial
-        informationalTriggers.style.display = 'block'; // SHOW informational
-    } else {
-        console.log('🔄 Switching to TESTIMONIAL');
-        newGroupIcon.value = '🎬';
-        testimonialTriggers.style.display = 'block';  // SHOW testimonial
-        informationalTriggers.style.display = 'none';  // HIDE informational
+        console.error('❌ newGroupIcon element not found');
+        return;
     }
     
-    // Debug: Verify
-    console.log('Testimonial display:', testimonialTriggers.style.display);
-    console.log('Informational display:', informationalTriggers.style.display);
+    // Set icon based on type - FIXED LOGIC!
+    if (type === 'testimonial') {
+        newGroupIcon.value = '📁'; // Default testimonial icon
+        console.log('🎬 Set icon to testimonial default');
+    } else {
+        newGroupIcon.value = '📚'; // Default informational icon  
+        console.log('📚 Set icon to informational default');
+    }
+    
+    // FIXED: testimonialTriggers and informationalTriggers don't exist anymore
+    // Concerns are now handled by updateGroupConcernsCheckboxes function
+    
+    // Update concerns checkboxes based on group type
+    updateGroupConcernsCheckboxes(type);
+    
+    console.log(`✅ updateGroupType completed for: ${type}`);
 }
 
 function populateTriggersSections() {
@@ -3743,6 +3738,84 @@ setTimeout(() => {
         window.updateGroupDropdown();
     }
 }, 1000);
+
+// ============================================
+// 🚨 QUICK FIX FOR MISSING EnhancedGroupCreator
+// ============================================
+// This fixes the immediate errors without restoring all the missing code
+// ============================================
+
+(function() {
+    'use strict';
+    
+    console.log('🔧 Applying quick fix for missing EnhancedGroupCreator...');
+    
+    // 1. FIX updateGroupType to not use testimonialTriggers
+    if (typeof updateGroupType === 'function') {
+        const originalUpdateGroupType = updateGroupType;
+        
+        window.updateGroupType = function(type) {
+            console.log(`🎯 updateGroupType (FIXED) called with: ${type}`);
+            
+            try {
+                // Call original but catch the testimonialTriggers error
+                return originalUpdateGroupType.call(this, type);
+            } catch (error) {
+                if (error.message.includes('testimonialTriggers is not defined') || 
+                    error.message.includes('informationalTriggers is not defined')) {
+                    
+                    console.log('🔧 Fixing missing trigger elements...');
+                    
+                    // Simple version that works with current modal
+                    const newGroupIcon = document.getElementById('newGroupIcon');
+                    if (newGroupIcon) {
+                        newGroupIcon.value = type === 'testimonial' ? '📁' : '📚';
+                    }
+                    
+                    // Update concerns if function exists
+                    if (typeof updateGroupConcernsCheckboxes === 'function') {
+                        updateGroupConcernsCheckboxes(type);
+                    }
+                    
+                    return;
+                }
+                
+                // If it's a different error, re-throw it
+                throw error;
+            }
+        };
+    }
+    
+    // 2. CREATE STUB FOR MISSING EnhancedGroupCreator
+    if (typeof EnhancedGroupCreator === 'undefined') {
+        console.log('🔧 Creating stub EnhancedGroupCreator...');
+        
+        window.EnhancedGroupCreator = class {
+            constructor() {
+                console.log('🎨 EnhancedGroupCreator stub created');
+            }
+            
+            show() {
+                console.log('📱 EnhancedGroupCreator.show() - Using standard modal instead');
+                // Fall back to standard modal
+                if (typeof showAddTestimonialGroupModal === 'function') {
+                    showAddTestimonialGroupModal();
+                }
+            }
+            
+            hide() {
+                console.log('👋 EnhancedGroupCreator.hide()');
+                if (typeof hideAddTestimonialGroupModal === 'function') {
+                    hideAddTestimonialGroupModal();
+                }
+            }
+        };
+    }
+    
+    // 3. ENSURE STANDARD MODAL WORKS
+    console.log('✅ Quick fix applied - modal should work now');
+    
+})();
 
 // Export to window
 window.hideAllTestimonialsModal = hideAllTestimonialsModal;
