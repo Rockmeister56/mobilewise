@@ -893,18 +893,60 @@ function populateConcernsCheckboxes() {
 function updateConcernCheckboxesForGroupType(groupType) {
     console.log('🔄 Updating concern checkboxes for:', groupType);
     
-    const testimonialSection = document.getElementById('testimonialTriggers');
-    const informationalSection = document.getElementById('informationalTriggers');
+    // Get the concerns container
+    const container = document.getElementById('concernsCheckboxContainer');
+    if (!container) {
+        console.warn('⚠️ concernsCheckboxContainer not found');
+        return;
+    }
     
-    if (!testimonialSection || !informationalSection) return;
+    // Get all concern checkboxes
+    const checkboxes = container.querySelectorAll('.concern-checkbox');
+    console.log(`Found ${checkboxes.length} concern checkboxes`);
+    
+    // Define which concerns belong to which type
+    // Based on your 11 checkboxes, here's how we categorize them:
     
     if (groupType === 'informational') {
-        testimonialSection.style.display = 'none';
-        informationalSection.style.display = 'block';
+        // For informational groups: Show educational/process concerns
+        checkboxes.forEach(checkbox => {
+            const id = checkbox.id;
+            
+            // Informational concerns: general info, demos, process explanations
+            const isInformational = id.includes('general_') || 
+                                   id.includes('demo') ||
+                                   id.includes('process') ||
+                                   id.includes('explanation');
+            
+            checkbox.style.display = isInformational ? 'block' : 'none';
+            if (checkbox.parentElement) {
+                checkbox.parentElement.style.display = isInformational ? 'block' : 'none';
+            }
+        });
+        
+        console.log('📚 Showing informational concerns');
+        
     } else {
-        testimonialSection.style.display = 'block';
-        informationalSection.style.display = 'none';
+        // For testimonial groups: Show social proof/objection concerns
+        checkboxes.forEach(checkbox => {
+            const id = checkbox.id;
+            
+            // Testimonial concerns: price, time, trust, results
+            const isTestimonial = id.includes('price_') || 
+                                 id.includes('time_') || 
+                                 id.includes('trust_') || 
+                                 id.includes('results_');
+            
+            checkbox.style.display = isTestimonial ? 'block' : 'none';
+            if (checkbox.parentElement) {
+                checkbox.parentElement.style.display = isTestimonial ? 'block' : 'none';
+            }
+        });
+        
+        console.log('🎬 Showing testimonial concerns');
     }
+    
+    console.log(`✅ Updated ${checkboxes.length} checkboxes for ${groupType} type`);
 }
 
 // Initialize modal when shown
@@ -970,7 +1012,7 @@ function updateGroupType(type) {
     // Concerns are now handled by updateGroupConcernsCheckboxes function
     
     // Update concerns checkboxes based on group type
-    updateGroupConcernsCheckboxes(type);
+    updateConcernCheckboxesForGroupType(type);
     
     console.log(`✅ updateGroupType completed for: ${type}`);
 }
@@ -1316,31 +1358,48 @@ function populateConcernCheckboxes() {
     const container = document.getElementById('concernsCheckboxContainer');
     if (!container) return;
     
+    // 12 CONCERNS - 6 for testimonials, 6 for informational
     const concerns = {
-        'price': '💰 See What Others Say About Value',
-        'time': '⏰ Hear From Busy Professionals',
-        'trust': '🤝 Real Client Experiences',
-        'general': '⭐ What Our Clients Say',
-        'results': '📈 See The Results Others Got'
+        // Testimonial concerns (social proof, objections)
+        'price_expensive': '💰 Expensive (expensive, too much)',
+        'price_cost': '💰 Cost/Price (cost, price, how much)',
+        'price_affordability': '💰 Affordability (afford, worth it, budget)',
+        'time_busy': '⏰ Too Busy (busy, no time, overwhelmed)',
+        'time_speed': '⏰ Speed/Timing (time, when, long, fast)',
+        'trust_skepticism': '🤝 Skepticism (skeptical, not sure, doubt)',
+        'trust_legitimacy': '🤝 Legitimacy (scam, real, trust, believe)',
+        'results_effectiveness': '📈 Effectiveness (work, results, effective)',
+        'results_worry': '📈 Worry/Concern (worried, concerned, afraid)',
+        
+        // Informational concerns (educational, process)
+        'general_info': '⭐ General Information (information, explain)',
+        'general_demo': '⭐ Demo Request (show me, demonstrate, demo)',
+        'process_explanation': '🔄 Process Explanation (how it works, process)'
     };
     
+    // Clear container
     container.innerHTML = '';
     
-    for (const [key, label] of Object.entries(concerns)) {
+    // Create checkboxes
+    Object.entries(concerns).forEach(([key, label]) => {
         const checkboxId = `concern_${key}`;
-        const html = `
-            <div class="concern-checkbox-item">
-                <input type="checkbox" 
-                       id="${checkboxId}" 
-                       class="concern-checkbox" 
-                       value="${key}">
-                <label for="${checkboxId}" class="concern-checkbox-label">
-                    ${label}
-                </label>
-            </div>
+        
+        const checkboxItem = document.createElement('div');
+        checkboxItem.className = 'concern-checkbox-item';
+        checkboxItem.innerHTML = `
+            <input type="checkbox" 
+                   id="${checkboxId}" 
+                   class="concern-checkbox" 
+                   value="${key}">
+            <label for="${checkboxId}" class="concern-checkbox-label">
+                ${label}
+            </label>
         `;
-        container.innerHTML += html;
-    }
+        
+        container.appendChild(checkboxItem);
+    });
+    
+    console.log(`✅ Populated ${Object.keys(concerns).length} concern checkboxes`);
 }
 
 function createTestimonialGroup() {
@@ -3772,10 +3831,10 @@ setTimeout(() => {
                         newGroupIcon.value = type === 'testimonial' ? '📁' : '📚';
                     }
                     
-                    // Update concerns if function exists
-                    if (typeof updateGroupConcernsCheckboxes === 'function') {
-                        updateGroupConcernsCheckboxes(type);
-                    }
+                   // Update concerns if function exists
+if (typeof updateConcernCheckboxesForGroupType === 'function') {
+    updateConcernCheckboxesForGroupType(type);
+}
                     
                     return;
                 }
@@ -3815,6 +3874,26 @@ setTimeout(() => {
     // 3. ENSURE STANDARD MODAL WORKS
     console.log('✅ Quick fix applied - modal should work now');
     
+})();
+
+// ============================================
+// 🔧 CREATE ALIAS FOR BACKWARD COMPATIBILITY
+// ============================================
+
+(function() {
+    'use strict';
+    
+    console.log('🔧 Creating function aliases...');
+    
+    // Create alias so old code still works
+    if (typeof updateConcernCheckboxesForGroupType === 'function' && 
+        typeof updateGroupConcernsCheckboxes === 'undefined') {
+        
+        window.updateGroupConcernsCheckboxes = updateConcernCheckboxesForGroupType;
+        console.log('✅ Alias: updateGroupConcernsCheckboxes = updateConcernCheckboxesForGroupType');
+    }
+    
+    console.log('✅ Function aliases setup complete');
 })();
 
 // Export to window
