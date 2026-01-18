@@ -3427,25 +3427,43 @@ function updateStatisticsDisplay() {
 
 function saveToLocalStorage() {
     try {
-        const dataToSave = {
-            testimonialGroups: testimonialData.testimonialGroups,
-            statistics: testimonialData.statistics,
-            savedAt: new Date().toISOString()
-        };
-        
-        // Only save if data is valid
-if (window.testimonialData && window.testimonialData.__version === '5.0-complete-fixed') {
-  localStorage.setItem('enhancedTestimonialData', JSON.stringify(window.testimonialData));
-}
-        console.log('💾 Data saved to localStorage');
+        // Save COMPLETE testimonialData object
+        if (window.testimonialData) {
+            // Ensure all required structures exist
+            if (!window.testimonialData.groups) window.testimonialData.groups = {};
+            if (!window.testimonialData.testimonialGroups) window.testimonialData.testimonialGroups = {};
+            if (!window.testimonialData.informationalGroups) window.testimonialData.informationalGroups = {};
+            if (!window.testimonialData.concerns) window.testimonialData.concerns = {};
+            if (!window.testimonialData.statistics) window.testimonialData.statistics = {};
+            
+            // Update statistics to reflect actual counts
+            const totalGroups = Object.keys(window.testimonialData.groups).length;
+            const totalTestimonialGroups = Object.keys(window.testimonialData.testimonialGroups).length;
+            const totalInformationalGroups = Object.keys(window.testimonialData.informationalGroups).length;
+            
+            window.testimonialData.statistics.totalGroups = totalGroups;
+            window.testimonialData.statistics.totalTestimonialGroups = totalTestimonialGroups;
+            window.testimonialData.statistics.totalInformationalGroups = totalInformationalGroups;
+            
+            // Save with the CORRECT key
+            localStorage.setItem('testimonialData', JSON.stringify(window.testimonialData));
+            console.log('💾 COMPLETE data saved to localStorage');
+            console.log(`   - Groups: ${totalGroups}`);
+            console.log(`   - TestimonialGroups: ${totalTestimonialGroups}`);
+            console.log(`   - InformationalGroups: ${totalInformationalGroups}`);
+        } else {
+            console.error('❌ No testimonialData to save!');
+        }
     } catch (e) {
         console.error('❌ Error saving to localStorage:', e);
     }
 }
 
 function saveAllData() {
+    console.log('💾 saveAllData called');
     saveToLocalStorage();
-    showSuccess('✅ All data saved successfully!');
+    // REMOVE the showSuccess call here - let the caller show the banner
+    // showSuccess('✅ All data saved successfully!');
 }
 
 // ===================================================
