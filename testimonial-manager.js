@@ -7,6 +7,298 @@ let currentSelectedGroupId = null;
 let testimonialData = window.testimonialData || {};
 
 // ===================================================
+// 🛡️ COMPATIBILITY LAYER FOR ENHANCED CONCERNS SYSTEM
+// Added: [Today's Date]
+// ===================================================
+
+// 1. ENHANCED CONCERNS DEFINITION (12 concerns)
+window.ENHANCED_CONCERNS = {
+    // Testimonial Concerns
+    "price_cost": {
+        "title": "Price & Cost",
+        "icon": "💰",
+        "type": "testimonial",
+        "triggers": ["expensive", "cost", "price", "affordable", "worth it"],
+        "description": "Concerns about pricing and value"
+    },
+    "time_speed": {
+        "title": "Time & Speed", 
+        "icon": "⏰",
+        "type": "testimonial",
+        "triggers": ["fast", "quick", "time", "speed", "efficient"],
+        "description": "Concerns about implementation time and speed"
+    },
+    "trust_legitimacy": {
+        "title": "Trust & Legitimacy",
+        "icon": "🤝",
+        "type": "testimonial", 
+        "triggers": ["trust", "legit", "scam", "real", "reliable"],
+        "description": "Concerns about trust and legitimacy"
+    },
+    "results_effectiveness": {
+        "title": "Results & Effectiveness",
+        "icon": "📈",
+        "type": "testimonial",
+        "triggers": ["results", "work", "effective", "outcomes", "proof"],
+        "description": "Concerns about results and effectiveness"
+    },
+    "general_info": {
+        "title": "General Information",
+        "icon": "⭐",
+        "type": "testimonial",
+        "triggers": ["info", "details", "explain", "how", "what"],
+        "description": "General questions and information"
+    },
+    
+    // Informational Concerns
+    "how_it_works": {
+        "title": "How It Works",
+        "icon": "⚙️",
+        "type": "informational",
+        "triggers": ["process", "work", "steps", "method", "approach"],
+        "description": "Explanation of the process"
+    },
+    "benefits_features": {
+        "title": "Benefits & Features",
+        "icon": "✅",
+        "type": "informational",
+        "triggers": ["benefits", "features", "advantages", "pros", "what you get"],
+        "description": "Benefits and key features"
+    },
+    "case_studies": {
+        "title": "Case Studies",
+        "icon": "📊",
+        "type": "informational",
+        "triggers": ["examples", "case studies", "stories", "results"],
+        "description": "Real examples and case studies"
+    },
+    "faq": {
+        "title": "FAQ",
+        "icon": "❓",
+        "type": "informational",
+        "triggers": ["questions", "faq", "common", "answers", "doubts"],
+        "description": "Frequently asked questions"
+    },
+    "comparison": {
+        "title": "Comparison",
+        "icon": "⚖️",
+        "type": "informational",
+        "triggers": ["vs", "compare", "alternative", "difference"],
+        "description": "Comparisons with alternatives"
+    },
+    "setup_process": {
+        "title": "Setup & Process",
+        "icon": "🛠️",
+        "type": "informational",
+        "triggers": ["setup", "install", "get started", "onboarding"],
+        "description": "Setup and implementation process"
+    },
+    "pricing_plans": {
+        "title": "Pricing & Plans",
+        "icon": "💳",
+        "type": "informational",
+        "triggers": ["pricing", "plans", "packages", "tiers", "cost"],
+        "description": "Detailed pricing information"
+    }
+};
+
+// 2. COMPATIBILITY FUNCTION
+function ensureCompatibleStructure(existingData) {
+    console.log('🔄 Checking data compatibility...');
+    
+    if (!existingData) {
+        console.log('✅ No existing data, using new structure');
+        return {
+            concerns: window.ENHANCED_CONCERNS,
+            testimonialGroups: {},
+            informationalGroups: {},
+            statistics: {
+                totalTestimonialGroups: 0,
+                totalInformationalGroups: 0,
+                totalTestimonials: 0,
+                totalInformationalVideos: 0
+            }
+        };
+    }
+    
+    // If data already has the new structure we're using, return as-is
+    if (existingData.testimonialGroups !== undefined || existingData.informationalGroups !== undefined) {
+        console.log('✅ Data already in new structure (testimonialGroups/informationalGroups)');
+        
+        // Ensure concerns include ENHANCED_CONCERNS
+        existingData.concerns = {
+            ...window.ENHANCED_CONCERNS,
+            ...existingData.concerns
+        };
+        
+        return existingData;
+    }
+    
+    // Check if this is OLD format (has .groups with mixed types)
+    const hasOldGroups = existingData.groups && Object.keys(existingData.groups).length > 0;
+    
+    if (!hasOldGroups) {
+        console.log('✅ Data is already in expected format');
+        
+        // Still ensure concerns are updated
+        existingData.concerns = {
+            ...window.ENHANCED_CONCERNS,
+            ...existingData.concerns
+        };
+        
+        return existingData;
+    }
+    
+    console.log('🔄 Converting from unified groups structure to separate structure...');
+    
+    // Convert from unified .groups to separate .testimonialGroups/.informationalGroups
+    const convertedData = {
+        ...existingData,
+        concerns: {
+            ...window.ENHANCED_CONCERNS,
+            ...existingData.concerns
+        },
+        testimonialGroups: {},
+        informationalGroups: {},
+        statistics: existingData.statistics || {
+            totalTestimonialGroups: 0,
+            totalInformationalGroups: 0,
+            totalTestimonials: 0,
+            totalInformationalVideos: 0
+        }
+    };
+    
+    // Move groups to appropriate structures
+    Object.values(existingData.groups || {}).forEach(group => {
+        if (group.type === 'informational') {
+            convertedData.informationalGroups[group.id] = {
+                ...group,
+                videos: group.videoIds || group.videos || []
+            };
+            delete convertedData.informationalGroups[group.id].videoIds;
+            
+            // Update stats
+            convertedData.statistics.totalInformationalGroups++;
+            convertedData.statistics.totalInformationalVideos += (group.videos?.length || 0);
+        } else {
+            convertedData.testimonialGroups[group.id] = {
+                ...group,
+                testimonials: group.videoIds || group.testimonials || []
+            };
+            delete convertedData.testimonialGroups[group.id].videoIds;
+            
+            // Update stats
+            convertedData.statistics.totalTestimonialGroups++;
+            convertedData.statistics.totalTestimonials += (group.testimonials?.length || 0);
+        }
+    });
+    
+    // Remove old .groups structure
+    delete convertedData.groups;
+    
+    console.log(`✅ Converted: ${Object.keys(existingData.groups || {}).length} unified groups → ${Object.keys(convertedData.testimonialGroups).length} testimonial + ${Object.keys(convertedData.informationalGroups).length} informational`);
+    
+    return convertedData;
+}
+
+// 3. CONCERN TYPE ENSURER
+function ensureConcernTypes() {
+    console.log('🔧 Ensuring concern types...');
+    
+    if (!window.testimonialData?.concerns) return;
+    
+    Object.values(window.testimonialData.concerns).forEach(concern => {
+        // Add 'type' property if missing
+        if (!concern.type) {
+            concern.type = concern.isInformational ? 'informational' : 'testimonial';
+        }
+    });
+    
+    console.log('✅ Concern types updated');
+}
+
+// 4. TRIGGER CONTAINER FIX
+(function() {
+    console.log('🔧 Applying trigger container fix...');
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyFix);
+    } else {
+        applyFix();
+    }
+    
+    function applyFix() {
+        // Patch updateTriggerSections if it exists
+        if (window.updateTriggerSections) {
+            const originalUpdate = window.updateTriggerSections;
+            window.updateTriggerSections = function() {
+                console.log('🔄 updateTriggerSections called (patched)');
+                
+                // Look for the containers in the new structure
+                const testimonialContainer = document.getElementById('testimonialTriggersCheckboxes');
+                const informationalContainer = document.getElementById('informationalTriggersCheckboxes');
+                
+                if (testimonialContainer || informationalContainer) {
+                    console.log('✅ Found trigger containers in new structure');
+                    return true;
+                }
+                
+                // Fall back to original function
+                return originalUpdate.apply(this, arguments);
+            };
+        }
+        
+        // Patch populateTriggersSections if it exists
+        if (window.populateTriggersSections) {
+            const originalPopulate = window.populateTriggersSections;
+            window.populateTriggersSections = function() {
+                console.log('🔄 populateTriggersSections called (patched)');
+                
+                // Check if we have the new structure
+                const container = document.getElementById('concernsCheckboxContainer');
+                if (container) {
+                    console.log('✅ Using new trigger container structure');
+                    // The triggers are already hardcoded in HTML, so just return success
+                    return true;
+                }
+                
+                // Fall back to original function
+                return originalPopulate.apply(this, arguments);
+            };
+        }
+        
+        console.log('✅ Trigger container fix applied');
+    }
+})();
+
+// 5. INTEGRATE WITH MANAGER'S initializeTestimonialData()
+const originalInitializeTestimonialData = window.initializeTestimonialData;
+window.initializeTestimonialData = function() {
+    console.log('🚀 Initializing with compatibility layer...');
+    
+    // First, apply compatibility fix
+    if (window.testimonialData) {
+        window.testimonialData = ensureCompatibleStructure(window.testimonialData);
+    }
+    
+    // Ensure concern types
+    ensureConcernTypes();
+    
+    // Then run the original initialization
+    if (typeof originalInitializeTestimonialData === 'function') {
+        return originalInitializeTestimonialData();
+    }
+    
+    // Fallback if original doesn't exist
+    console.log('⚠️ Using compatibility layer fallback initialization');
+    
+    return window.testimonialData;
+};
+
+console.log('✅ Compatibility layer loaded');
+
+// ===================================================
 // 🎯 IMPROVED SURGICAL FIX - ALLOWS FUNCTIONS, BLOCKS CORRUPTION
 // ===================================================
 
@@ -2045,135 +2337,6 @@ function updateTriggerSections() {
             : '📚 Informational Triggers (for educational groups)';
     }
 }
-
-// ===========================================
-// FIX FOR TRIGGER CONTAINER ERRORS
-// Add this to your testimonial-manager.js or in a separate script tag
-// ===========================================
-
-(function() {
-    console.log('🔧 Applying trigger container fix...');
-    
-    // Wait for DOM to be ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', applyFix);
-    } else {
-        applyFix();
-    }
-    
-    function applyFix() {
-        // Patch updateTriggerSections if it exists
-        if (window.updateTriggerSections) {
-            const originalUpdate = window.updateTriggerSections;
-            window.updateTriggerSections = function() {
-                console.log('🔄 updateTriggerSections called (patched)');
-                
-                // Look for the containers in the new structure
-                const testimonialContainer = document.getElementById('testimonialTriggersCheckboxes');
-                const informationalContainer = document.getElementById('informationalTriggersCheckboxes');
-                
-                if (testimonialContainer || informationalContainer) {
-                    console.log('✅ Found trigger containers in new structure');
-                    return true;
-                }
-                
-                // Fall back to original function
-                return originalUpdate.apply(this, arguments);
-            };
-        }
-        
-        // Patch populateTriggersSections if it exists
-        if (window.populateTriggersSections) {
-            const originalPopulate = window.populateTriggersSections;
-            window.populateTriggersSections = function() {
-                console.log('🔄 populateTriggersSections called (patched)');
-                
-                // Check if we have the new structure
-                const container = document.getElementById('concernsCheckboxContainer');
-                if (container) {
-                    console.log('✅ Using new trigger container structure');
-                    // The triggers are already hardcoded in HTML, so just return success
-                    return true;
-                }
-                
-                // Fall back to original function
-                return originalPopulate.apply(this, arguments);
-            };
-        }
-        
-        console.log('✅ Trigger container fix applied');
-    }
-})();
-
-// Helper: Convert old concern keys to new ones
-function convertConcernKey(oldKey) {
-    const mapping = {
-        'price': 'price_cost',
-        'time': 'time_speed', 
-        'trust': 'trust_legitimacy',
-        'general': 'general_info',
-        'results': 'results_effectiveness'
-    };
-    return mapping[oldKey] || oldKey;
-}
-
-// Add to the top of your compatibility layer
-function ensureConcernTypes() {
-    console.log('🔧 Ensuring concern types...');
-    
-    if (!window.testimonialData?.concerns) return;
-    
-    Object.values(window.testimonialData.concerns).forEach(concern => {
-        // Add 'type' property if missing
-        if (!concern.type) {
-            concern.type = concern.isInformational ? 'informational' : 'testimonial';
-        }
-        
-        // Also ensure triggers exist
-        if (!concern.triggers) {
-            concern.triggers = concern.phrases || [];
-        }
-    });
-    
-    console.log('✅ Concern types updated');
-}
-
-// 2. INTEGRATE WITH MANAGER'S initializeTestimonialData()
-const originalInitializeTestimonialData = window.initializeTestimonialData;
-window.initializeTestimonialData = function() {
-    console.log('🚀 Initializing with compatibility layer...');
-    
-    // First, apply compatibility fix
-    if (window.testimonialData) {
-        window.testimonialData = ensureCompatibleStructure(window.testimonialData);
-    }
-    
-    // Then run the original initialization
-    if (typeof originalInitializeTestimonialData === 'function') {
-        return originalInitializeTestimonialData();
-    }
-    
-    // Fallback if original doesn't exist
-    console.log('⚠️ Using compatibility layer fallback initialization');
-    
-    // Ensure ENHANCED_CONCERNS exists
-    if (!window.ENHANCED_CONCERNS) {
-        window.ENHANCED_CONCERNS = window.testimonialData?.concerns || {};
-    }
-    
-    // Merge concerns (ENHANCED_CONCERNS takes priority)
-    if (window.testimonialData) {
-        window.testimonialData.concerns = {
-            ...window.testimonialData.concerns,
-            ...window.ENHANCED_CONCERNS
-        };
-    }
-    
-    return window.testimonialData;
-};
-
-console.log('✅ Compatibility layer loaded');
-
 
 // ===================================================
 // 🎯 ENHANCED GROUP CREATION FUNCTION
