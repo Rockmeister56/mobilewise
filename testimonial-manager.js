@@ -2222,10 +2222,7 @@ function setupCheckboxListenersForModal() {
     console.log('✅ Checkbox listeners setup complete');
 }
 
-// Make sure this is at the TOP LEVEL (not inside another function)
 function updateSelectedDisplay() {
-    console.log('🔄 updateSelectedDisplay called');
-    
     const modal = document.getElementById('addTestimonialGroupModal');
     if (!modal) return;
     
@@ -2243,32 +2240,25 @@ function updateSelectedDisplay() {
             return label ? label.textContent.trim() : cb.value;
         });
         
-      preview.innerHTML = `
-    <div style="margin-bottom: 10px; font-weight: 600; color: #3b82f6;">
+       preview.innerHTML = `
+    <div style="margin-bottom: 10px; font-weight: 600; color: #8ab4f8;">
         ✅ Selected (${selected.length}):
     </div>
     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
         ${selected.map(item => 
             `<span style="
-                background: linear-gradient(135deg, #3b82f6, #2563eb);
-                color: white;
+                background: rgba(30, 41, 59, 0.8);
+                color: #f1f5f9;
                 padding: 8px 16px;
                 border-radius: 20px;
-                border: 2px solid #60a5fa;
+                border: 2px solid #3b82f6;
                 font-size: 14px;
                 font-weight: 600;
-                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+                backdrop-filter: blur(10px);
             ">${item}</span>`
         ).join('')}
     </div>
 `;
-    } else {
-        preview.innerHTML = `
-            <p style="margin: 0; color: #9ca3af; font-style: italic;">
-                No triggers selected yet. Click checkboxes above to select.
-            </p>
-        `;
     }
     
     // Update submit button
@@ -2278,6 +2268,8 @@ function updateSelectedDisplay() {
         submitBtn.disabled = !(hasSelection && hasName);
         submitBtn.style.opacity = (hasSelection && hasName) ? '1' : '0.5';
         submitBtn.style.cursor = (hasSelection && hasName) ? 'pointer' : 'not-allowed';
+        
+        console.log(`🎯 Submit button: hasName=${hasName}, hasSelection=${hasSelection}, disabled=${submitBtn.disabled}`);
     }
 }
 
@@ -4804,52 +4796,6 @@ function fixCreateGroupButtons() {
             document.body.appendChild(backupBtn);
         }
     }, 2000);
-}
-
-function setupCheckboxListenersForModal() {
-    const modal = document.getElementById('addTestimonialGroupModal');
-    if (!modal) {
-        console.log('❌ Modal not found in setup');
-        return;
-    }
-    
-    console.log('🔧 Setting up checkbox listeners...');
-    
-    const checkboxes = modal.querySelectorAll('input.concern-checkbox');
-    const preview = document.getElementById('selectedTriggersPreview');
-    
-    if (!preview) {
-        console.log('❌ selectedTriggersPreview not found');
-        return;
-    }
-    
-    console.log(`Found ${checkboxes.length} checkboxes`);
-    
-    // Remove old listeners and add new ones
-    checkboxes.forEach(checkbox => {
-        // Clone to remove existing listeners
-        const newCheckbox = checkbox.cloneNode(true);
-        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
-        
-        // ✅ CRITICAL: Add event listener that calls updateSelectedDisplay
-        newCheckbox.addEventListener('change', function() {
-            updateSelectedDisplay();
-        });
-    });
-    
-    // Also listen to name input
-    const nameInput = modal.querySelector('#newGroupName');
-    if (nameInput) {
-        nameInput.addEventListener('input', function() {
-            updateSelectedDisplay();
-        });
-        console.log('✅ Added listener to name input');
-    }
-    
-    // ✅ CRITICAL: Initial update
-    updateSelectedDisplay();
-    
-    console.log('✅ Checkbox listeners setup complete');
 }
 
 // 7. Initialize everything when page loads
