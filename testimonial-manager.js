@@ -586,6 +586,123 @@ if (typeof GroupCreator === 'undefined') {
 }
 */
 
+// REMOVE THIS ENTIRE BLOCK (from top of file):
+// ============================================
+// 🚀 REMOVE LOCALSTORAGE - DIRECT FILE EDITING
+// ============================================
+
+console.log('🔧 Removing localStorage dependency...');
+
+// 1. DISABLE/REMOVE saveToLocalStorage
+window.saveToLocalStorage = function() {
+    console.log('⚠️ saveToLocalStorage() disabled - using direct file editing instead');
+    return true;
+};
+
+// 2. FIX addVideoTestimonial to work without localStorage
+if (typeof addVideoTestimonial === 'function') {
+    console.log('🔧 Fixing addVideoTestimonial function...');
+    
+    // Get the original function
+    const originalAddVideo = addVideoTestimonial.toString();
+    
+    // Remove saveToLocalStorage call
+    const fixedFunction = originalAddVideo.replace(
+        /saveToLocalStorage\(\);/g, 
+        'console.log("✅ Testimonial added to window.testimonialData");'
+    );
+    
+    // Update the function
+    eval('addVideoTestimonial = ' + fixedFunction);
+    
+    console.log('✅ addVideoTestimonial fixed - no longer uses localStorage');
+}
+
+// 3. CREATE PROPER SAVE FUNCTION
+window.saveAllData = function() {
+    console.log('💾 Saving directly to testimonials-data.js file...');
+    
+    // Get current data
+    const dataToSave = window.testimonialData || {};
+    
+    // Clean structure
+    const cleanData = {
+        version: dataToSave.version || "3.0",
+        lastUpdated: new Date().toISOString(),
+        
+        // Video configurations
+        videoUrls: dataToSave.videoUrls || {},
+        videoDurations: dataToSave.videoDurations || {},
+        concerns: dataToSave.concerns || {},
+        
+        // ⭐ TESTIMONIALS
+        testimonialGroups: dataToSave.testimonialGroups || {},
+        
+        // 📚 INFORMATIONAL VIDEOS
+        informationalGroups: dataToSave.informationalGroups || {},
+        
+        // Statistics
+        statistics: {
+            totalTestimonialGroups: Object.keys(dataToSave.testimonialGroups || {}).length,
+            totalInformationalGroups: Object.keys(dataToSave.informationalGroups || {}).length,
+            totalTestimonials: Object.values(dataToSave.testimonialGroups || {})
+                .reduce((sum, g) => sum + (g.testimonials?.length || 0), 0),
+            totalInformationalVideos: Object.values(dataToSave.informationalGroups || {})
+                .reduce((sum, g) => sum + (g.videos?.length || 0), 0)
+        },
+        
+        // Player config
+        playerConfig: dataToSave.playerConfig || {},
+        
+        // Metadata
+        __version: "3.0-direct-edit",
+        __generated: new Date().toISOString(),
+        __notes: "Direct edit - no localStorage"
+    };
+    
+    // Remove any old .groups structure
+    delete cleanData.groups;
+    
+    // Create the JS file
+    const jsContent = `// ===================================================
+// 🎬 TESTIMONIALS DATA FILE
+// Generated: ${new Date().toLocaleString()}
+// Direct Edit Mode - No localStorage
+// ===================================================
+
+window.testimonialData = ${JSON.stringify(cleanData, null, 2)};`;
+    
+    // Download
+    const blob = new Blob([jsContent], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'testimonials-data.js';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    
+    setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        console.log('✅ File downloaded: testimonials-data.js');
+    }, 100);
+    
+    // Show success
+    if (typeof showSuccess === 'function') {
+        showSuccess('✅ Data saved to testimonials-data.js file!');
+    } else {
+        alert('✅ testimonials-data.js file downloaded!\n\nReplace your current file with this one.');
+    }
+    
+    return true;
+};
+
+console.log('✅ System converted to direct file editing!');
+console.log('\n🎯 Now when you:');
+console.log('1. Add testimonials → Updates window.testimonialData directly');
+console.log('2. Click "Save Data" → Downloads updated testimonials-data.js file');
+
 // Fix only the problematic elements
 function fixSpecificElements() {
     const modal = document.getElementById('addTestimonialGroupModal');
@@ -2222,7 +2339,10 @@ function setupCheckboxListenersForModal() {
     console.log('✅ Checkbox listeners setup complete');
 }
 
+// Make sure this is at the TOP LEVEL (not inside another function)
 function updateSelectedDisplay() {
+    console.log('🔄 updateSelectedDisplay called');
+    
     const modal = document.getElementById('addTestimonialGroupModal');
     if (!modal) return;
     
@@ -2240,25 +2360,32 @@ function updateSelectedDisplay() {
             return label ? label.textContent.trim() : cb.value;
         });
         
-       preview.innerHTML = `
-    <div style="margin-bottom: 10px; font-weight: 600; color: #8ab4f8;">
+      preview.innerHTML = `
+    <div style="margin-bottom: 10px; font-weight: 600; color: #3b82f6;">
         ✅ Selected (${selected.length}):
     </div>
     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
         ${selected.map(item => 
             `<span style="
-                background: rgba(30, 41, 59, 0.8);
-                color: #f1f5f9;
+                background: linear-gradient(135deg, #3b82f6, #2563eb);
+                color: white;
                 padding: 8px 16px;
                 border-radius: 20px;
-                border: 2px solid #3b82f6;
+                border: 2px solid #60a5fa;
                 font-size: 14px;
                 font-weight: 600;
-                backdrop-filter: blur(10px);
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
             ">${item}</span>`
         ).join('')}
     </div>
 `;
+    } else {
+        preview.innerHTML = `
+            <p style="margin: 0; color: #9ca3af; font-style: italic;">
+                No triggers selected yet. Click checkboxes above to select.
+            </p>
+        `;
     }
     
     // Update submit button
@@ -2268,8 +2395,107 @@ function updateSelectedDisplay() {
         submitBtn.disabled = !(hasSelection && hasName);
         submitBtn.style.opacity = (hasSelection && hasName) ? '1' : '0.5';
         submitBtn.style.cursor = (hasSelection && hasName) ? 'pointer' : 'not-allowed';
+    }
+}
+
+// 🎯 ADD THESE HELPER FUNCTIONS RIGHT AFTER showAddTestimonialGroupModal:
+
+function setupCheckboxListenersForModal() {
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (!modal) {
+        console.log('❌ Modal not found in setup');
+        return;
+    }
+    
+    console.log('🔧 Setting up checkbox listeners...');
+    
+    const checkboxes = modal.querySelectorAll('input.concern-checkbox');
+    const preview = document.getElementById('selectedTriggersPreview');
+    
+    if (!preview) {
+        console.log('❌ selectedTriggersPreview not found');
+        return;
+    }
+    
+    console.log(`Found ${checkboxes.length} checkboxes`);
+    
+    // Remove old listeners and add new ones
+    checkboxes.forEach(checkbox => {
+        // Clone to remove existing listeners
+        const newCheckbox = checkbox.cloneNode(true);
+        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
         
-        console.log(`🎯 Submit button: hasName=${hasName}, hasSelection=${hasSelection}, disabled=${submitBtn.disabled}`);
+        newCheckbox.addEventListener('change', updateSelectedDisplay);
+    });
+    
+    // Also listen to name input
+    const nameInput = modal.querySelector('#newGroupName');
+    if (nameInput) {
+        nameInput.addEventListener('input', updateSelectedDisplay);
+        console.log('✅ Added listener to name input');
+    }
+    
+    // Initial update
+    updateSelectedDisplay();
+    console.log('✅ Checkbox listeners setup complete');
+}
+
+// Make sure this is at the TOP LEVEL (not inside another function)
+function updateSelectedDisplay() {
+    console.log('🔄 updateSelectedDisplay called');
+    
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (!modal) return;
+    
+    const checkboxes = modal.querySelectorAll('input.concern-checkbox:checked');
+    const preview = document.getElementById('selectedTriggersPreview');
+    const nameInput = modal.querySelector('#newGroupName');
+    const submitBtn = modal.querySelector('button[type="submit"]');
+    
+    if (!preview) return;
+    
+    // Update preview display
+    if (checkboxes.length > 0) {
+        const selected = Array.from(checkboxes).map(cb => {
+            const label = modal.querySelector(`label[for="${cb.id}"]`);
+            return label ? label.textContent.trim() : cb.value;
+        });
+        
+      preview.innerHTML = `
+    <div style="margin-bottom: 10px; font-weight: 600; color: #3b82f6;">
+        ✅ Selected (${selected.length}):
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        ${selected.map(item => 
+            `<span style="
+                background: linear-gradient(135deg, #3b82f6, #2563eb);
+                color: white;
+                padding: 8px 16px;
+                border-radius: 20px;
+                border: 2px solid #60a5fa;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            ">${item}</span>`
+        ).join('')}
+    </div>
+`;
+    } else {
+        preview.innerHTML = `
+            <p style="margin: 0; color: #9ca3af; font-style: italic;">
+                No triggers selected yet. Click checkboxes above to select.
+            </p>
+        `;
+    }
+    
+    // Update submit button
+    if (submitBtn && nameInput) {
+        const hasSelection = checkboxes.length > 0;
+        const hasName = nameInput.value.trim().length > 0;
+        submitBtn.disabled = !(hasSelection && hasName);
+        submitBtn.style.opacity = (hasSelection && hasName) ? '1' : '0.5';
+        submitBtn.style.cursor = (hasSelection && hasName) ? 'pointer' : 'not-allowed';
     }
 }
 
@@ -2974,6 +3200,8 @@ function selectGroup(groupId, scroll = false, source = 'sidebar') {
     addTypeBadgesToGroups();
     
 }
+
+
 
 function showTestimonialOverlay(groupId) {
     const group = testimonialData.testimonialGroups[groupId];
@@ -4796,6 +5024,52 @@ function fixCreateGroupButtons() {
             document.body.appendChild(backupBtn);
         }
     }, 2000);
+}
+
+function setupCheckboxListenersForModal() {
+    const modal = document.getElementById('addTestimonialGroupModal');
+    if (!modal) {
+        console.log('❌ Modal not found in setup');
+        return;
+    }
+    
+    console.log('🔧 Setting up checkbox listeners...');
+    
+    const checkboxes = modal.querySelectorAll('input.concern-checkbox');
+    const preview = document.getElementById('selectedTriggersPreview');
+    
+    if (!preview) {
+        console.log('❌ selectedTriggersPreview not found');
+        return;
+    }
+    
+    console.log(`Found ${checkboxes.length} checkboxes`);
+    
+    // Remove old listeners and add new ones
+    checkboxes.forEach(checkbox => {
+        // Clone to remove existing listeners
+        const newCheckbox = checkbox.cloneNode(true);
+        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+        
+        // ✅ CRITICAL: Add event listener that calls updateSelectedDisplay
+        newCheckbox.addEventListener('change', function() {
+            updateSelectedDisplay();
+        });
+    });
+    
+    // Also listen to name input
+    const nameInput = modal.querySelector('#newGroupName');
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            updateSelectedDisplay();
+        });
+        console.log('✅ Added listener to name input');
+    }
+    
+    // ✅ CRITICAL: Initial update
+    updateSelectedDisplay();
+    
+    console.log('✅ Checkbox listeners setup complete');
 }
 
 // 7. Initialize everything when page loads
