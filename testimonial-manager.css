@@ -1338,62 +1338,6 @@ select option[data-type="testimonial"] {
     padding-left: 28px;
 }
 
-
-/* Modal section styles */
-.group-section {
-    transition: all 0.3s ease;
-}
-
-.group-section h4 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.concerns-grid {
-    transition: all 0.3s ease;
-}
-
-/* Make sure concerns checkboxes are visible */
-.concern-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.concern-checkbox:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-}
-
-.concern-checkbox input[type="checkbox"] {
-    margin: 0;
-}
-
-/* Modal form styling */
-#addTestimonialGroupModal input[type="text"],
-#addTestimonialGroupModal textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 14px;
-    margin-bottom: 15px;
-}
-
-#addTestimonialGroupModal input[type="text"]:focus,
-#addTestimonialGroupModal textarea:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
 /* =================================================== */
 /* CONTENT HEADER */
 /* =================================================== */
