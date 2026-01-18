@@ -47,31 +47,7 @@ window.testimonialData = {
   // ========================
   // ⭐ TESTIMONIALS ONLY (Social Proof)
   // ========================
-  "testimonialGroups": {
-    "group_conversion_boost_1767901787532": {
-      "id": "group_conversion_boost_1767901787532",
-      "type": "testimonial", // ⭐ CRITICAL: Marks as testimonial
-      "name": "PPC Conversion Boost",
-      "slug": "conversion-boost",
-      "icon": "📁",
-      "description": "AI smart voice chat increases average conversion 300% and more for professional organizations and the like",
-      "concerns": ["time", "trust", "general", "results"],
-      "testimonials": [
-        {
-          "id": "testimonial_1767902304439",
-          "title": "312% conversion increase from a form",
-          "concernType": "results",
-          "videoUrl": "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/sign/video-testimonials/legal-personal-injury.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9lNjg4MGUyOC0zMDRhLTQ5NzItYmNiMS1iY2U5YjNkOWU1YTkiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ2aWRlby10ZXN0aW1vbmlhbHMvbGVnYWwtcGVyc29uYWwtaW5qdXJ5Lm1wNCIsImlhdCI6MTc2NzkwMjA3NywiZXhwIjoxNzk5NDM4MDc3fQ.mEn-TmcfRJhFZfGsqSELw63etf1txlZESZaG7KQcic0",
-          "author": "Ted Johnson, Esq",
-          "text": "",
-          "addedAt": "2026-01-08T19:58:24.439Z",
-          "views": 11
-        }
-      ],
-      "createdAt": "2026-01-08T19:49:47.532Z",
-      "viewCount": 11
-    }
-  },
+  
 
   // ========================
   // 📚 INFORMATIONAL VIDEOS ONLY (Educational)
