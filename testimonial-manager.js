@@ -1934,11 +1934,33 @@ function selectGroup(groupId, scroll = false, source = 'sidebar') {
         return;
     }
     
-    const group = window.testimonialData.testimonialGroups[groupId];
-    if (!group) {
-        console.error('❌ Group not found:', groupId);
-        return;
-    }
+    // 🎯 FIXED: Check ALL group locations
+let group = null;
+let foundIn = '';
+
+// 1. First check unified groups (primary location)
+if (window.testimonialData?.groups?.[groupId]) {
+    group = window.testimonialData.groups[groupId];
+    foundIn = 'unified groups';
+}
+// 2. Check testimonialGroups (backward compatibility)
+else if (window.testimonialData?.testimonialGroups?.[groupId]) {
+    group = window.testimonialData.testimonialGroups[groupId];
+    foundIn = 'testimonialGroups';
+}
+// 3. Check informationalGroups (backward compatibility)
+else if (window.testimonialData?.informationalGroups?.[groupId]) {
+    group = window.testimonialData.informationalGroups[groupId];
+    foundIn = 'informationalGroups';
+}
+
+if (!group) {
+    console.error('❌ Group not found:', groupId);
+    console.error('   Checked locations: groups, testimonialGroups, informationalGroups');
+    return;
+}
+
+console.log(`✅ Found group in ${foundIn}: ${group.name || groupId}`);
     
     // Update dropdown selection
     const dropdown = document.getElementById('selectGroupDropdown');
