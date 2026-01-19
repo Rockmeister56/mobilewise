@@ -3720,49 +3720,66 @@ function copyCode() {
 function downloadJSFile() {
     console.log('🔄 Exporting testimonial data...');
     
-    // FIRST: Update the code display to ensure it shows current data
-    updateCodeOutput();
+    // Get the ACTUAL data (not from display panel)
+    const sourceData = window.testimonialData;
     
-    // Get BOTH sources for safety
-    const codeFromDisplay = document.getElementById('codeOutput').textContent;
-    const dataFromMemory = window.testimonialData;
-    
-    // Parse the display code back to object if it exists
-    let displayData = {};
-    try {
-        displayData = JSON.parse(codeFromDisplay);
-    } catch (e) {
-        console.log('⚠️ Could not parse display code, using memory data');
-    }
-    
-    // Use memory data as primary source (this is the FIX!)
-    const sourceData = Object.keys(dataFromMemory).length > 0 ? dataFromMemory : displayData;
-    
-    // Create clean v3.0 structure
+    // Create export data that MATCHES your working file structure
     const exportData = {
-        videoUrls: sourceData.videoUrls || {},
-        videoDurations: sourceData.videoDurations || {},
-        
-        // Keep the ORIGINAL concerns structure (your existing one)
-        concerns: sourceData.concerns || {
-            price: { title: "Price Concerns", icon: "💰", videoType: "skeptical" },
-            time: { title: "Time/Speed", icon: "⏰", videoType: "speed" },
-            trust: { title: "Trust/Reliability", icon: "🤝", videoType: "skeptical" },
-            results: { title: "Results/Effectiveness", icon: "📈", videoType: "convinced" },
-            general: { title: "General Feedback", icon: "⭐", videoType: "skeptical" }
+        videoUrls: sourceData.videoUrls || {
+            "skeptical": "",
+            "speed": "",
+            "convinced": "",
+            "excited": ""
+        },
+        videoDurations: sourceData.videoDurations || {
+            "skeptical": 20000,
+            "speed": 20000,
+            "convinced": 20000,
+            "excited": 20000
         },
         
-        // ⭐ TESTIMONIALS ONLY
+        // USE THE EXACT CONCERNS STRUCTURE FROM YOUR WORKING FILE
+        concerns: {
+            "price": {
+                "title": "Price Concerns",
+                "icon": "💰",
+                "videoType": "skeptical"
+            },
+            "time": {
+                "title": "Time/Speed",
+                "icon": "⏰",
+                "videoType": "speed"
+            },
+            "trust": {
+                "title": "Trust/Reliability",
+                "icon": "🤝",
+                "videoType": "skeptical"
+            },
+            "results": {
+                "title": "Results/Effectiveness",
+                "icon": "📈",
+                "videoType": "convinced"
+            },
+            "general": {
+                "title": "General Feedback",
+                "icon": "⭐",
+                "videoType": "skeptical"
+            }
+        },
+        
+        // ⭐ COPY ACTUAL TESTIMONIAL GROUPS
         testimonialGroups: sourceData.testimonialGroups || {},
         
-        // 📚 INFORMATIONAL VIDEOS ONLY
+        // 📚 COPY ACTUAL INFORMATIONAL GROUPS
         informationalGroups: sourceData.informationalGroups || {},
         
-        statistics: sourceData.statistics || {
+        statistics: {
             totalTestimonialGroups: Object.keys(sourceData.testimonialGroups || {}).length,
             totalInformationalGroups: Object.keys(sourceData.informationalGroups || {}).length,
-            totalTestimonials: Object.values(sourceData.testimonialGroups || {}).reduce((sum, group) => sum + (group.testimonials?.length || 0), 0),
-            totalInformationalVideos: Object.values(sourceData.informationalGroups || {}).reduce((sum, group) => sum + (group.videos?.length || 0), 0)
+            totalTestimonials: Object.values(sourceData.testimonialGroups || {}).reduce((sum, group) => 
+                sum + (group.testimonials?.length || 0), 0),
+            totalInformationalVideos: Object.values(sourceData.informationalGroups || {}).reduce((sum, group) => 
+                sum + (group.videos?.length || 0), 0)
         },
         
         playerConfig: sourceData.playerConfig || {
@@ -3782,20 +3799,16 @@ function downloadJSFile() {
             resumeMessage: "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?"
         },
         
-        __version: sourceData.__version || "3.0-dual-system",
+        __version: "3.0-dual-system",
         __generated: new Date().toISOString(),
         __notes: "Separated testimonials (social proof) from informational videos (educational)"
     };
     
-    // Convert to JSON string
+    // Convert to string
     const jsonData = JSON.stringify(exportData, null, 2);
     
-    // Add ALL your original integration code
-    const playerIntegrationCode = `
-
-// ===================================================
-// PLAYER INTEGRATION FUNCTIONS (ADDED BY MANAGER)
-// ===================================================
+    // Add ALL the helper functions from your working file
+    const helperFunctions = `
 
 // Get testimonials for a specific concern
 window.testimonialData.getConcernTestimonials = function(concernKey) {
@@ -3875,40 +3888,171 @@ window.testimonialData.getAllUniqueConcerns = function() {
 
 // ===================================================
 // 🎬 VIDEO PLAYER WITH PROPER SIZE & VISIBLE CLOSE BUTTON
-// (Only include if available)
 // ===================================================
 
-${window.playTestimonialVideoWithOverlay ? `window.playTestimonialVideoWithOverlay = ${window.playTestimonialVideoWithOverlay.toString()};` : '// Video player function not available in manager'}
+window.playTestimonialVideoWithOverlay = ${window.playTestimonialVideoWithOverlay ? window.playTestimonialVideoWithOverlay.toString() : 'function(testimonial) { console.log("Video player placeholder"); }'};
 
-console.log('🎬 Testimonial Player Integration Ready');
-console.log('💰 Available concerns:', window.testimonialData.getAvailableConcerns().length);
-`;
+console.log('✅ DUAL VIDEO SYSTEM LOADED:');
+console.log('   ⭐ Testimonial Groups:', window.testimonialData.statistics.totalTestimonialGroups);
+console.log('   📚 Informational Groups:', window.testimonialData.statistics.totalInformationalGroups);
+console.log('   🎬 Total Videos:', 
+  window.testimonialData.statistics.totalTestimonials + 
+  window.testimonialData.statistics.totalInformationalVideos);`;
     
-    // Combine everything
+    // Create the complete file content
     const fullCode = `// ===================================================
 // 🎬 DUAL VIDEO SYSTEM DATA
 // Generated: ${new Date().toLocaleDateString()}
-// Exported from Testimonial Manager
 // ===================================================
 
-window.testimonialData = ${jsonData};${playerIntegrationCode}`;
+window.testimonialData = ${jsonData};${helperFunctions}`;
     
-    // Create download
+    // Download it
     const blob = new Blob([fullCode], { type: 'application/javascript' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'testimonial-data.js';  // Note: singular 'testimonial' not 'testimonials'
+    a.download = 'testimonials-data.js';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    showSuccess('✅ JS file downloaded with player integration!');
-    console.log('📊 Export complete. Groups exported:', 
-        Object.keys(exportData.testimonialGroups || {}).length + 
-        Object.keys(exportData.informationalGroups || {}).length);
+    showSuccess('✅ JS file downloaded!');
 }
+
+// ===================================================
+// 🛠️ CLEANUP FUNCTIONS (ADD TO YOUR MANAGER)
+// ===================================================
+
+function cleanupDuplicateProperties() {
+    console.log('🧹 Cleaning up duplicate properties...');
+    
+    if (!window.testimonialData) {
+        console.error('❌ testimonialData not found');
+        return;
+    }
+    
+    // Remove duplicate properties that shouldn't exist in v3.0
+    const propertiesToRemove = ['groups', '_groups', 'videos'];
+    
+    propertiesToRemove.forEach(prop => {
+        if (window.testimonialData.hasOwnProperty(prop)) {
+            console.log(`   Removing duplicate: ${prop}`);
+            delete window.testimonialData[prop];
+        }
+    });
+    
+    // Ensure proper structure exists
+    if (!window.testimonialData.testimonialGroups) {
+        window.testimonialData.testimonialGroups = {};
+        console.log('   Created empty testimonialGroups');
+    }
+    
+    if (!window.testimonialData.informationalGroups) {
+        window.testimonialData.informationalGroups = {};
+        console.log('   Created empty informationalGroups');
+    }
+    
+    console.log('✅ Cleanup complete');
+    
+    // Update statistics
+    if (typeof updateStatisticsDisplay === 'function') {
+        updateStatisticsDisplay();
+    }
+    
+    // Auto-save after cleanup
+    if (typeof saveAllData === 'function') {
+        saveAllData();
+    }
+}
+
+function autoSaveChanges() {
+    console.log('💾 Auto-saving to localStorage...');
+    
+    try {
+        // Clean up before saving
+        cleanupDuplicateProperties();
+        
+        // Save to localStorage
+        localStorage.setItem('testimonialData', JSON.stringify(window.testimonialData));
+        
+        console.log('✅ Auto-save complete');
+        console.log('   Groups saved:', 
+            Object.keys(window.testimonialData.testimonialGroups || {}).length + 
+            Object.keys(window.testimonialData.informationalGroups || {}).length);
+        
+    } catch (error) {
+        console.error('❌ Auto-save failed:', error);
+    }
+}
+
+function testCreateRealGroup() {
+    console.log('🎯 Creating a REAL test group...');
+    
+    // Create test group data
+    const testGroup = {
+        id: 'test_group_' + Date.now(),
+        type: 'testimonial',
+        name: 'Console Test Group',
+        slug: 'console-test',
+        icon: '🧪',
+        description: 'Created via console test',
+        concerns: ['general', 'results'],
+        testimonials: [
+            {
+                id: 'test_testimonial_' + Date.now(),
+                title: 'Test Video Testimonial',
+                concernType: 'results',
+                videoUrl: 'https://example.com/test-video.mp4',
+                author: 'Test User',
+                text: 'This is a test testimonial',
+                addedAt: new Date().toISOString(),
+                views: 0
+            }
+        ],
+        createdAt: new Date().toISOString(),
+        viewCount: 0
+    };
+    
+    // Add to testimonialData
+    if (!window.testimonialData.testimonialGroups) {
+        window.testimonialData.testimonialGroups = {};
+    }
+    
+    window.testimonialData.testimonialGroups[testGroup.id] = testGroup;
+    
+    console.log('✅ Group created:', testGroup.name);
+    console.log('   ID:', testGroup.id);
+    console.log('   Type:', testGroup.type);
+    console.log('   Testimonials:', testGroup.testimonials.length);
+    
+    // Update UI
+    if (typeof updateGroupsDisplay === 'function') {
+        updateGroupsDisplay();
+    }
+    
+    if (typeof updateCodeOutput === 'function') {
+        updateCodeOutput();
+    }
+    
+    if (typeof updateStatisticsDisplay === 'function') {
+        updateStatisticsDisplay();
+    }
+    
+    // Auto-save
+    autoSaveChanges();
+    
+    // Check results
+    console.log('\n📊 After creation:');
+    console.log('   Testimonial Groups:', Object.keys(window.testimonialData.testimonialGroups).length);
+    console.log('   Informational Groups:', Object.keys(window.testimonialData.informationalGroups || {}).length);
+    
+    return testGroup.id;
+}
+
+// Run cleanup on page load
+setTimeout(cleanupDuplicateProperties, 1000);
 
 // KEEP ALL OTHER FUNCTIONS EXACTLY AS THEY ARE
 function loadSampleData() {
@@ -4029,170 +4173,6 @@ function hideAllTestimonialsModal() {
         modal.style.display = 'none';
     }
 }
-
-// ===================================================
-// 🚀 TEMPORARY FIX: Override broken functions
-// ===================================================
-setTimeout(() => {
-    console.log('🔧 Applying temporary fixes for broken functions...');
-    
-    // FIX renderGroups
-    if (window.renderGroups) {
-        const originalRenderGroups = window.renderGroups;
-        window.renderGroups = function() {
-            console.log('🔧 TEMP FIX: renderGroups() using unified groups');
-            
-            const sidebar = document.getElementById('testimonialGroupsContainer');
-            if (!sidebar) return originalRenderGroups();
-            
-            const groups = window.testimonialData?.groups || {};
-            const groupIds = Object.keys(groups);
-            
-            if (groupIds.length === 0) {
-                console.log('⚠️ No groups found to render');
-                return originalRenderGroups();
-            }
-            
-            console.log(`🔧 Rendering ${groupIds.length} groups temporarily`);
-            
-            // Simple rendering
-            sidebar.innerHTML = '';
-            groupIds.forEach(groupId => {
-                const group = groups[groupId];
-                const button = document.createElement('button');
-                button.className = 'testimonial-group-btn';
-                button.innerHTML = `
-                    <span class="group-icon">${group.icon || '📁'}</span>
-                    <span class="group-name">${group.name || groupId}</span>
-                    <span class="group-count">${group.videoIds?.length || 0}</span>
-                `;
-                button.onclick = () => { if (window.selectGroup) window.selectGroup(groupId); };
-                sidebar.appendChild(button);
-            });
-            
-            return originalRenderGroups();
-        };
-        console.log('✅ Temporary fix for renderGroups applied');
-        
-        // Trigger it
-        window.renderGroups();
-    }
-    
-    // FIX updateGroupDropdown  
-    if (window.updateGroupDropdown) {
-        const originalUpdate = window.updateGroupDropdown;
-        window.updateGroupDropdown = function() {
-            console.log('🔧 TEMP FIX: updateGroupDropdown() using unified groups');
-            
-            const dropdown = document.getElementById('selectGroupDropdown');
-            if (!dropdown) return originalUpdate();
-            
-            const groups = window.testimonialData?.groups || {};
-            const groupIds = Object.keys(groups);
-            
-            if (groupIds.length === 0) {
-                console.log('⚠️ No groups found for dropdown');
-                return originalUpdate();
-            }
-            
-            // Clear and add
-            while (dropdown.options.length > 1) dropdown.remove(1);
-            
-            groupIds.forEach(groupId => {
-                const group = groups[groupId];
-                const option = document.createElement('option');
-                option.value = groupId;
-                option.textContent = `${group.icon || '📁'} ${group.name || groupId}`;
-                dropdown.appendChild(option);
-            });
-            
-            console.log(`🔧 Updated dropdown with ${groupIds.length} groups`);
-            return originalUpdate();
-        };
-        console.log('✅ Temporary fix for updateGroupDropdown applied');
-        
-        // Trigger it
-        window.updateGroupDropdown();
-    }
-}, 1000);
-
-// ============================================
-// 🚨 QUICK FIX FOR MISSING EnhancedGroupCreator
-// ============================================
-// This fixes the immediate errors without restoring all the missing code
-// ============================================
-
-(function() {
-    'use strict';
-    
-    console.log('🔧 Applying quick fix for missing EnhancedGroupCreator...');
-    
-    // 1. FIX updateGroupType to not use testimonialTriggers
-    if (typeof updateGroupType === 'function') {
-        const originalUpdateGroupType = updateGroupType;
-        
-        window.updateGroupType = function(type) {
-            console.log(`🎯 updateGroupType (FIXED) called with: ${type}`);
-            
-            try {
-                // Call original but catch the testimonialTriggers error
-                return originalUpdateGroupType.call(this, type);
-            } catch (error) {
-                if (error.message.includes('testimonialTriggers is not defined') || 
-                    error.message.includes('informationalTriggers is not defined')) {
-                    
-                    console.log('🔧 Fixing missing trigger elements...');
-                    
-                    // Simple version that works with current modal
-                    const newGroupIcon = document.getElementById('newGroupIcon');
-                    if (newGroupIcon) {
-                        newGroupIcon.value = type === 'testimonial' ? '📁' : '📚';
-                    }
-                    
-                   // Update concerns if function exists
-if (typeof updateConcernCheckboxesForGroupType === 'function') {
-    updateConcernCheckboxesForGroupType(type);
-}
-                    
-                    return;
-                }
-                
-                // If it's a different error, re-throw it
-                throw error;
-            }
-        };
-    }
-    
-    // 2. CREATE STUB FOR MISSING EnhancedGroupCreator
-    if (typeof EnhancedGroupCreator === 'undefined') {
-        console.log('🔧 Creating stub EnhancedGroupCreator...');
-        
-        window.EnhancedGroupCreator = class {
-            constructor() {
-                console.log('🎨 EnhancedGroupCreator stub created');
-            }
-            
-            show() {
-                console.log('📱 EnhancedGroupCreator.show() - Using standard modal instead');
-                // Fall back to standard modal
-                if (typeof showAddTestimonialGroupModal === 'function') {
-                    showAddTestimonialGroupModal();
-                }
-            }
-            
-            hide() {
-                console.log('👋 EnhancedGroupCreator.hide()');
-                if (typeof hideAddTestimonialGroupModal === 'function') {
-                    hideAddTestimonialGroupModal();
-                }
-            }
-        };
-    }
-    
-    // 3. ENSURE STANDARD MODAL WORKS
-    console.log('✅ Quick fix applied - modal should work now');
-    
-})();
 
 // ============================================
 // 🔧 CREATE ALIAS FOR BACKWARD COMPATIBILITY
