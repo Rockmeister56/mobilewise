@@ -3209,9 +3209,14 @@ function renderGroups() {
     const existingGroups = sidebar.querySelectorAll('.testimonial-group-btn');
     existingGroups.forEach(group => group.remove());
     
-    // 3. Get groups - ONLY from testimonialGroups
-    const groups = window.testimonialData?.groups || {};
-    if (!groups) {
+    // 3. Get groups - FROM NEW v3.0 STRUCTURE
+    const testimonialGroups = window.testimonialData?.testimonialGroups || {};
+    const informationalGroups = window.testimonialData?.informationalGroups || {};
+    const groups = {...testimonialGroups, ...informationalGroups};
+    
+    console.log(`📊 Found ${Object.keys(groups).length} groups to render`);
+    
+    if (Object.keys(groups).length === 0) {
         console.log('📭 No groups data found');
         // Show empty state message if it exists
         const noGroupsMessage = document.getElementById('noGroupsMessage');
@@ -3219,57 +3224,65 @@ function renderGroups() {
         return;
     }
     
-    console.log(`📊 Found ${Object.keys(groups).length} groups to render`);
-    
-    // 4. Convert to array and sort
-    const groupsArray = Object.entries(groups).map(([id, group]) => ({
-        id: id,
-        title: group.title || id,
-        icon: group.icon || '📁',
-        type: group.type || 'testimonial',
-        description: group.description || '',
-        videoCount: group.videoIds?.length || 0
-    }));
-    
-    groupsArray.sort((a, b) => a.title.localeCompare(b.title));
-    
-    // 5. Hide empty state message
-    const noGroupsMessage = document.getElementById('noGroupsMessage');
-    if (noGroupsMessage) noGroupsMessage.style.display = 'none';
-    
-    // 6. Render each group as a button
-    groupsArray.forEach(group => {
-        const button = document.createElement('button');
-        button.className = 'testimonial-group-btn';
-        button.setAttribute('onclick', `selectGroup('${group.id}')`);
-        button.setAttribute('title', group.description || group.title);
+    // 4. Create buttons for each group
+    Object.values(groups).forEach(group => {
+        const btn = document.createElement('button');
+        btn.className = 'testimonial-group-btn';
+        btn.setAttribute('data-group-id', group.id);
         
-        // Create badge HTML
-        const badgeIcon = group.type === 'informational' ? '📚' : '🎬';
-        const badgeTitle = group.type === 'informational' ? 'Informational Videos' : 'Testimonial Videos';
+        // Determine icon and color based on type
+        const isTestimonial = group.type === 'testimonial';
+        const typeColor = isTestimonial ? '#3b82f6' : '#10b981';
+        const typeIcon = isTestimonial ? '🎬' : '📚';
         
-        button.innerHTML = `
-            <div class="group-content">
-                <div class="group-left">
-                    <span class="group-icon">${group.icon}</span>
-                    <span class="group-title">${group.title}</span>
+        btn.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span>${group.icon || '📁'}</span>
+                    <span style="font-weight: bold;">${group.name}</span>
                 </div>
-                <div class="group-right">
-                    <span class="type-badge" title="${badgeTitle}">${badgeIcon}</span>
-                    <span class="group-count">${group.videoCount}</span>
-                </div>
+                <span style="background: ${typeColor}; 
+                      color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px;">
+                    ${typeIcon}
+                </span>
             </div>
         `;
         
-        sidebar.appendChild(button);
+        btn.style.cssText = `
+            display: block; width: 100%; padding: 10px; margin: 5px 0;
+            background: white; border: 2px solid ${typeColor}; border-radius: 6px;
+            cursor: pointer; text-align: left;
+            transition: all 0.2s ease;
+        `;
+        
+        // Add hover effect
+        btn.onmouseenter = () => {
+            btn.style.transform = 'translateX(5px)';
+            btn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+        };
+        
+        btn.onmouseleave = () => {
+            btn.style.transform = 'translateX(0)';
+            btn.style.boxShadow = 'none';
+        };
+        
+        // Click handler
+        btn.onclick = () => {
+            console.log(`🎯 Group selected: ${group.name} (${group.id})`);
+            if (window.selectGroup) {
+                window.selectGroup(group.id);
+            }
+        };
+        
+        sidebar.appendChild(btn);
     });
     
-    // 7. Update dropdown if function exists
+    console.log(`✅ Rendered ${Object.keys(groups).length} groups in sidebar`);
+    
+    // 5. Update dropdown if function exists
     if (typeof updateGroupDropdown === 'function') {
         updateGroupDropdown();
     }
-    
-    console.log(`✅ Rendered ${groupsArray.length} groups in sidebar`);
 }
 
 // CORRECTED updateGroupDropdown() - Shows BOTH types
