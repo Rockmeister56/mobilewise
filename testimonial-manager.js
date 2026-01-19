@@ -2787,37 +2787,6 @@ function addNewTestimonialGroup() {
     hideAddTestimonialGroupModal();
     showNotification(`✅ ${videoType === 'testimonial' ? 'Testimonial' : 'Informational'} group "${groupName}" created!`);
     
-    // 14. 🆕 FIX: Immediate visual feedback
-    setTimeout(() => {
-        // Add to sidebar immediately
-        const container = document.getElementById('testimonialGroupsContainer') || 
-                         document.querySelector('.sidebar-groups');
-        if (container) {
-            const btn = document.createElement('button');
-            btn.className = 'testimonial-group-btn';
-            btn.setAttribute('data-group-id', groupId);
-            btn.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span>${newGroup.icon}</span>
-                        <span style="font-weight: bold;">${newGroup.name}</span>
-                    </div>
-                    <span style="background: ${videoType === 'testimonial' ? '#3b82f6' : '#10b981'}; 
-                          color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px;">
-                        ${videoType === 'testimonial' ? '🎬' : '📚'}
-                    </span>
-                </div>
-            `;
-            btn.style.cssText = `
-                display: block; width: 100%; padding: 10px; margin: 5px 0;
-                background: white; border: 2px solid #10b981; border-radius: 6px;
-                cursor: pointer; text-align: left;
-            `;
-            container.appendChild(btn);
-            console.log(`✅ Immediately added "${newGroup.name}" to sidebar`);
-        }
-    }, 200);
-    
     console.log('🎉 COMPLETE FIX APPLIED! Group should persist after reload.');
     return newGroup;
 }
