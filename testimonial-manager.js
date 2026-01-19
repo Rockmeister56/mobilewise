@@ -299,94 +299,30 @@ window.initializeTestimonialData = function() {
 console.log('✅ Compatibility layer loaded');
 
 // ===================================================
-// 🎯 IMPROVED SURGICAL FIX - ALLOWS FUNCTIONS, BLOCKS CORRUPTION
+// 🎯 SIMPLE GROUPS MONITOR (NO BLOCKING)
 // ===================================================
 
-console.log('🛡️ Loading IMPROVED surgical fix...');
+console.log('🔍 Groups monitor active');
 
-// 1. SAVE original data
-const originalGroupsData = window.testimonialData ? 
-    JSON.parse(JSON.stringify(window.testimonialData.groups || {})) : {};
+// Just log when groups change, never block
+let lastGroupsCount = 0;
 
-// 2. INTERCEPT ONLY data corruption, NOT function definitions
-const originalDefineProperty = Object.defineProperty;
-Object.defineProperty = function(obj, prop, descriptor) {
-    // ONLY block attempts to LOCK testimonialData (not define functions on it)
-    if (obj === window && prop === 'testimonialData') {
-        // Check if this is trying to make testimonialData READ-ONLY
-        if (descriptor && (descriptor.get || !descriptor.writable)) {
-            console.warn('🛡️ Blocked: Attempt to lock testimonialData as read-only');
-            console.log('   Allowing normal property definition instead...');
-            
-            // Allow normal property assignment instead
-            if (descriptor.value) {
-                window.testimonialData = descriptor.value;
-            }
-            return window;
-        }
-    }
-    return originalDefineProperty.call(this, obj, prop, descriptor);
-};
-
-// 3. PROTECT groups from being set to empty
 if (window.testimonialData) {
-    const originalGroups = window.testimonialData.groups;
+    // Simple property to track changes
+    const groups = window.testimonialData.groups = window.testimonialData.groups || {};
+    lastGroupsCount = Object.keys(groups).length;
     
-    // Store original data safely
-    const safeGroups = originalGroups || originalGroupsData;
+    console.log(`   Starting with ${lastGroupsCount} groups`);
     
-    Object.defineProperty(window.testimonialData, 'groups', {
-        get() {
-            return this._groups || safeGroups;
-        },
-        set(newGroups) {
-            console.log('🛡️ Groups assignment attempt detected');
-            
-            // ALLOW normal assignments (adding/removing groups)
-            if (newGroups && typeof newGroups === 'object') {
-                // BLOCK: Setting to empty when we have data
-                if (Object.keys(newGroups).length === 0 && 
-                    safeGroups && Object.keys(safeGroups).length > 0) {
-                    console.error('🛡️ CRITICAL: Blocked groups from being set to empty!');
-                    console.log('   Keeping original', Object.keys(safeGroups).length, 'groups');
-                    this._groups = safeGroups;
-                    return safeGroups;
-                }
-                
-                // BLOCK: Adding "test" group
-                if (newGroups.test) {
-                    console.error('🛡️ CRITICAL: Blocked "test" group creation!');
-                    delete newGroups.test;
-                }
-                
-                console.log('✅ Allowing groups update:', Object.keys(newGroups).length, 'groups');
-                this._groups = newGroups;
-                return newGroups;
-            }
-            
-            // Fallback
-            this._groups = newGroups;
-            return newGroups;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    
-    // Initialize
-    window.testimonialData._groups = safeGroups;
+    // Optional: Monitor changes (just for debugging)
+    setInterval(() => {
+        const currentCount = Object.keys(window.testimonialData.groups || {}).length;
+        if (currentCount !== lastGroupsCount) {
+            console.log(`📊 Groups changed: ${lastGroupsCount} → ${currentCount}`);
+            lastGroupsCount = currentCount;
+        }
+    }, 3000);
 }
-
-// 4. MONITOR for "test" group (safety net)
-setInterval(() => {
-    if (window.testimonialData?.groups?.test) {
-        console.error('🚨 EMERGENCY: "test" group found! Removing...');
-        delete window.testimonialData.groups.test;
-    }
-}, 2000);
-
-console.log('✅ Improved surgical fix active');
-console.log('   Protecting', Object.keys(originalGroupsData).length, 'groups');
-console.log('   ALLOWING function definitions');
 
 // ===================================================
 // 🚑 EMERGENCY FUNCTION RESTORATION
@@ -3532,28 +3468,30 @@ function saveToLocalStorage() {
         if (!window.testimonialData.informationalGroups) window.testimonialData.informationalGroups = {};
         if (!window.testimonialData.concerns) window.testimonialData.concerns = {};
         
-        // ✅ CRITICAL FIX: Sync FROM NEW STRUCTURE TO OLD (for backward compatibility)
-        // Clear old groups first
-        window.testimonialData.groups = {};
+        // ✅ CRITICAL FIX: Build NEW groups object FIRST
+        const newGroupsObject = {};
         
-        // Add testimonial groups to old structure
+        // Add testimonial groups
         Object.values(window.testimonialData.testimonialGroups).forEach(group => {
-            window.testimonialData.groups[group.id] = group;
+            newGroupsObject[group.id] = group;
         });
         
-        // Add informational groups to old structure  
+        // Add informational groups  
         Object.values(window.testimonialData.informationalGroups).forEach(group => {
-            window.testimonialData.groups[group.id] = group;
+            newGroupsObject[group.id] = group;
         });
         
-        // ✅ Update statistics CORRECTLY
+        // ✅ Assign the COMPLETE object (not empty!)
+        window.testimonialData.groups = newGroupsObject;
+        
+        // ✅ Update statistics
         if (!window.testimonialData.statistics) {
             window.testimonialData.statistics = {};
         }
         
         window.testimonialData.statistics.totalTestimonialGroups = Object.keys(window.testimonialData.testimonialGroups).length;
         window.testimonialData.statistics.totalInformationalGroups = Object.keys(window.testimonialData.informationalGroups).length;
-        window.testimonialData.statistics.totalGroups = Object.keys(window.testimonialData.groups).length;
+        window.testimonialData.statistics.totalGroups = Object.keys(newGroupsObject).length;
         
         // Calculate video counts
         const totalTestimonials = Object.values(window.testimonialData.testimonialGroups).reduce((sum, group) => 
