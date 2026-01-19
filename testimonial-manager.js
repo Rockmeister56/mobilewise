@@ -3472,6 +3472,100 @@ function updateStatisticsDisplay() {
     `;
 }
 
+function saveTestimonialChanges() {
+    console.log('💾 Saving testimonial changes...');
+    
+    try {
+        // Get current form data
+        const groupId = document.getElementById('editGroupId').value;
+        const name = document.getElementById('editGroupName').value;
+        const icon = document.getElementById('editGroupIcon').value;
+        const description = document.getElementById('editGroupDescription').value;
+        const type = document.getElementById('editGroupType').value;
+        
+        // Get selected concerns
+        const concernCheckboxes = document.querySelectorAll('#editConcernsContainer input[type="checkbox"]:checked');
+        const concerns = Array.from(concernCheckboxes).map(cb => cb.value);
+        
+        if (!groupId || !name) {
+            alert('Group ID and Name are required');
+            return;
+        }
+        
+        // Update the group
+        if (type === 'testimonial') {
+            if (window.testimonialData.testimonialGroups[groupId]) {
+                window.testimonialData.testimonialGroups[groupId].name = name;
+                window.testimonialData.testimonialGroups[groupId].icon = icon;
+                window.testimonialData.testimonialGroups[groupId].description = description;
+                window.testimonialData.testimonialGroups[groupId].concerns = concerns;
+                
+                console.log('✅ Testimonial group updated:', groupId);
+            }
+        } else if (type === 'informational') {
+            if (window.testimonialData.informationalGroups[groupId]) {
+                window.testimonialData.informationalGroups[groupId].name = name;
+                window.testimonialData.informationalGroups[groupId].icon = icon;
+                window.testimonialData.informationalGroups[groupId].description = description;
+                window.testimonialData.informationalGroups[groupId].concerns = concerns;
+                
+                console.log('✅ Informational group updated:', groupId);
+            }
+        }
+        
+        // Update display
+        updateGroupsDisplay();
+        updateCodeOutput();
+        updateStatisticsDisplay();
+        
+        // Auto-save
+        if (typeof autoSaveChanges === 'function') {
+            autoSaveChanges();
+        }
+        
+        // Close modal
+        const modal = document.getElementById('editGroupModal');
+        if (modal) modal.style.display = 'none';
+        
+        showSuccess('✅ Group saved successfully!');
+        
+    } catch (error) {
+        console.error('❌ Error saving changes:', error);
+        showError('Failed to save group: ' + error.message);
+    }
+}
+
+function cleanupDuplicateProperties() {
+    console.log('🧹 Cleaning up duplicate properties...');
+    
+    // Remove duplicate properties that shouldn't exist in v3.0
+    const propertiesToRemove = ['groups', '_groups', 'videos'];
+    
+    propertiesToRemove.forEach(prop => {
+        if (window.testimonialData.hasOwnProperty(prop)) {
+            console.log(`   Removing duplicate: ${prop}`);
+            delete window.testimonialData[prop];
+        }
+    });
+    
+    // Ensure proper structure exists
+    if (!window.testimonialData.testimonialGroups) {
+        window.testimonialData.testimonialGroups = {};
+    }
+    
+    if (!window.testimonialData.informationalGroups) {
+        window.testimonialData.informationalGroups = {};
+    }
+    
+    console.log('✅ Cleanup complete');
+    
+    // Update statistics
+    updateStatisticsDisplay();
+}
+
+// Run cleanup on page load
+setTimeout(cleanupDuplicateProperties, 1000);
+
 function saveToLocalStorage() {
     try {
         console.log('💾 saveToLocalStorage: Saving complete data...');
