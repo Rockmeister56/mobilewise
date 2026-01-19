@@ -3440,17 +3440,36 @@ function updateStatistics() {
 }
 
 function updateStatisticsDisplay() {
-    const stats = testimonialData.statistics;
+    const stats = document.getElementById('statisticsDisplay');
+    if (!stats) return;
     
-    if (document.getElementById('statTotalGroups')) {
-        document.getElementById('statTotalGroups').textContent = stats.totalGroups || 0;
-    }
-    if (document.getElementById('statTotalVideos')) {
-        document.getElementById('statTotalVideos').textContent = stats.totalVideos || 0;
-    }
-    if (document.getElementById('statTotalViews')) {
-        document.getElementById('statTotalViews').textContent = stats.totalViews || 0;
-    }
+    const testimonialGroups = Object.keys(window.testimonialData.testimonialGroups || {}).length;
+    const informationalGroups = Object.keys(window.testimonialData.informationalGroups || {}).length;
+    const totalTestimonials = Object.values(window.testimonialData.testimonialGroups || {}).reduce((sum, group) => sum + (group.testimonials?.length || 0), 0);
+    const totalInfoVideos = Object.values(window.testimonialData.informationalGroups || {}).reduce((sum, group) => sum + (group.videos?.length || 0), 0);
+    
+    stats.innerHTML = `
+        <div class="stat-item">
+            <span class="stat-label">Testimonial Groups:</span>
+            <span class="stat-value">${testimonialGroups}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Informational Groups:</span>
+            <span class="stat-value">${informationalGroups}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Total Testimonials:</span>
+            <span class="stat-value">${totalTestimonials}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Informational Videos:</span>
+            <span class="stat-value">${totalInfoVideos}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Total Videos:</span>
+            <span class="stat-value">${totalTestimonials + totalInfoVideos}</span>
+        </div>
+    `;
 }
 
 function saveToLocalStorage() {
@@ -3518,31 +3537,81 @@ function saveAllData() {
 }
 
 // ===================================================
-// CODE GENERATOR & DOWNLOAD
+// CODE GENERATOR & DOWNLOAD - V3.0
 // ===================================================
 function updateCodeOutput() {
     const codeOutput = document.getElementById('codeOutput');
     if (!codeOutput) return;
     
-    // Create formatted data structure
+    // Get current data
+    const currentData = window.testimonialData;
+    
+    // Create CLEAN v3.0 structure (NO duplication)
     const formattedData = {
-        ...testimonialData,
+        videoUrls: currentData.videoUrls || {},
+        videoDurations: currentData.videoDurations || {},
+        
+        // Clean concerns structure
+        concerns: currentData.concerns || {
+            price: { title: "Price Concerns", icon: "💰", videoType: "skeptical" },
+            time: { title: "Time/Speed", icon: "⏰", videoType: "speed" },
+            trust: { title: "Trust/Reliability", icon: "🤝", videoType: "skeptical" },
+            results: { title: "Results/Effectiveness", icon: "📈", videoType: "convinced" },
+            general: { title: "General Feedback", icon: "⭐", videoType: "skeptical" }
+        },
+        
+        // ⭐ TESTIMONIALS ONLY
+        testimonialGroups: currentData.testimonialGroups || {},
+        
+        // 📚 INFORMATIONAL VIDEOS ONLY
+        informationalGroups: currentData.informationalGroups || {},
+        
+        statistics: {
+            totalTestimonialGroups: Object.keys(currentData.testimonialGroups || {}).length,
+            totalInformationalGroups: Object.keys(currentData.informationalGroups || {}).length,
+            totalTestimonials: Object.values(currentData.testimonialGroups || {}).reduce((sum, group) => sum + (group.testimonials?.length || 0), 0),
+            totalInformationalVideos: Object.values(currentData.informationalGroups || {}).reduce((sum, group) => sum + (group.videos?.length || 0), 0),
+            totalGroups: Object.keys(currentData.testimonialGroups || {}).length + Object.keys(currentData.informationalGroups || {}).length,
+            totalVideos: Object.values(currentData.testimonialGroups || {}).reduce((sum, group) => sum + (group.testimonials?.length || 0), 0) + 
+                         Object.values(currentData.informationalGroups || {}).reduce((sum, group) => sum + (group.videos?.length || 0), 0)
+        },
+        
+        playerConfig: currentData.playerConfig || {
+            desktop: {
+                width: 854,
+                height: 480,
+                top: "50%",
+                left: "50%",
+                borderRadius: "12px"
+            },
+            mobile: {
+                fullscreen: true
+            },
+            overlay: {
+                background: "rgba(0, 0, 0, 0.5)"
+            },
+            resumeMessage: "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?"
+        },
+        
+        __version: "3.0-dual-system",
         __generated: new Date().toISOString(),
-        __version: "2.0-groups-system"
+        __notes: "Separated testimonials (social proof) from informational videos (educational)"
     };
     
     const jsonString = JSON.stringify(formattedData, null, 2);
     
     codeOutput.textContent = `// ===================================================\n` +
-                             `// 🎬 TESTIMONIALS DATA - GENERATED\n` +
+                             `// 🎬 DUAL VIDEO SYSTEM DATA - v3.0\n` +
                              `// Generated: ${new Date().toLocaleString()}\n` +
-                             `// Total Groups: ${formattedData.statistics?.totalGroups || 0}\n` +
-                             `// Total Videos: ${formattedData.statistics?.totalVideos || 0}\n` +
+                             `// Testimonial Groups: ${formattedData.statistics.totalTestimonialGroups}\n` +
+                             `// Informational Groups: ${formattedData.statistics.totalInformationalGroups}\n` +
+                             `// Total Videos: ${formattedData.statistics.totalVideos}\n` +
                              `// ===================================================\n\n` +
                              `window.testimonialData = ${jsonString};\n\n` +
-                             `console.log('✅ Testimonials Data Loaded:', \n` +
-                             `  Object.keys(window.testimonialData.testimonialGroups).length, 'groups');\n` +
-                             `console.log('🎬 Videos:', window.testimonialData.statistics?.totalVideos || 0);`;
+                             `console.log('✅ DUAL VIDEO SYSTEM LOADED:');\n` +
+                             `console.log('   ⭐ Testimonial Groups:', window.testimonialData.statistics.totalTestimonialGroups);\n` +
+                             `console.log('   📚 Informational Groups:', window.testimonialData.statistics.totalInformationalGroups);\n` +
+                             `console.log('   🎬 Total Videos:', window.testimonialData.statistics.totalVideos);`;
 }
 
 function copyCode() {
@@ -3555,10 +3624,79 @@ function copyCode() {
 }
 
 function downloadJSFile() {
-    updateCodeOutput();
-    let code = document.getElementById('codeOutput').textContent;
+    console.log('🔄 Exporting testimonial data...');
     
-    // Add player integration functions to the downloaded file
+    // FIRST: Update the code display to ensure it shows current data
+    updateCodeOutput();
+    
+    // Get BOTH sources for safety
+    const codeFromDisplay = document.getElementById('codeOutput').textContent;
+    const dataFromMemory = window.testimonialData;
+    
+    // Parse the display code back to object if it exists
+    let displayData = {};
+    try {
+        displayData = JSON.parse(codeFromDisplay);
+    } catch (e) {
+        console.log('⚠️ Could not parse display code, using memory data');
+    }
+    
+    // Use memory data as primary source (this is the FIX!)
+    const sourceData = Object.keys(dataFromMemory).length > 0 ? dataFromMemory : displayData;
+    
+    // Create clean v3.0 structure
+    const exportData = {
+        videoUrls: sourceData.videoUrls || {},
+        videoDurations: sourceData.videoDurations || {},
+        
+        // Keep the ORIGINAL concerns structure (your existing one)
+        concerns: sourceData.concerns || {
+            price: { title: "Price Concerns", icon: "💰", videoType: "skeptical" },
+            time: { title: "Time/Speed", icon: "⏰", videoType: "speed" },
+            trust: { title: "Trust/Reliability", icon: "🤝", videoType: "skeptical" },
+            results: { title: "Results/Effectiveness", icon: "📈", videoType: "convinced" },
+            general: { title: "General Feedback", icon: "⭐", videoType: "skeptical" }
+        },
+        
+        // ⭐ TESTIMONIALS ONLY
+        testimonialGroups: sourceData.testimonialGroups || {},
+        
+        // 📚 INFORMATIONAL VIDEOS ONLY
+        informationalGroups: sourceData.informationalGroups || {},
+        
+        statistics: sourceData.statistics || {
+            totalTestimonialGroups: Object.keys(sourceData.testimonialGroups || {}).length,
+            totalInformationalGroups: Object.keys(sourceData.informationalGroups || {}).length,
+            totalTestimonials: Object.values(sourceData.testimonialGroups || {}).reduce((sum, group) => sum + (group.testimonials?.length || 0), 0),
+            totalInformationalVideos: Object.values(sourceData.informationalGroups || {}).reduce((sum, group) => sum + (group.videos?.length || 0), 0)
+        },
+        
+        playerConfig: sourceData.playerConfig || {
+            desktop: {
+                width: 854,
+                height: 480,
+                top: "50%",
+                left: "50%",
+                borderRadius: "12px"
+            },
+            mobile: {
+                fullscreen: true
+            },
+            overlay: {
+                background: "rgba(0, 0, 0, 0.5)"
+            },
+            resumeMessage: "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?"
+        },
+        
+        __version: sourceData.__version || "3.0-dual-system",
+        __generated: new Date().toISOString(),
+        __notes: "Separated testimonials (social proof) from informational videos (educational)"
+    };
+    
+    // Convert to JSON string
+    const jsonData = JSON.stringify(exportData, null, 2);
+    
+    // Add ALL your original integration code
     const playerIntegrationCode = `
 
 // ===================================================
@@ -3600,36 +3738,6 @@ window.testimonialData.getAvailableConcerns = function() {
     return concerns;
 };
 
-console.log('🎬 Testimonial Player Integration Ready');
-console.log('💰 Available concerns:', window.testimonialData.getAvailableConcerns().length);
-`;
-    
-    const fullCode = code + playerIntegrationCode;
-    
-    const blob = new Blob([fullCode], { type: 'application/javascript' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'testimonials-data.js';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showSuccess('✅ JS file downloaded with player integration!');
-}
-
-function loadSampleData() {
-    if (confirm('Load sample data? This will replace your current groups.')) {
-        initializeSampleGroups();
-        updateGroupsDisplay();
-        updateCodeOutput();
-        showSuccess('✅ Sample data loaded!');
-    }
-}
-
-// In testimonials-data.js, add these functions:
-
 // Get testimonials for a concern FROM ALL GROUPS
 window.testimonialData.getTestimonialsByConcern = function(concernKey) {
     const allTestimonials = [];
@@ -3670,6 +3778,53 @@ window.testimonialData.getAllUniqueConcerns = function() {
         count: this.getTestimonialsByConcern(concernKey).length
     }));
 };
+
+// ===================================================
+// 🎬 VIDEO PLAYER WITH PROPER SIZE & VISIBLE CLOSE BUTTON
+// (Only include if available)
+// ===================================================
+
+${window.playTestimonialVideoWithOverlay ? `window.playTestimonialVideoWithOverlay = ${window.playTestimonialVideoWithOverlay.toString()};` : '// Video player function not available in manager'}
+
+console.log('🎬 Testimonial Player Integration Ready');
+console.log('💰 Available concerns:', window.testimonialData.getAvailableConcerns().length);
+`;
+    
+    // Combine everything
+    const fullCode = `// ===================================================
+// 🎬 DUAL VIDEO SYSTEM DATA
+// Generated: ${new Date().toLocaleDateString()}
+// Exported from Testimonial Manager
+// ===================================================
+
+window.testimonialData = ${jsonData};${playerIntegrationCode}`;
+    
+    // Create download
+    const blob = new Blob([fullCode], { type: 'application/javascript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'testimonial-data.js';  // Note: singular 'testimonial' not 'testimonials'
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showSuccess('✅ JS file downloaded with player integration!');
+    console.log('📊 Export complete. Groups exported:', 
+        Object.keys(exportData.testimonialGroups || {}).length + 
+        Object.keys(exportData.informationalGroups || {}).length);
+}
+
+// KEEP ALL OTHER FUNCTIONS EXACTLY AS THEY ARE
+function loadSampleData() {
+    if (confirm('Load sample data? This will replace your current groups.')) {
+        initializeSampleGroups();
+        updateGroupsDisplay();
+        updateCodeOutput();
+        showSuccess('✅ Sample data loaded!');
+    }
+}
 
 function initializeSampleGroups() {
     console.log('📊 Initializing ENHANCED sample groups...');
