@@ -3517,88 +3517,62 @@ function saveTestimonialChanges() {
     }
 }
 
-function cleanupDuplicateProperties() {
-    console.log('🧹 Cleaning up duplicate properties...');
-    
-    // Remove duplicate properties that shouldn't exist in v3.0
-    const propertiesToRemove = ['groups', '_groups', 'videos'];
-    
-    propertiesToRemove.forEach(prop => {
-        if (window.testimonialData.hasOwnProperty(prop)) {
-            console.log(`   Removing duplicate: ${prop}`);
-            delete window.testimonialData[prop];
-        }
-    });
-    
-    // Ensure proper structure exists
-    if (!window.testimonialData.testimonialGroups) {
-        window.testimonialData.testimonialGroups = {};
-    }
-    
-    if (!window.testimonialData.informationalGroups) {
-        window.testimonialData.informationalGroups = {};
-    }
-    
-    console.log('✅ Cleanup complete');
-    
-    // Update statistics
-    updateStatisticsDisplay();
-}
-
-// Run cleanup on page load
-setTimeout(cleanupDuplicateProperties, 1000);
-
 function saveToLocalStorage() {
     try {
         console.log('💾 saveToLocalStorage: Saving complete data...');
         
-        // Make sure we have all required structures
         if (!window.testimonialData) {
             console.error('❌ No testimonialData to save!');
             return;
         }
         
-        // ✅ KEEP YOUR EXISTING structure initialization
+        // ✅ INITIALIZE structures (but don't overwrite existing data!)
         if (!window.testimonialData.groups) window.testimonialData.groups = {};
         if (!window.testimonialData.testimonialGroups) window.testimonialData.testimonialGroups = {};
         if (!window.testimonialData.informationalGroups) window.testimonialData.informationalGroups = {};
         if (!window.testimonialData.concerns) window.testimonialData.concerns = {};
-        if (!window.testimonialData.statistics) {
-            window.testimonialData.statistics = {
-                totalGroups: 0,
-                totalTestimonialGroups: 0,
-                totalInformationalGroups: 0,
-                totalVideos: 0,
-                totalViews: 0
-            };
-        }
         
-        // ✅ KEEP sync logic for backward compatibility
-        Object.values(window.testimonialData.groups).forEach(group => {
-            if (group.type === 'testimonial') {
-                window.testimonialData.testimonialGroups[group.id] = group;
-            } else if (group.type === 'informational') {
-                window.testimonialData.informationalGroups[group.id] = group;
-            }
+        // ✅ CRITICAL FIX: Sync FROM NEW STRUCTURE TO OLD (for backward compatibility)
+        // Clear old groups first
+        window.testimonialData.groups = {};
+        
+        // Add testimonial groups to old structure
+        Object.values(window.testimonialData.testimonialGroups).forEach(group => {
+            window.testimonialData.groups[group.id] = group;
         });
         
-        // ✅ KEEP statistics update
-        const totalGroups = Object.keys(window.testimonialData.groups).length;
-        const totalTestimonialGroups = Object.keys(window.testimonialData.testimonialGroups).length;
-        const totalInformationalGroups = Object.keys(window.testimonialData.informationalGroups).length;
+        // Add informational groups to old structure  
+        Object.values(window.testimonialData.informationalGroups).forEach(group => {
+            window.testimonialData.groups[group.id] = group;
+        });
         
-        window.testimonialData.statistics.totalGroups = totalGroups;
-        window.testimonialData.statistics.totalTestimonialGroups = totalTestimonialGroups;
-        window.testimonialData.statistics.totalInformationalGroups = totalInformationalGroups;
+        // ✅ Update statistics CORRECTLY
+        if (!window.testimonialData.statistics) {
+            window.testimonialData.statistics = {};
+        }
         
-        // 🎯 CRITICAL FIX 1: Save COMPLETE testimonialData object
-        // 🎯 CRITICAL FIX 2: Use CORRECT key: 'testimonialData'
+        window.testimonialData.statistics.totalTestimonialGroups = Object.keys(window.testimonialData.testimonialGroups).length;
+        window.testimonialData.statistics.totalInformationalGroups = Object.keys(window.testimonialData.informationalGroups).length;
+        window.testimonialData.statistics.totalGroups = Object.keys(window.testimonialData.groups).length;
+        
+        // Calculate video counts
+        const totalTestimonials = Object.values(window.testimonialData.testimonialGroups).reduce((sum, group) => 
+            sum + (group.testimonials?.length || 0), 0);
+        const totalInfoVideos = Object.values(window.testimonialData.informationalGroups).reduce((sum, group) => 
+            sum + (group.videos?.length || 0), 0);
+        
+        window.testimonialData.statistics.totalTestimonials = totalTestimonials;
+        window.testimonialData.statistics.totalInformationalVideos = totalInfoVideos;
+        window.testimonialData.statistics.totalVideos = totalTestimonials + totalInfoVideos;
+        
+        // ✅ Save to localStorage
         localStorage.setItem('testimonialData', JSON.stringify(window.testimonialData));
         
-        console.log('✅ COMPLETE data saved to localStorage');
-        console.log(`   📊 Groups: ${totalGroups}`);
-        console.log(`   🎬 TestimonialGroups: ${totalTestimonialGroups}`);
-        console.log(`   📚 InformationalGroups: ${totalInformationalGroups}`);
+        console.log('✅ CORRECT data saved to localStorage');
+        console.log(`   📊 Total Groups: ${window.testimonialData.statistics.totalGroups}`);
+        console.log(`   🎬 Testimonial Groups: ${window.testimonialData.statistics.totalTestimonialGroups}`);
+        console.log(`   📚 Informational Groups: ${window.testimonialData.statistics.totalInformationalGroups}`);
+        console.log(`   🎬 Total Videos: ${window.testimonialData.statistics.totalVideos}`);
         
     } catch (e) {
         console.error('❌ Error saving to localStorage:', e);
@@ -3907,45 +3881,115 @@ window.testimonialData = ${jsonData};${helperFunctions}`;
 // 🛠️ CLEANUP FUNCTIONS (ADD TO YOUR MANAGER)
 // ===================================================
 
-function cleanupDuplicateProperties() {
-    console.log('🧹 Cleaning up duplicate properties...');
+function safeCleanupDuplicateGroups() {
+    console.log('🛡️ SAFE Cleanup - preserving data');
     
     if (!window.testimonialData) {
-        console.error('❌ testimonialData not found');
+        console.log('❌ No testimonialData');
         return;
     }
     
-    // Remove duplicate properties that shouldn't exist in v3.0
-    const propertiesToRemove = ['groups', '_groups', 'videos'];
+    // 1. Backup current groups from OLD structure before deleting
+    const oldGroups = window.testimonialData.groups || {};
+    const old_Groups = window.testimonialData._groups || {};
     
-    propertiesToRemove.forEach(prop => {
-        if (window.testimonialData.hasOwnProperty(prop)) {
-            console.log(`   Removing duplicate: ${prop}`);
-            delete window.testimonialData[prop];
+    console.log(`📊 Found in old structure: ${Object.keys(oldGroups).length} groups`);
+    console.log(`📊 Found in _groups: ${Object.keys(old_Groups).length} groups`);
+    
+    // 2. Migrate OLD → NEW structure FIRST (preserve data!)
+    let migratedCount = 0;
+    
+    Object.values(oldGroups).forEach(group => {
+        if (group.type === 'testimonial') {
+            if (!window.testimonialData.testimonialGroups) {
+                window.testimonialData.testimonialGroups = {};
+            }
+            if (!window.testimonialData.testimonialGroups[group.id]) {
+                window.testimonialData.testimonialGroups[group.id] = group;
+                migratedCount++;
+                console.log(`   ✅ Migrated testimonial: "${group.name}"`);
+            }
+        } else if (group.type === 'informational') {
+            if (!window.testimonialData.informationalGroups) {
+                window.testimonialData.informationalGroups = {};
+            }
+            if (!window.testimonialData.informationalGroups[group.id]) {
+                window.testimonialData.informationalGroups[group.id] = group;
+                migratedCount++;
+                console.log(`   ✅ Migrated informational: "${group.name}"`);
+            }
         }
     });
     
-    // Ensure proper structure exists
+    // Also check _groups
+    Object.values(old_Groups).forEach(group => {
+        if (group.type === 'testimonial' && !window.testimonialData.testimonialGroups?.[group.id]) {
+            if (!window.testimonialData.testimonialGroups) {
+                window.testimonialData.testimonialGroups = {};
+            }
+            window.testimonialData.testimonialGroups[group.id] = group;
+            migratedCount++;
+            console.log(`   ✅ Migrated from _groups: "${group.name}"`);
+        } else if (group.type === 'informational' && !window.testimonialData.informationalGroups?.[group.id]) {
+            if (!window.testimonialData.informationalGroups) {
+                window.testimonialData.informationalGroups = {};
+            }
+            window.testimonialData.informationalGroups[group.id] = group;
+            migratedCount++;
+            console.log(`   ✅ Migrated from _groups: "${group.name}"`);
+        }
+    });
+    
+    console.log(`✅ Total migrated: ${migratedCount} groups to new structure`);
+    
+    // 3. NOW safely delete old structure (data is safely in new structure)
+    if (window.testimonialData.groups && Object.keys(oldGroups).length > 0) {
+        console.log('🧹 Removing old "groups" structure (data is safely migrated)');
+        delete window.testimonialData.groups;
+    }
+    
+    if (window.testimonialData._groups && Object.keys(old_Groups).length > 0) {
+        console.log('🧹 Removing old "_groups" structure');
+        delete window.testimonialData._groups;
+    }
+    
+    // 4. Remove empty 'videos' property if it exists
+    if (window.testimonialData.videos && Object.keys(window.testimonialData.videos).length === 0) {
+        console.log('🧹 Removing empty "videos" property');
+        delete window.testimonialData.videos;
+    }
+    
+    // 5. Ensure new structure exists (but don't overwrite!)
     if (!window.testimonialData.testimonialGroups) {
         window.testimonialData.testimonialGroups = {};
-        console.log('   Created empty testimonialGroups');
+        console.log('   Created empty testimonialGroups (no data lost)');
     }
     
     if (!window.testimonialData.informationalGroups) {
         window.testimonialData.informationalGroups = {};
-        console.log('   Created empty informationalGroups');
+        console.log('   Created empty informationalGroups (no data lost)');
     }
     
-    console.log('✅ Cleanup complete');
+    console.log('🛡️ Safe cleanup complete - all data preserved!');
+    console.log(`📊 Current counts:`);
+    console.log(`   Testimonial Groups: ${Object.keys(window.testimonialData.testimonialGroups).length}`);
+    console.log(`   Informational Groups: ${Object.keys(window.testimonialData.informationalGroups).length}`);
     
-    // Update statistics
+    // 6. Save and update UI
+    if (typeof saveAllData === 'function') {
+        saveAllData();
+        console.log('💾 Data saved after cleanup');
+    }
+    
     if (typeof updateStatisticsDisplay === 'function') {
         updateStatisticsDisplay();
     }
     
-    // Auto-save after cleanup
-    if (typeof saveAllData === 'function') {
-        saveAllData();
+    if (typeof renderGroups === 'function') {
+        setTimeout(() => {
+            renderGroups();
+            console.log('🎨 UI updated with preserved groups');
+        }, 500);
     }
 }
 
@@ -3953,8 +3997,8 @@ function autoSaveChanges() {
     console.log('💾 Auto-saving to localStorage...');
     
     try {
-        // Clean up before saving
-        cleanupDuplicateProperties();
+           // 🚨 COMMENT THIS OUT TEMPORARILY:
+    // cleanupDuplicateProperties();
         
         // Save to localStorage
         localStorage.setItem('testimonialData', JSON.stringify(window.testimonialData));
@@ -4034,7 +4078,7 @@ function testCreateRealGroup() {
 }
 
 // Run cleanup on page load
-setTimeout(cleanupDuplicateProperties, 1000);
+// setTimeout(cleanupDuplicateProperties, 1000);
 
 // KEEP ALL OTHER FUNCTIONS EXACTLY AS THEY ARE
 function loadSampleData() {
