@@ -6,6 +6,73 @@
 let currentSelectedGroupId = null;
 let testimonialData = window.testimonialData || {};
 
+// ============================================
+// 🎯 DATA STRUCTURE INITIALIZATION
+// ============================================
+
+// Fix data structure on load
+function initializeTestimonialDataStructure() {
+    console.log('🔧 Initializing testimonial data structure...');
+    
+    // If no data exists, create it
+    if (!window.testimonialData) {
+        window.testimonialData = {
+            groups: [], // ARRAY, not object!
+            statistics: {
+                totalGroups: 0,
+                totalVideos: 0,
+                totalViews: 0
+            }
+        };
+        console.log('✅ Created new testimonialData with array structure');
+        return;
+    }
+    
+    // Fix: Ensure groups is an ARRAY
+    if (!Array.isArray(window.testimonialData.groups)) {
+        if (typeof window.testimonialData.groups === 'object' && window.testimonialData.groups !== null) {
+            // Convert object to array
+            const groupsArray = Object.values(window.testimonialData.groups);
+            window.testimonialData.groups = groupsArray;
+            console.log('🔄 Converted groups object to array');
+        } else {
+            window.testimonialData.groups = [];
+            console.log('🔄 Created new groups array');
+        }
+    }
+    
+    // Ensure statistics exist
+    if (!window.testimonialData.statistics) {
+        window.testimonialData.statistics = {
+            totalGroups: window.testimonialData.groups.length,
+            totalVideos: 0,
+            totalViews: 0
+        };
+    }
+    
+    console.log(`📊 Data initialized: ${window.testimonialData.groups.length} groups`);
+}
+
+// Run on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTestimonialDataStructure();
+    
+    // Initial render
+    if (typeof renderTestimonialGroups === 'function') {
+        renderTestimonialGroups();
+    }
+    
+    // Initial dropdown
+    if (typeof updateGroupDropdown === 'function') {
+        updateGroupDropdown();
+    }
+    
+    // Initial statistics
+    if (typeof updateStatistics === 'function') {
+        updateStatistics();
+    }
+});
+
 // ===================================================
 // 🛡️ COMPATIBILITY LAYER FOR ENHANCED CONCERNS SYSTEM
 // Added: [Today's Date]
@@ -2384,218 +2451,120 @@ function updateTriggerSections() {
     
 })();
 
-// ===================================================
-// 🎯 ENHANCED GROUP CREATION FUNCTION
-// Combines your existing logic with enhanced concerns system
-// ===================================================
-// ===================================================
-// 🎯 COMPLETELY FIXED GROUP CREATION FUNCTION
-// Fixes ALL 5 issues identified in diagnostic
-// ===================================================
 function addNewTestimonialGroup() {
-    console.log('🎯 COMPLETE FIX: Creating testimonial group...');
+    console.log('➕ Creating new testimonial group...');
     
-    // 1. GET FORM VALUES (your selectors are correct!)
-    const groupName = document.getElementById('newGroupName').value.trim();
-    let groupSlug = document.getElementById('newGroupSlug').value.trim();
-    const videoType = document.getElementById('newGroupType').value;
-    const groupIcon = document.getElementById('newGroupIcon').value || '📁';
-    const groupDescription = document.getElementById('newGroupDescription').value.trim();
+    // Get form values
+    const name = document.getElementById('newGroupName').value.trim();
+    let slug = document.getElementById('newGroupSlug').value.trim();
+    const icon = document.getElementById('newGroupIcon').value.trim();
+    const type = document.getElementById('newGroupType').value;
+    const description = document.getElementById('newGroupDescription').value.trim();
     
-    console.log('📝 Form values captured:', { groupName, groupSlug, videoType, groupIcon, groupDescription });
-    
-    // 2. VALIDATION
-    if (!groupName) {
-        showNotification('❌ Please enter a group name', 'error');
+    // Validate
+    if (!name) {
+        alert('❌ Please enter a group name');
         return;
     }
     
-    // 3. 🆕 FIX: Generate proper ID with timestamp
-    if (!groupSlug) {
-        // Auto-generate slug from name
-        groupSlug = groupName.toLowerCase()
-            .replace(/[^a-z0-9]+/g, '_')
-            .replace(/^_+|_+$/g, '');
+    // Auto-generate slug if empty
+    if (!slug) {
+        slug = name.toLowerCase()
+            .replace(/[^a-z0-9]/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '');
+        document.getElementById('newGroupSlug').value = slug;
     }
     
-    // 🆕 FIX: Create consistent ID with timestamp
-    const groupId = 'group_' + groupSlug + '_' + Date.now();
-    console.log(`📝 Generated ID: ${groupId} (consistent format)`);
-    
-    // 4. Get selected concerns
+    // Get selected concerns
     const selectedConcerns = [];
     const checkboxes = document.querySelectorAll('.concern-checkbox:checked');
-    checkboxes.forEach(checkbox => {
-        selectedConcerns.push(checkbox.value);
+    checkboxes.forEach(cb => {
+        selectedConcerns.push(cb.value);
     });
     
-    if (selectedConcerns.length === 0) {
-        console.log('⚠️ No concerns selected, using "general"');
-        selectedConcerns.push('general');
-    }
+    // Create group ID (simple version)
+    const groupId = slug;
     
-    // 5. 🆕 FIX: Create COMPLETE group object with ALL required properties
+    // Create SIMPLE group object
     const newGroup = {
-        id: groupId, // 🆕 FIX: Use timestamp ID, not user slug
-        name: groupName,
-        slug: groupSlug,
-        type: videoType,
-        icon: groupIcon,
-        description: groupDescription,
-        primaryConcern: selectedConcerns[0],
-        concerns: selectedConcerns,
-        items: [], // 🆕 FIX: Use 'items' not 'videoIds'
-        createdAt: new Date().toISOString(),
-        viewCount: 0,
-        lastUpdated: new Date().toISOString()
+        id: groupId,
+        name: name,
+        slug: slug,
+        icon: icon || (type === 'informational' ? '📚' : '🎬'),
+        type: type || 'testimonial',
+        description: description || '',
+        triggers: selectedConcerns,
+        videos: [] // Simple array for all videos
     };
     
-    // 🆕 FIX: Add type-specific arrays
-    if (videoType === 'testimonial') {
-        newGroup.testimonials = []; // 🆕 FIX: REQUIRED for testimonial groups
-        // Copy icon to match existing structure
-        if (groupIcon === '🎬') newGroup.icon = '📁';
-    } else {
-        newGroup.videos = []; // 🆕 FIX: REQUIRED for informational groups
-        // Copy icon to match existing structure
-        if (groupIcon === '📚') newGroup.icon = '📚';
+    console.log('📦 New group:', newGroup);
+    
+    // 🔧 CRITICAL FIX: Ensure proper data structure
+    if (!window.testimonialData) {
+        window.testimonialData = { groups: [] }; // ARRAY, not object!
     }
     
-    console.log('📝 Complete group created:', newGroup);
+    if (!Array.isArray(window.testimonialData.groups)) {
+        // Convert object to array if needed
+        if (typeof window.testimonialData.groups === 'object') {
+            const groupsArray = Object.values(window.testimonialData.groups);
+            window.testimonialData.groups = groupsArray;
+            console.log('🔄 Converted groups object to array');
+        } else {
+            window.testimonialData.groups = [];
+        }
+    }
     
-    // 6. 🆕 FIX: Ensure ALL data structures exist
-    if (!window.testimonialData) window.testimonialData = {};
-    if (!window.testimonialData.groups) window.testimonialData.groups = {};
-    if (!window.testimonialData.testimonialGroups) window.testimonialData.testimonialGroups = {};
-    if (!window.testimonialData.informationalGroups) window.testimonialData.informationalGroups = {};
-    if (!window.testimonialData._groups) window.testimonialData._groups = {}; // 🆕 CRITICAL FIX
-    
-    // Check if group already exists (by ID, not slug)
-    if (window.testimonialData.groups[groupId]) {
-        showNotification('❌ Group with this ID already exists', 'error');
+    // Check if group already exists
+    const exists = window.testimonialData.groups.find(g => g.slug === slug);
+    if (exists) {
+        alert(`❌ A group with slug "${slug}" already exists!`);
         return;
     }
     
-    // 7. 🆕 FIX: Save to ALL FOUR locations
-    console.log('💾 Saving to ALL data locations:');
+    // Add to array (SIMPLE!)
+    window.testimonialData.groups.push(newGroup);
+    console.log(`✅ Group added. Total: ${window.testimonialData.groups.length}`);
     
-    // Location 1: Unified groups (main)
-    window.testimonialData.groups[groupId] = newGroup;
-    console.log(`   ✅ Added to 'groups'`);
+    // Update UI
+    updateGroupDropdown();
     
-    // Location 2: Type-specific
-    if (videoType === 'testimonial') {
-        window.testimonialData.testimonialGroups[groupId] = newGroup;
-        console.log(`   ✅ Added to 'testimonialGroups'`);
+    // 🔧 CRITICAL: Call the render function
+    if (typeof renderTestimonialGroups === 'function') {
+        renderTestimonialGroups();
     } else {
-        window.testimonialData.informationalGroups[groupId] = newGroup;
-        console.log(`   ✅ Added to 'informationalGroups'`);
-    }
-    
-    // Location 3: _groups (🆕 CRITICAL - for migration compatibility)
-    window.testimonialData._groups[groupId] = newGroup;
-    console.log(`   ✅ Added to '_groups' (prevents migration reset)`);
-    
-    // Location 4: Also save by slug for backward compatibility
-    window.testimonialData.groups[groupSlug] = newGroup;
-    console.log(`   ✅ Also saved under slug: '${groupSlug}'`);
-    
-    // 8. Update statistics
-    if (!window.testimonialData.statistics) {
-        window.testimonialData.statistics = {};
-    }
-    
-    window.testimonialData.statistics.totalGroups = Object.keys(window.testimonialData.groups).length;
-    window.testimonialData.statistics.totalTestimonialGroups = Object.keys(window.testimonialData.testimonialGroups).length;
-    window.testimonialData.statistics.totalInformationalGroups = Object.keys(window.testimonialData.informationalGroups).length;
-    
-    console.log(`📊 Statistics: ${window.testimonialData.statistics.totalGroups} total groups`);
-    
-    // 9. 🆕 FIX: Patch the migration functions to preserve data
-    console.log('🛡️ Patching migration functions to preserve data...');
-    
-    // Store original migration functions
-    if (typeof window.initializeTestimonialData === 'function' && !window.originalInitializeTestimonialData) {
-        window.originalInitializeTestimonialData = window.initializeTestimonialData;
-        window.initializeTestimonialData = function() {
-            console.log('🛡️ PATCHED initializeTestimonialData - preserving existing groups');
-            // Call original but ensure it doesn't overwrite
-            const result = window.originalInitializeTestimonialData.apply(this, arguments);
-            // Restore our data
-            setTimeout(() => {
-                const saved = localStorage.getItem('testimonialData');
-                if (saved) {
-                    try {
-                        const parsed = JSON.parse(saved);
-                        if (parsed.groups && Object.keys(parsed.groups).length > 0) {
-                            console.log('🛡️ Restoring saved groups after initialization');
-                            window.testimonialData.groups = parsed.groups;
-                            window.testimonialData._groups = parsed._groups || parsed.groups;
-                        }
-                    } catch(e) {
-                        console.error('Migration patch error:', e);
-                    }
-                }
-            }, 100);
-            return result;
-        };
-    }
-    
-    // 10. Save to localStorage
-    console.log('💾 Saving to localStorage...');
-    if (typeof saveAllData === 'function') {
-        saveAllData();
-        console.log('✅ Data saved via saveAllData()');
-    } else {
-        localStorage.setItem('testimonialData', JSON.stringify(window.testimonialData));
-        console.log('✅ Data saved directly to localStorage');
-    }
-    
-    // 11. Clear form
-    document.getElementById('newGroupName').value = '';
-    document.getElementById('newGroupSlug').value = '';
-    document.getElementById('newGroupDescription').value = '';
-    document.querySelectorAll('.concern-checkbox:checked').forEach(cb => cb.checked = false);
-    
-    // 12. Update UI
-    console.log('🔄 Updating UI...');
-    
-    // Try render functions in order
-    if (typeof renderGroups === 'function') {
-        renderGroups();
-        console.log('✅ Called renderGroups()');
-    } else if (typeof properRenderGroups === 'function') {
-        properRenderGroups();
-        console.log('✅ Called properRenderGroups()');
-    }
-    
-    // Also update dropdown
-    setTimeout(() => {
-        if (typeof updateGroupDropdown === 'function') {
-            updateGroupDropdown();
-            console.log('✅ Updated group dropdown');
+        console.error('❌ renderTestimonialGroups function missing!');
+        // Create a simple fallback
+        const container = document.getElementById('testimonialGroupsContainer');
+        if (container) {
+            container.innerHTML = `<div class="empty-state">
+                <div>Groups: ${window.testimonialData.groups.length}</div>
+                <div>⚠️ renderTestimonialGroups missing</div>
+            </div>`;
         }
-    }, 300);
+    }
     
-    // 13. Close modal and show success
+    updateStatistics();
+    
+    // Close modal
     hideAddTestimonialGroupModal();
-    showNotification(`✅ ${videoType === 'testimonial' ? 'Testimonial' : 'Informational'} group "${groupName}" created!`);
     
-    console.log('🎉 COMPLETE FIX APPLIED! Group should persist after reload.');
+    // Show success
+    showNotification(`✅ "${name}" group created!`);
+    
+    // Update code output
+    if (typeof updateCodeOutput === 'function') {
+        updateCodeOutput();
+    }
+    
+    // Select the new group
+    setTimeout(() => {
+        selectGroup(slug, false, 'manager');
+    }, 100);
+    
     return newGroup;
 }
-
-// 15. 🆕 FIX: Also patch the function globally
-console.log('🔧 Installing completely fixed addNewTestimonialGroup function...');
-window.addNewTestimonialGroup = addNewTestimonialGroup;
-
-console.log('✅ READY! Your group creation is now COMPLETELY FIXED.');
-console.log('\n📋 FIXES APPLIED:');
-console.log('1. ✅ Consistent ID format with timestamp');
-console.log('2. ✅ Added missing testimonials/items arrays');
-console.log('3. ✅ Saves to _groups (prevents migration reset)');
-console.log('4. ✅ Patches migration functions');
-console.log('5. ✅ Immediate sidebar rendering');
 
 // ===================================================
 // 🆕 INITIALIZATION: Set up event listeners
