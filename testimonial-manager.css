@@ -2859,18 +2859,19 @@ select option[data-type="testimonial"] {
 }
 
 /* =========================================== */
-/* MISSING SIDEBAR GROUP ITEM STYLES */
-/* Add these to your testimonial-manager.css */
+/* SIDEBAR GROUP ITEM STYLES */
+/* Add these to your existing CSS file */
 /* =========================================== */
 
-/* GROUPS CONTAINER */
+/* Groups Container */
 .groups-container {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
 }
 
-/* TESTIMONIAL GROUP ITEM */
+/* Testimonial Group Item */
 .testimonial-group-item {
     background: #2d2d2d !important;
     border: 1px solid #444 !important;
@@ -2891,7 +2892,13 @@ select option[data-type="testimonial"] {
     transform: translateX(4px) !important;
 }
 
-/* GROUP ICON */
+.testimonial-group-item.selected {
+    background: #1a3a5f !important;
+    border-color: #1a73e8 !important;
+    box-shadow: 0 0 0 1px #1a73e8 !important;
+}
+
+/* Group Icon */
 .group-icon {
     font-size: 28px !important;
     flex-shrink: 0 !important;
@@ -2904,7 +2911,7 @@ select option[data-type="testimonial"] {
     border-radius: 8px !important;
 }
 
-/* GROUP INFO */
+/* Group Info */
 .group-info {
     flex-grow: 1 !important;
     min-width: 0 !important;
@@ -2938,7 +2945,7 @@ select option[data-type="testimonial"] {
     text-transform: capitalize !important;
 }
 
-/* GROUP ACTIONS */
+/* Group Actions */
 .group-actions {
     display: flex !important;
     gap: 8px !important;
@@ -2951,7 +2958,7 @@ select option[data-type="testimonial"] {
     opacity: 1 !important;
 }
 
-/* BUTTON ICONS */
+/* Button Icons */
 .btn-icon {
     background: #3d3d3d !important;
     border: 1px solid #555 !important;
@@ -2986,7 +2993,7 @@ select option[data-type="testimonial"] {
     color: white !important;
 }
 
-/* EMPTY STATE (if missing) */
+/* Empty State */
 .empty-state {
     text-align: center !important;
     padding: 50px 20px !important;
