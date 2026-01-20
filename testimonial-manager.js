@@ -1404,16 +1404,38 @@ function renderTestimonialGroups() {
         return;
     }
     
-    // Check data structure
-    if (!window.testimonialData || !Array.isArray(window.testimonialData.groups)) {
-        console.error('❌ Invalid data structure');
-        container.innerHTML = '<div class="empty-state">Data error</div>';
-        return;
+    // 🔥 FIXED: Handle multiple possible data structures
+    let groups = [];
+    
+    // Check ALL possible data locations
+    if (window.testimonialData) {
+        // Try unified groups first
+        if (window.testimonialData.groups) {
+            if (Array.isArray(window.testimonialData.groups)) {
+                groups = window.testimonialData.groups;
+                console.log(`📊 Using unified groups array: ${groups.length} items`);
+            } else if (typeof window.testimonialData.groups === 'object') {
+                // Convert object to array
+                groups = Object.values(window.testimonialData.groups);
+                console.log(`📊 Converted groups object to array: ${groups.length} items`);
+            }
+        }
+        
+        // Also check testimonialGroups if needed
+        if (groups.length === 0 && window.testimonialData.testimonialGroups) {
+            if (Array.isArray(window.testimonialData.testimonialGroups)) {
+                groups = window.testimonialData.testimonialGroups;
+                console.log(`📊 Using testimonialGroups array: ${groups.length} items`);
+            } else if (typeof window.testimonialData.testimonialGroups === 'object') {
+                groups = Object.values(window.testimonialData.testimonialGroups);
+                console.log(`📊 Converted testimonialGroups to array: ${groups.length} items`);
+            }
+        }
     }
     
-    const groups = window.testimonialData.groups;
-    
-    if (groups.length === 0) {
+    // If still no groups, show empty state
+    if (!groups || groups.length === 0) {
+        console.log('📭 No groups to display');
         container.innerHTML = `
             <div id="noGroupsMessage" class="empty-state">
                 <div class="empty-icon">📂</div>
@@ -1421,47 +1443,51 @@ function renderTestimonialGroups() {
                 <div class="empty-subtitle">Create your first testimonial group</div>
             </div>
         `;
-        console.log('📭 No groups to display');
         return;
     }
+    
+    console.log(`✅ Will render ${groups.length} groups`);
     
     // Clear container
     container.innerHTML = '';
     
     // Render each group
     groups.forEach(group => {
+        // Ensure group has required properties
+        const groupId = group.id || group.slug || 'unknown';
+        const groupName = group.name || 'Unnamed Group';
+        const groupIcon = group.icon || '🎬';
+        const groupType = group.type || 'testimonial';
+        const videoCount = group.videos ? group.videos.length : 0;
+        
         const groupElement = document.createElement('div');
         groupElement.className = 'testimonial-group-item';
-        groupElement.dataset.groupId = group.id || group.slug;
-        
-        // Count videos
-        const videoCount = group.videos ? group.videos.length : 0;
-        const viewCount = group.viewCount || 0;
+        groupElement.dataset.groupId = groupId;
         
         groupElement.innerHTML = `
-            <div class="group-icon">${group.icon || '🎬'}</div>
+            <div class="group-icon">${groupIcon}</div>
             <div class="group-info">
-                <div class="group-name">${group.name}</div>
+                <div class="group-name">${groupName}</div>
                 <div class="group-meta">
                     <span class="group-videos">${videoCount} video${videoCount !== 1 ? 's' : ''}</span>
-                    <span class="group-type">${group.type || 'testimonial'}</span>
+                    <span class="group-type">${groupType}</span>
                 </div>
             </div>
             <div class="group-actions">
-                <button class="btn-icon" onclick="editTestimonialGroup('${group.id || group.slug}')" title="Edit">
+                <button class="btn-icon" onclick="editTestimonialGroup('${groupId}')" title="Edit">
                     ✏️
                 </button>
-                <button class="btn-icon" onclick="deleteTestimonialGroup('${group.id || group.slug}')" title="Delete">
+                <button class="btn-icon" onclick="deleteTestimonialGroup('${groupId}')" title="Delete">
                     🗑️
                 </button>
             </div>
         `;
         
-        // Add click handler to select group (except when clicking action buttons)
+        // Add click handler
         groupElement.addEventListener('click', function(e) {
             if (!e.target.closest('.group-actions')) {
-                console.log(`📁 Selecting group: ${group.name}`);
-                selectGroup(group.id || group.slug, true, 'sidebar');
+                console.log(`📁 Selecting group: ${groupName}`);
+                selectGroup(groupId, true, 'sidebar');
             }
         });
         
@@ -1469,12 +1495,6 @@ function renderTestimonialGroups() {
     });
     
     console.log(`✅ Rendered ${groups.length} groups in sidebar`);
-    
-    // Also update the "no groups" message visibility
-    const noGroupsMessage = document.getElementById('noGroupsMessage');
-    if (noGroupsMessage) {
-        noGroupsMessage.style.display = groups.length === 0 ? 'block' : 'none';
-    }
 }
 
 // ===================================================
