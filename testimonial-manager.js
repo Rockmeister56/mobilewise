@@ -759,68 +759,29 @@ function migrateToUnifiedGroups(oldData) {
 }
 
 // Populate concerns checkboxes (ENHANCED VERSION)
-function populateConcernsCheckboxes() {
-    console.log('🎯 Populating ENHANCED concerns checkboxes...');
+function populateConcernsCheckboxes(groupType = null) {
+    console.log(`🎯 Showing ${groupType || 'testimonial'} concerns (simple version)`);
     
-    const concerns = window.testimonialData?.concerns || {};
-    const testimonialGrid = document.querySelector('#testimonialTriggers .concerns-grid');
-    const informationalGrid = document.querySelector('#informationalTriggers .concerns-grid');
+    // Get your existing HTML sections
+    const testimonialSection = document.getElementById('testimonialTriggersCheckboxes');
+    const informationalSection = document.getElementById('informationalTriggersCheckboxes');
     
-    if (!testimonialGrid || !informationalGrid) {
+    if (!testimonialSection || !informationalSection) {
+        console.warn('⚠️ Concern sections not found');
         return;
     }
     
-    // Clear existing
-    testimonialGrid.innerHTML = '';
-    informationalGrid.innerHTML = '';
-    
-    // Separate testimonial and informational concerns
-    const testimonialConcerns = {};
-    const informationalConcerns = {};
-    
-    Object.entries(concerns).forEach(([key, concern]) => {
-        if (concern.type === 'informational' || concern.isInformational) {
-            informationalConcerns[key] = concern;
-        } else {
-            testimonialConcerns[key] = concern;
-        }
-    });
-    
-    // Populate testimonial concerns
-    Object.entries(testimonialConcerns).forEach(([key, concern]) => {
-        const checkboxId = `concern_${key}`;
-        const triggersText = concern.triggers ? `(${concern.triggers.slice(0, 2).join(', ')})` : '';
-        
-        testimonialGrid.innerHTML += `
-            <div class="concern-checkbox-item">
-                <input type="checkbox" id="${checkboxId}" class="concern-checkbox" value="${key}">
-                <label for="${checkboxId}" class="concern-checkbox-label">
-                    ${concern.icon} ${concern.title} 
-                    <span class="concern-subtext">${triggersText}</span>
-                </label>
-                ${concern.triggers ? `<div class="concern-keywords">Triggers: ${concern.triggers.join(', ')}</div>` : ''}
-            </div>
-        `;
-    });
-    
-    // Populate informational concerns
-    Object.entries(informationalConcerns).forEach(([key, concern]) => {
-        const checkboxId = `concern_${key}`;
-        const triggersText = concern.triggers ? `(${concern.triggers.slice(0, 2).join(', ')})` : '';
-        
-        informationalGrid.innerHTML += `
-            <div class="concern-checkbox-item">
-                <input type="checkbox" id="${checkboxId}" class="concern-checkbox" value="${key}">
-                <label for="${checkboxId}" class="concern-checkbox-label">
-                    ${concern.icon} ${concern.title} 
-                    <span class="concern-subtext">${triggersText}</span>
-                </label>
-                ${concern.triggers ? `<div class="concern-keywords">Triggers: ${concern.triggers.join(', ')}</div>` : ''}
-            </div>
-        `;
-    });
-    
-    console.log(`✅ Added ${Object.keys(testimonialConcerns).length} testimonial and ${Object.keys(informationalConcerns).length} informational concerns`);
+    // Simple show/hide logic
+    if (groupType === 'informational') {
+        testimonialSection.style.display = 'none';
+        informationalSection.style.display = 'block';
+        console.log('✅ Showing informational triggers');
+    } else {
+        // Default to testimonial
+        testimonialSection.style.display = 'block';
+        informationalSection.style.display = 'none';
+        console.log('✅ Showing testimonial triggers');
+    }
 }
 
 // Initialize modal when shown
