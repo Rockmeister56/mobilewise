@@ -1000,23 +1000,25 @@ function setupEventListeners() {
         console.log('✅ Added listener for addTestimonialGroupBtn');
     }
     
-    // Group Type Selector Change
-    const groupTypeSelect = document.getElementById('group-type-selector');
-    if (groupTypeSelect) {
-        groupTypeSelect.addEventListener('change', function() {
-            console.log('🔄 Group type changed to:', this.value);
-            if (typeof updateConcernCheckboxesForGroupType === 'function') {
-                updateConcernCheckboxesForGroupType(this.value);
-            }
-            
-            // Auto-update icon based on type
-            const iconInput = document.getElementById('group-icon-input');
-            if (iconInput) {
-                iconInput.value = this.value === 'informational' ? '📚' : '⭐';
-            }
-        });
-        console.log('✅ Added listener for group-type-selector');
-    }
+    // Group Type Selector Change - FIXED!
+const groupTypeSelect = document.getElementById('newGroupType'); // ← CHANGED THIS LINE!
+if (groupTypeSelect) {
+    groupTypeSelect.addEventListener('change', function() {
+        console.log('🔄 Group type changed to:', this.value);
+        
+        // Call the function that exists
+        if (typeof populateConcernsCheckboxes === 'function') {
+            populateConcernsCheckboxes(this.value); // ✅ This function exists!
+        }
+        
+        // Auto-update icon based on type
+        const iconInput = document.getElementById('newGroupIcon');
+        if (iconInput) {
+            iconInput.value = this.value === 'informational' ? '📚' : '🎬';
+        }
+    });
+    console.log('✅ Added listener for newGroupType');
+}
     
     // Continue with all your existing listeners...
     // [Keep all your existing code from line 7 to the end]
