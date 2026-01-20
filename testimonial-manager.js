@@ -927,7 +927,9 @@ function clearGroupForm() {
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
         // Populate triggers sections
-        populateTriggersSections();
+        if (typeof populateConcernsCheckboxes === 'function') {
+    populateConcernsCheckboxes('testimonial'); // Use default or appropriate type
+}
         
         // Set up dropdown listener
         const typeSelect = document.getElementById('newGroupType');
@@ -4010,6 +4012,65 @@ function showWarning(message) {
         el.style.display = 'block';
         setTimeout(() => el.style.display = 'none', 3000);
     }
+}
+
+// Add this function to create the new container logic
+function updateConcernsContainer(container, filteredConcerns, groupType) {
+    console.log(`📦 Updating concerns container for ${groupType} with ${filteredConcerns.length} items`);
+    
+    container.innerHTML = '';
+    
+    filteredConcerns.forEach(([key, concern]) => {
+        const checkboxId = `concern_${key}_${container.id || 'default'}`;
+        
+        const label = document.createElement('label');
+        label.className = 'concern-checkbox-label';
+        label.style.cssText = `
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            margin: 6px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #e9ecef;
+        `;
+        
+        label.innerHTML = `
+            <input type="checkbox" 
+                   id="${checkboxId}" 
+                   name="concerns" 
+                   value="${key}"
+                   style="margin-right: 12px; transform: scale(1.2);">
+            <span style="font-size: 22px; margin-right: 12px; opacity: 0.9;">${concern.icon}</span>
+            <div style="flex-grow: 1;">
+                <div style="font-weight: 600; color: #1f2937;">${concern.title}</div>
+                <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">
+                    ${concern.description || 'Select this concern'}
+                </div>
+            </div>
+        `;
+        
+        // Hover effects
+        label.onmouseenter = () => {
+            label.style.background = '#e9ecef';
+            label.style.transform = 'translateX(6px)';
+            label.style.borderColor = '#3b82f6';
+            label.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.1)';
+        };
+        
+        label.onmouseleave = () => {
+            label.style.background = '#f8f9fa';
+            label.style.transform = 'translateX(0)';
+            label.style.borderColor = '#e9ecef';
+            label.style.boxShadow = 'none';
+        };
+        
+        container.appendChild(label);
+    });
+    
+    console.log(`✅ Container updated with ${filteredConcerns.length} checkboxes`);
 }
 
 function hideAllTestimonialsModal() {
