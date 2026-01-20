@@ -884,9 +884,13 @@ function updateGroupType(type) {
     
     // FIXED: testimonialTriggers and informationalTriggers don't exist anymore
     // Concerns are now handled by updateGroupConcernsCheckboxes function
-    
+
     // Update concerns checkboxes based on group type
-    updateConcernCheckboxesForGroupType(type);
+if (typeof populateConcernsCheckboxes === 'function') {
+    populateConcernsCheckboxes();  // Call the ENHANCED version
+} else {
+    console.warn('populateConcernsCheckboxes not found');
+}
     
     console.log(`✅ updateGroupType completed for: ${type}`);
 }
