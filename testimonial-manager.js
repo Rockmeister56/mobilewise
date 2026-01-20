@@ -1153,9 +1153,6 @@ function resetGroupForm() {
         cb.checked = false;
     });
     
-    // Update checkbox display
-    updateConcernCheckboxesForGroupType('testimonial');
-    
     // Set default icon
     const iconInput = document.getElementById('group-icon-input');
     if (iconInput) iconInput.value = '⭐';
@@ -4137,29 +4134,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log(`📊 Initialized with ${window.testimonialData.groups.length} groups`);
 });
-
-// ============================================
-// 🔧 CREATE ALIAS FOR BACKWARD COMPATIBILITY
-// ============================================
-
-(function() {
-    'use strict';
-    
-    console.log('🔧 Creating function aliases...');
-    
-    // Create alias so old code still works
-    if (typeof updateConcernCheckboxesForGroupType === 'function' && 
-        typeof updateGroupConcernsCheckboxes === 'undefined') {
-        
-        window.updateGroupConcernsCheckboxes = updateConcernCheckboxesForGroupType;
-        console.log('✅ Alias: updateGroupConcernsCheckboxes = updateConcernCheckboxesForGroupType');
-    }
-    
-    console.log('✅ Function aliases setup complete');
-})();
-
-// Export to window
-window.hideAllTestimonialsModal = hideAllTestimonialsModal;
 
 // ===================================================
 // EXPORT FUNCTIONS TO WINDOW OBJECT
