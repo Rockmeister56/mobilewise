@@ -2,6 +2,36 @@
 // TESTIMONIAL MANAGER JS - GROUPS SYSTEM
 // ===================================================
 
+// ============================================
+// 🛡️ DATA PRESERVATION - PREVENT DATA LOSS
+// ============================================
+
+// Save existing data BEFORE anything else runs
+const existingTestimonialData = window.testimonialData;
+
+// Ensure testimonialData always exists and preserves existing data
+if (!window.testimonialData) {
+    window.testimonialData = {};
+}
+
+// NEVER overwrite these properties if they already exist
+const criticalProperties = ['groups', 'testimonialGroups', 'informationalGroups', 'videos'];
+
+criticalProperties.forEach(prop => {
+    if (existingTestimonialData && existingTestimonialData[prop] && !window.testimonialData[prop]) {
+        window.testimonialData[prop] = existingTestimonialData[prop];
+        console.log(`🛡️ Preserved existing ${prop} from previous load`);
+    }
+});
+
+// Ensure arrays/objects exist
+if (!window.testimonialData.groups) window.testimonialData.groups = [];
+if (!window.testimonialData.testimonialGroups) window.testimonialData.testimonialGroups = {};
+if (!window.testimonialData.informationalGroups) window.testimonialData.informationalGroups = {};
+if (!window.testimonialData.videos) window.testimonialData.videos = {};
+
+console.log(`📊 Data preserved: ${window.testimonialData.groups.length} groups, ${Object.keys(window.testimonialData.testimonialGroups).length} testimonial groups`);
+
 // Global variables
 let currentSelectedGroupId = null;
 let testimonialData = window.testimonialData || {};
