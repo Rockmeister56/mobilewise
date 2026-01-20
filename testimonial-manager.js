@@ -768,7 +768,6 @@ function populateConcernsCheckboxes() {
     const informationalGrid = document.querySelector('#informationalTriggers .concerns-grid');
     
     if (!testimonialGrid || !informationalGrid) {
-        console.log('⚠️ Trigger grids not found - using fallback checkboxes');
         return;
     }
     
@@ -823,66 +822,6 @@ function populateConcernsCheckboxes() {
     });
     
     console.log(`✅ Added ${Object.keys(testimonialConcerns).length} testimonial and ${Object.keys(informationalConcerns).length} informational concerns`);
-}
-
-// NEW: Auto-update checkboxes based on group type
-function updateConcernCheckboxesForGroupType(groupType) {
-    console.log('🔄 Updating concern checkboxes for:', groupType);
-    
-    // Get the concerns container
-    const container = document.getElementById('concernsCheckboxContainer');
-    if (!container) {
-        console.warn('⚠️ concernsCheckboxContainer not found');
-        return;
-    }
-    
-    // Get all concern checkboxes
-    const checkboxes = container.querySelectorAll('.concern-checkbox');
-    console.log(`Found ${checkboxes.length} concern checkboxes`);
-    
-    // Define which concerns belong to which type
-    // Based on your 11 checkboxes, here's how we categorize them:
-    
-    if (groupType === 'informational') {
-        // For informational groups: Show educational/process concerns
-        checkboxes.forEach(checkbox => {
-            const id = checkbox.id;
-            
-            // Informational concerns: general info, demos, process explanations
-            const isInformational = id.includes('general_') || 
-                                   id.includes('demo') ||
-                                   id.includes('process') ||
-                                   id.includes('explanation');
-            
-            checkbox.style.display = isInformational ? 'block' : 'none';
-            if (checkbox.parentElement) {
-                checkbox.parentElement.style.display = isInformational ? 'block' : 'none';
-            }
-        });
-        
-        console.log('📚 Showing informational concerns');
-        
-    } else {
-        // For testimonial groups: Show social proof/objection concerns
-        checkboxes.forEach(checkbox => {
-            const id = checkbox.id;
-            
-            // Testimonial concerns: price, time, trust, results
-            const isTestimonial = id.includes('price_') || 
-                                 id.includes('time_') || 
-                                 id.includes('trust_') || 
-                                 id.includes('results_');
-            
-            checkbox.style.display = isTestimonial ? 'block' : 'none';
-            if (checkbox.parentElement) {
-                checkbox.parentElement.style.display = isTestimonial ? 'block' : 'none';
-            }
-        });
-        
-        console.log('🎬 Showing testimonial concerns');
-    }
-    
-    console.log(`✅ Updated ${checkboxes.length} checkboxes for ${groupType} type`);
 }
 
 // Initialize modal when shown
@@ -951,55 +890,6 @@ function updateGroupType(type) {
     updateConcernCheckboxesForGroupType(type);
     
     console.log(`✅ updateGroupType completed for: ${type}`);
-}
-
-function populateTriggersSections() {
-    console.log('🔧 Populating triggers sections...');
-    
-    const testimonialContainer = document.querySelector('#testimonialTriggers .concerns-grid');
-    const informationalContainer = document.querySelector('#informationalTriggers .concerns-grid');
-    
-    if (!testimonialContainer || !informationalContainer) {
-        console.error('❌ Triggers containers not found');
-        return;
-    }
-    
-    // Clear existing content
-    testimonialContainer.innerHTML = '';
-    informationalContainer.innerHTML = '';
-    
-    // Check if testimonialData exists
-    if (window.testimonialData && testimonialData.concerns) {
-        // Convert object to array
-        const concernsArray = Object.values(testimonialData.concerns);
-        console.log(`✅ Adding ${concernsArray.length} concerns`);
-        
-        // Create checkboxes for each concern - SIMPLE version
-        concernsArray.forEach(concern => {
-            // Simple checkbox without complex classes
-            const checkboxHtml = `
-                <div class="concern-item">
-                    <input type="checkbox" 
-                           id="concern_${concern.id}" 
-                           name="concerns" 
-                           value="${concern.id}"
-                           class="concern-checkbox">
-                    <label for="concern_${concern.id}" class="concern-label">
-                        <span class="concern-emoji">${concern.emoji}</span>
-                        <span class="concern-name">${concern.name}</span>
-                        ${concern.description ? `<small class="concern-desc">${concern.description}</small>` : ''}
-                    </label>
-                </div>
-            `;
-            
-            // Add to both sections
-            testimonialContainer.innerHTML += checkboxHtml;
-            informationalContainer.innerHTML += checkboxHtml;
-        });
-    } else {
-        testimonialContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
-        informationalContainer.innerHTML = '<p class="text-muted">No concerns loaded</p>';
-    }
 }
 
 // Also update your clearGroupForm function to handle these checkboxes
@@ -3538,15 +3428,6 @@ function updateCodeOutput() {
     const formattedData = {
         videoUrls: currentData.videoUrls || {},
         videoDurations: currentData.videoDurations || {},
-        
-        // Clean concerns structure
-        concerns: currentData.concerns || {
-            price: { title: "Price Concerns", icon: "💰", videoType: "skeptical" },
-            time: { title: "Time/Speed", icon: "⏰", videoType: "speed" },
-            trust: { title: "Trust/Reliability", icon: "🤝", videoType: "skeptical" },
-            results: { title: "Results/Effectiveness", icon: "📈", videoType: "convinced" },
-            general: { title: "General Feedback", icon: "⭐", videoType: "skeptical" }
-        },
         
         // ⭐ TESTIMONIALS ONLY
         testimonialGroups: currentData.testimonialGroups || {},
