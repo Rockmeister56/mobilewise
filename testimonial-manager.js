@@ -1126,36 +1126,39 @@ function updateVideoFormForType(videoType) {
 function resetGroupForm() {
     console.log('🔄 Resetting group form...');
     
-    // Reset inputs
-    const inputs = [
-        'group-name-input',
-        'group-slug-input',
-        'group-icon-input',
-        'group-description-input'
-    ];
+    // Clear form fields
+    const groupName = document.getElementById('newGroupName');
+    const groupSlug = document.getElementById('newGroupSlug');
+    const groupIcon = document.getElementById('newGroupIcon');
+    const groupType = document.getElementById('newGroupType');
+    const groupDescription = document.getElementById('newGroupDescription');
     
-    inputs.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.value = '';
-        }
-    });
-    
-    // Reset selectors to defaults
-    const typeSelect = document.getElementById('group-type-selector');
-    if (typeSelect) typeSelect.value = 'testimonial';
-    
-    const concernSelect = document.getElementById('group-concern-selector');
-    if (concernSelect) concernSelect.value = 'general_info';
+    if (groupName) groupName.value = '';
+    if (groupSlug) groupSlug.value = '';
+    if (groupIcon) groupIcon.value = '🎬';
+    if (groupType) groupType.value = 'testimonial';
+    if (groupDescription) groupDescription.value = '';
     
     // Uncheck all concern checkboxes
-    document.querySelectorAll('.concern-checkbox').forEach(cb => {
-        cb.checked = false;
+    const checkboxes = document.querySelectorAll('.concern-checkbox');
+    checkboxes.forEach(cb => {
+        if (cb.checked) cb.checked = false;
     });
     
-    // Set default icon
-    const iconInput = document.getElementById('group-icon-input');
-    if (iconInput) iconInput.value = '⭐';
+    // 🔥 FIXED: Call the CORRECT function
+    if (typeof populateConcernsCheckboxes === 'function') {
+        populateConcernsCheckboxes('testimonial');
+    } else {
+        console.warn('⚠️ populateConcernsCheckboxes function not found');
+    }
+    
+    // Clear selected triggers preview
+    const preview = document.getElementById('selectedTriggersPreview');
+    if (preview) {
+        preview.innerHTML = '<p class="no-triggers-message">No triggers selected yet</p>';
+    }
+    
+    console.log('✅ Form reset complete');
 }
 
 // NEW: Update selected group info in video manager
