@@ -758,7 +758,6 @@ function migrateToUnifiedGroups(oldData) {
     return unifiedGroups;
 }
 
-// Populate concerns checkboxes
 // Populate concerns checkboxes (ENHANCED VERSION)
 function populateConcernsCheckboxes() {
     console.log('🎯 Populating ENHANCED concerns checkboxes...');
