@@ -826,50 +826,53 @@ function migrateToUnifiedGroups(oldData) {
 }
 
 function populateConcernsCheckboxes(groupType = null) {
-    console.log(`🎯 Showing ${groupType || 'testimonial'} concerns`);
+    console.log(`🎯 Filtering concerns for: ${groupType || 'all'}`);
     
-    // Try multiple possible IDs - your HTML might have changed!
-    const testimonialSection = document.getElementById('testimonialTriggersCheckboxes') || 
-                              document.querySelector('#testimonialTriggers .concerns-grid') ||
-                              document.querySelector('.concern-section:first-child');
-    
-    const informationalSection = document.getElementById('informationalTriggersCheckboxes') || 
-                                document.querySelector('#informationalTriggers .concerns-grid') ||
-                                document.querySelector('.concern-section:last-child');
-    
-    // Debug: Show what we found
-    console.log('🔍 Searching for sections:');
-    console.log(`  testimonialTriggersCheckboxes: ${document.getElementById('testimonialTriggersCheckboxes') ? 'FOUND' : 'NOT FOUND'}`);
-    console.log(`  informationalTriggersCheckboxes: ${document.getElementById('informationalTriggersCheckboxes') ? 'FOUND' : 'NOT FOUND'}`);
-    console.log(`  #concernsCheckboxContainer: ${document.getElementById('concernsCheckboxContainer') ? 'FOUND' : 'NOT FOUND'}`);
-    
-    // If we can't find the sections, maybe we need to build them differently
-    if (!testimonialSection || !informationalSection) {
-        console.log('⚠️ Could not find concern sections. Checking modal structure...');
-        
-        // Look for the container
-        const container = document.getElementById('concernsCheckboxContainer');
-        if (container) {
-            console.log(`✅ Found container with ${container.children.length} children`);
-            
-            // Show all children
-            Array.from(container.children).forEach((child, i) => {
-                console.log(`  Child ${i}: ${child.tagName} ${child.id ? '#' + child.id : ''} ${child.className ? '.' + child.className : ''}`);
-            });
-        }
+    const container = document.getElementById('concernsCheckboxContainer');
+    if (!container) {
+        console.log('📭 Container not found - modal might be closed');
         return;
     }
     
-    // Simple show/hide logic
+    const items = container.querySelectorAll('.concern-checkbox-item');
+    console.log(`Found ${items.length} concern items`);
+    
+    // If no group type specified or type is 'all', show everything
+    if (!groupType || groupType === 'all' || groupType === 'testimonial') {
+        // Default to showing all (for testimonial type)
+        items.forEach(item => item.style.display = 'block');
+        console.log('✅ Showing all concerns');
+        return;
+    }
+    
+    // For informational type, show only informational concerns
     if (groupType === 'informational') {
-        testimonialSection.style.display = 'none';
-        informationalSection.style.display = 'block';
-        console.log('✅ Showing informational triggers section');
-    } else {
-        // Default to testimonial
-        testimonialSection.style.display = 'block';
-        informationalSection.style.display = 'none';
-        console.log('✅ Showing testimonial triggers section');
+        let visibleCount = 0;
+        
+        items.forEach(item => {
+            const checkbox = item.querySelector('.concern-checkbox');
+            if (!checkbox) {
+                item.style.display = 'none';
+                return;
+            }
+            
+            const concernId = checkbox.id || checkbox.value || '';
+            
+            // Informational concerns (based on your checkbox IDs)
+            const isInformational = concernId.includes('general_') || 
+                                   concernId.includes('process_') ||
+                                   concernId.includes('info_') ||
+                                   concernId.includes('explain_');
+            
+            if (isInformational) {
+                item.style.display = 'block';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        console.log(`✅ Showing ${visibleCount} informational concerns`);
     }
 }
 
