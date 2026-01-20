@@ -1370,6 +1370,69 @@ function updateGroupDropdown() {
     console.log(`✅ Updated dropdown with ${groups.length} groups`);
 }
 
+function renderTestimonialGroups() {
+    console.log('🔄 Rendering testimonial groups...');
+    
+    const container = document.getElementById('testimonialGroupsContainer');
+    if (!container) {
+        console.error('❌ testimonialGroupsContainer not found');
+        return;
+    }
+    
+    // Check if we have groups
+    if (!window.testimonialData || !window.testimonialData.groups || window.testimonialData.groups.length === 0) {
+        container.innerHTML = `
+            <div id="noGroupsMessage" class="empty-state">
+                <div class="empty-icon">📂</div>
+                <div class="empty-title">No groups yet</div>
+                <div class="empty-subtitle">Create your first testimonial group</div>
+            </div>
+        `;
+        console.log('📭 No groups to display');
+        return;
+    }
+    
+    // Clear container
+    container.innerHTML = '';
+    
+    // Render each group
+    window.testimonialData.groups.forEach(group => {
+        const groupElement = document.createElement('div');
+        groupElement.className = 'testimonial-group-item';
+        groupElement.dataset.groupId = group.id || group.slug;
+        
+        groupElement.innerHTML = `
+            <div class="group-icon">${group.icon || '🎬'}</div>
+            <div class="group-info">
+                <div class="group-name">${group.name}</div>
+                <div class="group-meta">
+                    <span class="group-videos">${group.videos ? group.videos.length : 0} videos</span>
+                    <span class="group-type">${group.type || 'testimonial'}</span>
+                </div>
+            </div>
+            <div class="group-actions">
+                <button class="btn-icon" onclick="editTestimonialGroup('${group.id || group.slug}')" title="Edit">
+                    ✏️
+                </button>
+                <button class="btn-icon" onclick="deleteTestimonialGroup('${group.id || group.slug}')" title="Delete">
+                    🗑️
+                </button>
+            </div>
+        `;
+        
+        // Add click handler to select group
+        groupElement.addEventListener('click', function(e) {
+            if (!e.target.closest('.group-actions')) {
+                selectGroup(group.id || group.slug, true, 'sidebar');
+            }
+        });
+        
+        container.appendChild(groupElement);
+    });
+    
+    console.log(`✅ Rendered ${window.testimonialData.groups.length} groups`);
+}
+
 // ===================================================
 // UI UPDATES
 // ===================================================
@@ -2495,7 +2558,10 @@ function addNewTestimonialGroup() {
         type: type || 'testimonial',
         description: description || '',
         triggers: selectedConcerns,
-        videos: [] // Simple array for all videos
+        videos: [], // Simple array for all videos
+        // 🔄 ADDED: Include timestamp like old version
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString()
     };
     
     console.log('📦 New group:', newGroup);
@@ -2527,14 +2593,24 @@ function addNewTestimonialGroup() {
     window.testimonialData.groups.push(newGroup);
     console.log(`✅ Group added. Total: ${window.testimonialData.groups.length}`);
     
+    // 🔄 ADDED: Save to localStorage immediately (like old version)
+    if (typeof saveAllData === 'function') {
+        saveAllData();
+    } else {
+        localStorage.setItem('testimonialData', JSON.stringify(window.testimonialData));
+    }
+    
     // Update UI
     updateGroupDropdown();
     
     // 🔧 CRITICAL: Call the render function
     if (typeof renderTestimonialGroups === 'function') {
         renderTestimonialGroups();
+    } else if (typeof renderGroups === 'function') {
+        // 🔄 FALLBACK: Use old function name if exists
+        renderGroups();
     } else {
-        console.error('❌ renderTestimonialGroups function missing!');
+        console.error('❌ No render function found!');
         // Create a simple fallback
         const container = document.getElementById('testimonialGroupsContainer');
         if (container) {
