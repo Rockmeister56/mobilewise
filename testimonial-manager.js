@@ -1371,7 +1371,7 @@ function updateGroupDropdown() {
 }
 
 function renderTestimonialGroups() {
-    console.log('🔄 Rendering testimonial groups...');
+    console.log('🔄 Rendering testimonial groups sidebar...');
     
     const container = document.getElementById('testimonialGroupsContainer');
     if (!container) {
@@ -1379,8 +1379,16 @@ function renderTestimonialGroups() {
         return;
     }
     
-    // Check if we have groups
-    if (!window.testimonialData || !window.testimonialData.groups || window.testimonialData.groups.length === 0) {
+    // Check data structure
+    if (!window.testimonialData || !Array.isArray(window.testimonialData.groups)) {
+        console.error('❌ Invalid data structure');
+        container.innerHTML = '<div class="empty-state">Data error</div>';
+        return;
+    }
+    
+    const groups = window.testimonialData.groups;
+    
+    if (groups.length === 0) {
         container.innerHTML = `
             <div id="noGroupsMessage" class="empty-state">
                 <div class="empty-icon">📂</div>
@@ -1396,17 +1404,21 @@ function renderTestimonialGroups() {
     container.innerHTML = '';
     
     // Render each group
-    window.testimonialData.groups.forEach(group => {
+    groups.forEach(group => {
         const groupElement = document.createElement('div');
         groupElement.className = 'testimonial-group-item';
         groupElement.dataset.groupId = group.id || group.slug;
+        
+        // Count videos
+        const videoCount = group.videos ? group.videos.length : 0;
+        const viewCount = group.viewCount || 0;
         
         groupElement.innerHTML = `
             <div class="group-icon">${group.icon || '🎬'}</div>
             <div class="group-info">
                 <div class="group-name">${group.name}</div>
                 <div class="group-meta">
-                    <span class="group-videos">${group.videos ? group.videos.length : 0} videos</span>
+                    <span class="group-videos">${videoCount} video${videoCount !== 1 ? 's' : ''}</span>
                     <span class="group-type">${group.type || 'testimonial'}</span>
                 </div>
             </div>
@@ -1420,9 +1432,10 @@ function renderTestimonialGroups() {
             </div>
         `;
         
-        // Add click handler to select group
+        // Add click handler to select group (except when clicking action buttons)
         groupElement.addEventListener('click', function(e) {
             if (!e.target.closest('.group-actions')) {
+                console.log(`📁 Selecting group: ${group.name}`);
                 selectGroup(group.id || group.slug, true, 'sidebar');
             }
         });
@@ -1430,7 +1443,13 @@ function renderTestimonialGroups() {
         container.appendChild(groupElement);
     });
     
-    console.log(`✅ Rendered ${window.testimonialData.groups.length} groups`);
+    console.log(`✅ Rendered ${groups.length} groups in sidebar`);
+    
+    // Also update the "no groups" message visibility
+    const noGroupsMessage = document.getElementById('noGroupsMessage');
+    if (noGroupsMessage) {
+        noGroupsMessage.style.display = groups.length === 0 ? 'block' : 'none';
+    }
 }
 
 // ===================================================
@@ -2526,7 +2545,7 @@ function addNewTestimonialGroup() {
     
     // Validate
     if (!name) {
-        alert('❌ Please enter a group name');
+        showNotification('❌ Please enter a group name', 'error');
         return;
     }
     
@@ -2546,10 +2565,10 @@ function addNewTestimonialGroup() {
         selectedConcerns.push(cb.value);
     });
     
-    // Create group ID (simple version)
+    // Create group ID
     const groupId = slug;
     
-    // Create SIMPLE group object
+    // Create complete group object
     const newGroup = {
         id: groupId,
         name: name,
@@ -2558,24 +2577,22 @@ function addNewTestimonialGroup() {
         type: type || 'testimonial',
         description: description || '',
         triggers: selectedConcerns,
-        videos: [], // Simple array for all videos
-        // 🔄 ADDED: Include timestamp like old version
+        videos: [],
         createdAt: new Date().toISOString(),
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        viewCount: 0
     };
     
     console.log('📦 New group:', newGroup);
     
-    // 🔧 CRITICAL FIX: Ensure proper data structure
+    // Ensure proper data structure
     if (!window.testimonialData) {
-        window.testimonialData = { groups: [] }; // ARRAY, not object!
+        window.testimonialData = { groups: [] };
     }
     
     if (!Array.isArray(window.testimonialData.groups)) {
-        // Convert object to array if needed
         if (typeof window.testimonialData.groups === 'object') {
-            const groupsArray = Object.values(window.testimonialData.groups);
-            window.testimonialData.groups = groupsArray;
+            window.testimonialData.groups = Object.values(window.testimonialData.groups);
             console.log('🔄 Converted groups object to array');
         } else {
             window.testimonialData.groups = [];
@@ -2585,15 +2602,29 @@ function addNewTestimonialGroup() {
     // Check if group already exists
     const exists = window.testimonialData.groups.find(g => g.slug === slug);
     if (exists) {
-        alert(`❌ A group with slug "${slug}" already exists!`);
+        showNotification(`❌ Group "${slug}" already exists`, 'error');
         return;
     }
     
-    // Add to array (SIMPLE!)
+    // Add to array
     window.testimonialData.groups.push(newGroup);
     console.log(`✅ Group added. Total: ${window.testimonialData.groups.length}`);
     
-    // 🔄 ADDED: Save to localStorage immediately (like old version)
+    // 🔄 COMPATIBILITY: Also save to old structure
+    if (!window.testimonialData.testimonialGroups) {
+        window.testimonialData.testimonialGroups = {};
+    }
+    if (!window.testimonialData.informationalGroups) {
+        window.testimonialData.informationalGroups = {};
+    }
+    
+    if (type === 'testimonial') {
+        window.testimonialData.testimonialGroups[groupId] = newGroup;
+    } else {
+        window.testimonialData.informationalGroups[groupId] = newGroup;
+    }
+    
+    // Save data
     if (typeof saveAllData === 'function') {
         saveAllData();
     } else {
@@ -2602,25 +2633,7 @@ function addNewTestimonialGroup() {
     
     // Update UI
     updateGroupDropdown();
-    
-    // 🔧 CRITICAL: Call the render function
-    if (typeof renderTestimonialGroups === 'function') {
-        renderTestimonialGroups();
-    } else if (typeof renderGroups === 'function') {
-        // 🔄 FALLBACK: Use old function name if exists
-        renderGroups();
-    } else {
-        console.error('❌ No render function found!');
-        // Create a simple fallback
-        const container = document.getElementById('testimonialGroupsContainer');
-        if (container) {
-            container.innerHTML = `<div class="empty-state">
-                <div>Groups: ${window.testimonialData.groups.length}</div>
-                <div>⚠️ renderTestimonialGroups missing</div>
-            </div>`;
-        }
-    }
-    
+    renderTestimonialGroups(); // 🔥 CRITICAL - updates sidebar!
     updateStatistics();
     
     // Close modal
@@ -4090,6 +4103,40 @@ function hideAllTestimonialsModal() {
         modal.style.display = 'none';
     }
 }
+
+// Initialize and render on load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Initializing testimonial manager...');
+    
+    // Ensure data structure
+    if (!window.testimonialData) {
+        window.testimonialData = { groups: [] };
+    }
+    if (!Array.isArray(window.testimonialData.groups)) {
+        if (typeof window.testimonialData.groups === 'object') {
+            window.testimonialData.groups = Object.values(window.testimonialData.groups);
+        } else {
+            window.testimonialData.groups = [];
+        }
+    }
+    
+    // Initial render
+    if (typeof renderTestimonialGroups === 'function') {
+        renderTestimonialGroups();
+    }
+    
+    // Initial dropdown
+    if (typeof updateGroupDropdown === 'function') {
+        updateGroupDropdown();
+    }
+    
+    // Initial statistics
+    if (typeof updateStatistics === 'function') {
+        updateStatistics();
+    }
+    
+    console.log(`📊 Initialized with ${window.testimonialData.groups.length} groups`);
+});
 
 // ============================================
 // 🔧 CREATE ALIAS FOR BACKWARD COMPATIBILITY
