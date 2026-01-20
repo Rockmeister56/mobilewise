@@ -767,7 +767,7 @@ function populateConcernsCheckboxes(groupType = null) {
     const informationalSection = document.getElementById('informationalTriggersCheckboxes');
     
     if (!testimonialSection || !informationalSection) {
-        console.warn('⚠️ Concern sections not found');
+        console.warn('⚠️ Concern sections not found in HTML');
         return;
     }
     
@@ -775,12 +775,12 @@ function populateConcernsCheckboxes(groupType = null) {
     if (groupType === 'informational') {
         testimonialSection.style.display = 'none';
         informationalSection.style.display = 'block';
-        console.log('✅ Showing informational triggers');
+        console.log('✅ Showing informational triggers section');
     } else {
         // Default to testimonial
         testimonialSection.style.display = 'block';
         informationalSection.style.display = 'none';
-        console.log('✅ Showing testimonial triggers');
+        console.log('✅ Showing testimonial triggers section');
     }
 }
 
