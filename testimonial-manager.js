@@ -1023,6 +1023,230 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
 
+// ============================================
+// 🗑️ DELETE GROUP FUNCTION
+// ============================================
+
+function deleteTestimonialGroup(groupId) {
+    console.log(`🗑️ Deleting group: ${groupId}`);
+    
+    if (!window.testimonialData || !window.testimonialData.groups) {
+        console.error('❌ No groups data found');
+        return false;
+    }
+    
+    if (!window.testimonialData.groups[groupId]) {
+        console.error(`❌ Group ${groupId} not found`);
+        return false;
+    }
+    
+    // Confirm deletion
+    if (!confirm(`Are you sure you want to delete group "${window.testimonialData.groups[groupId].name}"?`)) {
+        return false;
+    }
+    
+    // Delete the group
+    delete window.testimonialData.groups[groupId];
+    
+    // Update statistics
+    if (window.testimonialData.statistics) {
+        window.testimonialData.statistics.totalGroups = Object.keys(window.testimonialData.groups).length;
+    }
+    
+    console.log(`✅ Group ${groupId} deleted`);
+    
+    // Update UI
+    if (typeof renderTestimonialGroups === 'function') {
+        renderTestimonialGroups();
+    }
+    if (typeof updateStatistics === 'function') {
+        updateStatistics();
+    }
+    if (typeof updateGroupDropdown === 'function') {
+        updateGroupDropdown();
+    }
+    
+    // Auto-save
+    if (typeof saveTestimonialData === 'function') {
+        saveTestimonialData();
+    }
+    
+    return true;
+}
+
+// ============================================
+// ➕ ADD VIDEO TO GROUP FUNCTION
+// ============================================
+
+function addVideoToGroup(groupId, videoId) {
+    console.log(`➕ Adding video ${videoId} to group ${groupId}`);
+    
+    if (!window.testimonialData) {
+        console.error('❌ No testimonialData found');
+        return false;
+    }
+    
+    const group = window.testimonialData.groups ? window.testimonialData.groups[groupId] : null;
+    if (!group) {
+        console.error(`❌ Group ${groupId} not found`);
+        return false;
+    }
+    
+    // Initialize videos array if needed
+    if (!Array.isArray(group.videos)) {
+        group.videos = [];
+    }
+    
+    // Check if video already in group
+    if (group.videos.includes(videoId)) {
+        console.log(`ℹ️ Video ${videoId} already in group`);
+        return false;
+    }
+    
+    // Add video to group
+    group.videos.push(videoId);
+    
+    console.log(`✅ Video ${videoId} added to group ${groupId}`);
+    
+    // Update UI
+    if (typeof renderTestimonialGroups === 'function') {
+        renderTestimonialGroups();
+    }
+    
+    // Auto-save
+    if (typeof saveTestimonialData === 'function') {
+        saveTestimonialData();
+    }
+    
+    return true;
+}
+
+// ============================================
+// ➖ REMOVE VIDEO FROM GROUP FUNCTION
+// ============================================
+
+function removeVideoFromGroup(groupId, videoId) {
+    console.log(`➖ Removing video ${videoId} from group ${groupId}`);
+    
+    if (!window.testimonialData) {
+        console.error('❌ No testimonialData found');
+        return false;
+    }
+    
+    const group = window.testimonialData.groups ? window.testimonialData.groups[groupId] : null;
+    if (!group) {
+        console.error(`❌ Group ${groupId} not found`);
+        return false;
+    }
+    
+    // Check if group has videos array
+    if (!Array.isArray(group.videos)) {
+        console.error(`❌ Group ${groupId} has no videos array`);
+        return false;
+    }
+    
+    // Find video index
+    const videoIndex = group.videos.indexOf(videoId);
+    if (videoIndex === -1) {
+        console.error(`❌ Video ${videoId} not found in group`);
+        return false;
+    }
+    
+    // Remove video
+    group.videos.splice(videoIndex, 1);
+    
+    console.log(`✅ Video ${videoId} removed from group ${groupId}`);
+    
+    // Update UI
+    if (typeof renderTestimonialGroups === 'function') {
+        renderTestimonialGroups();
+    }
+    
+    // Auto-save
+    if (typeof saveTestimonialData === 'function') {
+        saveTestimonialData();
+    }
+    
+    return true;
+}
+
+// ============================================
+// 🛠️ FIX DATA STRUCTURE CONFLICTS
+// ============================================
+
+function fixDataStructureConflicts() {
+    console.log('🛠️ Fixing data structure conflicts...');
+    
+    if (!window.testimonialData) return;
+    
+    const data = window.testimonialData;
+    
+    // 1. Ensure groups is an OBJECT (not array)
+    if (Array.isArray(data.groups)) {
+        console.log('🔄 Converting groups array to object...');
+        const groupsObj = {};
+        data.groups.forEach(group => {
+            if (group && group.id) {
+                groupsObj[group.id] = group;
+            }
+        });
+        data.groups = groupsObj;
+    }
+    
+    // 2. Remove old conflicting structures
+    if (data.testimonialGroups) {
+        console.log('🧹 Removing testimonialGroups (old structure)...');
+        
+        // Merge any remaining groups from old structure
+        Object.entries(data.testimonialGroups).forEach(([id, group]) => {
+            if (!data.groups[id]) {
+                data.groups[id] = {
+                    ...group,
+                    type: 'testimonial'
+                };
+            }
+        });
+        
+        delete data.testimonialGroups;
+    }
+    
+    if (data.informationalGroups) {
+        console.log('🧹 Removing informationalGroups (old structure)...');
+        
+        // Merge any remaining groups from old structure
+        Object.entries(data.informationalGroups).forEach(([id, group]) => {
+            if (!data.groups[id]) {
+                data.groups[id] = {
+                    ...group,
+                    type: 'informational'
+                };
+            }
+        });
+        
+        delete data.informationalGroups;
+    }
+    
+    // 3. Ensure videos exists
+    if (!data.videos) {
+        data.videos = {};
+    }
+    
+    // 4. Update statistics
+    if (data.statistics) {
+        data.statistics.totalGroups = Object.keys(data.groups || {}).length;
+        data.statistics.totalVideos = Object.keys(data.videos || {}).length;
+    }
+    
+    console.log('✅ Data structure fixed');
+    console.log(`   Groups: ${Object.keys(data.groups || {}).length}`);
+    console.log(`   Structure: ${JSON.stringify(Object.keys(data))}`);
+}
+
+// Run fix on load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(fixDataStructureConflicts, 500);
+});
+
 // ===================================================
 // COMPLETE ENHANCED EVENT LISTENERS SETUP
 // ===================================================
