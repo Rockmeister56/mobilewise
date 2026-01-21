@@ -3,6 +3,192 @@
 // ===================================================
 
 // ============================================
+// 🚨 CRITICAL - DATA STRUCTURE UNIFICATION
+// ============================================
+
+// 1. First, preserve any existing data from testimonials.js
+if (window.testimonialData && window.testimonialData.testimonialGroups) {
+    console.log('🔗 Found existing testimonials.js data structure');
+    
+    // Convert OLD structure to NEW structure
+    const convertedGroups = {};
+    
+    // Convert testimonialGroups
+    if (window.testimonialData.testimonialGroups) {
+        Object.values(window.testimonialData.testimonialGroups).forEach(group => {
+            convertedGroups[group.id] = {
+                ...group,
+                type: 'testimonial',
+                videos: group.testimonials ? group.testimonials.map(t => t.id) : []
+            };
+        });
+    }
+    
+    // Convert informationalGroups  
+    if (window.testimonialData.informationalGroups) {
+        Object.values(window.testimonialData.informationalGroups).forEach(group => {
+            convertedGroups[group.id] = {
+                ...group,
+                type: 'informational',
+                videos: group.videos ? group.videos.map(v => v.id) : []
+            };
+        });
+    }
+    
+    // Update the data structure
+    window.testimonialData = {
+        groups: convertedGroups,
+        videos: window.testimonialData.videos || {},
+        concerns: window.testimonialData.concerns || {},
+        statistics: window.testimonialData.statistics || {},
+        playerConfig: window.testimonialData.playerConfig || {}
+    };
+    
+    console.log(`✅ Converted ${Object.keys(convertedGroups).length} groups to new structure`);
+}
+
+// 2. Ensure backward compatibility functions
+window.testimonialData.getConcernTestimonials = function(concernKey) {
+    const results = [];
+    
+    for (const [groupId, group] of Object.entries(this.groups || {})) {
+        if (group.concerns && group.concerns.includes(concernKey) && group.type === 'testimonial') {
+            if (group.videos) {
+                group.videos.forEach(videoId => {
+                    const video = this.videos[videoId];
+                    if (video) {
+                        results.push({
+                            ...video,
+                            groupId: group.id,
+                            groupName: group.name,
+                            groupIcon: group.icon
+                        });
+                    }
+                });
+            }
+        }
+    }
+    
+    return results;
+};
+
+// 3. Sync function to keep both structures in sync
+window.syncTestimonialStructures = function() {
+    console.log('🔄 Syncing data structures...');
+    
+    if (!window.testimonialData) return;
+    
+    // Create OLD structure for testimonials.js compatibility
+    const testimonialGroups = {};
+    const informationalGroups = {};
+    
+    Object.values(window.testimonialData.groups || {}).forEach(group => {
+        if (group.type === 'testimonial') {
+            testimonialGroups[group.id] = {
+                id: group.id,
+                name: group.name,
+                type: group.type,
+                concerns: group.concerns || [],
+                testimonials: (group.videos || []).map(videoId => {
+                    const video = window.testimonialData.videos[videoId];
+                    return video ? { ...video } : null;
+                }).filter(Boolean),
+                icon: group.icon || '⭐',
+                description: group.description || '',
+                created: group.created || new Date().toISOString()
+            };
+        } else if (group.type === 'informational') {
+            informationalGroups[group.id] = {
+                id: group.id,
+                name: group.name,
+                type: group.type,
+                concerns: group.concerns || [],
+                videos: (group.videos || []).map(videoId => {
+                    const video = window.testimonialData.videos[videoId];
+                    return video ? { ...video } : null;
+                }).filter(Boolean),
+                icon: group.icon || '📚',
+                description: group.description || '',
+                created: group.created || new Date().toISOString()
+            };
+        }
+    });
+    
+    // Add old structure properties for compatibility
+    window.testimonialData.testimonialGroups = testimonialGroups;
+    window.testimonialData.informationalGroups = informationalGroups;
+    
+    console.log(`✅ Synced: ${Object.keys(testimonialGroups).length} testimonial groups, ${Object.keys(informationalGroups).length} informational groups`);
+    return true;
+};
+
+// 4. Auto-sync on save
+const originalSaveTestimonialData = window.saveTestimonialData;
+if (originalSaveTestimonialData) {
+    window.saveTestimonialData = function() {
+        console.log('💾 Saving with structure sync...');
+        window.syncTestimonialStructures();
+        return originalSaveTestimonialData();
+    };
+}
+
+// 5. Initial sync on load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        window.syncTestimonialStructures();
+    }, 500);
+});
+
+// ============================================
+// 🚨 BACKWARD COMPATIBILITY LAYER
+// ============================================
+
+// Ensure the data structure exists
+if (!window.testimonialData) {
+    window.testimonialData = {};
+}
+
+// If using new structure (groups), convert to old structure temporarily
+if (window.testimonialData.groups && !window.testimonialData.testimonialGroups) {
+    console.log('🔄 Converting manager structure for testimonials.js...');
+    
+    const testimonialGroups = {};
+    const informationalGroups = {};
+    
+    Object.values(window.testimonialData.groups).forEach(group => {
+        if (group.type === 'testimonial') {
+            testimonialGroups[group.id] = {
+                id: group.id,
+                name: group.name,
+                concerns: group.concerns || [],
+                testimonials: (group.videos || []).map(videoId => {
+                    const video = window.testimonialData.videos[videoId];
+                    return video ? { ...video } : null;
+                }).filter(Boolean),
+                icon: group.icon || '⭐'
+            };
+        } else if (group.type === 'informational') {
+            informationalGroups[group.id] = {
+                id: group.id,
+                name: group.name,
+                concerns: group.concerns || [],
+                videos: (group.videos || []).map(videoId => {
+                    const video = window.testimonialData.videos[videoId];
+                    return video ? { ...video } : null;
+                }).filter(Boolean),
+                icon: group.icon || '📚'
+            };
+        }
+    });
+    
+    // Set the old structure
+    window.testimonialData.testimonialGroups = testimonialGroups;
+    window.testimonialData.informationalGroups = informationalGroups;
+    
+    console.log(`✅ Converted ${Object.keys(testimonialGroups).length} testimonial groups`);
+}
+
+// ============================================
 // 🛡️ DATA PRESERVATION - PREVENT DATA LOSS
 // ============================================
 
@@ -101,6 +287,176 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof updateStatistics === 'function') {
         updateStatistics();
     }
+});
+
+// ============================================
+// 🎯 CRITICAL FIX: PROPER GROUP BUTTON RENDERER
+// ============================================
+
+// Function to create proper button HTML
+window.createGroupButtonHTML = function(group) {
+    if (!group) return '';
+    
+    const icon = group.type === 'informational' ? '📚' : '🎬';
+    const videoCount = group.videos ? group.videos.length : 0;
+    const type = group.type || 'testimonial';
+    const groupName = group.name || 'Unnamed Group';
+    
+    return `
+        <div class="group-button" 
+             data-group-id="${group.id}" 
+             onclick="selectGroup('${group.id}')"
+             style="
+                 display: flex !important;
+                 align-items: center !important;
+                 gap: 10px !important;
+                 padding: 12px 15px !important;
+                 background: white !important;
+                 border: 1px solid #e1e5e9 !important;
+                 border-radius: 8px !important;
+                 cursor: pointer !important;
+                 transition: all 0.2s ease !important;
+                 text-align: left !important;
+                 width: 100% !important;
+                 margin-bottom: 8px !important;
+                 box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+             "
+             onmouseover="this.style.background='#f8f9fa'"
+             onmouseout="this.style.background='white'">
+            <span style="
+                font-size: 20px !important;
+                width: 24px !important;
+                text-align: center !important;
+                flex-shrink: 0 !important;
+            ">${icon}</span>
+            <div style="
+                flex: 1 !important;
+                min-width: 0 !important;
+                overflow: hidden !important;
+            ">
+                <div style="
+                    font-weight: 600 !important;
+                    color: #1f2937 !important;
+                    font-size: 14px !important;
+                    line-height: 1.3 !important;
+                    margin-bottom: 2px !important;
+                    white-space: nowrap !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                ">${groupName.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                <div style="
+                    font-size: 12px !important;
+                    color: #6b7280 !important;
+                    line-height: 1.2 !important;
+                ">
+                    ${videoCount} video${videoCount !== 1 ? 's' : ''}
+                    <span style="margin: 0 4px">•</span>
+                    ${type}
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+// Function to force-fix broken buttons
+window.fixBrokenGroupButtons = function() {
+    console.log('🔧 Fixing broken group buttons...');
+    
+    // Find the sidebar container
+    const sidebar = document.querySelector('#groups-sidebar, .groups-sidebar, .sidebar, [id*="sidebar"]');
+    if (!sidebar) {
+        console.log('❌ Sidebar not found');
+        return;
+    }
+    
+    // Check if we have groups
+    if (!window.testimonialData || !window.testimonialData.groups) {
+        console.log('📭 No groups data');
+        return;
+    }
+    
+    const groups = Object.values(window.testimonialData.groups);
+    if (groups.length === 0) {
+        console.log('📭 No groups to render');
+        return;
+    }
+    
+    console.log(`📊 Found ${groups.length} groups to render`);
+    
+    // Create all buttons HTML
+    let buttonsHTML = '';
+    groups.forEach(group => {
+        buttonsHTML += window.createGroupButtonHTML(group);
+    });
+    
+    // Wrap in container
+    const containerHTML = `<div class="group-list" style="display: flex; flex-direction: column; gap: 8px; padding: 10px;">${buttonsHTML}</div>`;
+    
+    // Find where to put it
+    const existingList = sidebar.querySelector('.group-list, [class*="list"]');
+    
+    if (existingList) {
+        // Replace existing list
+        existingList.innerHTML = containerHTML;
+        console.log('✅ Replaced existing group list');
+    } else {
+        // Look for "SELECT A GROUP" text
+        const walker = document.createTreeWalker(sidebar, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent.includes('SELECT A GROUP')) {
+                // Insert after this text
+                const parent = node.parentNode;
+                const div = document.createElement('div');
+                div.innerHTML = containerHTML;
+                
+                if (parent.nextSibling) {
+                    parent.parentNode.insertBefore(div, parent.nextSibling);
+                } else {
+                    parent.parentNode.appendChild(div);
+                }
+                console.log('✅ Inserted group buttons after "SELECT A GROUP"');
+                return;
+            }
+        }
+        
+        // If not found, just append to sidebar
+        sidebar.innerHTML += containerHTML;
+        console.log('✅ Appended group buttons to sidebar');
+    }
+};
+
+// Patch the existing render function
+if (window.renderTestimonialGroups) {
+    const originalRender = window.renderTestimonialGroups;
+    window.renderTestimonialGroups = function() {
+        console.log('🔄 Patched renderTestimonialGroups called');
+        const result = originalRender.apply(this, arguments);
+        
+        // Fix buttons after original render
+        setTimeout(window.fixBrokenGroupButtons, 100);
+        
+        return result;
+    };
+    console.log('✅ Patched renderTestimonialGroups');
+}
+
+// Auto-fix on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        console.log('🚀 Auto-fixing group buttons...');
+        window.fixBrokenGroupButtons();
+        
+        // Also fix every 2 seconds in case of updates
+        setInterval(function() {
+            const brokenButtons = document.querySelectorAll('.group-name, .group-info');
+            if (brokenButtons.length > 0) {
+                console.log(`🔄 Found ${brokenButtons.length} broken buttons, fixing...`);
+                window.fixBrokenGroupButtons();
+            }
+        }, 2000);
+    }, 1500);
 });
 
 // ===================================================
