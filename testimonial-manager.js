@@ -4103,6 +4103,69 @@ window.testimonialData = ${jsonData};${helperFunctions}`;
     return exportData;
 }
 
+// ============================================
+// 🧪 TEST THE EXPORT
+// ============================================
+
+window.testExportConversion = function() {
+    console.log('🧪 Testing export conversion...');
+    
+    // Create test data in NEW structure
+    const testGroupId = 'export-test-' + Date.now();
+    
+    window.testimonialData = window.testimonialData || {};
+    window.testimonialData.groups = window.testimonialData.groups || {};
+    window.testimonialData.videos = window.testimonialData.videos || {};
+    
+    // Add a test group (NEW structure)
+    window.testimonialData.groups[testGroupId] = {
+        id: testGroupId,
+        name: 'Export Test Group',
+        type: 'testimonial',
+        concerns: ['price_cost', 'time_speed'],
+        videos: ['export-vid-1', 'export-vid-2'],
+        created: new Date().toISOString()
+    };
+    
+    // Add test videos
+    window.testimonialData.videos['export-vid-1'] = {
+        id: 'export-vid-1',
+        title: 'Export Test Video 1',
+        url: 'https://example.com/test1.mp4',
+        duration: 120
+    };
+    
+    window.testimonialData.videos['export-vid-2'] = {
+        id: 'export-vid-2',
+        title: 'Export Test Video 2',
+        url: 'https://example.com/test2.mp4',
+        duration: 180
+    };
+    
+    console.log('Created test data in NEW structure:');
+    console.log(`   Groups: ${Object.keys(window.testimonialData.groups).length}`);
+    console.log(`   Videos: ${Object.keys(window.testimonialData.videos).length}`);
+    
+    // Test the export
+    const exportedData = downloadJSFile();
+    
+    console.log('\nExport result:');
+    console.log(`   Testimonial Groups: ${Object.keys(exportedData.testimonialGroups || {}).length}`);
+    console.log(`   Informational Groups: ${Object.keys(exportedData.informationalGroups || {}).length}`);
+    console.log(`   Total Videos in export: ${Object.keys(exportedData.videos || {}).length}`);
+    
+    // Check conversion
+    const hasTestGroup = exportedData.testimonialGroups[testGroupId] !== undefined;
+    console.log(`   Test group converted? ${hasTestGroup ? '✅ YES' : '❌ NO'}`);
+    
+    if (hasTestGroup) {
+        const group = exportedData.testimonialGroups[testGroupId];
+        console.log(`   Group has ${group.testimonials?.length || 0} testimonials`);
+    }
+    
+    return exportedData;
+};
+
 // ===================================================
 // 🛠️ CLEANUP FUNCTIONS (ADD TO YOUR MANAGER)
 // ===================================================
