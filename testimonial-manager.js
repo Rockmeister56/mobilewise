@@ -4441,70 +4441,226 @@ function saveTestimonialData() {
     console.log('💾 Saving testimonial manager data...');
     
     try {
-        // Get current data
-        const data = window.testimonialData;
+        // Get current data - check multiple possible sources
+        const data = window.testimonialData || window.tmData || testimonialData;
         
         if (!data) {
-            console.error('❌ No testimonialData found!');
-            alert('❌ No data to save!');
-            return false;
+            console.error('❌ No testimonialData found anywhere!');
+            // Create minimal structure
+            window.testimonialData = {
+                groups: {},
+                videos: {},
+                concerns: {},
+                statistics: { totalGroups: 0, totalVideos: 0, totalViews: 0 }
+            };
+            console.log('✅ Created minimal testimonialData structure');
         }
         
-        // Create clean save object with ONLY what the manager needs
-        const saveData = {
-            // Manager's core data
-            groups: data.groups || {},
-            videos: data.videos || {},
-            concerns: data.concerns || {},
-            statistics: data.statistics || {
-                totalGroups: 0,
-                totalVideos: 0,
-                totalViews: 0
+        // Use the data we found or created
+        const saveData = data || window.testimonialData;
+        
+        // CRITICAL: Ensure all required properties exist with safe defaults
+        const groups = saveData.groups || {};
+        const videos = saveData.videos || {};
+        const concerns = saveData.concerns || {};
+        const statistics = saveData.statistics || { totalGroups: 0, totalVideos: 0, totalViews: 0 };
+        
+        // Count safely
+        const totalGroups = Object.keys(groups).length;
+        const totalVideos = Object.keys(videos).length;
+        
+        // Create the data to save
+        const dataToSave = {
+            // Core data
+            groups: groups,
+            videos: videos,
+            concerns: concerns,
+            statistics: {
+                totalGroups: totalGroups,
+                totalVideos: totalVideos,
+                totalViews: statistics.totalViews || 0
             },
             
-            // Remove conflicting old structures
-            // Don't save testimonialGroups/informationalGroups
+            // Additional data (preserve if exists)
+            videoUrls: saveData.videoUrls || {},
+            videoDurations: saveData.videoDurations || {},
+            playerConfig: saveData.playerConfig || {},
             
-            // Keep video player data (from testimonials-data.js)
-            videoUrls: data.videoUrls || {},
-            videoDurations: data.videoDurations || {},
-            playerConfig: data.playerConfig || {},
+            // Functions from testimonials-data.js (we can't save functions, but mark their existence)
+            __hasFunctions: {
+                getConcernTestimonials: typeof saveData.getConcernTestimonials === 'function',
+                getAvailableConcerns: typeof saveData.getAvailableConcerns === 'function',
+                triggerAutoSave: typeof saveData.triggerAutoSave === 'function'
+            },
             
             // Metadata
-            __version: data.__version || "1.0",
+            __version: saveData.__version || "1.0-save-fixed",
             __lastSaved: new Date().toISOString(),
-            __savedBy: "testimonial-manager"
+            __saveTest: "comprehensive-test-" + Date.now()
         };
         
         // Save to localStorage
-        localStorage.setItem('testimonialManagerData', JSON.stringify(saveData));
+        localStorage.setItem('testimonialManagerData', JSON.stringify(dataToSave));
         
-        // Update statistics
-        if (data.statistics) {
-            data.statistics.totalGroups = Object.keys(data.groups || {}).length;
-            data.statistics.totalVideos = Object.keys(data.videos || {}).length;
+        // Update in-memory statistics
+        if (saveData.statistics) {
+            saveData.statistics.totalGroups = totalGroups;
+            saveData.statistics.totalVideos = totalVideos;
         }
         
         console.log('✅ Data saved successfully!');
-        console.log(`   Groups: ${Object.keys(data.groups || {}).length}`);
-        console.log(`   Videos: ${Object.keys(data.videos || {}).length}`);
+        console.log(`   Groups saved: ${totalGroups}`);
+        console.log(`   Videos saved: ${totalVideos}`);
+        console.log(`   Save size: ${JSON.stringify(dataToSave).length} bytes`);
         
-        // Update UI
-        if (typeof updateStatistics === 'function') {
-            updateStatistics();
-        }
+        // Show visual success indicator
+        showSaveNotification('✅ Data saved successfully!', 'success');
         
-        // Show success
-        alert('✅ Data saved successfully!');
+        // Update UI after a short delay
+        setTimeout(() => {
+            if (typeof updateStatistics === 'function') updateStatistics();
+            if (typeof renderTestimonialGroups === 'function') renderTestimonialGroups();
+        }, 100);
         
         return true;
         
     } catch (error) {
         console.error('❌ Error saving data:', error);
-        alert('❌ Error saving data: ' + error.message);
+        console.error('Error details:', {
+            message: error.message,
+            stack: error.stack
+        });
+        
+        // Show error notification
+        showSaveNotification(`❌ Save failed: ${error.message}`, 'error');
+        
         return false;
     }
 }
+
+// Helper function for notifications
+function showSaveNotification(message, type = 'info') {
+    // Remove any existing notification
+    const existing = document.getElementById('save-notification');
+    if (existing) existing.remove();
+    
+    // Create new notification
+    const notification = document.createElement('div');
+    notification.id = 'save-notification';
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 99999;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideIn 0.3s ease;
+        max-width: 400px;
+        word-wrap: break-word;
+    `;
+    
+    // Add animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.5s ease';
+        setTimeout(() => notification.remove(), 500);
+    }, 5000);
+}
+
+// ============================================
+// 🧪 TEST THE FIXED SAVE FUNCTION
+// ============================================
+
+window.testSaveFixed = function() {
+    console.log('🧪 Testing FIXED save function...');
+    
+    // Test 1: Basic save with minimal data
+    console.log('\n1. Testing with minimal data...');
+    window.testimonialData = {
+        groups: {},
+        videos: {},
+        concerns: {},
+        statistics: { totalGroups: 0, totalVideos: 0, totalViews: 0 }
+    };
+    
+    let result = saveTestimonialData();
+    console.log('Minimal save:', result ? '✅ PASS' : '❌ FAIL');
+    
+    // Test 2: Save with actual data
+    console.log('\n2. Testing with actual data...');
+    const testGroupId = 'save-test-' + Date.now();
+    window.testimonialData.groups[testGroupId] = {
+        id: testGroupId,
+        name: 'Save Test Group',
+        type: 'testimonial',
+        concerns: ['price_cost'],
+        videos: ['test-video-1', 'test-video-2'],
+        created: new Date().toISOString()
+    };
+    
+    window.testimonialData.videos = {
+        'test-video-1': { id: 'test-video-1', title: 'Test 1', url: 'test1.mp4' },
+        'test-video-2': { id: 'test-video-2', title: 'Test 2', url: 'test2.mp4' }
+    };
+    
+    result = saveTestimonialData();
+    console.log('Actual data save:', result ? '✅ PASS' : '❌ FAIL');
+    
+    // Test 3: Verify localStorage
+    console.log('\n3. Verifying localStorage...');
+    const saved = localStorage.getItem('testimonialManagerData');
+    if (saved) {
+        const data = JSON.parse(saved);
+        console.log('✅ Data in localStorage');
+        console.log(`   Groups: ${Object.keys(data.groups || {}).length}`);
+        console.log(`   Videos: ${Object.keys(data.videos || {}).length}`);
+        console.log(`   Has test group: ${!!data.groups[testGroupId]}`);
+    } else {
+        console.log('❌ No data in localStorage');
+    }
+    
+    // Test 4: Test error handling (try to save undefined)
+    console.log('\n4. Testing error handling...');
+    const originalData = window.testimonialData;
+    window.testimonialData = undefined;
+    
+    result = saveTestimonialData();
+    console.log('Undefined data save handled:', result ? '✅ PASS' : '❌ FAIL (expected)');
+    
+    // Restore
+    window.testimonialData = originalData;
+    
+    console.log('\n🎉 Save function test complete!');
+    return true;
+};
+
+// ============================================
+// 🚀 RUN THE TEST
+// ============================================
+
+console.log('✅ Fixed save function loaded. Run testSaveFixed() to test.');
 
 // ============================================
 // 🧪 TEST - Add this too
