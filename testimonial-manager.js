@@ -3897,107 +3897,144 @@ function copyCode() {
 function downloadJSFile() {
     console.log('🔄 Exporting testimonial data...');
     
-    // Get the ACTUAL data (not from display panel)
-    const sourceData = window.testimonialData;
+    // Get the ACTUAL data from manager
+    const sourceData = window.testimonialData || {};
     
-    // Create export data that MATCHES your working file structure
+    // 🚨 CRITICAL: Convert NEW structure (groups) to OLD structure (testimonialGroups/informationalGroups)
+    const testimonialGroups = {};
+    const informationalGroups = {};
+    const videos = {};
+    
+    // Process all groups from NEW structure
+    Object.values(sourceData.groups || {}).forEach(group => {
+        if (group && group.id) {
+            if (group.type === 'informational') {
+                // Informational group
+                informationalGroups[group.id] = {
+                    id: group.id,
+                    name: group.name || group.id,
+                    type: 'informational',
+                    concerns: group.concerns || [],
+                    videos: group.videos || [],  // Video IDs array
+                    icon: group.icon || '📚',
+                    description: group.description || '',
+                    created: group.created || new Date().toISOString()
+                };
+                
+                // Add informational videos
+                (group.videos || []).forEach(videoId => {
+                    if (sourceData.videos && sourceData.videos[videoId]) {
+                        videos[videoId] = sourceData.videos[videoId];
+                    }
+                });
+            } else {
+                // Testimonial group
+                testimonialGroups[group.id] = {
+                    id: group.id,
+                    name: group.name || group.id,
+                    type: 'testimonial',
+                    concerns: group.concerns || [],
+                    testimonials: (group.videos || []).map(videoId => {
+                        // Convert video IDs to testimonial objects
+                        if (sourceData.videos && sourceData.videos[videoId]) {
+                            return {
+                                id: videoId,
+                                title: sourceData.videos[videoId].title || `Video ${videoId}`,
+                                url: sourceData.videos[videoId].url || '',
+                                description: sourceData.videos[videoId].description || '',
+                                duration: sourceData.videos[videoId].duration || 0
+                            };
+                        }
+                        return { id: videoId, title: `Video ${videoId}`, url: '' };
+                    }),
+                    icon: group.icon || '⭐',
+                    description: group.description || '',
+                    created: group.created || new Date().toISOString()
+                };
+                
+                // Add testimonial videos
+                (group.videos || []).forEach(videoId => {
+                    if (sourceData.videos && sourceData.videos[videoId]) {
+                        videos[videoId] = sourceData.videos[videoId];
+                    }
+                });
+            }
+        }
+    });
+    
+    // Create export data in OLD structure (for testimonials-data.js)
     const exportData = {
+        // Video URLs and durations (template)
         videoUrls: sourceData.videoUrls || {
-            "skeptical": "",
-            "speed": "",
-            "convinced": "",
-            "excited": ""
+            "skeptical": "", "speed": "", "convinced": "", "excited": ""
         },
         videoDurations: sourceData.videoDurations || {
-            "skeptical": 20000,
-            "speed": 20000,
-            "convinced": 20000,
-            "excited": 20000
+            "skeptical": 20000, "speed": 20000, "convinced": 20000, "excited": 20000
         },
         
-        // USE THE EXACT CONCERNS STRUCTURE FROM YOUR WORKING FILE
-        concerns: {
-            "price": {
-                "title": "Price Concerns",
-                "icon": "💰",
-                "videoType": "skeptical"
-            },
-            "time": {
-                "title": "Time/Speed",
-                "icon": "⏰",
-                "videoType": "speed"
-            },
-            "trust": {
-                "title": "Trust/Reliability",
-                "icon": "🤝",
-                "videoType": "skeptical"
-            },
-            "results": {
-                "title": "Results/Effectiveness",
-                "icon": "📈",
-                "videoType": "convinced"
-            },
-            "general": {
-                "title": "General Feedback",
-                "icon": "⭐",
-                "videoType": "skeptical"
-            }
+        // Concerns - use ENHANCED_CONCERNS if available
+        concerns: sourceData.concerns || window.ENHANCED_CONCERNS || {
+            "price_expensive": { title: "Expensive", icon: "💰", videoType: "skeptical" },
+            "price_cost": { title: "Cost/Price", icon: "💰", videoType: "skeptical" },
+            "price_affordability": { title: "Affordability", icon: "💰", videoType: "skeptical" },
+            "time_busy": { title: "Too Busy", icon: "⏰", videoType: "speed" },
+            "time_speed": { title: "Speed/Timing", icon: "⏰", videoType: "speed" }
         },
         
-        // ⭐ COPY ACTUAL TESTIMONIAL GROUPS
-        testimonialGroups: sourceData.testimonialGroups || {},
+        // 🚨 CONVERTED DATA: OLD structure
+        testimonialGroups: testimonialGroups,
+        informationalGroups: informationalGroups,
         
-        // 📚 COPY ACTUAL INFORMATIONAL GROUPS
-        informationalGroups: sourceData.informationalGroups || {},
+        // All videos
+        videos: videos,
         
+        // Statistics
         statistics: {
-            totalTestimonialGroups: Object.keys(sourceData.testimonialGroups || {}).length,
-            totalInformationalGroups: Object.keys(sourceData.informationalGroups || {}).length,
-            totalTestimonials: Object.values(sourceData.testimonialGroups || {}).reduce((sum, group) => 
+            totalTestimonialGroups: Object.keys(testimonialGroups).length,
+            totalInformationalGroups: Object.keys(informationalGroups).length,
+            totalTestimonials: Object.values(testimonialGroups).reduce((sum, group) => 
                 sum + (group.testimonials?.length || 0), 0),
-            totalInformationalVideos: Object.values(sourceData.informationalGroups || {}).reduce((sum, group) => 
-                sum + (group.videos?.length || 0), 0)
+            totalInformationalVideos: Object.values(informationalGroups).reduce((sum, group) => 
+                sum + (group.videos?.length || 0), 0),
+            totalVideos: Object.keys(videos).length
         },
         
+        // Player config
         playerConfig: sourceData.playerConfig || {
-            desktop: {
-                width: 854,
-                height: 480,
-                top: "50%",
-                left: "50%",
-                borderRadius: "12px"
-            },
-            mobile: {
-                fullscreen: true
-            },
-            overlay: {
-                background: "rgba(0, 0, 0, 0.5)"
-            },
-            resumeMessage: "I'm sure you can appreciate what our clients have to say. So let's get back on track with helping you sell your practice. Would you like a free consultation with Bruce that can analyze your particular situation?"
+            desktop: { width: 854, height: 480, top: "50%", left: "50%", borderRadius: "12px" },
+            mobile: { fullscreen: true },
+            overlay: { background: "rgba(0, 0, 0, 0.5)" },
+            resumeMessage: "I'm sure you can appreciate what our clients have to say..."
         },
         
-        __version: "3.0-dual-system",
+        // Metadata
+        __version: "3.0-dual-system-exported",
         __generated: new Date().toISOString(),
-        __notes: "Separated testimonials (social proof) from informational videos (educational)"
+        __exportedFrom: "testimonial-manager",
+        __notes: "Exported from manager - NEW groups structure converted to OLD structure"
     };
     
-    // Convert to string
+    // Create the file content
     const jsonData = JSON.stringify(exportData, null, 2);
     
-    // Add ALL the helper functions from your working file
+    // Add helper functions
     const helperFunctions = `
+
+// ===================================================
+// 🎯 CONCERN-BASED VIDEO RETRIEVAL
+// ===================================================
 
 // Get testimonials for a specific concern
 window.testimonialData.getConcernTestimonials = function(concernKey) {
     const results = [];
     
-    if (!this.testimonialGroups) return results;
-    
-    for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
+    // Search testimonial groups
+    for (const [groupId, group] of Object.entries(this.testimonialGroups || {})) {
         if (group.concerns && group.concerns.includes(concernKey)) {
             if (group.testimonials) {
                 results.push(...group.testimonials.map(t => ({
                     ...t,
+                    groupId: group.id,
                     groupName: group.name,
                     groupIcon: group.icon
                 })));
@@ -4011,91 +4048,59 @@ window.testimonialData.getConcernTestimonials = function(concernKey) {
 // Get all available concerns for button display
 window.testimonialData.getAvailableConcerns = function() {
     const concerns = [];
-    for (const [key, data] of Object.entries(this.concerns)) {
+    for (const [key, data] of Object.entries(this.concerns || {})) {
         concerns.push({
             key: key,
-            title: data.buttonText || data.title,
-            icon: data.icon,
-            videoType: data.videoType
+            title: data.title || key,
+            icon: data.icon || '🎬',
+            videoType: data.videoType || 'skeptical',
+            description: data.description || ''
         });
     }
     return concerns;
 };
 
-// Get testimonials for a concern FROM ALL GROUPS
-window.testimonialData.getTestimonialsByConcern = function(concernKey) {
-    const allTestimonials = [];
-    
-    for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
-        if (group.concerns && group.concerns.includes(concernKey)) {
-            if (group.testimonials) {
-                // Add group info to each testimonial
-                const groupTestimonials = group.testimonials.map(t => ({
-                    ...t,
-                    groupId: group.id,
-                    groupName: group.name,
-                    groupIcon: group.icon
-                }));
-                allTestimonials.push(...groupTestimonials);
-            }
-        }
-    }
-    
-    return allTestimonials;
+// Auto-save trigger for manager
+window.testimonialData.triggerAutoSave = function() {
+    console.log('🔔 Auto-save triggered');
+    // This would trigger save in manager if connected
+    return true;
 };
 
-// Get all unique concerns from all groups
-window.testimonialData.getAllUniqueConcerns = function() {
-    const concernsSet = new Set();
+console.log('✅ Testimonials data loaded from exported file');
+console.log('   Testimonial Groups:', window.testimonialData.statistics.totalTestimonialGroups);
+console.log('   Informational Groups:', window.testimonialData.statistics.totalInformationalGroups);
+console.log('   Total Videos:', window.testimonialData.statistics.totalVideos);`;
     
-    for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
-        if (group.concerns) {
-            group.concerns.forEach(concern => concernsSet.add(concern));
-        }
-    }
-    
-    return Array.from(concernsSet).map(concernKey => ({
-        key: concernKey,
-        title: this.concerns[concernKey]?.title || concernKey,
-        icon: this.concerns[concernKey]?.icon || '⭐',
-        videoType: this.concerns[concernKey]?.videoType || 'skeptical',
-        count: this.getTestimonialsByConcern(concernKey).length
-    }));
-};
-
-// ===================================================
-// 🎬 VIDEO PLAYER WITH PROPER SIZE & VISIBLE CLOSE BUTTON
-// ===================================================
-
-window.playTestimonialVideoWithOverlay = ${window.playTestimonialVideoWithOverlay ? window.playTestimonialVideoWithOverlay.toString() : 'function(testimonial) { console.log("Video player placeholder"); }'};
-
-console.log('✅ DUAL VIDEO SYSTEM LOADED:');
-console.log('   ⭐ Testimonial Groups:', window.testimonialData.statistics.totalTestimonialGroups);
-console.log('   📚 Informational Groups:', window.testimonialData.statistics.totalInformationalGroups);
-console.log('   🎬 Total Videos:', 
-  window.testimonialData.statistics.totalTestimonials + 
-  window.testimonialData.statistics.totalInformationalVideos);`;
-    
-    // Create the complete file content
+    // Complete file
     const fullCode = `// ===================================================
-// 🎬 DUAL VIDEO SYSTEM DATA
+// 🎬 DUAL VIDEO SYSTEM DATA - EXPORTED FROM MANAGER
 // Generated: ${new Date().toLocaleDateString()}
+// Export Time: ${new Date().toLocaleTimeString()}
 // ===================================================
 
 window.testimonialData = ${jsonData};${helperFunctions}`;
     
-    // Download it
+    // Download
     const blob = new Blob([fullCode], { type: 'application/javascript' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'testimonials-data.js';
+    a.download = 'testimonials-data-exported.js';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    showSuccess('✅ JS file downloaded!');
+    console.log('✅ File exported successfully!');
+    console.log(`   Testimonial Groups: ${Object.keys(testimonialGroups).length}`);
+    console.log(`   Informational Groups: ${Object.keys(informationalGroups).length}`);
+    console.log(`   Total Videos: ${Object.keys(videos).length}`);
+    
+    // Show success
+    showSuccess('✅ JS file exported! Ready to replace testimonials-data.js');
+    
+    return exportData;
 }
 
 // ===================================================
