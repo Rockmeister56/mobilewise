@@ -289,11 +289,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+
+
+// Function to create proper button HTML
 // ============================================
 // 🎯 CRITICAL FIX: PROPER GROUP BUTTON RENDERER
 // ============================================
 
-// Function to create proper button HTML
 window.createGroupButtonHTML = function(group) {
     if (!group) return '';
     
