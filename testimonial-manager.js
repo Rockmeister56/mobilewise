@@ -3548,24 +3548,105 @@ function updateGroupRendering() {
 // STATISTICS & DATA MANAGEMENT
 // ===================================================
 function updateStatistics() {
-    const groups = testimonialData.testimonialGroups;
-    let totalGroups = 0;
-    let totalVideos = 0;
-    let totalViews = 0;
+    console.log('📊 Updating statistics...');
     
-    for (const [groupId, group] of Object.entries(groups)) {
-        totalGroups++;
-        totalVideos += group.testimonials ? group.testimonials.length : 0;
-        totalViews += group.viewCount || 0;
+    try {
+        // Get the data safely
+        const data = window.testimonialData || testimonialData;
+        
+        if (!data) {
+            console.warn('⚠️ No testimonialData found for statistics');
+            return;
+        }
+        
+        // Ensure groups and videos exist
+        const groups = data.groups || {};
+        const videos = data.videos || {};
+        
+        // Count groups by type safely
+        let testimonialGroups = 0;
+        let informationalGroups = 0;
+        
+        if (groups && typeof groups === 'object') {
+            // Use Object.values() which is safer than Object.entries()
+            Object.values(groups).forEach(group => {
+                if (group && group.type === 'informational') {
+                    informationalGroups++;
+                } else {
+                    testimonialGroups++;
+                }
+            });
+        }
+        
+        // Count total videos
+        const totalVideos = Object.keys(videos).length;
+        
+        // Count videos in groups
+        let videosInGroups = 0;
+        if (groups && typeof groups === 'object') {
+            Object.values(groups).forEach(group => {
+                if (group && Array.isArray(group.videos)) {
+                    videosInGroups += group.videos.length;
+                }
+            });
+        }
+        
+        // Update statistics object
+        if (!data.statistics) {
+            data.statistics = {};
+        }
+        
+        data.statistics.totalGroups = Object.keys(groups).length;
+        data.statistics.totalTestimonialGroups = testimonialGroups;
+        data.statistics.totalInformationalGroups = informationalGroups;
+        data.statistics.totalVideos = totalVideos;
+        data.statistics.videosInGroups = videosInGroups;
+        
+        // Update the UI if elements exist
+        setTimeout(() => {
+            // Update total groups
+            const totalGroupsEl = document.getElementById('totalGroups');
+            if (totalGroupsEl) {
+                totalGroupsEl.textContent = data.statistics.totalGroups;
+            }
+            
+            // Update testimonial groups
+            const testimonialGroupsEl = document.getElementById('testimonialGroups');
+            if (testimonialGroupsEl) {
+                testimonialGroupsEl.textContent = data.statistics.totalTestimonialGroups;
+            }
+            
+            // Update informational groups
+            const informationalGroupsEl = document.getElementById('informationalGroups');
+            if (informationalGroupsEl) {
+                informationalGroupsEl.textContent = data.statistics.totalInformationalGroups;
+            }
+            
+            // Update total videos
+            const totalVideosEl = document.getElementById('totalVideos');
+            if (totalVideosEl) {
+                totalVideosEl.textContent = data.statistics.totalVideos;
+            }
+            
+            // Update videos in groups
+            const videosInGroupsEl = document.getElementById('videosInGroups');
+            if (videosInGroupsEl) {
+                videosInGroupsEl.textContent = data.statistics.videosInGroups;
+            }
+            
+            console.log('✅ Statistics updated:', {
+                totalGroups: data.statistics.totalGroups,
+                testimonialGroups: data.statistics.totalTestimonialGroups,
+                informationalGroups: data.statistics.totalInformationalGroups,
+                totalVideos: data.statistics.totalVideos,
+                videosInGroups: data.statistics.videosInGroups
+            });
+        }, 100);
+        
+    } catch (error) {
+        console.error('❌ Error updating statistics:', error);
+        console.error('Error details:', error.message);
     }
-    
-    testimonialData.statistics = {
-        totalGroups,
-        totalVideos,
-        totalViews
-    };
-    
-    updateStatisticsDisplay();
 }
 
 function updateStatisticsDisplay() {
