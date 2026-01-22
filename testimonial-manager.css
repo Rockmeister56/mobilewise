@@ -2532,56 +2532,6 @@ select option[data-type="testimonial"] {
     }
 }
 
-/* ============================================
-   PERMANENT FIX FOR WHITE GROUP BUTTONS
-   Add this to your CSS file
-   ============================================ */
-
-/* 1. Override ALL white group buttons to be purple */
-.group-button,
-div[data-group-id] {
-    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
-    color: white !important;
-    border: 2px solid white !important;
-    border-radius: 12px !important;
-    padding: 14px 16px !important;
-    margin-bottom: 12px !important;
-    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4) !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    width: 100% !important;
-    cursor: pointer !important;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-    text-align: left !important;
-}
-
-/* 2. Specifically target inline white styles */
-[style*="background: white"],
-[style*="background:white"],
-[style*="background: rgb(255, 255, 255)"] {
-    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
-    color: white !important;
-    border: 2px solid white !important;
-}
-
-/* 3. Fix hover states */
-.group-button:hover,
-div[data-group-id]:hover {
-    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 25px rgba(139, 92, 246, 0.6) !important;
-    border-color: white !important;
-}
-
-/* 4. Remove hover handlers */
-.group-button[onmouseover] {
-    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
-}
-.group-button[onmouseover]:hover {
-    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%) !important;
-}
-
 /* =================================================== */
 /* UTILITY CLASSES */
 /* =================================================== */
@@ -2860,11 +2810,11 @@ div[data-group-id]:hover {
 #addTestimonialGroupModal textarea {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid #444;
-    color: white;
+    color: rgb(0, 26, 255);
 }
 
 #addTestimonialGroupModal .form-label {
-    color: #e8eaed;
+    color: #0066ff;
 }
 
 /* Trigger checkboxes */
@@ -2874,7 +2824,7 @@ div[data-group-id]:hover {
 }
 
 #addTestimonialGroupModal .concern-checkbox-label {
-    color: white;
+    color: rgb(17, 0, 255);
 }
 
 /* Selected triggers preview */
@@ -2946,6 +2896,148 @@ div[data-group-id]:hover {
     gap: 15px !important;
     color: #aaa !important;
     font-size: 13px !important;
+}
+
+/* ============================================
+   FIXED: GROUP BUTTONS WITH ALL FEATURES
+   ============================================ */
+
+/* 1. Base group button with ALL features */
+.group-button,
+.testimonial-group-item,
+.testimonial-group-btn {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 14px 16px !important;
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+    color: white !important;
+    border: 2px solid white !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    margin-bottom: 12px !important;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4) !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    width: 100% !important;
+    text-align: left !important;
+    gap: 12px !important;
+    overflow: visible !important; /* For tooltips */
+}
+
+/* 2. Hover state */
+.group-button:hover,
+.testimonial-group-item:hover,
+.testimonial-group-btn:hover {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 25px rgba(139, 92, 246, 0.6) !important;
+}
+
+/* 3. DELETE BUTTON - Make sure it's visible */
+.group-delete-btn,
+.delete-group-btn {
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background: #EF4444 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
+    opacity: 0.8 !important;
+    transition: opacity 0.2s !important;
+}
+
+.group-delete-btn:hover,
+.delete-group-btn:hover {
+    opacity: 1 !important;
+    background: #DC2626 !important;
+}
+
+/* 4. BADGE/OVERLAY for testimonial/info */
+.group-type-badge {
+    position: absolute !important;
+    top: -8px !important;
+    right: -8px !important;
+    background: #10B981 !important;
+    color: white !important;
+    font-size: 10px !important;
+    font-weight: bold !important;
+    padding: 3px 8px !important;
+    border-radius: 12px !important;
+    border: 2px solid white !important;
+    z-index: 20 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* For informational groups */
+.group-button[data-type="informational"] .group-type-badge,
+.testimonial-group-item[data-type="informational"] .group-type-badge {
+    background: #3B82F6 !important;
+}
+
+/* 5. ICON styling */
+.group-icon {
+    font-size: 22px !important;
+    width: 30px !important;
+    text-align: center !important;
+    flex-shrink: 0 !important;
+}
+
+/* 6. TEXT content */
+.group-content {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.group-name {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    margin-bottom: 4px !important;
+    color: white !important;
+}
+
+.group-meta {
+    font-size: 12px !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    display: flex !important;
+    gap: 15px !important;
+}
+
+/* 7. TOOLTIP styles (keep your existing but adjust) */
+.testimonial-group-btn::after {
+    background: rgba(0, 0, 0, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    z-index: 1000 !important;
+}
+
+/* Instead, target specific problematic buttons */
+.group-button[style*="background: white !important"],
+.testimonial-group-item[style*="background: white !important"] {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+    color: white !important;
+    border: 2px solid white !important;
+}
+
+/* 9. Ensure purple stays purple */
+.group-button,
+.testimonial-group-item,
+.testimonial-group-btn,
+[data-group-id] {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+}
+
+/* 10. Make sure delete button works on hover */
+.group-button:hover .group-delete-btn,
+.testimonial-group-item:hover .delete-group-btn {
+    opacity: 1 !important;
 }
     
 }

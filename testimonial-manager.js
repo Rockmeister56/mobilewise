@@ -539,7 +539,7 @@ document.addEventListener('DOMContentLoaded', function() {
             display: flex !important;
             align-items: center !important;
             padding: 14px 16px !important;
-            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+            background: linear-gradient(135deg, #0d00ffff 0%, #433aedff 100%) !important;
             color: white !important;
             border: 2px solid white !important;
             border-radius: 12px !important;
@@ -572,6 +572,61 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ Permanent white button fix loaded');
 });
+
+// Add this to your testimonial-manager.js or a separate patch file
+function enhanceGroupButtons() {
+    // Find all group buttons
+    const groupButtons = document.querySelectorAll('.group-button, [data-group-id]');
+    
+    groupButtons.forEach(button => {
+        // Skip if already enhanced
+        if (button.classList.contains('enhanced')) return;
+        
+        // Get group type from data or content
+        let groupType = button.dataset.type;
+        if (!groupType) {
+            const text = button.textContent || '';
+            groupType = text.includes('informational') ? 'informational' : 'testimonial';
+        }
+        
+        // Add badge if not present
+        if (!button.querySelector('.group-type-badge')) {
+            const badge = document.createElement('span');
+            badge.className = 'group-type-badge';
+            badge.textContent = groupType === 'informational' ? 'INFO' : 'TESTIMONIAL';
+            button.appendChild(badge);
+        }
+        
+        // Make sure delete button is visible
+        const deleteBtn = button.querySelector('.group-delete-btn, .delete-group-btn');
+        if (deleteBtn) {
+            deleteBtn.style.cssText = `
+                position: absolute !important;
+                right: 12px !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                background: #EF4444 !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 6px !important;
+                padding: 6px 12px !important;
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                cursor: pointer !important;
+                z-index: 10 !important;
+                opacity: 0.8 !important;
+                transition: opacity 0.2s !important;
+            `;
+        }
+        
+        // Mark as enhanced
+        button.classList.add('enhanced');
+    });
+}
+
+// Run on page load and whenever buttons change
+document.addEventListener('DOMContentLoaded', enhanceGroupButtons);
+setInterval(enhanceGroupButtons, 1000); // Keep checking for new buttons
 
 // 2. COMPATIBILITY FUNCTION
 function ensureCompatibleStructure(existingData) {
