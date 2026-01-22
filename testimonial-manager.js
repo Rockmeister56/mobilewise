@@ -490,88 +490,111 @@ window.ENHANCED_CONCERNS = {
     }
 };
 
-// ============================================
-// PERMANENT FIX FOR WHITE BUTTONS
-// Add this to your JavaScript file
-// ============================================
+// Save groups to localStorage
+function saveGroupsToStorage() {
+    if (window.testimonialData && window.testimonialData.groups) {
+        localStorage.setItem('testimonialGroups', JSON.stringify(window.testimonialData.groups));
+        console.log('💾 Saved groups to localStorage');
+    }
+}
 
-// Wait for page to load
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // 1. Stop the broken function from running
-    if (window.fixBrokenGroupButtons) {
-        window.fixBrokenGroupButtons = function() {
-            console.log('🛑 fixBrokenGroupButtons disabled - using purple buttons instead');
-            return false; // Don't do anything
-        };
-    }
-    
-    // 2. Override the button creation function
-    function createPurpleGroupButton(group) {
-        const button = document.createElement('div');
-        button.className = 'group-button permanent-purple';
-        button.dataset.groupId = group.id;
-        button.onclick = function() {
-            if (window.selectGroup) {
-                window.selectGroup(group.id);
+// Load groups from localStorage on page load
+function loadGroupsFromStorage() {
+    const savedGroups = localStorage.getItem('testimonialGroups');
+    if (savedGroups) {
+        try {
+            const groups = JSON.parse(savedGroups);
+            if (window.testimonialData) {
+                window.testimonialData.groups = groups;
+                console.log('📂 Loaded groups from localStorage:', Object.keys(groups).length);
+                
+                // Update UI
+                if (window.renderTestimonialGroups) {
+                    setTimeout(() => window.renderTestimonialGroups(), 100);
+                }
             }
-        };
-        
-        const icon = group.type === 'informational' ? '📚' : '🎬';
-        const videoCount = group.videos ? group.videos.length : 0;
-        
-        button.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
-                <span style="font-size: 22px; width: 30px; text-align: center;">${icon}</span>
-                <div style="flex: 1; min-width: 0;">
-                    <div style="font-weight: 700; color: white; font-size: 15px; margin-bottom: 4px;">
-                        ${group.name}
-                    </div>
-                    <div style="font-size: 12px; color: rgba(255,255,255,0.9);">
-                        ${videoCount} videos
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // PURPLE STYLING
-        button.style.cssText = `
-            display: flex !important;
-            align-items: center !important;
-            padding: 14px 16px !important;
-            background: linear-gradient(135deg, #0d00ffff 0%, #433aedff 100%) !important;
-            color: white !important;
-            border: 2px solid white !important;
-            border-radius: 12px !important;
-            cursor: pointer !important;
-            margin-bottom: 12px !important;
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4) !important;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            width: 100% !important;
-        `;
-        
-        return button;
-    }
-    
-    // 3. Run cleanup on page load
-    setTimeout(function() {
-        // Remove any white buttons
-        document.querySelectorAll('.group-button[style*="background: white"]').forEach(btn => btn.remove());
-        
-        // Create purple buttons if we have data
-        if (window.testimonialData && window.testimonialData.groups) {
-            const container = document.getElementById('testimonialGroupsContainer');
-            if (container) {
-                container.innerHTML = '';
-                Object.values(window.testimonialData.groups).forEach(group => {
-                    container.appendChild(createPurpleGroupButton(group));
-                });
-            }
+        } catch (e) {
+            console.error('Error loading groups:', e);
         }
-    }, 100);
+    }
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', loadGroupsFromStorage);
+
+// Also save whenever groups change
+const originalGroups = window.testimonialData?.groups;
+if (originalGroups) {
+    // Proxy the groups object to auto-save on changes
+    window.testimonialData.groups = new Proxy(originalGroups, {
+        set(target, property, value) {
+            target[property] = value;
+            saveGroupsToStorage();
+            return true;
+        },
+        deleteProperty(target, property) {
+            delete target[property];
+            saveGroupsToStorage();
+            return true;
+        }
+    });
+}
+
+// Add delete buttons to all groups
+function addDeleteButtonsToGroups() {
+    const groupButtons = document.querySelectorAll('.group-button, [data-group-id]');
     
-    console.log('✅ Permanent white button fix loaded');
-});
+    groupButtons.forEach(button => {
+        // Check if delete button already exists
+        if (button.querySelector('.group-delete-btn')) return;
+        
+        const groupId = button.dataset.groupId;
+        if (!groupId) return;
+        
+        // Create delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'group-delete-btn';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.title = 'Delete this group';
+        
+        deleteBtn.onclick = function(e) {
+            e.stopPropagation(); // Don't trigger group selection
+            
+            if (confirm('Are you sure you want to delete this group?')) {
+                // Remove from data
+                if (window.testimonialData?.groups?.[groupId]) {
+                    delete window.testimonialData.groups[groupId];
+                    console.log('🗑️ Deleted group:', groupId);
+                    
+                    // Save to storage
+                    saveGroupsToStorage();
+                    
+                    // Update UI
+                    if (window.renderTestimonialGroups) {
+                        window.renderTestimonialGroups();
+                    }
+                }
+            }
+        };
+        
+        button.style.position = 'relative'; // Ensure positioning works
+        button.appendChild(deleteBtn);
+    });
+}
+
+// Run after groups are rendered
+const originalRender = window.renderTestimonialGroups;
+if (originalRender) {
+    window.renderTestimonialGroups = function() {
+        const result = originalRender.apply(this, arguments);
+        // Add delete buttons after rendering
+        setTimeout(addDeleteButtonsToGroups, 50);
+        return result;
+    };
+}
+
+// Also run periodically to catch any new buttons
+setInterval(addDeleteButtonsToGroups, 1000);
 
 // Add this to your testimonial-manager.js or a separate patch file
 function enhanceGroupButtons() {
