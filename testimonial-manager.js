@@ -222,16 +222,18 @@
                         </div>
                     </div>
                     <div class="group-actions">
-                         <button class="btn-edit" onclick="window.editGroup('${group.id}', event)">✏️</button>
-                         <button class="btn-delete" onclick="window.deleteGroup('${group.id}', event)">🗑️</button>
+                         <button class="btn-edit" onclick="window.TestimonialManager.editGroup('${group.id}', event)">✏️</button>
+                         <button class="btn-delete" onclick="window.TestimonialManager.deleteGroup('${group.id}', event)">🗑️</button>
                     </div>
                 `;
                 
-                // Inline style for the button to ensure it looks right (can be moved to CSS)
+                // ✅ FIXED: Removed inline white background styling
+                // Instead of inline styles, use CSS classes
+                // The CSS file will handle the styling
                 btn.style.cssText = `
                     display: flex; align-items: center; gap: 10px;
                     padding: 12px; margin-bottom: 8px;
-                    background: white; border: 1px solid #e2e8f0; border-left: 4px solid ${color};
+                    border: 1px solid #e2e8f0; border-left: 4px solid ${color};
                     border-radius: 8px; cursor: pointer;
                     transition: all 0.2s;
                 `;
@@ -273,7 +275,7 @@
 
             // Highlight sidebar button
             document.querySelectorAll('.testimonial-group-btn').forEach(b => {
-                b.style.background = (b.dataset.id === id) ? '#f1f5f9' : 'white';
+                b.classList.toggle('active', b.dataset.id === id);
             });
 
             // Trigger custom event or main content update
@@ -435,18 +437,6 @@ window.TestimonialManager = {
         alert('Video Added!');
     },
 
-    showAddModal() {
-        UI.showModal(); // Use the UI.showModal() method instead of direct DOM manipulation
-    },
-
-    hideAddModal() {
-        UI.hideModal(); // Use the UI.hideModal() method
-    },
-
-    hideEditModal() {
-        document.getElementById('editTestimonialGroupModal').style.display = 'none';
-    },
-
     saveEditFromForm() {
         const id = document.getElementById('editGroupId').value;
         const name = document.getElementById('editGroupName').value;
@@ -489,24 +479,20 @@ window.TestimonialManager = {
         alert('Code copied!');
     },
     
-    // Additional helper methods for HTML compatibility:
+    // Modal methods:
     showAddModal() {
-        if (UI && UI.showModal) {
-            UI.showModal();
-        } else {
-            document.getElementById('addTestimonialGroupModal').style.display = 'flex';
-        }
+        UI.showModal();
     },
     
     hideAddModal() {
-        if (UI && UI.hideModal) {
-            UI.hideModal();
-        } else {
-            document.getElementById('addTestimonialGroupModal').style.display = 'none';
-        }
+        UI.hideModal();
+    },
+
+    hideEditModal() {
+        document.getElementById('editTestimonialGroupModal').style.display = 'none';
     },
     
-    // Add this to bridge UI.selectGroup with selectGroupForForm
+    // Group selection method:
     selectGroup(groupId) {
         // Call both functions to ensure compatibility
         if (UI && UI.selectGroup) {
