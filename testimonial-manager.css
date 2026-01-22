@@ -2532,6 +2532,56 @@ select option[data-type="testimonial"] {
     }
 }
 
+/* ============================================
+   PERMANENT FIX FOR WHITE GROUP BUTTONS
+   Add this to your CSS file
+   ============================================ */
+
+/* 1. Override ALL white group buttons to be purple */
+.group-button,
+div[data-group-id] {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+    color: white !important;
+    border: 2px solid white !important;
+    border-radius: 12px !important;
+    padding: 14px 16px !important;
+    margin-bottom: 12px !important;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+    cursor: pointer !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    text-align: left !important;
+}
+
+/* 2. Specifically target inline white styles */
+[style*="background: white"],
+[style*="background:white"],
+[style*="background: rgb(255, 255, 255)"] {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+    color: white !important;
+    border: 2px solid white !important;
+}
+
+/* 3. Fix hover states */
+.group-button:hover,
+div[data-group-id]:hover {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 25px rgba(139, 92, 246, 0.6) !important;
+    border-color: white !important;
+}
+
+/* 4. Remove hover handlers */
+.group-button[onmouseover] {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+}
+.group-button[onmouseover]:hover {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%) !important;
+}
+
 /* =================================================== */
 /* UTILITY CLASSES */
 /* =================================================== */

@@ -490,6 +490,89 @@ window.ENHANCED_CONCERNS = {
     }
 };
 
+// ============================================
+// PERMANENT FIX FOR WHITE BUTTONS
+// Add this to your JavaScript file
+// ============================================
+
+// Wait for page to load
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. Stop the broken function from running
+    if (window.fixBrokenGroupButtons) {
+        window.fixBrokenGroupButtons = function() {
+            console.log('🛑 fixBrokenGroupButtons disabled - using purple buttons instead');
+            return false; // Don't do anything
+        };
+    }
+    
+    // 2. Override the button creation function
+    function createPurpleGroupButton(group) {
+        const button = document.createElement('div');
+        button.className = 'group-button permanent-purple';
+        button.dataset.groupId = group.id;
+        button.onclick = function() {
+            if (window.selectGroup) {
+                window.selectGroup(group.id);
+            }
+        };
+        
+        const icon = group.type === 'informational' ? '📚' : '🎬';
+        const videoCount = group.videos ? group.videos.length : 0;
+        
+        button.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                <span style="font-size: 22px; width: 30px; text-align: center;">${icon}</span>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-weight: 700; color: white; font-size: 15px; margin-bottom: 4px;">
+                        ${group.name}
+                    </div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.9);">
+                        ${videoCount} videos
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // PURPLE STYLING
+        button.style.cssText = `
+            display: flex !important;
+            align-items: center !important;
+            padding: 14px 16px !important;
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+            color: white !important;
+            border: 2px solid white !important;
+            border-radius: 12px !important;
+            cursor: pointer !important;
+            margin-bottom: 12px !important;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4) !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            width: 100% !important;
+        `;
+        
+        return button;
+    }
+    
+    // 3. Run cleanup on page load
+    setTimeout(function() {
+        // Remove any white buttons
+        document.querySelectorAll('.group-button[style*="background: white"]').forEach(btn => btn.remove());
+        
+        // Create purple buttons if we have data
+        if (window.testimonialData && window.testimonialData.groups) {
+            const container = document.getElementById('testimonialGroupsContainer');
+            if (container) {
+                container.innerHTML = '';
+                Object.values(window.testimonialData.groups).forEach(group => {
+                    container.appendChild(createPurpleGroupButton(group));
+                });
+            }
+        }
+    }, 100);
+    
+    console.log('✅ Permanent white button fix loaded');
+});
+
 // 2. COMPATIBILITY FUNCTION
 function ensureCompatibleStructure(existingData) {
     console.log('🔄 Checking data compatibility...');
