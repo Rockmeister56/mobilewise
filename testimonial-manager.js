@@ -132,12 +132,13 @@ if (originalSaveTestimonialData) {
     };
 }
 
-// 5. Initial sync on load
+/*
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         window.syncTestimonialStructures();
     }, 500);
 });
+*/
 
 // ============================================
 // 🚨 BACKWARD COMPATIBILITY LAYER
@@ -221,74 +222,6 @@ console.log(`📊 Data preserved: ${window.testimonialData.groups.length} groups
 // Global variables
 let currentSelectedGroupId = null;
 let testimonialData = window.testimonialData || {};
-
-// ============================================
-// 🎯 DATA STRUCTURE INITIALIZATION
-// ============================================
-
-// Fix data structure on load
-function initializeTestimonialDataStructure() {
-    console.log('🔧 Initializing testimonial data structure...');
-    
-    // If no data exists, create it
-    if (!window.testimonialData) {
-        window.testimonialData = {
-            groups: [], // ARRAY, not object!
-            statistics: {
-                totalGroups: 0,
-                totalVideos: 0,
-                totalViews: 0
-            }
-        };
-        console.log('✅ Created new testimonialData with array structure');
-        return;
-    }
-    
-    // Fix: Ensure groups is an ARRAY
-    if (!Array.isArray(window.testimonialData.groups)) {
-        if (typeof window.testimonialData.groups === 'object' && window.testimonialData.groups !== null) {
-            // Convert object to array
-            const groupsArray = Object.values(window.testimonialData.groups);
-            window.testimonialData.groups = groupsArray;
-            console.log('🔄 Converted groups object to array');
-        } else {
-            window.testimonialData.groups = [];
-            console.log('🔄 Created new groups array');
-        }
-    }
-    
-    // Ensure statistics exist
-    if (!window.testimonialData.statistics) {
-        window.testimonialData.statistics = {
-            totalGroups: window.testimonialData.groups.length,
-            totalVideos: 0,
-            totalViews: 0
-        };
-    }
-    
-    console.log(`📊 Data initialized: ${window.testimonialData.groups.length} groups`);
-}
-
-// Run on DOM ready
-document.addEventListener('DOMContentLoaded', function() {
-    initializeTestimonialDataStructure();
-    
-    // Initial render
-    if (typeof renderTestimonialGroups === 'function') {
-        renderTestimonialGroups();
-    }
-    
-    // Initial dropdown
-    if (typeof updateGroupDropdown === 'function') {
-        updateGroupDropdown();
-    }
-    
-    // Initial statistics
-    if (typeof updateStatistics === 'function') {
-        updateStatistics();
-    }
-});
-
 
 
 // Function to create proper button HTML
@@ -2013,36 +1946,65 @@ function renderTestimonialGroups() {
     }
     
     // 🔥 FIXED: Handle multiple possible data structures
-    let groups = [];
+    let groupsArray = []; // For rendering
+    let groupsObject = {}; // For reference
     
     // Check ALL possible data locations
     if (window.testimonialData) {
-        // Try unified groups first
+        // Try unified groups first - ALWAYS KEEP AS OBJECT
         if (window.testimonialData.groups) {
             if (Array.isArray(window.testimonialData.groups)) {
-                groups = window.testimonialData.groups;
-                console.log(`📊 Using unified groups array: ${groups.length} items`);
+                console.warn('⚠️ WARNING: groups is array, converting to object temporarily');
+                
+                // Convert array to object for processing
+                const tempObject = {};
+                window.testimonialData.groups.forEach((group, index) => {
+                    if (group && group.id) {
+                        tempObject[group.id] = group;
+                    } else if (group) {
+                        tempObject['temp-' + index] = { ...group, id: 'temp-' + index };
+                    }
+                });
+                
+                groupsObject = tempObject;
+                groupsArray = window.testimonialData.groups;
+                
+                console.log(`📊 Using groups array (converted to object): ${groupsArray.length} items`);
+                
+                // 🚨 CRITICAL: Convert back to object in memory
+                setTimeout(() => {
+                    if (window.testimonialData && Array.isArray(window.testimonialData.groups)) {
+                        console.log('🔄 Auto-fixing: Converting groups array to object in memory');
+                        window.testimonialData.groups = groupsObject;
+                    }
+                }, 100);
+                
             } else if (typeof window.testimonialData.groups === 'object') {
-                // Convert object to array
-                groups = Object.values(window.testimonialData.groups);
-                console.log(`📊 Converted groups object to array: ${groups.length} items`);
+                // ✅ CORRECT: groups is already an object
+                groupsObject = window.testimonialData.groups;
+                groupsArray = Object.values(groupsObject); // Only for rendering
+                
+                console.log(`📊 Using groups object: ${Object.keys(groupsObject).length} groups`);
+                // DO NOT convert window.testimonialData.groups to array!
             }
         }
         
-        // Also check testimonialGroups if needed
-        if (groups.length === 0 && window.testimonialData.testimonialGroups) {
+        // Also check testimonialGroups if needed (backward compatibility)
+        if (groupsArray.length === 0 && window.testimonialData.testimonialGroups) {
             if (Array.isArray(window.testimonialData.testimonialGroups)) {
-                groups = window.testimonialData.testimonialGroups;
-                console.log(`📊 Using testimonialGroups array: ${groups.length} items`);
+                groupsArray = window.testimonialData.testimonialGroups;
+                console.log(`📊 Using testimonialGroups array: ${groupsArray.length} items`);
             } else if (typeof window.testimonialData.testimonialGroups === 'object') {
-                groups = Object.values(window.testimonialData.testimonialGroups);
-                console.log(`📊 Converted testimonialGroups to array: ${groups.length} items`);
+                // Convert but warn about old structure
+                groupsArray = Object.values(window.testimonialData.testimonialGroups);
+                console.log(`📊 Converted testimonialGroups object to array: ${groupsArray.length} items`);
+                console.warn('⚠️ Using old testimonialGroups structure. Consider migrating to unified groups.');
             }
         }
     }
     
     // If still no groups, show empty state
-    if (!groups || groups.length === 0) {
+    if (!groupsArray || groupsArray.length === 0) {
         console.log('📭 No groups to display');
         container.innerHTML = `
             <div id="noGroupsMessage" class="empty-state">
@@ -2054,28 +2016,32 @@ function renderTestimonialGroups() {
         return;
     }
     
-    console.log(`✅ Will render ${groups.length} groups`);
+    console.log(`✅ Will render ${groupsArray.length} groups`);
     
     // Clear container
     container.innerHTML = '';
     
     // Render each group
-    groups.forEach(group => {
+    groupsArray.forEach(group => {
         // Ensure group has required properties
-        const groupId = group.id || group.slug || 'unknown';
+        const groupId = group.id || group.slug || 'unknown-' + Date.now();
         const groupName = group.name || 'Unnamed Group';
         const groupIcon = group.icon || '🎬';
         const groupType = group.type || 'testimonial';
-        const videoCount = group.videos ? group.videos.length : 0;
+        const videoCount = Array.isArray(group.videos) ? group.videos.length : 
+                         (group.testimonials ? group.testimonials.length : 0); // Handle both structures
         
         const groupElement = document.createElement('div');
         groupElement.className = 'testimonial-group-item';
         groupElement.dataset.groupId = groupId;
         
+        // Add visual indicator if this was converted from array
+        const conversionIndicator = Array.isArray(window.testimonialData?.groups) ? '🔄 ' : '';
+        
         groupElement.innerHTML = `
             <div class="group-icon">${groupIcon}</div>
             <div class="group-info">
-                <div class="group-name">${groupName}</div>
+                <div class="group-name">${conversionIndicator}${groupName}</div>
                 <div class="group-meta">
                     <span class="group-videos">${videoCount} video${videoCount !== 1 ? 's' : ''}</span>
                     <span class="group-type">${groupType}</span>
@@ -2094,16 +2060,93 @@ function renderTestimonialGroups() {
         // Add click handler
         groupElement.addEventListener('click', function(e) {
             if (!e.target.closest('.group-actions')) {
-                console.log(`📁 Selecting group: ${groupName}`);
+                console.log(`📁 Selecting group: ${groupName} (${groupId})`);
+                
+                // Find the actual group in our object if possible
+                let actualGroup = group;
+                if (groupsObject[groupId]) {
+                    actualGroup = groupsObject[groupId];
+                }
+                
                 selectGroup(groupId, true, 'sidebar');
+                
+                // Highlight selected group
+                document.querySelectorAll('.testimonial-group-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                this.classList.add('selected');
             }
         });
         
         container.appendChild(groupElement);
     });
     
-    console.log(`✅ Rendered ${groups.length} groups in sidebar`);
+    console.log(`✅ Rendered ${groupsArray.length} groups in sidebar`);
+    
+    // 🚨 CRITICAL: Ensure data structure stays correct
+    if (window.testimonialData && Array.isArray(window.testimonialData.groups) && groupsObject && Object.keys(groupsObject).length > 0) {
+        console.log('🔄 Post-render: Ensuring groups remains as object');
+        
+        // Defer this to avoid recursion
+        setTimeout(() => {
+            if (window.testimonialData && Array.isArray(window.testimonialData.groups)) {
+                window.testimonialData.groups = groupsObject;
+                console.log('✅ Fixed: groups is now object structure');
+                
+                // Auto-save if needed
+                if (typeof autoSaveTestimonialData === 'function') {
+                    setTimeout(autoSaveTestimonialData, 500);
+                }
+            }
+        }, 1000);
+    }
+    
+    return groupsArray.length; // Return count for monitoring
 }
+
+// Helper to ensure groups is always object
+function ensureGroupsIsObject() {
+    if (window.testimonialData) {
+        if (Array.isArray(window.testimonialData.groups)) {
+            console.warn('🔄 ensureGroupsIsObject: Converting array to object');
+            const groupsArray = window.testimonialData.groups;
+            const groupsObject = {};
+            
+            groupsArray.forEach((group, index) => {
+                if (group && group.id) {
+                    groupsObject[group.id] = group;
+                } else if (group) {
+                    groupsObject['ensure-' + index] = { ...group, id: 'ensure-' + index };
+                }
+            });
+            
+            window.testimonialData.groups = groupsObject;
+            console.log(`✅ Converted ${groupsArray.length} groups to object`);
+            return true;
+        }
+    }
+    return false;
+}
+
+// Call this periodically to prevent array conversion
+function monitorDataStructure() {
+    setInterval(() => {
+        if (window.testimonialData && Array.isArray(window.testimonialData.groups)) {
+            console.log('👁️ Monitoring: Found array structure, fixing...');
+            ensureGroupsIsObject();
+            
+            // Re-render if needed
+            if (typeof renderTestimonialGroups === 'function') {
+                setTimeout(renderTestimonialGroups, 100);
+            }
+        }
+    }, 3000); // Check every 3 seconds
+}
+
+// Start monitoring on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(monitorDataStructure, 2000);
+});
 
 // ===================================================
 // UI UPDATES
@@ -4966,8 +5009,37 @@ function saveTestimonialData() {
         // Use the data we found or created
         const saveData = data || window.testimonialData;
         
-        // CRITICAL: Ensure all required properties exist with safe defaults
-        const groups = saveData.groups || {};
+        // 🚨 CRITICAL FIX: Ensure groups is OBJECT, not array
+        let groups = saveData.groups || {};
+        
+        if (Array.isArray(groups)) {
+            console.warn('⚠️ WARNING: groups is array, converting to object before saving');
+            const groupsArray = groups;
+            const groupsObject = {};
+            
+            groupsArray.forEach((group, index) => {
+                if (group && group.id) {
+                    groupsObject[group.id] = group;
+                } else if (group) {
+                    // Create an ID if missing
+                    const groupId = 'saved-group-' + Date.now() + '-' + index;
+                    groupsObject[groupId] = { 
+                        ...group, 
+                        id: groupId,
+                        __converted: true 
+                    };
+                }
+            });
+            
+            groups = groupsObject;
+            console.log(`🔄 Converted ${groupsArray.length} array items to object`);
+            
+            // Update the original data too
+            saveData.groups = groups;
+            window.testimonialData.groups = groups;
+        }
+        // END CRITICAL FIX
+        
         const videos = saveData.videos || {};
         const concerns = saveData.concerns || {};
         const statistics = saveData.statistics || { totalGroups: 0, totalVideos: 0, totalViews: 0 };
@@ -4976,15 +5048,35 @@ function saveTestimonialData() {
         const totalGroups = Object.keys(groups).length;
         const totalVideos = Object.keys(videos).length;
         
+        // 🚨 ADDED: Ensure proper group types count
+        let testimonialGroups = 0;
+        let informationalGroups = 0;
+        let videosInGroups = 0;
+        
+        Object.values(groups).forEach(group => {
+            if (group.type === 'informational') {
+                informationalGroups++;
+            } else {
+                testimonialGroups++;
+            }
+            
+            if (group.videos && Array.isArray(group.videos)) {
+                videosInGroups += group.videos.length;
+            }
+        });
+        
         // Create the data to save
         const dataToSave = {
             // Core data
-            groups: groups,
+            groups: groups, // ✅ Now guaranteed to be OBJECT
             videos: videos,
             concerns: concerns,
             statistics: {
                 totalGroups: totalGroups,
+                testimonialGroups: testimonialGroups,
+                informationalGroups: informationalGroups,
                 totalVideos: totalVideos,
+                videosInGroups: videosInGroups,
                 totalViews: statistics.totalViews || 0
             },
             
@@ -5003,21 +5095,28 @@ function saveTestimonialData() {
             // Metadata
             __version: saveData.__version || "1.0-save-fixed",
             __lastSaved: new Date().toISOString(),
-            __saveTest: "comprehensive-test-" + Date.now()
+            __saveTest: "comprehensive-test-" + Date.now(),
+            __format: 'object' // ✅ Mark as object format to prevent future confusion
         };
         
         // Save to localStorage
-        localStorage.setItem('testimonialManagerData', JSON.stringify(dataToSave));
+        localStorage.setItem('testimonialManagerData', JSON.stringify(dataToSave, null, 2));
         
         // Update in-memory statistics
         if (saveData.statistics) {
             saveData.statistics.totalGroups = totalGroups;
+            saveData.statistics.testimonialGroups = testimonialGroups;
+            saveData.statistics.informationalGroups = informationalGroups;
             saveData.statistics.totalVideos = totalVideos;
+            saveData.statistics.videosInGroups = videosInGroups;
         }
         
         console.log('✅ Data saved successfully!');
-        console.log(`   Groups saved: ${totalGroups}`);
+        console.log(`   Groups saved: ${totalGroups} (OBJECT format)`);
+        console.log(`   Testimonial groups: ${testimonialGroups}`);
+        console.log(`   Informational groups: ${informationalGroups}`);
         console.log(`   Videos saved: ${totalVideos}`);
+        console.log(`   Videos in groups: ${videosInGroups}`);
         console.log(`   Save size: ${JSON.stringify(dataToSave).length} bytes`);
         
         // Show visual success indicator
@@ -5044,6 +5143,55 @@ function saveTestimonialData() {
         return false;
     }
 }
+
+// Add this function to ensure proper loading
+function loadTestimonialData() {
+    console.log('📂 Loading testimonial data...');
+    
+    try {
+        const saved = localStorage.getItem('testimonialManagerData');
+        if (!saved) {
+            console.log('📭 No saved data found');
+            return false;
+        }
+        
+        const data = JSON.parse(saved);
+        
+        // 🚨 CRITICAL: Ensure groups is OBJECT on load
+        if (Array.isArray(data.groups)) {
+            console.warn('⚠️ Loaded data has array groups, converting to object');
+            const groupsArray = data.groups;
+            const groupsObject = {};
+            
+            groupsArray.forEach((group, index) => {
+                if (group && group.id) {
+                    groupsObject[group.id] = group;
+                } else if (group) {
+                    const groupId = 'loaded-group-' + index;
+                    groupsObject[groupId] = { ...group, id: groupId };
+                }
+            });
+            
+            data.groups = groupsObject;
+            console.log(`🔄 Converted ${groupsArray.length} array items to object on load`);
+        }
+        
+        // Set to window
+        window.testimonialData = data;
+        
+        console.log(`✅ Loaded ${Object.keys(data.groups || {}).length} groups (OBJECT format)`);
+        return true;
+        
+    } catch(e) {
+        console.error('❌ Load failed:', e);
+        return false;
+    }
+}
+
+// Call on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(loadTestimonialData, 100);
+});
 
 // Helper function for notifications
 function showSaveNotification(message, type = 'info') {
@@ -5233,170 +5381,344 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================
-// 🚨 FINAL FIX - FORCE INITIAL RENDER
-// Add this at the VERY END of testimonial-manager.js
+// 🚨 SINGLE UNIFIED INITIALIZATION
+// REPLACE ALL OTHER DOMContentLoaded LISTENERS
 // ============================================
 
-(function forceInitialRender() {
-    console.log('🚀 FORCE INITIAL RENDER SYSTEM');
+// Remove ALL existing DOMContentLoaded listeners
+function cleanupDuplicateListeners() {
+    console.log('🧹 Cleaning up duplicate event listeners...');
     
-    // Wait for page to be fully loaded
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', executeRender);
-    } else {
-        setTimeout(executeRender, 1000);
+    // Create a clean document clone
+    const cleanDoc = document.cloneNode(true);
+    
+    // Replace all event listeners with our single one
+    document.removeEventListener('DOMContentLoaded', arguments.callee);
+    
+    // Remove inline onload attributes
+    document.body.removeAttribute('onload');
+    window.onload = null;
+    
+    console.log('✅ Cleaned up duplicate listeners');
+}
+
+// SINGLE MAIN INITIALIZATION FUNCTION
+function initializeTestimonialManager() {
+    console.log('🚀 SINGLE UNIFIED INITIALIZATION STARTING');
+    
+    // PHASE 1: Load Data (FIRST)
+    console.log('\n📦 PHASE 1: Loading data...');
+    
+    try {
+        const saved = localStorage.getItem('testimonialManagerData');
+        if (saved) {
+            const data = JSON.parse(saved);
+            
+            // Ensure testimonialData exists
+            if (!window.testimonialData) {
+                window.testimonialData = {};
+            }
+            
+            // Load groups (preserve any existing)
+            window.testimonialData.groups = {
+                ...window.testimonialData.groups,
+                ...(data.groups || {})
+            };
+            
+            // Load other data
+            window.testimonialData.videos = data.videos || window.testimonialData.videos || {};
+            window.testimonialData.concerns = data.concerns || window.testimonialData.concerns || {};
+            window.testimonialData.statistics = data.statistics || window.testimonialData.statistics || {};
+            window.testimonialData.playerConfig = data.playerConfig || window.testimonialData.playerConfig || {};
+            
+            console.log(`✅ Loaded ${Object.keys(data.groups || {}).length} groups from storage`);
+        } else {
+            console.log('📭 No saved data found, starting fresh');
+            
+            // Initialize empty structure
+            if (!window.testimonialData) window.testimonialData = {};
+            if (!window.testimonialData.groups) window.testimonialData.groups = {};
+            if (!window.testimonialData.videos) window.testimonialData.videos = {};
+            if (!window.testimonialData.concerns) window.testimonialData.concerns = {};
+        }
+    } catch(e) {
+        console.log('⚠️ Data load error:', e);
     }
     
-    function executeRender() {
-        console.log('🎯 EXECUTING FORCED RENDER');
-        
-        // 1. Ensure data is loaded
-        if (!window.testimonialData || !window.testimonialData.groups) {
-            console.log('⚠️ No data, attempting to load...');
-            
-            try {
-                const saved = localStorage.getItem('testimonialManagerData');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    if (!window.testimonialData) window.testimonialData = {};
-                    window.testimonialData.groups = data.groups || {};
-                    window.testimonialData.videos = data.videos || {};
-                    console.log(`✅ Loaded ${Object.keys(window.testimonialData.groups).length} groups`);
-                }
-            } catch(e) {
-                console.log('❌ Load failed:', e);
-            }
+    // PHASE 2: Initialize UI Components (SECOND)
+    console.log('\n🎨 PHASE 2: Initializing UI...');
+    
+    // Wait a bit for DOM to be ready
+    setTimeout(() => {
+        // Initialize modal triggers
+        if (typeof populateConcernsCheckboxes === 'function') {
+            populateConcernsCheckboxes('testimonial');
         }
         
-        // 2. Try multiple render functions
+        // Update dropdown
+        if (window.updateGroupDropdown) {
+            updateGroupDropdown();
+        }
+        
+        // Update statistics
+        if (window.updateStatistics) {
+            updateStatistics();
+        }
+        
+        console.log('✅ UI initialized');
+        
+        // PHASE 3: Render Groups (THIRD)
+        console.log('\n🎯 PHASE 3: Rendering groups...');
+        
+        // Use the BEST available render function
         const renderFunctions = [
             'renderTestimonialGroups',
-            'fixBrokenGroupButtons', 
+            'fixBrokenGroupButtons',
             'renderTestimonialGroupsSidebar',
             'renderGroups'
         ];
         
         let rendered = false;
         
-        renderFunctions.forEach(funcName => {
+        for (let funcName of renderFunctions) {
             if (window[funcName] && typeof window[funcName] === 'function') {
                 console.log(`🔄 Calling ${funcName}...`);
                 try {
                     const result = window[funcName]();
-                    console.log(`   ${funcName} result:`, result);
-                    if (result) rendered = true;
+                    if (result) {
+                        console.log(`✅ ${funcName} rendered successfully`);
+                        rendered = true;
+                        break;
+                    }
                 } catch(e) {
-                    console.log(`   ${funcName} error:`, e.message);
+                    console.log(`❌ ${funcName} failed:`, e.message);
                 }
             }
-        });
-        
-        // 3. If nothing worked, render directly
-        if (!rendered) {
-            console.log('🛠️ No render functions worked, rendering directly...');
-            renderDirectly();
         }
         
-        // 4. Set up monitoring
-        setTimeout(() => {
-            console.log('👁️ Setting up render monitoring...');
-            monitorAndFixRendering();
-        }, 2000);
+        // If nothing worked, render directly
+        if (!rendered) {
+            console.log('🛠️ Falling back to direct render...');
+            renderGroupsDirectly();
+        }
+        
+        console.log('✅ INITIALIZATION COMPLETE');
+        
+        // PHASE 4: Set up monitoring (LAST)
+        console.log('\n👁️ PHASE 4: Setting up monitoring...');
+        setupRenderMonitoring();
+        
+    }, 300); // Short delay to ensure DOM is ready
+}
+
+// Direct render function (fallback)
+function renderGroupsDirectly() {
+    const container = document.getElementById('testimonialGroupsContainer');
+    if (!container) {
+        console.log('❌ Container not found');
+        return false;
     }
     
-    function renderDirectly() {
-        const container = document.getElementById('testimonialGroupsContainer');
-        if (!container) {
-            console.log('❌ Container not found');
-            return;
-        }
+    if (!window.testimonialData || !window.testimonialData.groups) {
+        console.log('📭 No groups data');
+        return false;
+    }
+    
+    const groups = Object.values(window.testimonialData.groups);
+    if (groups.length === 0) {
+        console.log('📭 No groups to render');
+        // Show empty state
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📂</div>
+                <div class="empty-title">No groups yet</div>
+                <div class="empty-subtitle">Create your first testimonial group</div>
+            </div>
+        `;
+        return true;
+    }
+    
+    console.log(`🎨 Direct rendering ${groups.length} groups`);
+    
+    // Clear container
+    container.innerHTML = '';
+    
+    // Render each group
+    groups.forEach(group => {
+        const button = document.createElement('div');
+        button.className = 'group-button unified-render';
+        button.dataset.groupId = group.id;
         
-        if (!window.testimonialData || !window.testimonialData.groups) {
-            console.log('📭 No groups data');
-            return;
-        }
+        const icon = group.type === 'informational' ? '📚' : '🎬';
+        const videoCount = group.videos ? group.videos.length : 0;
         
-        const groups = Object.values(window.testimonialData.groups);
-        if (groups.length === 0) {
-            console.log('📭 No groups to render');
-            return;
-        }
-        
-        console.log(`🎨 DIRECT RENDER: ${groups.length} groups`);
-        
-        container.innerHTML = '';
-        
-        groups.forEach(group => {
-            const button = document.createElement('div');
-            button.className = 'group-button direct-render';
-            button.dataset.groupId = group.id;
-            
-            const icon = group.type === 'informational' ? '📚' : '🎬';
-            const videoCount = group.videos ? group.videos.length : 0;
-            
-            button.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
-                    <span style="font-size: 22px; width: 30px; text-align: center;">${icon}</span>
-                    <div style="flex: 1; min-width: 0;">
-                        <div style="font-weight: 700; color: white; font-size: 15px; margin-bottom: 4px;">
-                            ${group.name}
-                        </div>
-                        <div style="font-size: 12px; color: rgba(255,255,255,0.9);">
-                            ${videoCount} video${videoCount !== 1 ? 's' : ''} • ${group.type}
-                        </div>
+        button.innerHTML = `
+            <div class="group-button-inner">
+                <span class="group-icon">${icon}</span>
+                <div class="group-info">
+                    <div class="group-name">${group.name}</div>
+                    <div class="group-meta">
+                        <span class="video-count">${videoCount} video${videoCount !== 1 ? 's' : ''}</span>
+                        <span class="group-type">${group.type}</span>
                     </div>
                 </div>
-            `;
-            
-            // GREEN BORDER for direct render
-            button.style.cssText = `
+                <span class="group-arrow">→</span>
+            </div>
+        `;
+        
+        // Add CSS class for styling (will be styled by CSS)
+        button.classList.add('unified-button');
+        
+        // Click handler
+        button.onclick = () => {
+            console.log(`🎯 Group selected: ${group.id}`);
+            if (window.selectGroup) {
+                window.selectGroup(group.id);
+            }
+        };
+        
+        container.appendChild(button);
+    });
+    
+    console.log(`✅ Direct rendered ${groups.length} groups`);
+    return true;
+}
+
+// Monitor and fix rendering
+function setupRenderMonitoring() {
+    console.log('👁️ Setting up render monitoring...');
+    
+    // Check every 5 seconds if rendering is broken
+    setInterval(() => {
+        const container = document.getElementById('testimonialGroupsContainer');
+        if (!container) return;
+        
+        const hasGroups = window.testimonialData && 
+                         window.testimonialData.groups && 
+                         Object.keys(window.testimonialData.groups).length > 0;
+        
+        const hasButtons = container.querySelectorAll('.group-button').length > 0;
+        const hasEmptyState = container.querySelector('.empty-state');
+        
+        // If we have groups but no buttons (or empty state is showing)
+        if (hasGroups && (!hasButtons || hasEmptyState)) {
+            console.log('🔄 Monitor: Rendering broken, fixing...');
+            renderGroupsDirectly();
+        }
+    }, 5000);
+}
+
+// Add CSS for unified buttons
+function addUnifiedButtonCSS() {
+    if (!document.querySelector('#unified-button-styles')) {
+        const style = document.createElement('style');
+        style.id = 'unified-button-styles';
+        style.textContent = `
+            .group-button.unified-render {
                 display: flex !important;
                 align-items: center !important;
                 padding: 14px 16px !important;
-                background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
                 color: white !important;
-                border: 3px solid #00FF00 !important;
+                border: 2px solid white !important;
                 border-radius: 12px !important;
                 cursor: pointer !important;
                 margin-bottom: 12px !important;
-                box-shadow: 0 4px 20px rgba(0,255,0,0.4) !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important;
+                transition: all 0.3s ease !important;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
                 width: 100% !important;
-            `;
-            
-            button.onclick = () => {
-                console.log(`🎯 Direct-rendered group clicked: ${group.id}`);
-                if (window.selectGroup) {
-                    window.selectGroup(group.id);
-                }
-            };
-            
-            container.appendChild(button);
-        });
-        
-        console.log(`✅ DIRECT RENDER COMPLETE: ${groups.length} GREEN BORDER BUTTONS`);
-    }
-    
-    function monitorAndFixRendering() {
-        // Check every 3 seconds if buttons are missing
-        setInterval(() => {
-            const container = document.getElementById('testimonialGroupsContainer');
-            if (!container) return;
-            
-            const hasGroups = window.testimonialData && 
-                            window.testimonialData.groups && 
-                            Object.keys(window.testimonialData.groups).length > 0;
-            
-            const hasButtons = container.querySelectorAll('.group-button').length > 0;
-            const hasEmptyState = container.querySelector('.empty-state');
-            
-            if (hasGroups && (!hasButtons || hasEmptyState)) {
-                console.log('🔄 Monitoring: Groups exist but buttons missing, fixing...');
-                renderDirectly();
             }
-        }, 3000);
+            
+            .group-button.unified-render:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+            }
+            
+            .group-button-inner {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+            }
+            
+            .group-icon {
+                font-size: 22px;
+                width: 30px;
+                text-align: center;
+                background: rgba(255,255,255,0.2);
+                border-radius: 8px;
+                padding: 5px;
+            }
+            
+            .group-info {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .group-name {
+                font-weight: 700;
+                font-size: 15px;
+                margin-bottom: 4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .group-meta {
+                font-size: 12px;
+                color: rgba(255,255,255,0.9);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .video-count, .group-type {
+                background: rgba(255,255,255,0.2);
+                padding: 2px 8px;
+                border-radius: 10px;
+            }
+            
+            .group-arrow {
+                font-size: 18px;
+                opacity: 0.7;
+            }
+        `;
+        document.head.appendChild(style);
+        console.log('✅ Added unified button CSS');
     }
-})();
+}
+
+// SINGLE EVENT LISTENER - REPLACES ALL OTHERS
+document.addEventListener('DOMContentLoaded', function unifiedInitialization() {
+    console.log('🎯 SINGLE DOMContentLoaded LISTENER FIRED');
+    
+    // Clean up any duplicates
+    cleanupDuplicateListeners();
+    
+    // Add CSS
+    addUnifiedButtonCSS();
+    
+    // Run unified initialization
+    initializeTestimonialManager();
+    
+    // Remove this listener after it runs
+    document.removeEventListener('DOMContentLoaded', unifiedInitialization);
+});
+
+// Also run if DOM is already loaded
+if (document.readyState === 'loading') {
+    console.log('📄 Waiting for DOM to load...');
+} else {
+    console.log('⚡ DOM already loaded, running initialization now...');
+    setTimeout(() => {
+        cleanupDuplicateListeners();
+        addUnifiedButtonCSS();
+        initializeTestimonialManager();
+    }, 100);
+}
+
+console.log('✅ UNIFIED INITIALIZATION SYSTEM LOADED');
 
 // ===================================================
 // EXPORT FUNCTIONS TO WINDOW OBJECT
