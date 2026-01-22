@@ -2156,6 +2156,98 @@ function loadAndDisplayData() {
     updateStatisticsDisplay();
 }
 
+function cleanupDuplicates() {
+    console.log('🧹 ONE-TIME CLEANUP - FIXING WHITE BUTTON ISSUE');
+    
+    // 1. First, find and remove any existing group buttons
+    const container = document.getElementById('testimonialGroupsContainer');
+    if (container) {
+        // Remove ALL existing buttons
+        container.innerHTML = '';
+        console.log('✅ Cleared all existing buttons');
+    }
+    
+    // 2. Remove the success indicator if it exists (this is the bottom purple button)
+    const existingIndicators = document.querySelectorAll('[style*="position: fixed"][style*="bottom: 10px"][style*="left: 10px"]');
+    existingIndicators.forEach(indicator => indicator.remove());
+    console.log('✅ Removed bottom purple indicator');
+    
+    // 3. Wait a moment for any re-rendering to complete
+    setTimeout(() => {
+        // 4. Check if we still have the wrong white button (in the sidebar or elsewhere)
+        const sidebar = document.querySelector('.sidebar, [class*="sidebar"], [class*="Sidebar"]');
+        if (sidebar) {
+            // Look for white buttons in the sidebar
+            const whiteButtons = sidebar.querySelectorAll('button, .button, [class*="button"], [class*="Button"]');
+            whiteButtons.forEach(button => {
+                // Check if it looks like a group button
+                const buttonText = button.textContent || button.innerText;
+                if (buttonText.includes('videos') || buttonText.includes('group') || 
+                    button.hasAttribute('data-group-id')) {
+                    
+                    // Remove it if it's white or has wrong styling
+                    const bgColor = window.getComputedStyle(button).backgroundColor;
+                    if (bgColor.includes('255, 255, 255') || bgColor === 'white' || 
+                        bgColor === 'rgb(255, 255, 255)') {
+                        button.remove();
+                        console.log('✅ Removed white button from sidebar');
+                    }
+                }
+            });
+        }
+        
+        // 5. If we have group data, create ONE proper purple button
+        if (window.testimonialData && window.testimonialData.groups && container) {
+            const groups = Object.values(window.testimonialData.groups);
+            if (groups.length > 0) {
+                const group = groups[0];
+                
+                const button = document.createElement('div');
+                button.className = 'group-button clean-button';
+                button.dataset.groupId = group.id;
+                
+                const icon = group.type === 'informational' ? '📚' : '🎬';
+                const videoCount = group.videos ? group.videos.length : 0;
+                
+                button.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                        <span style="font-size: 22px; width: 30px; text-align: center;">${icon}</span>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-weight: 700; color: white; font-size: 15px; margin-bottom: 4px;">
+                                ${group.name} ✅
+                            </div>
+                            <div style="font-size: 12px; color: rgba(255,255,255,0.9);">
+                                ${videoCount} videos • CLEAN
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // PURPLE styling - only one color
+                button.style.cssText = `
+                    display: flex !important;
+                    align-items: center !important;
+                    padding: 14px 16px !important;
+                    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+                    color: white !important;
+                    border: 2px solid white !important;
+                    border-radius: 12px !important;
+                    cursor: pointer !important;
+                    margin-bottom: 12px !important;
+                    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4) !important;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                    width: 100% !important;
+                `;
+                
+                container.appendChild(button);
+                console.log('✅ Created single CLEAN purple button');
+            }
+        }
+        
+        console.log('✅ Cleanup complete - white button should be gone');
+    }, 100); // Small delay to ensure rendering is complete
+}
+
 function updateGroupsDisplay() {
     const container = document.getElementById('testimonialGroupsContainer');
     const noGroupsMessage = document.getElementById('noGroupsMessage');
