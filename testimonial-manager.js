@@ -5232,6 +5232,172 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(cleanupTestimonialData, 1000);
 });
 
+// ============================================
+// 🚨 FINAL FIX - FORCE INITIAL RENDER
+// Add this at the VERY END of testimonial-manager.js
+// ============================================
+
+(function forceInitialRender() {
+    console.log('🚀 FORCE INITIAL RENDER SYSTEM');
+    
+    // Wait for page to be fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', executeRender);
+    } else {
+        setTimeout(executeRender, 1000);
+    }
+    
+    function executeRender() {
+        console.log('🎯 EXECUTING FORCED RENDER');
+        
+        // 1. Ensure data is loaded
+        if (!window.testimonialData || !window.testimonialData.groups) {
+            console.log('⚠️ No data, attempting to load...');
+            
+            try {
+                const saved = localStorage.getItem('testimonialManagerData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (!window.testimonialData) window.testimonialData = {};
+                    window.testimonialData.groups = data.groups || {};
+                    window.testimonialData.videos = data.videos || {};
+                    console.log(`✅ Loaded ${Object.keys(window.testimonialData.groups).length} groups`);
+                }
+            } catch(e) {
+                console.log('❌ Load failed:', e);
+            }
+        }
+        
+        // 2. Try multiple render functions
+        const renderFunctions = [
+            'renderTestimonialGroups',
+            'fixBrokenGroupButtons', 
+            'renderTestimonialGroupsSidebar',
+            'renderGroups'
+        ];
+        
+        let rendered = false;
+        
+        renderFunctions.forEach(funcName => {
+            if (window[funcName] && typeof window[funcName] === 'function') {
+                console.log(`🔄 Calling ${funcName}...`);
+                try {
+                    const result = window[funcName]();
+                    console.log(`   ${funcName} result:`, result);
+                    if (result) rendered = true;
+                } catch(e) {
+                    console.log(`   ${funcName} error:`, e.message);
+                }
+            }
+        });
+        
+        // 3. If nothing worked, render directly
+        if (!rendered) {
+            console.log('🛠️ No render functions worked, rendering directly...');
+            renderDirectly();
+        }
+        
+        // 4. Set up monitoring
+        setTimeout(() => {
+            console.log('👁️ Setting up render monitoring...');
+            monitorAndFixRendering();
+        }, 2000);
+    }
+    
+    function renderDirectly() {
+        const container = document.getElementById('testimonialGroupsContainer');
+        if (!container) {
+            console.log('❌ Container not found');
+            return;
+        }
+        
+        if (!window.testimonialData || !window.testimonialData.groups) {
+            console.log('📭 No groups data');
+            return;
+        }
+        
+        const groups = Object.values(window.testimonialData.groups);
+        if (groups.length === 0) {
+            console.log('📭 No groups to render');
+            return;
+        }
+        
+        console.log(`🎨 DIRECT RENDER: ${groups.length} groups`);
+        
+        container.innerHTML = '';
+        
+        groups.forEach(group => {
+            const button = document.createElement('div');
+            button.className = 'group-button direct-render';
+            button.dataset.groupId = group.id;
+            
+            const icon = group.type === 'informational' ? '📚' : '🎬';
+            const videoCount = group.videos ? group.videos.length : 0;
+            
+            button.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+                    <span style="font-size: 22px; width: 30px; text-align: center;">${icon}</span>
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 700; color: white; font-size: 15px; margin-bottom: 4px;">
+                            ${group.name}
+                        </div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.9);">
+                            ${videoCount} video${videoCount !== 1 ? 's' : ''} • ${group.type}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // GREEN BORDER for direct render
+            button.style.cssText = `
+                display: flex !important;
+                align-items: center !important;
+                padding: 14px 16px !important;
+                background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+                color: white !important;
+                border: 3px solid #00FF00 !important;
+                border-radius: 12px !important;
+                cursor: pointer !important;
+                margin-bottom: 12px !important;
+                box-shadow: 0 4px 20px rgba(0,255,0,0.4) !important;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                width: 100% !important;
+            `;
+            
+            button.onclick = () => {
+                console.log(`🎯 Direct-rendered group clicked: ${group.id}`);
+                if (window.selectGroup) {
+                    window.selectGroup(group.id);
+                }
+            };
+            
+            container.appendChild(button);
+        });
+        
+        console.log(`✅ DIRECT RENDER COMPLETE: ${groups.length} GREEN BORDER BUTTONS`);
+    }
+    
+    function monitorAndFixRendering() {
+        // Check every 3 seconds if buttons are missing
+        setInterval(() => {
+            const container = document.getElementById('testimonialGroupsContainer');
+            if (!container) return;
+            
+            const hasGroups = window.testimonialData && 
+                            window.testimonialData.groups && 
+                            Object.keys(window.testimonialData.groups).length > 0;
+            
+            const hasButtons = container.querySelectorAll('.group-button').length > 0;
+            const hasEmptyState = container.querySelector('.empty-state');
+            
+            if (hasGroups && (!hasButtons || hasEmptyState)) {
+                console.log('🔄 Monitoring: Groups exist but buttons missing, fixing...');
+                renderDirectly();
+            }
+        }, 3000);
+    }
+})();
+
 // ===================================================
 // EXPORT FUNCTIONS TO WINDOW OBJECT
 // ===================================================
