@@ -3843,43 +3843,6 @@ function hideVideoPlayerModal() {
     }
 }
 
-// Add this to your testimonial-manager.js file
-function addDeleteButtonsToGroups() {
-    console.log('🗑️ Adding delete buttons to groups...');
-    
-    // Find all group buttons
-    const groupButtons = document.querySelectorAll('.testimonial-group-btn');
-    
-    groupButtons.forEach(groupBtn => {
-        // Get the group ID from the onclick attribute
-        const onclickAttr = groupBtn.getAttribute('onclick');
-        const groupIdMatch = onclickAttr?.match(/selectGroup\('([^']+)'/);
-        const groupId = groupIdMatch ? groupIdMatch[1] : null;
-        
-        if (!groupId) return;
-        
-        // Check if delete button already exists
-        const actionsDiv = groupBtn.querySelector('.group-actions');
-        if (!actionsDiv || actionsDiv.querySelector('.btn-delete-group')) return;
-        
-        // Create delete button
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'btn-delete-group';
-        deleteBtn.innerHTML = '🗑️';
-        deleteBtn.title = 'Delete this group and all its videos';
-        deleteBtn.setAttribute('data-group-id', groupId);
-        
-        // Add click handler
-        deleteBtn.onclick = function(e) {
-            e.stopPropagation(); // Prevent triggering group selection
-            deleteGroup(groupId);
-        };
-        
-        // Add to actions div (after edit button)
-        actionsDiv.appendChild(deleteBtn);
-    });
-}
-
 function saveGroupChanges(groupId = null) {
     // Your existing code to get form values...
     
