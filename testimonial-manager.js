@@ -2128,19 +2128,18 @@ function ensureGroupsIsObject() {
     return false;
 }
 
-// Call this periodically to prevent array conversion
+// CHANGE TO (simple):
 function monitorDataStructure() {
+    console.log('✅ Clean monitoring active');
+    // Don't auto-fix, just log
     setInterval(() => {
-        if (window.testimonialData && Array.isArray(window.testimonialData.groups)) {
-            console.log('👁️ Monitoring: Found array structure, fixing...');
-            ensureGroupsIsObject();
-            
-            // Re-render if needed
-            if (typeof renderTestimonialGroups === 'function') {
-                setTimeout(renderTestimonialGroups, 100);
+        if (window.testimonialData) {
+            const isArray = Array.isArray(window.testimonialData.groups);
+            if (isArray) {
+                console.warn('⚠️ MONITOR: groups is array (but not auto-fixing)');
             }
         }
-    }, 3000); // Check every 3 seconds
+    }, 10000); // Check every 10 seconds, not 3
 }
 
 // Start monitoring on page load
