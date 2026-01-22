@@ -3039,6 +3039,21 @@ select option[data-type="testimonial"] {
 .testimonial-group-item:hover .delete-group-btn {
     opacity: 1 !important;
 }
+
+/* Add this to your CSS file - NOT JavaScript */
+.group-button {
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%) !important;
+    color: white !important;
+    border: 2px solid white !important;
+    border-radius: 12px !important;
+}
+
+/* Make sure delete buttons are visible */
+.group-button .delete-btn {
+    display: block !important;
+    opacity: 1 !important;
+    z-index: 100 !important;
+}
     
 }
 
