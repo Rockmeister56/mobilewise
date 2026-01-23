@@ -304,28 +304,18 @@ console.log('✅ Dual System Data Loaded:');`;
         }
     };
 
-
-        // ============================================
-    // ✅ SCREEN UPDATER
+    // ============================================
+    // ✅ NEW: DISPLAY UPDATER
     // ============================================
     
+    // This function updates the text area on screen with the converted code
     function updateCodeOutput() {
         const codeOutput = document.getElementById('codeOutput');
+        if (!codeOutput) return;
         
-        // Check if element exists
-        if (!codeOutput) {
-            console.warn("⚠️ Could not find #codeOutput element.");
-            return;
-        }
-
-        // Check if DataManager is ready
-        if (!DataManager || !DataManager.createFileContent) {
-            codeOutput.textContent = "// Waiting for DataManager to initialize...";
-            return;
-        }
-        
-        // Get the converted string and put it in the box
-        codeOutput.textContent = DataManager.createFileContent();
+        // Get the exact string that would be downloaded
+        const codeContent = DataManager.createFileContent();
+        codeOutput.textContent = codeContent;
     }
 
     // ============================================
