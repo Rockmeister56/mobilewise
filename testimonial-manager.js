@@ -318,7 +318,7 @@ window.TestimonialManager = {
             return;
         }
 
-        // ✅ NEW: Get selected concerns
+        // Get selected concerns from EXISTING HTML checkboxes
         const concerns = this.getSelectedConcerns(type);
 
         const newGroup = {
@@ -326,7 +326,7 @@ window.TestimonialManager = {
             type,
             icon,
             description,
-            concerns: concerns // ✅ Now includes selected concerns
+            concerns: concerns
         };
 
         const id = DataManager.addGroup(newGroup);
@@ -350,59 +350,9 @@ window.TestimonialManager = {
 
     editGroup(id, event) {
         if (event) event.stopPropagation();
-        
-        const group = DataManager.data.groups[id];
-        if (!group) return;
-        
-        // Show edit modal
-        const modal = document.getElementById('editTestimonialGroupModal');
-        if (!modal) return;
-        
-        // Populate form
-        document.getElementById('editGroupId').value = group.id;
-        document.getElementById('editGroupName').value = group.name || '';
-        document.getElementById('editGroupIcon').value = group.icon || '';
-        document.getElementById('editGroupDescription').value = group.description || '';
-        
-        // Show modal
-        modal.style.display = 'flex';
-        
-        // Populate concerns based on group type
-        setTimeout(() => {
-            // First hide/show the correct sections
-            const testSection = document.getElementById('editTestimonialTriggersCheckboxes');
-            const infoSection = document.getElementById('editInformationalTriggersCheckboxes');
-            
-            if (group.type === 'informational') {
-                if (testSection) testSection.style.display = 'none';
-                if (infoSection) infoSection.style.display = 'block';
-                this.populateConcernCheckboxes(group.type, 'edit');
-                
-                // Check previously selected concerns
-                if (group.concerns && Array.isArray(group.concerns)) {
-                    group.concerns.forEach(concernId => {
-                        const checkbox = document.getElementById(`edit_concern_${concernId}`);
-                        if (checkbox) {
-                            checkbox.checked = true;
-                        }
-                    });
-                }
-            } else {
-                if (testSection) testSection.style.display = 'block';
-                if (infoSection) infoSection.style.display = 'none';
-                this.populateConcernCheckboxes(group.type, 'edit');
-                
-                // Check previously selected concerns
-                if (group.concerns && Array.isArray(group.concerns)) {
-                    group.concerns.forEach(concernId => {
-                        const checkbox = document.getElementById(`edit_concern_${concernId}`);
-                        if (checkbox) {
-                            checkbox.checked = true;
-                        }
-                    });
-                }
-            }
-        }, 100);
+        // Basic edit - just logs for now
+        console.log('Edit group:', id);
+        alert('Edit functionality coming soon!');
     },
 
     downloadData() {
@@ -439,86 +389,53 @@ window.TestimonialManager = {
             if (testSection) testSection.style.display = 'block';
             if (infoSection) infoSection.style.display = 'none';
         }
-        
-        // ✅ NEW: Populate the checkboxes based on type
-        this.populateConcernCheckboxes(type, 'add');
+        // NO checkbox population needed - they exist in HTML
     },
     
-   // ✅ FIXED FUNCTION: Populate checkboxes with proper event handling
-populateConcernCheckboxes(type, formType = 'add') {
-    const prefix = formType === 'edit' ? 'edit_' : ''; // FIXED: Added underscore
-    const testSection = document.getElementById(`${prefix}testimonialTriggersCheckboxes`);
-    const infoSection = document.getElementById(`${prefix}informationalTriggersCheckboxes`);
-    const container = type === 'informational' ? infoSection : testSection;
-    
-    if (!container) {
-        console.warn(`Container not found for type: ${type}, formType: ${formType}, prefix: ${prefix}`);
-        return;
-    }
-    
-    // Clear existing checkboxes
-    const title = container.querySelector('.concern-section-title');
-    container.innerHTML = '';
-    if (title) container.appendChild(title);
-    
-    // Get concerns for this type from CONCERNS constant
-    const concerns = Object.entries(CONCERNS).filter(([key, concern]) => concern.type === type);
-    
-    // Create checkboxes for each concern
-    concerns.forEach(([key, concern]) => {
-        const label = document.createElement('label');
-        label.className = 'concern-checkbox-item';
-        label.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer;';
+    // SIMPLE: Get selected concerns from EXISTING HTML checkboxes
+    getSelectedConcerns(type) {
+        const container = type === 'informational' 
+            ? document.getElementById('informationalTriggersCheckboxes')
+            : document.getElementById('testimonialTriggersCheckboxes');
         
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.value = key;
-        checkbox.className = 'concern-checkbox';
-        checkbox.id = `${prefix}concern_${key}`; // FIXED: Removed extra underscore
+        const selected = [];
+        if (container) {
+            // Find all checked checkboxes in the container
+            const checkboxes = container.querySelectorAll('.concern-checkbox:checked');
+            checkboxes.forEach(cb => {
+                selected.push(cb.value);
+            });
+        }
+        return selected;
+    },
+    
+    // Make existing checkboxes clickable with visual feedback
+    initCheckboxListeners() {
+        // Find ALL checkboxes in both sections
+        const allCheckboxes = document.querySelectorAll('.concern-checkbox');
         
-        // ✅ ADD EVENT LISTENER
-        checkbox.addEventListener('change', (e) => {
-            console.log(`Checkbox ${key} changed:`, e.target.checked, e.target.value);
-            
-            // Visual feedback
-            if (e.target.checked) {
-                label.style.background = '#003ef7ff';
-                label.style.borderRadius = '4px';
-                label.style.padding = '4px 8px';
-            } else {
-                label.style.background = '';
-                label.style.padding = '';
+        allCheckboxes.forEach(checkbox => {
+            // Add click listener if not already added
+            if (!checkbox.hasAttribute('data-initialized')) {
+                checkbox.setAttribute('data-initialized', 'true');
+                
+                checkbox.addEventListener('change', function(e) {
+                    const label = this.closest('label.concern-checkbox-item');
+                    if (label) {
+                        if (this.checked) {
+                            label.style.background = '#003ef7ff';
+                            label.style.borderRadius = '4px';
+                            label.style.padding = '4px 8px';
+                        } else {
+                            label.style.background = '';
+                            label.style.borderRadius = '';
+                            label.style.padding = '';
+                        }
+                    }
+                });
             }
         });
-        
-        const span = document.createElement('span');
-        span.textContent = `${concern.icon} ${concern.title}`;
-        
-        label.appendChild(checkbox);
-        label.appendChild(span);
-        container.appendChild(label);
-    });
-    
-    console.log(`Populated ${concerns.length} ${type} checkboxes in ${formType} form`);
-},
-    
-    // ✅ FIXED: Get selected concerns from checkboxes
-getSelectedConcerns(type, formType = 'add') {
-    const prefix = formType === 'edit' ? 'edit_' : ''; // FIXED: Added underscore
-    const section = type === 'informational' 
-        ? document.getElementById(`${prefix}informationalTriggersCheckboxes`)
-        : document.getElementById(`${prefix}testimonialTriggersCheckboxes`);
-    
-    const selected = [];
-    if (section) {
-        const checkboxes = section.querySelectorAll('.concern-checkbox:checked');
-        console.log(`Found ${checkboxes.length} checked checkboxes in ${formType} form`);
-        checkboxes.forEach(cb => {
-            selected.push(cb.value);
-        });
-    }
-    return selected;
-},
+    },
 
     addVideoFromForm() {
         // 1. Get Selected Group
@@ -575,21 +492,16 @@ getSelectedConcerns(type, formType = 'add') {
         const name = document.getElementById('editGroupName').value;
         const icon = document.getElementById('editGroupIcon').value;
         const desc = document.getElementById('editGroupDescription').value;
-        const type = document.getElementById('editGroupType') ? document.getElementById('editGroupType').value : 'testimonial';
 
         if (!name) {
             alert('Name is required');
             return;
         }
 
-        // ✅ Get selected concerns for edit form
-        const concerns = this.getSelectedConcerns(type, 'edit');
-
         DataManager.updateGroup(id, {
             name: name,
             icon: icon,
-            description: desc,
-            concerns: concerns // ✅ Include concerns
+            description: desc
         });
 
         UI.renderSidebar();
@@ -603,7 +515,6 @@ getSelectedConcerns(type, formType = 'add') {
 
     loadSampleData() {
         if(confirm('This will replace your data with samples. Continue?')) {
-            // Sample logic...
             DataManager.init();
             UI.renderSidebar();
             UI.renderDropdown();
@@ -620,10 +531,9 @@ getSelectedConcerns(type, formType = 'add') {
     // Modal methods:
     showAddModal() {
         UI.showModal();
-        // ✅ Initialize checkboxes when modal opens
+        // Initialize checkbox listeners when modal opens
         setTimeout(() => {
-            const defaultType = document.getElementById('newGroupType').value;
-            this.populateConcernCheckboxes(defaultType, 'add');
+            this.initCheckboxListeners();
         }, 50);
     },
     
