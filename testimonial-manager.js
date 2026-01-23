@@ -42,7 +42,7 @@
         }
     };
 
-    // ============================================
+        // ============================================
     // 2. DATA MANAGER (The "Single Source of Truth")
     // ============================================
 
@@ -164,6 +164,209 @@
                 return true;
             }
             return false;
+        },
+
+        // ==========================================
+        // ✅ NEW EXPORT FUNCTIONS (Added from Developer)
+        // ==========================================
+
+        // Export to testimonials-data.js format
+        exportToLegacyFormat() {
+            console.log('Converting to legacy format...');
+            
+            const legacyData = {
+                concerns: this.data.concerns || {},
+                testimonialGroups: {},
+                informationalGroups: {},
+                statistics: {
+                    totalTestimonialGroups: 0,
+                    totalInformationalGroups: 0,
+                    totalTestimonials: 0,
+                    totalInformationalVideos: 0,
+                    totalVideos: 0
+                },
+                playerConfig: this.data.playerConfig || {
+                    desktop: { width: 854, height: 480 },
+                    mobile: { fullscreen: true }
+                },
+                __version: "3.0-exported",
+                __generated: new Date().toISOString()
+            };
+            
+            // Convert groups
+            Object.values(this.data.groups || {}).forEach(group => {
+                if (group.type === 'informational') {
+                    legacyData.informationalGroups[group.id] = {
+                        id: group.id,
+                        type: 'informational',
+                        name: group.name,
+                        icon: group.icon || '📚',
+                        description: group.description || '',
+                        concerns: group.concerns || [],
+                        videos: [],
+                        createdAt: group.createdAt || new Date().toISOString(),
+                        viewCount: 0
+                    };
+                    
+                    // Add videos
+                    (group.videos || []).forEach(videoId => {
+                        const video = this.data.videos[videoId];
+                        if (video) {
+                            legacyData.informationalGroups[group.id].videos.push({
+                                id: video.id || videoId,
+                                title: video.title,
+                                concernType: video.concern,
+                                videoUrl: video.url,
+                                author: video.author,
+                                description: video.text,
+                                addedAt: video.createdAt || new Date().toISOString(),
+                                views: 0
+                            });
+                            legacyData.statistics.totalInformationalVideos++;
+                            legacyData.statistics.totalVideos++;
+                        }
+                    });
+                    
+                    legacyData.statistics.totalInformationalGroups++;
+                    
+                } else {
+                    legacyData.testimonialGroups[group.id] = {
+                        id: group.id,
+                        type: 'testimonial',
+                        name: group.name,
+                        icon: group.icon || '🎬',
+                        description: group.description || '',
+                        concerns: group.concerns || [],
+                        testimonials: [],
+                        createdAt: group.createdAt || new Date().toISOString(),
+                        viewCount: 0
+                    };
+                    
+                    // Add testimonials
+                    (group.videos || []).forEach(videoId => {
+                        const video = this.data.videos[videoId];
+                        if (video) {
+                            legacyData.testimonialGroups[group.id].testimonials.push({
+                                id: video.id || videoId,
+                                title: video.title,
+                                concernType: video.concern,
+                                videoUrl: video.url,
+                                author: video.author,
+                                text: video.text,
+                                addedAt: video.createdAt || new Date().toISOString(),
+                                views: 0
+                            });
+                            legacyData.statistics.totalTestimonials++;
+                            legacyData.statistics.totalVideos++;
+                        }
+                    });
+                    
+                    legacyData.statistics.totalTestimonialGroups++;
+                }
+            });
+            
+            return legacyData;
+        },
+        
+        // Create the testimonials-data.js file content
+        createTestimonialsJSFile() {
+            const legacyData = this.exportToLegacyFormat();
+            
+            const jsContent = `// ===================================================
+// 🎬 DUAL VIDEO SYSTEM DATA - CLEANED
+// Generated from Testimonial Manager
+// Export Date: ${new Date().toLocaleDateString()}
+// ===================================================
+
+window.testimonialData = ${JSON.stringify(legacyData, null, 4)};
+
+// ===================================================
+// UTILITY FUNCTIONS
+// ===================================================
+
+window.testimonialData.getVideo = function(videoId) {
+    for (const groupId in this.testimonialGroups) {
+        const group = this.testimonialGroups[groupId];
+        if (group.testimonials) {
+            const found = group.testimonials.find(t => t.id === videoId);
+            if (found) return { ...found, groupName: group.name, groupType: 'testimonial' };
+        }
+    }
+    
+    for (const groupId in this.informationalGroups) {
+        const group = this.informationalGroups[groupId];
+        if (group.videos) {
+            const found = group.videos.find(v => v.id === videoId);
+            if (found) return { ...found, groupName: group.name, groupType: 'informational' };
+        }
+    }
+    
+    return null;
+};
+
+window.testimonialData.getConcernTestimonials = function(concernKey) {
+    const results = [];
+    if (!this.testimonialGroups) return results;
+    
+    // FIXED: Removed duplicate 'const' keyword here
+    for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
+        if (group.concerns && group.concerns.includes(concernKey)) {
+            if (group.testimonials) {
+                results.push(...group.testimonials.map(t => ({
+                    ...t,
+                    groupName: group.name,
+                    groupIcon: group.icon,
+                    groupType: 'testimonial'
+                })));
+            }
+        }
+    }
+    return results;
+};
+
+window.testimonialData.getConcernVideos = function(concernKey) {
+    const results = [];
+    if (!this.informationalGroups) return results;
+    
+    // FIXED: Removed duplicate 'const' keyword here
+    for (const [groupId, group] of Object.entries(this.informationalGroups)) {
+        if (group.concerns && group.concerns.includes(concernKey)) {
+            if (group.videos) {
+                results.push(...group.videos.map(v => ({
+                    ...v,
+                    groupName: group.name,
+                    groupIcon: group.icon,
+                    groupType: 'informational'
+                })));
+            }
+        }
+    }
+    return results;
+};
+
+console.log('✅ Dual System Data Loaded:');
+console.log('   ⭐ Testimonial Groups:', window.testimonialData.statistics.totalTestimonialGroups);
+console.log('   📚 Informational Groups:', window.testimonialData.statistics.totalInformationalGroups);
+console.log('   🎬 Total Videos:', window.testimonialData.statistics.totalVideos);`;
+            
+            return jsContent;
+        },
+        
+        // Trigger the download
+        downloadTestimonialsJS() {
+            const jsContent = this.createTestimonialsJSFile();
+            const blob = new Blob([jsContent], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'testimonials-data.js';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('✅ testimonials-data.js file downloaded! Replace your old file with this.');
+            return true;
         }
     };
 
