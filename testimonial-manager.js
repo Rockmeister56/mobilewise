@@ -318,12 +318,15 @@ window.TestimonialManager = {
             return;
         }
 
+        // ✅ NEW: Get selected concerns
+        const concerns = this.getSelectedConcerns(type);
+
         const newGroup = {
             name,
             type,
             icon,
             description,
-            concerns: [] // Implement checkbox logic if needed
+            concerns: concerns // ✅ Now includes selected concerns
         };
 
         const id = DataManager.addGroup(newGroup);
@@ -332,7 +335,7 @@ window.TestimonialManager = {
         UI.renderSidebar();
         UI.renderDropdown();
         
-        alert(`Group "${name}" created!`);
+        alert(`Group "${name}" created with ${concerns.length} concerns!`);
     },
 
     deleteGroup(id, event) {
@@ -347,8 +350,59 @@ window.TestimonialManager = {
 
     editGroup(id, event) {
         if (event) event.stopPropagation();
-        // Implement edit modal logic
-        console.log('Edit group:', id);
+        
+        const group = DataManager.data.groups[id];
+        if (!group) return;
+        
+        // Show edit modal
+        const modal = document.getElementById('editTestimonialGroupModal');
+        if (!modal) return;
+        
+        // Populate form
+        document.getElementById('editGroupId').value = group.id;
+        document.getElementById('editGroupName').value = group.name || '';
+        document.getElementById('editGroupIcon').value = group.icon || '';
+        document.getElementById('editGroupDescription').value = group.description || '';
+        
+        // Show modal
+        modal.style.display = 'flex';
+        
+        // Populate concerns based on group type
+        setTimeout(() => {
+            // First hide/show the correct sections
+            const testSection = document.getElementById('editTestimonialTriggersCheckboxes');
+            const infoSection = document.getElementById('editInformationalTriggersCheckboxes');
+            
+            if (group.type === 'informational') {
+                if (testSection) testSection.style.display = 'none';
+                if (infoSection) infoSection.style.display = 'block';
+                this.populateConcernCheckboxes(group.type, 'edit');
+                
+                // Check previously selected concerns
+                if (group.concerns && Array.isArray(group.concerns)) {
+                    group.concerns.forEach(concernId => {
+                        const checkbox = document.getElementById(`edit_concern_${concernId}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    });
+                }
+            } else {
+                if (testSection) testSection.style.display = 'block';
+                if (infoSection) infoSection.style.display = 'none';
+                this.populateConcernCheckboxes(group.type, 'edit');
+                
+                // Check previously selected concerns
+                if (group.concerns && Array.isArray(group.concerns)) {
+                    group.concerns.forEach(concernId => {
+                        const checkbox = document.getElementById(`edit_concern_${concernId}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    });
+                }
+            }
+        }, 100);
     },
 
     downloadData() {
@@ -378,13 +432,74 @@ window.TestimonialManager = {
 
         if (type === 'informational') {
             iconInput.value = '📚';
-            testSection.style.display = 'none';
-            infoSection.style.display = 'block';
+            if (testSection) testSection.style.display = 'none';
+            if (infoSection) infoSection.style.display = 'block';
         } else {
             iconInput.value = '🎬';
-            testSection.style.display = 'block';
-            infoSection.style.display = 'none';
+            if (testSection) testSection.style.display = 'block';
+            if (infoSection) infoSection.style.display = 'none';
         }
+        
+        // ✅ NEW: Populate the checkboxes based on type
+        this.populateConcernCheckboxes(type, 'add');
+    },
+    
+    // ✅ NEW FUNCTION: Populate checkboxes based on group type
+    populateConcernCheckboxes(type, formType = 'add') {
+        const prefix = formType === 'edit' ? 'edit' : '';
+        const testSection = document.getElementById(`${prefix}testimonialTriggersCheckboxes`);
+        const infoSection = document.getElementById(`${prefix}informationalTriggersCheckboxes`);
+        const container = type === 'informational' ? infoSection : testSection;
+        
+        if (!container) {
+            console.warn(`Container not found for type: ${type}, formType: ${formType}`);
+            return;
+        }
+        
+        // Clear existing checkboxes
+        const title = container.querySelector('.concern-section-title');
+        container.innerHTML = '';
+        if (title) container.appendChild(title);
+        
+        // Get concerns for this type from CONCERNS constant
+        const concerns = Object.entries(CONCERNS).filter(([key, concern]) => concern.type === type);
+        
+        // Create checkboxes for each concern
+        concerns.forEach(([key, concern]) => {
+            const label = document.createElement('label');
+            label.className = 'concern-checkbox-item';
+            label.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer;';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = key;
+            checkbox.className = 'concern-checkbox';
+            checkbox.id = `${prefix}_concern_${key}`;
+            
+            const span = document.createElement('span');
+            span.textContent = `${concern.icon} ${concern.title}`;
+            
+            label.appendChild(checkbox);
+            label.appendChild(span);
+            container.appendChild(label);
+        });
+    },
+    
+    // ✅ NEW FUNCTION: Get selected concerns from checkboxes
+    getSelectedConcerns(type, formType = 'add') {
+        const prefix = formType === 'edit' ? 'edit' : '';
+        const section = type === 'informational' 
+            ? document.getElementById(`${prefix}informationalTriggersCheckboxes`)
+            : document.getElementById(`${prefix}testimonialTriggersCheckboxes`);
+        
+        const selected = [];
+        if (section) {
+            const checkboxes = section.querySelectorAll('.concern-checkbox:checked');
+            checkboxes.forEach(cb => {
+                selected.push(cb.value);
+            });
+        }
+        return selected;
     },
 
     addVideoFromForm() {
@@ -442,16 +557,21 @@ window.TestimonialManager = {
         const name = document.getElementById('editGroupName').value;
         const icon = document.getElementById('editGroupIcon').value;
         const desc = document.getElementById('editGroupDescription').value;
+        const type = document.getElementById('editGroupType') ? document.getElementById('editGroupType').value : 'testimonial';
 
         if (!name) {
             alert('Name is required');
             return;
         }
 
+        // ✅ Get selected concerns for edit form
+        const concerns = this.getSelectedConcerns(type, 'edit');
+
         DataManager.updateGroup(id, {
             name: name,
             icon: icon,
-            description: desc
+            description: desc,
+            concerns: concerns // ✅ Include concerns
         });
 
         UI.renderSidebar();
@@ -482,6 +602,11 @@ window.TestimonialManager = {
     // Modal methods:
     showAddModal() {
         UI.showModal();
+        // ✅ Initialize checkboxes when modal opens
+        setTimeout(() => {
+            const defaultType = document.getElementById('newGroupType').value;
+            this.populateConcernCheckboxes(defaultType, 'add');
+        }, 50);
     },
     
     hideAddModal() {
@@ -506,24 +631,29 @@ window.TestimonialManager = {
     // 5. BOOTSTRAP
     // ============================================
 
-    document.addEventListener('DOMContentLoaded', () => {
-        console.clear();
-        console.log('🚀 Starting Testimonial Manager...');
+   document.addEventListener('DOMContentLoaded', () => {
+    console.clear();
+    console.log('🚀 Starting Testimonial Manager...');
+    
+    DataManager.init();
+    UI.init();
+    
+    // Bind generic events
+    const addBtn = document.getElementById('addTestimonialGroupBtn');
+    if (addBtn) addBtn.onclick = () => {
+        window.TestimonialManager.showAddModal();
+    };
+    
+    // Close modal listener
+    window.onclick = (e) => {
+        const modal = document.getElementById('addTestimonialGroupModal');
+        if (e.target === modal) UI.hideModal();
         
-        DataManager.init();
-        UI.init();
-
-        // Bind generic events
-        const addBtn = document.getElementById('addTestimonialGroupBtn');
-        if (addBtn) addBtn.onclick = () => UI.showModal();
-
-        // Close modal listener
-        window.onclick = (e) => {
-            const modal = document.getElementById('addTestimonialGroupModal');
-            if (e.target === modal) UI.hideModal();
-        };
-
-        console.log('✅ System Ready');
-    });
+        const editModal = document.getElementById('editTestimonialGroupModal');
+        if (e.target === editModal) window.TestimonialManager.hideEditModal();
+    };
+    
+    console.log('✅ System Ready');
+});
 
 })();
