@@ -153,11 +153,13 @@
             return false;
         },
 
-        // ==========================================
-        // ✅ FIXED: EXPORT LOGIC (Matches Target Format)
+               // ==========================================
+        // ✅ UPDATED EXPORT LOGIC
         // ==========================================
 
         exportToLegacyFormat() {
+            console.log('Converting to Legacy Format...');
+            
             // 1. Clean Concerns (Remove 'triggers' key which is internal only)
             const cleanedConcerns = {};
             Object.keys(this.data.concerns).forEach(key => {
@@ -180,45 +182,30 @@
                     desktop: { width: 854, height: 480, top: "50%", left: "50%", borderRadius: "12px" },
                     mobile: { fullscreen: true },
                     overlay: { background: "rgba(0, 0, 0, 0.5)" },
-                    resumeMessage: "I'm sure you can appreciate what our clients have to say. Let's get back on track..."
+                    resumeMessage: "I'm sure you can appreciate what our clients have to say. Let's get back on track."
                 },
                 __version: "3.0-dual-system-clean",
-                __generated: new Date().toISOString(),
-                __notes: "Pure data structure. Logic moved to System/UI layer."
+                __generated: new Date().toISOString()
             };
             
             // 2. Convert Groups
             Object.values(this.data.groups || {}).forEach(group => {
-                // Create slug if missing
                 const slug = group.slug || group.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
                 if (group.type === 'informational') {
-                    // ✅ INFORMATIONAL EXPORT FORMAT
                     legacyData.informationalGroups[group.id] = {
-                        id: group.id,
-                        type: 'informational',
-                        name: group.name,
-                        slug: slug,
-                        icon: group.icon || '📚',
-                        description: group.description || '',
-                        concerns: group.concerns || [],
-                        videos: [], // Populate below
-                        createdAt: group.createdAt || new Date().toISOString(),
-                        viewCount: 0
+                        id: group.id, type: 'informational', name: group.name, slug,
+                        icon: group.icon || '📚', description: group.description || '',
+                        concerns: group.concerns || [], videos: [], createdAt: group.createdAt || new Date().toISOString(), viewCount: 0
                     };
                     
                     (group.videos || []).forEach(videoId => {
                         const video = this.data.videos[videoId];
                         if (video) {
                             legacyData.informationalGroups[group.id].videos.push({
-                                id: video.id || videoId,
-                                title: video.title,
-                                concernType: video.concern, // Map 'concern' -> 'concernType'
-                                videoUrl: video.url,        // Map 'url' -> 'videoUrl'
-                                author: video.author || 'System Explanation',
-                                description: video.text,    // Map 'text' -> 'description'
-                                addedAt: video.createdAt || new Date().toISOString(),
-                                views: 0
+                                id: video.id || videoId, title: video.title, concernType: video.concern,
+                                videoUrl: video.url, author: video.author || 'System',
+                                description: video.text, addedAt: video.createdAt || new Date().toISOString(), views: 0
                             });
                             legacyData.statistics.totalInformationalVideos++;
                             legacyData.statistics.totalVideos++;
@@ -227,32 +214,19 @@
                     legacyData.statistics.totalInformationalGroups++;
                     
                 } else {
-                    // ✅ TESTIMONIAL EXPORT FORMAT
                     legacyData.testimonialGroups[group.id] = {
-                        id: group.id,
-                        type: 'testimonial',
-                        name: group.name,
-                        slug: slug,
-                        icon: group.icon || '📈',
-                        description: group.description || '',
-                        concerns: group.concerns || [],
-                        testimonials: [], // Populate below
-                        createdAt: group.createdAt || new Date().toISOString(),
-                        viewCount: 0
+                        id: group.id, type: 'testimonial', name: group.name, slug,
+                        icon: group.icon || '📈', description: group.description || '',
+                        concerns: group.concerns || [], testimonials: [], createdAt: group.createdAt || new Date().toISOString(), viewCount: 0
                     };
                     
                     (group.videos || []).forEach(videoId => {
                         const video = this.data.videos[videoId];
                         if (video) {
                             legacyData.testimonialGroups[group.id].testimonials.push({
-                                id: video.id || videoId,
-                                title: video.title,
-                                concernType: video.concern,
-                                videoUrl: video.url,
-                                author: video.author,
-                                text: video.text,
-                                addedAt: video.createdAt || new Date().toISOString(),
-                                views: 0
+                                id: video.id || videoId, title: video.title, concernType: video.concern,
+                                videoUrl: video.url, author: video.author, text: video.text,
+                                addedAt: video.createdAt || new Date().toISOString(), views: 0
                             });
                             legacyData.statistics.totalTestimonials++;
                             legacyData.statistics.totalVideos++;
@@ -267,76 +241,55 @@
         
         createFileContent() {
             const legacyData = this.exportToLegacyFormat();
-            
-            // Helper to pretty print stats
             const stats = legacyData.statistics;
             
             return `// ===================================================
 // 🎬 DUAL VIDEO SYSTEM DATA - CLEANED
-// Compatible with Testimonial Manager v3.0
 // ===================================================
 
 window.testimonialData = ${JSON.stringify(legacyData, null, 4)};
 
-// ===================================================
-// UTILITY FUNCTIONS (Data Retrieval Only)
-// ===================================================
-
-window.testimonialData.getVideo = function(videoId) {
-    for (const groupId in this.testimonialGroups) {
-        const group = this.testimonialGroups[groupId];
-        if (group.testimonials) {
-            const found = group.testimonials.find(t => t.id === videoId);
-            if (found) return { ...found, groupName: group.name, groupType: 'testimonial' };
-        }
+window.testimonialData.getVideo = function(vidId) {
+    for (const gId in this.testimonialGroups) {
+        const g = this.testimonialGroups[gId];
+        if (g.testimonials) { const f = g.testimonials.find(t => t.id === vidId); if (f) return {...f, groupName: g.name, groupType: 'testimonial'}; }
     }
-    for (const groupId in this.informationalGroups) {
-        const group = this.informationalGroups[groupId];
-        if (group.videos) {
-            const found = group.videos.find(v => v.id === videoId);
-            if (found) return { ...found, groupName: group.name, groupType: 'informational' };
-        }
+    for (const gId in this.informationalGroups) {
+        const g = this.informationalGroups[gId];
+        if (g.videos) { const f = g.videos.find(v => v.id === vidId); if (f) return {...f, groupName: g.name, groupType: 'informational'}; }
     }
     return null;
 };
 
-window.testimonialData.getConcernTestimonials = function(concernKey) {
-    const results = [];
-    if (!this.testimonialGroups) return results;
-    for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
-        if (group.concerns && group.concerns.includes(concernKey)) {
-            if (group.testimonials) {
-                results.push(...group.testimonials.map(t => ({
-                    ...t, groupName: group.name, groupIcon: group.icon, groupType: 'testimonial'
-                })));
-            }
+window.testimonialData.getConcernTestimonials = function(k) {
+    const r = [];
+    if (!this.testimonialGroups) return r;
+    for (const [gId, g] of Object.entries(this.testimonialGroups)) {
+        if (g.concerns?.includes(k) && g.testimonials) {
+            r.push(...g.testimonials.map(t => ({...t, groupName: g.name, groupIcon: g.icon, groupType: 'testimonial'})));
         }
     }
-    return results;
+    return r;
 };
 
-window.testimonialData.getConcernVideos = function(concernKey) {
-    const results = [];
-    if (!this.informationalGroups) return results;
-    for (const [groupId, group] of Object.entries(this.informationalGroups)) {
-        if (group.concerns && group.concerns.includes(concernKey)) {
-            if (group.videos) {
-                results.push(...group.videos.map(v => ({
-                    ...v, groupName: group.name, groupIcon: group.icon, groupType: 'informational'
-                })));
-            }
+window.testimonialData.getConcernVideos = function(k) {
+    const r = [];
+    if (!this.informationalGroups) return r;
+    for (const [gId, g] of Object.entries(this.informationalGroups)) {
+        if (g.concerns?.includes(k) && g.videos) {
+            r.push(...g.videos.map(v => ({...v, groupName: g.name, groupIcon: g.icon, groupType: 'informational'})));
         }
     }
-    return results;
+    return r;
 };
 
-console.log('✅ Dual System Data Loaded:');
-console.log('   ⭐ Testimonial Groups:', ${stats.totalTestimonialGroups});
-console.log('   📚 Informational Groups:', ${stats.totalInformationalGroups});
-console.log('   🎬 Total Videos:', ${stats.totalVideos});`;
+console.log('✅ Dual System Data Loaded:');`;
         },
         
         downloadTestimonialsJS() {
+            // Update screen BEFORE downloading
+            updateCodeOutput(); 
+            
             const jsContent = this.createFileContent();
             const blob = new Blob([jsContent], { type: 'application/javascript' });
             const url = URL.createObjectURL(blob);
@@ -347,25 +300,11 @@ console.log('   🎬 Total Videos:', ${stats.totalVideos});`;
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            alert('✅ File exported successfully!');
+            alert('✅ Exported testimonials-data.js!');
         }
     };
 
-    // ============================================
-    // ✅ NEW: DISPLAY UPDATER
-    // ============================================
-    
-    // This function updates the text area on screen with the converted code
-    function updateCodeOutput() {
-        const codeOutput = document.getElementById('codeOutput');
-        if (!codeOutput) return;
-        
-        // Get the exact string that would be downloaded
-        const codeContent = DataManager.createFileContent();
-        codeOutput.textContent = codeContent;
-    }
-
-        // ============================================
+       // ============================================
     // ✅ SCREEN UPDATER
     // ============================================
     
@@ -383,6 +322,13 @@ console.log('   🎬 Total Videos:', ${stats.totalVideos});`;
             codeOutput.textContent = "// Waiting for DataManager to initialize...";
             return;
         }
+        
+        // ✅ FIX: Force the textarea to wrap and stay contained
+        codeOutput.style.whiteSpace = 'pre-wrap';
+        codeOutput.style.wordWrap = 'break-word';
+        codeOutput.style.width = '100%';
+        codeOutput.style.maxWidth = '100%';
+        codeOutput.style.boxSizing = 'border-box';
         
         // Get the converted string and put it in the box
         codeOutput.textContent = DataManager.createFileContent();
@@ -520,12 +466,17 @@ console.log('   🎬 Total Videos:', ${stats.totalVideos});`;
 
 window.TestimonialManager = {
     
-    // ✅ HELPER: Dynamically generate checkboxes based on CONCERNS constant
+        // ✅ HELPER: Dynamically generate checkboxes
     generateCheckboxes(type, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
         
         container.innerHTML = ''; // Clear existing
+        
+        // ✅ FIX: Force container to flex and wrap so items don't stretch horizontally
+        container.style.display = 'flex';
+        container.style.flexWrap = 'wrap';
+        container.style.gap = '8px';
         
         Object.entries(CONCERNS).forEach(([key, data]) => {
             if (data.type === type) {
@@ -533,12 +484,13 @@ window.TestimonialManager = {
                 label.className = 'concern-checkbox-item';
                 label.style.display = 'inline-flex';
                 label.style.alignItems = 'center';
-                label.style.margin = '5px';
-                label.style.padding = '5px 10px';
+                label.style.margin = '0'; // Removed margin since we use gap above
+                label.style.padding = '5px 12px';
                 label.style.border = '1px solid #ddd';
                 label.style.borderRadius = '20px';
                 label.style.cursor = 'pointer';
                 label.style.userSelect = 'none';
+                label.style.fontSize = '14px';
 
                 const input = document.createElement('input');
                 input.type = 'checkbox';
@@ -553,7 +505,6 @@ window.TestimonialManager = {
             }
         });
         
-        // Re-initialize listeners for new elements
         this.initCheckboxListeners();
     },
 
