@@ -444,7 +444,6 @@ window.TestimonialManager = {
         this.populateConcernCheckboxes(type, 'add');
     },
     
-    // ✅ NEW FUNCTION: Populate checkboxes based on group type
    // ✅ FIXED FUNCTION: Populate checkboxes with proper event handling
 populateConcernCheckboxes(type, formType = 'add') {
     const prefix = formType === 'edit' ? 'edit_' : ''; // FIXED: Added underscore
@@ -483,7 +482,7 @@ populateConcernCheckboxes(type, formType = 'add') {
             
             // Visual feedback
             if (e.target.checked) {
-                label.style.background = '#f0f9ff';
+                label.style.background = '#003ef7ff';
                 label.style.borderRadius = '4px';
                 label.style.padding = '4px 8px';
             } else {
