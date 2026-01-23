@@ -445,62 +445,81 @@ window.TestimonialManager = {
     },
     
     // ✅ NEW FUNCTION: Populate checkboxes based on group type
-    populateConcernCheckboxes(type, formType = 'add') {
-        const prefix = formType === 'edit' ? 'edit' : '';
-        const testSection = document.getElementById(`${prefix}testimonialTriggersCheckboxes`);
-        const infoSection = document.getElementById(`${prefix}informationalTriggersCheckboxes`);
-        const container = type === 'informational' ? infoSection : testSection;
-        
-        if (!container) {
-            console.warn(`Container not found for type: ${type}, formType: ${formType}`);
-            return;
-        }
-        
-        // Clear existing checkboxes
-        const title = container.querySelector('.concern-section-title');
-        container.innerHTML = '';
-        if (title) container.appendChild(title);
-        
-        // Get concerns for this type from CONCERNS constant
-        const concerns = Object.entries(CONCERNS).filter(([key, concern]) => concern.type === type);
-        
-        // Create checkboxes for each concern
-        concerns.forEach(([key, concern]) => {
-            const label = document.createElement('label');
-            label.className = 'concern-checkbox-item';
-            label.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer;';
-            
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.value = key;
-            checkbox.className = 'concern-checkbox';
-            checkbox.id = `${prefix}_concern_${key}`;
-            
-            const span = document.createElement('span');
-            span.textContent = `${concern.icon} ${concern.title}`;
-            
-            label.appendChild(checkbox);
-            label.appendChild(span);
-            container.appendChild(label);
-        });
-    },
+   // ✅ FIXED FUNCTION: Populate checkboxes with proper event handling
+populateConcernCheckboxes(type, formType = 'add') {
+    const prefix = formType === 'edit' ? 'edit_' : ''; // FIXED: Added underscore
+    const testSection = document.getElementById(`${prefix}testimonialTriggersCheckboxes`);
+    const infoSection = document.getElementById(`${prefix}informationalTriggersCheckboxes`);
+    const container = type === 'informational' ? infoSection : testSection;
     
-    // ✅ NEW FUNCTION: Get selected concerns from checkboxes
-    getSelectedConcerns(type, formType = 'add') {
-        const prefix = formType === 'edit' ? 'edit' : '';
-        const section = type === 'informational' 
-            ? document.getElementById(`${prefix}informationalTriggersCheckboxes`)
-            : document.getElementById(`${prefix}testimonialTriggersCheckboxes`);
+    if (!container) {
+        console.warn(`Container not found for type: ${type}, formType: ${formType}, prefix: ${prefix}`);
+        return;
+    }
+    
+    // Clear existing checkboxes
+    const title = container.querySelector('.concern-section-title');
+    container.innerHTML = '';
+    if (title) container.appendChild(title);
+    
+    // Get concerns for this type from CONCERNS constant
+    const concerns = Object.entries(CONCERNS).filter(([key, concern]) => concern.type === type);
+    
+    // Create checkboxes for each concern
+    concerns.forEach(([key, concern]) => {
+        const label = document.createElement('label');
+        label.className = 'concern-checkbox-item';
+        label.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer;';
         
-        const selected = [];
-        if (section) {
-            const checkboxes = section.querySelectorAll('.concern-checkbox:checked');
-            checkboxes.forEach(cb => {
-                selected.push(cb.value);
-            });
-        }
-        return selected;
-    },
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = key;
+        checkbox.className = 'concern-checkbox';
+        checkbox.id = `${prefix}concern_${key}`; // FIXED: Removed extra underscore
+        
+        // ✅ ADD EVENT LISTENER
+        checkbox.addEventListener('change', (e) => {
+            console.log(`Checkbox ${key} changed:`, e.target.checked, e.target.value);
+            
+            // Visual feedback
+            if (e.target.checked) {
+                label.style.background = '#f0f9ff';
+                label.style.borderRadius = '4px';
+                label.style.padding = '4px 8px';
+            } else {
+                label.style.background = '';
+                label.style.padding = '';
+            }
+        });
+        
+        const span = document.createElement('span');
+        span.textContent = `${concern.icon} ${concern.title}`;
+        
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        container.appendChild(label);
+    });
+    
+    console.log(`Populated ${concerns.length} ${type} checkboxes in ${formType} form`);
+},
+    
+    // ✅ FIXED: Get selected concerns from checkboxes
+getSelectedConcerns(type, formType = 'add') {
+    const prefix = formType === 'edit' ? 'edit_' : ''; // FIXED: Added underscore
+    const section = type === 'informational' 
+        ? document.getElementById(`${prefix}informationalTriggersCheckboxes`)
+        : document.getElementById(`${prefix}testimonialTriggersCheckboxes`);
+    
+    const selected = [];
+    if (section) {
+        const checkboxes = section.querySelectorAll('.concern-checkbox:checked');
+        console.log(`Found ${checkboxes.length} checked checkboxes in ${formType} form`);
+        checkboxes.forEach(cb => {
+            selected.push(cb.value);
+        });
+    }
+    return selected;
+},
 
     addVideoFromForm() {
         // 1. Get Selected Group
