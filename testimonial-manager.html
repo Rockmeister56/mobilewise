@@ -91,10 +91,10 @@
                     <span id="currentGroupName" class="current-group-name">None selected</span>
                 </div>
                 <!-- NOTE: This modal needs to be implemented or removed if not used -->
-                <button class="btn btn-small" onclick="alert('View All feature coming soon!')">
-                    <span class="btn-icon">👁️</span>
-                    View All Testimonials
-                </button>
+                <button class="btn btn-small" onclick="UI.selectGroup(DataManager.data.groups[document.getElementById('selectGroupDropdown').value]?.id); window.TestimonialManager.viewGroup(document.getElementById('selectGroupDropdown').value)">
+    <span class="btn-icon">👁️</span>
+    View All Testimonials
+</button>
             </div>
             
             <!-- UPLOADER CARD -->
@@ -395,6 +395,54 @@
             </div>
         </div>
     </div>
+
+    <!-- =========================================== -->
+<!-- VIEW ALL TESTIMONIALS OVERLAY -->
+<!-- =========================================== -->
+<div id="allTestimonialsModal" class="modal">
+    <div class="modal-backdrop" onclick="document.getElementById('allTestimonialsModal').style.display='none'"></div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <span class="modal-icon">📂</span>
+                <span id="currentViewingGroupName">All Videos</span>
+            </h2>
+            <button class="modal-close" onclick="document.getElementById('allTestimonialsModal').style.display='none'">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="allTestimonialsContent" class="testimonials-grid">
+                <!-- Cards appear here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================== -->
+<!-- VIDEO PLAYER OVERLAY -->
+<!-- =========================================== -->
+<div id="videoPlayerModal" class="modal">
+    <div class="modal-backdrop" onclick="window.TestimonialManager.closeVideoPlayer()"></div>
+    <div class="modal-dialog modal-lg">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <span class="modal-icon">🎬</span>
+                Now Playing
+            </h2>
+            <button class="modal-close" onclick="window.TestimonialManager.closeVideoPlayer()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- VIDEO PLAYER -->
+            <div class="video-player-wrapper">
+                <video id="testimonialVideoPlayer" controls class="video-player-full"></video>
+            </div>
+            
+            <!-- VIDEO INFO -->
+            <div id="videoPlayerInfo" class="video-details">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+</div>
 
     <!-- STATUS MESSAGES -->
     <div id="successMessage" class="status-message success"></div>

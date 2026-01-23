@@ -398,7 +398,7 @@ console.log('✅ Dual System Data Loaded:');`;
                 btn.style.cssText = `
                     display: flex; align-items: center; gap: 10px;
                     padding: 12px; margin-bottom: 8px;
-                    border: 1px solid #e2e8f0; border-left: 4px solid ${color};
+                    border: 1px solid #006effff; border-left: 4px solid ${color};
                     border-radius: 8px; cursor: pointer;
                     transition: all 0.2s;
                 `;
@@ -769,6 +769,190 @@ window.TestimonialManager = {
     selectGroup(groupId) {
         if (UI && UI.selectGroup) UI.selectGroup(groupId);
         this.selectGroupForForm(groupId);
+   },
+
+        // ============================================
+    // ✅ VIEW TESTIMONIALS (Overlay Logic)
+    // ============================================
+
+    viewGroup(groupId) {
+        const group = DataManager.data.groups[groupId];
+        if (!group) return;
+
+        // 1. Select the group in UI (highlight sidebar)
+        UI.selectGroup(groupId);
+
+        // 2. Resolve video IDs into video objects (since they are stored separately)
+        const videoList = [];
+        if (group.videos && Array.isArray(group.videos)) {
+            group.videos.forEach(vidId => {
+                if (DataManager.data.videos[vidId]) {
+                    videoList.push(DataManager.data.videos[vidId]);
+                }
+            });
+        }
+
+        // 3. Render the Overlay
+        const container = document.getElementById('allTestimonialsContent');
+        if (!container) {
+            console.warn("⚠️ allTestimonialsContent div not found in HTML.");
+            alert("Could not find view container.");
+            return;
+        }
+
+        if (videoList.length === 0) {
+            container.innerHTML = `
+                <div class="empty-testimonials">
+                    <div class="empty-icon">🎬</div>
+                    <h3>No videos yet</h3>
+                    <p>Add videos to this group to see them here</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="testimonials-grid">
+                    ${videoList.map(video => this.createVideoCard(video)).join('')}
+                </div>
+            `;
+        }
+
+        // 4. Show the Modal
+        const modal = document.getElementById('allTestimonialsModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+        
+        // Update count in modal header if element exists
+        const countDisplay = document.getElementById('totalTestimonialsCount');
+        if (countDisplay) countDisplay.textContent = videoList.length;
+    },
+
+    createVideoCard(video) {
+        // Map internal 'concern' to display 'concernType'
+        const concernType = video.concern || 'general';
+        
+        // Icons mapping
+        const concernIcons = {
+            'price': '💰', 'time': '⏰', 'trust': '🤝', 'results': '📈', 'general': '⭐',
+            'how_it_works': '⚙️', 'benefits_features': '✅', 'case_studies': '📊', 'faq': '❓'
+        };
+        
+        const concernLabels = {
+            'price': 'Price Concern', 'time': 'Time/Speed', 'trust': 'Trust', 'results': 'Results', 'general': 'General',
+            'how_it_works': 'How It Works', 'benefits_features': 'Benefits', 'case_studies': 'Case Studies', 'faq': 'FAQ'
+        };
+
+        const icon = concernIcons[concernType] || '⭐';
+        const label = concernLabels[concernType] || 'Testimonial';
+
+        return `
+            <div class="testimonial-card" onclick="window.TestimonialManager.playVideo('${video.id}')">
+                <div class="testimonial-card-header">
+                    <span class="testimonial-concern-icon">${icon}</span>
+                    <span class="testimonial-concern-label">${label}</span>
+                </div>
+                <div class="testimonial-card-body">
+                    <h4 class="testimonial-title">${video.title || 'Untitled'}</h4>
+                    <p class="testimonial-author">👤 ${video.author || 'Anonymous'}</p>
+                    ${video.text ? `<p class="testimonial-text">${video.text}</p>` : ''}
+                </div>
+                <div class="testimonial-card-footer">
+                    <button class="btn btn-primary btn-play">
+                        <span class="btn-icon">▶️</span>
+                        Play Video
+                    </button>
+                    <span class="testimonial-views">👁️ ${video.views || 0} views</span>
+                </div>
+            </div>
+        `;
+    },
+
+    playVideo(videoId) {
+        // 1. Find the video object in DataManager
+        let video = null;
+        let group = null;
+
+        // Find which group owns this video
+        for (const [gId, gData] of Object.entries(DataManager.data.groups)) {
+            if (gData.videos && gData.videos.includes(videoId)) {
+                video = DataManager.data.videos[videoId];
+                group = gData;
+                break;
+            }
+        }
+
+        if (!video) {
+            console.error('❌ Video not found:', videoId);
+            alert('Video not found in database.');
+            return;
+        }
+
+        // 2. Update Statistics (Increment Views)
+        if (typeof video.views === 'number') {
+            video.views++;
+        } else {
+            video.views = 1;
+        }
+        
+        if (group) {
+            group.viewCount = (group.viewCount || 0) + 1;
+        }
+
+        // 3. Save to DataManager
+        DataManager.save();
+        UI.renderSidebar(); // Update counts on sidebar
+
+        // 4. Launch Video Player
+        const videoPlayer = document.getElementById('testimonialVideoPlayer');
+        const videoModal = document.getElementById('videoPlayerModal');
+        
+        if (!videoPlayer || !videoModal) {
+            alert('Video player elements not found in HTML.');
+            return;
+        }
+
+        // Set Source
+        videoPlayer.src = video.url;
+        videoPlayer.load();
+
+        // Update Info in Player
+        const titleEl = document.getElementById('videoPlayerTitle');
+        const infoEl = document.getElementById('videoPlayerInfo');
+        
+        if (titleEl) titleEl.textContent = video.title;
+        if (infoEl) {
+            infoEl.innerHTML = `
+                <div class="video-info-item"><strong>Author:</strong> ${video.author || 'Unknown'}</div>
+                <div class="video-info-item"><strong>Concern:</strong> ${video.concern || 'General'}</div>
+                ${video.text ? `<div class="video-info-item"><strong>Text:</strong> ${video.text}</div>` : ''}
+                ${group ? `<div class="video-info-item"><strong>Group:</strong> ${group.name}</div>` : ''}
+            `;
+        }
+
+        // Close List Overlay (if open)
+        const listModal = document.getElementById('allTestimonialsModal');
+        if (listModal) listModal.style.display = 'none';
+
+        // Show Player Modal
+        videoModal.style.display = 'flex';
+
+        // Auto-play
+        setTimeout(() => {
+            videoPlayer.play().catch(e => console.log('Autoplay blocked:', e));
+        }, 500);
+    },
+
+    closeVideoPlayer() {
+        const videoPlayer = document.getElementById('testimonialVideoPlayer');
+        const videoModal = document.getElementById('videoPlayerModal');
+        
+        if (videoPlayer) {
+            videoPlayer.pause();
+            videoPlayer.src = "";
+        }
+        if (videoModal) {
+            videoModal.style.display = 'none';
+        }
     }
 };
 
