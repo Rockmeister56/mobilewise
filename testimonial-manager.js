@@ -617,15 +617,13 @@ getSelectedConcerns(type, formType = 'add') {
         alert('Code copied!');
     },
     
-    // Modal methods:
     showAddModal() {
-        UI.showModal();
-        // ✅ Initialize checkboxes when modal opens
-        setTimeout(() => {
-            const defaultType = document.getElementById('newGroupType').value;
-            this.populateConcernCheckboxes(defaultType, 'add');
-        }, 50);
-    },
+    UI.showModal();
+    // Just initialize checkbox listeners (for existing HTML checkboxes)
+    setTimeout(() => {
+        this.initCheckboxListeners();
+    }, 50);
+},
     
     hideAddModal() {
         UI.hideModal();
