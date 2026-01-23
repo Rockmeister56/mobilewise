@@ -306,7 +306,7 @@
 
 window.TestimonialManager = {
     
-    // CREATE GROUP: Reads from existing HTML checkboxes
+    // Existing methods from the refactored JS
     createGroupFromForm() {
         const name = document.getElementById('newGroupName').value.trim();
         const type = document.getElementById('newGroupType').value;
@@ -318,7 +318,7 @@ window.TestimonialManager = {
             return;
         }
 
-        // Get selected concerns from EXISTING HTML checkboxes
+        // ✅ NEW: Get selected concerns
         const concerns = this.getSelectedConcerns(type);
 
         const newGroup = {
@@ -326,7 +326,7 @@ window.TestimonialManager = {
             type,
             icon,
             description,
-            concerns: concerns
+            concerns: concerns // ✅ Now includes selected concerns
         };
 
         const id = DataManager.addGroup(newGroup);
@@ -350,8 +350,59 @@ window.TestimonialManager = {
 
     editGroup(id, event) {
         if (event) event.stopPropagation();
-        console.log('Edit group:', id);
-        // Basic edit for now
+        
+        const group = DataManager.data.groups[id];
+        if (!group) return;
+        
+        // Show edit modal
+        const modal = document.getElementById('editTestimonialGroupModal');
+        if (!modal) return;
+        
+        // Populate form
+        document.getElementById('editGroupId').value = group.id;
+        document.getElementById('editGroupName').value = group.name || '';
+        document.getElementById('editGroupIcon').value = group.icon || '';
+        document.getElementById('editGroupDescription').value = group.description || '';
+        
+        // Show modal
+        modal.style.display = 'flex';
+        
+        // Populate concerns based on group type
+        setTimeout(() => {
+            // First hide/show the correct sections
+            const testSection = document.getElementById('editTestimonialTriggersCheckboxes');
+            const infoSection = document.getElementById('editInformationalTriggersCheckboxes');
+            
+            if (group.type === 'informational') {
+                if (testSection) testSection.style.display = 'none';
+                if (infoSection) infoSection.style.display = 'block';
+                this.populateConcernCheckboxes(group.type, 'edit');
+                
+                // Check previously selected concerns
+                if (group.concerns && Array.isArray(group.concerns)) {
+                    group.concerns.forEach(concernId => {
+                        const checkbox = document.getElementById(`edit_concern_${concernId}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    });
+                }
+            } else {
+                if (testSection) testSection.style.display = 'block';
+                if (infoSection) infoSection.style.display = 'none';
+                this.populateConcernCheckboxes(group.type, 'edit');
+                
+                // Check previously selected concerns
+                if (group.concerns && Array.isArray(group.concerns)) {
+                    group.concerns.forEach(concernId => {
+                        const checkbox = document.getElementById(`edit_concern_${concernId}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    });
+                }
+            }
+        }, 100);
     },
 
     downloadData() {
@@ -363,6 +414,8 @@ window.TestimonialManager = {
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
     },
+    
+    // NEW METHODS from the HTML requirements:
     
     selectGroupForForm(groupId) {
         const group = DataManager.data.groups[groupId];
@@ -386,77 +439,96 @@ window.TestimonialManager = {
             if (testSection) testSection.style.display = 'block';
             if (infoSection) infoSection.style.display = 'none';
         }
+        
+        // ✅ NEW: Populate the checkboxes based on type
+        this.populateConcernCheckboxes(type, 'add');
     },
     
-    // SIMPLE: Get selected concerns from ALL EXISTING HTML CHECKBOXES
-    getSelectedConcerns(type) {
-        const container = type === 'informational' 
-            ? document.getElementById('informationalTriggersCheckboxes')
-            : document.getElementById('testimonialTriggersCheckboxes');
-        
-        const selected = [];
-        if (container) {
-            // Find ALL checked checkboxes in the container (including subgroups)
-            const checkboxes = container.querySelectorAll('.concern-checkbox:checked');
-            checkboxes.forEach(cb => {
-                selected.push(cb.value);
-            });
-        }
-        return selected;
-    },
+   // ✅ FIXED FUNCTION: Populate checkboxes with proper event handling
+populateConcernCheckboxes(type, formType = 'add') {
+    const prefix = formType === 'edit' ? 'edit_' : ''; // FIXED: Added underscore
+    const testSection = document.getElementById(`${prefix}testimonialTriggersCheckboxes`);
+    const infoSection = document.getElementById(`${prefix}informationalTriggersCheckboxes`);
+    const container = type === 'informational' ? infoSection : testSection;
     
-    // MAKE ALL EXISTING CHECKBOXES CLICKABLE
-    initCheckboxListeners() {
-        // Find ALL checkboxes in both sections (including subgroups)
-        const allCheckboxes = document.querySelectorAll('.concern-checkbox');
+    if (!container) {
+        console.warn(`Container not found for type: ${type}, formType: ${formType}, prefix: ${prefix}`);
+        return;
+    }
+    
+    // Clear existing checkboxes
+    const title = container.querySelector('.concern-section-title');
+    container.innerHTML = '';
+    if (title) container.appendChild(title);
+    
+    // Get concerns for this type from CONCERNS constant
+    const concerns = Object.entries(CONCERNS).filter(([key, concern]) => concern.type === type);
+    
+    // Create checkboxes for each concern
+    concerns.forEach(([key, concern]) => {
+        const label = document.createElement('label');
+        label.className = 'concern-checkbox-item';
+        label.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer;';
         
-        allCheckboxes.forEach(checkbox => {
-            // Only add listener once
-            if (!checkbox.hasAttribute('data-initialized')) {
-                checkbox.setAttribute('data-initialized', 'true');
-                
-                // Get the label that contains this checkbox
-                const label = checkbox.closest('label.concern-checkbox-item');
-                if (!label) return;
-                
-                // Add visual feedback on change
-                checkbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        label.style.background = '#003ef7ff';
-                        label.style.borderRadius = '4px';
-                        label.style.padding = '4px 8px';
-                    } else {
-                        label.style.background = '';
-                        label.style.borderRadius = '';
-                        label.style.padding = '';
-                    }
-                });
-                
-                // Also add hover effect
-                label.addEventListener('mouseenter', function() {
-                    if (!checkbox.checked) {
-                        this.style.background = 'rgba(0, 62, 247, 0.1)';
-                    }
-                });
-                
-                label.addEventListener('mouseleave', function() {
-                    if (!checkbox.checked) {
-                        this.style.background = '';
-                    }
-                });
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = key;
+        checkbox.className = 'concern-checkbox';
+        checkbox.id = `${prefix}concern_${key}`; // FIXED: Removed extra underscore
+        
+        // ✅ ADD EVENT LISTENER
+        checkbox.addEventListener('change', (e) => {
+            console.log(`Checkbox ${key} changed:`, e.target.checked, e.target.value);
+            
+            // Visual feedback
+            if (e.target.checked) {
+                label.style.background = '#00a08bff';
+                label.style.borderRadius = '4px';
+                label.style.padding = '4px 8px';
+            } else {
+                label.style.background = '';
+                label.style.padding = '';
             }
         });
         
-        console.log(`Initialized ${allCheckboxes.length} checkbox listeners`);
-    },
+        const span = document.createElement('span');
+        span.textContent = `${concern.icon} ${concern.title}`;
+        
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        container.appendChild(label);
+    });
+    
+    console.log(`Populated ${concerns.length} ${type} checkboxes in ${formType} form`);
+},
+    
+    // ✅ FIXED: Get selected concerns from checkboxes
+getSelectedConcerns(type, formType = 'add') {
+    const prefix = formType === 'edit' ? 'edit_' : ''; // FIXED: Added underscore
+    const section = type === 'informational' 
+        ? document.getElementById(`${prefix}informationalTriggersCheckboxes`)
+        : document.getElementById(`${prefix}testimonialTriggersCheckboxes`);
+    
+    const selected = [];
+    if (section) {
+        const checkboxes = section.querySelectorAll('.concern-checkbox:checked');
+        console.log(`Found ${checkboxes.length} checked checkboxes in ${formType} form`);
+        checkboxes.forEach(cb => {
+            selected.push(cb.value);
+        });
+    }
+    return selected;
+},
 
     addVideoFromForm() {
+        // 1. Get Selected Group
         const groupId = document.getElementById('selectGroupDropdown').value;
         if (!groupId) {
             alert('Please select a group first!');
             return;
         }
 
+        // 2. Get Form Data
         const title = document.getElementById('testimonialTitle').value;
         const url = document.getElementById('videoUrl').value;
         const author = document.getElementById('authorName').value;
@@ -466,6 +538,7 @@ window.TestimonialManager = {
             return;
         }
 
+        // 3. Create Video Object
         const videoId = 'vid_' + Date.now();
         const videoObj = {
             id: videoId,
@@ -476,17 +549,21 @@ window.TestimonialManager = {
             text: document.getElementById('testimonialText').value
         };
 
+        // 4. Save to DataManager
         DataManager.data.videos[videoId] = videoObj;
         
+        // 5. Add ID to Group
         if (Array.isArray(DataManager.data.groups[groupId].videos)) {
             DataManager.data.groups[groupId].videos.push(videoId);
         } else {
             DataManager.data.groups[groupId].videos = [videoId];
         }
 
+        // 6. Save & Refresh UI
         DataManager.save();
         UI.renderSidebar();
         
+        // Clear Form
         document.getElementById('testimonialTitle').value = '';
         document.getElementById('videoUrl').value = '';
         
@@ -498,16 +575,21 @@ window.TestimonialManager = {
         const name = document.getElementById('editGroupName').value;
         const icon = document.getElementById('editGroupIcon').value;
         const desc = document.getElementById('editGroupDescription').value;
+        const type = document.getElementById('editGroupType') ? document.getElementById('editGroupType').value : 'testimonial';
 
         if (!name) {
             alert('Name is required');
             return;
         }
 
+        // ✅ Get selected concerns for edit form
+        const concerns = this.getSelectedConcerns(type, 'edit');
+
         DataManager.updateGroup(id, {
             name: name,
             icon: icon,
-            description: desc
+            description: desc,
+            concerns: concerns // ✅ Include concerns
         });
 
         UI.renderSidebar();
@@ -521,6 +603,7 @@ window.TestimonialManager = {
 
     loadSampleData() {
         if(confirm('This will replace your data with samples. Continue?')) {
+            // Sample logic...
             DataManager.init();
             UI.renderSidebar();
             UI.renderDropdown();
@@ -537,9 +620,10 @@ window.TestimonialManager = {
     // Modal methods:
     showAddModal() {
         UI.showModal();
-        // Initialize ALL checkbox listeners when modal opens
+        // ✅ Initialize checkboxes when modal opens
         setTimeout(() => {
-            this.initCheckboxListeners();
+            const defaultType = document.getElementById('newGroupType').value;
+            this.populateConcernCheckboxes(defaultType, 'add');
         }, 50);
     },
     
@@ -548,63 +632,43 @@ window.TestimonialManager = {
     },
 
     hideEditModal() {
-        const modal = document.getElementById('editTestimonialGroupModal');
-        if (modal) modal.style.display = 'none';
+        document.getElementById('editTestimonialGroupModal').style.display = 'none';
     },
     
-    // Group selection:
+    // Group selection method:
     selectGroup(groupId) {
+        // Call both functions to ensure compatibility
         if (UI && UI.selectGroup) {
             UI.selectGroup(groupId);
         }
         this.selectGroupForForm(groupId);
-    },
-    
-    // DEBUG: Check how many checkboxes we have
-    debugCheckboxes() {
-        const testCheckboxes = document.querySelectorAll('#testimonialTriggersCheckboxes .concern-checkbox');
-        const infoCheckboxes = document.querySelectorAll('#informationalTriggersCheckboxes .concern-checkbox');
-        
-        console.log('=== DEBUG ===');
-        console.log('Testimonial checkboxes:', testCheckboxes.length);
-        console.log('Informational checkboxes:', infoCheckboxes.length);
-        console.log('Total checkboxes:', testCheckboxes.length + infoCheckboxes.length);
-        
-        // List them all
-        testCheckboxes.forEach((cb, i) => {
-            console.log(`Testimonial ${i}:`, cb.value, cb.checked);
-        });
-        
-        return testCheckboxes.length + infoCheckboxes.length;
     }
 };
 
     // ============================================
-// 5. BOOTSTRAP
-// ============================================
+    // 5. BOOTSTRAP
+    // ============================================
 
-document.addEventListener('DOMContentLoaded', () => {
+   document.addEventListener('DOMContentLoaded', () => {
     console.clear();
     console.log('🚀 Starting Testimonial Manager...');
     
     DataManager.init();
     UI.init();
     
-    // Bind add button
+    // Bind generic events
     const addBtn = document.getElementById('addTestimonialGroupBtn');
     if (addBtn) addBtn.onclick = () => {
         window.TestimonialManager.showAddModal();
     };
     
-    // Initialize checkbox listeners on page load (for any existing checkboxes)
-    setTimeout(() => {
-        window.TestimonialManager.initCheckboxListeners();
-    }, 100);
-    
     // Close modal listener
     window.onclick = (e) => {
         const modal = document.getElementById('addTestimonialGroupModal');
         if (e.target === modal) UI.hideModal();
+        
+        const editModal = document.getElementById('editTestimonialGroupModal');
+        if (e.target === editModal) window.TestimonialManager.hideEditModal();
     };
     
     console.log('✅ System Ready');
