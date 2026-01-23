@@ -42,7 +42,7 @@
         }
     };
 
-    // ============================================
+        // ============================================
     // 2. DATA MANAGER (The "Single Source of Truth")
     // ============================================
 
@@ -71,18 +71,15 @@
                 }
             }
 
-            // 3. Ensure global access (for legacy compatibility)
+            // 3. Ensure global access
             window.testimonialData = this.data;
             
             this.updateStatistics();
             console.log('✅ DataManager Ready');
         },
 
-        // Merges old messy structures into clean new structure
         migrate(oldData) {
-            const newData = JSON.parse(JSON.stringify(DEFAULT_DATA)); // Fresh base
-
-            // Helper to normalize group to Object
+            const newData = JSON.parse(JSON.stringify(DEFAULT_DATA)); 
             const normalizeGroups = (input) => {
                 const result = {};
                 if (Array.isArray(input)) {
@@ -93,16 +90,12 @@
                 return result;
             };
 
-            // 1. Check for new unified structure
             if (oldData.groups && typeof oldData.groups === 'object' && !Array.isArray(oldData.groups)) {
                 newData.groups = { ...newData.groups, ...oldData.groups };
             }
-
-            // 2. Check for legacy separated structures
             if (oldData.testimonialGroups) newData.groups = { ...newData.groups, ...normalizeGroups(oldData.testimonialGroups) };
             if (oldData.informationalGroups) newData.groups = { ...newData.groups, ...normalizeGroups(oldData.informationalGroups) };
-
-            // 3. Preserve other data
+            
             if (oldData.videos) newData.videos = oldData.videos;
             if (oldData.playerConfig) newData.playerConfig = oldData.playerConfig;
             
@@ -111,18 +104,13 @@
         },
 
         save() {
-            // Update stats before saving
             this.updateStatistics();
             try {
                 localStorage.setItem('testimonialManagerData', JSON.stringify(this.data));
-                
-                // Keep window object in sync for legacy scripts
                 window.testimonialData = this.data;
-                
                 console.log('💾 Data saved.');
             } catch (e) {
                 console.error('❌ Save failed:', e);
-                alert('Error saving data. Storage might be full.');
             }
         },
 
@@ -134,7 +122,6 @@
             this.data.statistics.totalVideos = Object.keys(this.data.videos).length;
         },
 
-        // CRUD Operations
         addGroup(groupData) {
             const id = groupData.id || 'group_' + Date.now();
             this.data.groups[id] = {
@@ -167,12 +154,19 @@
         },
 
         // ==========================================
-        // ✅ EXPORT LOGIC (New -> Old)
+        // ✅ FIXED: EXPORT LOGIC (Matches Target Format)
         // ==========================================
 
         exportToLegacyFormat() {
+            // 1. Clean Concerns (Remove 'triggers' key which is internal only)
+            const cleanedConcerns = {};
+            Object.keys(this.data.concerns).forEach(key => {
+                const { triggers, ...rest } = this.data.concerns[key];
+                cleanedConcerns[key] = rest;
+            });
+
             const legacyData = {
-                concerns: this.data.concerns || {},
+                concerns: cleanedConcerns,
                 testimonialGroups: {},
                 informationalGroups: {},
                 statistics: {
@@ -183,24 +177,32 @@
                     totalVideos: 0
                 },
                 playerConfig: this.data.playerConfig || {
-                    desktop: { width: 854, height: 480 },
-                    mobile: { fullscreen: true }
+                    desktop: { width: 854, height: 480, top: "50%", left: "50%", borderRadius: "12px" },
+                    mobile: { fullscreen: true },
+                    overlay: { background: "rgba(0, 0, 0, 0.5)" },
+                    resumeMessage: "I'm sure you can appreciate what our clients have to say. Let's get back on track..."
                 },
-                __version: "3.0-exported",
-                __generated: new Date().toISOString()
+                __version: "3.0-dual-system-clean",
+                __generated: new Date().toISOString(),
+                __notes: "Pure data structure. Logic moved to System/UI layer."
             };
             
-            // Convert unified groups to legacy split groups
+            // 2. Convert Groups
             Object.values(this.data.groups || {}).forEach(group => {
+                // Create slug if missing
+                const slug = group.slug || group.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
                 if (group.type === 'informational') {
+                    // ✅ INFORMATIONAL EXPORT FORMAT
                     legacyData.informationalGroups[group.id] = {
                         id: group.id,
                         type: 'informational',
                         name: group.name,
+                        slug: slug,
                         icon: group.icon || '📚',
                         description: group.description || '',
                         concerns: group.concerns || [],
-                        videos: [],
+                        videos: [], // Populate below
                         createdAt: group.createdAt || new Date().toISOString(),
                         viewCount: 0
                     };
@@ -211,10 +213,10 @@
                             legacyData.informationalGroups[group.id].videos.push({
                                 id: video.id || videoId,
                                 title: video.title,
-                                concernType: video.concern,
-                                videoUrl: video.url,
-                                author: video.author,
-                                description: video.text,
+                                concernType: video.concern, // Map 'concern' -> 'concernType'
+                                videoUrl: video.url,        // Map 'url' -> 'videoUrl'
+                                author: video.author || 'System Explanation',
+                                description: video.text,    // Map 'text' -> 'description'
                                 addedAt: video.createdAt || new Date().toISOString(),
                                 views: 0
                             });
@@ -222,18 +224,19 @@
                             legacyData.statistics.totalVideos++;
                         }
                     });
-                    
                     legacyData.statistics.totalInformationalGroups++;
                     
                 } else {
+                    // ✅ TESTIMONIAL EXPORT FORMAT
                     legacyData.testimonialGroups[group.id] = {
                         id: group.id,
                         type: 'testimonial',
                         name: group.name,
-                        icon: group.icon || '🎬',
+                        slug: slug,
+                        icon: group.icon || '📈',
                         description: group.description || '',
                         concerns: group.concerns || [],
-                        testimonials: [],
+                        testimonials: [], // Populate below
                         createdAt: group.createdAt || new Date().toISOString(),
                         viewCount: 0
                     };
@@ -255,7 +258,6 @@
                             legacyData.statistics.totalVideos++;
                         }
                     });
-                    
                     legacyData.statistics.totalTestimonialGroups++;
                 }
             });
@@ -266,16 +268,18 @@
         createFileContent() {
             const legacyData = this.exportToLegacyFormat();
             
+            // Helper to pretty print stats
+            const stats = legacyData.statistics;
+            
             return `// ===================================================
 // 🎬 DUAL VIDEO SYSTEM DATA - CLEANED
-// Generated from Testimonial Manager
-// Export Date: ${new Date().toLocaleDateString()}
+// Compatible with Testimonial Manager v3.0
 // ===================================================
 
 window.testimonialData = ${JSON.stringify(legacyData, null, 4)};
 
 // ===================================================
-// UTILITY FUNCTIONS
+// UTILITY FUNCTIONS (Data Retrieval Only)
 // ===================================================
 
 window.testimonialData.getVideo = function(videoId) {
@@ -286,7 +290,6 @@ window.testimonialData.getVideo = function(videoId) {
             if (found) return { ...found, groupName: group.name, groupType: 'testimonial' };
         }
     }
-    
     for (const groupId in this.informationalGroups) {
         const group = this.informationalGroups[groupId];
         if (group.videos) {
@@ -294,22 +297,17 @@ window.testimonialData.getVideo = function(videoId) {
             if (found) return { ...found, groupName: group.name, groupType: 'informational' };
         }
     }
-    
     return null;
 };
 
 window.testimonialData.getConcernTestimonials = function(concernKey) {
     const results = [];
     if (!this.testimonialGroups) return results;
-    
     for (const [groupId, group] of Object.entries(this.testimonialGroups)) {
         if (group.concerns && group.concerns.includes(concernKey)) {
             if (group.testimonials) {
                 results.push(...group.testimonials.map(t => ({
-                    ...t,
-                    groupName: group.name,
-                    groupIcon: group.icon,
-                    groupType: 'testimonial'
+                    ...t, groupName: group.name, groupIcon: group.icon, groupType: 'testimonial'
                 })));
             }
         }
@@ -320,15 +318,11 @@ window.testimonialData.getConcernTestimonials = function(concernKey) {
 window.testimonialData.getConcernVideos = function(concernKey) {
     const results = [];
     if (!this.informationalGroups) return results;
-    
     for (const [groupId, group] of Object.entries(this.informationalGroups)) {
         if (group.concerns && group.concerns.includes(concernKey)) {
             if (group.videos) {
                 results.push(...group.videos.map(v => ({
-                    ...v,
-                    groupName: group.name,
-                    groupIcon: group.icon,
-                    groupType: 'informational'
+                    ...v, groupName: group.name, groupIcon: group.icon, groupType: 'informational'
                 })));
             }
         }
@@ -337,9 +331,9 @@ window.testimonialData.getConcernVideos = function(concernKey) {
 };
 
 console.log('✅ Dual System Data Loaded:');
-console.log('   ⭐ Testimonial Groups:', window.testimonialData.statistics.totalTestimonialGroups);
-console.log('   📚 Informational Groups:', window.testimonialData.statistics.totalInformationalGroups);
-console.log('   🎬 Total Videos:', window.testimonialData.statistics.totalVideos);`;
+console.log('   ⭐ Testimonial Groups:', ${stats.totalTestimonialGroups});
+console.log('   📚 Informational Groups:', ${stats.totalInformationalGroups});
+console.log('   🎬 Total Videos:', ${stats.totalVideos});`;
         },
         
         downloadTestimonialsJS() {
@@ -353,9 +347,7 @@ console.log('   🎬 Total Videos:', window.testimonialData.statistics.totalVide
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            
-            alert('✅ testimonials-data.js file downloaded!');
-            return true;
+            alert('✅ File exported successfully!');
         }
     };
 
@@ -500,11 +492,48 @@ console.log('   🎬 Total Videos:', window.testimonialData.statistics.totalVide
     };
 
    // ============================================
-// 4. EXPORTED GLOBAL FUNCTIONS (For HTML onclicks)
+// 4. EXPORTED GLOBAL FUNCTIONS
 // ============================================
 
 window.TestimonialManager = {
     
+    // ✅ HELPER: Dynamically generate checkboxes based on CONCERNS constant
+    generateCheckboxes(type, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        container.innerHTML = ''; // Clear existing
+        
+        Object.entries(CONCERNS).forEach(([key, data]) => {
+            if (data.type === type) {
+                const label = document.createElement('label');
+                label.className = 'concern-checkbox-item';
+                label.style.display = 'inline-flex';
+                label.style.alignItems = 'center';
+                label.style.margin = '5px';
+                label.style.padding = '5px 10px';
+                label.style.border = '1px solid #ddd';
+                label.style.borderRadius = '20px';
+                label.style.cursor = 'pointer';
+                label.style.userSelect = 'none';
+
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.className = 'concern-checkbox';
+                input.value = key;
+                input.style.marginRight = '8px';
+
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(`${data.icon} ${data.title}`));
+                
+                container.appendChild(label);
+            }
+        });
+        
+        // Re-initialize listeners for new elements
+        this.initCheckboxListeners();
+    },
+
     createGroupFromForm() {
         const name = document.getElementById('newGroupName').value.trim();
         const type = document.getElementById('newGroupType').value;
@@ -516,8 +545,9 @@ window.TestimonialManager = {
             return;
         }
 
-        // Get selected concerns
-        const concerns = this.getSelectedConcerns(type);
+        // ✅ Use the fixed selection method
+        const concerns = this.getSelectedConcerns(type, 'add');
+        console.log('Selected concerns for new group:', concerns);
 
         const newGroup = {
             name,
@@ -532,11 +562,9 @@ window.TestimonialManager = {
         UI.hideModal();
         UI.renderSidebar();
         UI.renderDropdown();
-        
-        // ✅ UPDATE CODE OUTPUT
         updateCodeOutput();
         
-        alert(`Group "${name}" created!`);
+        alert(`Group "${name}" created with ${concerns.length} concerns!`);
     },
 
     deleteGroup(id, event) {
@@ -545,7 +573,6 @@ window.TestimonialManager = {
             if (DataManager.deleteGroup(id)) {
                 UI.renderSidebar();
                 UI.renderDropdown();
-                // ✅ UPDATE CODE OUTPUT
                 updateCodeOutput();
             }
         }
@@ -553,7 +580,6 @@ window.TestimonialManager = {
 
     editGroup(id, event) {
         if (event) event.stopPropagation();
-        
         const group = DataManager.data.groups[id];
         if (!group) return;
         
@@ -568,23 +594,24 @@ window.TestimonialManager = {
         modal.style.display = 'flex';
         
         setTimeout(() => {
+            // Hide/Show sections
             const testSection = document.getElementById('editTestimonialTriggersCheckboxes');
             const infoSection = document.getElementById('editInformationalTriggersCheckboxes');
             
             if (group.type === 'informational') {
                 if (testSection) testSection.style.display = 'none';
                 if (infoSection) infoSection.style.display = 'block';
-                this.populateConcernCheckboxes(group.type, 'edit');
+                this.generateCheckboxes('informational', 'editInformationalTriggersCheckboxes');
             } else {
                 if (testSection) testSection.style.display = 'block';
                 if (infoSection) infoSection.style.display = 'none';
-                this.populateConcernCheckboxes(group.type, 'edit');
+                this.generateCheckboxes('testimonial', 'editTestimonialTriggersCheckboxes');
             }
 
-            // Check previously selected concerns
+            // Check boxes
             if (group.concerns && Array.isArray(group.concerns)) {
                 group.concerns.forEach(concernId => {
-                    const checkbox = document.getElementById(`edit_concern_${concernId}`);
+                    const checkbox = document.querySelector(`#editTestimonialTriggersCheckboxes input[value="${concernId}"], #editInformationalTriggersCheckboxes input[value="${concernId}"]`);
                     if (checkbox) checkbox.checked = true;
                 });
             }
@@ -592,7 +619,6 @@ window.TestimonialManager = {
     },
 
     downloadData() {
-        // Download JSON (Backup)
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DataManager.data, null, 2));
         const downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
@@ -602,7 +628,7 @@ window.TestimonialManager = {
         downloadAnchorNode.remove();
     },
     
-    // ✅ NEW: Download the actual JS file
+    // ✅ This calls the DataManager's fixed export logic
     downloadJSFile() {
         DataManager.downloadTestimonialsJS();
     },
@@ -610,7 +636,6 @@ window.TestimonialManager = {
     selectGroupForForm(groupId) {
         const group = DataManager.data.groups[groupId];
         if (!group) return;
-
         document.getElementById('currentGroupName').textContent = group.name;
         document.getElementById('selectGroupDropdown').value = groupId;
     },
@@ -624,46 +649,40 @@ window.TestimonialManager = {
             iconInput.value = '📚';
             if (testSection) testSection.style.display = 'none';
             if (infoSection) infoSection.style.display = 'block';
+            // ✅ Generate checkboxes dynamically
+            this.generateCheckboxes('informational', 'informationalTriggersCheckboxes');
         } else {
             iconInput.value = '🎬';
             if (testSection) testSection.style.display = 'block';
             if (infoSection) infoSection.style.display = 'none';
+            // ✅ Generate checkboxes dynamically
+            this.generateCheckboxes('testimonial', 'testimonialTriggersCheckboxes');
         }
-        
-        this.populateConcernCheckboxes(type, 'add');
     },
     
-    populateConcernCheckboxes(type, formType = 'add') {
-        if (formType === 'add') {
-            const testSection = document.getElementById('testimonialTriggersCheckboxes');
-            const infoSection = document.getElementById('informationalTriggersCheckboxes');
-            
-            if (type === 'informational') {
-                if (testSection) testSection.style.display = 'none';
-                if (infoSection) infoSection.style.display = 'block';
-            } else {
-                if (testSection) testSection.style.display = 'block';
-                if (infoSection) infoSection.style.display = 'none';
-            }
-        }
+    populateConcernCheckboxes(type, formType) {
+        // This function is now redundant as updateIconBasedOnType and editGroup handle generation
+        // but we keep it for safety
+        const prefix = formType === 'edit' ? 'edit_' : '';
+        const typeLower = type === 'informational' ? 'informational' : 'testimonial';
+        const containerId = `${prefix}${typeLower}TriggersCheckboxes`;
+        this.generateCheckboxes(type, containerId);
     },
 
     initCheckboxListeners() {
         const checkboxes = document.querySelectorAll('.concern-checkbox');
         checkboxes.forEach(checkbox => {
-            if (checkbox.hasAttribute('data-initialized')) return;
-            checkbox.setAttribute('data-initialized', 'true');
+            if (checkbox.hasAttribute('data-listener')) return;
+            checkbox.setAttribute('data-listener', 'true');
             checkbox.addEventListener('change', function() {
-                const label = this.closest('label.concern-checkbox-item');
+                const label = this.closest('label');
                 if (label) {
                     if (this.checked) {
                         label.style.background = '#00a08bff';
-                        label.style.borderRadius = '4px';
-                        label.style.padding = '4px 8px';
+                        label.style.color = '#fff';
                     } else {
                         label.style.background = '';
-                        label.style.borderRadius = '';
-                        label.style.padding = '';
+                        label.style.color = '';
                     }
                 }
             });
@@ -686,19 +705,13 @@ window.TestimonialManager = {
 
     addVideoFromForm() {
         const groupId = document.getElementById('selectGroupDropdown').value;
-        if (!groupId) {
-            alert('Please select a group first!');
-            return;
-        }
+        if (!groupId) { alert('Please select a group first!'); return; }
 
         const title = document.getElementById('testimonialTitle').value;
         const url = document.getElementById('videoUrl').value;
         const author = document.getElementById('authorName').value;
         
-        if (!title) {
-            alert('Please enter a video title');
-            return;
-        }
+        if (!title) { alert('Please enter a video title'); return; }
 
         const videoId = 'vid_' + Date.now();
         const videoObj = {
@@ -706,7 +719,7 @@ window.TestimonialManager = {
             title: title,
             url: url,
             author: author || 'Anonymous',
-            concern: document.getElementById('concernType').value,
+            concern: document.getElementById('concernType').value, // Stored as 'concern' internally
             text: document.getElementById('testimonialText').value
         };
 
@@ -720,13 +733,10 @@ window.TestimonialManager = {
 
         DataManager.save();
         UI.renderSidebar();
-        
-        // ✅ UPDATE CODE OUTPUT
         updateCodeOutput();
         
         document.getElementById('testimonialTitle').value = '';
         document.getElementById('videoUrl').value = '';
-        
         alert('Video Added!');
     },
 
@@ -735,12 +745,12 @@ window.TestimonialManager = {
         const name = document.getElementById('editGroupName').value;
         const icon = document.getElementById('editGroupIcon').value;
         const desc = document.getElementById('editGroupDescription').value;
-        const type = document.getElementById('editGroupType') ? document.getElementById('editGroupType').value : 'testimonial';
+        
+        // Infer type from the visible section or default to current
+        const group = DataManager.data.groups[id];
+        const type = group ? group.type : 'testimonial';
 
-        if (!name) {
-            alert('Name is required');
-            return;
-        }
+        if (!name) { alert('Name is required'); return; }
 
         const concerns = this.getSelectedConcerns(type, 'edit');
 
@@ -753,8 +763,6 @@ window.TestimonialManager = {
 
         UI.renderSidebar();
         this.hideEditModal();
-        
-        // ✅ UPDATE CODE OUTPUT
         updateCodeOutput();
     },
 
@@ -766,19 +774,19 @@ window.TestimonialManager = {
 
     copyCode() {
         const code = document.getElementById('codeOutput').textContent;
-        navigator.clipboard.writeText(code);
-        alert('Code copied to clipboard!');
+        navigator.clipboard.writeText(code).then(() => alert('Code copied!'));
     },
     
     showAddModal() {
         UI.showModal();
-        setTimeout(() => { this.initCheckboxListeners(); }, 50);
+        // Default to testimonial view
+        setTimeout(() => {
+            this.updateIconBasedOnType('testimonial');
+            this.initCheckboxListeners();
+        }, 50);
     },
     
-    hideAddModal() {
-        UI.hideModal();
-    },
-
+    hideAddModal() { UI.hideModal(); },
     hideEditModal() {
         const modal = document.getElementById('editTestimonialGroupModal');
         if (modal) modal.style.display = 'none';
