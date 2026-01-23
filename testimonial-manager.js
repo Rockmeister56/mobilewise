@@ -304,19 +304,6 @@ console.log('✅ Dual System Data Loaded:');`;
         }
     };
 
-    // ============================================
-    // ✅ NEW: DISPLAY UPDATER
-    // ============================================
-    
-    // This function updates the text area on screen with the converted code
-    function updateCodeOutput() {
-        const codeOutput = document.getElementById('codeOutput');
-        if (!codeOutput) return;
-        
-        // Get the exact string that would be downloaded
-        const codeContent = DataManager.createFileContent();
-        codeOutput.textContent = codeContent;
-    }
 
         // ============================================
     // ✅ SCREEN UPDATER
