@@ -353,6 +353,9 @@ console.log('✅ Dual System Data Loaded:');`;
             // Initial Render
             this.renderSidebar();
             this.renderDropdown();
+
+            // ✅ ADD THIS LINE:
+        window.TestimonialManager.updateStatisticsUI();
             
             // ✅ CRITICAL: Update code box on load
             updateCodeOutput();
@@ -503,9 +506,42 @@ window.TestimonialManager = {
                 
                 container.appendChild(label);
             }
+            
         });
         
         this.initCheckboxListeners();
+    },
+
+        // ============================================
+    // ✅ CLEAN STATISTICS UPDATER
+    // ============================================
+
+    updateStatisticsUI() {
+        // 1. Get data from the new DataManager
+        const groups = DataManager.data.groups || {};
+        const videos = DataManager.data.videos || {};
+
+        // 2. Calculate Counts
+        const totalGroups = Object.keys(groups).length;
+        const totalVideos = Object.keys(videos).length;
+
+        // 3. Calculate Total Views (Sum up 'views' from all video objects)
+        let totalViews = 0;
+        Object.values(videos).forEach(v => {
+            if (v.views && typeof v.views === 'number') {
+                totalViews += v.views;
+            }
+        });
+
+        // 4. Update the Sidebar DOM Elements
+        // Make sure to match the IDs in your HTML exactly
+        const elGroups = document.getElementById('statTotalGroups');
+        const elVideos = document.getElementById('statTotalVideos');
+        const elViews = document.getElementById('statTotalViews');
+
+        if (elGroups) elGroups.textContent = totalGroups;
+        if (elVideos) elVideos.textContent = totalVideos;
+        if (elViews) elViews.textContent = totalViews;
     },
 
     createGroupFromForm() {
@@ -537,6 +573,9 @@ window.TestimonialManager = {
         UI.renderSidebar();
         UI.renderDropdown();
         updateCodeOutput();
+
+        // ✅ ADD THIS LINE:
+        window.TestimonialManager.updateStatisticsUI();
         
         alert(`Group "${name}" created with ${concerns.length} concerns!`);
     },
@@ -548,6 +587,9 @@ window.TestimonialManager = {
                 UI.renderSidebar();
                 UI.renderDropdown();
                 updateCodeOutput();
+
+                // ✅ ADD THIS LINE:
+        window.TestimonialManager.updateStatisticsUI();
             }
         }
     },
@@ -708,6 +750,9 @@ window.TestimonialManager = {
         DataManager.save();
         UI.renderSidebar();
         updateCodeOutput();
+
+        // ✅ ADD THIS LINE:
+        window.TestimonialManager.updateStatisticsUI();
         
         document.getElementById('testimonialTitle').value = '';
         document.getElementById('videoUrl').value = '';
@@ -955,6 +1000,7 @@ window.TestimonialManager = {
         }
     }
 };
+
 
     // ============================================
     // 5. BOOTSTRAP
