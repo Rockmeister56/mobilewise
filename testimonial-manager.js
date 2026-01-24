@@ -469,14 +469,14 @@ console.log('✅ Dual System Data Loaded:');`;
 
 window.TestimonialManager = {
     
-        // ✅ HELPER: Dynamically generate checkboxes
+    // 1. Dynamic Checkboxes
     generateCheckboxes(type, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
         
-        container.innerHTML = ''; // Clear existing
+        container.innerHTML = ''; 
         
-        // ✅ FIX: Force container to flex and wrap so items don't stretch horizontally
+        // FIX: Force container to flex and wrap
         container.style.display = 'flex';
         container.style.flexWrap = 'wrap';
         container.style.gap = '8px';
@@ -487,7 +487,7 @@ window.TestimonialManager = {
                 label.className = 'concern-checkbox-item';
                 label.style.display = 'inline-flex';
                 label.style.alignItems = 'center';
-                label.style.margin = '0'; // Removed margin since we use gap above
+                label.style.margin = '0'; 
                 label.style.padding = '5px 12px';
                 label.style.border = '1px solid #ddd';
                 label.style.borderRadius = '20px';
@@ -506,205 +506,12 @@ window.TestimonialManager = {
                 
                 container.appendChild(label);
             }
-            
         });
         
         this.initCheckboxListeners();
     },
 
-        // ============================================
-    // ✅ CLEAN STATISTICS UPDATER
-    // ============================================
-
-    updateStatisticsUI() {
-        // 1. Get data from the new DataManager
-        const groups = DataManager.data.groups || {};
-        const videos = DataManager.data.videos || {};
-
-        // 2. Calculate Counts
-        const totalGroups = Object.keys(groups).length;
-        const totalVideos = Object.keys(videos).length;
-
-        // 3. Calculate Total Views (Sum up 'views' from all video objects)
-        let totalViews = 0;
-        Object.values(videos).forEach(v => {
-            if (v.views && typeof v.views === 'number') {
-                totalViews += v.views;
-            }
-        });
-
-        // 4. Update the Sidebar DOM Elements
-        // Make sure to match the IDs in your HTML exactly
-        const elGroups = document.getElementById('statTotalGroups');
-        const elVideos = document.getElementById('statTotalVideos');
-        const elViews = document.getElementById('statTotalViews');
-
-        if (elGroups) elGroups.textContent = totalGroups;
-        if (elVideos) elVideos.textContent = totalVideos;
-        if (elViews) elViews.textContent = totalViews;
-    },
-
-    createGroupFromForm() {
-        const name = document.getElementById('newGroupName').value.trim();
-        const type = document.getElementById('newGroupType').value;
-        const icon = document.getElementById('newGroupIcon').value;
-        const description = document.getElementById('newGroupDescription').value.trim();
-
-        if (!name) {
-            alert('Please enter a group name');
-            return;
-        }
-
-        // ✅ Use the fixed selection method
-        const concerns = this.getSelectedConcerns(type, 'add');
-        console.log('Selected concerns for new group:', concerns);
-
-        const newGroup = {
-            name,
-            type,
-            icon,
-            description,
-            concerns: concerns
-        };
-
-        const id = DataManager.addGroup(newGroup);
-        
-        UI.hideModal();
-        UI.renderSidebar();
-        UI.renderDropdown();
-        updateCodeOutput();
-
-        // ✅ ADD THIS LINE:
-        window.TestimonialManager.updateStatisticsUI();
-        
-        alert(`Group "${name}" created with ${concerns.length} concerns!`);
-    },
-
-    deleteGroup(id, event) {
-        if (event) event.stopPropagation();
-        if (confirm('Are you sure you want to delete this group?')) {
-            if (DataManager.deleteGroup(id)) {
-                UI.renderSidebar();
-                UI.renderDropdown();
-                updateCodeOutput();
-
-                // ✅ ADD THIS LINE:
-        window.TestimonialManager.updateStatisticsUI();
-            }
-        }
-    },
-
-    editGroup(id, event) {
-        if (event) event.stopPropagation();
-        const group = DataManager.data.groups[id];
-        if (!group) return;
-        
-        const modal = document.getElementById('editTestimonialGroupModal');
-        if (!modal) return;
-        
-        document.getElementById('editGroupId').value = group.id;
-        document.getElementById('editGroupName').value = group.name || '';
-        document.getElementById('editGroupIcon').value = group.icon || '';
-        document.getElementById('editGroupDescription').value = group.description || '';
-        
-        modal.style.display = 'flex';
-        
-        setTimeout(() => {
-            // Hide/Show sections
-            const testSection = document.getElementById('editTestimonialTriggersCheckboxes');
-            const infoSection = document.getElementById('editInformationalTriggersCheckboxes');
-            
-            if (group.type === 'informational') {
-                if (testSection) testSection.style.display = 'none';
-                if (infoSection) infoSection.style.display = 'block';
-                this.generateCheckboxes('informational', 'editInformationalTriggersCheckboxes');
-            } else {
-                if (testSection) testSection.style.display = 'block';
-                if (infoSection) infoSection.style.display = 'none';
-                this.generateCheckboxes('testimonial', 'editTestimonialTriggersCheckboxes');
-            }
-
-            // Check boxes
-            if (group.concerns && Array.isArray(group.concerns)) {
-                group.concerns.forEach(concernId => {
-                    const checkbox = document.querySelector(`#editTestimonialTriggersCheckboxes input[value="${concernId}"], #editInformationalTriggersCheckboxes input[value="${concernId}"]`);
-                    if (checkbox) checkbox.checked = true;
-                });
-            }
-        }, 100);
-    },
-
-    downloadData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DataManager.data, null, 2));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "testimonials_data.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-    },
-    
-    // ✅ This calls the DataManager's fixed export logic
-    downloadJSFile() {
-        DataManager.downloadTestimonialsJS();
-    },
-
-    selectGroupForForm(groupId) {
-        const group = DataManager.data.groups[groupId];
-        if (!group) return;
-        document.getElementById('currentGroupName').textContent = group.name;
-        document.getElementById('selectGroupDropdown').value = groupId;
-    },
-
-    updateIconBasedOnType(type) {
-        const iconInput = document.getElementById('newGroupIcon');
-        const testSection = document.getElementById('testimonialTriggersCheckboxes');
-        const infoSection = document.getElementById('informationalTriggersCheckboxes');
-
-        if (type === 'informational') {
-            iconInput.value = '📚';
-            if (testSection) testSection.style.display = 'none';
-            if (infoSection) infoSection.style.display = 'block';
-            // ✅ Generate checkboxes dynamically
-            this.generateCheckboxes('informational', 'informationalTriggersCheckboxes');
-        } else {
-            iconInput.value = '🎬';
-            if (testSection) testSection.style.display = 'block';
-            if (infoSection) infoSection.style.display = 'none';
-            // ✅ Generate checkboxes dynamically
-            this.generateCheckboxes('testimonial', 'testimonialTriggersCheckboxes');
-        }
-    },
-    
-    populateConcernCheckboxes(type, formType) {
-        // This function is now redundant as updateIconBasedOnType and editGroup handle generation
-        // but we keep it for safety
-        const prefix = formType === 'edit' ? 'edit_' : '';
-        const typeLower = type === 'informational' ? 'informational' : 'testimonial';
-        const containerId = `${prefix}${typeLower}TriggersCheckboxes`;
-        this.generateCheckboxes(type, containerId);
-    },
-
-    initCheckboxListeners() {
-        const checkboxes = document.querySelectorAll('.concern-checkbox');
-        checkboxes.forEach(checkbox => {
-            if (checkbox.hasAttribute('data-listener')) return;
-            checkbox.setAttribute('data-listener', 'true');
-            checkbox.addEventListener('change', function() {
-                const label = this.closest('label');
-                if (label) {
-                    if (this.checked) {
-                        label.style.background = '#00a08bff';
-                        label.style.color = '#0008ffff';
-                    } else {
-                        label.style.background = '';
-                        label.style.color = '';
-                    }
-                }
-            });
-        });
-    },
-    
+    // 2. Get Selected Concerns
     getSelectedConcerns(type, formType = 'add') {
         const prefix = formType === 'edit' ? 'edit_' : '';
         const section = type === 'informational' 
@@ -719,6 +526,28 @@ window.TestimonialManager = {
         return selected;
     },
 
+    // 3. Checkbox Listeners
+    initCheckboxListeners() {
+        const checkboxes = document.querySelectorAll('.concern-checkbox');
+        checkboxes.forEach(checkbox => {
+            if (checkbox.hasAttribute('data-listener')) return;
+            checkbox.setAttribute('data-listener', 'true');
+            checkbox.addEventListener('change', function() {
+                const label = this.closest('label');
+                if (label) {
+                    if (this.checked) {
+                        label.style.background = '#00a08bff';
+                        label.style.color = '#fff';
+                    } else {
+                        label.style.background = '';
+                        label.style.color = '';
+                    }
+                }
+            });
+        });
+    },
+
+    // 4. Add Video (Clean & Complete)
     addVideoFromForm() {
         const groupId = document.getElementById('selectGroupDropdown').value;
         if (!groupId) { alert('Please select a group first!'); return; }
@@ -735,7 +564,7 @@ window.TestimonialManager = {
             title: title,
             url: url,
             author: author || 'Anonymous',
-            concern: document.getElementById('concernType').value, // Stored as 'concern' internally
+            concern: document.getElementById('concernType').value, 
             text: document.getElementById('testimonialText').value
         };
 
@@ -750,22 +579,171 @@ window.TestimonialManager = {
         DataManager.save();
         UI.renderSidebar();
         updateCodeOutput();
-
-        // ✅ ADD THIS LINE:
-        window.TestimonialManager.updateStatisticsUI();
+        window.TestimonialManager.updateStatisticsUI(); // Update stats
         
         document.getElementById('testimonialTitle').value = '';
         document.getElementById('videoUrl').value = '';
         alert('Video Added!');
     },
 
+    // 5. Test URL
+    testVideoUrl() {
+        const url = document.getElementById('videoUrl').value.trim();
+        
+        if (!url) {
+            alert('Please paste a URL first!');
+            return;
+        }
+
+        const videoPlayer = document.getElementById('testimonialVideoPlayer');
+        const videoModal = document.getElementById('videoPlayerModal');
+        const titleEl = document.getElementById('videoPlayerTitle');
+        const infoEl = document.getElementById('videoPlayerInfo');
+
+        if (!videoPlayer || !videoModal) {
+            alert('Error: Video Player Modal not found in HTML. Please ensure you added "Video Player Overlay" HTML.');
+            return;
+        }
+
+        videoPlayer.src = url;
+        videoPlayer.load();
+
+        if (titleEl) titleEl.textContent = 'Testing URL...';
+        if (infoEl) {
+            infoEl.innerHTML = `
+                <div class="video-info-item"><strong>Status:</strong> Testing Playback</div>
+                <div class="video-info-item"><strong>URL:</strong> ${url}</div>
+            `;
+        }
+
+        videoModal.style.display = 'flex';
+
+        setTimeout(() => {
+            videoPlayer.play().catch(e => {
+                console.warn('Playback failed (possibly invalid link):', e);
+                alert('Could not play video. Check URL and browser console.');
+            });
+        }, 500);
+    },
+
+    // 6. Create Group
+    createGroupFromForm() {
+        const name = document.getElementById('newGroupName').value.trim();
+        const type = document.getElementById('newGroupType').value;
+        const icon = document.getElementById('newGroupIcon').value;
+        const description = document.getElementById('newGroupDescription').value.trim();
+
+        if (!name) {
+            alert('Please enter a group name');
+            return;
+        }
+
+        const concerns = this.getSelectedConcerns(type, 'add');
+
+        const newGroup = {
+            name,
+            type,
+            icon,
+            description,
+            concerns: concerns
+        };
+
+        const id = DataManager.addGroup(newGroup);
+        
+        UI.hideModal();
+        UI.renderSidebar();
+        UI.renderDropdown();
+        updateCodeOutput();
+        window.TestimonialManager.updateStatisticsUI();
+        
+        alert(`Group "${name}" created!`);
+    },
+
+    // 7. Delete Group
+    deleteGroup(id, event) {
+        if (event) event.stopPropagation();
+        if (confirm('Are you sure you want to delete this group?')) {
+            if (DataManager.deleteGroup(id)) {
+                UI.renderSidebar();
+                UI.renderDropdown();
+                updateCodeOutput();
+                window.TestimonialManager.updateStatisticsUI();
+            }
+        }
+    },
+
+    // 8. Edit Group
+    editGroup(id, event) {
+        if (event) event.stopPropagation();
+        const group = DataManager.data.groups[id];
+        if (!group) return;
+        
+        const modal = document.getElementById('editTestimonialGroupModal');
+        if (!modal) return;
+        
+        document.getElementById('editGroupId').value = group.id;
+        document.getElementById('editGroupName').value = group.name || '';
+        document.getElementById('editGroupIcon').value = group.icon || '';
+        document.getElementById('editGroupDescription').value = group.description || '';
+        
+        modal.style.display = 'flex';
+        
+        setTimeout(() => {
+            const testSection = document.getElementById('editTestimonialTriggersCheckboxes');
+            const infoSection = document.getElementById('editInformationalTriggersCheckboxes');
+            
+            if (group.type === 'informational') {
+                if (testSection) testSection.style.display = 'none';
+                if (infoSection) infoSection.style.display = 'block';
+                this.generateCheckboxes('informational', 'editInformationalTriggersCheckboxes');
+            } else {
+                if (testSection) testSection.style.display = 'block';
+                if (infoSection) infoSection.style.display = 'none';
+                this.generateCheckboxes('testimonial', 'editTestimonialTriggersCheckboxes');
+            }
+
+            if (group.concerns && Array.isArray(group.concerns)) {
+                group.concerns.forEach(concernId => {
+                    const checkbox = document.querySelector(`#editTestimonialTriggersCheckboxes input[value="${concernId}"], #editInformationalTriggersCheckboxes input[value="${concernId}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+        }, 100);
+    },
+
+    // 9. Update Icon
+    updateIconBasedOnType(type) {
+        const iconInput = document.getElementById('newGroupIcon');
+        const testSection = document.getElementById('testimonialTriggersCheckboxes');
+        const infoSection = document.getElementById('informationalTriggersCheckboxes');
+
+        if (type === 'informational') {
+            iconInput.value = '📚';
+            if (testSection) testSection.style.display = 'none';
+            if (infoSection) infoSection.style.display = 'block';
+            this.generateCheckboxes('informational', 'informationalTriggersCheckboxes');
+        } else {
+            iconInput.value = '🎬';
+            if (testSection) testSection.style.display = 'block';
+            if (infoSection) infoSection.style.display = 'none';
+            this.generateCheckboxes('testimonial', 'testimonialTriggersCheckboxes');
+        }
+    },
+    
+    populateConcernCheckboxes(type, formType) {
+        const prefix = formType === 'edit' ? 'edit_' : '';
+        const typeLower = type === 'informational' ? 'informational' : 'testimonial';
+        const containerId = `${prefix}${typeLower}TriggersCheckboxes`;
+        this.generateCheckboxes(type, containerId);
+    },
+
+    // 10. Save Edit
     saveEditFromForm() {
         const id = document.getElementById('editGroupId').value;
         const name = document.getElementById('editGroupName').value;
         const icon = document.getElementById('editGroupIcon').value;
         const desc = document.getElementById('editGroupDescription').value;
         
-        // Infer type from the visible section or default to current
         const group = DataManager.data.groups[id];
         const type = group ? group.type : 'testimonial';
 
@@ -783,29 +761,35 @@ window.TestimonialManager = {
         UI.renderSidebar();
         this.hideEditModal();
         updateCodeOutput();
+        window.TestimonialManager.updateStatisticsUI();
     },
 
+    // 11. Save Data
     saveData() {
         DataManager.save();
         updateCodeOutput();
+        window.TestimonialManager.updateStatisticsUI();
         alert('Data Saved!');
     },
 
+    // 12. Copy Code
     copyCode() {
         const code = document.getElementById('codeOutput').textContent;
         navigator.clipboard.writeText(code).then(() => alert('Code copied!'));
     },
     
+    // 13. Show Add Modal
     showAddModal() {
         UI.showModal();
-        // Default to testimonial view
         setTimeout(() => {
             this.updateIconBasedOnType('testimonial');
             this.initCheckboxListeners();
         }, 50);
     },
     
+    // 14. Hide Modals
     hideAddModal() { UI.hideModal(); },
+    
     hideEditModal() {
         const modal = document.getElementById('editTestimonialGroupModal');
         if (modal) modal.style.display = 'none';
@@ -813,21 +797,39 @@ window.TestimonialManager = {
     
     selectGroup(groupId) {
         if (UI && UI.selectGroup) UI.selectGroup(groupId);
-        this.selectGroupForForm(groupId);
-   },
+    },
 
-        // ============================================
-    // ✅ VIEW TESTIMONIALS (Overlay Logic)
-    // ============================================
+    // 15. Clean Statistics Updater
+    updateStatisticsUI() {
+        const groups = DataManager.data.groups || {};
+        const videos = DataManager.data.videos || {};
 
+        const totalGroups = Object.keys(groups).length;
+        const totalVideos = Object.keys(videos).length;
+
+        let totalViews = 0;
+        Object.values(videos).forEach(v => {
+            if (v.views && typeof v.views === 'number') {
+                totalViews += v.views;
+            }
+        });
+
+        const elGroups = document.getElementById('statTotalGroups');
+        const elVideos = document.getElementById('statTotalVideos');
+        const elViews = document.getElementById('statTotalViews');
+
+        if (elGroups) elGroups.textContent = totalGroups;
+        if (elVideos) elVideos.textContent = totalVideos;
+        if (elViews) elViews.textContent = totalViews;
+    },
+    
+    // 16. View Group Overlay
     viewGroup(groupId) {
         const group = DataManager.data.groups[groupId];
         if (!group) return;
 
-        // 1. Select the group in UI (highlight sidebar)
         UI.selectGroup(groupId);
 
-        // 2. Resolve video IDs into video objects (since they are stored separately)
         const videoList = [];
         if (group.videos && Array.isArray(group.videos)) {
             group.videos.forEach(vidId => {
@@ -837,11 +839,9 @@ window.TestimonialManager = {
             });
         }
 
-        // 3. Render the Overlay
         const container = document.getElementById('allTestimonialsContent');
         if (!container) {
             console.warn("⚠️ allTestimonialsContent div not found in HTML.");
-            alert("Could not find view container.");
             return;
         }
 
@@ -861,22 +861,18 @@ window.TestimonialManager = {
             `;
         }
 
-        // 4. Show the Modal
         const modal = document.getElementById('allTestimonialsModal');
         if (modal) {
             modal.style.display = 'flex';
         }
         
-        // Update count in modal header if element exists
         const countDisplay = document.getElementById('totalTestimonialsCount');
         if (countDisplay) countDisplay.textContent = videoList.length;
     },
 
     createVideoCard(video) {
-        // Map internal 'concern' to display 'concernType'
         const concernType = video.concern || 'general';
         
-        // Icons mapping
         const concernIcons = {
             'price': '💰', 'time': '⏰', 'trust': '🤝', 'results': '📈', 'general': '⭐',
             'how_it_works': '⚙️', 'benefits_features': '✅', 'case_studies': '📊', 'faq': '❓'
@@ -913,11 +909,9 @@ window.TestimonialManager = {
     },
 
     playVideo(videoId) {
-        // 1. Find the video object in DataManager
         let video = null;
         let group = null;
 
-        // Find which group owns this video
         for (const [gId, gData] of Object.entries(DataManager.data.groups)) {
             if (gData.videos && gData.videos.includes(videoId)) {
                 video = DataManager.data.videos[videoId];
@@ -932,7 +926,6 @@ window.TestimonialManager = {
             return;
         }
 
-        // 2. Update Statistics (Increment Views)
         if (typeof video.views === 'number') {
             video.views++;
         } else {
@@ -943,27 +936,23 @@ window.TestimonialManager = {
             group.viewCount = (group.viewCount || 0) + 1;
         }
 
-        // 3. Save to DataManager
         DataManager.save();
-        UI.renderSidebar(); // Update counts on sidebar
+        UI.renderSidebar(); 
+        window.TestimonialManager.updateStatisticsUI();
 
-        // 4. Launch Video Player
         const videoPlayer = document.getElementById('testimonialVideoPlayer');
         const videoModal = document.getElementById('videoPlayerModal');
+        const titleEl = document.getElementById('videoPlayerTitle');
+        const infoEl = document.getElementById('videoPlayerInfo');
         
         if (!videoPlayer || !videoModal) {
             alert('Video player elements not found in HTML.');
             return;
         }
 
-        // Set Source
         videoPlayer.src = video.url;
         videoPlayer.load();
 
-        // Update Info in Player
-        const titleEl = document.getElementById('videoPlayerTitle');
-        const infoEl = document.getElementById('videoPlayerInfo');
-        
         if (titleEl) titleEl.textContent = video.title;
         if (infoEl) {
             infoEl.innerHTML = `
@@ -974,14 +963,11 @@ window.TestimonialManager = {
             `;
         }
 
-        // Close List Overlay (if open)
         const listModal = document.getElementById('allTestimonialsModal');
         if (listModal) listModal.style.display = 'none';
 
-        // Show Player Modal
         videoModal.style.display = 'flex';
 
-        // Auto-play
         setTimeout(() => {
             videoPlayer.play().catch(e => console.log('Autoplay blocked:', e));
         }, 500);
