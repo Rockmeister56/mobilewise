@@ -647,6 +647,13 @@ window.TestimonialManager = {
             return;
         }
 
+        // ✅ NEW: Check if Export Box exists before running export
+        const exportBox = document.getElementById('exportPreviewBox');
+        if (!exportBox) {
+            console.warn("Export preview box not found.");
+            return;
+        }
+
         const concerns = this.getSelectedConcerns(type, 'add');
 
         const newGroup = {
