@@ -649,13 +649,6 @@ window.TestimonialManager = {
         DataManager.downloadTestimonialsJS();
     },
 
-    selectGroupForForm(groupId) {
-        const group = DataManager.data.groups[groupId];
-        if (!group) return;
-        document.getElementById('currentGroupName').textContent = group.name;
-        document.getElementById('selectGroupDropdown').value = groupId;
-    },
-
     updateIconBasedOnType(type) {
         const iconInput = document.getElementById('newGroupIcon');
         const testSection = document.getElementById('testimonialTriggersCheckboxes');
