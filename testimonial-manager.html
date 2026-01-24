@@ -99,7 +99,10 @@
                         Select Video Group  
                     </label>
                     <!-- FIXED: onchange matches UI.selectGroup -->
-                    <select id="selectGroupDropdown" class="form-control" onchange="window.TestimonialManager.selectGroupForForm(this.value)">
+                    <select id="selectGroupDropdown" class="form-control">
+    <option value="">-- Select a Group to Add Testimonials --</option>
+    <!-- Groups will be dynamically populated -->
+</select>
                         <option value="">-- Select a Group to Add Testimonials --</option>
                         <!-- Groups will be dynamically populated -->
                     </select>
