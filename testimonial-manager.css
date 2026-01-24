@@ -530,19 +530,17 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     z-index: 9999 !important;
 }
 
-/* Ensure the actual content box is above the backdrop */
-#videoPlayerModal .modal-dialog, #allTestimonialsModal .modal-dialog {
-    z-index: 10000 !important; /* Higher than sidebar */
-    background: #ffffff; /* Ensure white background */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5); /* Make it pop */
-    border: 1px solid #ddd;
-    border-radius: 8px;
+/* Fix for Video Player Visibility */
+#videoPlayerModal .modal-dialog {
+    z-index: 99999 !important; /* Force to very top */
+    background: #ffffff;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    position: relative; /* Ensure it renders correctly */
+    overflow: visible; /* Ensure content isn't clipped */
 }
 
-/* Ensure the Video tag is visible and has size */
 #testimonialVideoPlayer {
-    display: block !important;
+    min-height: 400px !important; /* Force size to avoid "white line" look */
     width: 100%;
-    max-height: 80vh; /* Don't overflow screen */
-    object-fit: contain;
+    background: #000; /* Black background behind video if it's small */
 }
