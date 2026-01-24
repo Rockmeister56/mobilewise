@@ -361,7 +361,7 @@ console.log('✅ Dual System Data Loaded:');`;
             updateCodeOutput();
         },
 
-        renderSidebar() {
+                renderSidebar() {
             const container = this.elements.container;
             if (!container) return;
 
@@ -406,9 +406,11 @@ console.log('✅ Dual System Data Loaded:');`;
                     transition: all 0.2s;
                 `;
 
+                // ✅ FIX: Add Click Handler to Open View
                 btn.onclick = (e) => {
                     if (!e.target.closest('button')) {
-                        this.selectGroup(group.id);
+                        this.selectGroup(group.id); // Highlights the item
+                        window.TestimonialManager.viewGroup(group.id); // Opens the overlay
                     }
                 };
 
@@ -468,6 +470,13 @@ console.log('✅ Dual System Data Loaded:');`;
 // ============================================
 
 window.TestimonialManager = {
+
+        resetSystem() {
+        if(confirm('WARNING: This will clear all local data and reload the page. Continue?')) {
+            localStorage.clear();
+            location.reload(); // Forces a fresh page load
+        }
+    },
     
     // 1. Dynamic Checkboxes
     generateCheckboxes(type, containerId) {
@@ -673,42 +682,62 @@ window.TestimonialManager = {
     },
 
     // 8. Edit Group
+        // 8. EDIT GROUP (FIXED)
     editGroup(id, event) {
         if (event) event.stopPropagation();
+        
+        console.log('✏️ Editing Group ID:', id);
         const group = DataManager.data.groups[id];
-        if (!group) return;
         
+        if (!group) {
+            console.error('❌ Group not found for editing:', id);
+            alert('Error: Group data not found. Try refreshing the page.');
+            return;
+        }
+
+        // 1. Get Modal Elements
         const modal = document.getElementById('editTestimonialGroupModal');
-        if (!modal) return;
-        
+        if (!modal) {
+            console.error('❌ Edit Modal not found');
+            return;
+        }
+
+        // 2. Set Input Values Immediately (No Timeout needed)
         document.getElementById('editGroupId').value = group.id;
         document.getElementById('editGroupName').value = group.name || '';
         document.getElementById('editGroupIcon').value = group.icon || '';
         document.getElementById('editGroupDescription').value = group.description || '';
-        
-        modal.style.display = 'flex';
-        
-        setTimeout(() => {
-            const testSection = document.getElementById('editTestimonialTriggersCheckboxes');
-            const infoSection = document.getElementById('editInformationalTriggersCheckboxes');
-            
-            if (group.type === 'informational') {
-                if (testSection) testSection.style.display = 'none';
-                if (infoSection) infoSection.style.display = 'block';
-                this.generateCheckboxes('informational', 'editInformationalTriggersCheckboxes');
-            } else {
-                if (testSection) testSection.style.display = 'block';
-                if (infoSection) infoSection.style.display = 'none';
-                this.generateCheckboxes('testimonial', 'editTestimonialTriggersCheckboxes');
-            }
 
-            if (group.concerns && Array.isArray(group.concerns)) {
-                group.concerns.forEach(concernId => {
-                    const checkbox = document.querySelector(`#editTestimonialTriggersCheckboxes input[value="${concernId}"], #editInformationalTriggersCheckboxes input[value="${concernId}"]`);
-                    if (checkbox) checkbox.checked = true;
-                });
-            }
-        }, 100);
+        // 3. Show Modal
+        modal.style.display = 'flex';
+
+        // 4. Handle Checkboxes (Run Logic Immediately)
+        const testSection = document.getElementById('editTestimonialTriggersCheckboxes');
+        const infoSection = document.getElementById('editInformationalTriggersCheckboxes');
+
+        // Hide/Show sections
+        if (group.type === 'informational') {
+            if (testSection) testSection.style.display = 'none';
+            if (infoSection) infoSection.style.display = 'block';
+            this.generateCheckboxes('informational', 'editInformationalTriggersCheckboxes');
+        } else {
+            if (testSection) testSection.style.display = 'block';
+            if (infoSection) infoSection.style.display = 'none';
+            this.generateCheckboxes('testimonial', 'editTestimonialTriggersCheckboxes');
+        }
+
+        // 5. Check Boxes
+        if (group.concerns && Array.isArray(group.concerns)) {
+            group.concerns.forEach(concernId => {
+                // Look in BOTH sections just to be safe
+                const checkbox = document.querySelector(`#editTestimonialTriggersCheckboxes input[value="${concernId}"], #editInformationalTriggersCheckboxes input[value="${concernId}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                } else {
+                    console.warn(`⚠️ Could not find checkbox for concern: ${concernId}`);
+                }
+            });
+        }
     },
 
     // 9. Update Icon
@@ -971,6 +1000,16 @@ window.TestimonialManager = {
         setTimeout(() => {
             videoPlayer.play().catch(e => console.log('Autoplay blocked:', e));
         }, 500);
+    },
+        // ============================================
+    // ✅ RESET SYSTEM
+    // ============================================
+
+    resetSystem() {
+        if(confirm('⚠️ WARNING: This will clear all unsaved data and reload the page. Continue?')) {
+            localStorage.clear();
+            location.reload(); // Forces a fresh page load
+        }
     },
 
     closeVideoPlayer() {
