@@ -468,6 +468,13 @@ console.log('✅ Dual System Data Loaded:');`;
 // ============================================
 
 window.TestimonialManager = {
+
+        resetSystem() {
+        if(confirm('WARNING: This will clear all local data and reload the page. Continue?')) {
+            localStorage.clear();
+            location.reload(); // Forces a fresh page load
+        }
+    },
     
     // 1. Dynamic Checkboxes
     generateCheckboxes(type, containerId) {
