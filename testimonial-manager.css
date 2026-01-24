@@ -138,8 +138,8 @@ body::before {
     align-items: center;
     padding: 14px 16px;
     background: linear-gradient(135deg, var(--primary) 0%, #2563eb 100%);
-    color: white;
-    border: 2px solid white;
+    color: rgb(0, 0, 255);
+    border: 2px solid rgb(0, 8, 255);
     border-radius: var(--radius);
     cursor: pointer;
     transition: all 0.3s ease;
@@ -177,7 +177,7 @@ body::before {
     top: 50%;
     transform: translateY(-50%);
     background: var(--danger);
-    color: white;
+    color: rgb(255, 0, 0);
     border: none;
     padding: 4px 8px;
     border-radius: 4px;
@@ -276,7 +276,7 @@ body::before {
 .code-filename { color: var(--text-muted); font-family: monospace; font-size: 0.9rem; }
 .code-output {
     background: #0f172a;
-    color: #e2e8f0;
+    color: #0004ff;
     padding: var(--space-lg);
     font-family: 'Courier New', monospace;
     font-size: 0.9rem;
@@ -408,11 +408,11 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 .btn:active { transform: scale(0.98); }
 
 /* Variants */
-.btn-primary { background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%); color: white; }
-.btn-success { background: linear-gradient(135deg, var(--success) 0%, #059669 100%); color: white; }
-.btn-danger  { background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%); color: white; }
-.btn-secondary { background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--border-color); }
-.btn-sample { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; }
+.btn-primary { background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%); color: rgb(0, 38, 255); }
+.btn-success { background: linear-gradient(135deg, var(--success) 0%, #059669 100%); color: rgb(0, 17, 255); }
+.btn-danger  { background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%); color: rgb(0, 0, 255); }
+.btn-secondary { background: rgba(255,255,255,0.1); color: rgba(0, 4, 255, 0.781); border: 1px solid var(--border-color); }
+.btn-sample { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: rgb(0, 21, 255); }
 
 /* Sizes */
 .btn-small { padding: 6px 12px; font-size: 0.85rem; }
@@ -494,7 +494,7 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     right: 20px;
     padding: var(--space-md) var(--space-lg);
     border-radius: var(--radius);
-    color: white;
+    color: rgb(0, 0, 255);
     z-index: 2000;
     display: none;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
