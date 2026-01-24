@@ -695,7 +695,7 @@ window.TestimonialManager = {
                 if (label) {
                     if (this.checked) {
                         label.style.background = '#00a08bff';
-                        label.style.color = '#fff';
+                        label.style.color = '#2d42ffff';
                     } else {
                         label.style.background = '';
                         label.style.color = '';

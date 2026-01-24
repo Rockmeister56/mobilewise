@@ -66,8 +66,8 @@ window.testimonialData = {
             "icon": "📊", 
             "type": "informational" 
         },
-        "faq": { 
-            "title": "FAQ", 
+        "results": { 
+            "title": "Results", 
             "icon": "❓", 
             "type": "informational" 
         },
