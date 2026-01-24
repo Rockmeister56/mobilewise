@@ -697,8 +697,8 @@ window.TestimonialManager = {
                         label.style.background = '#00a08bff';
                         label.style.color = '#2d42ffff';
                     } else {
-                        label.style.background = '';
-                        label.style.color = '';
+                        label.style.background = '#2d42ffff';
+                        label.style.color = '#2d42ffff';
                     }
                 }
             });
