@@ -530,25 +530,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     z-index: 9999 !important;
 }
 
-/* Force the video to take up space so it doesn't collapse to "white line" */
-#testimonialVideoPlayer {
-    display: block !important;
-    width: 100%;
-    height: auto;
-    min-height: 300px; /* CRITICAL: Prevents "white line" issue */
-    max-height: 70vh;
-    background: #000; /* Black background if video is transparent */
-    object-fit: contain;
-    border-radius: 4px;
-}
-
-/* Ensure the Modal Dialog is above everything else */
-#videoPlayerModal .modal-dialog {
-    z-index: 99999 !important; 
-    background: #fff; /* Ensure white background */
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5); /* Deep shadow */
-}
-
 /* Ensure the actual content box is above the backdrop */
 #videoPlayerModal .modal-dialog, #allTestimonialsModal .modal-dialog {
     z-index: 10000 !important; /* Higher than sidebar */
@@ -556,4 +537,12 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     box-shadow: 0 10px 25px rgba(0,0,0,0.5); /* Make it pop */
     border: 1px solid #ddd;
     border-radius: 8px;
+}
+
+/* Ensure the Video tag is visible and has size */
+#testimonialVideoPlayer {
+    display: block !important;
+    width: 100%;
+    max-height: 80vh; /* Don't overflow screen */
+    object-fit: contain;
 }
