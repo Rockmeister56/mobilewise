@@ -12,13 +12,7 @@
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📁</text></svg>">
 </head>
 <body>
-    <div id="videoPlayerModal" class="modal">
-        <div class="modal-backdrop" onclick="window.TestimonialManager.closeVideoPlayer()"></div>
-        <div class="modal-dialog modal-lg">
-            ... content ...
-        </div>
-    </div>
-    
+
     <div class="container">
         <!-- =========================================== -->
         <!-- SIDEBAR - TESTIMONIAL GROUPS SYSTEM -->
@@ -413,6 +407,55 @@
         </div>
     </div>
 </div>
+
+<!-- =========================================== -->
+    <!-- VIEW ALL TESTIMONIALS OVERLAY -->
+    <!-- =========================================== -->
+    <div id="allTestimonialsModal" class="modal">
+        <div class="modal-backdrop" onclick="document.getElementById('allTestimonialsModal').style.display='none'"></div>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <span class="modal-icon">📂</span>
+                    <span id="currentViewingGroupName">All Videos</span>
+                </h2>
+                <button class="modal-close" onclick="document.getElementById('allTestimonialsModal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="allTestimonialsContent" class="testimonials-grid">
+                    <!-- Video cards appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================== -->
+    <!-- VIDEO PLAYER OVERLAY -->
+    <!-- =========================================== -->
+    <div id="videoPlayerModal" class="modal">
+        <div class="modal-backdrop" onclick="window.TestimonialManager.closeVideoPlayer()"></div>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <span class="modal-icon">🎬</span>
+                    Now Playing
+                </h2>
+                <button class="modal-close" onclick="window.TestimonialManager.closeVideoPlayer()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- VIDEO PLAYER -->
+                <div class="video-player-wrapper">
+                    <video id="testimonialVideoPlayer" controls class="video-player-full"></video>
+                </div>
+                
+                <!-- VIDEO INFO -->
+                <div id="videoPlayerInfo" class="video-details">
+                    <!-- Info populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- STATUS MESSAGES -->
     <div id="successMessage" class="status-message success"></div>
     <div id="errorMessage" class="status-message error"></div>
