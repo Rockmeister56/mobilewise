@@ -285,44 +285,12 @@ window.testimonialData.getConcernVideos = function(k) {
 
 console.log('✅ Dual System Data Loaded:');`;
         },
-
-        // ============================================
-        // ✅ EXPORT LOGIC (Final Version)
-        // ==========================================
-
-        // A. Helper: Clean Concerns (Remove 'triggers' key)
-        exportToLegacyFormat() {
-            console.log('Converting to Legacy Format...');
-            
-            // 1. Clean Concerns
-            const cleanedConcerns = {};
-            Object.keys(this.data.concerns).forEach(key => {
-                const { triggers, ...rest } = this.data.concerns[key];
-                cleanedConcerns[key] = rest;
-            });
-            // ... rest of logic ...
-        },
         
-        createFileContent() {
-            const legacyData = this.exportToLegacyFormat();
-            const stats = legacyData.statistics;
-            return `// ===================================================
-// 🎬 DUAL VIDEO SYSTEM DATA - CLEANED
-// ===================================================
-
-window.testimonialData = ${JSON.stringify(legacyData, null, 4)};
-
-window.testimonialData.getVideo = function(vidId) { ... }
-// ... helper functions ...
-console.log('✅ Dual System Data Loaded:');`;
-        },
-        
-        // B. Main Export Function (Returns String Only)
         downloadTestimonialsJS() {
-            // 1. Generate Content
-            const jsContent = this.createFileContent();
+            // Update screen BEFORE downloading
+            updateCodeOutput(); 
             
-            // 2. Download
+            const jsContent = this.createFileContent();
             const blob = new Blob([jsContent], { type: 'application/javascript' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -332,14 +300,7 @@ console.log('✅ Dual System Data Loaded:');`;
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            
-            console.log('✅ Export triggered');
-            
-            // ✅ CLEANUP: Delete old file link in LocalStorage to prevent loops
-            localStorage.removeItem('testimonials-data-link'); 
-            localStorage.setItem('testimonials-data-link', new Date().toISOString());
-            alert('✅ testimonials-data.js file downloaded!');
-            return true;
+            alert('✅ Exported testimonials-data.js!');
         }
     };
 
