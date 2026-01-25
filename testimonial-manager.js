@@ -46,7 +46,7 @@
     // 2. DATA MANAGER (The "Single Source of Truth")
     // ============================================
 
-        const DataManager = {
+    const DataManager = {
         data: null,
 
         init() {
@@ -153,15 +153,14 @@
             return false;
         },
 
-        // ==========================================
-        // ✅ EXPORT LOGIC (Final Version - Separated String)
+               // ==========================================
+        // ✅ UPDATED EXPORT LOGIC
         // ==========================================
 
-        // A. Helper: Clean Concerns (Remove 'triggers')
-        exportToLegacyFormat_String() {
+        exportToLegacyFormat() {
             console.log('Converting to Legacy Format...');
             
-            // 1. Clean Concerns
+            // 1. Clean Concerns (Remove 'triggers' key which is internal only)
             const cleanedConcerns = {};
             Object.keys(this.data.concerns).forEach(key => {
                 const { triggers, ...rest } = this.data.concerns[key];
@@ -239,18 +238,91 @@
             
             return legacyData;
         },
-
-        // B. Main Export Function (Returns String Only)
-        exportFileContent() {
-            const legacyData = this.exportToLegacyFormat_String();
+        
+        createFileContent() {
+            const legacyData = this.exportToLegacyFormat();
             const stats = legacyData.statistics;
             
-            // Return ONLY the JSON string, wrapped in the object structure
-            return JSON.stringify(legacyData);
+            return `// ===================================================
+// 🎬 DUAL VIDEO SYSTEM DATA - CLEANED
+// ===================================================
+
+window.testimonialData = ${JSON.stringify(legacyData, null, 4)};
+
+window.testimonialData.getVideo = function(vidId) {
+    for (const gId in this.testimonialGroups) {
+        const g = this.testimonialGroups[gId];
+        if (g.testimonials) { const f = g.testimonials.find(t => t.id === vidId); if (f) return {...f, groupName: g.name, groupType: 'testimonial'}; }
+    }
+    for (const gId in this.informationalGroups) {
+        const g = this.informationalGroups[gId];
+        if (g.videos) { const f = g.videos.find(v => v.id === vidId); if (f) return {...f, groupName: g.name, groupType: 'informational'}; }
+    }
+    return null;
+};
+
+window.testimonialData.getConcernTestimonials = function(k) {
+    const r = [];
+    if (!this.testimonialGroups) return r;
+    for (const [gId, g] of Object.entries(this.testimonialGroups)) {
+        if (g.concerns?.includes(k) && g.testimonials) {
+            r.push(...g.testimonials.map(t => ({...t, groupName: g.name, groupIcon: g.icon, groupType: 'testimonial'})));
+        }
+    }
+    return r;
+};
+
+window.testimonialData.getConcernVideos = function(k) {
+    const r = [];
+    if (!this.informationalGroups) return r;
+    for (const [gId, g] of Object.entries(this.informationalGroups)) {
+        if (g.concerns?.includes(k) && g.videos) {
+            r.push(...g.videos.map(v => ({...v, groupName: g.name, groupIcon: g.icon, groupType: 'informational'})));
+        }
+    }
+    return r;
+};
+
+console.log('✅ Dual System Data Loaded:');`;
         },
 
+        // ============================================
+        // ✅ EXPORT LOGIC (Final Version)
+        // ==========================================
+
+        // A. Helper: Clean Concerns (Remove 'triggers' key)
+        exportToLegacyFormat() {
+            console.log('Converting to Legacy Format...');
+            
+            // 1. Clean Concerns
+            const cleanedConcerns = {};
+            Object.keys(this.data.concerns).forEach(key => {
+                const { triggers, ...rest } = this.data.concerns[key];
+                cleanedConcerns[key] = rest;
+            });
+            // ... rest of logic ...
+        },
+        
+        createFileContent() {
+            const legacyData = this.exportToLegacyFormat();
+            const stats = legacyData.statistics;
+            return `// ===================================================
+// 🎬 DUAL VIDEO SYSTEM DATA - CLEANED
+// ===================================================
+
+window.testimonialData = ${JSON.stringify(legacyData, null, 4)};
+
+window.testimonialData.getVideo = function(vidId) { ... }
+// ... helper functions ...
+console.log('✅ Dual System Data Loaded:');`;
+        },
+        
+        // B. Main Export Function (Returns String Only)
         downloadTestimonialsJS() {
-            const jsContent = this.exportFileContent();
+            // 1. Generate Content
+            const jsContent = this.createFileContent();
+            
+            // 2. Download
             const blob = new Blob([jsContent], { type: 'application/javascript' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -263,6 +335,9 @@
             
             console.log('✅ Export triggered');
             
+            // ✅ CLEANUP: Delete old file link in LocalStorage to prevent loops
+            localStorage.removeItem('testimonials-data-link'); 
+            localStorage.setItem('testimonials-data-link', new Date().toISOString());
             alert('✅ testimonials-data.js file downloaded!');
             return true;
         }
