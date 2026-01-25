@@ -46,7 +46,7 @@
     // 2. DATA MANAGER (The "Single Source of Truth")
     // ============================================
 
-    const DataManager = {
+        const DataManager = {
         data: null,
 
         init() {
@@ -153,14 +153,15 @@
             return false;
         },
 
-               // ==========================================
-        // ✅ UPDATED EXPORT LOGIC
+        // ==========================================
+        // ✅ EXPORT LOGIC (Final Version - Separated String)
         // ==========================================
 
-        exportToLegacyFormat() {
+        // A. Helper: Clean Concerns (Remove 'triggers')
+        exportToLegacyFormat_String() {
             console.log('Converting to Legacy Format...');
             
-            // 1. Clean Concerns (Remove 'triggers' key which is internal only)
+            // 1. Clean Concerns
             const cleanedConcerns = {};
             Object.keys(this.data.concerns).forEach(key => {
                 const { triggers, ...rest } = this.data.concerns[key];
@@ -238,59 +239,18 @@
             
             return legacyData;
         },
-        
-        createFileContent() {
-            const legacyData = this.exportToLegacyFormat();
+
+        // B. Main Export Function (Returns String Only)
+        exportFileContent() {
+            const legacyData = this.exportToLegacyFormat_String();
             const stats = legacyData.statistics;
             
-            return `// ===================================================
-// 🎬 DUAL VIDEO SYSTEM DATA - CLEANED
-// ===================================================
-
-window.testimonialData = ${JSON.stringify(legacyData, null, 4)};
-
-window.testimonialData.getVideo = function(vidId) {
-    for (const gId in this.testimonialGroups) {
-        const g = this.testimonialGroups[gId];
-        if (g.testimonials) { const f = g.testimonials.find(t => t.id === vidId); if (f) return {...f, groupName: g.name, groupType: 'testimonial'}; }
-    }
-    for (const gId in this.informationalGroups) {
-        const g = this.informationalGroups[gId];
-        if (g.videos) { const f = g.videos.find(v => v.id === vidId); if (f) return {...f, groupName: g.name, groupType: 'informational'}; }
-    }
-    return null;
-};
-
-window.testimonialData.getConcernTestimonials = function(k) {
-    const r = [];
-    if (!this.testimonialGroups) return r;
-    for (const [gId, g] of Object.entries(this.testimonialGroups)) {
-        if (g.concerns?.includes(k) && g.testimonials) {
-            r.push(...g.testimonials.map(t => ({...t, groupName: g.name, groupIcon: g.icon, groupType: 'testimonial'})));
-        }
-    }
-    return r;
-};
-
-window.testimonialData.getConcernVideos = function(k) {
-    const r = [];
-    if (!this.informationalGroups) return r;
-    for (const [gId, g] of Object.entries(this.informationalGroups)) {
-        if (g.concerns?.includes(k) && g.videos) {
-            r.push(...g.videos.map(v => ({...v, groupName: g.name, groupIcon: g.icon, groupType: 'informational'})));
-        }
-    }
-    return r;
-};
-
-console.log('✅ Dual System Data Loaded:');`;
+            // Return ONLY the JSON string, wrapped in the object structure
+            return JSON.stringify(legacyData);
         },
-        
+
         downloadTestimonialsJS() {
-            // Update screen BEFORE downloading
-            updateCodeOutput(); 
-            
-            const jsContent = this.createFileContent();
+            const jsContent = this.exportFileContent();
             const blob = new Blob([jsContent], { type: 'application/javascript' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -300,7 +260,11 @@ console.log('✅ Dual System Data Loaded:');`;
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            alert('✅ Exported testimonials-data.js!');
+            
+            console.log('✅ Export triggered');
+            
+            alert('✅ testimonials-data.js file downloaded!');
+            return true;
         }
     };
 
