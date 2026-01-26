@@ -22,7 +22,7 @@
         "how_it_works": { title: "How It Works", icon: "⚙️", type: "informational", triggers: ["process", "how it works"] },
         "benefits_features": { title: "Benefits & Features", icon: "✅", type: "informational", triggers: ["benefits", "features"] },
         "case_studies": { title: "Case Studies", icon: "📊", type: "informational", triggers: ["examples", "case studies"] },
-        "faq": { title: "FAQ", icon: "❓", type: "informational", triggers: ["questions", "faq"] }
+        "results": { title: "Results", icon: "↗️", type: "informational", triggers: ["results", "results"] }
     };
 
     // Default empty state
@@ -904,7 +904,7 @@ window.TestimonialManager = {
         
         const concernIcons = {
             'price': '💰', 'time': '⏰', 'trust': '🤝', 'results': '📈', 'general': '⭐',
-            'how_it_works': '⚙️', 'benefits_features': '✅', 'case_studies': '📊', 'faq': '❓'
+            'how_it_works': '⚙️', 'benefits_features': '✅', 'case_studies': '📊', 'results': '↗️'
         };
         
         const concernLabels = {
