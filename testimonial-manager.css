@@ -545,18 +545,57 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     background: #000; /* Black background behind video if it's small */
 }
 
-/* SIMPLE VERSION: 150px on each side */
-.main-content {
-    width: auto !important;
-    max-width: none !important;
-    margin: 0 150px 0 auto !important;
-    padding: 20px !important;
-    overflow-x: hidden !important;
+/* =========================================== */
+/* MAIN CONTENT SPACING FIX */
+/* =========================================== */
+
+.container {
+    padding: 0 20px !important; /* Add some padding to entire container */
     box-sizing: border-box !important;
 }
 
-/* Make cards slightly narrower to fit within margins */
+.main-content {
+    /* Calculate width: 100% viewport minus sidebar width minus margins on both sides */
+    max-width: calc(100vw - 320px - 300px) !important; /* 320px total margin (160px each side) */
+    margin: 0 160px 0 auto !important; /* 160px margin on left and right */
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+    padding: 20px !important;
+}
+
+/* For smaller screens, reduce the margins */
+@media (max-width: 1400px) {
+    .main-content {
+        max-width: calc(100vw - 320px - 200px) !important; /* 200px total margin (100px each side) */
+        margin: 0 100px 0 auto !important;
+    }
+}
+
+@media (max-width: 1200px) {
+    .main-content {
+        max-width: calc(100vw - 320px - 100px) !important; /* 100px total margin (50px each side) */
+        margin: 0 50px 0 auto !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .main-content {
+        max-width: calc(100vw - 280px - 40px) !important; /* 40px total margin (20px each side) */
+        margin: 0 20px 0 auto !important;
+    }
+}
+
+/* Card styling to ensure they fit within the new bounds */
 .card {
-    max-width: calc(100% - 40px) !important;
-    margin: 0 auto !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+/* Code output specific fixes */
+.code-output {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
 }
