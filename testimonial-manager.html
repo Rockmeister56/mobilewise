@@ -25,8 +25,7 @@
             </div>
             
             <!-- ADD GROUP BUTTON -->
-           <!-- FIXED: onclick matches window.TestimonialManager -->
-           <button id="addTestimonialGroupBtn" class="btn btn-primary btn-add-group" onclick="window.TestimonialManager.showAddModal()">
+            <button id="addTestimonialGroupBtn" class="btn btn-primary btn-add-group" onclick="window.TestimonialManager.showAddModal()">
                 <span class="btn-icon">+</span>
                 <span class="btn-text">Add Video Group</span>
             </button>
@@ -65,15 +64,14 @@
             
             <!-- ACTION BUTTONS -->
             <div class="sidebar-section action-buttons-section">
-                <!-- FIXED: onclick matches DataManager -->
                 <button class="btn btn-success btn-action" onclick="window.TestimonialManager.saveData()">
                     <span class="btn-icon">💾</span>
                     <span class="btn-text">Save Data</span>
                 </button>
                 <button class="btn btn-success btn-action" onclick="window.TestimonialManager.downloadJSFile()" style="background-color: #10b981;">
-    <span class="btn-icon">📥</span>
-    <span class="btn-text">Export Final JS</span>
-</button>
+                    <span class="btn-icon">📥</span>
+                    <span class="btn-text">Export Final JS</span>
+                </button>
                 <button class="btn btn-sample btn-action" onclick="window.TestimonialManager.loadSampleData()">
                     <span class="btn-icon">🎯</span>
                     <span class="btn-text">Load Sample Data</span>
@@ -99,53 +97,11 @@
                         <span class="label-icon">📁</span>
                         Select Video Group  
                     </label>
-                    <!-- FIXED: onchange matches UI.selectGroup -->
                     <select id="selectGroupDropdown" class="form-control">
-    <option value="">-- Select a Group to Add Testimonials --</option>
-    <!-- Groups will be dynamically populated -->
-</select>
                         <option value="">-- Select a Group to Add Testimonials --</option>
                         <!-- Groups will be dynamically populated -->
                     </select>
                     <small class="form-help">Select a group from this dropdown to add testimonials to it</small>
-                </div>
-
-                <!-- EDIT GROUP MODAL -->
-                <div id="editTestimonialGroupModal" class="modal">
-                    <div class="modal-backdrop" onclick="window.TestimonialManager.hideEditModal()"></div>
-                    <div class="modal-dialog">
-                        <div class="modal-header">
-                            <h2 class="modal-title">
-                                <span class="modal-icon">✏️</span>
-                                Edit Testimonial Group
-                            </h2>
-                            <button class="modal-close" onclick="window.TestimonialManager.hideEditModal()">×</button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" id="editGroupId">
-                            
-                            <div class="form-group">
-                                <label for="editGroupName" class="form-label">Group Name</label>
-                                <input type="text" id="editGroupName" class="form-control" placeholder="Enter group name">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="editGroupIcon" class="form-label">Icon Emoji</label>
-                                <input type="text" id="editGroupIcon" class="form-control" placeholder="📁">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="editGroupDescription" class="form-label">Description</label>
-                                <textarea id="editGroupDescription" class="form-control" rows="3" placeholder="Describe this testimonial group..."></textarea>
-                            </div>
-                            
-                            <div class="modal-actions">
-                                <button class="btn btn-secondary" onclick="window.TestimonialManager.hideEditModal()">Cancel</button>
-                                <!-- FIXED: Matches JS Edit Logic -->
-                                <button class="btn btn-primary" onclick="window.TestimonialManager.saveEditFromForm()">Save Changes</button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                     
                 <!-- TESTIMONIAL FORM -->
@@ -175,10 +131,10 @@
                     </label>
                     <div class="input-with-button">
                         <input type="text" id="videoUrl" class="form-control" placeholder="https://supabase.co/storage/v1/object/public/videos/your-video.mp4">
-                       <button class="btn btn-primary btn-test-url" onclick="window.TestimonialManager.testVideoUrl()">
-    <span class="btn-icon">🔍</span>
-    Test URL
-</button>
+                        <button class="btn btn-primary btn-test-url" onclick="window.TestimonialManager.testVideoUrl()">
+                            <span class="btn-icon">🔍</span>
+                            Test URL
+                        </button>
                     </div>
                     <small class="form-help">Paste your Supabase public URL and click Test to verify</small>
                 </div>
@@ -212,7 +168,6 @@
                 
                 <!-- ACTION BUTTONS -->
                 <div class="card-actions">
-                    <!-- FIXED: Matches JS Video Logic -->
                     <button class="btn btn-success" onclick="window.TestimonialManager.addVideoFromForm()">
                         <span class="btn-icon">✅</span>
                         Add Video to Group
@@ -314,68 +269,84 @@
                     <div id="concernsCheckboxContainer" class="concerns-checkbox-container">
                         
                         <!-- TESTIMONIAL TRIGGERS -->
-                       <div class="concern-section" id="testimonialTriggersCheckboxes">
-    <div class="concern-section-title">🎬 Testimonial Concerns</div>
-    <!-- Checkboxes will be populated by JavaScript -->
-</div>
+                        <div class="concern-section" id="testimonialTriggersCheckboxes">
+                            <div class="concern-section-title">🎬 Testimonial Concerns</div>
+                            <!-- Checkboxes will be populated by JavaScript -->
+                        </div>
                             
                         
-                       <!-- INFORMATIONAL TRIGGERS (hidden by default) -->
-<div class="concern-section" id="informationalTriggersCheckboxes" style="display:none;">
-    <div class="concern-section-title">📚 Informational Triggers</div>
-    
-    <!-- HOW IT WORKS -->
-    <div class="concern-subgroup">
-        <div class="concern-subgroup-title">⚙️ How It Works</div>
-        <label class="concern-checkbox-item"><input type="checkbox" value="how_it_works" class="concern-checkbox"> How It Works</label>
-    </div>
-    
-    <!-- BENEFITS -->
-    <div class="concern-subgroup">
-        <div class="concern-subgroup-title">✅ Benefits & Features</div>
-        <label class="concern-checkbox-item"><input type="checkbox" value="benefits_features" class="concern-checkbox"> Benefits & Features</label>
-    </div>
-    
-    <!-- CASE STUDIES -->
-    <div class="concern-subgroup">
-        <div class="concern-subgroup-title">📊 Case Studies</div>
-        <label class="concern-checkbox-item"><input type="checkbox" value="case_studies" class="concern-checkbox"> Case Studies</label>
-    </div>
-    
-    <!-- FAQ -->
-    <div class="concern-subgroup">
-        <div class="concern-subgroup-title">❓ FAQ</div>
-        <label class="concern-checkbox-item"><input type="checkbox" value="faq" class="concern-checkbox"> FAQ</label>
-    </div>
-</div>
+                        <!-- INFORMATIONAL TRIGGERS (hidden by default) -->
+                        <div class="concern-section" id="informationalTriggersCheckboxes" style="display:none;">
+                            <div class="concern-section-title">📚 Informational Triggers</div>
+                            
+                            <!-- HOW IT WORKS -->
+                            <div class="concern-subgroup">
+                                <div class="concern-subgroup-title">⚙️ How It Works</div>
+                                <label class="concern-checkbox-item"><input type="checkbox" value="how_it_works" class="concern-checkbox"> How It Works</label>
+                            </div>
+                            
+                            <!-- BENEFITS -->
+                            <div class="concern-subgroup">
+                                <div class="concern-subgroup-title">✅ Benefits & Features</div>
+                                <label class="concern-checkbox-item"><input type="checkbox" value="benefits_features" class="concern-checkbox"> Benefits & Features</label>
+                            </div>
+                            
+                            <!-- CASE STUDIES -->
+                            <div class="concern-subgroup">
+                                <div class="concern-subgroup-title">📊 Case Studies</div>
+                                <label class="concern-checkbox-item"><input type="checkbox" value="case_studies" class="concern-checkbox"> Case Studies</label>
+                            </div>
+                            
+                            <!-- FAQ -->
+                            <div class="concern-subgroup">
+                                <div class="concern-subgroup-title">❓ FAQ</div>
+                                <label class="concern-checkbox-item"><input type="checkbox" value="faq" class="concern-checkbox"> FAQ</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- BUTTONS -->
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="window.TestimonialManager.hideAddModal()">Cancel</button>
-                    <!-- FIXED: Matches JS Create Logic -->
                     <button type="button" class="btn btn-primary" onclick="window.TestimonialManager.createGroupFromForm()">Create Group</button>
                 </div>
             </div>
         </div>
     </div>
 
-                <!-- CODE GENERATOR CARD -->
-            <div class="card code-card">
-                <h2 class="card-title">
-                    <span class="card-icon">👨‍💻</span>
-                    Generated Data File
+    <!-- EDIT GROUP MODAL -->
+    <div id="editTestimonialGroupModal" class="modal">
+        <div class="modal-backdrop" onclick="window.TestimonialManager.hideEditModal()"></div>
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <span class="modal-icon">✏️</span>
+                    Edit Testimonial Group
                 </h2>
+                <button class="modal-close" onclick="window.TestimonialManager.hideEditModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editGroupId">
                 
-                <div class="code-editor-container">
-                    <div class="code-header">
-                        <span class="code-filename">testimonials-data.js</span>
-                        <button class="btn btn-small btn-copy" onclick="window.TestimonialManager.copyCode()">
-                            <span class="btn-icon">📋</span>
-                            Copy
-                        </button>
-                    </div>
-                    <pre id="codeOutput" class="code-output">// Loading testimonial data...</pre>
+                <div class="form-group">
+                    <label for="editGroupName" class="form-label">Group Name</label>
+                    <input type="text" id="editGroupName" class="form-control" placeholder="Enter group name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editGroupIcon" class="form-label">Icon Emoji</label>
+                    <input type="text" id="editGroupIcon" class="form-control" placeholder="📁">
+                </div>
+                
+                <div class="form-group">
+                    <label for="editGroupDescription" class="form-label">Description</label>
+                    <textarea id="editGroupDescription" class="form-control" rows="3" placeholder="Describe this testimonial group..."></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="window.TestimonialManager.hideEditModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="window.TestimonialManager.saveEditFromForm()">Save Changes</button>
                 </div>
             </div>
         </div>
