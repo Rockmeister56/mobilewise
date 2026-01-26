@@ -556,7 +556,7 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 
 .main-content {
     /* Calculate width: 100% viewport minus sidebar width minus margins on both sides */
-    max-width: calc(100vw - 280px - 280px) !important; /* Was 320px, now 300px - makes it 20px wider */
+    max-width: calc(100vw - 260px - 260px) !important; /* Was 320px, now 300px - makes it 20px wider */
     margin: 0 130px 0 auto !important; /* 160px margin on left and right */
     margin-top: 7px !important; /* Optional: Keep content aligned with sidebar */
     overflow-x: hidden !important;
