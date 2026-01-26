@@ -544,57 +544,45 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     width: 100%;
     background: #000; /* Black background behind video if it's small */
 }
-/* =========================================== */
-/* MAIN CONTENT SPACING FIX */
-/* =========================================== */
-
+/* MORE AGGRESSIVE SPACING REDUCTION */
 .container {
-    padding: 0 20px !important; /* Add some padding to entire container */
-    box-sizing: border-box !important;
+    padding: 0 15px !important;
+    margin-top: -15px !important; /* Move up more */
 }
 
 .main-content {
-    /* Calculate width: 100% viewport minus sidebar width minus margins on both sides */
-    max-width: calc(100vw - 320px - 300px) !important; /* 320px total margin (160px each side) */
-    margin: 0 160px 0 auto !important; /* 160px margin on left and right */
-    overflow-x: hidden !important;
-    box-sizing: border-box !important;
-    padding: 20px !important;
+    max-width: calc(100vw - 180px - 280px) !important; /* Much closer to sidebar */
+    margin: -15px 140px 0 auto !important; /* Move up and reduce side margins */
+    padding: 8px !important; /* Minimal padding */
 }
 
-/* For smaller screens, reduce the margins */
-@media (max-width: 1400px) {
-    .main-content {
-        max-width: calc(100vw - 320px - 200px) !important; /* 200px total margin (100px each side) */
-        margin: 0 100px 0 auto !important;
-    }
-}
-
-@media (max-width: 1200px) {
-    .main-content {
-        max-width: calc(100vw - 320px - 100px) !important; /* 100px total margin (50px each side) */
-        margin: 0 50px 0 auto !important;
-    }
-}
-
-@media (max-width: 1024px) {
-    .main-content {
-        max-width: calc(100vw - 280px - 40px) !important; /* 40px total margin (20px each side) */
-        margin: 0 20px 0 auto !important;
-    }
-}
-
-/* Card styling to ensure they fit within the new bounds */
+/* Reduce all vertical spacing */
 .card {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
+    margin: 8px 0 !important; /* Very tight vertical spacing */
+    padding: 15px !important; /* Reduced internal padding */
 }
 
-/* Code output specific fixes */
-.code-output {
-    max-width: 100% !important;
-    overflow-x: auto !important;
-    white-space: pre-wrap !important;
-    word-break: break-word !important;
+/* Compact form layout */
+.form-group {
+    margin-bottom: 10px !important;
+}
+
+.form-row {
+    margin-bottom: 5px !important;
+}
+
+/* Make sidebar more compact */
+.sidebar {
+    margin-top: -15px !important;
+    padding: 10px !important;
+}
+
+.sidebar-section {
+    margin-bottom: 15px !important;
+    padding: 10px !important;
+}
+
+.btn-add-group {
+    margin: 8px 0 !important;
+    padding: 10px !important;
 }
