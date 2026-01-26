@@ -550,7 +550,7 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 /* =========================================== */
 
 .container {
-    padding: 0 10px !important; /* Add some padding to entire container */
+    padding: 0 20px !important; /* Add some padding to entire container */
     box-sizing: border-box !important;
 }
 
@@ -609,7 +609,7 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 
 /* Optional: If you want to adjust the content area too to keep alignment */
 .main-content {
-    margin-top: 25px !important; /* Optional: Keep content aligned with sidebar */
+    margin-top: 75px !important; /* Optional: Keep content aligned with sidebar */
 }
 .main-content {
     max-width: calc(100vw - 300px - 300px) !important; /* Was 320px, now 300px - makes it 20px wider */
