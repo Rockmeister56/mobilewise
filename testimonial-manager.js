@@ -801,44 +801,9 @@ window.TestimonialManager = {
         alert('Data Saved!');
     },
 
-    downloadJSFile: function() {
-        console.log('📥 Exporting JS file...');
-        
-        try {
-            // 1. Get the current data
-            const data = DataManager.data;
-            
-            // 2. Convert to the final JS format
-            const jsContent = DataManager.convertToLegacyFormat ? 
-                DataManager.convertToLegacyFormat() : 
-                JSON.stringify(data, null, 2);
-            
-            // 3. Create a blob and download link
-            const blob = new Blob([jsContent], { type: 'text/javascript' });
-            const url = URL.createObjectURL(blob);
-            
-            // 4. Create download link
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'testimonials-data.js';
-            
-            // 5. Trigger download
-            document.body.appendChild(a);
-            a.click();
-            
-            // 6. Cleanup
-            setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }, 100);
-            
-            console.log('✅ JS file exported successfully!');
-            alert('JS file exported as testimonials-data.js');
-            
-        } catch (error) {
-            console.error('❌ Export failed:', error);
-            alert('Export failed: ' + error.message);
-        }
+        downloadJSFile: function() {
+        // Simply call the working method
+        DataManager.downloadTestimonialsJS();
     },
 
     // 12. Copy Code
