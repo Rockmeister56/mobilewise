@@ -611,40 +611,6 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 .main-content {
     margin-top: 5px !important; /* Optional: Keep content aligned with sidebar */
 }
-/* =========================================== */
-/* MOVE SIDEBAR FROM LEFT TO RIGHT */
-/* =========================================== */
-
-.container {
-    flex-direction: row-reverse !important; /* Reverse the order */
-}
-
-.sidebar {
-    order: 2 !important; /* Force sidebar to be second item (right side) */
-    border-left: 1px solid #e0e0e0 !important; /* Change border to left side */
-    border-right: none !important;
-}
-
 .main-content {
-    order: 1 !important; /* Force main content to be first item (left side) */
-    margin: 0 auto 0 160px !important; /* Flip margins: left margin now, right auto */
-}
-
-/* Adjust responsive layouts */
-@media (max-width: 1400px) {
-    .main-content {
-        margin: 0 auto 0 100px !important;
-    }
-}
-
-@media (max-width: 1200px) {
-    .main-content {
-        margin: 0 auto 0 50px !important;
-    }
-}
-
-@media (max-width: 1024px) {
-    .main-content {
-        margin: 0 auto 0 20px !important;
-    }
+    margin-left: 20px !important; /* Was 160px, now just 20px gap */
 }
