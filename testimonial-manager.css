@@ -545,87 +545,18 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     background: #000; /* Black background behind video if it's small */
 }
 
-/* =========================================== */
-/* MAIN CONTENT SPACING ADJUSTMENTS */
-/* =========================================== */
-
-.container {
-    padding: 0 20px !important;
-    box-sizing: border-box !important;
-    margin-top: -10px !important; /* Move everything up 10px */
-}
-
+/* SIMPLE VERSION: 150px on each side */
 .main-content {
-    /* Reduce the left margin to bring content closer to sidebar */
-    max-width: calc(100vw - 220px - 300px) !important; /* Reduced from 320px to 220px */
-    margin: -10px 160px 0 auto !important; /* Negative top margin to move up, reduced left margin */
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 150px 0 auto !important;
+    padding: 20px !important;
     overflow-x: hidden !important;
     box-sizing: border-box !important;
-    padding: 10px !important; /* Reduced padding */
 }
 
-/* Move the cards up and reduce spacing */
+/* Make cards slightly narrower to fit within margins */
 .card {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    margin-top: 10px !important; /* Reduced margin between cards */
-    margin-bottom: 15px !important;
-}
-
-/* Specific adjustments for the uploader card */
-.uploader-card {
-    margin-top: 5px !important; /* Even less top margin for first card */
-}
-
-/* Reduce padding inside cards */
-.card-title {
-    margin-bottom: 15px !important; /* Reduce space below title */
-}
-
-.form-group {
-    margin-bottom: 15px !important; /* Reduce space between form fields */
-}
-
-/* Adjust sidebar to move up as well */
-.sidebar {
-    margin-top: -10px !important; /* Move sidebar up with the rest */
-    padding-top: 15px !important; /* Adjust internal padding */
-}
-
-/* Reduce gap between sidebar sections */
-.sidebar-section {
-    margin-bottom: 20px !important; /* Reduce space between sections */
-}
-
-.sidebar-header {
-    margin-bottom: 15px !important; /* Reduce space below header */
-}
-
-/* Adjust statistics section spacing */
-.statistics-section {
-    padding-top: 10px !important;
-    padding-bottom: 10px !important;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1400px) {
-    .main-content {
-        max-width: calc(100vw - 220px - 200px) !important;
-        margin: -10px 100px 0 auto !important;
-    }
-}
-
-@media (max-width: 1200px) {
-    .main-content {
-        max-width: calc(100vw - 220px - 100px) !important;
-        margin: -10px 50px 0 auto !important;
-    }
-}
-
-@media (max-width: 1024px) {
-    .main-content {
-        max-width: calc(100vw - 200px - 40px) !important;
-        margin: -10px 20px 0 auto !important;
-    }
+    max-width: calc(100% - 40px) !important;
+    margin: 0 auto !important;
 }
