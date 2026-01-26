@@ -544,45 +544,88 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     width: 100%;
     background: #000; /* Black background behind video if it's small */
 }
-/* MORE AGGRESSIVE SPACING REDUCTION */
+
+/* =========================================== */
+/* MAIN CONTENT SPACING ADJUSTMENTS */
+/* =========================================== */
+
 .container {
-    padding: 0 15px !important;
-    margin-top: -15px !important; /* Move up more */
+    padding: 0 20px !important;
+    box-sizing: border-box !important;
+    margin-top: -10px !important; /* Move everything up 10px */
 }
 
 .main-content {
-    max-width: calc(100vw - 180px - 280px) !important; /* Much closer to sidebar */
-    margin: -15px 140px 0 auto !important; /* Move up and reduce side margins */
-    padding: 8px !important; /* Minimal padding */
+    /* Reduce the left margin to bring content closer to sidebar */
+    max-width: calc(100vw - 220px - 300px) !important; /* Reduced from 320px to 220px */
+    margin: -10px 160px 0 auto !important; /* Negative top margin to move up, reduced left margin */
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+    padding: 10px !important; /* Reduced padding */
 }
 
-/* Reduce all vertical spacing */
+/* Move the cards up and reduce spacing */
 .card {
-    margin: 8px 0 !important; /* Very tight vertical spacing */
-    padding: 15px !important; /* Reduced internal padding */
-}
-
-/* Compact form layout */
-.form-group {
-    margin-bottom: 10px !important;
-}
-
-.form-row {
-    margin-bottom: 5px !important;
-}
-
-/* Make sidebar more compact */
-.sidebar {
-    margin-top: -15px !important;
-    padding: 10px !important;
-}
-
-.sidebar-section {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    margin-top: 10px !important; /* Reduced margin between cards */
     margin-bottom: 15px !important;
-    padding: 10px !important;
 }
 
-.btn-add-group {
-    margin: 8px 0 !important;
-    padding: 10px !important;
+/* Specific adjustments for the uploader card */
+.uploader-card {
+    margin-top: 5px !important; /* Even less top margin for first card */
+}
+
+/* Reduce padding inside cards */
+.card-title {
+    margin-bottom: 15px !important; /* Reduce space below title */
+}
+
+.form-group {
+    margin-bottom: 15px !important; /* Reduce space between form fields */
+}
+
+/* Adjust sidebar to move up as well */
+.sidebar {
+    margin-top: -10px !important; /* Move sidebar up with the rest */
+    padding-top: 15px !important; /* Adjust internal padding */
+}
+
+/* Reduce gap between sidebar sections */
+.sidebar-section {
+    margin-bottom: 20px !important; /* Reduce space between sections */
+}
+
+.sidebar-header {
+    margin-bottom: 15px !important; /* Reduce space below header */
+}
+
+/* Adjust statistics section spacing */
+.statistics-section {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+    .main-content {
+        max-width: calc(100vw - 220px - 200px) !important;
+        margin: -10px 100px 0 auto !important;
+    }
+}
+
+@media (max-width: 1200px) {
+    .main-content {
+        max-width: calc(100vw - 220px - 100px) !important;
+        margin: -10px 50px 0 auto !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .main-content {
+        max-width: calc(100vw - 200px - 40px) !important;
+        margin: -10px 20px 0 auto !important;
+    }
 }
