@@ -609,8 +609,8 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 
 /* Optional: If you want to adjust the content area too to keep alignment */
 .main-content {
-    margin-top: 5px !important; /* Optional: Keep content aligned with sidebar */
+    margin-top: 25px !important; /* Optional: Keep content aligned with sidebar */
 }
 .main-content {
-    margin-left: 20px !important; /* Was 160px, now just 20px gap */
+    margin-left: 200px !important; /* Was 160px, now just 20px gap */
 }
