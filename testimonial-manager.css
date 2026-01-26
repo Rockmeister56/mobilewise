@@ -604,10 +604,10 @@ textarea.form-control { min-height: 100px; resize: vertical; }
 /* =========================================== */
 
 .sidebar {
-    margin-top: 7px !important; /* Brings sidebar down 7 pixels */
+    margin-top: 15px !important; /* Brings sidebar down 7 pixels */
 }
 
 /* Optional: If you want to adjust the content area too to keep alignment */
 .main-content {
-    margin-top: 7px !important; /* Optional: Keep content aligned with sidebar */
+    margin-top: 5px !important; /* Optional: Keep content aligned with sidebar */
 }
