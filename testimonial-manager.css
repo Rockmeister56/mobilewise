@@ -599,3 +599,15 @@ textarea.form-control { min-height: 100px; resize: vertical; }
     white-space: pre-wrap !important;
     word-break: break-word !important;
 }
+/* =========================================== */
+/* SIDEBAR/MENU BAR POSITION ADJUSTMENT */
+/* =========================================== */
+
+.sidebar {
+    margin-top: 7px !important; /* Brings sidebar down 7 pixels */
+}
+
+/* Optional: If you want to adjust the content area too to keep alignment */
+.main-content {
+    margin-top: 7px !important; /* Optional: Keep content aligned with sidebar */
+}
