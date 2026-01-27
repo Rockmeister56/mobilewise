@@ -418,7 +418,8 @@ function detectInformationalVideoRequest(transcript) {
 // function handleUserMessage(message) { ... }
 
 // INSIDE THAT FUNCTION, ADD THIS AT THE BEGINNING:
-if (detectInformationalVideoRequest(transcript)) {
+const safeTranscript = transcript || window.lastTranscript || '';
+if (detectInformationalVideoRequest(safeTranscript)) {
     console.log('🎬 Informational video request detected!');
     if (typeof window.showInformationalVideos === 'function') {
         window.showInformationalVideos();
