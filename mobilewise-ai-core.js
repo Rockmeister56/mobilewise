@@ -63,10 +63,28 @@ function handleUserConcern(concernKey) {
 }
 
 // =============================================================================
-// 🎯 COMPLETE getAIResponse FUNCTION
+// 🎯 COMPLETE getAIResponse FUNCTION - FIXED VERSION
 // =============================================================================
 function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🧠 MOBILEWISE AI Processing:', userMessage);
+
+    // =========================================================================
+    // 🚨 CRITICAL FIX: INITIALIZE CONVERSATION DATA FIRST
+    // =========================================================================
+    if (!window.conversationData) {
+        window.conversationData = {
+            state: 'introduction',
+            userName: null,
+            messages: []
+        };
+        console.log('✅ Initialized conversation data');
+    }
+    
+    // Ensure messages array exists
+    if (!Array.isArray(window.conversationData.messages)) {
+        window.conversationData.messages = [];
+    }
+    // =========================================================================
 
     // 🎯 ENHANCED POST-TESTIMONIAL RESPONSE HANDLER
     if (window.lastQuestionContext === 'post-testimonial' || 
