@@ -435,18 +435,18 @@ function playTestimonialVideo(buttonId) {
         console.error('❌ No video URL for testimonial');
         return;
     }
+
+    // Line 23-26 FIRST (check):
+if (window.avatarCurrentlyPlaying) {
+    console.log('🚫 Video already playing - skipping');
+    return;
+}
     
     // 🛡️ ULTRA-STRONG PROTECTION (FROM OLD CODE)
     window.testimonialSessionActive = true;
     window.testimonialProtectionActive = true;
     window.disableSpeakNowBanner = true;
     window.avatarCurrentlyPlaying = true;
-    
-    // 🚫 PREVENT DOUBLE CALLS (FROM OLD CODE)
-    if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Video already playing - skipping');
-        return;
-    }
     
     // 🌀 SHOW SPINNER
     showTestimonialSpinner();
