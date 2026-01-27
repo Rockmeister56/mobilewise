@@ -63,28 +63,63 @@ function handleUserConcern(concernKey) {
 }
 
 // =============================================================================
+// 🧠 MOBILEWISE AI CORE - COMPLETE PHASE 1 - FIXED VERSION
+// =============================================================================
+// 🎯 Includes: Introduction, Rapport Building, Need Detection, Personalization
+// =============================================================================
+
+console.log('🧠 MOBILEWISE AI CORE LOADING - Complete Phase 1');
+
+// =============================================================================
+// 🎯 GLOBAL AI STATE - FIXED VERSION
+// =============================================================================
+
+// 🚨 CRITICAL FIX: Initialize conversation data FIRST
+if (!window.conversationData) {
+    window.conversationData = {
+        state: 'introduction',
+        userName: null,
+        messages: []
+    };
+    console.log('✅ Initialized global conversation data');
+}
+
+window.mobilewiseAI = window.mobilewiseAI || {
+    state: 'introduction',
+    user: {
+        name: '',
+        need: '',
+        urgency: 'medium',
+        businessType: '',
+        challenge: '',
+        interestLevel: 1
+    },
+    conversation: {
+        messages: 0,
+        startedAt: Date.now(),
+        rapportLevel: 0
+    }
+};
+
+// =============================================================================
 // 🎯 COMPLETE getAIResponse FUNCTION - FIXED VERSION
 // =============================================================================
 function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🧠 MOBILEWISE AI Processing:', userMessage);
 
-    // =========================================================================
-    // 🚨 CRITICAL FIX: INITIALIZE CONVERSATION DATA FIRST
-    // =========================================================================
+    // 🚨 DOUBLE-SAFETY: Ensure conversation data exists
     if (!window.conversationData) {
         window.conversationData = {
             state: 'introduction',
             userName: null,
             messages: []
         };
-        console.log('✅ Initialized conversation data');
+        console.log('✅ Emergency initialization of conversation data');
     }
     
-    // Ensure messages array exists
     if (!Array.isArray(window.conversationData.messages)) {
         window.conversationData.messages = [];
     }
-    // =========================================================================
 
     // 🎯 ENHANCED POST-TESTIMONIAL RESPONSE HANDLER
     if (window.lastQuestionContext === 'post-testimonial' || 
@@ -214,7 +249,31 @@ function getAIResponse(userMessage, conversationHistory = []) {
         }
     }
     
-    console.log(`📊 State: ${mw.state}, User: ${userName || 'New user'}`);
+    // =========================================================================
+    // 🎯 NAME GREETING FIX: Check if we're getting the user's name
+    // =========================================================================
+    if ((mw.state === 'introduction' || !mw.user.name) && userMessage.trim()) {
+        const name = userMessage.trim();
+        const isLikelyName = /^[A-Z][a-z]{2,15}$/.test(name) || 
+                            (name.length >= 2 && name.length <= 20);
+        
+        if (isLikelyName) {
+            // Format and store the name
+            const formattedName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+            mw.user.name = formattedName;
+            window.conversationData.userName = formattedName;
+            
+            // Update state
+            mw.state = 'rapport_building';
+            window.conversationData.state = 'rapport_building';
+            
+            console.log(`✅ Name captured: ${formattedName}`);
+            console.log(`✅ State: introduction → rapport_building`);
+            
+            // Return personalized greeting
+            return `Hello ${formattedName}! How can I help you today?`;
+        }
+    }
     
     // =========================================================================
     // 🚨 STEP 1: URGENT/EMERGENCY DETECTION (From your original)
