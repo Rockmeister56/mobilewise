@@ -2432,7 +2432,12 @@ function ensureSplashAnimations() {
 ensureSplashAnimations();
 
 // Initialize animations when the script loads
-addTestimonialAnimations();
+if (typeof addTestimonialAnimations === 'function') {
+    addTestimonialAnimations();
+    console.log('✅ Testimonial animations initialized');
+} else {
+    console.log('ℹ️ Testimonial animations function not available - skipping');
+}
 
 // Make globally accessible
 window.showThankYouSplash = showThankYouSplash;
