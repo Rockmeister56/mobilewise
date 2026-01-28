@@ -1,5 +1,5 @@
 // =============================================================================
-// 🧠 MOBILEWISE AI CORE - COMPLETE PHASE 1
+// 🧠 MOBILEWISE AI CORE - COMPLETE PHASE 1 - CLEANED VERSION
 // =============================================================================
 // 🎯 Includes: Introduction, Rapport Building, Need Detection, Personalization
 // =============================================================================
@@ -7,26 +7,8 @@
 console.log('🧠 MOBILEWISE AI CORE LOADING - Complete Phase 1');
 
 // =============================================================================
-// 🎯 GLOBAL AI STATE
+// 🎯 GLOBAL SPEECH BLOCKER FOR TESTIMONIALS
 // =============================================================================
-window.mobilewiseAI = window.mobilewiseAI || {
-    state: 'introduction',
-    user: {
-        name: '',
-        need: '',
-        urgency: 'medium',
-        businessType: '',
-        challenge: '',
-        interestLevel: 1
-    },
-    conversation: {
-        messages: 0,
-        startedAt: Date.now(),
-        rapportLevel: 0
-    }
-};
-
-// Add this at the TOP of your mobilewise-ai-core.js file:
 (function() {
     console.log('🔧 Installing global speech blocker');
     
@@ -45,30 +27,6 @@ window.mobilewiseAI = window.mobilewiseAI || {
         console.log('✅ Global speech blocker installed');
     }
 })();
-
-// Instead of: testimonialData.getCompleteTestimonial(userMessage)
-// Use: testimonialData.getTestimonialsByConcern(detectedConcern)
-
-function handleUserConcern(concernKey) {
-    // Get ALL testimonials for this concern from ALL groups
-    const testimonials = window.testimonialData.getTestimonialsByConcern(concernKey);
-    
-    if (testimonials.length === 0) {
-        // Fallback
-        return testimonialData.getFallbackTestimonial();
-    }
-    
-    // Show selection UI with all testimonials
-    showTestimonialSelection(concernKey, testimonials);
-}
-
-// =============================================================================
-// 🧠 MOBILEWISE AI CORE - COMPLETE PHASE 1 - FIXED VERSION
-// =============================================================================
-// 🎯 Includes: Introduction, Rapport Building, Need Detection, Personalization
-// =============================================================================
-
-console.log('🧠 MOBILEWISE AI CORE LOADING - Complete Phase 1');
 
 // =============================================================================
 // 🎯 GLOBAL AI STATE - FIXED VERSION
@@ -486,45 +444,6 @@ function detectInformationalVideoRequest(transcript) {
     return informationalTriggers.some(trigger => 
         transcriptLower.includes(trigger.toLowerCase())
     );
-}
-
-// 🆕 ADD THIS CHECK in your main processing function
-// Find where you process user voice input (look for something like):
-// function processVoiceInput(transcript) { ... }
-// OR
-// function handleUserMessage(message) { ... }
-
-// INSIDE THAT FUNCTION, ADD THIS AT THE BEGINNING:
-const safeTranscript = transcript || window.lastTranscript || '';
-if (detectInformationalVideoRequest(safeTranscript)) {
-    console.log('🎬 Informational video request detected!');
-    if (typeof window.showInformationalVideos === 'function') {
-        window.showInformationalVideos();
-        return true; // Stop further processing
-    }
-}
-
-// It should look like this:
-function processUserVoiceInput(transcript) {
-    // 🆕 NEW CHECK - ADD THIS FIRST
-    if (detectInformationalVideoRequest(transcript)) {
-        console.log('🎬 Triggering informational videos...');
-        if (typeof window.showInformationalVideos === 'function') {
-            window.showInformationalVideos();
-            return true;
-        }
-    }
-    
-    // ... your EXISTING testimonial detection code ...
-    if (detectTestimonialNeed(transcript)) {
-        console.log('🎬 Triggering testimonials...');
-        if (typeof window.showTestimonialSplashScreen === 'function') {
-            window.showTestimonialSplashScreen();
-            return true;
-        }
-    }
-    
-    // ... rest of your existing code ...
 }
 
 // 🎯 CORRECTED VERSION - Remove duplicate
@@ -1064,14 +983,6 @@ function continueRapportBuilding(userName, userMessage) {
 }
 
 // =============================================================================
-// 🎯 INITIALIZATION
-// =============================================================================
-console.log('✅ MOBILEWISE AI CORE LOADED - Complete Phase 1');
-console.log('🎯 Conversation States: introduction → rapport_building → needs_discovery → solution_presentation → closing');
-console.log('👤 Will capture name, build rapport, identify needs, present solution');
-console.log('🚀 Ready to revolutionize sales at $0.40/day!');
-
-// =============================================================================
 // 🎯 TESTIMONIAL TRIGGER CHECKER
 // =============================================================================
 
@@ -1129,4 +1040,11 @@ window.checkTestimonialTriggers = function(userMessage) {
     return null;
 };
 
+// =============================================================================
+// 🎯 INITIALIZATION
+// =============================================================================
+console.log('✅ MOBILEWISE AI CORE LOADED - Complete Phase 1');
+console.log('🎯 Conversation States: introduction → rapport_building → needs_discovery → solution_presentation → closing');
+console.log('👤 Will capture name, build rapport, identify needs, present solution');
+console.log('🚀 Ready to revolutionize sales at $0.40/day!');
 console.log('✅ checkTestimonialTriggers function added to mobilewise-ai-core.js');
