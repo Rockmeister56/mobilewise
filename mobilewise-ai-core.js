@@ -7,24 +7,38 @@
 console.log('🧠 MOBILEWISE AI CORE LOADING - Complete Phase 1');
 
 // =============================================================================
-// 🎯 GLOBAL SPEECH BLOCKER FOR TESTIMONIALS
+// 🎯 SMART SPEECH MANAGER (NOT a blocker)
 // =============================================================================
 (function() {
-    console.log('🔧 Installing global speech blocker');
+    console.log('🔧 Installing SMART speech manager');
     
     const originalSpeakText = window.speakText;
     if (originalSpeakText) {
         window.speakText = function(text) {
-            // Block if testimonials are active
-            if (window.speechBlockedForTestimonials || window.testimonialActive) {
-                console.log('🔇 BLOCKED speech during testimonials:', text.substring(0, 50) + '...');
-                return Promise.resolve(); // Return empty promise
+            // Check if testimonials are ACTUALLY playing (not just flags)
+            const isTestimonialActuallyPlaying = 
+                window.avatarCurrentlyPlaying === true ||
+                window.testimonialVideoActive === true ||
+                (document.getElementById('testimonial-splash-screen') !== null) ||
+                (document.getElementById('testimonial-video-player') !== null);
+            
+            // If testimonials are actually playing, block speech
+            if (isTestimonialActuallyPlaying) {
+                console.log('🔇 SMART BLOCK: Testimonials are actually playing');
+                return Promise.resolve();
+            }
+            
+            // If it's just flags but not actually playing, allow speech
+            if (window.speechBlockedForTestimonials && !isTestimonialActuallyPlaying) {
+                console.log('🎤 SMART ALLOW: Flags set but testimonials finished');
+                window.speechBlockedForTestimonials = false; // Reset flag
             }
             
             // Otherwise, proceed normally
+            console.log('🎤 SMART ALLOW: Speaking normally');
             return originalSpeakText.apply(this, arguments);
         };
-        console.log('✅ Global speech blocker installed');
+        console.log('✅ SMART speech manager installed');
     }
 })();
 
@@ -206,16 +220,27 @@ function getAIResponse(userMessage, conversationHistory = []) {
             return `No problem at all. What other questions can I help you with today?`;
         }
     }
-    
+       // =========================================================================
+    // 🎯 SMART NAME GREETING FIX: Check if we're getting the user's name
     // =========================================================================
-    // 🎯 NAME GREETING FIX: Check if we're getting the user's name
-    // =========================================================================
-    if ((mw.state === 'introduction' || !mw.user.name) && userMessage.trim()) {
+    // Only check for names if we're actually in introduction state AND don't have a name
+    if (mw.state === 'introduction' && !mw.user.name && userMessage.trim()) {
         const name = userMessage.trim();
-        const isLikelyName = /^[A-Z][a-z]{2,15}$/.test(name) || 
-                            (name.length >= 2 && name.length <= 20);
         
-        if (isLikelyName) {
+        // 🚨 IMPORTANT: Filter out common words that are NOT names
+        const commonWords = ['yes', 'no', 'ok', 'okay', 'yeah', 'yep', 'nope', 'nah', 
+                            'maybe', 'hello', 'hi', 'hey', 'what', 'how', 'why', 'when'];
+        
+        // Check if it's a common word (NOT a name)
+        const isCommonWord = commonWords.includes(name.toLowerCase());
+        
+        // Check if it looks like a real name
+        const looksLikeName = /^[A-Z][a-z]{2,15}$/.test(name) && 
+                             !isCommonWord &&
+                             name.length >= 2 && 
+                             name.length <= 15;
+        
+        if (looksLikeName) {
             // Format and store the name
             const formattedName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
             mw.user.name = formattedName;
@@ -225,11 +250,14 @@ function getAIResponse(userMessage, conversationHistory = []) {
             mw.state = 'rapport_building';
             window.conversationData.state = 'rapport_building';
             
-            console.log(`✅ Name captured: ${formattedName}`);
+            console.log(`✅ SMART Name captured: ${formattedName}`);
             console.log(`✅ State: introduction → rapport_building`);
             
             // Return personalized greeting
             return `Hello ${formattedName}! How can I help you today?`;
+        } else if (isCommonWord) {
+            console.log(`❌ "${name}" is a common word, not a name`);
+            // Don't treat it as a name, continue with normal flow
         }
     }
     
