@@ -693,153 +693,33 @@ function returnToVoiceChat() {
     // 1. STOP ALL SPEECH FIRST
     emergencyStopAllSpeech();
     console.log('✅ All speech stopped');
+
+    // 2. Play the "Fantastic!" message
+    const fantasticMessage = "Fantastic! Let's return to voice chat where we can continue our conversation seamlessly.";
+    console.log(`🔊 Playing message: "${fantasticMessage}"`);
     
-    // 2. 🎯 SET FINAL STATE - ACTION CENTER WILL BE ACTIVE
-    if (window.salesAI) {
-        window.salesAI.state = 'action_center_active';
-        console.log('✅ Sales AI state set to action_center_active');
-    }
-    
-    // Also set the global conversation state
-    if (window.conversationState !== undefined) {
-        window.conversationState = 'action_center_active';
-        console.log('✅ Global conversation state set to action_center_active');
-    }
-    
-    // ALSO set mobilewiseAI state
-    if (window.mobilewiseAI) {
-        window.mobilewiseAI.state = 'action_center_active';
-        console.log('✅ MobileWise AI state set to action_center_active');
-    }
-    
-    // 3. Clear the OLD transcript
-    window.lastCapturedTranscript = '';
-    window.lastCapturedTime = 0;
-    
-    // Also clear any input fields
-    const userInput = document.getElementById('userInput');
-    if (userInput) {
-        userInput.value = '';
-    }
-    
-    console.log('🛑 Cleared old transcript');
-    
-    // 4. Set final action flags
-    window.actionCenterActive = true;
-    console.log('🎯 Action Center will be active');
-    
-    // 5. 🚨🚨🚨 CRITICAL: CLEAR ALL TESTIMONIAL FLAGS 🚨🚨🚨
-    console.log('🧹 CLEARING ALL TESTIMONIAL FLAGS:');
-    const testimonialFlags = [
-        'testimonialSessionActive',
-        'isInTestimonialMode', 
-        'concernBannerActive',
-        'isTestimonialActive',
-        'testimonialMode',
-        'testimonialsPlaying',
-        'testimonialActive',
-        'testimonialVideoActive',
-        'avatarCurrentlyPlaying',
-        'testimonialProtectionActive',
-        'disableSpeakNowBanner'
-    ];
-    
-    testimonialFlags.forEach(flag => {
-        window[flag] = false;
-        console.log(`  ✅ ${flag} = false`);
+    // Speak the message
+    window.speakText(fantasticMessage).then(() => {
+        console.log('✅ "Fantastic!" message completed');
+    }).catch(error => {
+        console.error('❌ Error playing message:', error);
     });
-    
-    console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
-    
-    // 6. REMOVE ALL testimonial elements
-    const elementsToRemove = [
-        'testimonial-nav-options',
-        'testimonial-video-overlay', 
-        'testimonial-splash-screen',
-        'testimonial-splash',
-        'testimonial-video-container',
-        'testimonial-video-player'
-    ];
-    
-    elementsToRemove.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.remove();
-            console.log('✅ Removed:', id);
-        }
-    });
-    
-    // 7. Clear any cooldowns that might block voice chat
-    if (window.cooldownActive !== undefined) {
-        window.cooldownActive = false;
-        console.log('🛡️ Cooldown cleared for voice chat');
-    }
-    
-    // 8. PLAY THE FINAL MESSAGE WITH NATURAL FLOW
+
+    // 3. Wait 2 seconds, then open Action Center WHILE message is still playing
     setTimeout(() => {
-        console.log('🗣️ Playing final message with natural flow...');
-        
-        // 🎯 FINAL GENERIC MESSAGE
-        const finalMessage = "Fantastic! Let me go ahead and show you all the ways we can connect you to the client...";
-        
-        // A. FIRST add message to chat bubble (VISIBLE)
-        if (window.addAIMessage && typeof window.addAIMessage === 'function') {
-            window.addAIMessage(finalMessage);
-            console.log('✅ Final message added to chat bubble');
-        }
-        
-        // B. THEN speak it (AUDIBLE) - START OF "FANTASTIC!" MESSAGE
-        if (window.speakText) {
-            console.log('🔊 Speaking final message...');
-            window.speakText(finalMessage);
-            
-            // C. SMALL PAUSE FOR NATURAL FLOW (Option B)
-            // Wait 2 seconds (message is speaking), then open Action Center
-            setTimeout(() => {
-                console.log('⏱️  2-second pause for natural flow...');
-                
-                // 🚀 OPEN ACTION CENTER WHILE MESSAGE IS STILL PLAYING
-                if (typeof window.showCommunicationActionCenter === 'function') {
-                    window.showCommunicationActionCenter('testimonial_complete');
-                    console.log('✅ Action Center opened (natural flow)');
-                }
-                
-                // Set flag that Action Center is now active
-                window.actionCenterCurrentlyOpen = true;
-                console.log('🎯 Action Center is now active and visible');
-                
-            }, 2000); // 2-second pause before opening
-            
-            // D. WAIT FOR ENTIRE SPEECH TO COMPLETE
-            const speechDuration = 8000; // 8 seconds for the full message
-            
-            setTimeout(() => {
-                console.log('🎯 Final message speech complete');
-                console.log('✅ Action Center should already be visible');
-                console.log('✅ User can now use Action Center buttons');
-                
-                // Set final state
-                if (window.mobilewiseAI) {
-                    window.mobilewiseAI.state = 'action_center_active';
-                }
-                
-                // Clear any partial transcript
-                if (window.lastCapturedTranscript) {
-                    window.lastCapturedTranscript = '';
-                    console.log('🧹 Cleared any speech transcript');
-                }
-                
-            }, speechDuration);
+        console.log('⏰ 2 seconds passed - opening Action Center');
+        const opened = window.showCommunicationActionCenter('consultation');
+        if (opened) {
+            console.log('✅ Action Center opened successfully');
         } else {
-            // Fallback if speakText not available
-            console.log('⚠️ speakText not available, opening Action Center immediately');
-            if (typeof window.showCommunicationActionCenter === 'function') {
-                window.showCommunicationActionCenter('testimonial_complete');
-            }
+            console.log('❌ Action Center failed to open');
         }
-    }, 500); // Initial 500ms delay after clicking
-    
-    console.log('✅ SUCCESSFULLY RETURNING TO VOICE CHAT WITH NATURAL FLOW');
+    }, 2000);
+
+    // 4. Wait 5 more seconds for demonstration
+    setTimeout(() => {
+        console.log('✅ Voice chat return flow complete');
+    }, 7000);
 }
 
 function showMoreTestimonials() {
