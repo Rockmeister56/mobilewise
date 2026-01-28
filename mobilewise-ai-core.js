@@ -81,10 +81,10 @@ function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🧠 MOBILEWISE AI Processing:', userMessage);
 
     // =========================================================================
-    // 🎯 STEP 0: CONSULTATION RESPONSE HANDLING (DUAL-SYSTEM APPROACH)
+    // 🎯 STEP 0: CONSULTATION RESPONSE HANDLING (MUST BE VERY FIRST!)
     // =========================================================================
     
-    // 🎯 APPROACH 1: Check GLOBAL consultation response handler FIRST (most reliable)
+    // 🎯 APPROACH 1: Check GLOBAL consultation response handler FIRST
     if (typeof window.consultationResponseHandler === 'function') {
         console.log('🎯 Checking GLOBAL consultation response handler...');
         const wasHandled = window.consultationResponseHandler(userMessage);
@@ -156,7 +156,8 @@ function getAIResponse(userMessage, conversationHistory = []) {
         }
     }
 
-    // 🚨 DOUBLE-SAFETY: Ensure conversation data exists (YOUR EXISTING CODE)
+    // 🚨 ONLY NOW do other checks
+    // 🚨 DOUBLE-SAFETY: Ensure conversation data exists
     if (!window.conversationData) {
         window.conversationData = {
             state: 'introduction',
@@ -164,10 +165,6 @@ function getAIResponse(userMessage, conversationHistory = []) {
             messages: []
         };
         console.log('✅ Emergency initialization of conversation data');
-    }
-    
-    if (!Array.isArray(window.conversationData.messages)) {
-        window.conversationData.messages = [];
     }
 
 
