@@ -80,13 +80,79 @@ window.mobilewiseAI = window.mobilewiseAI || {
 function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🧠 MOBILEWISE AI Processing:', userMessage);
 
-    // 🎯 CRITICAL: Check for consultation response FIRST (NEW CODE)
+    // =========================================================================
+    // 🎯 STEP 0: CONSULTATION RESPONSE HANDLING (DUAL-SYSTEM APPROACH)
+    // =========================================================================
+    
+    // 🎯 APPROACH 1: Check GLOBAL consultation response handler FIRST (most reliable)
     if (typeof window.consultationResponseHandler === 'function') {
-        console.log('🎯 Checking consultation response handler...');
+        console.log('🎯 Checking GLOBAL consultation response handler...');
         const wasHandled = window.consultationResponseHandler(userMessage);
         if (wasHandled) {
-            console.log('✅ Consultation response handled by global handler');
+            console.log('✅ Consultation response handled by GLOBAL handler');
             return ""; // Empty response - Action Center will handle audio
+        }
+    }
+    
+    // 🎯 APPROACH 2: Fallback to DIRECT consultation flag check
+    if (window.expectingConsultationResponse || window.consultationQuestionActive) {
+        console.log('🎯 Consultation question active (direct check) - checking for yes/no');
+        
+        const lowerMsg = userMessage.toLowerCase();
+        
+        // Check for affirmative responses
+        const affirmativeWords = ['yes', 'yeah', 'yep', 'sure', 'absolutely', 'definitely', 'of course', 'ok', 'okay'];
+        const negativeWords = ['no', 'nah', 'nope', 'not really', 'not now', 'maybe later'];
+        
+        let isAffirmative = false;
+        let isNegative = false;
+        
+        for (const word of affirmativeWords) {
+            if (lowerMsg.includes(word)) {
+                isAffirmative = true;
+                break;
+            }
+        }
+        
+        for (const word of negativeWords) {
+            if (lowerMsg.includes(word)) {
+                isNegative = true;
+                break;
+            }
+        }
+        
+        if (isAffirmative) {
+            console.log('✅ User said YES to consultation - triggering Action Center (direct)');
+            
+            // Clear flags
+            window.expectingConsultationResponse = false;
+            window.consultationQuestionActive = false;
+            
+            // Set state
+            if (window.mobilewiseAI) {
+                window.mobilewiseAI.state = 'action_center_active';
+            }
+            
+            // Trigger Action Center
+            setTimeout(() => {
+                if (typeof window.showCommunicationActionCenter === 'function') {
+                    window.showCommunicationActionCenter('consultation');
+                    console.log('✅ Action Center triggered for consultation (direct)');
+                }
+            }, 100);
+            
+            return ""; // Empty response - Action Center audio will handle it
+        }
+        else if (isNegative) {
+            console.log('❌ User said NO to consultation (direct)');
+            window.expectingConsultationResponse = false;
+            window.consultationQuestionActive = false;
+            
+            if (window.mobilewiseAI) {
+                window.mobilewiseAI.state = 'general_help';
+            }
+            
+            return "I understand. What other questions can I help you with today?";
         }
     }
 
@@ -435,28 +501,38 @@ function getAIResponse(userMessage, conversationHistory = []) {
         return "Perfect timing! I've opened our AI demo scheduling options.";
     }
 
-    // =========================================================================
+        // =========================================================================
     // 🎯 STEP 8: SMART NAME DETECTION (COMES AFTER ALL CONCERNS!)
     // =========================================================================
     // Only check for names if we're actually in introduction state AND don't have a name
     // AND only if none of the above conditions matched
     
-    if (mw.state === 'introduction' && !mw.user.name && userMessage.trim()) {
+    // 🚨 CRITICAL FIX: Check if we should be in qualification state first
+    if (mw.state === 'qualification') {
+        console.log('🎯 User is in qualification state - NOT checking for names');
+        // Fall through to next section
+    } 
+    else if (mw.state === 'introduction' && !mw.user.name && userMessage.trim()) {
         const name = userMessage.trim();
         
         // 🚨 IMPORTANT: Filter out common words that are NOT names
         const commonWords = ['yes', 'no', 'ok', 'okay', 'yeah', 'yep', 'nope', 'nah', 
                             'maybe', 'hello', 'hi', 'hey', 'what', 'how', 'why', 'when',
                             'perfect', 'fantastic', 'great', 'awesome', 'tell', 'show',
-                            'explain', 'describe', 'results', 'work', 'cost', 'price'];
+                            'explain', 'describe', 'results', 'work', 'cost', 'price',
+                            'consultation', 'free', 'help']; // Added consultation/free
         
         // Check if it's a common word (NOT a name)
         const isCommonWord = commonWords.includes(name.toLowerCase());
         
         // Check if it looks like a real name (at least 2 letters, starts with capital)
+        // EXCLUDE all yes/no patterns completely
+        const isYesNoPattern = /^(yes|yeah|yep|no|nah|nope)$/i.test(name);
+        
         const looksLikeName = name.length >= 2 && 
                              name.length <= 20 &&
                              !isCommonWord &&
+                             !isYesNoPattern && // Explicitly exclude yes/no
                              !lowerMsg.includes('?') && // Not a question
                              !lowerMsg.includes('what') && // Not "what kind of"
                              !lowerMsg.includes('how'); // Not "how does"
@@ -476,8 +552,8 @@ function getAIResponse(userMessage, conversationHistory = []) {
             
             // Return personalized greeting
             return `Hello ${formattedName}! How can I help you today?`;
-        } else if (isCommonWord) {
-            console.log(`❌ "${name}" is a common word, not a name`);
+        } else if (isCommonWord || isYesNoPattern) {
+            console.log(`❌ "${name}" is a common word/yes/no, not a name`);
             // Don't treat it as a name, continue with fallback
         }
     }
