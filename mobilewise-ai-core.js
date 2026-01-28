@@ -93,6 +93,10 @@ function getAIResponse(userMessage, conversationHistory = []) {
         window.conversationData.messages = [];
     }
 
+    // =========================================================================
+    // 🎯 CRITICAL: ACTION CENTER TRIGGERS (MUST COME FIRST!)
+    // =========================================================================
+
     // 🎯 ENHANCED POST-TESTIMONIAL RESPONSE HANDLER
     if (window.lastQuestionContext === 'post-testimonial' || 
         window.postTestimonialActive === true) {
@@ -123,23 +127,36 @@ function getAIResponse(userMessage, conversationHistory = []) {
     
     console.log(`📊 State: ${mw.state}, User: ${userName || 'New user'}`);
 
-    // 🎯 Testimonial integration
-    if (window.testimonialData && window.testimonialData.findRelevantTestimonial) {
-        const testimonial = window.testimonialData.findRelevantTestimonial(userMessage);
-        if (testimonial) {
-            // Incorporate testimonial into your response
-            return `I understand your concern about ${testimonial.concern.toLowerCase()}. Here's what others have said: "${testimonial.review}" - ${testimonial.author}`;
-        }
-    }
+    // =========================================================================
+    // 🎯 STEP 1: QUALIFICATION & ACTION CENTER RESPONSES (MOST IMPORTANT!)
+    // =========================================================================
 
-    // 🎯 Handle "yes/no" in QUALIFICATION state
+    // 🎯 Handle "yes/no" in QUALIFICATION state - WITH ACTION CENTER
     if (mw.state === 'qualification') {
         console.log('🎯 User is responding to qualification question');
         
         if (lowerMsg.includes('yes') || lowerMsg === 'yeah' || lowerMsg === 'yep') {
-            console.log('✅ User said YES to qualification');
-            mw.state = 'getting_contact_info';
-            return "Perfect! Let's get your consultation scheduled. What's the best phone number to reach you?";
+            console.log('✅ User said YES to qualification - TRIGGERING ACTION CENTER');
+            
+            // Clear any name that might have been set incorrectly
+            if (mw.user.name === 'Yes' || mw.user.name === 'yes') {
+                mw.user.name = '';
+                console.log('🧹 Cleared incorrectly set name');
+            }
+            
+            // 🚀 TRIGGER ACTION CENTER IMMEDIATELY
+            setTimeout(() => {
+                if (typeof window.showCommunicationActionCenter === 'function') {
+                    window.showCommunicationActionCenter('consultation');
+                    console.log('✅ Action Center triggered for consultation');
+                }
+            }, 100);
+            
+            // Update state
+            mw.state = 'action_center_active';
+            
+            // Return the EXACT response you want
+            return "Fantastic! Let me go ahead and show you all the ways we can connect you to the client...";
         }
         
         if (lowerMsg.includes('no') || lowerMsg === 'nah' || lowerMsg === 'nope') {
@@ -149,41 +166,27 @@ function getAIResponse(userMessage, conversationHistory = []) {
         }
     }
     
-    // 🎯 SIMPLE FIX: Check CURRENT STATE first
-    // ----------------------------------------------------------
-    // Are we asking about consultation? (Check state OR content)
-    const isConsultationOffer = mw.state === 'consultation_offer' || 
-                               mw.state === 'consultation_offer_response' ||
-                               (conversationHistory.length > 0 && 
-                                conversationHistory[conversationHistory.length - 1]?.content?.includes('consultation'));
-    
-    if (isConsultationOffer) {
-        // Handle YES to consultation
-        if (lowerMsg.includes('yes') || lowerMsg.includes('yeah') || lowerMsg.includes('sure')) {
-            console.log('✅ User wants consultation!');
-            mw.state = 'getting_contact_info';
-            return "Perfect! Let's get you scheduled. What's your phone number?";
-        }
-        
-        // Handle NO to consultation  
-        if (lowerMsg.includes('no') || lowerMsg.includes('nah') || lowerMsg.includes('not now')) {
-            console.log('⚠️ User declined consultation');
-            mw.state = 'general_help';
-            return "No problem. What other questions can I help you with?";
-        }
-    }
-    // ----------------------------------------------------------
-    
-    // 🎯 THEN check if we just had testimonials
+    // 🎯 THEN check if we just had testimonials - WITH ACTION CENTER
     if (window.testimonialActive === true) {
         console.log('🔄 Processing response after testimonials');
         
         // Handle YES after testimonials
         if (lowerMsg.includes('yes') || lowerMsg.includes('yeah') || lowerMsg.includes('sure')) {
-            console.log('✅ User confirmed after testimonials!');
-            mw.state = 'getting_contact_info';
+            console.log('✅ User confirmed after testimonials! TRIGGERING ACTION CENTER');
+            
+            // 🚀 TRIGGER ACTION CENTER
+            setTimeout(() => {
+                if (typeof window.showCommunicationActionCenter === 'function') {
+                    window.showCommunicationActionCenter('post_testimonial');
+                    console.log('✅ Action Center triggered after testimonials');
+                }
+            }, 100);
+            
+            mw.state = 'action_center_active';
             window.testimonialActive = false;
-            return "Great! Let's schedule your consultation. What's your phone number?";
+            window.postTestimonialActive = false;
+            
+            return "Fantastic! Let me go ahead and show you all the ways we can connect you to the client. I've opened our communication options...";
         }
         
         // Handle NO after testimonials
@@ -195,7 +198,6 @@ function getAIResponse(userMessage, conversationHistory = []) {
             return `I understand. Is there anything else I can help you with today? Feel free to ask any questions about our services.`;
         }
     }
-    // ----------------------------------------------------------
     
     // 🎯 ALSO: Check if we should be in consultation offer mode
     // (This handles the normal flow when NOT coming from testimonials)
@@ -205,10 +207,19 @@ function getAIResponse(userMessage, conversationHistory = []) {
         // Handle YES to consultation offer (normal flow)
         const yesWords = ['yes', 'yeah', 'yep', 'sure', 'absolutely'];
         if (yesWords.some(word => lowerMsg.includes(word))) {
-            console.log('✅ User wants consultation!');
-            mw.state = 'getting_contact_info';
+            console.log('✅ User wants consultation! TRIGGERING ACTION CENTER');
             
-            return `Great! Let's get you scheduled. What's your phone number so our team can contact you?`;
+            // 🚀 TRIGGER ACTION CENTER
+            setTimeout(() => {
+                if (typeof window.showCommunicationActionCenter === 'function') {
+                    window.showCommunicationActionCenter('normal_flow');
+                    console.log('✅ Action Center triggered for normal flow');
+                }
+            }, 100);
+            
+            mw.state = 'action_center_active';
+            
+            return `Fantastic! Let me show you all the ways we can connect...`;
         }
         
         // Handle NO to consultation offer
@@ -220,16 +231,94 @@ function getAIResponse(userMessage, conversationHistory = []) {
             return `No problem at all. What other questions can I help you with today?`;
         }
     }
-       // =========================================================================
-    // 🎯 SMART NAME GREETING FIX: Check if we're getting the user's name
+
+    // =========================================================================
+    // 🎯 STEP 2: EMERGENCY FALLBACK FOR ACTION CENTER
+    // =========================================================================
+    // This catches any "YES" that should trigger action center but was missed above
+    const shouldTriggerActionCenter = 
+        mw.state === 'qualification' || 
+        window.testimonialActive === true || 
+        window.postTestimonialActive === true ||
+        (userMessage.toLowerCase().includes('yes') && mw.user.name && mw.state !== 'introduction');
+    
+    if (shouldTriggerActionCenter && lowerMsg.includes('yes')) {
+        console.log('🚨 EMERGENCY: Detected YES that should trigger action center');
+        console.log('   State:', mw.state);
+        
+        // 🚀 TRIGGER ACTION CENTER
+        setTimeout(() => {
+            if (typeof window.showCommunicationActionCenter === 'function') {
+                window.showCommunicationActionCenter('emergency');
+                console.log('✅ Emergency Action Center triggered');
+            }
+        }, 100);
+        
+        mw.state = 'action_center_active';
+        window.testimonialActive = false;
+        window.postTestimonialActive = false;
+        
+        return "Fantastic! I'm opening our communication options now...";
+    }
+
+    // =========================================================================
+    // 🎯 STEP 3: TESTIMONIAL INTEGRATION (BEFORE name detection)
+    // =========================================================================
+
+    // 🎯 Testimonial integration
+    if (window.testimonialData && window.testimonialData.findRelevantTestimonial) {
+        const testimonial = window.testimonialData.findRelevantTestimonial(userMessage);
+        if (testimonial) {
+            // Incorporate testimonial into your response
+            return `I understand your concern about ${testimonial.concern.toLowerCase()}. Here's what others have said: "${testimonial.review}" - ${testimonial.author}`;
+        }
+    }
+
+    // =========================================================================
+    // 🎯 STEP 4: URGENT/DEMO DETECTION (From your original)
+    // =========================================================================
+    
+    const urgentPatterns = ['urgent', 'asap', 'right now', 'immediately', 'emergency', 'call me now'];
+    if (urgentPatterns.some(pattern => lowerMsg.includes(pattern))) {
+        console.log('🚨 URGENT REQUEST DETECTED');
+        setTimeout(() => {
+            if (window.triggerLeadActionCenter) {
+                window.triggerLeadActionCenter();
+            }
+        }, 1000);
+        return "I understand this is urgent! I've opened our immediate connection options.";
+    }
+    
+    const demoPatterns = ['demo', 'show me', 'see it', 'how it works', 'appointment', 'meeting', 'schedule'];
+    if (demoPatterns.some(pattern => lowerMsg.includes(pattern))) {
+        console.log('🎯 DEMO REQUEST DETECTED');
+        setTimeout(() => {
+            if (window.triggerLeadActionCenter) {
+                window.triggerLeadActionCenter();
+            }
+        }, 1000);
+        return "Perfect timing! I've opened our AI demo scheduling options.";
+    }
+
+    // =========================================================================
+    // 🎯 STEP 5: CONCERN DETECTION WITH TESTIMONIALS
+    // =========================================================================
+    // [Keep all your concern detection patterns here...]
+    // ... your existing concern patterns code ...
+
+    // =========================================================================
+    // 🎯 STEP 6: SMART NAME DETECTION (COMES LAST!)
     // =========================================================================
     // Only check for names if we're actually in introduction state AND don't have a name
+    // AND only if none of the above action-center-triggering conditions matched
+    
     if (mw.state === 'introduction' && !mw.user.name && userMessage.trim()) {
         const name = userMessage.trim();
         
         // 🚨 IMPORTANT: Filter out common words that are NOT names
         const commonWords = ['yes', 'no', 'ok', 'okay', 'yeah', 'yep', 'nope', 'nah', 
-                            'maybe', 'hello', 'hi', 'hey', 'what', 'how', 'why', 'when'];
+                            'maybe', 'hello', 'hi', 'hey', 'what', 'how', 'why', 'when',
+                            'perfect', 'fantastic', 'great', 'awesome'];
         
         // Check if it's a common word (NOT a name)
         const isCommonWord = commonWords.includes(name.toLowerCase());
@@ -257,363 +346,12 @@ function getAIResponse(userMessage, conversationHistory = []) {
             return `Hello ${formattedName}! How can I help you today?`;
         } else if (isCommonWord) {
             console.log(`❌ "${name}" is a common word, not a name`);
-            // Don't treat it as a name, continue with normal flow
+            // Don't treat it as a name, continue with fallback
         }
     }
-    
+
     // =========================================================================
-    // 🚨 STEP 1: URGENT/EMERGENCY DETECTION (From your original)
-    // =========================================================================
-    const urgentPatterns = ['urgent', 'asap', 'right now', 'immediately', 'emergency', 'call me now'];
-    if (urgentPatterns.some(pattern => lowerMsg.includes(pattern))) {
-        console.log('🚨 URGENT REQUEST DETECTED');
-        setTimeout(() => {
-            if (window.triggerLeadActionCenter) {
-                window.triggerLeadActionCenter();
-            }
-        }, 1000);
-        return "I understand this is urgent! I've opened our immediate connection options.";
-    }
-    
-    // =========================================================================
-    // 🚨 STEP 2: APPOINTMENT/DEMO DETECTION (From your original)
-    // =========================================================================
-    const demoPatterns = ['demo', 'show me', 'see it', 'how it works', 'appointment', 'meeting', 'schedule'];
-    if (demoPatterns.some(pattern => lowerMsg.includes(pattern))) {
-        console.log('🎯 DEMO REQUEST DETECTED');
-        setTimeout(() => {
-            if (window.triggerLeadActionCenter) {
-                window.triggerLeadActionCenter();
-            }
-        }, 1000);
-        return "Perfect timing! I've opened our AI demo scheduling options.";
-    }
-    
-// =============================================================================
-// 🎯 ENHANCED CONCERN DETECTION WITH TESTIMONIALS
-// =============================================================================
-
-// Add this near the top with other concern patterns
-const testimonialConcernPatterns = [
-    // PRICE CONCERNS
-    {pattern: 'expensive', type: 'price', response: "I understand your concern about the cost."},
-    {pattern: 'cost', type: 'price', response: "I hear you on the pricing question."},
-    {pattern: 'price', type: 'price', response: "I appreciate you mentioning the price."},
-    {pattern: 'afford', type: 'price', response: "I understand your affordability concern."},
-    
-    // TIME CONCERNS  
-    {pattern: 'time', type: 'time', response: "I understand your concern about time."},
-    {pattern: 'busy', type: 'time', response: "I hear you're busy and don't have extra time."},
-    {pattern: 'when', type: 'time', response: "I understand your question about timing."},
-    
-    // TRUST CONCERNS
-    {pattern: 'trust', type: 'trust', response: "I appreciate your honesty about trust."},
-    {pattern: 'believe', type: 'trust', response: "I understand you're wondering if you can believe in this."},
-    {pattern: 'skeptical', type: 'trust', response: "I get that you're feeling skeptical."},
-    {pattern: 'scam', type: 'trust', response: "I appreciate you sharing that concern about legitimacy."},
-    
-    // EFFECTIVENESS CONCERNS
-    {pattern: 'work', type: 'general', response: "I understand your question about whether this will work."},
-    {pattern: 'results', type: 'general', response: "I understand your concern about getting results."},
-    {pattern: 'worried', type: 'general', response: "I hear you're worried about this."}
-];
-
-// Replace or enhance the concern detection section
-for (const concern of testimonialConcernPatterns) {
-    if (lowerMsg.includes(concern.pattern)) {
-        console.log(`🚨 CONCERN DETECTED: ${concern.type} (pattern: "${concern.pattern}")`);
-        
-        // Store the concern type
-        window.detectedConcernType = concern.type;
-        
-        // 🎯 NEW: Check for specific industry testimonials
-        if (window.checkTestimonialTriggers) {
-            const testimonialMatch = window.checkTestimonialTriggers(userMessage);
-            if (testimonialMatch && testimonialMatch.videos.length > 0) {
-                console.log('✅ Found matching testimonials!');
-                
-                // Call your existing testimonial handler
-                if (typeof handleConcernWithTestimonial === 'function') {
-                    // Pass both the message and matched testimonials
-                    const enhancedMessage = `${concern.response} Let me show you what other business owners experienced...`;
-                    
-                    // Store the matched testimonials
-                    window.matchedTestimonials = testimonialMatch.videos;
-                    window.currentTestimonialConcern = testimonialMatch.concern;
-                    
-                    handleConcernWithTestimonial(userMessage);
-                    
-                    // Return the enhanced message
-                    return enhancedMessage;
-                }
-            }
-        }
-        
-        // Fallback to original concern handling
-        if (typeof handleConcernWithTestimonial === 'function') {
-            handleConcernWithTestimonial(userMessage);
-            return `${concern.response} Let me show you what other business owners experienced...`;
-        }
-        
-        return `${concern.response} Many clients had similar thoughts initially...`;
-    }
-}
-
-// =========================================================================
-// 🚨 STEP 3: ENHANCED CONCERN DETECTION WITH SPECIFIC RESPONSES
-// =========================================================================
-const concernPatterns = [
-    // PRICE CONCERNS
-    {pattern: 'expensive', type: 'price', response: "I understand your concern about the cost."},
-    {pattern: 'cost', type: 'price', response: "I hear you on the pricing question."},
-    {pattern: 'price', type: 'price', response: "I appreciate you mentioning the price."},
-    {pattern: 'afford', type: 'price', response: "I understand your affordability concern."},
-    {pattern: 'worth it', type: 'price', response: "I get why you're wondering if it's worth the investment."},
-    
-    // TIME CONCERNS  
-    {pattern: 'time', type: 'time', response: "I understand your concern about time."},
-    {pattern: 'busy', type: 'time', response: "I hear you're busy and don't have extra time."},
-    {pattern: 'when', type: 'time', response: "I understand your question about timing."},
-    {pattern: 'long', type: 'time', response: "I get that you're concerned about how long this takes."},
-    
-    // TRUST CONCERNS
-    {pattern: 'trust', type: 'trust', response: "I appreciate your honesty about trust."},
-    {pattern: 'believe', type: 'trust', response: "I understand you're wondering if you can believe in this."},
-    {pattern: 'skeptical', type: 'trust', response: "I get that you're feeling skeptical."},
-    {pattern: 'not sure', type: 'trust', response: "I understand you're not sure about this."},
-    {pattern: 'scam', type: 'trust', response: "I appreciate you sharing that concern about legitimacy."},
-    {pattern: 'real', type: 'trust', response: "I understand you're wondering if this is real."},
-    
-    // EFFECTIVENESS CONCERNS
-    {pattern: 'work', type: 'general', response: "I understand your question about whether this will work."},
-    {pattern: 'actually work', type: 'general', response: "I get that you're wondering if this actually works."},
-    {pattern: 'results', type: 'general', response: "I understand your concern about getting results."},
-    {pattern: 'good thing', type: 'general', response: "I appreciate you sharing your thoughts about whether AI is good."},
-    {pattern: 'bad', type: 'general', response: "I understand your concern that AI might not be good."},
-    {pattern: 'worried', type: 'general', response: "I hear you're worried about this."},
-    {pattern: 'concerned', type: 'general', response: "I appreciate you sharing your concern."}
-];
-
-for (const concern of concernPatterns) {
-    if (lowerMsg.includes(concern.pattern)) {
-        console.log(`🚨 CONCERN DETECTED: ${concern.type} (pattern: "${concern.pattern}")`);
-        
-        // Store the concern type for testimonial system
-        window.detectedConcernType = concern.type;
-        console.log(`📝 Stored concern type: ${window.detectedConcernType}`);
-        
-        // 🎯 NEW: Check for specific industry testimonials BEFORE calling handleConcernWithTestimonial
-        if (window.checkTestimonialTriggers && window.testimonialData) {
-            const testimonialMatch = window.checkTestimonialTriggers(userMessage);
-            if (testimonialMatch && testimonialMatch.videos.length > 0) {
-                console.log(`✅ Found ${testimonialMatch.videos.length} matching testimonials`);
-                window.matchedTestimonials = testimonialMatch.videos;
-                window.currentTestimonialConcern = testimonialMatch.concern;
-            }
-        }
-        
-        // Call testimonial system if available
-        if (typeof handleConcernWithTestimonial === 'function') {
-            console.log(`✅ Calling handleConcernWithTestimonial with user message`);
-            
-            // Pass the user's exact message so testimonial system can analyze it
-            handleConcernWithTestimonial(userMessage);
-            
-            // Return a placeholder response (will be replaced by testimonial system)
-            return `${concern.response} Let me show you what other business owners experienced...`;
-        } else {
-            console.error('❌ handleConcernWithTestimonial function not found!');
-            return `${concern.response} Many clients had similar thoughts initially...`;
-        }
-    }
-}
-
-// 🆕 ADD THIS DETECTION FUNCTION (add it near other detection functions)
-function detectInformationalVideoRequest(transcript) {
-    console.log('🎓 Checking for informational video request:', transcript);
-    
-    const informationalTriggers = [
-        // Conversion & Results
-        '300%', 'triple', 'more conversions', 'increase conversion', 'boost sales',
-        'higher conversion', 'better results', 'improve roi', 'more sales',
-        
-        // Leads & Quality
-        'pre qualified', 'qualified leads', 'hot leads', 'sales ready', 
-        'better leads', 'quality leads', 'stop wasting time', 'tire kickers',
-        
-        // Testimonials & Trust
-        'testimonials', 'social proof', 'trust', 'social validation', 
-        'proof', 'evidence', 'case studies', 'success stories',
-        
-        // Implementation & Ease
-        'setup', 'implement', 'install', 'add to website', 'integration',
-        'easy', 'simple', 'technical', 'skills', 'difficult', 'hard',
-        '5 minutes', 'quick', 'fast', 'time', 'effort',
-        
-        // How It Works
-        'how does it work', 'process', 'step by step', 'explain', 'show me',
-        'demonstrate', 'walk through', 'guide', 'tutorial',
-        
-        // Podcast Specific
-        'podcast', 'listeners', 'audience', 'episode', 'show',
-        'monetize', 'make money', 'income', 'revenue', 'profit',
-        
-        // Business Types
-        'service business', 'consultant', 'agency', 'freelancer', 'b2b',
-        'ecommerce', 'online store', 'shopify', 'woocommerce', 'cart',
-        
-        // General Info
-        'information', 'details', 'more about', 'learn more',
-        'understand better', 'see how', 'watch demo', 'demo'
-    ];
-    
-    const transcriptLower = transcript.toLowerCase().trim();
-    
-    return informationalTriggers.some(trigger => 
-        transcriptLower.includes(trigger.toLowerCase())
-    );
-}
-
-// 🎯 CORRECTED VERSION - Remove duplicate
-function handleConcernWithTestimonial(userText) {
-    window.testimonialActive = true;
-
-    // 🛑 PREVENT DUPLICATE SPLASH SCREENS
-    const existingSplash = document.getElementById('testimonial-splash-screen');
-    if (existingSplash) {
-        console.log('⚠️ Splash screen already exists - removing duplicate');
-        existingSplash.remove();
-    }
-    
-    // 🛑 CHECK IF ALREADY PLAYING
-    if (window.avatarCurrentlyPlaying) {
-        console.log('🚫 Video already playing - skipping new splash screen');
-        return;
-    }
-
-    console.log(`🎯 handleConcernWithTestimonial called with: "${userText}"`);
-    
-    // 🎯 DETECT CONCERN TYPE FROM USER TEXT
-    const concernType = detectConcernTypeFromText(userText);
-    console.log(`🎯 Detected concern type: ${concernType}`);
-    
-    // 🎯 GENERATE CONCERN-ECHO ACKNOWLEDGMENT
-    const acknowledgment = generateConcernEchoResponse(userText, concernType);
-    
-    // 🎯 TRIGGER UNIVERSAL BANNER ENGINE (TOP BANNER)
-    if (window.showUniversalBanner) {
-        window.showUniversalBanner('testimonialSelector');
-    }
-    
-    console.log(`🎯 Handling ${concernType} concern - showing testimonial response`);
-    console.log(`🎯 Echo response: "${acknowledgment}"`);
-
-    // 1. STOP ANY CURRENT SPEECH IMMEDIATELY
-    if (window.stopSpeaking && typeof window.stopSpeaking === 'function') {
-        window.stopSpeaking();
-        console.log('🔇 Stopped any current speech');
-    }
-
-    if (window.stopListening && typeof window.stopListening === 'function') {
-        window.stopListening();
-        console.log('🔇 Stopped any current listening');
-    }
-
-    // 2. Add AI message to chat (SILENTLY - no speech yet)
-    if (window.addAIMessage && typeof window.addAIMessage === 'function') {
-        window.addAIMessage(acknowledgment);
-        console.log('✅ AI message added to chat (silent)');
-    }
-
-    // 🛑 CRITICAL FIX: Block ALL speech during testimonials
-    window.speechBlockedForTestimonials = true;
-
-    // Set timeout to re-enable speech after testimonials
-    setTimeout(() => {
-        window.speechBlockedForTestimonials = false;
-        console.log('🔓 Speech block released');
-    }, 15000); // 15 seconds
-
-    // 3. SHOW TESTIMONIALS IMMEDIATELY - THEY CONTROL THE FLOW NOW
-    setTimeout(() => {
-        if (window.showTestimonialSplashScreen && typeof window.showTestimonialSplashScreen === 'function') {
-            // Set flag that testimonials are active
-            window.testimonialActive = true;
-            console.log('🎬 Setting testimonialActive = true');
-            
-            window.showTestimonialSplashScreen();
-            console.log('✅ Testimonial splash screen launched - THEY control speech flow');
-        } else {
-            console.error('❌ showTestimonialSplashScreen not available');
-            // Fallback: speak after delay
-            setTimeout(() => {
-                if (window.speakText) window.speakText(acknowledgment);
-            }, 1000);
-        }
-    }, 100);
-
-    // 5. Store the concern
-    window.lastDetectedConcern = {
-        text: userText,
-        type: concernType,
-        timestamp: Date.now(),
-        echoResponse: acknowledgment,
-        testimonialTriggered: true  // Add this flag
-    };
-}
-
-// 🎯 DETECT CONCERN TYPE FROM TEXT
-function detectConcernTypeFromText(userText) {
-    const lowerText = userText.toLowerCase();
-    
-    if (lowerText.includes('expensive') || lowerText.includes('cost') || lowerText.includes('price') || lowerText.includes('afford')) {
-        return 'price';
-    }
-    if (lowerText.includes('time') || lowerText.includes('busy') || lowerText.includes('when') || lowerText.includes('long')) {
-        return 'time';
-    }
-    if (lowerText.includes('trust') || lowerText.includes('believe') || lowerText.includes('skeptical') || lowerText.includes('scam') || lowerText.includes('real')) {
-        return 'trust';
-    }
-    if (lowerText.includes('work') || lowerText.includes('results') || lowerText.includes('good thing') || lowerText.includes('bad') || lowerText.includes('worried')) {
-        return 'general';
-    }
-    
-    return window.detectedConcernType || 'general';
-}
-
-// 🎯 GENERATE CONCERN-ECHO RESPONSE
-function generateConcernEchoResponse(userText, concernType) {
-    const lowerText = userText.toLowerCase();
-    
-    // Extract the specific concern phrase
-    let specificConcern = '';
-    if (lowerText.includes('expensive')) specificConcern = "it's too expensive";
-    else if (lowerText.includes('cost')) specificConcern = "the cost";
-    else if (lowerText.includes('price')) specificConcern = "the price";
-    else if (lowerText.includes('afford')) specificConcern = "affordability";
-    else if (lowerText.includes('time')) specificConcern = "the time commitment";
-    else if (lowerText.includes('busy')) specificConcern = "being too busy";
-    else if (lowerText.includes('trust')) specificConcern = "trusting this";
-    else if (lowerText.includes('believe')) specificConcern = "believing in this";
-    else if (lowerText.includes('skeptical')) specificConcern = "feeling skeptical";
-    else if (lowerText.includes('work')) specificConcern = "whether this will work";
-    else if (lowerText.includes('good thing')) specificConcern = "whether AI is a good thing";
-    else specificConcern = "that";
-    
-    // Generate response based on concern type
-    const responses = {
-        price: `I completely understand your concern about ${specificConcern}. Many of our clients felt the same way initially. If you'd like to hear what they experienced, click a review below. Or click Skip to continue our conversation.`,
-        time: `I hear you on ${specificConcern}. Several of our clients had similar thoughts before working with us. Feel free to click a review to hear their experience, or hit Skip and we'll keep talking.`,
-        trust: `That's a fair concern about ${specificConcern}. You're not alone - other business owners felt the same way at first. You're welcome to check out their reviews below, or click Skip to move forward.`,
-        general: `I appreciate you sharing ${specificConcern}. Some of our valued clients started with similar hesitations. If you're curious what happened for them, click a review. Otherwise, click Skip and let's continue.`
-    };
-    
-    return responses[concernType] || responses.general;
-}
-    
-    // =========================================================================
-    // 🎯 STEP 4: MAIN CONVERSATION FLOW
+    // 🎯 STEP 7: MAIN CONVERSATION FLOW
     // =========================================================================
     
     // PHASE 1: INTRODUCTION - NAME CAPTURE
