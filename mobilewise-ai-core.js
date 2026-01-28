@@ -76,10 +76,21 @@ window.mobilewiseAI = window.mobilewiseAI || {
 // =============================================================================
 // 🎯 COMPLETE getAIResponse FUNCTION - FIXED VERSION
 // =============================================================================
+
 function getAIResponse(userMessage, conversationHistory = []) {
     console.log('🧠 MOBILEWISE AI Processing:', userMessage);
 
-    // 🚨 DOUBLE-SAFETY: Ensure conversation data exists
+    // 🎯 CRITICAL: Check for consultation response FIRST (NEW CODE)
+    if (typeof window.consultationResponseHandler === 'function') {
+        console.log('🎯 Checking consultation response handler...');
+        const wasHandled = window.consultationResponseHandler(userMessage);
+        if (wasHandled) {
+            console.log('✅ Consultation response handled by global handler');
+            return ""; // Empty response - Action Center will handle audio
+        }
+    }
+
+    // 🚨 DOUBLE-SAFETY: Ensure conversation data exists (YOUR EXISTING CODE)
     if (!window.conversationData) {
         window.conversationData = {
             state: 'introduction',
@@ -92,6 +103,7 @@ function getAIResponse(userMessage, conversationHistory = []) {
     if (!Array.isArray(window.conversationData.messages)) {
         window.conversationData.messages = [];
     }
+
 
     // =========================================================================
     // 🎯 CRITICAL: ACTION CENTER TRIGGERS (MUST COME FIRST!)

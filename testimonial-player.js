@@ -682,7 +682,7 @@ function closeTestimonialVideo() {
 }
 
 // ================================
-// 🎯 RETURN TO VOICE CHAT (REVISED - AUTO ACTION CENTER)
+// 🎯 RETURN TO VOICE CHAT (FIXED - AUTO ACTION CENTER)
 // ================================
 function returnToVoiceChat() {
     console.log('🎯🎯🎯 RETURN TO VOICE CHAT CLICKED 🎯🎯🎯');
@@ -724,11 +724,62 @@ function returnToVoiceChat() {
     window.expectingConsultationResponse = true;
     window.consultationQuestionActive = true;
     
-    // 🎯 NEW FLAG: Auto-open Action Center on yes
-    window.autoActionCenterOnYes = true;
-    window.skipNameCollection = true; // Skip name collection entirely
+    // 🎯 NEW: Global handler for consultation responses
+    window.consultationResponseHandler = function(userMessage) {
+        console.log('🎯 GLOBAL Consultation response handler called:', userMessage);
+        
+        if (window.consultationQuestionActive && window.expectingConsultationResponse) {
+            console.log('✅ Processing consultation response...');
+            
+            const affirmativeWords = ['yes', 'yeah', 'sure', 'okay', 'ok', 'yep', 'absolutely', 'definitely', 'of course'];
+            const responseLower = userMessage.toLowerCase().trim();
+            
+            let isAffirmative = false;
+            for (const word of affirmativeWords) {
+                if (responseLower.includes(word)) {
+                    isAffirmative = true;
+                    break;
+                }
+            }
+            
+            if (isAffirmative) {
+                console.log('✅ Affirmative response detected - opening Action Center');
+                
+                // Clear flags
+                window.consultationQuestionActive = false;
+                window.expectingConsultationResponse = false;
+                window.consultationOfferActive = false;
+                
+                // Open Action Center IMMEDIATELY (no transition phrase needed)
+                setTimeout(() => {
+                    if (window.showCommunicationActionCenter) {
+                        console.log('🎯 Opening Communication Relay Center...');
+                        window.showCommunicationActionCenter('consultation');
+                        console.log('✅ Action Center opened - user can choose next step');
+                        
+                        // Clear the handler
+                        window.consultationResponseHandler = null;
+                    } else if (window.showCommunicationSystem) {
+                        console.log('🎯 Opening Communication System...');
+                        window.showCommunicationSystem();
+                        console.log('✅ Communication System opened');
+                    }
+                }, 100);
+                
+                return true; // Response handled
+            } else {
+                console.log('❌ Non-affirmative response');
+                // Clear flags for non-affirmative
+                window.consultationQuestionActive = false;
+                window.expectingConsultationResponse = false;
+                return false;
+            }
+        }
+        
+        return false; // Not a consultation response
+    };
     
-    console.log('🎯 Auto Action Center enabled - will open on "yes" response');
+    console.log('✅ Global consultation response handler installed');
     
     // 5. 🚨🚨🚨 CRITICAL: CLEAR ALL TESTIMONIAL FLAGS 🚨🚨🚨
     console.log('🧹 CLEARING ALL TESTIMONIAL FLAGS:');
@@ -794,72 +845,12 @@ function returnToVoiceChat() {
             window.speakText(consultationText).then(() => {
                 console.log('✅ Consultation question spoken');
                 
-                // C. SET UP AUTO-ACTION CENTER RESPONSE DETECTION
-                window.handleConsultationResponse = function(response) {
-                    console.log('🎯 Consultation response detected:', response);
-                    
-                    // Clean up first
-                    window.consultationQuestionActive = false;
-                    window.expectingConsultationResponse = false;
-                    
-                    // Check for affirmative responses
-                    const affirmativeWords = ['yes', 'yeah', 'sure', 'okay', 'ok', 'yep', 'absolutely', 'definitely', 'of course'];
-                    const responseLower = response.toLowerCase().trim();
-                    
-                    let isAffirmative = false;
-                    for (const word of affirmativeWords) {
-                        if (responseLower.includes(word)) {
-                            isAffirmative = true;
-                            break;
-                        }
-                    }
-                    
-                    if (isAffirmative) {
-                        console.log('✅ Affirmative response detected - opening Action Center');
-                        
-                        // 1. AI says transition phrase
-                        const transitionPhrase = "Perfect! Go ahead and click how you would like to proceed and I'll get you the information you need.";
-                        
-                        // Add to chat
-                        if (window.addAIMessage) {
-                            window.addAIMessage(transitionPhrase);
-                        }
-                        
-                        // Speak it
-                        window.speakText(transitionPhrase).then(() => {
-                            console.log('✅ Transition phrase spoken');
-                            
-                            // 2. Open Action Center
-                            setTimeout(() => {
-                                if (window.showCommunicationActionCenter) {
-                                    console.log('🎯 Opening Communication Relay Center...');
-                                    window.showCommunicationActionCenter('consultation');
-                                    console.log('✅ Action Center opened - user can choose next step');
-                                } else if (window.showCommunicationSystem) {
-                                    console.log('🎯 Opening Communication System...');
-                                    window.showCommunicationSystem();
-                                    console.log('✅ Communication System opened');
-                                }
-                            }, 1000);
-                        });
-                    } else {
-                        console.log('❌ Non-affirmative response - standard flow');
-                        // Fall back to standard flow
-                        window.consultationResponseProcessed = false;
-                        window.autoActionCenterOnYes = false;
-                    }
-                    
-                    // Clear the handler
-                    window.handleConsultationResponse = null;
-                };
-                
-                console.log('✅ Auto-response handler ready for "yes"');
-                
                 // Set post-testimonial context for AI responses
                 window.lastQuestionContext = 'post-testimonial';
                 window.postTestimonialActive = true;
                 
                 console.log('✅ Consultation offer ready - waiting for user response');
+                console.log('✅ Global handler is active: window.consultationResponseHandler');
             });
         }
     }, 500);
