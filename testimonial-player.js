@@ -682,7 +682,7 @@ function closeTestimonialVideo() {
 }
 
 // ================================
-// 🎯 RETURN TO VOICE CHAT (UPDATED FOR ACTION CENTER)
+// 🎯 RETURN TO VOICE CHAT (OPTION B - NATURAL FLOW)
 // ================================
 function returnToVoiceChat() {
     console.log('🎯🎯🎯 RETURN TO VOICE CHAT CLICKED 🎯🎯🎯');
@@ -694,25 +694,25 @@ function returnToVoiceChat() {
     emergencyStopAllSpeech();
     console.log('✅ All speech stopped');
     
-    // 2. 🎯 SET THE EXACT SAME STATE AS NORMAL CONSULTATION FLOW
+    // 2. 🎯 SET FINAL STATE - ACTION CENTER WILL BE ACTIVE
     if (window.salesAI) {
-        window.salesAI.state = 'qualification'; // This triggers emergency Bruce detection
-        console.log('✅ Sales AI state set to qualification');
+        window.salesAI.state = 'action_center_active';
+        console.log('✅ Sales AI state set to action_center_active');
     }
     
     // Also set the global conversation state
     if (window.conversationState !== undefined) {
-        window.conversationState = 'qualification';
-        console.log('✅ Global conversation state set to qualification');
+        window.conversationState = 'action_center_active';
+        console.log('✅ Global conversation state set to action_center_active');
     }
     
     // ALSO set mobilewiseAI state
     if (window.mobilewiseAI) {
-        window.mobilewiseAI.state = 'qualification';
-        console.log('✅ MobileWise AI state set to qualification');
+        window.mobilewiseAI.state = 'action_center_active';
+        console.log('✅ MobileWise AI state set to action_center_active');
     }
     
-    // 3. Clear the OLD transcript that causes testimonials to re-appear
+    // 3. Clear the OLD transcript
     window.lastCapturedTranscript = '';
     window.lastCapturedTime = 0;
     
@@ -722,14 +722,11 @@ function returnToVoiceChat() {
         userInput.value = '';
     }
     
-    console.log('🛑 Cleared old transcript to prevent testimonial re-trigger');
+    console.log('🛑 Cleared old transcript');
     
-    // 4. Set consultation flag
-    window.consultationOfferActive = true;
-    console.log('🎯 Consultation offer active - emergency Bruce detection enabled');
-
-    window.consultationResponseProcessed = false;
-    console.log('🔄 Reset consultationResponseProcessed flag for new consultation');
+    // 4. Set final action flags
+    window.actionCenterActive = true;
+    console.log('🎯 Action Center will be active');
     
     // 5. 🚨🚨🚨 CRITICAL: CLEAR ALL TESTIMONIAL FLAGS 🚨🚨🚨
     console.log('🧹 CLEARING ALL TESTIMONIAL FLAGS:');
@@ -778,56 +775,71 @@ function returnToVoiceChat() {
         console.log('🛡️ Cooldown cleared for voice chat');
     }
     
-    // 8. PLAY THE UPDATED CONSULTATION OFFER
+    // 8. PLAY THE FINAL MESSAGE WITH NATURAL FLOW
     setTimeout(() => {
-        console.log('🗣️ Playing UPDATED consultation offer...');
+        console.log('🗣️ Playing final message with natural flow...');
         
-        // 🎯 UPDATED TEXT THAT MATCHES ACTION CENTER LOGIC
-        const consultationText = "If we can get you the same results as our previous clients, would you be interested in a free consultation?";
-        
-        // 🎯 SET THE CONSULTATION RESPONSE EXPECTATION FLAG
-        window.expectingConsultationResponse = true;
-        window.consultationQuestionActive = true;
-        
-        // 🎯 ALSO SET POST-TESTIMONIAL CONTEXT
-        window.lastQuestionContext = 'post-testimonial';
-        window.postTestimonialActive = true;
-        window.testimonialActive = true; // This will trigger the action center logic
-        
-        console.log('🎯 Flags set for action center trigger:', {
-            lastQuestionContext: window.lastQuestionContext,
-            postTestimonialActive: window.postTestimonialActive,
-            testimonialActive: window.testimonialActive
-        });
+        // 🎯 FINAL GENERIC MESSAGE
+        const finalMessage = "Fantastic! Let me go ahead and show you all the ways we can connect you to the client...";
         
         // A. FIRST add message to chat bubble (VISIBLE)
         if (window.addAIMessage && typeof window.addAIMessage === 'function') {
-            window.addAIMessage(consultationText);
-            console.log('✅ AI message added to chat bubble');
+            window.addAIMessage(finalMessage);
+            console.log('✅ Final message added to chat bubble');
         }
         
-        // B. THEN speak it (AUDIBLE)
+        // B. THEN speak it (AUDIBLE) - START OF "FANTASTIC!" MESSAGE
         if (window.speakText) {
-            window.speakText(consultationText);
+            console.log('🔊 Speaking final message...');
+            window.speakText(finalMessage);
             
-            // C. WAIT FOR SPEECH TO COMPLETE
-            const speechDuration = 10000; // 10 seconds buffer
-            
+            // C. SMALL PAUSE FOR NATURAL FLOW (Option B)
+            // Wait 2 seconds (message is speaking), then open Action Center
             setTimeout(() => {
-                console.log('🎯 Speech complete - Ready for "Yes" response');
+                console.log('⏱️  2-second pause for natural flow...');
                 
-                // Clear any partial transcript from during speech
-                if (window.lastCapturedTranscript) {
-                    window.lastCapturedTranscript = '';
-                    console.log('🧹 Cleared transcript captured during speech');
+                // 🚀 OPEN ACTION CENTER WHILE MESSAGE IS STILL PLAYING
+                if (typeof window.showCommunicationActionCenter === 'function') {
+                    window.showCommunicationActionCenter('testimonial_complete');
+                    console.log('✅ Action Center opened (natural flow)');
                 }
                 
-                console.log('✅ Consultation offer complete - Ready for action center trigger');
+                // Set flag that Action Center is now active
+                window.actionCenterCurrentlyOpen = true;
+                console.log('🎯 Action Center is now active and visible');
+                
+            }, 2000); // 2-second pause before opening
+            
+            // D. WAIT FOR ENTIRE SPEECH TO COMPLETE
+            const speechDuration = 8000; // 8 seconds for the full message
+            
+            setTimeout(() => {
+                console.log('🎯 Final message speech complete');
+                console.log('✅ Action Center should already be visible');
+                console.log('✅ User can now use Action Center buttons');
+                
+                // Set final state
+                if (window.mobilewiseAI) {
+                    window.mobilewiseAI.state = 'action_center_active';
+                }
+                
+                // Clear any partial transcript
+                if (window.lastCapturedTranscript) {
+                    window.lastCapturedTranscript = '';
+                    console.log('🧹 Cleared any speech transcript');
+                }
+                
             }, speechDuration);
+        } else {
+            // Fallback if speakText not available
+            console.log('⚠️ speakText not available, opening Action Center immediately');
+            if (typeof window.showCommunicationActionCenter === 'function') {
+                window.showCommunicationActionCenter('testimonial_complete');
+            }
         }
-    }, 500);
+    }, 500); // Initial 500ms delay after clicking
     
-    console.log('✅ SUCCESSFULLY RETURNED TO VOICE CHAT');
+    console.log('✅ SUCCESSFULLY RETURNING TO VOICE CHAT WITH NATURAL FLOW');
 }
 
 function showMoreTestimonials() {

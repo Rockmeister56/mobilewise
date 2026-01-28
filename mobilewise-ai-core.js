@@ -97,44 +97,30 @@ function getAIResponse(userMessage, conversationHistory = []) {
     // 🎯 CRITICAL: ACTION CENTER TRIGGERS (MUST COME FIRST!)
     // =========================================================================
 
-        // 🎯 ENHANCED POST-TESTIMONIAL RESPONSE HANDLER
+           // 🎯 MINIMAL POST-TESTIMONIAL HANDLER (for any unexpected speech)
     if (window.lastQuestionContext === 'post-testimonial' || 
         window.postTestimonialActive === true) {
         
-        console.log('🎯 POST-TESTIMONIAL RESPONSE DETECTED!');
-        console.log('   Context:', window.lastQuestionContext);
-        console.log('   Active:', window.postTestimonialActive);
+        console.log('🎯 POST-TESTIMONIAL RESPONSE DETECTED (unexpected)');
         
-        // Clear ALL context flags
+        // Clear flags
         window.lastQuestionContext = null;
         window.postTestimonialActive = false;
         
-        // 🎯 SPECIAL HANDLING FOR "YES" TO CONSULTATION
-        const lowerMsg = userMessage.toLowerCase();
-        if (lowerMsg.includes('yes') || lowerMsg.includes('yeah') || lowerMsg.includes('sure')) {
-            console.log('✅ User said YES after testimonials - TRIGGERING ACTION CENTER');
-            
-            // 🚀 TRIGGER ACTION CENTER
-            setTimeout(() => {
-                if (typeof window.showCommunicationActionCenter === 'function') {
-                    window.showCommunicationActionCenter('post_testimonial');
-                    console.log('✅ Action Center triggered after testimonials');
-                }
-            }, 100);
-            
-            mw.state = 'action_center_active';
-            
-            return "Fantastic! Let me go ahead and show you all the ways we can connect you to the client...";
+        // If Action Center is already open, just acknowledge
+        if (window.actionCenterCurrentlyOpen) {
+            console.log('⚠️ User spoke while Action Center is open');
+            return "Please use the buttons in the Action Center to connect with us.";
         }
         
+        // Otherwise, handle through normal response handler
         if (window.handlePostTestimonialResponse) {
-            console.log('✅ Calling response handler with:', userMessage);
             window.handlePostTestimonialResponse(userMessage);
-            return; // STOP - don't process with normal AI
-        } else {
-            console.error('❌ Response handler not found!');
-            // Continue with normal AI processing
+            return;
         }
+        
+        // Fallback
+        console.error('❌ Unexpected post-testimonial speech');
     }
     
     // 📈 Update conversation metrics
