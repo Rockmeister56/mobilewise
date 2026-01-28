@@ -682,7 +682,7 @@ function closeTestimonialVideo() {
 }
 
 // ================================
-// 🎯 RETURN TO VOICE CHAT (FIXED)
+// 🎯 RETURN TO VOICE CHAT (UPDATED FOR ACTION CENTER)
 // ================================
 function returnToVoiceChat() {
     console.log('🎯🎯🎯 RETURN TO VOICE CHAT CLICKED 🎯🎯🎯');
@@ -706,6 +706,12 @@ function returnToVoiceChat() {
         console.log('✅ Global conversation state set to qualification');
     }
     
+    // ALSO set mobilewiseAI state
+    if (window.mobilewiseAI) {
+        window.mobilewiseAI.state = 'qualification';
+        console.log('✅ MobileWise AI state set to qualification');
+    }
+    
     // 3. Clear the OLD transcript that causes testimonials to re-appear
     window.lastCapturedTranscript = '';
     window.lastCapturedTime = 0;
@@ -723,7 +729,7 @@ function returnToVoiceChat() {
     console.log('🎯 Consultation offer active - emergency Bruce detection enabled');
 
     window.consultationResponseProcessed = false;
-console.log('🔄 Reset consultationResponseProcessed flag for new consultation');
+    console.log('🔄 Reset consultationResponseProcessed flag for new consultation');
     
     // 5. 🚨🚨🚨 CRITICAL: CLEAR ALL TESTIMONIAL FLAGS 🚨🚨🚨
     console.log('🧹 CLEARING ALL TESTIMONIAL FLAGS:');
@@ -772,15 +778,27 @@ console.log('🔄 Reset consultationResponseProcessed flag for new consultation'
         console.log('🛡️ Cooldown cleared for voice chat');
     }
     
-    // 8. PLAY THE CONSULTATION OFFER PROPERLY
+    // 8. PLAY THE UPDATED CONSULTATION OFFER
     setTimeout(() => {
-        console.log('🗣️ Playing consultation offer...');
+        console.log('🗣️ Playing UPDATED consultation offer...');
         
-        const consultationText = "If we can get you the same results as our previous customers, would you be interested in that consultation?";
-
-          // 🎯 SET THE CONSULTATION RESPONSE EXPECTATION FLAG
-    window.expectingConsultationResponse = true;
-    window.consultationQuestionActive = true;
+        // 🎯 UPDATED TEXT THAT MATCHES ACTION CENTER LOGIC
+        const consultationText = "If we can get you the same results as our previous clients, would you be interested in a free consultation?";
+        
+        // 🎯 SET THE CONSULTATION RESPONSE EXPECTATION FLAG
+        window.expectingConsultationResponse = true;
+        window.consultationQuestionActive = true;
+        
+        // 🎯 ALSO SET POST-TESTIMONIAL CONTEXT
+        window.lastQuestionContext = 'post-testimonial';
+        window.postTestimonialActive = true;
+        window.testimonialActive = true; // This will trigger the action center logic
+        
+        console.log('🎯 Flags set for action center trigger:', {
+            lastQuestionContext: window.lastQuestionContext,
+            postTestimonialActive: window.postTestimonialActive,
+            testimonialActive: window.testimonialActive
+        });
         
         // A. FIRST add message to chat bubble (VISIBLE)
         if (window.addAIMessage && typeof window.addAIMessage === 'function') {
@@ -796,7 +814,7 @@ console.log('🔄 Reset consultationResponseProcessed flag for new consultation'
             const speechDuration = 10000; // 10 seconds buffer
             
             setTimeout(() => {
-                console.log('🎯 Speech complete - Main system will handle banners');
+                console.log('🎯 Speech complete - Ready for "Yes" response');
                 
                 // Clear any partial transcript from during speech
                 if (window.lastCapturedTranscript) {
@@ -804,11 +822,7 @@ console.log('🔄 Reset consultationResponseProcessed flag for new consultation'
                     console.log('🧹 Cleared transcript captured during speech');
                 }
                 
-                // Set post-testimonial context for AI responses
-                window.lastQuestionContext = 'post-testimonial';
-                window.postTestimonialActive = true;
-                
-                console.log('✅ Consultation offer complete - post-testimonial context set');
+                console.log('✅ Consultation offer complete - Ready for action center trigger');
             }, speechDuration);
         }
     }, 500);

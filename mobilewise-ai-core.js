@@ -97,7 +97,7 @@ function getAIResponse(userMessage, conversationHistory = []) {
     // 🎯 CRITICAL: ACTION CENTER TRIGGERS (MUST COME FIRST!)
     // =========================================================================
 
-    // 🎯 ENHANCED POST-TESTIMONIAL RESPONSE HANDLER
+        // 🎯 ENHANCED POST-TESTIMONIAL RESPONSE HANDLER
     if (window.lastQuestionContext === 'post-testimonial' || 
         window.postTestimonialActive === true) {
         
@@ -108,6 +108,24 @@ function getAIResponse(userMessage, conversationHistory = []) {
         // Clear ALL context flags
         window.lastQuestionContext = null;
         window.postTestimonialActive = false;
+        
+        // 🎯 SPECIAL HANDLING FOR "YES" TO CONSULTATION
+        const lowerMsg = userMessage.toLowerCase();
+        if (lowerMsg.includes('yes') || lowerMsg.includes('yeah') || lowerMsg.includes('sure')) {
+            console.log('✅ User said YES after testimonials - TRIGGERING ACTION CENTER');
+            
+            // 🚀 TRIGGER ACTION CENTER
+            setTimeout(() => {
+                if (typeof window.showCommunicationActionCenter === 'function') {
+                    window.showCommunicationActionCenter('post_testimonial');
+                    console.log('✅ Action Center triggered after testimonials');
+                }
+            }, 100);
+            
+            mw.state = 'action_center_active';
+            
+            return "Fantastic! Let me go ahead and show you all the ways we can connect you to the client...";
+        }
         
         if (window.handlePostTestimonialResponse) {
             console.log('✅ Calling response handler with:', userMessage);
@@ -163,39 +181,6 @@ function getAIResponse(userMessage, conversationHistory = []) {
             console.log('⚠️ User said NO to qualification');
             mw.state = 'general_help';
             return "I understand. What other questions can I help you with today?";
-        }
-    }
-    
-    // 🎯 THEN check if we just had testimonials - WITH ACTION CENTER
-    if (window.testimonialActive === true) {
-        console.log('🔄 Processing response after testimonials');
-        
-        // Handle YES after testimonials
-        if (lowerMsg.includes('yes') || lowerMsg.includes('yeah') || lowerMsg.includes('sure')) {
-            console.log('✅ User confirmed after testimonials! TRIGGERING ACTION CENTER');
-            
-            // 🚀 TRIGGER ACTION CENTER
-            setTimeout(() => {
-                if (typeof window.showCommunicationActionCenter === 'function') {
-                    window.showCommunicationActionCenter('post_testimonial');
-                    console.log('✅ Action Center triggered after testimonials');
-                }
-            }, 100);
-            
-            mw.state = 'action_center_active';
-            window.testimonialActive = false;
-            window.postTestimonialActive = false;
-            
-            return "Fantastic! Let me go ahead and show you all the ways we can connect you to the client. I've opened our communication options...";
-        }
-        
-        // Handle NO after testimonials
-        if (lowerMsg.includes('no') || lowerMsg.includes('nah') || lowerMsg.includes('not now')) {
-            console.log('⚠️ User declined after testimonials');
-            mw.state = 'general_help';
-            window.testimonialActive = false;
-            
-            return `I understand. Is there anything else I can help you with today? Feel free to ask any questions about our services.`;
         }
     }
     
