@@ -262,7 +262,7 @@ function getAIResponse(userMessage, conversationHistory = []) {
     }
 
     // =========================================================================
-    // 🎯 STEP 3: TESTIMONIAL INTEGRATION
+    // 🎯 STEP 3: TESTIMONIAL INTEGRATION IMPORTANT
     // =========================================================================
 
     // 🎯 Testimonial integration
