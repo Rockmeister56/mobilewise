@@ -723,6 +723,12 @@ function returnToVoiceChat() {
     window.consultationResponseProcessed = false;
     window.expectingConsultationResponse = true;
     window.consultationQuestionActive = true;
+
+    // 🎯 CRITICAL: Also update mobilewiseAI state
+if (window.mobilewiseAI) {
+    window.mobilewiseAI.state = 'qualification';
+    console.log('✅ mobilewiseAI.state set to: qualification');
+}
     
     // 🎯 NEW: Global handler for consultation responses
     window.consultationResponseHandler = function(userMessage) {
