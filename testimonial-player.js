@@ -682,7 +682,7 @@ function closeTestimonialVideo() {
 }
 
 // ================================
-// 🎯 RETURN TO VOICE CHAT (OPTION B - NATURAL FLOW)
+// 🎯 RETURN TO VOICE CHAT (FIXED)
 // ================================
 function returnToVoiceChat() {
     console.log('🎯🎯🎯 RETURN TO VOICE CHAT CLICKED 🎯🎯🎯');
@@ -693,33 +693,127 @@ function returnToVoiceChat() {
     // 1. STOP ALL SPEECH FIRST
     emergencyStopAllSpeech();
     console.log('✅ All speech stopped');
-
-    // 2. Play the "Fantastic!" message
-    const fantasticMessage = "Fantastic! Let's return to voice chat where we can continue our conversation seamlessly.";
-    console.log(`🔊 Playing message: "${fantasticMessage}"`);
     
-    // Speak the message
-    window.speakText(fantasticMessage).then(() => {
-        console.log('✅ "Fantastic!" message completed');
-    }).catch(error => {
-        console.error('❌ Error playing message:', error);
+    // 2. 🎯 SET THE EXACT SAME STATE AS NORMAL CONSULTATION FLOW
+    if (window.salesAI) {
+        window.salesAI.state = 'qualification'; // This triggers emergency Bruce detection
+        console.log('✅ Sales AI state set to qualification');
+    }
+    
+    // Also set the global conversation state
+    if (window.conversationState !== undefined) {
+        window.conversationState = 'qualification';
+        console.log('✅ Global conversation state set to qualification');
+    }
+    
+    // 3. Clear the OLD transcript that causes testimonials to re-appear
+    window.lastCapturedTranscript = '';
+    window.lastCapturedTime = 0;
+    
+    // Also clear any input fields
+    const userInput = document.getElementById('userInput');
+    if (userInput) {
+        userInput.value = '';
+    }
+    
+    console.log('🛑 Cleared old transcript to prevent testimonial re-trigger');
+    
+    // 4. Set consultation flag
+    window.consultationOfferActive = true;
+    console.log('🎯 Consultation offer active - emergency Bruce detection enabled');
+
+    window.consultationResponseProcessed = false;
+console.log('🔄 Reset consultationResponseProcessed flag for new consultation');
+    
+    // 5. 🚨🚨🚨 CRITICAL: CLEAR ALL TESTIMONIAL FLAGS 🚨🚨🚨
+    console.log('🧹 CLEARING ALL TESTIMONIAL FLAGS:');
+    const testimonialFlags = [
+        'testimonialSessionActive',
+        'isInTestimonialMode', 
+        'concernBannerActive',
+        'isTestimonialActive',
+        'testimonialMode',
+        'testimonialsPlaying',
+        'testimonialActive',
+        'testimonialVideoActive',
+        'avatarCurrentlyPlaying',
+        'testimonialProtectionActive',
+        'disableSpeakNowBanner'
+    ];
+    
+    testimonialFlags.forEach(flag => {
+        window[flag] = false;
+        console.log(`  ✅ ${flag} = false`);
     });
-
-    // 3. Wait 2 seconds, then open Action Center WHILE message is still playing
-    setTimeout(() => {
-        console.log('⏰ 2 seconds passed - opening Action Center');
-        const opened = window.showCommunicationActionCenter('consultation');
-        if (opened) {
-            console.log('✅ Action Center opened successfully');
-        } else {
-            console.log('❌ Action Center failed to open');
+    
+    console.log('🛡️🛡️ DOUBLE Testimonial protection deactivated');
+    
+    // 6. REMOVE ALL testimonial elements
+    const elementsToRemove = [
+        'testimonial-nav-options',
+        'testimonial-video-overlay', 
+        'testimonial-splash-screen',
+        'testimonial-splash',
+        'testimonial-video-container',
+        'testimonial-video-player'
+    ];
+    
+    elementsToRemove.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.remove();
+            console.log('✅ Removed:', id);
         }
-    }, 2000);
-
-    // 4. Wait 5 more seconds for demonstration
+    });
+    
+    // 7. Clear any cooldowns that might block voice chat
+    if (window.cooldownActive !== undefined) {
+        window.cooldownActive = false;
+        console.log('🛡️ Cooldown cleared for voice chat');
+    }
+    
+    // 8. PLAY THE CONSULTATION OFFER PROPERLY
     setTimeout(() => {
-        console.log('✅ Voice chat return flow complete');
-    }, 7000);
+        console.log('🗣️ Playing consultation offer...');
+        
+        const consultationText = "If we can get you the same results as our previous customers, would you like to know how?";
+
+          // 🎯 SET THE CONSULTATION RESPONSE EXPECTATION FLAG
+    window.expectingConsultationResponse = true;
+    window.consultationQuestionActive = true;
+        
+        // A. FIRST add message to chat bubble (VISIBLE)
+        if (window.addAIMessage && typeof window.addAIMessage === 'function') {
+            window.addAIMessage(consultationText);
+            console.log('✅ AI message added to chat bubble');
+        }
+        
+        // B. THEN speak it (AUDIBLE)
+        if (window.speakText) {
+            window.speakText(consultationText);
+            
+            // C. WAIT FOR SPEECH TO COMPLETE
+            const speechDuration = 10000; // 10 seconds buffer
+            
+            setTimeout(() => {
+                console.log('🎯 Speech complete - Main system will handle banners');
+                
+                // Clear any partial transcript from during speech
+                if (window.lastCapturedTranscript) {
+                    window.lastCapturedTranscript = '';
+                    console.log('🧹 Cleared transcript captured during speech');
+                }
+                
+                // Set post-testimonial context for AI responses
+                window.lastQuestionContext = 'post-testimonial';
+                window.postTestimonialActive = true;
+                
+                console.log('✅ Consultation offer complete - post-testimonial context set');
+            }, speechDuration);
+        }
+    }, 500);
+    
+    console.log('✅ SUCCESSFULLY RETURNED TO VOICE CHAT');
 }
 
 function showMoreTestimonials() {
