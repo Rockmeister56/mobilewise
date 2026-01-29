@@ -129,7 +129,7 @@
                          style="width: 750px; height: 90px; border-radius: 0px; margin-right: 4px;">
                     <div style="color: white; text-align: left;">
                         <div style="font-size: 17px; font-weight: bold; margin-bottom: 4px;">
-                            <span class="free-glow">FREE FLIP BOOK</span> The AI Powered <br> Business
+                            <span class="free-glow">FREE FLIP BOOK</span> The AI Powered Business
                         </div>
                     </div>
                 </div>
