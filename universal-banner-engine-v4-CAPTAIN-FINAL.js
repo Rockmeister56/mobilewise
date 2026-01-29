@@ -128,10 +128,10 @@
                          class="book-white-glow"
                          style="width: 760px; height: 100px; border-radius: 0px; margin-right: 2px;">
                     <div style="color: white; text-align: left;">
-                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">
-                            <span class="free-glow">FREE FLIP BOOK</span> The AI <br> Powered <br> Business
-                        <div style="font-size: 14px; opacity: 0.95;">
-                            Best Seller
+                        <div style="font-size: 18px; font-weight: bold; margin-bottom: 4px;">
+                            <span class="free-glow">FREE FLIP BOOK</span> The AI <br> Powered Business
+                        <div style="font-size: 12px; opacity: 0.95;">
+                            A must have!
                         </div>
                     </div>
                 </div>
