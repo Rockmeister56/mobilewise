@@ -129,10 +129,10 @@
                          style="width: 760px; height: 100px; border-radius: 0px; margin-right: 2px;">
                     <div style="color: white; text-align: left;">
                         <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
-                            <span class="free-glow">OUR EXPERTISE</span> practice buying and selling
+                            <span class="free-glow"GET A FREE</span> AI Powered Business
                         </div>
                         <div style="font-size: 14px; opacity: 0.95;">
-                            We've got you covered with experience
+                            (flipbook)
                         </div>
                     </div>
                 </div>
