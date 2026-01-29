@@ -25,7 +25,8 @@
         'clickToCall': 'cta',
         'setAppointment': 'cta',
         'requestCallback': 'cta',
-        'expertise': 'quick', 
+        'commRelayCenter': 'cta',  // Or 'cta' or whatever makes sense
+        'communication_relay_center': 'cta',  // Also add the bannerType version 
         'urgent': 'cta',  // 🚨 ADD THIS LINE - URGENT BANNER TRIGGERS CTA BUTTONS!
         
         // Testimonial banners → Review buttons

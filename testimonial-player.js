@@ -880,8 +880,8 @@ setTimeout(() => {
             console.log('📢 Calling triggerBanner("commRelayCenter")...');
             triggerBanner('commRelayCenter');
         } else if (typeof window.showUniversalBanner === 'function') {
-            console.log('📢 Calling showUniversalBanner("expertise")...');
-            window.showUniversalBanner('expertise'); // bannerType for commRelayCenter
+            console.log('📢 Calling showUniversalBanner("commRelayCenter")...');
+            window.showUniversalBanner('commRelayCenter'); // bannerType for commRelayCenter
         } else {
             console.log('⚠️ No banner triggering functions found');
         }
