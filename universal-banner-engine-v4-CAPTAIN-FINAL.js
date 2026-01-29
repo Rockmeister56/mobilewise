@@ -122,7 +122,7 @@
     // 5. Specializing in
     expertise: {
         content: `
-            <div class="banner-glow-container banner-cta-full" style="width: 780px; max-width: 780px; margin: 0 auto; height: 75px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 8px; background: linear-gradient(135deg, #000000ff 0%, #011fa2ff 50%, #0048ffff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <div class="banner-glow-container banner-cta-full" style="width: 780px; max-width: 780px; margin: 0 auto; height: 75px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #000000ff 0%, #011fa2ff 50%, #0048ffff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <div style="display: flex; align-items: center;">
                     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/sign/banners/logos/comm-center2.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9lNjg4MGUyOC0zMDRhLTQ5NzItYmNiMS1iY2U5YjNkOWU1YTkiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiYW5uZXJzL2xvZ29zL2NvbW0tY2VudGVyMi5wbmciLCJpYXQiOjE3Njk2NzgwNTAsImV4cCI6MTgwMTIxNDA1MH0.CEQwPTpo5dpeD6HVKCZtTSTnIwSYUfyWSpFHT0ikBGM" 
                          class="book-white-glow"
