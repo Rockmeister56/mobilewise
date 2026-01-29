@@ -729,6 +729,7 @@ if (window.mobilewiseAI) {
     window.mobilewiseAI.state = 'qualification';
     console.log('✅ mobilewiseAI.state set to: qualification');
 }
+
     
     // 🎯 NEW: Global handler for consultation responses
     window.consultationResponseHandler = function(userMessage) {
