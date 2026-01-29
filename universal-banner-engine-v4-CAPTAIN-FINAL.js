@@ -129,10 +129,9 @@
                          style="width: 760px; height: 100px; border-radius: 0px; margin-right: 2px;">
                     <div style="color: white; text-align: left;">
                         <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">
-                            <span class="free-glow"GET A FREE</span> AI Powered Business
-                        </div>
+                            <span class="free-glow">FREE FLIP BOOK</span> The AI Powered Business
                         <div style="font-size: 14px; opacity: 0.95;">
-                            (flipbook)
+                            with no obligagtion!
                         </div>
                     </div>
                 </div>
