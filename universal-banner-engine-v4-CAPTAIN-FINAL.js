@@ -119,8 +119,8 @@
         colorRight: '#6b21a8'
     },
     
-    // 5. Specializing in
-    expertise: {
+    // 5. Communication Relay Center
+    commRelayCenter: {
         content: `
             <div class="banner-glow-container banner-cta-full" style="width: 780px; max-width: 780px; margin: 0 auto; height: 75px; display: flex; justify-content: center; align-items: center; padding: 0 20px; border-radius: 12px; background: linear-gradient(135deg, #000000ff 0%, #011fa2ff 50%, #0048ffff 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                 <div style="display: flex; align-items: center;">
