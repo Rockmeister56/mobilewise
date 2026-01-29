@@ -2362,12 +2362,12 @@ const bannerTriggers = {
         conditions: ['call_ready']
     },
     
-    // FREE INCENTIVE OFFER
-    expertise: {
-        bannerType: 'expertise',
+    // Communication Relay Center
+    commRelayCenter: {
+        bannerType: 'communication_relay_center',
         delay: 0,
         duration: 0,  // Persistent
-        conditions: ['expertise_ready']
+        conditions: ['take_action']
     },
     
     // FREE INCENTIVE

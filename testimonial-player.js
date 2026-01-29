@@ -847,31 +847,48 @@ if (window.mobilewiseAI) {
     }
     
     // 8. PLAY THE CONSULTATION OFFER WITH AUTO ACTION CENTER TRIGGER
-    setTimeout(() => {
-        console.log('🗣️ Playing consultation offer with Auto Action Center...');
-        
-        const consultationText = "If we can get you the same results as our previous customers, would you like to know how?";
+setTimeout(() => {
+    console.log('🗣️ Playing consultation offer with Auto Action Center...');
+    
+    const consultationText = "If we can get you the same results as our previous customers, would you like to know how?";
 
-        // A. FIRST add message to chat bubble (VISIBLE)
-        if (window.addAIMessage && typeof window.addAIMessage === 'function') {
-            window.addAIMessage(consultationText);
-            console.log('✅ AI message added to chat bubble');
-        }
+    // A. FIRST add message to chat bubble (VISIBLE)
+    if (window.addAIMessage && typeof window.addAIMessage === 'function') {
+        window.addAIMessage(consultationText);
+        console.log('✅ AI message added to chat bubble');
+    }
+    
+    // B. THEN speak it (AUDIBLE)
+    if (window.speakText) {
+        window.speakText(consultationText).then(() => {
+            console.log('✅ Consultation question spoken');
+            
+            // Set post-testimonial context for AI responses
+            window.lastQuestionContext = 'post-testimonial';
+            window.postTestimonialActive = true;
+            
+            console.log('✅ Consultation offer ready - waiting for user response');
+            console.log('✅ Global handler is active: window.consultationResponseHandler');
+        });
+    }
+    
+    // 🎯 9. TRIGGER THE COMM RELAY CENTER BANNER (AFTER question starts)
+    setTimeout(() => {
+        console.log('🎯🎯🎯 TRIGGERING SMART BANNER FOR ACTION CENTER 🎯🎯🎯');
         
-        // B. THEN speak it (AUDIBLE)
-        if (window.speakText) {
-            window.speakText(consultationText).then(() => {
-                console.log('✅ Consultation question spoken');
-                
-                // Set post-testimonial context for AI responses
-                window.lastQuestionContext = 'post-testimonial';
-                window.postTestimonialActive = true;
-                
-                console.log('✅ Consultation offer ready - waiting for user response');
-                console.log('✅ Global handler is active: window.consultationResponseHandler');
-            });
+        if (typeof triggerBanner === 'function') {
+            console.log('📢 Calling triggerBanner("commRelayCenter")...');
+            triggerBanner('commRelayCenter');
+        } else if (typeof window.showUniversalBanner === 'function') {
+            console.log('📢 Calling showUniversalBanner("expertise")...');
+            window.showUniversalBanner('expertise'); // bannerType for commRelayCenter
+        } else {
+            console.log('⚠️ No banner triggering functions found');
         }
-    }, 500);
+        console.log('✅ Smart banner triggered for Action Center');
+    }, 1500); // 1.5 seconds after question starts (gives time for speech to begin)
+    
+}, 500); // This closes the first setTimeout
     
     console.log('✅ SUCCESSFULLY RETURNED TO VOICE CHAT WITH AUTO ACTION CENTER');
 }
