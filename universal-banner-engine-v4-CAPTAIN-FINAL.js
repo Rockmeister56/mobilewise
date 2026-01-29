@@ -126,7 +126,7 @@
                 <div style="display: flex; align-items: center;">
                     <img src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/sign/banners/logos/comm-center2.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9lNjg4MGUyOC0zMDRhLTQ5NzItYmNiMS1iY2U5YjNkOWU1YTkiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJiYW5uZXJzL2xvZ29zL2NvbW0tY2VudGVyMi5wbmciLCJpYXQiOjE3Njk2NzgwNTAsImV4cCI6MTgwMTIxNDA1MH0.CEQwPTpo5dpeD6HVKCZtTSTnIwSYUfyWSpFHT0ikBGM" 
                          class="book-white-glow"
-                         style="width: 750px; height: 90px; border-radius: 0px; margin-right: 4px;">
+                         style="width: 770px; height: 80px; border-radius: 0px; margin-right: 1px;">
                     <div style="color: white; text-align: left;">
                         <div style="font-size: 17px; font-weight: bold; margin-bottom: 4px;">
                             <span class="free-glow">FREE FLIP BOOK</span> <br> The AI Powered Business
