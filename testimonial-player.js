@@ -757,21 +757,32 @@ if (window.mobilewiseAI) {
                 window.expectingConsultationResponse = false;
                 window.consultationOfferActive = false;
                 
-                // Open Action Center IMMEDIATELY (no transition phrase needed)
                 setTimeout(() => {
-                    if (window.showCommunicationActionCenter) {
-                        console.log('🎯 Opening Communication Relay Center...');
-                        window.showCommunicationActionCenter('consultation');
-                        console.log('✅ Action Center opened - user can choose next step');
-                        
-                        // Clear the handler
-                        window.consultationResponseHandler = null;
-                    } else if (window.showCommunicationSystem) {
-                        console.log('🎯 Opening Communication System...');
-                        window.showCommunicationSystem();
-                        console.log('✅ Communication System opened');
-                    }
-                }, 100);
+    if (window.showCommunicationRelayCenter) {
+        console.log('🎯 Opening REAL Communication Relay Center...');
+        window.showCommunicationRelayCenter();
+        console.log('✅ REAL Action Center opened');
+        
+        // Clear the handler - IMPORTANT!
+        window.consultationResponseHandler = null;
+        
+    } else if (window.showCommunicationActionCenter) {
+        console.log('⚠️ Using fallback showCommunicationActionCenter');
+        window.showCommunicationActionCenter('consultation');
+        console.log('✅ Fallback Action Center opened');
+        
+        // Clear the handler - IMPORTANT!
+        window.consultationResponseHandler = null;
+        
+    } else if (window.showCommunicationSystem) {
+        console.log('🎯 Opening Communication System...');
+        window.showCommunicationSystem();
+        console.log('✅ Communication System opened');
+        
+        // Clear the handler - IMPORTANT!
+        window.consultationResponseHandler = null;
+    }
+}, 100);
                 
                 return true; // Response handled
             } else {
