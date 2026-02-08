@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LemonSlice Direct Audio Trigger Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 1000px; margin: auto; }
+        #log { border: 2px solid #2ecc71; padding: 15px; margin-top: 20px; background: #f0fff4; min-height: 400px; border-radius: 5px; font-family: monospace; font-size: 14px; }
+        .log-entry { margin: 8px 0; padding: 5px; border-left: 4px solid #3498db; background: white; }
+        .success { border-left-color: #2ecc71; background: #f0fff4; }
+        .error { border-left-color: #e74c3c; background: #fff0f0; }
+        .trigger { border-left-color: #f39c12; background: #fff9e6; font-weight: bold; }
+        .hearing { border-left-color: #9b59b6; background: #f5eef8; }
+        button { background: #3498db; color: white; border: none; padding: 12px 24px; margin: 10px 5px; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #2980b9; }
+        #status { padding: 10px; margin: 10px 0; border-radius: 5px; font-weight: bold; }
+        .status-listening { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-active { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        #widget-container { margin: 20px 0; padding: 15px; border: 2px dashed #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🎤 LemonSlice Direct Audio Trigger System</h1>
+    <p><strong>Status:</strong> <span id="status">Initializing...</span></p>
+
+    <div id="widget-container">
+        <lemon-slice-widget agent-id="agent_1db77d60ec132469"></lemon-slice-widget>
+    </div>
+
+    <div>
+        <button onclick="startTriggerSystem()">🎯 Start Trigger System</button>
+        <button onclick="stopTriggerSystem()">⏹️ Stop Trigger System</button>
+        <button onclick="manualTest()">🔊 Simulate Avatar Speech (Test)</button>
+        <button onclick="clearLog()">🗑️ Clear Log</button>
+    </div>
+
+    <div id="log"></div>
+
+    <!-- Import the widget -->
+    <script type="module">
+        import 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
+        log('Widget module loaded.', 'info');
+        setTimeout(() => {
+            document.getElementById('status').textContent = 'Widget Ready. Click "Start Trigger System".';
+            document.getElementById('status').className = 'status-listening';
+        }, 2000);
+    </script>
+
+    <script>
+        // ==================== GLOBALS ====================
+        const TRIGGER_PHRASE = "verified results gallery";
+        let audioContext = null;
+        let analyser = null;
+        let audioSource = null;
+        let isListening = false;
+        let recognition = null;
+        let silenceStartTime = Date.now();
+        const SILENCE_THRESHOLD = 0.01; // Adjust based on audio levels
+        const SILENCE_DURATION_MS = 800; // Wait for 800ms of silence to assume phrase end
+
+        // ==================== LOGGING ====================
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            document.getElementById('log').appendChild(entry);
+            // Keep log scroll at bottom
+            const logContainer = document.getElementById('log');
+            logContainer.scrollTop = logContainer.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // ==================== STEP 1: CAPTURE AUDIO ELEMENT ====================
+        function getLemonSliceAudioElement() {
+            const widget = document.querySelector('lemon-slice-widget');
+            if (!widget || !widget.shadowRoot) {
+                log('Widget or Shadow Root not found.', 'error');
+                return null;
+            }
+            
+            // Get all audio elements from shadow DOM
+            const audioElements = widget.shadowRoot.querySelectorAll('audio');
+            log(`Found ${audioElements.length} audio elements in widget.`, 'info');
+            
+            // Return the first one (or you might need to find the one with .currentSrc)
+            for (let audio of audioElements) {
+                if (audio.src || audio.currentSrc) {
+                    log(`Selected audio element with src: ${audio.currentSrc || audio.src}`, 'success');
+                    return audio;
+                }
+            }
+            
+            // If none have src yet, return the first one (it will get the stream later)
+            log('No audio element has src yet. Using first available.', 'info');
+            return audioElements[0] || null;
+        }
+
+        // ==================== STEP 2: SETUP WEB AUDIO API TO DETECT SPEECH ====================
+        function startTriggerSystem() {
+            if (isListening) {
+                log('Trigger system already running.', 'info');
+                return;
+            }
+            
+            log('🚀 Starting LemonSlice Audio Trigger System...', 'success');
+            document.getElementById('status').textContent = 'Trigger System ACTIVE - Listening...';
+            document.getElementById('status').className = 'status-active';
+            
+            // 1. Get the audio element
+            const audioElement = getLemonSliceAudioElement();
+            if (!audioElement) {
+                log('ERROR: Could not find LemonSlice audio element.', 'error');
+                return;
+            }
+            
+            // 2. Create Web Audio API context
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            audioSource = audioContext.createMediaElementSource(audioElement);
+            analyser = audioContext.createAnalyser();
+            
+            // 3. Connect the nodes: audioElement -> analyser -> destination
+            audioSource.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            // 4. Configure analyser
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            // 5. Start monitoring audio levels
+            isListening = true;
+            let isSpeechActive = false;
+            let speechStartTime = 0;
+            
+            function checkAudioLevel() {
+                if (!isListening) return;
+                
+                analyser.getByteFrequencyData(dataArray);
+                let sum = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    sum += dataArray[i];
+                }
+                let average = sum / bufferLength;
+                let normalizedLevel = average / 256;
+                
+                // Detect speech start/stop
+                if (normalizedLevel > SILENCE_THRESHOLD && !isSpeechActive) {
+                    // Speech STARTED
+                    isSpeechActive = true;
+                    speechStartTime = Date.now();
+                    log('🎤 Speech activity DETECTED', 'hearing');
+                    startSpeechRecognition();
+                } 
+                else if (normalizedLevel <= SILENCE_THRESHOLD && isSpeechActive) {
+                    // Speech might have ended - check duration of silence
+                    if (Date.now() - speechStartTime > SILENCE_DURATION_MS) {
+                        // Speech ENDED
+                        isSpeechActive = false;
+                        log('🔇 Speech activity ENDED', 'info');
+                        stopSpeechRecognition();
+                    }
+                }
+                
+                // Continue monitoring
+                requestAnimationFrame(checkAudioLevel);
+            }
+            
+            checkAudioLevel();
+            log('Web Audio API is now monitoring widget audio levels.', 'success');
+            
+            // 6. Setup Speech Recognition
+            setupSpeechRecognition();
+        }
+
+        // ==================== STEP 3: SPEECH RECOGNITION ====================
+        function setupSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                log('ERROR: Web Speech API not supported in this browser.', 'error');
+                return;
+            }
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 3;
+            
+            recognition.onstart = function() {
+                log('Speech recognition engine STARTED.', 'info');
+            };
+            
+            recognition.onresult = function(event) {
+                let interimTranscript = '';
+                let finalTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                // Check both interim and final results for trigger phrase
+                const allText = (interimTranscript + ' ' + finalTranscript).toLowerCase();
+                log(`Heard: "${allText.substring(0, 60)}${allText.length > 60 ? '...' : ''}"`, 'hearing');
+                
+                if (allText.includes(TRIGGER_PHRASE)) {
+                    log(`🎉🎉🎉 TRIGGER PHRASE DETECTED: "${TRIGGER_PHRASE}"`, 'trigger');
+                    stopTriggerSystem();
+                    launchTestimonialPlayer();
+                }
+            };
+            
+            recognition.onerror = function(event) {
+                log(`Speech recognition error: ${event.error}`, 'error');
+            };
+            
+            recognition.onend = function() {
+                log('Speech recognition ended.', 'info');
+            };
+        }
+
+        function startSpeechRecognition() {
+            if (recognition && !isSpeechRecognitionActive()) {
+                try {
+                    recognition.start();
+                    log('Speech recognition STARTED for current phrase.', 'info');
+                } catch (e) {
+                    log(`Cannot start recognition: ${e}`, 'error');
+                }
+            }
+        }
+
+        function stopSpeechRecognition() {
+            if (recognition && isSpeechRecognitionActive()) {
+                try {
+                    recognition.stop();
+                    log('Speech recognition STOPPED.', 'info');
+                } catch (e) {
+                    // Ignore "recognition already stopped" errors
+                }
+            }
+        }
+
+        function isSpeechRecognitionActive() {
+            return recognition && (
+                recognition.state === 'starting' || 
+                recognition.state === 'listening' || 
+                recognition.state === 'processing'
+            );
+        }
+
+        // ==================== STEP 4: LAUNCH TESTIMONIALS ====================
+        function launchTestimonialPlayer() {
+            log('🚀 LAUNCHING TESTIMONIAL PLAYER...', 'trigger');
+            document.getElementById('status').textContent = 'TRIGGERED! Launching Testimonials...';
+            
+            // Your existing function to load and show testimonials
+            if (typeof window.showTestimonialSplashScreen === 'function') {
+                window.showTestimonialSplashScreen();
+            } else {
+                // Load your testimonial-player.js if needed
+                log('Testimonial function not found. Would load external script here.', 'info');
+                // loadAndShowPlayer(); // Your existing function
+            }
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function stopTriggerSystem() {
+            isListening = false;
+            if (recognition) {
+                recognition.stop();
+            }
+            if (audioContext) {
+                audioContext.close();
+            }
+            log('Trigger system STOPPED.', 'info');
+            document.getElementById('status').textContent = 'System Stopped';
+            document.getElementById('status').className = '';
+        }
+
+        function manualTest() {
+            log('Manual test: Simulating trigger phrase...', 'info');
+            // Simulate hearing the trigger phrase
+            if (recognition && recognition.onresult) {
+                const mockEvent = {
+                    resultIndex: 0,
+                    results: [[{
+                        isFinal: true,
+                        0: { transcript: "Let me show you our verified results gallery now" }
+                    }]]
+                };
+                recognition.onresult(mockEvent);
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            log('Page loaded. Wait for widget to initialize, then click "Start Trigger System".', 'info');
+        };
+    </script>
+</body>
+</html>
