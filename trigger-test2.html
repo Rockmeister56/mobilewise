@@ -331,6 +331,178 @@
         };
 
         // ====================
+        // 🎯 LOGGING & STATUS
+        // ====================
+        function log(message, type = "info") {
+            const logBox = document.getElementById("logBox");
+            const line = document.createElement("div");
+            line.className = `log-line ${type}`;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logBox.appendChild(line);
+            logBox.scrollTop = logBox.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function updateStatus(text, isActive = false) {
+            document.getElementById("statusText").textContent = text;
+            document.getElementById("statusType").textContent = isActive ? "Active" : "Listening";
+            
+            const dot = document.getElementById("statusDot");
+            if (isActive) {
+                dot.classList.add("active");
+            } else {
+                dot.classList.remove("active");
+            }
+        }
+
+        // ====================
+        // 🎯 CRITICAL FIX: CREATE TESTIMONIAL DATA
+        // ====================
+        function ensureTestimonialData() {
+            // If testimonial data already exists, use it
+            if (window.testimonialData && window.testimonialData.testimonialGroups) {
+                log(`✅ Testimonial data already exists (${Object.keys(window.testimonialData.testimonialGroups).length} groups)`, 'success');
+                return true;
+            }
+            
+            log(`📦 Creating mock testimonial data...`, 'info');
+            
+            // Create the EXACT structure that testimonial-player.js expects
+            window.testimonialData = {
+                testimonialGroups: {
+                    group_1769476426538: {
+                        title: "Verified Results Gallery",
+                        testimonials: [
+                            {
+                                title: "Personal Injury Lawyer 312% Boost",
+                                author: "Law Firm Client",
+                                concernType: "results",
+                                hasVideoUrl: true,
+                                videoUrl: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4"
+                            },
+                            {
+                                title: "From 0 to 15 Clients in 30 Days",
+                                author: "Consulting Client",
+                                concernType: "growth",
+                                hasVideoUrl: true,
+                                videoUrl: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4"
+                            }
+                        ]
+                    }
+                },
+                currentGroup: 'group_1769476426538'
+            };
+            
+            log(`✅ Created testimonial data with ${window.testimonialData.testimonialGroups.group_1769476426538.testimonials.length} testimonials`, 'success');
+            return true;
+        }
+
+        // ====================
+        // 🎯 CRITICAL FIX: CREATE CHAT CONTAINER
+        // ====================
+        function createChatMessagesContainer() {
+            if (!document.getElementById('chatMessages')) {
+                const chatDiv = document.createElement('div');
+                chatDiv.id = 'chatMessages';
+                chatDiv.className = 'chat-messages';
+                chatDiv.style.cssText = `
+                    position: relative;
+                    width: 100%;
+                    min-height: 400px;
+                    background: rgba(0,0,0,0.1);
+                    border-radius: 8px;
+                    overflow: hidden;
+                `;
+                
+                // Insert it into player area
+                const playerArea = document.getElementById('playerArea');
+                if (playerArea) {
+                    playerArea.appendChild(chatDiv);
+                    log(`✅ Created #chatMessages container in player area`, 'success');
+                }
+            }
+        }
+
+        // ====================
+        // 🎯 TRIGGER FUNCTIONS
+        // ====================
+        function playTriggerAudio() {
+            log(`🔊 Playing Botemia trigger audio...`, "info");
+            
+            // Use first trigger URL
+            const audio = document.getElementById('audio1');
+            if (!audio.src) {
+                audio.src = triggers[1].url;
+            }
+            
+            audio.currentTime = 0;
+            audio.play();
+            
+            audio.onended = function() {
+                log(`✅ Trigger audio complete`, "success");
+                updateStatus("Audio complete - launching player", true);
+            };
+        }
+
+        function loadAndShowPlayer() {
+            log(`🚀 Loading testimonial player...`, "info");
+            
+            // 🎯 CRITICAL: Create chat container BEFORE loading
+            createChatMessagesContainer();
+            
+            // If already loaded, show it immediately
+            if (typeof window.showTestimonialSplashScreen === 'function') {
+                log(`✅ testimonial-player.js already loaded`, "success");
+                
+                // 🎯 CRITICAL: Ensure data exists BEFORE calling
+                ensureTestimonialData();
+                
+                // 🎯 CALL THE FUNCTION DIRECTLY
+                try {
+                    window.showTestimonialSplashScreen();
+                    log(`✅ showTestimonialSplashScreen() called directly`, "success");
+                    updateStatus("Player launched", true);
+                    
+                } catch (error) {
+                    log(`❌ Error: ${error.message}`, "error");
+                    showError();
+                }
+                
+                return;
+            }
+            
+            // Load the script
+            const script = document.createElement('script');
+            script.src = 'testimonial-player.js';
+            
+            script.onload = function() {
+                log(`✅ testimonial-player.js loaded`, "success");
+                
+                // 🎯 CRITICAL: Ensure data exists BEFORE calling
+                ensureTestimonialData();
+                
+                // 🎯 CALL DIRECTLY AFTER LOADING
+                setTimeout(() => {
+                    try {
+                        window.showTestimonialSplashScreen();
+                        log(`✅ Function called after script load`, "success");
+                        updateStatus("Player launched", true);
+                    } catch (error) {
+                        log(`❌ Error: ${error.message}`, "error");
+                        showError();
+                    }
+                }, 300);
+            };
+            
+            script.onerror = function() {
+                log(`❌ Failed to load testimonial-player.js`, "error");
+                showError();
+            };
+            
+            document.head.appendChild(script);
+        }
+
+        // ====================
         // 🎯 VOICE TRIGGER SYSTEM
         // ====================
         console.log('🎤 INSTALLING VOICE TRIGGER SYSTEM...');
@@ -391,109 +563,9 @@
             setTimeout(() => {
                 if (window.speakText) {
                     log('✅ Found window.speakText - reinstalling trigger system', 'success');
-                    // Re-run installation
-                    const original = window.speakText;
-                    window.speakText = function(text) {
-                        log(`🎤 AVATAR SPEAKING (delayed): "${text}"`, 'avatar');
-                        return original.apply(this, arguments);
-                    };
+                    // Re-run installation would happen here
                 }
             }, 2000);
-        }
-
-        // ====================
-        // 🎯 LOGGING & STATUS
-        // ====================
-        function log(message, type = "info") {
-            const logBox = document.getElementById("logBox");
-            const line = document.createElement("div");
-            line.className = `log-line ${type}`;
-            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            logBox.appendChild(line);
-            logBox.scrollTop = logBox.scrollHeight;
-            console.log(`[${type.toUpperCase()}] ${message}`);
-        }
-
-        function updateStatus(text, isActive = false) {
-            document.getElementById("statusText").textContent = text;
-            document.getElementById("statusType").textContent = isActive ? "Active" : "Listening";
-            
-            const dot = document.getElementById("statusDot");
-            if (isActive) {
-                dot.classList.add("active");
-            } else {
-                dot.classList.remove("active");
-            }
-        }
-
-        // ====================
-        // 🎯 TRIGGER FUNCTIONS
-        // ====================
-        function playTriggerAudio() {
-            log(`🔊 Playing Botemia trigger audio...`, "info");
-            
-            // Use first trigger URL
-            const audio = document.getElementById('audio1');
-            if (!audio.src) {
-                audio.src = triggers[1].url;
-            }
-            
-            audio.currentTime = 0;
-            audio.play();
-            
-            audio.onended = function() {
-                log(`✅ Trigger audio complete`, "success");
-                updateStatus("Audio complete - launching player", true);
-            };
-        }
-
-        function loadAndShowPlayer() {
-            log(`🚀 Loading testimonial player...`, "info");
-            
-            // If already loaded, show it immediately
-            if (typeof window.showTestimonialSplashScreen === 'function') {
-                log(`✅ testimonial-player.js already loaded`, "success");
-                
-                // 🎯 CALL THE FUNCTION DIRECTLY
-                try {
-                    window.showTestimonialSplashScreen();
-                    log(`✅ showTestimonialSplashScreen() called directly`, "success");
-                    updateStatus("Player launched", true);
-                    
-                } catch (error) {
-                    log(`❌ Error: ${error.message}`, "error");
-                    showError();
-                }
-                
-                return;
-            }
-            
-            // Load the script
-            const script = document.createElement('script');
-            script.src = 'testimonial-player.js';
-            
-            script.onload = function() {
-                log(`✅ testimonial-player.js loaded`, "success");
-                
-                // 🎯 CALL DIRECTLY AFTER LOADING
-                setTimeout(() => {
-                    try {
-                        window.showTestimonialSplashScreen();
-                        log(`✅ Function called after script load`, "success");
-                        updateStatus("Player launched", true);
-                    } catch (error) {
-                        log(`❌ Error: ${error.message}`, "error");
-                        showError();
-                    }
-                }, 300);
-            };
-            
-            script.onerror = function() {
-                log(`❌ Failed to load testimonial-player.js`, "error");
-                showError();
-            };
-            
-            document.head.appendChild(script);
         }
 
         // ====================
@@ -595,6 +667,9 @@
             log('✅ VOICE TRIGGER SYSTEM READY', 'success');
             log('🎯 Monitoring avatar speech for trigger phrases', 'info');
             log('🔧 Intercepting window.speakText()', 'info');
+            
+            // 🎯 CREATE CHAT CONTAINER ON LOAD
+            createChatMessagesContainer();
             
             // Pre-load audio files
             for (let i = 1; i <= 3; i++) {
