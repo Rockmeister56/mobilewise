@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎤 SIMPLE TEST: Trigger → Player</title>
+    <title>🎤 VOICE TRIGGER SYSTEM: Avatar Speech → Testimonial Player</title>
     <style>
         * {
             margin: 0;
@@ -183,6 +183,11 @@
             font-weight: bold;
         }
         
+        .log-line.avatar {
+            color: #9C27B0;
+            font-weight: bold;
+        }
+        
         /* SIMPLE CONTROLS */
         .simple-controls {
             text-align: center;
@@ -206,41 +211,86 @@
         .simple-btn.refresh {
             background: #2196F3;
         }
+        
+        /* VOICE TRIGGER INFO */
+        .voice-info {
+            background: #1a1a2e;
+            border: 2px solid #00b4d8;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .voice-info h3 {
+            color: #00b4d8;
+            margin-bottom: 10px;
+        }
+        
+        .trigger-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .trigger-item {
+            background: #16213e;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #00b4d8;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎤 SIMPLE TEST: Trigger → Player</h1>
-        <p class="subtitle">Click button → Play Botemia audio → Testimonial player appears below</p>
+        <h1>🎤 VOICE TRIGGER SYSTEM: Avatar Speech → Testimonial Player</h1>
+        <p class="subtitle">Intercepts LemonSlice Botemia speech → Detects trigger phrases → Launches testimonial player</p>
         
-        <!-- SIMPLE: 3 BUTTONS -->
-        <div class="trigger-buttons">
-            <button class="trigger-btn" onclick="testTrigger(1)">Trigger 1</button>
-            <button class="trigger-btn" onclick="testTrigger(2)">Trigger 2</button>
-            <button class="trigger-btn" onclick="testTrigger(3)">Trigger 3</button>
+        <!-- VOICE TRIGGER INFO -->
+        <div class="voice-info">
+            <h3>🎯 LISTENING FOR THESE TRIGGER PHRASES:</h3>
+            <div class="trigger-list">
+                <div class="trigger-item">"Let me show you our Verified Results Gallery"</div>
+                <div class="trigger-item">"Let me open our Verified Results Gallery"</div>
+                <div class="trigger-item">"Let me bring up our Verified Results Gallery"</div>
+                <div class="trigger-item">"Verified Results Gallery" (anywhere in speech)</div>
+            </div>
+            <p style="margin-top: 10px; color: #aaa; font-size: 14px;">
+                System intercepts <code>window.speakText()</code> to monitor avatar speech
+            </p>
         </div>
         
-        <!-- SIMPLE: PLAYER AREA -->
+        <!-- MANUAL TEST BUTTONS -->
+        <div class="trigger-buttons">
+            <button class="trigger-btn" onclick="simulateAvatarSpeech(1)">Simulate Trigger 1</button>
+            <button class="trigger-btn" onclick="simulateAvatarSpeech(2)">Simulate Trigger 2</button>
+            <button class="trigger-btn" onclick="simulateAvatarSpeech(3)">Simulate Trigger 3</button>
+            <button class="trigger-btn" onclick="testDirectTrigger()">Test Direct Trigger</button>
+        </div>
+        
+        <!-- PLAYER AREA -->
         <div class="player-area" id="playerArea">
             <div class="player-placeholder" id="playerPlaceholder">
                 <h3>🎬 TESTIMONIAL PLAYER WILL APPEAR HERE</h3>
-                <p>Click any trigger button above</p>
-                <p style="margin-top: 20px; color: #4CAF50;">Player area is ready...</p>
+                <p>When avatar says trigger phrase OR click simulation buttons above</p>
+                <p style="margin-top: 20px; color: #4CAF50;">Voice trigger system is active...</p>
             </div>
         </div>
         
-        <!-- SIMPLE: STATUS AREA -->
+        <!-- STATUS AREA -->
         <div class="status-area">
             <div class="status-header">
-                <div class="status-title">System Status: <span id="statusText">Ready</span></div>
+                <div class="status-title">Voice Trigger System: <span id="statusText">Monitoring Avatar Speech</span></div>
                 <div class="status-indicator">
-                    <div class="status-dot" id="statusDot"></div>
-                    <div id="statusType">Idle</div>
+                    <div class="status-dot active" id="statusDot"></div>
+                    <div id="statusType">Listening</div>
                 </div>
             </div>
             <div class="log-box" id="logBox">
-                <div class="log-line info">[System Ready] Click a trigger button to start test</div>
-                <div class="log-line info">[Player Area] Testimonial player will load below</div>
+                <div class="log-line info">[System Ready] Monitoring avatar speech for trigger phrases</div>
+                <div class="log-line info">[Trigger Phrases] "Let me show you our Verified Results Gallery"</div>
+                <div class="log-line info">[Trigger Phrases] "Let me open our Verified Results Gallery"</div>
+                <div class="log-line info">[Trigger Phrases] "Let me bring up our Verified Results Gallery"</div>
             </div>
         </div>
         
@@ -249,6 +299,7 @@
             <button class="simple-btn refresh" onclick="resetTest()">🔄 Reset Test</button>
             <button class="simple-btn" onclick="clearLogs()">🗑️ Clear Logs</button>
             <button class="simple-btn" onclick="forceLoadPlayer()">🚀 Force Load Player</button>
+            <button class="simple-btn" onclick="testAvatarInterception()">🎤 Test Avatar Interception</button>
         </div>
     </div>
 
@@ -259,25 +310,99 @@
 
     <script>
         // ====================
-        // SIMPLE CONFIG
+        // 🎯 TRIGGER CONFIG
         // ====================
         const triggers = {
             1: {
                 url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger1.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMS5tcDMiLCJpYXQiOjE3NzA1MjI0MTUsImV4cCI6MTc3MzExNDQxNX0.y9sGa1bdkjfEzJyBEQb--Fy0ooyfzOPoI_UrEQG-AR4",
-                text: "Let me show you our Verified Results Gallery"
+                text: "Let me show you our Verified Results Gallery",
+                avatarSpeech: "Hi there! Let me show you our Verified Results Gallery to see what other clients achieved."
             },
             2: {
                 url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger2.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMi5tcDMiLCJpYXQiOjE3NzA1MjI0NDcsImVpxcCI6MTc3MzExNDQ0N30.XMaGjM3wuYyVwoRphRe9YvhOCJNe9Z4yReIf3hKxWMs",
-                text: "Let me open our Verified Results Gallery"
+                text: "Let me open our Verified Results Gallery",
+                avatarSpeech: "Great question! Let me open our Verified Results Gallery so you can hear from others."
             },
             3: {
                 url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger2.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMi5tcDMiLCJpYXQiOjE3NzA1MjI0NDcsImV4cCI6MTc3MzExNDQ0N30.XMaGjM3wuYyVwoRphRe9YvhOCJNe9Z4yReIf3hKxWMs",
-                text: "Let me bring up our Verified Results Gallery"
+                text: "Let me bring up our Verified Results Gallery",
+                avatarSpeech: "I understand your concern. Let me bring up our Verified Results Gallery with real client stories."
             }
         };
 
         // ====================
-        // SIMPLE LOGGING
+        // 🎯 VOICE TRIGGER SYSTEM
+        // ====================
+        console.log('🎤 INSTALLING VOICE TRIGGER SYSTEM...');
+
+        // 🎯 INTERCEPT AVATAR SPEECH FUNCTION
+        const originalSpeakText = window.speakText;
+        if (originalSpeakText) {
+            window.speakText = function(text) {
+                log(`🎤 AVATAR SPEAKING: "${text}"`, 'avatar');
+                
+                // 🎯 CHECK FOR TRIGGER PHRASES IN AVATAR'S SPEECH
+                const triggerPhrases = [
+                    'let me show you our verified results gallery',
+                    'let me open our verified results gallery', 
+                    'let me bring up our verified results gallery',
+                    'verified results gallery'
+                ];
+                
+                const lowerText = text.toLowerCase();
+                let triggerDetected = false;
+                let detectedPhrase = '';
+                
+                // Check if avatar is saying a trigger phrase
+                for (const phrase of triggerPhrases) {
+                    if (lowerText.includes(phrase)) {
+                        triggerDetected = true;
+                        detectedPhrase = phrase;
+                        break;
+                    }
+                }
+                
+                if (triggerDetected) {
+                    log(`🚨 TRIGGER DETECTED IN AVATAR SPEECH: "${detectedPhrase}"`, 'trigger');
+                    updateStatus(`Trigger detected: "${detectedPhrase}"`, true);
+                    
+                    // Play trigger audio
+                    playTriggerAudio();
+                    
+                    // Launch testimonial player after audio
+                    setTimeout(() => {
+                        loadAndShowPlayer();
+                    }, 1000);
+                    
+                    // Return without actually speaking (since we're playing audio instead)
+                    return Promise.resolve();
+                }
+                
+                // If no trigger, speak normally
+                log(`✅ Normal avatar speech - no trigger`, 'info');
+                return originalSpeakText.apply(this, arguments);
+            };
+            
+            log('✅ Voice trigger system INSTALLED - Monitoring avatar speech', 'success');
+        } else {
+            log('⚠️ window.speakText not found yet - Avatar may not be loaded', 'info');
+            
+            // Wait and try again
+            setTimeout(() => {
+                if (window.speakText) {
+                    log('✅ Found window.speakText - reinstalling trigger system', 'success');
+                    // Re-run installation
+                    const original = window.speakText;
+                    window.speakText = function(text) {
+                        log(`🎤 AVATAR SPEAKING (delayed): "${text}"`, 'avatar');
+                        return original.apply(this, arguments);
+                    };
+                }
+            }, 2000);
+        }
+
+        // ====================
+        // 🎯 LOGGING & STATUS
         // ====================
         function log(message, type = "info") {
             const logBox = document.getElementById("logBox");
@@ -286,15 +411,12 @@
             line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
             logBox.appendChild(line);
             logBox.scrollTop = logBox.scrollHeight;
-            console.log(message);
+            console.log(`[${type.toUpperCase()}] ${message}`);
         }
 
-        // ====================
-        // SIMPLE STATUS
-        // ====================
         function updateStatus(text, isActive = false) {
             document.getElementById("statusText").textContent = text;
-            document.getElementById("statusType").textContent = isActive ? "Active" : "Idle";
+            document.getElementById("statusType").textContent = isActive ? "Active" : "Listening";
             
             const dot = document.getElementById("statusDot");
             if (isActive) {
@@ -305,56 +427,44 @@
         }
 
         // ====================
-        // SIMPLE TRIGGER TEST
+        // 🎯 TRIGGER FUNCTIONS
         // ====================
-        function testTrigger(num) {
-            log(`▶️ Testing Trigger ${num}...`, "info");
-            updateStatus(`Playing Trigger ${num}`, true);
+        function playTriggerAudio() {
+            log(`🔊 Playing Botemia trigger audio...`, "info");
             
-            // Highlight button
-            document.querySelectorAll('.trigger-btn').forEach(btn => {
-                btn.classList.remove('playing');
-            });
-            event.target.classList.add('playing');
-            
-            // Get audio
-            const config = triggers[num];
-            if (!config) {
-                log(`❌ No config for trigger ${num}`, "error");
-                return;
-            }
-            
-            // Play audio
-            const audio = document.getElementById(`audio${num}`);
+            // Use first trigger URL
+            const audio = document.getElementById('audio1');
             if (!audio.src) {
-                audio.src = config.url;
+                audio.src = triggers[1].url;
             }
             
             audio.currentTime = 0;
             audio.play();
             
-            log(`🔊 Playing Botemia audio...`, "info");
-            
-            // When audio ends, trigger player
             audio.onended = function() {
-                log(`✅ Audio complete`, "success");
-                log(`🎯 Detected trigger: "${config.text}"`, "trigger");
-                updateStatus("Trigger detected!", true);
-                
-                // Load testimonial player
-                loadAndShowPlayer();
+                log(`✅ Trigger audio complete`, "success");
+                updateStatus("Audio complete - launching player", true);
             };
         }
 
-        // ====================
-        // SIMPLE PLAYER LOADING
-        // ====================
         function loadAndShowPlayer() {
             log(`🚀 Loading testimonial player...`, "info");
             
-            // Check if already loaded
+            // If already loaded, show it immediately
             if (typeof window.showTestimonialSplashScreen === 'function') {
-                showPlayer();
+                log(`✅ testimonial-player.js already loaded`, "success");
+                
+                // 🎯 CALL THE FUNCTION DIRECTLY
+                try {
+                    window.showTestimonialSplashScreen();
+                    log(`✅ showTestimonialSplashScreen() called directly`, "success");
+                    updateStatus("Player launched", true);
+                    
+                } catch (error) {
+                    log(`❌ Error: ${error.message}`, "error");
+                    showError();
+                }
+                
                 return;
             }
             
@@ -364,73 +474,87 @@
             
             script.onload = function() {
                 log(`✅ testimonial-player.js loaded`, "success");
-                showPlayer();
+                
+                // 🎯 CALL DIRECTLY AFTER LOADING
+                setTimeout(() => {
+                    try {
+                        window.showTestimonialSplashScreen();
+                        log(`✅ Function called after script load`, "success");
+                        updateStatus("Player launched", true);
+                    } catch (error) {
+                        log(`❌ Error: ${error.message}`, "error");
+                        showError();
+                    }
+                }, 300);
             };
             
             script.onerror = function() {
                 log(`❌ Failed to load testimonial-player.js`, "error");
-                log(`📁 Make sure it's in the same directory as this test file`, "info");
                 showError();
             };
             
             document.head.appendChild(script);
         }
 
-        function showPlayer() {
-            const playerArea = document.getElementById('playerArea');
-            const placeholder = document.getElementById('playerPlaceholder');
+        // ====================
+        // 🎯 TEST FUNCTIONS
+        // ====================
+        function simulateAvatarSpeech(num) {
+            const config = triggers[num];
+            if (!config) return;
             
-            // Clear area
-            playerArea.innerHTML = '';
+            log(`🎤 SIMULATING Avatar Speech: "${config.avatarSpeech}"`, 'avatar');
             
-            // Try to call the function
-            try {
-                log(`🎬 Calling showTestimonialSplashScreen()...`, "info");
-                
-                // Temporarily override appendChild to capture where testimonial puts itself
-                const originalAppendChild = Element.prototype.appendChild;
-                let playerContainer = null;
-                
-                Element.prototype.appendChild = function(element) {
-                    // Look for testimonial elements
-                    if (element.id && element.id.includes('testimonial') || 
-                        element.className && element.className.includes('testimonial')) {
-                        playerContainer = element;
-                        return playerArea.appendChild(element);
-                    }
-                    return originalAppendChild.call(this, element);
-                };
-                
-                // Call the function
-                window.showTestimonialSplashScreen();
-                
-                // Restore original function
+            // Simulate the avatar speaking
+            if (window.speakText) {
+                window.speakText(config.avatarSpeech);
+            } else {
+                log(`⚠️ No speakText function - manually triggering`, 'info');
+                // Manually trigger the detection
+                log(`🚨 MANUAL TRIGGER: "${config.text}"`, 'trigger');
+                playTriggerAudio();
                 setTimeout(() => {
-                    Element.prototype.appendChild = originalAppendChild;
-                    
-                    if (playerContainer) {
-                        log(`✅ Testimonial player displayed!`, "success");
-                        updateStatus("Player Active", true);
-                    } else {
-                        // If we didn't capture it, maybe it puts itself elsewhere
-                        log(`⚠️ Player function called but element not captured`, "info");
-                        log(`🔍 Check if player appeared elsewhere on page`, "info");
-                        updateStatus("Function called - check page", false);
-                    }
-                }, 500);
-                
-            } catch (error) {
-                log(`❌ Error: ${error.message}`, "error");
-                showError();
+                    loadAndShowPlayer();
+                }, 1000);
             }
         }
 
+        function testDirectTrigger() {
+            log(`🎯 Testing direct trigger (bypassing speech)...`, 'info');
+            playTriggerAudio();
+            setTimeout(() => {
+                loadAndShowPlayer();
+            }, 1000);
+        }
+
+        function testAvatarInterception() {
+            log(`🧪 Testing avatar speech interception...`, 'info');
+            
+            if (originalSpeakText) {
+                log(`✅ Original speakText preserved`, 'success');
+                log(`✅ Current speakText is intercepted: ${window.speakText !== originalSpeakText}`, 'success');
+                
+                // Test interception
+                const testText = "Hello! Let me show you our Verified Results Gallery now.";
+                log(`🧪 Testing interception with: "${testText}"`, 'info');
+                
+                window.speakText(testText).then(() => {
+                    log(`✅ Interception test complete`, 'success');
+                });
+            } else {
+                log(`❌ No original speakText found`, 'error');
+            }
+        }
+
+        // ====================
+        // 🎯 ERROR HANDLING
+        // ====================
         function showError() {
             const playerArea = document.getElementById('playerArea');
             playerArea.innerHTML = `
                 <div style="text-align: center; padding: 50px; color: #FF9800;">
                     <h3>⚠️ Player Load Issue</h3>
-                    <p>Testimonial player function was called but didn't display here.</p>
+                    <p>Testimonial player failed to load.</p>
                     <p>Check browser console for errors.</p>
                     <p style="margin-top: 20px;">
                         <button onclick="forceLoadPlayer()" style="
@@ -448,7 +572,7 @@
         }
 
         // ====================
-        // SIMPLE CONTROLS
+        // 🎯 CONTROLS
         // ====================
         function resetTest() {
             location.reload();
@@ -465,11 +589,12 @@
         }
 
         // ====================
-        // INITIALIZE
+        // 🎯 INITIALIZE
         // ====================
         window.onload = function() {
-            log('✅ Simple test system ready', 'success');
-            log('🎯 Click any trigger button to test', 'info');
+            log('✅ VOICE TRIGGER SYSTEM READY', 'success');
+            log('🎯 Monitoring avatar speech for trigger phrases', 'info');
+            log('🔧 Intercepting window.speakText()', 'info');
             
             // Pre-load audio files
             for (let i = 1; i <= 3; i++) {
@@ -480,6 +605,8 @@
                     audio.load();
                 }
             }
+            
+            updateStatus("Listening for avatar speech", true);
         };
     </script>
 </body>
