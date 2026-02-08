@@ -3,20 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎤 SIMPLE TEST: Trigger → Player</title>
+    <title>🎤 TRIGGER TEST: Botemia → Player</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-        
         body {
-            background: #111;
+            background: #0a0a0a;
             color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
             padding: 20px;
-            min-height: 100vh;
         }
         
         .container {
@@ -26,555 +20,246 @@
         
         h1 {
             text-align: center;
-            color: #4CAF50;
+            color: #00ff88;
             margin-bottom: 10px;
-            padding: 10px;
         }
         
         .subtitle {
             text-align: center;
-            color: #aaa;
+            color: #888;
             margin-bottom: 30px;
         }
         
-        /* SIMPLE TRIGGER BUTTONS */
-        .trigger-buttons {
+        /* 3 BUTTONS - SUPER SIMPLE */
+        .buttons {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 40px;
         }
         
         .trigger-btn {
-            background: #2196F3;
+            background: #0066ff;
             color: white;
             border: none;
-            padding: 15px 25px;
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 20px 30px;
+            font-size: 18px;
             font-weight: bold;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s;
-            min-width: 150px;
+            min-width: 180px;
         }
         
         .trigger-btn:hover {
-            background: #1976D2;
+            background: #0055dd;
             transform: translateY(-2px);
         }
         
-        .trigger-btn:active {
-            transform: translateY(0);
-        }
-        
-        .trigger-btn.playing {
-            background: #4CAF50;
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-        }
-        
-        /* PLAYER AREA - SIMPLE */
-        .player-area {
-            background: #222;
-            border: 2px solid #444;
-            border-radius: 10px;
-            min-height: 400px;
+        /* PLAYER AREA - WHERE TESTIMONIALS APPEAR */
+        #playerArea {
+            background: #1a1a1a;
+            border: 3px solid #333;
+            border-radius: 15px;
+            min-height: 500px;
             margin-bottom: 30px;
             padding: 20px;
-            overflow: hidden;
-            position: relative;
+            overflow: auto;
         }
         
-        .player-placeholder {
+        .placeholder {
             text-align: center;
-            color: #888;
             padding: 100px 20px;
-            font-size: 18px;
+            color: #666;
         }
         
-        .player-placeholder h3 {
-            color: #4CAF50;
-            margin-bottom: 10px;
-        }
-        
-        /* STATUS AREA - SIMPLE */
-        .status-area {
-            background: #222;
-            border: 2px solid #444;
+        /* STATUS - SIMPLE LOG */
+        .status {
+            background: #1a1a1a;
+            border: 2px solid #333;
             border-radius: 10px;
             padding: 20px;
-        }
-        
-        .status-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #444;
-        }
-        
-        .status-title {
-            color: #2196F3;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #f44336;
-        }
-        
-        .status-dot.active {
-            background: #4CAF50;
-            animation: blink 1s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .log-box {
-            background: #111;
-            border-radius: 5px;
-            padding: 15px;
-            height: 150px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: #ddd;
-        }
-        
-        .log-line {
-            margin-bottom: 5px;
-            padding: 3px 0;
-            border-bottom: 1px solid #222;
-        }
-        
-        .log-line.success {
-            color: #4CAF50;
-        }
-        
-        .log-line.error {
-            color: #f44336;
-        }
-        
-        .log-line.info {
-            color: #2196F3;
-        }
-        
-        .log-line.trigger {
-            color: #FF9800;
-            font-weight: bold;
-        }
-        
-        /* SIMPLE CONTROLS */
-        .simple-controls {
-            text-align: center;
             margin-top: 20px;
         }
         
-        .simple-btn {
-            background: #666;
-            color: white;
-            border: none;
-            padding: 10px 20px;
+        .log {
+            background: #111;
             border-radius: 5px;
-            cursor: pointer;
-            margin: 0 5px;
-        }
-        
-        .simple-btn:hover {
-            background: #888;
-        }
-        
-        .simple-btn.refresh {
-            background: #2196F3;
+            padding: 15px;
+            height: 120px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            color: #0af;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎤 SIMPLE TEST: Trigger → Player</h1>
-        <p class="subtitle">Click button → Play Botemia audio → Testimonial player appears below</p>
+        <h1>🎤 BOTEMIA TRIGGER TEST</h1>
+        <p class="subtitle">Click button → Testimonial player appears below</p>
         
-        <!-- SIMPLE: 3 BUTTONS -->
-        <div class="trigger-buttons">
-            <button class="trigger-btn" onclick="testTrigger(1)">Trigger 1</button>
-            <button class="trigger-btn" onclick="testTrigger(2)">Trigger 2</button>
-            <button class="trigger-btn" onclick="testTrigger(3)">Trigger 3</button>
+        <!-- 3 BUTTONS -->
+        <div class="buttons">
+            <button class="trigger-btn" onclick="triggerTestimonial(1)">Trigger 1</button>
+            <button class="trigger-btn" onclick="triggerTestimonial(2)">Trigger 2</button>
+            <button class="trigger-btn" onclick="triggerTestimonial(3)">Trigger 3</button>
         </div>
         
-        <!-- SIMPLE: PLAYER AREA -->
-        <div class="player-area" id="playerArea">
-            <div class="player-placeholder" id="playerPlaceholder">
-                <h3>🎬 TESTIMONIAL PLAYER WILL APPEAR HERE</h3>
+        <!-- PLAYER AREA -->
+        <div id="playerArea">
+            <div class="placeholder" id="placeholder">
+                <h3>🎬 TESTIMONIAL PLAYER AREA</h3>
                 <p>Click any trigger button above</p>
-                <p style="margin-top: 20px; color: #4CAF50;">Player area is ready...</p>
+                <p style="color: #00ff88; margin-top: 20px;">Player will load here...</p>
             </div>
         </div>
         
-        <!-- SIMPLE: STATUS AREA -->
-        <div class="status-area">
-            <div class="status-header">
-                <div class="status-title">System Status: <span id="statusText">Ready</span></div>
-                <div class="status-indicator">
-                    <div class="status-dot" id="statusDot"></div>
-                    <div id="statusType">Idle</div>
-                </div>
-            </div>
-            <div class="log-box" id="logBox">
-                <div class="log-line info">[System Ready] Click a trigger button to start test</div>
-                <div class="log-line info">[Player Area] Testimonial player will load below</div>
-            </div>
-        </div>
-        
-        <!-- SIMPLE CONTROLS -->
-        <div class="simple-controls">
-            <button class="simple-btn refresh" onclick="resetTest()">🔄 Reset Test</button>
-            <button class="simple-btn" onclick="clearLogs()">🗑️ Clear Logs</button>
-            <button class="simple-btn" onclick="forceLoadPlayer()">🚀 Force Load Player</button>
+        <!-- STATUS LOG -->
+        <div class="status">
+            <h3 style="color: #0af; margin-top: 0;">System Log:</h3>
+            <div class="log" id="log"></div>
         </div>
     </div>
 
-    <!-- Hidden Audio Players -->
-    <audio id="audio1" preload="auto"></audio>
-    <audio id="audio2" preload="auto"></audio>
-    <audio id="audio3" preload="auto"></audio>
-
     <script>
-        // ====================
-        // SIMPLE CONFIG - USING WORKING AUDIO FALLBACK
-        // ====================
-        const triggers = {
-            1: {
-                // Fallback to a working audio file
-                url: "https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3",
-                text: "Let me show you our Verified Results Gallery",
-                skipAudio: false // If audio fails, skip to trigger
-            },
-            2: {
-                url: "https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3",
-                text: "Let me open our Verified Results Gallery",
-                skipAudio: false
-            },
-            3: {
-                url: "https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3",
-                text: "Let me bring up our Verified Results Gallery", 
-                skipAudio: false
-            }
-        };
-
         // ====================
         // SIMPLE LOGGING
         // ====================
-        function log(message, type = "info") {
-            const logBox = document.getElementById("logBox");
-            const line = document.createElement("div");
-            line.className = `log-line ${type}`;
-            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            logBox.appendChild(line);
-            logBox.scrollTop = logBox.scrollHeight;
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
             console.log(message);
         }
 
         // ====================
-        // SIMPLE STATUS
+        // LOAD TESTIMONIAL MODULE
         // ====================
-        function updateStatus(text, isActive = false) {
-            document.getElementById("statusText").textContent = text;
-            document.getElementById("statusType").textContent = isActive ? "Active" : "Idle";
-            
-            const dot = document.getElementById("statusDot");
-            if (isActive) {
-                dot.classList.add("active");
-            } else {
-                dot.classList.remove("active");
-            }
-        }
-
-        // ====================
-        // SIMPLE TRIGGER TEST
-        // ====================
-        function testTrigger(num) {
-            log(`▶️ Testing Trigger ${num}...`, "info");
-            updateStatus(`Playing Trigger ${num}`, true);
-            
-            // Highlight button
-            document.querySelectorAll('.trigger-btn').forEach(btn => {
-                btn.classList.remove('playing');
-            });
-            event.target.classList.add('playing');
-            
-            // Get config
-            const config = triggers[num];
-            if (!config) {
-                log(`❌ No config for trigger ${num}`, "error");
-                return;
-            }
-            
-            log(`🔊 Playing Botemia audio (fallback tone)...`, "info");
-            
-            // Try to play audio
-            const audio = document.getElementById(`audio${num}`);
-            if (!audio.src) {
-                audio.src = config.url;
-            }
-            
-            audio.currentTime = 0;
-            
-            // Play audio with error handling
-            audio.play().then(() => {
-                // Audio plays successfully
-                log(`✅ Audio playing...`, "success");
-                
-                // When audio ends, trigger player
-                audio.onended = function() {
-                    log(`🎯 Detected trigger: "${config.text}"`, "trigger");
-                    updateStatus("Trigger detected!", true);
-                    
-                    // Load testimonial player
-                    loadAndShowPlayer();
-                };
-                
-            }).catch(error => {
-                // Audio failed - skip to trigger
-                log(`⚠️ Audio failed, skipping to trigger: ${error.message}`, "info");
-                log(`🎯 Simulating trigger: "${config.text}"`, "trigger");
-                updateStatus("Trigger simulated!", true);
-                
-                // Simulate audio ending after 2 seconds
-                setTimeout(() => {
-                    loadAndShowPlayer();
-                }, 2000);
-            });
-        }
-
-        // ====================
-        // SIMPLE PLAYER LOADING
-        // ====================
-        function loadAndShowPlayer() {
-            log(`🚀 Loading testimonial player...`, "info");
-            
-            // Clear player area first
-            const playerArea = document.getElementById('playerArea');
-            playerArea.innerHTML = '<div style="padding: 20px; text-align: center;">Loading testimonial player...</div>';
-            
+        function loadTestimonialModule(callback) {
             // Check if already loaded
-            if (typeof window.showTestimonialSplashScreen === 'function') {
-                log(`✅ testimonial-player.js already loaded`, "success");
-                callPlayerFunction();
+            if (window.testimonialModuleLoaded) {
+                log('✅ Testimonial module already loaded');
+                callback();
                 return;
             }
             
-            // Load the script
+            log('📦 Loading testimonial-player.js...');
+            
             const script = document.createElement('script');
             script.src = 'testimonial-player.js';
             
             script.onload = function() {
-                log(`✅ testimonial-player.js loaded`, "success");
-                callPlayerFunction();
+                window.testimonialModuleLoaded = true;
+                log('✅ testimonial-player.js loaded successfully!');
+                callback();
             };
             
             script.onerror = function() {
-                log(`❌ Failed to load testimonial-player.js`, "error");
-                log(`📁 Make sure it's in the same directory as this test file`, "info");
-                showError();
+                log('❌ ERROR: Cannot load testimonial-player.js');
+                log('📁 Make sure it is in the same folder as this HTML file');
+                alert('ERROR: Cannot load testimonial-player.js\nMake sure it is in the same folder!');
             };
             
             document.head.appendChild(script);
         }
 
-        function callPlayerFunction() {
-            log(`🎬 Calling showTestimonialSplashScreen()...`, "info");
+        // ====================
+        // TRIGGER TESTIMONIAL
+        // ====================
+        function triggerTestimonial(number) {
+            log(`🎯 TRIGGER ${number} clicked`);
             
-            // Clear player area
-            const playerArea = document.getElementById('playerArea');
-            playerArea.innerHTML = '';
+            // Clear previous player
+            document.getElementById('playerArea').innerHTML = '';
             
-            try {
-                // IMPORTANT: Create a container specifically for the testimonial
-                const testimonialContainer = document.createElement('div');
-                testimonialContainer.id = 'testimonial-target-container';
-                testimonialContainer.style.cssText = 'width: 100%; height: 100%;';
-                playerArea.appendChild(testimonialContainer);
-                
-                // TEMPORARILY OVERRIDE document.getElementById to redirect to our container
-                const originalGetElementById = document.getElementById;
-                
-                document.getElementById = function(id) {
-                    // If testimonial system is looking for chat container, return our container
-                    if (id === 'chatMessages' || id === 'chat-messages' || id.includes('chat')) {
-                        log(`🎯 Redirecting ${id} to our player area`, "info");
-                        return testimonialContainer;
-                    }
-                    return originalGetElementById.call(document, id);
-                };
-                
-                // Also override querySelector for chat containers
-                const originalQuerySelector = document.querySelector;
-                document.querySelector = function(selector) {
-                    if (selector === '.chat-messages' || selector.includes('chat')) {
-                        log(`🎯 Redirecting ${selector} to our player area`, "info");
-                        return testimonialContainer;
-                    }
-                    return originalQuerySelector.call(document, selector);
-                };
-                
-                // Call the function
-                window.showTestimonialSplashScreen();
-                log(`✅ showTestimonialSplashScreen() called successfully!`, "success");
-                updateStatus("Player Loading", true);
-                
-                // Check if anything appeared after a moment
-                setTimeout(() => {
-                    if (testimonialContainer.children.length > 0) {
-                        log(`✅ Testimonial player displayed successfully!`, "success");
-                        updateStatus("Player Active", true);
-                    } else {
-                        log(`⚠️ Function called but no content appeared`, "info");
-                        log(`🔍 Checking if content appeared elsewhere...`, "info");
-                        updateStatus("Content not found", false);
-                        
-                        // Restore original functions
-                        document.getElementById = originalGetElementById;
-                        document.querySelector = originalQuerySelector;
-                        
-                        // Force a second try with different approach
-                        forceLoadPlayer();
-                    }
-                }, 1000);
-                
-            } catch (error) {
-                log(`❌ Error calling player function: ${error.message}`, "error");
-                showError();
-            }
-        }
-
-        function showError() {
-            const playerArea = document.getElementById('playerArea');
-            playerArea.innerHTML = `
-                <div style="text-align: center; padding: 50px; color: #FF9800;">
-                    <h3>⚠️ Player Load Issue</h3>
-                    <p>Testimonial player function was called but didn't display here.</p>
-                    <p>Check browser console for errors.</p>
-                    <div style="margin-top: 20px; background: #333; padding: 15px; border-radius: 5px; text-align: left;">
-                        <strong>Debug steps:</strong><br>
-                        1. Check console (F12) for errors<br>
-                        2. Ensure testimonial-player.js is in same folder<br>
-                        3. Check if showTestimonialSplashScreen() exists<br>
-                        4. Try Force Load Player button
-                    </div>
-                    <p style="margin-top: 20px;">
-                        <button onclick="forceLoadPlayer()" style="
-                            background: #2196F3;
-                            color: white;
-                            border: none;
-                            padding: 10px 20px;
-                            border-radius: 5px;
-                            cursor: pointer;
-                            margin: 5px;
-                        ">Force Load Player</button>
-                        <button onclick="checkPlayerFunction()" style="
-                            background: #4CAF50;
-                            color: white;
-                            border: none;
-                            padding: 10px 20px;
-                            border-radius: 5px;
-                            cursor: pointer;
-                            margin: 5px;
-                        ">Check Function</button>
-                    </p>
+            // Show loading
+            const loadingDiv = document.createElement('div');
+            loadingDiv.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: #0af;">
+                    <h3>🚀 Loading Testimonial Player...</h3>
+                    <p>Trigger ${number} activated</p>
                 </div>
             `;
-            updateStatus("Load Error", false);
-        }
-
-        function checkPlayerFunction() {
-            log(`🔍 Checking if player function exists...`, "info");
-            if (typeof window.showTestimonialSplashScreen === 'function') {
-                log(`✅ showTestimonialSplashScreen() exists!`, "success");
-                log(`Function: ${window.showTestimonialSplashScreen.toString().substring(0, 100)}...`, "info");
-            } else {
-                log(`❌ showTestimonialSplashScreen() does not exist`, "error");
-            }
-        }
-
-        // ====================
-        // SIMPLE CONTROLS
-        // ====================
-        function resetTest() {
-            location.reload();
-        }
-        
-        function clearLogs() {
-            document.getElementById('logBox').innerHTML = '';
-            log('Logs cleared', 'info');
-        }
-        
-        function forceLoadPlayer() {
-            log('🚀 Force loading player with direct approach...', 'warning');
+            document.getElementById('playerArea').appendChild(loadingDiv);
             
-            // Clear and show loading
+            // Load module then show player
+            loadTestimonialModule(function() {
+                showTestimonialPlayer();
+            });
+        }
+
+        // ====================
+        // SHOW TESTIMONIAL PLAYER
+        // ====================
+        function showTestimonialPlayer() {
+            log('🎬 Calling showTestimonialSplashScreen()...');
+            
+            // IMPORTANT: Create a chat container for the testimonial
             const playerArea = document.getElementById('playerArea');
-            playerArea.innerHTML = '<div style="padding: 50px; text-align: center;">Force loading testimonial player...</div>';
             
-            // Direct approach: Create mock chat container
-            if (!document.getElementById('chatMessages')) {
-                const mockChat = document.createElement('div');
-                mockChat.id = 'chatMessages';
-                mockChat.className = 'chat-messages';
-                mockChat.style.cssText = 'width: 100%; height: 100%; overflow: auto;';
-                playerArea.appendChild(mockChat);
-                log(`✅ Created mock chat container`, "success");
-            }
+            // First, clear everything
+            playerArea.innerHTML = '';
             
-            // Try to call the function
-            if (typeof window.showTestimonialSplashScreen === 'function') {
+            // Create the EXACT container that testimonial-player.js expects
+            const chatContainer = document.createElement('div');
+            chatContainer.id = 'chatMessages';
+            chatContainer.className = 'chat-messages';
+            chatContainer.style.cssText = 'width: 100%; min-height: 100%;';
+            
+            playerArea.appendChild(chatContainer);
+            
+            log('✅ Created #chatMessages container for testimonial');
+            
+            // Wait a moment, then call the function
+            setTimeout(function() {
                 try {
+                    // Call the function
                     window.showTestimonialSplashScreen();
-                    log(`✅ Direct function call completed`, "success");
-                    updateStatus("Player Force Loaded", true);
+                    log('✅ showTestimonialSplashScreen() called successfully!');
+                    
+                    // Check if anything appeared
+                    setTimeout(function() {
+                        if (chatContainer.children.length > 0) {
+                            log('🎉 SUCCESS: Testimonial player is now visible!');
+                        } else {
+                            log('⚠️ Function called but no content appeared');
+                            log('Checking if showTestimonialSplashScreen exists...');
+                            
+                            if (typeof window.showTestimonialSplashScreen === 'function') {
+                                log('✅ Function exists');
+                                // Try one more time
+                                window.showTestimonialSplashScreen();
+                            }
+                        }
+                    }, 500);
+                    
                 } catch (error) {
-                    log(`❌ Direct call error: ${error.message}`, "error");
+                    log(`❌ ERROR calling function: ${error.message}`);
                 }
-            } else {
-                log(`❌ Function still not loaded`, "error");
-            }
+            }, 100);
         }
 
         // ====================
         // INITIALIZE
         // ====================
         window.onload = function() {
-            log('✅ Simple test system ready', 'success');
-            log('🎯 Click any trigger button to test', 'info');
-            log('📁 Make sure testimonial-player.js is in same folder', 'info');
+            log('✅ Test system ready');
+            log('Click any trigger button to start');
             
-            // Pre-load audio files with fallback URLs
-            for (let i = 1; i <= 3; i++) {
-                const audio = document.getElementById(`audio${i}`);
-                const config = triggers[i];
-                if (config && config.url) {
-                    audio.src = config.url;
-                    audio.load();
-                }
-            }
+            // Check if testimonial-player.js exists
+            fetch('testimonial-player.js')
+                .then(response => {
+                    if (response.ok) {
+                        log('✅ Found testimonial-player.js in folder');
+                    } else {
+                        log('⚠️ Warning: testimonial-player.js not found in folder');
+                    }
+                })
+                .catch(() => {
+                    log('⚠️ Warning: testimonial-player.js not found in folder');
+                });
         };
     </script>
 </body>
