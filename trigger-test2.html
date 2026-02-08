@@ -259,20 +259,24 @@
 
     <script>
         // ====================
-        // SIMPLE CONFIG
+        // SIMPLE CONFIG - USING WORKING AUDIO FALLBACK
         // ====================
         const triggers = {
             1: {
-                url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger1.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMS5tcDMiLCJpYXQiOjE3NzA1MjI0MTUsImV4cCI6MTc3MzExNDQxNX0.y9sGa1bdkjfEzJyBEQb--Fy0ooyfzOPoI_UrEQG-AR4",
-                text: "Let me show you our Verified Results Gallery"
+                // Fallback to a working audio file
+                url: "https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3",
+                text: "Let me show you our Verified Results Gallery",
+                skipAudio: false // If audio fails, skip to trigger
             },
             2: {
-                url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger2.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMi5tcDMiLCJpYXQiOjE3NzA1MjI0NDcsImVpxcCI6MTc3MzExNDQ0N30.XMaGjM3wuYyVwoRphRe9YvhOCJNe9Z4yReIf3hKxWMs",
-                text: "Let me open our Verified Results Gallery"
+                url: "https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3",
+                text: "Let me open our Verified Results Gallery",
+                skipAudio: false
             },
             3: {
-                url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger2.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMi5tcDMiLCJpYXQiOjE3NzA1MjI0NDcsImV4cCI6MTc3MzExNDQ0N30.XMaGjM3wuYyVwoRphRe9YvhOCJNe9Z4yReIf3hKxWMs",
-                text: "Let me bring up our Verified Results Gallery"
+                url: "https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3",
+                text: "Let me bring up our Verified Results Gallery", 
+                skipAudio: false
             }
         };
 
@@ -317,33 +321,48 @@
             });
             event.target.classList.add('playing');
             
-            // Get audio
+            // Get config
             const config = triggers[num];
             if (!config) {
                 log(`❌ No config for trigger ${num}`, "error");
                 return;
             }
             
-            // Play audio
+            log(`🔊 Playing Botemia audio (fallback tone)...`, "info");
+            
+            // Try to play audio
             const audio = document.getElementById(`audio${num}`);
             if (!audio.src) {
                 audio.src = config.url;
             }
             
             audio.currentTime = 0;
-            audio.play();
             
-            log(`🔊 Playing Botemia audio...`, "info");
-            
-            // When audio ends, trigger player
-            audio.onended = function() {
-                log(`✅ Audio complete`, "success");
-                log(`🎯 Detected trigger: "${config.text}"`, "trigger");
-                updateStatus("Trigger detected!", true);
+            // Play audio with error handling
+            audio.play().then(() => {
+                // Audio plays successfully
+                log(`✅ Audio playing...`, "success");
                 
-                // Load testimonial player
-                loadAndShowPlayer();
-            };
+                // When audio ends, trigger player
+                audio.onended = function() {
+                    log(`🎯 Detected trigger: "${config.text}"`, "trigger");
+                    updateStatus("Trigger detected!", true);
+                    
+                    // Load testimonial player
+                    loadAndShowPlayer();
+                };
+                
+            }).catch(error => {
+                // Audio failed - skip to trigger
+                log(`⚠️ Audio failed, skipping to trigger: ${error.message}`, "info");
+                log(`🎯 Simulating trigger: "${config.text}"`, "trigger");
+                updateStatus("Trigger simulated!", true);
+                
+                // Simulate audio ending after 2 seconds
+                setTimeout(() => {
+                    loadAndShowPlayer();
+                }, 2000);
+            });
         }
 
         // ====================
@@ -352,9 +371,14 @@
         function loadAndShowPlayer() {
             log(`🚀 Loading testimonial player...`, "info");
             
+            // Clear player area first
+            const playerArea = document.getElementById('playerArea');
+            playerArea.innerHTML = '<div style="padding: 20px; text-align: center;">Loading testimonial player...</div>';
+            
             // Check if already loaded
             if (typeof window.showTestimonialSplashScreen === 'function') {
-                showPlayer();
+                log(`✅ testimonial-player.js already loaded`, "success");
+                callPlayerFunction();
                 return;
             }
             
@@ -364,7 +388,7 @@
             
             script.onload = function() {
                 log(`✅ testimonial-player.js loaded`, "success");
-                showPlayer();
+                callPlayerFunction();
             };
             
             script.onerror = function() {
@@ -376,51 +400,68 @@
             document.head.appendChild(script);
         }
 
-        function showPlayer() {
-            const playerArea = document.getElementById('playerArea');
-            const placeholder = document.getElementById('playerPlaceholder');
+        function callPlayerFunction() {
+            log(`🎬 Calling showTestimonialSplashScreen()...`, "info");
             
-            // Clear area
+            // Clear player area
+            const playerArea = document.getElementById('playerArea');
             playerArea.innerHTML = '';
             
-            // Try to call the function
             try {
-                log(`🎬 Calling showTestimonialSplashScreen()...`, "info");
+                // IMPORTANT: Create a container specifically for the testimonial
+                const testimonialContainer = document.createElement('div');
+                testimonialContainer.id = 'testimonial-target-container';
+                testimonialContainer.style.cssText = 'width: 100%; height: 100%;';
+                playerArea.appendChild(testimonialContainer);
                 
-                // Temporarily override appendChild to capture where testimonial puts itself
-                const originalAppendChild = Element.prototype.appendChild;
-                let playerContainer = null;
+                // TEMPORARILY OVERRIDE document.getElementById to redirect to our container
+                const originalGetElementById = document.getElementById;
                 
-                Element.prototype.appendChild = function(element) {
-                    // Look for testimonial elements
-                    if (element.id && element.id.includes('testimonial') || 
-                        element.className && element.className.includes('testimonial')) {
-                        playerContainer = element;
-                        return playerArea.appendChild(element);
+                document.getElementById = function(id) {
+                    // If testimonial system is looking for chat container, return our container
+                    if (id === 'chatMessages' || id === 'chat-messages' || id.includes('chat')) {
+                        log(`🎯 Redirecting ${id} to our player area`, "info");
+                        return testimonialContainer;
                     }
-                    return originalAppendChild.call(this, element);
+                    return originalGetElementById.call(document, id);
+                };
+                
+                // Also override querySelector for chat containers
+                const originalQuerySelector = document.querySelector;
+                document.querySelector = function(selector) {
+                    if (selector === '.chat-messages' || selector.includes('chat')) {
+                        log(`🎯 Redirecting ${selector} to our player area`, "info");
+                        return testimonialContainer;
+                    }
+                    return originalQuerySelector.call(document, selector);
                 };
                 
                 // Call the function
                 window.showTestimonialSplashScreen();
+                log(`✅ showTestimonialSplashScreen() called successfully!`, "success");
+                updateStatus("Player Loading", true);
                 
-                // Restore original function
+                // Check if anything appeared after a moment
                 setTimeout(() => {
-                    Element.prototype.appendChild = originalAppendChild;
-                    
-                    if (playerContainer) {
-                        log(`✅ Testimonial player displayed!`, "success");
+                    if (testimonialContainer.children.length > 0) {
+                        log(`✅ Testimonial player displayed successfully!`, "success");
                         updateStatus("Player Active", true);
                     } else {
-                        // If we didn't capture it, maybe it puts itself elsewhere
-                        log(`⚠️ Player function called but element not captured`, "info");
-                        log(`🔍 Check if player appeared elsewhere on page`, "info");
-                        updateStatus("Function called - check page", false);
+                        log(`⚠️ Function called but no content appeared`, "info");
+                        log(`🔍 Checking if content appeared elsewhere...`, "info");
+                        updateStatus("Content not found", false);
+                        
+                        // Restore original functions
+                        document.getElementById = originalGetElementById;
+                        document.querySelector = originalQuerySelector;
+                        
+                        // Force a second try with different approach
+                        forceLoadPlayer();
                     }
-                }, 500);
+                }, 1000);
                 
             } catch (error) {
-                log(`❌ Error: ${error.message}`, "error");
+                log(`❌ Error calling player function: ${error.message}`, "error");
                 showError();
             }
         }
@@ -432,6 +473,13 @@
                     <h3>⚠️ Player Load Issue</h3>
                     <p>Testimonial player function was called but didn't display here.</p>
                     <p>Check browser console for errors.</p>
+                    <div style="margin-top: 20px; background: #333; padding: 15px; border-radius: 5px; text-align: left;">
+                        <strong>Debug steps:</strong><br>
+                        1. Check console (F12) for errors<br>
+                        2. Ensure testimonial-player.js is in same folder<br>
+                        3. Check if showTestimonialSplashScreen() exists<br>
+                        4. Try Force Load Player button
+                    </div>
                     <p style="margin-top: 20px;">
                         <button onclick="forceLoadPlayer()" style="
                             background: #2196F3;
@@ -440,11 +488,31 @@
                             padding: 10px 20px;
                             border-radius: 5px;
                             cursor: pointer;
-                        ">Try Again</button>
+                            margin: 5px;
+                        ">Force Load Player</button>
+                        <button onclick="checkPlayerFunction()" style="
+                            background: #4CAF50;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            margin: 5px;
+                        ">Check Function</button>
                     </p>
                 </div>
             `;
             updateStatus("Load Error", false);
+        }
+
+        function checkPlayerFunction() {
+            log(`🔍 Checking if player function exists...`, "info");
+            if (typeof window.showTestimonialSplashScreen === 'function') {
+                log(`✅ showTestimonialSplashScreen() exists!`, "success");
+                log(`Function: ${window.showTestimonialSplashScreen.toString().substring(0, 100)}...`, "info");
+            } else {
+                log(`❌ showTestimonialSplashScreen() does not exist`, "error");
+            }
         }
 
         // ====================
@@ -460,8 +528,34 @@
         }
         
         function forceLoadPlayer() {
-            log('🚀 Force loading player...', 'warning');
-            loadAndShowPlayer();
+            log('🚀 Force loading player with direct approach...', 'warning');
+            
+            // Clear and show loading
+            const playerArea = document.getElementById('playerArea');
+            playerArea.innerHTML = '<div style="padding: 50px; text-align: center;">Force loading testimonial player...</div>';
+            
+            // Direct approach: Create mock chat container
+            if (!document.getElementById('chatMessages')) {
+                const mockChat = document.createElement('div');
+                mockChat.id = 'chatMessages';
+                mockChat.className = 'chat-messages';
+                mockChat.style.cssText = 'width: 100%; height: 100%; overflow: auto;';
+                playerArea.appendChild(mockChat);
+                log(`✅ Created mock chat container`, "success");
+            }
+            
+            // Try to call the function
+            if (typeof window.showTestimonialSplashScreen === 'function') {
+                try {
+                    window.showTestimonialSplashScreen();
+                    log(`✅ Direct function call completed`, "success");
+                    updateStatus("Player Force Loaded", true);
+                } catch (error) {
+                    log(`❌ Direct call error: ${error.message}`, "error");
+                }
+            } else {
+                log(`❌ Function still not loaded`, "error");
+            }
         }
 
         // ====================
@@ -470,8 +564,9 @@
         window.onload = function() {
             log('✅ Simple test system ready', 'success');
             log('🎯 Click any trigger button to test', 'info');
+            log('📁 Make sure testimonial-player.js is in same folder', 'info');
             
-            // Pre-load audio files
+            // Pre-load audio files with fallback URLs
             for (let i = 1; i <= 3; i++) {
                 const audio = document.getElementById(`audio${i}`);
                 const config = triggers[i];
