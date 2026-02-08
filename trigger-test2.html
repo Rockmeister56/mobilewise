@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎤 SIMPLE TEST: Trigger → Player</title>
+    <title>🎤 TTS TRIGGER: Avatar TTS → Testimonial Player</title>
     <style>
+        /* [KEEP ALL YOUR EXISTING STYLES - DON'T CHANGE] */
         * {
             margin: 0;
             padding: 0;
@@ -24,262 +25,98 @@
             margin: 0 auto;
         }
         
-        h1 {
-            text-align: center;
-            color: #4CAF50;
-            margin-bottom: 10px;
-            padding: 10px;
-        }
+        /* [KEEP ALL YOUR EXISTING STYLES FROM BEFORE] */
+        /* ... all your existing CSS ... */
         
-        .subtitle {
-            text-align: center;
-            color: #aaa;
-            margin-bottom: 30px;
-        }
-        
-        /* SIMPLE TRIGGER BUTTONS */
-        .trigger-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .trigger-btn {
-            background: #2196F3;
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            min-width: 150px;
-        }
-        
-        .trigger-btn:hover {
-            background: #1976D2;
-            transform: translateY(-2px);
-        }
-        
-        .trigger-btn:active {
-            transform: translateY(0);
-        }
-        
-        .trigger-btn.playing {
-            background: #4CAF50;
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-        }
-        
-        /* PLAYER AREA - SIMPLE */
-        .player-area {
-            background: #222;
-            border: 2px solid #444;
-            border-radius: 10px;
-            min-height: 400px;
-            margin-bottom: 30px;
-            padding: 20px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .player-placeholder {
-            text-align: center;
-            color: #888;
-            padding: 100px 20px;
-            font-size: 18px;
-        }
-        
-        .player-placeholder h3 {
-            color: #4CAF50;
-            margin-bottom: 10px;
-        }
-        
-        /* STATUS AREA - SIMPLE */
-        .status-area {
-            background: #222;
-            border: 2px solid #444;
-            border-radius: 10px;
-            padding: 20px;
-        }
-        
-        .status-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #444;
-        }
-        
-        .status-title {
-            color: #2196F3;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #f44336;
-        }
-        
-        .status-dot.active {
-            background: #4CAF50;
-            animation: blink 1s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .log-box {
-            background: #111;
-            border-radius: 5px;
-            padding: 15px;
-            height: 150px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: #ddd;
-        }
-        
-        .log-line {
-            margin-bottom: 5px;
-            padding: 3px 0;
-            border-bottom: 1px solid #222;
-        }
-        
-        .log-line.success {
-            color: #4CAF50;
-        }
-        
-        .log-line.error {
-            color: #f44336;
-        }
-        
-        .log-line.info {
-            color: #2196F3;
-        }
-        
-        .log-line.trigger {
-            color: #FF9800;
-            font-weight: bold;
-        }
-        
-        /* SIMPLE CONTROLS */
-        .simple-controls {
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        .simple-btn {
-            background: #666;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 0 5px;
-        }
-        
-        .simple-btn:hover {
-            background: #888;
-        }
-        
-        .simple-btn.refresh {
-            background: #2196F3;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎤 SIMPLE TEST: Trigger → Player</h1>
-        <p class="subtitle">Click button → Play Botemia audio → Testimonial player appears below</p>
+        <h1>🎤 TTS TRIGGER: Avatar TTS → Testimonial Player</h1>
+        <p class="subtitle">Intercepts Browser TTS → Detects "verified results gallery" → Launches testimonial player</p>
         
         <!-- SIMPLE: 3 BUTTONS -->
         <div class="trigger-buttons">
-            <button class="trigger-btn" onclick="testTrigger(1)">Test Audio 1</button>
-            <button class="trigger-btn" onclick="testTrigger(2)">Test Audio 2</button>
-            <button class="trigger-btn" onclick="testTrigger(3)">Test Audio 3</button>
+            <button class="trigger-btn" onclick="testTTSWithTrigger()">Test: TTS WITH Trigger</button>
+            <button class="trigger-btn" onclick="testTTSWithoutTrigger()">Test: TTS WITHOUT Trigger</button>
+            <button class="trigger-btn" onclick="testDirectPlayer()">Direct Player Test</button>
         </div>
         
-        <!-- SIMPLE: PLAYER AREA -->
+        <!-- [KEEP ALL YOUR EXISTING HTML STRUCTURE] -->
         <div class="player-area" id="playerArea">
             <div class="player-placeholder" id="playerPlaceholder">
                 <h3>🎬 TESTIMONIAL PLAYER WILL APPEAR HERE</h3>
-                <p>Click any audio button above</p>
-                <p style="margin-top: 20px; color: #4CAF50;">Player area is ready...</p>
+                <p>When avatar TTS says "verified results gallery"</p>
             </div>
         </div>
         
-        <!-- SIMPLE: STATUS AREA -->
         <div class="status-area">
             <div class="status-header">
-                <div class="status-title">System Status: <span id="statusText">Ready</span></div>
+                <div class="status-title">TTS Trigger System: <span id="statusText">Monitoring TTS</span></div>
                 <div class="status-indicator">
-                    <div class="status-dot" id="statusDot"></div>
-                    <div id="statusType">Idle</div>
+                    <div class="status-dot active" id="statusDot"></div>
+                    <div id="statusType">Listening</div>
                 </div>
             </div>
             <div class="log-box" id="logBox">
-                <div class="log-line info">[System Ready] Click an audio button to start test</div>
-                <div class="log-line info">[Trigger Phrase] Listening for: "verified results gallery"</div>
+                <div class="log-line info">[System Ready] Monitoring speechSynthesis.speak()</div>
+                <div class="log-line info">[Trigger Phrase] "verified results gallery" in TTS</div>
             </div>
         </div>
         
-        <!-- SIMPLE CONTROLS -->
         <div class="simple-controls">
-            <button class="simple-btn refresh" onclick="resetTest()">🔄 Reset Test</button>
+            <button class="simple-btn refresh" onclick="resetTest()">🔄 Reset</button>
             <button class="simple-btn" onclick="clearLogs()">🗑️ Clear Logs</button>
-            <button class="simple-btn" onclick="forceLoadPlayer()">🚀 Force Load Player</button>
+            <button class="simple-btn" onclick="forceLoadPlayer()">🚀 Force Player</button>
         </div>
     </div>
 
-    <!-- Hidden Audio Players -->
-    <audio id="audio1" preload="auto"></audio>
-    <audio id="audio2" preload="auto"></audio>
-    <audio id="audio3" preload="auto"></audio>
-
     <script>
         // ====================
-        // SIMPLE CONFIG
+        // 🎯 TTS TRIGGER SYSTEM
         // ====================
-        const TRIGGER_PHRASE = "verified results gallery"; // ONLY this phrase triggers
+        const TRIGGER_PHRASE = "verified results gallery";
         
-        const audioTests = {
-            1: {
-                url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger1.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMS5tcDMiLCJpYXQiOjE3NzA1MjI0MTUsImV4cCI6MTc3MzExNDQxNX0.y9sGa1bdkjfEzJyBEQb--Fy0ooyfzOPoI_UrEQG-AR4",
-                description: "Audio 1: Contains 'verified results gallery' phrase"
-            },
-            2: {
-                url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger2.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMi5tcDMiLCJpYXQiOjE3NzA1MjI0NDcsImVpxcCI6MTc3MzExNDQ0N30.XMaGjM3wuYyVwoRphRe9YvhOCJNe9Z4yReIf3hKxWMs",
-                description: "Audio 2: Contains 'verified results gallery' phrase"
-            },
-            3: {
-                url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger2.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMi5tcDMiLCJpYXQiOjE3NzA1MjI0NDcsImV4cCI6MTc3MzExNDQ0N30.XMaGjM3wuYyVwoRphRe9YvhOCJNe9Z4yReIf3hKxWMs",
-                description: "Audio 3: Contains 'verified results gallery' phrase"
-            }
-        };
+        console.log("🎤 INSTALLING TTS TRIGGER SYSTEM...");
+
+        // 🎯 INTERCEPT SPEECH SYNTHESIS (TTS)
+        if (window.speechSynthesis && window.speechSynthesis.speak) {
+            const originalSpeak = window.speechSynthesis.speak;
+            
+            window.speechSynthesis.speak = function(utterance) {
+                const text = utterance.text || '';
+                log(`🎤 TTS SPEAKING: "${text}"`, 'avatar');
+                
+                // 🎯 CHECK FOR TRIGGER PHRASE IN TTS
+                if (text.toLowerCase().includes(TRIGGER_PHRASE)) {
+                    log(`🚨 TRIGGER DETECTED IN TTS: "${TRIGGER_PHRASE}"`, 'trigger');
+                    updateStatus(`TTS Trigger Detected!`, true);
+                    
+                    // 🎯 PLAY BOTEMIA AUDIO (optional)
+                    playBotemiaAudio();
+                    
+                    // 🎯 LAUNCH TESTIMONIAL PLAYER
+                    setTimeout(() => {
+                        loadAndShowPlayer();
+                    }, 1000);
+                    
+                    // Still speak the text via TTS
+                    return originalSpeak.call(this, utterance);
+                }
+                
+                // If no trigger, speak normally
+                log(`✅ No trigger in TTS - speaking normally`, 'info');
+                return originalSpeak.call(this, utterance);
+            };
+            
+            log('✅ TTS trigger system INSTALLED', 'success');
+            log(`✅ Monitoring speechSynthesis.speak() for: "${TRIGGER_PHRASE}"`, 'success');
+        } else {
+            log('❌ speechSynthesis not available', 'error');
+        }
 
         // ====================
-        // SIMPLE LOGGING
+        // 🎯 LOGGING & STATUS (keep your existing)
         // ====================
         function log(message, type = "info") {
             const logBox = document.getElementById("logBox");
@@ -291,12 +128,9 @@
             console.log(message);
         }
 
-        // ====================
-        // SIMPLE STATUS
-        // ====================
         function updateStatus(text, isActive = false) {
             document.getElementById("statusText").textContent = text;
-            document.getElementById("statusType").textContent = isActive ? "Active" : "Idle";
+            document.getElementById("statusType").textContent = isActive ? "Active" : "Listening";
             
             const dot = document.getElementById("statusDot");
             if (isActive) {
@@ -307,62 +141,37 @@
         }
 
         // ====================
-        // SIMPLE TRIGGER TEST
+        // 🎯 PLAY BOTEMIA AUDIO
         // ====================
-        function testTrigger(num) {
-            log(`▶️ Testing Audio ${num}...`, "info");
-            updateStatus(`Playing Audio ${num}`, true);
+        function playBotemiaAudio() {
+            log(`🔊 Playing Botemia audio...`, "info");
             
-            // Highlight button
-            document.querySelectorAll('.trigger-btn').forEach(btn => {
-                btn.classList.remove('playing');
-            });
-            event.target.classList.add('playing');
+            const audio = new Audio();
+            audio.src = "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger1.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMS5tcDMiLCJpYXQiOjE3NzA1MjI0MTUsImV4cCI6MTc3MzExNDQxNX0.y9sGa1bdkjfEzJyBEQb--Fy0ooyfzOPoI_UrEQG-AR4";
             
-            // Get audio
-            const audioTest = audioTests[num];
-            if (!audioTest) {
-                log(`❌ No audio for test ${num}`, "error");
-                return;
-            }
+            audio.oncanplaythrough = function() {
+                audio.play();
+                log('▶️ Botemia audio playing...', 'info');
+            };
             
-            // Play audio
-            const audio = document.getElementById(`audio${num}`);
-            if (!audio.src) {
-                audio.src = audioTest.url;
-            }
-            
-            audio.currentTime = 0;
-            audio.play();
-            
-            log(`🔊 Playing audio: ${audioTest.description}`, "info");
-            
-            // When audio ends, trigger player
             audio.onended = function() {
-                log(`✅ Audio complete`, "success");
-                log(`🎯 Detected trigger: "${TRIGGER_PHRASE}"`, "trigger");
-                updateStatus("Trigger detected!", true);
-                
-                // Load testimonial player
-                loadAndShowPlayer();
+                log('✅ Botemia audio complete', 'success');
             };
         }
 
         // ====================
-        // SIMPLE PLAYER LOADING
+        // 🎯 LOAD AND SHOW PLAYER (keep your existing)
         // ====================
         function loadAndShowPlayer() {
             log(`🚀 Loading testimonial player...`, "info");
             
             // Check if already loaded
             if (typeof window.showTestimonialSplashScreen === 'function') {
-                // Create testimonial data if needed
                 createTestimonialData();
                 showPlayer();
                 return;
             }
             
-            // Load the script
             const script = document.createElement('script');
             script.src = 'testimonial-player.js';
             
@@ -373,15 +182,13 @@
             };
             
             script.onerror = function() {
-                log(`❌ Failed to load testimonial-player.js`, "error");
-                log(`📁 Make sure it's in the same directory as this test file`, "info");
+                log(`❌ Failed to load`, "error");
                 showError();
             };
             
             document.head.appendChild(script);
         }
 
-        // Create testimonial data
         function createTestimonialData() {
             if (!window.testimonialData) {
                 window.testimonialData = {
@@ -407,93 +214,78 @@
 
         function showPlayer() {
             const playerArea = document.getElementById('playerArea');
-            const placeholder = document.getElementById('playerPlaceholder');
-            
-            // Clear area
             playerArea.innerHTML = '';
             
-            // Create chat messages container
             const chatMessages = document.createElement('div');
             chatMessages.id = 'chatMessages';
-            chatMessages.style.cssText = `
-                position: relative;
-                width: 100%;
-                min-height: 400px;
-            `;
+            chatMessages.style.cssText = `position: relative; width: 100%; min-height: 400px;`;
             playerArea.appendChild(chatMessages);
             
-            log(`📦 Created #chatMessages container`, "success");
+            log(`📦 Created #chatMessages`, "success");
             
-            // Try to call the function
             try {
-                log(`🎬 Calling showTestimonialSplashScreen()...`, "info");
-                
                 window.showTestimonialSplashScreen();
-                log(`✅ Function called`, "success");
-                
+                log(`✅ Testimonial player launched`, "success");
                 updateStatus("Player Active", true);
-                
             } catch (error) {
                 log(`❌ Error: ${error.message}`, "error");
                 showError();
             }
         }
 
-        function showError() {
-            const playerArea = document.getElementById('playerArea');
-            playerArea.innerHTML = `
-                <div style="text-align: center; padding: 50px; color: #FF9800;">
-                    <h3>⚠️ Player Load Issue</h3>
-                    <p>Testimonial player failed to load.</p>
-                    <p>Check browser console for errors.</p>
-                    <p style="margin-top: 20px;">
-                        <button onclick="forceLoadPlayer()" style="
-                            background: #2196F3;
-                            color: white;
-                            border: none;
-                            padding: 10px 20px;
-                            border-radius: 5px;
-                            cursor: pointer;
-                        ">Try Again</button>
-                    </p>
-                </div>
-            `;
-            updateStatus("Load Error", false);
+        // ====================
+        // 🎯 TEST FUNCTIONS
+        // ====================
+        function testTTSWithTrigger() {
+            log(`🎤 TEST: TTS WITH trigger phrase`, 'info');
+            
+            // Simulate avatar speaking with trigger
+            const utterance = new SpeechSynthesisUtterance(
+                "Let me show you our Verified Results Gallery with client stories."
+            );
+            
+            // This will trigger our interception
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function testTTSWithoutTrigger() {
+            log(`🎤 TEST: TTS WITHOUT trigger phrase`, 'info');
+            
+            // Simulate avatar speaking without trigger
+            const utterance = new SpeechSynthesisUtterance(
+                "Let me show you our results and client stories."
+            );
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function testDirectPlayer() {
+            log(`🎯 Direct player test...`, 'info');
+            loadAndShowPlayer();
         }
 
         // ====================
-        // SIMPLE CONTROLS
+        // 🎯 ERROR & CONTROLS (keep your existing)
         // ====================
-        function resetTest() {
-            location.reload();
+        function showError() {
+            const playerArea = document.getElementById('playerArea');
+            playerArea.innerHTML = `<div style="text-align: center; padding: 50px; color: #FF9800;">
+                <h3>⚠️ Player Load Issue</h3>
+                <button onclick="forceLoadPlayer()">Try Again</button></div>`;
+            updateStatus("Error", false);
         }
-        
-        function clearLogs() {
-            document.getElementById('logBox').innerHTML = '';
-            log('Logs cleared', 'info');
-        }
-        
-        function forceLoadPlayer() {
-            log('🚀 Force loading player...', 'warning');
-            loadAndShowPlayer();
-        }
+
+        function resetTest() { location.reload(); }
+        function clearLogs() { document.getElementById('logBox').innerHTML = ''; log('Logs cleared', 'info'); }
+        function forceLoadPlayer() { log('🚀 Force loading...', 'warning'); loadAndShowPlayer(); }
 
         // ====================
         // INITIALIZE
         // ====================
         window.onload = function() {
-            log('✅ Simple test system ready', 'success');
-            log(`🎯 Listening for trigger: "${TRIGGER_PHRASE}"`, 'info');
-            
-            // Pre-load audio files
-            for (let i = 1; i <= 3; i++) {
-                const audio = document.getElementById(`audio${i}`);
-                const audioTest = audioTests[i];
-                if (audioTest && audioTest.url) {
-                    audio.src = audioTest.url;
-                    audio.load();
-                }
-            }
+            log('✅ TTS Trigger System Ready', 'success');
+            log(`🎯 Monitoring TTS for: "${TRIGGER_PHRASE}"`, 'info');
+            updateStatus("Listening to TTS", true);
         };
     </script>
 </body>
