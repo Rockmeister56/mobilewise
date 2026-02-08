@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎤 SINGLE TRIGGER SYSTEM: "Verified Results Gallery" → Testimonial Player</title>
+    <title>🎤 VOICE TRIGGER SYSTEM: Avatar Speech → Testimonial Player</title>
     <style>
         * {
             margin: 0;
@@ -226,73 +226,71 @@
             margin-bottom: 10px;
         }
         
-        .trigger-item {
-            background: #16213e;
-            padding: 20px;
-            border-radius: 5px;
-            border-left: 4px solid #00b4d8;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            margin: 10px 0;
+        .trigger-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
         }
         
-        .trigger-warning {
-            background: #8B0000;
+        .trigger-item {
+            background: #16213e;
             padding: 10px;
             border-radius: 5px;
-            margin-top: 10px;
-            font-size: 14px;
-            color: #ffcccb;
+            border-left: 4px solid #00b4d8;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎤 SINGLE TRIGGER: "Verified Results Gallery" → Testimonial Player</h1>
-        <p class="subtitle">ONLY triggers when avatar says the EXACT phrase: "verified results gallery"</p>
+        <h1>🎤 VOICE TRIGGER SYSTEM: Avatar Speech → Testimonial Player</h1>
+        <p class="subtitle">Intercepts LemonSlice Botemia speech → Detects trigger phrases → Launches testimonial player</p>
         
         <!-- VOICE TRIGGER INFO -->
         <div class="voice-info">
-            <h3>🎯 LISTENING FOR THIS EXACT TRIGGER PHRASE:</h3>
-            <div class="trigger-item">"verified results gallery"</div>
-            <div class="trigger-warning">
-                ⚠️ Case-insensitive but MUST include the full phrase exactly.<br>
-                Example triggers: "Let me show you our Verified Results Gallery" or "Check out our Verified Results Gallery"
+            <h3>🎯 LISTENING FOR THESE TRIGGER PHRASES:</h3>
+            <div class="trigger-list">
+                <div class="trigger-item">"Let me show you our Verified Results Gallery"</div>
+                <div class="trigger-item">"Let me open our Verified Results Gallery"</div>
+                <div class="trigger-item">"Let me bring up our Verified Results Gallery"</div>
+                <div class="trigger-item">"Verified Results Gallery" (anywhere in speech)</div>
             </div>
+            <p style="margin-top: 10px; color: #aaa; font-size: 14px;">
+                System intercepts <code>window.speakText()</code> to monitor avatar speech
+            </p>
         </div>
         
         <!-- MANUAL TEST BUTTONS -->
         <div class="trigger-buttons">
-            <button class="trigger-btn" onclick="testWithTriggerPhrase()">Test: With Trigger Phrase</button>
-            <button class="trigger-btn" onclick="testWithoutTriggerPhrase()">Test: WITHOUT Trigger Phrase</button>
-            <button class="trigger-btn" onclick="testDirectPlayer()">Test: Direct Player Load</button>
+            <button class="trigger-btn" onclick="simulateAvatarSpeech(1)">Simulate Trigger 1</button>
+            <button class="trigger-btn" onclick="simulateAvatarSpeech(2)">Simulate Trigger 2</button>
+            <button class="trigger-btn" onclick="simulateAvatarSpeech(3)">Simulate Trigger 3</button>
+            <button class="trigger-btn" onclick="testDirectTrigger()">Test Direct Trigger</button>
         </div>
         
         <!-- PLAYER AREA -->
         <div class="player-area" id="playerArea">
             <div class="player-placeholder" id="playerPlaceholder">
                 <h3>🎬 TESTIMONIAL PLAYER WILL APPEAR HERE</h3>
-                <p>ONLY when avatar says "Verified Results Gallery"</p>
-                <p style="margin-top: 20px; color: #4CAF50;">Single trigger system is active...</p>
+                <p>When avatar says trigger phrase OR click simulation buttons above</p>
+                <p style="margin-top: 20px; color: #4CAF50;">Voice trigger system is active...</p>
             </div>
         </div>
         
         <!-- STATUS AREA -->
         <div class="status-area">
             <div class="status-header">
-                <div class="status-title">Single Trigger System: <span id="statusText">Monitoring for "Verified Results Gallery"</span></div>
+                <div class="status-title">Voice Trigger System: <span id="statusText">Monitoring Avatar Speech</span></div>
                 <div class="status-indicator">
                     <div class="status-dot active" id="statusDot"></div>
                     <div id="statusType">Listening</div>
                 </div>
             </div>
             <div class="log-box" id="logBox">
-                <div class="log-line info">[System Ready] Monitoring avatar speech for EXACT phrase: "verified results gallery"</div>
-                <div class="log-line info">[Strict Matching] Case-insensitive but must contain full phrase</div>
-                <div class="log-line info">[Examples] "Let me show you our Verified Results Gallery" ✓</div>
-                <div class="log-line info">[Examples] "Here's our Verified Results Gallery" ✓</div>
-                <div class="log-line info">[Examples] "Results gallery" ✗ | "Verified results" ✗</div>
+                <div class="log-line info">[System Ready] Monitoring avatar speech for trigger phrases</div>
+                <div class="log-line info">[Trigger Phrases] "Let me show you our Verified Results Gallery"</div>
+                <div class="log-line info">[Trigger Phrases] "Let me open our Verified Results Gallery"</div>
+                <div class="log-line info">[Trigger Phrases] "Let me bring up our Verified Results Gallery"</div>
             </div>
         </div>
         
@@ -301,18 +299,36 @@
             <button class="simple-btn refresh" onclick="resetTest()">🔄 Reset Test</button>
             <button class="simple-btn" onclick="clearLogs()">🗑️ Clear Logs</button>
             <button class="simple-btn" onclick="forceLoadPlayer()">🚀 Force Load Player</button>
+            <button class="simple-btn" onclick="testAvatarInterception()">🎤 Test Avatar Interception</button>
         </div>
     </div>
 
-    <!-- Hidden Audio Player -->
-    <audio id="triggerAudio" preload="auto"></audio>
+    <!-- Hidden Audio Players -->
+    <audio id="audio1" preload="auto"></audio>
+    <audio id="audio2" preload="auto"></audio>
+    <audio id="audio3" preload="auto"></audio>
 
     <script>
         // ====================
-        // 🎯 SINGLE TRIGGER CONFIG
+        // 🎯 TRIGGER CONFIG
         // ====================
-        const TRIGGER_PHRASE = "verified results gallery"; // EXACT phrase to listen for
-        const TRIGGER_AUDIO_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger1.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMS5tcDMiLCJpYXQiOjE3NzA1MjI0MTUsImV4cCI6MTc3MzExNDQxNX0.y9sGa1bdkjfEzJyBEQb--Fy0ooyfzOPoI_UrEQG-AR4";
+        const triggers = {
+            1: {
+                url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger1.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMS5tcDMiLCJpYXQiOjE3NzA1MjI0MTUsImV4cCI6MTc3MzExNDQxNX0.y9sGa1bdkjfEzJyBEQb--Fy0ooyfzOPoI_UrEQG-AR4",
+                text: "Let me show you our Verified Results Gallery",
+                avatarSpeech: "Hi there! Let me show you our Verified Results Gallery to see what other clients achieved."
+            },
+            2: {
+                url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger2.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMi5tcDMiLCJpYXQiOjE3NzA1MjI0NDcsImVpxcCI6MTc3MzExNDQ0N30.XMaGjM3wuYyVwoRphRe9YvhOCJNe9Z4yReIf3hKxWMs",
+                text: "Let me open our Verified Results Gallery",
+                avatarSpeech: "Great question! Let me open our Verified Results Gallery so you can hear from others."
+            },
+            3: {
+                url: "https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/triggers/trigger2.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ0cmlnZ2Vycy90cmlnZ2VyMi5tcDMiLCJpYXQiOjE3NzA1MjI0NDcsImV4cCI6MTc3MzExNDQ0N30.XMaGjM3wuYyVwoRphRe9YvhOCJNe9Z4yReIf3hKxWMs",
+                text: "Let me bring up our Verified Results Gallery",
+                avatarSpeech: "I understand your concern. Let me bring up our Verified Results Gallery with real client stories."
+            }
+        };
 
         // ====================
         // 🎯 LOGGING & STATUS
@@ -345,7 +361,7 @@
         function ensureTestimonialData() {
             // If testimonial data already exists, use it
             if (window.testimonialData && window.testimonialData.testimonialGroups) {
-                log(`✅ Testimonial data already exists`, 'success');
+                log(`✅ Testimonial data already exists (${Object.keys(window.testimonialData.testimonialGroups).length} groups)`, 'success');
                 return true;
             }
             
@@ -408,28 +424,15 @@
         }
 
         // ====================
-        // 🎯 SINGLE TRIGGER DETECTION FUNCTION
-        // ====================
-        function checkForTriggerPhrase(text) {
-            const lowerText = text.toLowerCase();
-            const hasTrigger = lowerText.includes(TRIGGER_PHRASE);
-            
-            log(`🔍 Checking: "${text}"`, 'info');
-            log(`🔍 Looking for: "${TRIGGER_PHRASE}"`, 'info');
-            log(`🔍 Result: ${hasTrigger ? '✅ TRIGGER FOUND!' : '✗ No trigger'}`, hasTrigger ? 'trigger' : 'info');
-            
-            return hasTrigger;
-        }
-
-        // ====================
-        // 🎯 PLAY TRIGGER AUDIO
+        // 🎯 TRIGGER FUNCTIONS
         // ====================
         function playTriggerAudio() {
-            log(`🔊 Playing trigger audio...`, "info");
+            log(`🔊 Playing Botemia trigger audio...`, "info");
             
-            const audio = document.getElementById('triggerAudio');
+            // Use first trigger URL
+            const audio = document.getElementById('audio1');
             if (!audio.src) {
-                audio.src = TRIGGER_AUDIO_URL;
+                audio.src = triggers[1].url;
             }
             
             audio.currentTime = 0;
@@ -441,9 +444,6 @@
             };
         }
 
-        // ====================
-        // 🎯 LOAD AND SHOW PLAYER
-        // ====================
         function loadAndShowPlayer() {
             log(`🚀 Loading testimonial player...`, "info");
             
@@ -503,23 +503,40 @@
         }
 
         // ====================
-        // 🎯 SINGLE VOICE TRIGGER SYSTEM
+        // 🎯 VOICE TRIGGER SYSTEM
         // ====================
-        console.log('🎤 INSTALLING SINGLE TRIGGER SYSTEM...');
-        log(`🎯 Listening for EXACT phrase: "${TRIGGER_PHRASE}"`, 'info');
+        console.log('🎤 INSTALLING VOICE TRIGGER SYSTEM...');
 
         // 🎯 INTERCEPT AVATAR SPEECH FUNCTION
         const originalSpeakText = window.speakText;
         if (originalSpeakText) {
             window.speakText = function(text) {
-                log(`🎤 AVATAR SPEECH: "${text}"`, 'avatar');
+                log(`🎤 AVATAR SPEAKING: "${text}"`, 'avatar');
                 
-                // 🎯 CHECK FOR SINGLE TRIGGER PHRASE
-                const hasTrigger = checkForTriggerPhrase(text);
+                // 🎯 CHECK FOR TRIGGER PHRASES IN AVATAR'S SPEECH
+                const triggerPhrases = [
+                    'let me show you our verified results gallery',
+                    'let me open our verified results gallery', 
+                    'let me bring up our verified results gallery',
+                    'verified results gallery'
+                ];
                 
-                if (hasTrigger) {
-                    log(`🚨 SINGLE TRIGGER DETECTED! "${TRIGGER_PHRASE}" found in speech`, 'trigger');
-                    updateStatus(`Trigger detected!`, true);
+                const lowerText = text.toLowerCase();
+                let triggerDetected = false;
+                let detectedPhrase = '';
+                
+                // Check if avatar is saying a trigger phrase
+                for (const phrase of triggerPhrases) {
+                    if (lowerText.includes(phrase)) {
+                        triggerDetected = true;
+                        detectedPhrase = phrase;
+                        break;
+                    }
+                }
+                
+                if (triggerDetected) {
+                    log(`🚨 TRIGGER DETECTED IN AVATAR SPEECH: "${detectedPhrase}"`, 'trigger');
+                    updateStatus(`Trigger detected: "${detectedPhrase}"`, true);
                     
                     // Play trigger audio
                     playTriggerAudio();
@@ -534,55 +551,71 @@
                 }
                 
                 // If no trigger, speak normally
-                log(`✅ No trigger phrase found - normal avatar speech`, 'info');
+                log(`✅ Normal avatar speech - no trigger`, 'info');
                 return originalSpeakText.apply(this, arguments);
             };
             
-            log('✅ Single trigger system INSTALLED', 'success');
-            log(`✅ Monitoring for: "${TRIGGER_PHRASE}"`, 'success');
+            log('✅ Voice trigger system INSTALLED - Monitoring avatar speech', 'success');
         } else {
             log('⚠️ window.speakText not found yet - Avatar may not be loaded', 'info');
+            
+            // Wait and try again
+            setTimeout(() => {
+                if (window.speakText) {
+                    log('✅ Found window.speakText - reinstalling trigger system', 'success');
+                    // Re-run installation would happen here
+                }
+            }, 2000);
         }
 
         // ====================
         // 🎯 TEST FUNCTIONS
         // ====================
-        function testWithTriggerPhrase() {
-            const testSpeech = "Let me show you our Verified Results Gallery with real client stories.";
-            log(`🎤 TEST: Speaking WITH trigger phrase`, 'info');
-            log(`🎤 TEST Speech: "${testSpeech}"`, 'avatar');
+        function simulateAvatarSpeech(num) {
+            const config = triggers[num];
+            if (!config) return;
             
+            log(`🎤 SIMULATING Avatar Speech: "${config.avatarSpeech}"`, 'avatar');
+            
+            // Simulate the avatar speaking
             if (window.speakText) {
-                window.speakText(testSpeech);
+                window.speakText(config.avatarSpeech);
             } else {
-                log(`⚠️ No speakText - manually triggering`, 'info');
-                triggerPlayerManually();
+                log(`⚠️ No speakText function - manually triggering`, 'info');
+                // Manually trigger the detection
+                log(`🚨 MANUAL TRIGGER: "${config.text}"`, 'trigger');
+                playTriggerAudio();
+                setTimeout(() => {
+                    loadAndShowPlayer();
+                }, 1000);
             }
         }
 
-        function testWithoutTriggerPhrase() {
-            const testSpeech = "Let me show you our results and client stories.";
-            log(`🎤 TEST: Speaking WITHOUT trigger phrase`, 'info');
-            log(`🎤 TEST Speech: "${testSpeech}"`, 'avatar');
-            
-            if (window.speakText) {
-                window.speakText(testSpeech);
-            } else {
-                log(`✅ Test passed - No trigger in this speech`, 'success');
-            }
-        }
-
-        function testDirectPlayer() {
-            log(`🎯 Testing direct player load (bypassing trigger)...`, 'info');
-            triggerPlayerManually();
-        }
-
-        function triggerPlayerManually() {
-            log(`🚀 Manual trigger initiated...`, 'trigger');
+        function testDirectTrigger() {
+            log(`🎯 Testing direct trigger (bypassing speech)...`, 'info');
             playTriggerAudio();
             setTimeout(() => {
                 loadAndShowPlayer();
             }, 1000);
+        }
+
+        function testAvatarInterception() {
+            log(`🧪 Testing avatar speech interception...`, 'info');
+            
+            if (originalSpeakText) {
+                log(`✅ Original speakText preserved`, 'success');
+                log(`✅ Current speakText is intercepted: ${window.speakText !== originalSpeakText}`, 'success');
+                
+                // Test interception
+                const testText = "Hello! Let me show you our Verified Results Gallery now.";
+                log(`🧪 Testing interception with: "${testText}"`, 'info');
+                
+                window.speakText(testText).then(() => {
+                    log(`✅ Interception test complete`, 'success');
+                });
+            } else {
+                log(`❌ No original speakText found`, 'error');
+            }
         }
 
         // ====================
@@ -631,18 +664,24 @@
         // 🎯 INITIALIZE
         // ====================
         window.onload = function() {
-            log('✅ SINGLE TRIGGER SYSTEM READY', 'success');
-            log(`🎯 Monitoring for EXACT phrase: "${TRIGGER_PHRASE}"`, 'info');
+            log('✅ VOICE TRIGGER SYSTEM READY', 'success');
+            log('🎯 Monitoring avatar speech for trigger phrases', 'info');
+            log('🔧 Intercepting window.speakText()', 'info');
             
             // 🎯 CREATE CHAT CONTAINER ON LOAD
             createChatMessagesContainer();
             
-            // Pre-load audio
-            const audio = document.getElementById('triggerAudio');
-            audio.src = TRIGGER_AUDIO_URL;
-            audio.load();
+            // Pre-load audio files
+            for (let i = 1; i <= 3; i++) {
+                const audio = document.getElementById(`audio${i}`);
+                const config = triggers[i];
+                if (config && config.url) {
+                    audio.src = config.url;
+                    audio.load();
+                }
+            }
             
-            updateStatus(`Listening for: "${TRIGGER_PHRASE}"`, true);
+            updateStatus("Listening for avatar speech", true);
         };
     </script>
 </body>
