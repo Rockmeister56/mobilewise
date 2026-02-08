@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testimonial Trigger Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .test-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .test-section {
+            margin: 25px 0;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .test-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin: 5px 0;
+        }
+        
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .test-btn.secondary {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FFE66D 100%);
+            color: #333;
+        }
+        
+        .test-btn.tertiary {
+            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+            color: white;
+        }
+        
+        .console {
+            background: #1a1a1a;
+            color: #00ff9d;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎯 Testimonial Trigger Test System</h1>
+        
+        <div class="test-section">
+            <h2>1. Load Testimonial System (Mock)</h2>
+            <button class="test-btn" onclick="loadTestimonialSystem()">
+                Load Testimonial Modules
+            </button>
+            <div id="loadStatus" class="status info">
+                Click to load testimonial system...
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. Simulate Voice Triggers</h2>
+            <button class="test-btn secondary" onclick="triggerConcern('price')">
+                💰 "It's too expensive"
+            </button>
+            <button class="test-btn secondary" onclick="triggerConcern('time')">
+                ⏰ "I don't have time"
+            </button>
+            <button class="test-btn secondary" onclick="triggerConcern('trust')">
+                🔒 "Can I trust this?"
+            </button>
+            <button class="test-btn secondary" onclick="triggerConcern('general')">
+                ❓ "Will this work for me?"
+            </button>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. Manual Testimonial Launch</h2>
+            <button class="test-btn tertiary" onclick="manualTestimonialTrigger()">
+                🎬 Direct Testimonial Trigger
+            </button>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. Test Complete Flow</h2>
+            <button class="test-btn" onclick="testCompleteFlow()">
+                🔄 Full Conversation → Concern → Testimonial
+            </button>
+        </div>
+        
+        <div class="console" id="console">
+            === CONSOLE OUTPUT ===
+            Ready to test testimonial triggers...
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // 🎯 GLOBAL STATE (Mocking your MobileWise AI State)
+        // =========================================================================
+        window.mobilewiseAI = {
+            state: 'introduction',
+            user: {
+                name: 'Test User',
+                need: '',
+                challenge: ''
+            },
+            conversation: {
+                messages: 0,
+                rapportLevel: 0
+            }
+        };
+        
+        window.conversationData = {
+            state: 'introduction',
+            userName: 'Test User'
+        };
+        
+        // =========================================================================
+        // 🎯 CONSOLE LOGGER
+        // =========================================================================
+        function log(message) {
+            const consoleEl = document.getElementById('console');
+            consoleEl.innerHTML += `\n[${new Date().toLocaleTimeString()}] ${message}`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+            console.log(message);
+        }
+        
+        function updateStatus(elementId, message, type = 'info') {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = `status ${type}`;
+        }
+        
+        // =========================================================================
+        // 🎯 1. LOAD TESTIMONIAL SYSTEM (MOCK)
+        // =========================================================================
+        function loadTestimonialSystem() {
+            log('📦 Loading testimonial system...');
+            
+            // Mock loading testimonial data
+            window.testimonialData = {
+                currentIndustry: 'general',
+                industries: {
+                    general: {
+                        name: 'General Business',
+                        concerns: ['expensive', 'cost', 'price', 'time', 'busy', 'trust', 'work', 'results'],
+                        videos: {
+                            'test1': {
+                                title: 'From Skeptical to Believer',
+                                url: 'https://example.com/video1.mp4',
+                                tags: ['trust', 'skeptical', 'results']
+                            },
+                            'test2': {
+                                title: 'How I Saved 20 Hours Weekly',
+                                url: 'https://example.com/video2.mp4',
+                                tags: ['time', 'busy', 'efficiency']
+                            }
+                        }
+                    }
+                }
+            };
+            
+            // Mock the testimonial handler functions
+            window.handleConcernWithTestimonial = function(userText) {
+                log(`🎯 handleConcernWithTestimonial called with: "${userText}"`);
+                log('✅ Testimonial system would now show splash screen and play videos');
+                
+                // Show simulated testimonial overlay
+                showSimulatedTestimonialOverlay(userText);
+                
+                return true;
+            };
+            
+            window.showTestimonialSplashScreen = function() {
+                log('🎬 showTestimonialSplashScreen called');
+                log('✅ Would show testimonial selection screen');
+                return true;
+            };
+            
+            updateStatus('loadStatus', '✅ Testimonial system loaded successfully!', 'success');
+            log('✅ Testimonial system loaded and ready for triggers');
+        }
+        
+        // =========================================================================
+        // 🎯 2. SIMULATE VOICE TRIGGERS
+        // =========================================================================
+        function triggerConcern(type) {
+            const concerns = {
+                price: "I'm worried this is too expensive for my budget",
+                time: "I don't have time to implement something like this",
+                trust: "Can I really trust this AI to work for my business?",
+                general: "Will this actually work for my specific situation?"
+            };
+            
+            const userMessage = concerns[type];
+            log(`🎤 SIMULATED VOICE: "${userMessage}"`);
+            
+            // Call the EXACT function from your MobileWise AI Core
+            if (typeof window.handleConcernWithTestimonial === 'function') {
+                window.handleConcernWithTestimonial(userMessage);
+            } else {
+                log('❌ handleConcernWithTestimonial not found - load testimonial system first');
+                updateStatus('loadStatus', '❌ Load testimonial system first!', 'error');
+            }
+        }
+        
+        // =========================================================================
+        // 🎯 3. MANUAL TESTIMONIAL TRIGGER
+        // =========================================================================
+        function manualTestimonialTrigger() {
+            log('🎬 Manual testimonial trigger activated');
+            
+            // This simulates what happens when getAIResponse detects a concern
+            const simulatedResponse = getAIResponse("I think it's too expensive for what it does");
+            log(`🤖 AI Response: "${simulatedResponse}"`);
+        }
+        
+        // =========================================================================
+        // 🎯 4. TEST COMPLETE FLOW
+        // =========================================================================
+        function testCompleteFlow() {
+            log('🔄 Testing complete conversation flow...');
+            
+            // Step 1: Introduction
+            log('👋 Introduction phase');
+            let response = getAIResponse("My name is Alex");
+            log(`🤖 AI: "${response}"`);
+            
+            // Step 2: Rapport building
+            log('🤝 Rapport building');
+            response = getAIResponse("I need more leads for my business");
+            log(`🤖 AI: "${response}"`);
+            
+            // Step 3: Concern arises
+            log('🚨 Concern detection');
+            response = getAIResponse("But it sounds expensive");
+            log(`🤖 AI: "${response}"`);
+            
+            // Step 4: Check if testimonials triggered
+            log('✅ Flow complete - check console for testimonial trigger');
+        }
+        
+        // =========================================================================
+        // 🎯 SIMULATED TESTIMONIAL OVERLAY
+        // =========================================================================
+        function showSimulatedTestimonialOverlay(userText) {
+            log('🎬 Showing simulated testimonial overlay...');
+            
+            // Create a simple overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'simulated-testimonial-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0,0,0,0.9);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                flex-direction: column;
+                color: white;
+                font-family: Arial, sans-serif;
+            `;
+            
+            overlay.innerHTML = `
+                <div style="background: #222; padding: 30px; border-radius: 15px; max-width: 500px; text-align: center;">
+                    <h2 style="color: #4CAF50; margin-bottom: 15px;">🎬 Testimonial Triggered!</h2>
+                    <p style="margin-bottom: 20px;">User said: <em>"${userText}"</em></p>
+                    <div style="background: #333; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <p>✅ Concern detected</p>
+                        <p>✅ Testimonial system activated</p>
+                        <p>✅ Videos would play now</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                        Close Test
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+        }
+        
+        // =========================================================================
+        // 🎯 GET AI RESPONSE FUNCTION (SIMPLIFIED VERSION)
+        // =========================================================================
+        function getAIResponse(userMessage) {
+            log(`🧠 getAIResponse called with: "${userMessage}"`);
+            
+            // Mock the concern detection logic from your MobileWise AI Core
+            const lowerMsg = userMessage.toLowerCase();
+            
+            // Check for concerns (this is what triggers testimonials)
+            const concernPatterns = [
+                {pattern: 'expensive', type: 'price'},
+                {pattern: 'cost', type: 'price'},
+                {pattern: 'price', type: 'price'},
+                {pattern: 'time', type: 'time'},
+                {pattern: 'busy', type: 'time'},
+                {pattern: 'trust', type: 'trust'},
+                {pattern: 'work', type: 'general'},
+                {pattern: 'results', type: 'general'}
+            ];
+            
+            for (const concern of concernPatterns) {
+                if (lowerMsg.includes(concern.pattern)) {
+                    log(`🚨 CONCERN DETECTED: ${concern.type} (pattern: "${concern.pattern}")`);
+                    
+                    // This is where your real code calls handleConcernWithTestimonial
+                    if (typeof window.handleConcernWithTestimonial === 'function') {
+                        log('✅ Triggering handleConcernWithTestimonial...');
+                        window.handleConcernWithTestimonial(userMessage);
+                        return `I understand your concern about ${concern.pattern}. Let me show you what other business owners experienced...`;
+                    }
+                }
+            }
+            
+            // If no concern detected, continue normal conversation
+            return "Thanks for sharing that! How can I help you further?";
+        }
+        
+        // =========================================================================
+        // 🎯 INITIALIZE
+        // =========================================================================
+        log('🚀 Testimonial Trigger Test System Ready');
+        log('Click "Load Testimonial Modules" first, then test triggers');
+    </script>
+</body>
+</html>
