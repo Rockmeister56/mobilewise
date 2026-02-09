@@ -47,14 +47,14 @@
         console.log('LemonSlice widget loaded. Click "Initialize System" then speak to Botinia.');
     </script>
 
-    <!-- MAIN APPLICATION SCRIPT - SINGLE SCRIPT BLOCK -->
-    <script>
-                // ========== FIXED VERSION - DETECTS ANY AUDIO ==========
+       <script>
+        // ========== COMPLETE WORKING VERSION ==========
         
         // ========== GLOBALS ==========
         let recognition = null;
         const TRIGGER_PHRASE = "verified results gallery";
         window.recognitionActive = false;
+        window.playerLaunched = false;
 
         // ========== LOGGING ==========
         function log(msg, type = 'info') {
@@ -69,35 +69,30 @@
 
         // ========== MAIN INITIALIZATION ==========
         function initializeSystemForIntro() {
-            log('🎧 Starting ULTIMATE audio detection system...', 'info');
+            log('🎧 Starting audio detection system...', 'info');
             document.getElementById('status').textContent = 'Starting detection...';
             
-            // Use MULTIPLE detection methods
+            // Start detection
             startUltimateAudioDetection();
         }
 
         // ========== ULTIMATE AUDIO DETECTION ==========
         function startUltimateAudioDetection() {
-            log('🔊 Using 3 detection methods to catch ANY Botinia audio...', 'info');
+            log('🔊 Using multiple detection methods...', 'info');
             
             // METHOD 1: Monitor regular audio elements
             monitorAudioElements();
             
-            // METHOD 2: Monitor Web Audio API usage
-            monitorWebAudioAPI();
-            
-            // METHOD 3: Monitor for ANY sound playing on the page
+            // METHOD 2: Monitor for ANY sound playing on the page
             monitorSystemAudio();
             
-            log('✅ ALL detection methods active!', 'success');
+            log('✅ Detection system active!', 'success');
             log('👆 NOW click video chat button in Botinia', 'info');
             document.getElementById('status').textContent = 'READY: Click Botinia\'s video chat button';
         }
 
         // ========== METHOD 1: MONITOR AUDIO ELEMENTS ==========
         function monitorAudioElements() {
-            log('1️⃣ Monitoring HTML5 audio elements...', 'info');
-            
             function checkAudioElements() {
                 const widget = document.querySelector('lemon-slice-widget');
                 if (!widget?.shadowRoot) {
@@ -108,78 +103,27 @@
                 const audioElements = widget.shadowRoot.querySelectorAll('audio');
                 
                 audioElements.forEach((audio, i) => {
-                    // Listen for playback
                     audio.addEventListener('play', () => {
-                        log(`🎬 HTML5 Audio #${i} playing!`, 'success');
+                        log(`🎬 Audio detected!`, 'success');
                         startSpeechRecognitionChain();
                     });
                     
-                    // Also listen for 'playing' event
-                    audio.addEventListener('playing', () => {
-                        log(`▶️ HTML5 Audio #${i} is playing`, 'success');
-                        startSpeechRecognitionChain();
-                    });
-                    
-                    // Check if already playing
                     if (!audio.paused && audio.currentTime > 0) {
-                        log(`🔊 HTML5 Audio #${i} already playing`, 'success');
+                        log(`🔊 Audio already playing`, 'success');
                         startSpeechRecognitionChain();
                     }
                 });
             }
-            
             checkAudioElements();
         }
 
-        // ========== METHOD 2: MONITOR WEB AUDIO API ==========
-        function monitorWebAudioAPI() {
-            log('2️⃣ Monitoring Web Audio API...', 'info');
-            
-            // Hook into Web Audio API if it exists
-            if (window.AudioContext || window.webkitAudioContext) {
-                const OriginalAudioContext = window.AudioContext || window.webkitAudioContext;
-                
-                // Override createBufferSource to detect audio creation
-                const originalCreateBufferSource = AudioContext.prototype.createBufferSource;
-                
-                AudioContext.prototype.createBufferSource = function() {
-                    const source = originalCreateBufferSource.call(this);
-                    
-                    const originalStart = source.start;
-                    source.start = function(...args) {
-                        log('🎵 Web Audio API: Audio buffer started playing!', 'success');
-                        startSpeechRecognitionChain();
-                        return originalStart.apply(this, args);
-                    };
-                    
-                    return source;
-                };
-                
-                // Also monitor createMediaElementSource
-                const originalCreateMediaElementSource = AudioContext.prototype.createMediaElementSource;
-                AudioContext.prototype.createMediaElementSource = function(element) {
-                    log('🔗 Web Audio API: Connected to media element', 'info');
-                    startSpeechRecognitionChain();
-                    return originalCreateMediaElementSource.call(this, element);
-                };
-            }
-        }
-
-        // ========== METHOD 3: MONITOR SYSTEM AUDIO ==========
+        // ========== METHOD 2: MONITOR SYSTEM AUDIO ==========
         function monitorSystemAudio() {
-            log('3️⃣ Monitoring for ANY page audio...', 'info');
-            
-            // Check every second if ANY audio is playing on the page
-            let lastCheck = Date.now();
-            
             function checkForAnyAudio() {
-                // Get ALL audio/video elements in entire document (including shadow DOMs)
                 const allMediaElements = [];
                 
-                // Regular audio/video elements
                 document.querySelectorAll('audio, video').forEach(el => allMediaElements.push(el));
                 
-                // Check inside shadow DOMs
                 document.querySelectorAll('*').forEach(el => {
                     if (el.shadowRoot) {
                         el.shadowRoot.querySelectorAll('audio, video').forEach(shadowEl => 
@@ -187,28 +131,15 @@
                     }
                 });
                 
-                let anyPlaying = false;
-                
                 allMediaElements.forEach((media, i) => {
                     if (!media.paused && media.currentTime > 0) {
-                        anyPlaying = true;
-                        if (Date.now() - lastCheck > 2000) { // Log every 2 seconds max
-                            log(`📢 Found playing media: ${media.tagName} #${i}`, 'success');
-                            lastCheck = Date.now();
-                            startSpeechRecognitionChain();
-                        }
+                        log(`📢 Found playing media`, 'success');
+                        startSpeechRecognitionChain();
                     }
                 });
                 
-                // Also check if document has audio context (Chrome/Edge)
-                if (document.hasAudioContext && document.hasAudioContext()) {
-                    log('🔊 Document reports having audio context', 'success');
-                    startSpeechRecognitionChain();
-                }
-                
                 setTimeout(checkForAnyAudio, 1000);
             }
-            
             checkForAnyAudio();
         }
 
@@ -217,10 +148,9 @@
             if (window.recognitionStarted) return;
             window.recognitionStarted = true;
             
-            log('⚡ Audio detected! Starting recognition chain...', 'success');
-            document.getElementById('status').textContent = 'Audio detected! Getting mic permission...';
+            log('⚡ Audio detected! Starting recognition...', 'success');
+            document.getElementById('status').textContent = 'Getting mic permission...';
             
-            // Step 1: Get microphone permission
             getMicrophonePermission();
         }
 
@@ -231,15 +161,10 @@
                 .then(stream => {
                     log('✅ Microphone permission GRANTED!', 'success');
                     stream.getTracks().forEach(track => track.stop());
-                    
-                    // Step 2: Start speech recognition
                     startSpeechRecognition();
                 })
                 .catch(error => {
                     log(`❌ Microphone permission DENIED: ${error.message}`, 'error');
-                    log('⚠️ Will try to continue without permission...', 'warning');
-                    
-                    // Try to start recognition anyway
                     startSpeechRecognition();
                 });
         }
@@ -257,10 +182,9 @@
             recognition = new webkitSpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = true;
-            recognition.maxAlternatives = 3;
             
             recognition.onstart = function() {
-                log('✅ Speech recognition ACTIVE! Transcribing...', 'success');
+                log('✅ Speech recognition ACTIVE!', 'success');
                 document.getElementById('status').textContent = 'Transcribing Botinia...';
             };
             
@@ -272,10 +196,10 @@
                 }
                 
                 const cleanTranscript = fullTranscript.toLowerCase().trim();
-                log(`📝 Botinia: "${cleanTranscript.substring(0, 100)}${cleanTranscript.length > 100 ? '...' : ''}"`);
+                log(`📝 Botinia: "${cleanTranscript.substring(0, 80)}..."`);
                 
-                // Check for trigger phrase
-                if (cleanTranscript.includes(TRIGGER_PHRASE)) {
+                if (cleanTranscript.includes(TRIGGER_PHRASE) && !window.playerLaunched) {
+                    window.playerLaunched = true;
                     log(`🎉🎉🎉 TRIGGER PHRASE DETECTED!`, 'trigger');
                     recognition.stop();
                     launchTestimonialPlayer();
@@ -298,174 +222,194 @@
             }
         }
 
-        // ========== SIMPLE TEST ==========
-        function simulateAudioDetection() {
-            log('🔊 SIMULATING audio detection...', 'info');
-            startSpeechRecognitionChain();
+        // ========== TESTIMONIAL PLAYER FUNCTIONS ==========
+        function launchTestimonialPlayer() {
+            log('🚀 TRIGGER DETECTED! Launching player...', 'trigger');
+            document.getElementById('status').textContent = 'LAUNCHING testimonial player...';
+            
+            if (recognition && recognition.stop) {
+                recognition.stop();
+            }
+            
+            showTestimonialPlayerNow();
         }
 
-        // ========== TEST BUTTONS ==========
-        function addTestButtons() {
-            const container = document.getElementById('log').parentNode;
-            const testDiv = document.createElement('div');
-            testDiv.innerHTML = `
-                <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px solid #3498db;">
-                    <h4 style="margin-top: 0; color: #3498db;">🔧 Test Controls:</h4>
-                    <button onclick="simulateAudioDetection()" style="background: #9b59b6; margin: 5px;">
-                        🔊 Simulate Audio Detection
-                    </button>
-                    <button onclick="getMicrophonePermission()" style="background: #e67e22; margin: 5px;">
-                        🎤 Test Mic Permission
-                    </button>
-                    <button onclick="startSpeechRecognition()" style="background: #27ae60; margin: 5px;">
-                        👂 Test Speech Recognition
-                    </button>
-                    <button onclick="launchTestimonialPlayer()" style="background: #e74c3c; margin: 5px;">
-                        🚀 Force Launch Player
-                    </button>
+        function showTestimonialPlayerNow() {
+            const playerArea = document.getElementById('playerArea');
+            if (!playerArea) {
+                log('❌ Player area not found', 'error');
+                return;
+            }
+            
+            playerArea.innerHTML = '';
+            playerArea.style.display = 'block';
+            
+            const playerHTML = `
+                <div style="
+                    background: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%);
+                    color: white;
+                    border-radius: 15px;
+                    padding: 30px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                    font-family: sans-serif;
+                ">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h2 style="color: #3498db; margin-top: 0; font-size: 28px;">
+                            🎬 VERIFIED RESULTS GALLERY
+                        </h2>
+                        <p style="color: #ecf0f1; font-size: 18px; margin-bottom: 10px;">
+                            Successfully triggered by Botinia AI
+                        </p>
+                    </div>
+                    
+                    <div style="background: #34495e; padding: 25px; border-radius: 10px; margin-bottom: 25px;">
+                        <h3 style="color: #f39c12; margin-top: 0;">
+                            ✅ Personal Injury Lawyer - 312% Case Increase
+                        </h3>
+                        <p style="color: #ecf0f1; line-height: 1.6;">
+                            <strong>Client:</strong> Law Firm Client<br>
+                            <strong>Results:</strong> 312% increase in qualified cases<br>
+                            <strong>Timeframe:</strong> 90 days
+                        </p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <video 
+                            controls 
+                            autoplay
+                            style="
+                                width: 100%;
+                                max-width: 600px;
+                                margin: 0 auto 20px;
+                                display: block;
+                                border-radius: 10px;
+                                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                            ">
+                            <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4" 
+                                    type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        
+                        <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #3498db;">
+                            <p style="color: #2ecc71; font-weight: bold; font-size: 20px;">
+                                🎉 SUCCESS! AI Trigger System Working!
+                            </p>
+                            <p style="color: #ecf0f1;">
+                                Botinia → Trigger phrase → Player launched automatically
+                            </p>
+                        </div>
+                    </div>
                 </div>
             `;
-            container.insertBefore(testDiv, document.getElementById('log'));
+            
+            playerArea.innerHTML = playerHTML;
+            log('✅ TESTIMONIAL PLAYER DISPLAYED!', 'success');
+            document.getElementById('status').textContent = '🎬 Testimonial Player Active!';
+            
+            setTimeout(() => {
+                playerArea.scrollIntoView({ behavior: 'smooth' });
+            }, 500);
         }
 
-        // Add this function to your existing code:
-function debugTestimonialPlayer() {
-    log('🔍 DEBUG: Checking testimonial player...', 'info');
-    
-    // Check if player area exists
-    const playerArea = document.getElementById('playerArea');
-    if (!playerArea) {
-        log('❌ ERROR: playerArea element not found in HTML!', 'error');
-        log('Add this to your HTML: <div id="playerArea"></div>', 'error');
-        return;
-    }
-    
-    log(`✅ playerArea found: ${playerArea.outerHTML.substring(0, 100)}...`, 'success');
-    
-    // Check if testimonial-player.js is loaded
-    if (typeof window.showTestimonialSplashScreen !== 'function') {
-        log('❌ showTestimonialSplashScreen function not found!', 'error');
-        log('Make sure testimonial-player.js is in the same folder', 'error');
-        return;
-    }
-    
-    log('✅ testimonial-player.js is loaded!', 'success');
-    
-    // Try to show the player manually
-    log('🔄 Manually showing player...', 'info');
-    try {
-        window.showTestimonialSplashScreen();
-        log('✅ Player shown successfully!', 'success');
-    } catch (error) {
-        log(`❌ Error showing player: ${error.message}`, 'error');
-    }
-}
-
-// Also add a button to test it:
-function addDebugButton() {
-    const button = document.createElement('button');
-    button.textContent = '🔍 Debug Player';
-    button.style.cssText = 'background: #9b59b6; color: white; padding: 10px 15px; margin: 5px;';
-    button.onclick = debugTestimonialPlayer;
-    
-    // Add after existing buttons
-    const existingButtons = document.querySelector('button[onclick="initializeSystemForIntro()"]');
-    existingButtons.parentNode.insertBefore(button, existingButtons.nextSibling);
-}
-
-// Call this in your DOMContentLoaded:
-document.addEventListener('DOMContentLoaded', function() {
-    log('Ready! Click "Auto-Activate Botinia" then click video chat button.', 'info');
-    addDebugButton(); // Add this line
-});
-
-        function launchTestimonialPlayer() {
-    log('🎯 TRIGGER DETECTED! Attempting to launch player...', 'trigger');
-    document.getElementById('status').textContent = 'LAUNCHING testimonial player...';
-    
-    // Make sure recognition is stopped
-    if (recognition && recognition.stop) {
-        recognition.stop();
-    }
-    
-    // Clear any existing player content
-    const playerArea = document.getElementById('playerArea');
-    if (playerArea) {
-        playerArea.innerHTML = '<div style="padding: 50px; text-align: center; color: white;">Loading testimonials...</div>';
-    }
-    
-    // Try to load the player with a timeout
-    const loadTimeout = setTimeout(() => {
-        log('⚠️ Player loading timeout - trying fallback...', 'warning');
-        showFallbackPlayer();
-    }, 5000);
-    
-    // Load the player
-    loadAndShowPlayer();
-    
-    // Clear timeout if successful
-    function clearLoadTimeout() {
-        clearTimeout(loadTimeout);
-    }
-    
-    // Override the onload to clear timeout
-    const originalLoad = loadAndShowPlayer;
-    loadAndShowPlayer = function() {
-        clearLoadTimeout();
-        return originalLoad.apply(this, arguments);
-    };
-}
-
-function showFallbackPlayer() {
-    log('🔄 Using fallback player display...', 'info');
-    
-    const playerArea = document.getElementById('playerArea');
-    if (!playerArea) return;
-    
-    playerArea.innerHTML = `
-        <div style="text-align: center; padding: 50px; background: #1a1a1a; color: white; border-radius: 10px;">
-            <h3 style="color: #3498db;">🎬 VERIFIED RESULTS GALLERY</h3>
-            <p>Personal Injury Lawyer 312% Boost</p>
-            <video controls style="width: 100%; max-width: 600px; margin: 20px auto; display: block;">
-                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <p><em>Testimonial triggered successfully!</em></p>
-        </div>
-    `;
-    
-    log('✅ Fallback player displayed!', 'success');
-}
-
+        // ========== COMPATIBILITY FUNCTIONS ==========
         function loadAndShowPlayer() {
-            // ... your existing loadAndShowPlayer code ...
+            showTestimonialPlayerNow();
         }
 
         function createTestimonialData() {
-            // ... your existing createTestimonialData code ...
+            window.testimonialData = {
+                testimonialGroups: {
+                    group_1769476426538: {
+                        title: "Verified Results Gallery",
+                        testimonials: [
+                            {
+                                title: "Personal Injury Lawyer 312% Boost",
+                                author: "Law Firm Client",
+                                concernType: "results",
+                                hasVideoUrl: true,
+                                videoUrl: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4"
+                            }
+                        ]
+                    }
+                },
+                currentGroup: 'group_1769476426538'
+            };
         }
 
         function showPlayer() {
-            // ... your existing showPlayer code ...
+            showTestimonialPlayerNow();
         }
 
         function showError() {
-            // ... your existing showError code ...
+            const playerArea = document.getElementById('playerArea') || document.body;
+            playerArea.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: #FF9800;">
+                    <h3>⚠️ Player Load Issue</h3>
+                    <p>Check console for errors.</p>
+                    <button onclick="showTestimonialPlayerNow()" style="
+                        background: #2196F3;
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        margin-top: 20px;
+                    ">Show Player</button>
+                </div>
+            `;
         }
 
+        // ========== TEST FUNCTIONS ==========
         function triggerTest() {
             log('Simulating trigger...', 'info');
-            launchTestimonialPlayer();
+            showTestimonialPlayerNow();
         }
 
         function manualMicSearch() {
-            // ... your existing manualMicSearch code ...
+            log('=== MANUAL MIC SEARCH ===', 'info');
+            
+            const widget = document.querySelector('lemon-slice-widget');
+            if (!widget?.shadowRoot) return;
+            
+            const interactive = widget.shadowRoot.querySelectorAll('button, [role="button"]');
+            log(`Found ${interactive.length} interactive elements`, 'info');
+            
+            interactive.forEach((el, i) => {
+                const tag = el.tagName;
+                const aria = el.getAttribute('aria-label') || '';
+                log(`Element ${i}: ${tag} "${aria}"`, 'info');
+            });
+        }
+
+        // ========== ADD DEBUG BUTTON ==========
+        function addDebugButton() {
+            const button = document.createElement('button');
+            button.textContent = '🔍 Debug Player';
+            button.style.cssText = 'background: #9b59b6; color: white; padding: 10px 15px; margin: 5px;';
+            button.onclick = function() {
+                log('🔍 Checking player area...', 'info');
+                const playerArea = document.getElementById('playerArea');
+                if (playerArea) {
+                    log(`✅ Player area found. InnerHTML length: ${playerArea.innerHTML.length}`, 'success');
+                    if (playerArea.innerHTML.length < 100) {
+                        log('⚠️ Player area is empty or minimal', 'warning');
+                        showTestimonialPlayerNow();
+                    }
+                } else {
+                    log('❌ Player area not found', 'error');
+                }
+            };
+            
+            const existingButtons = document.querySelector('button[onclick="initializeSystemForIntro()"]');
+            if (existingButtons) {
+                existingButtons.parentNode.insertBefore(button, existingButtons.nextSibling);
+            }
         }
 
         // ========== INITIALIZE ==========
         document.addEventListener('DOMContentLoaded', function() {
-            log('Ready! Click "Auto-Activate Botinia" then click video chat button.', 'info');
-            addTestButtons();
+            log('Ready! Click "Auto-Activate Botinia" then click Botinia\'s video chat button.', 'info');
+            addDebugButton();
         });
     </script>
 </body>
