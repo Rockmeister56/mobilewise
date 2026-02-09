@@ -63,41 +63,11 @@
     
         // ========== UPDATED: WAIT FOR MIC CLICK ==========
 function initializeSystemForIntro() {
-    log('🎤 WAITING for user to click mic button in widget...', 'info');
-    document.getElementById('status').textContent = 'Click the MIC button in the widget first!';
+    log('🎧 Capturing Botinia\'s FREE INTRO only (no credits)...', 'info');
+    document.getElementById('status').textContent = 'Listening for free intro...';
     
-    // Get widget
-    const widget = document.querySelector('lemon-slice-widget');
-    if (!widget?.shadowRoot) {
-        log('Widget not ready. Retrying...', 'warning');
-        setTimeout(initializeSystemForIntro, 1000);
-        return;
-    }
-    
-    const audioElements = widget.shadowRoot.querySelectorAll('audio');
-    log(`Found ${audioElements.length} audio elements. Waiting for mic activation...`, 'info');
-    
-    // STRATEGY: Watch for WHEN audio elements get their stream (after mic click)
-    audioElements.forEach((audio, index) => {
-        // 1. Listen for src changes (stream assignment happens AFTER mic click)
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === 'src' && audio.src) {
-                    log(`🎯 Audio element #${index} got stream AFTER mic click!`, 'success');
-                    captureAudioAndStartRecognition(audio, index);
-                }
-            });
-        });
-        observer.observe(audio, { attributes: true, attributeFilter: ['src', 'currentSrc'] });
-        
-        // 2. Also listen for playback
-        audio.addEventListener('play', () => {
-            log(`▶️ Audio #${index} playing (after mic click)`, 'success');
-            captureAudioAndStartRecognition(audio, index);
-        });
-    });
-    
-    log('System READY. Now: 1) Click MIC in widget, 2) Speak to Botinia', 'success');
+    // DO NOT click any buttons - just listen for intro
+    captureIntroAudioOnly();
 }
 
 // NEW HELPER FUNCTION
@@ -134,73 +104,83 @@ function captureAudioAndStartRecognition(audioElement, index) {
         });
 }
 
-// ========== AUTO-ACTIVATE MIC BUTTON ==========
-// ========== TWO-STEP WIDGET ACTIVATION ==========
 function activateWidgetMicButton() {
-    log('🔍 Starting two-step widget activation...', 'info');
+    // EMPTY FUNCTION - we're NOT activating anything
+    log('⚠️ Skipping button activation (using free intro only)', 'info');
+    document.getElementById('status').textContent = 'Using free intro, no activation needed';
+    
+    // Just start listening for intro audio
+    captureIntroAudioOnly();
+}
+
+// ========== NEW: CAPTURE INTRO AUDIO ONLY ==========
+function captureIntroAudioOnly() {
+    log('🎧 Trying to capture Botinia\'s INTRO audio (no activation needed)...', 'info');
+    document.getElementById('status').textContent = 'Listening for intro...';
     
     const widget = document.querySelector('lemon-slice-widget');
     if (!widget?.shadowRoot) {
         log('Widget not ready. Retrying...', 'warning');
-        setTimeout(activateWidgetMicButton, 1000);
+        setTimeout(captureIntroAudioOnly, 1000);
         return;
     }
     
-    const allButtons = widget.shadowRoot.querySelectorAll('button');
-    log(`Found ${allButtons.length} buttons in widget`, 'info');
+    const audioElements = widget.shadowRoot.querySelectorAll('audio');
+    log(`Found ${audioElements.length} audio elements`, 'info');
     
-    // STEP 1: Look for "Open widget" button first
-    let openButton = null;
-    let micButton = null;
+    // Listen for ANY audio playback (including intro)
+    let hasStartedListening = false;
     
-    for (const button of allButtons) {
-        const ariaLabel = button.getAttribute('aria-label')?.toLowerCase() || '';
-        const className = button.className.toLowerCase();
+    audioElements.forEach((audio, i) => {
+        // Listen for playback start
+        audio.addEventListener('play', () => {
+            if (hasStartedListening) return;
+            hasStartedListening = true;
+            
+            log(`🎬 Audio element #${i} STARTED playing (INTRO!)`, 'success');
+            startSpeechRecognitionWithPermission();
+        });
         
-        // Button that opens/expands the widget
-        if (ariaLabel.includes('open widget') || ariaLabel.includes('expand') || 
-            ariaLabel.includes('start') || className.includes('open')) {
-            openButton = button;
-            log('Found "Open widget" button', 'success');
+        // Check if already playing
+        if (!audio.paused && audio.currentTime > 0) {
+            if (!hasStartedListening) {
+                hasStartedListening = true;
+                log(`✅ Intro already playing in audio #${i}`, 'success');
+                startSpeechRecognitionWithPermission();
+            }
         }
-        
-        // Actual mic button (might not exist yet if widget is closed)
-        if (ariaLabel.includes('mic') || ariaLabel.includes('microphone') || 
-            ariaLabel.includes('speak') || ariaLabel.includes('talk') ||
-            className.includes('mic') || className.includes('speak')) {
-            micButton = button;
-            log('Found potential mic button', 'success');
+    });
+    
+    // If nothing detected after 3 seconds, check manually
+    setTimeout(() => {
+        if (!hasStartedListening) {
+            log('Still waiting for intro... Checking audio state:', 'info');
+            audioElements.forEach((audio, i) => {
+                console.log(`Audio ${i}: paused=${audio.paused}, currentTime=${audio.currentTime}, src="${audio.src}"`);
+            });
         }
-    }
+    }, 3000);
+}
+
+// ========== NEW: SPEECH RECOGNITION FOR INTRO ==========
+function startSpeechRecognitionWithPermission() {
+    if (window.recognitionActive) return;
+    window.recognitionActive = true;
     
-    // STEP 2: If widget is closed, open it first
-    if (openButton && !micButton) {
-        log('📱 Widget appears closed. Clicking "Open widget" first...', 'success');
-        openButton.click();
-        
-        // Wait for widget to expand, THEN look for mic button
-        setTimeout(() => {
-            log('Widget should be open now. Looking for mic button...', 'info');
-            findAndClickMicButton();
-        }, 1500); // Wait 1.5 seconds for animation
-        
-        return;
-    }
+    log('Requesting microphone permission...', 'info');
     
-    // STEP 3: If mic button is already visible, click it
-    if (micButton) {
-        log('🎤 Mic button found! Clicking it...', 'success');
-        micButton.click();
-        
-        setTimeout(() => {
-            initializeAudioCapture();
-        }, 1000);
-        return;
-    }
-    
-    // STEP 4: Last resort - try to interact with widget directly
-    log('Could not find standard buttons. Trying direct interaction...', 'warning');
-    tryDirectWidgetInteraction();
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            stream.getTracks().forEach(track => track.stop());
+            log('✅ Permission granted. Listening to Botinia...', 'success');
+            
+            // Use your EXISTING startSpeechRecognition() function
+            startSpeechRecognition();
+            
+        })
+        .catch(error => {
+            log(`❌ Microphone permission denied: ${error.message}`, 'error');
+        });
 }
 
 // ========== FIND MIC BUTTON AFTER WIDGET OPENS ==========
