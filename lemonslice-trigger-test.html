@@ -328,14 +328,114 @@
             container.insertBefore(testDiv, document.getElementById('log'));
         }
 
-        // ========== KEEP YOUR EXISTING FUNCTIONS ==========
-        // (Add all your existing testimonial player functions here)
+        // Add this function to your existing code:
+function debugTestimonialPlayer() {
+    log('🔍 DEBUG: Checking testimonial player...', 'info');
+    
+    // Check if player area exists
+    const playerArea = document.getElementById('playerArea');
+    if (!playerArea) {
+        log('❌ ERROR: playerArea element not found in HTML!', 'error');
+        log('Add this to your HTML: <div id="playerArea"></div>', 'error');
+        return;
+    }
+    
+    log(`✅ playerArea found: ${playerArea.outerHTML.substring(0, 100)}...`, 'success');
+    
+    // Check if testimonial-player.js is loaded
+    if (typeof window.showTestimonialSplashScreen !== 'function') {
+        log('❌ showTestimonialSplashScreen function not found!', 'error');
+        log('Make sure testimonial-player.js is in the same folder', 'error');
+        return;
+    }
+    
+    log('✅ testimonial-player.js is loaded!', 'success');
+    
+    // Try to show the player manually
+    log('🔄 Manually showing player...', 'info');
+    try {
+        window.showTestimonialSplashScreen();
+        log('✅ Player shown successfully!', 'success');
+    } catch (error) {
+        log(`❌ Error showing player: ${error.message}`, 'error');
+    }
+}
+
+// Also add a button to test it:
+function addDebugButton() {
+    const button = document.createElement('button');
+    button.textContent = '🔍 Debug Player';
+    button.style.cssText = 'background: #9b59b6; color: white; padding: 10px 15px; margin: 5px;';
+    button.onclick = debugTestimonialPlayer;
+    
+    // Add after existing buttons
+    const existingButtons = document.querySelector('button[onclick="initializeSystemForIntro()"]');
+    existingButtons.parentNode.insertBefore(button, existingButtons.nextSibling);
+}
+
+// Call this in your DOMContentLoaded:
+document.addEventListener('DOMContentLoaded', function() {
+    log('Ready! Click "Auto-Activate Botinia" then click video chat button.', 'info');
+    addDebugButton(); // Add this line
+});
+
         function launchTestimonialPlayer() {
-            log('🚀 Launching testimonial player...', 'trigger');
-            document.getElementById('status').textContent = 'Loading testimonials...';
-            // ... your existing launchTestimonialPlayer code ...
-            loadAndShowPlayer();
-        }
+    log('🎯 TRIGGER DETECTED! Attempting to launch player...', 'trigger');
+    document.getElementById('status').textContent = 'LAUNCHING testimonial player...';
+    
+    // Make sure recognition is stopped
+    if (recognition && recognition.stop) {
+        recognition.stop();
+    }
+    
+    // Clear any existing player content
+    const playerArea = document.getElementById('playerArea');
+    if (playerArea) {
+        playerArea.innerHTML = '<div style="padding: 50px; text-align: center; color: white;">Loading testimonials...</div>';
+    }
+    
+    // Try to load the player with a timeout
+    const loadTimeout = setTimeout(() => {
+        log('⚠️ Player loading timeout - trying fallback...', 'warning');
+        showFallbackPlayer();
+    }, 5000);
+    
+    // Load the player
+    loadAndShowPlayer();
+    
+    // Clear timeout if successful
+    function clearLoadTimeout() {
+        clearTimeout(loadTimeout);
+    }
+    
+    // Override the onload to clear timeout
+    const originalLoad = loadAndShowPlayer;
+    loadAndShowPlayer = function() {
+        clearLoadTimeout();
+        return originalLoad.apply(this, arguments);
+    };
+}
+
+function showFallbackPlayer() {
+    log('🔄 Using fallback player display...', 'info');
+    
+    const playerArea = document.getElementById('playerArea');
+    if (!playerArea) return;
+    
+    playerArea.innerHTML = `
+        <div style="text-align: center; padding: 50px; background: #1a1a1a; color: white; border-radius: 10px;">
+            <h3 style="color: #3498db;">🎬 VERIFIED RESULTS GALLERY</h3>
+            <p>Personal Injury Lawyer 312% Boost</p>
+            <video controls style="width: 100%; max-width: 600px; margin: 20px auto; display: block;">
+                <source src="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <p><em>Testimonial triggered successfully!</em></p>
+        </div>
+    `;
+    
+    log('✅ Fallback player displayed!', 'success');
+}
 
         function loadAndShowPlayer() {
             // ... your existing loadAndShowPlayer code ...
