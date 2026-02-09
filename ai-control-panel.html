@@ -12,6 +12,10 @@
     <!-- LemonSlice Widget -->
     <script type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"></script>
     
+    <!-- YOUR EXISTING TESTIMONIAL SYSTEM -->
+    <script src="/js/testimonials-data.js"></script>
+    <script src="/js/testimonial-player.js"></script> <!-- YOUR PLAYER -->
+    
     <style>
         /* ===== RESET & BASE ===== */
         * {
@@ -138,8 +142,8 @@
             position: relative;
         }
         
-        /* ===== MODULES SECTION ===== */
-        .modules-section {
+        /* ===== CONTROL PANEL SECTION ===== */
+        .control-section {
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -147,7 +151,7 @@
             min-width: 350px;
         }
         
-        .modules-section h2 {
+        .control-section h2 {
             font-size: 1.5rem;
             display: flex;
             align-items: center;
@@ -155,159 +159,92 @@
             color: var(--success);
         }
         
-        .modules-section h2 i {
+        .control-section h2 i {
             font-size: 1.3rem;
         }
         
-        /* ===== MODULE GRID ===== */
-        .module-grid {
+        /* ===== CONTROL BUTTONS ===== */
+        .control-buttons {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 12px;
         }
         
-        .module-card {
+        .control-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        
+        .control-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(67, 97, 238, 0.3);
+        }
+        
+        .control-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+        }
+        
+        .control-btn.secondary:hover {
+            background: rgba(67, 97, 238, 0.2);
+            border-color: var(--primary);
+        }
+        
+        /* ===== TESTIMONIAL PREVIEW ===== */
+        .testimonial-preview {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .module-card:hover {
-            background: rgba(67, 97, 238, 0.15);
-            border-color: var(--primary);
-            transform: translateX(5px);
-        }
-        
-        .module-card.active {
-            background: rgba(67, 97, 238, 0.2);
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(67, 97, 238, 0.2);
-        }
-        
-        .module-icon {
-            width: 50px;
-            height: 50px;
-            background: rgba(67, 97, 238, 0.2);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            color: var(--success);
-            flex-shrink: 0;
-        }
-        
-        .module-info {
-            flex: 1;
-        }
-        
-        .module-info h3 {
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-            color: white;
-        }
-        
-        .module-info p {
-            font-size: 0.85rem;
-            color: var(--gray);
-            margin-bottom: 5px;
-        }
-        
-        .module-info small {
-            font-size: 0.75rem;
-            color: var(--success);
-            display: block;
-        }
-        
-        .play-btn {
-            width: 40px;
-            height: 40px;
-            background: var(--primary);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            transition: all 0.3s;
-            flex-shrink: 0;
-        }
-        
-        .play-btn:hover {
-            background: var(--primary-dark);
-            transform: scale(1.1);
-        }
-        
-        /* ===== VIDEO PLAYER ===== */
-        .video-player-container {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: var(--radius);
             padding: 1.5rem;
             margin-top: 1rem;
-            display: none;
         }
         
-        .video-player-container.active {
-            display: block;
-            animation: slideUp 0.4s ease;
-        }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .video-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .video-header h3 {
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .testimonial-preview h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
             color: var(--success);
-        }
-        
-        .close-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--border);
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 8px;
+        }
+        
+        .preview-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
             cursor: pointer;
             transition: all 0.3s;
         }
         
-        .close-btn:hover {
-            background: var(--primary);
+        .preview-item:hover {
+            background: rgba(67, 97, 238, 0.15);
             border-color: var(--primary);
         }
         
-        .video-wrapper {
-            background: black;
-            border-radius: 8px;
-            overflow: hidden;
+        .preview-item h4 {
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+            color: white;
         }
         
-        #testimonialVideo {
-            width: 100%;
-            display: block;
+        .preview-item p {
+            font-size: 0.8rem;
+            color: var(--gray);
         }
         
         /* ===== FOOTER ===== */
@@ -349,34 +286,6 @@
             100% { opacity: 1; }
         }
         
-        .controls {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.7rem 1.2rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-        }
-        
-        .btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-        
-        .btn i {
-            font-size: 0.9rem;
-        }
-        
         /* ===== STATUS MESSAGES ===== */
         .status-message {
             position: fixed;
@@ -414,7 +323,7 @@
                 flex-direction: column;
             }
             
-            .modules-section {
+            .control-section {
                 min-width: 100%;
             }
             
@@ -463,79 +372,51 @@
             <section class="chat-section">
                 <h2><i class="fas fa-comments"></i> AI Conversation</h2>
                 <div class="widget-container">
+                    <!-- REPLACE THIS AGENT ID WITH YOUR ACTUAL LEMONSLICE AGENT ID -->
                     <lemon-slice-widget 
-                        agent-id="agent_1db77d60ec132469"
+                        agent-id="YOUR_ACTUAL_LEMONSLICE_AGENT_ID_HERE"
                         controlled-widget-state="active"
                         style="width: 100%; height: 100%;"
                     ></lemon-slice-widget>
                 </div>
+                
+                <!-- YOUR TESTIMONIAL SYSTEM WILL APPEAR HERE -->
+                <div id="testimonialContainer"></div>
             </section>
             
-            <!-- RIGHT: YOUR MODULES -->
-            <section class="modules-section">
-                <h2><i class="fas fa-film"></i> Available Modules</h2>
+            <!-- RIGHT: CONTROL PANEL -->
+            <section class="control-section">
+                <h2><i class="fas fa-sliders-h"></i> Control Panel</h2>
                 
-                <!-- MODULE GRID -->
-                <div class="module-grid">
-                    <!-- Results Gallery Module -->
-                    <div class="module-card" data-module="results" data-video="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4">
-                        <div class="module-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="module-info">
-                            <h3>Results Gallery</h3>
-                            <p>Show verified mortgage results & case studies</p>
-                            <small>Trigger phrases: "show me results", "verified results", "case studies"</small>
-                        </div>
-                        <button class="play-btn" data-module="results">
-                            <i class="fas fa-play"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- Success Stories Module -->
-                    <div class="module-card" data-module="success" data-video="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4">
-                        <div class="module-icon">
-                            <i class="fas fa-trophy"></i>
-                        </div>
-                        <div class="module-info">
-                            <h3>Success Stories</h3>
-                            <p>Client testimonials & success stories</p>
-                            <small>Trigger phrases: "success stories", "testimonials", "client stories"</small>
-                        </div>
-                        <button class="play-btn" data-module="success">
-                            <i class="fas fa-play"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- ROI Calculator Module -->
-                    <div class="module-card" data-module="calculator" data-video="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4">
-                        <div class="module-icon">
-                            <i class="fas fa-calculator"></i>
-                        </div>
-                        <div class="module-info">
-                            <h3>ROI Calculator</h3>
-                            <p>Interactive mortgage calculator demo</p>
-                            <small>Trigger phrases: "calculator", "ROI calculator", "show calculator"</small>
-                        </div>
-                        <button class="play-btn" data-module="calculator">
-                            <i class="fas fa-play"></i>
-                        </button>
+                <div class="control-buttons">
+                    <button id="testimonialTrigger" class="control-btn">
+                        <i class="fas fa-play-circle"></i> Trigger Testimonial System
+                    </button>
+                    <button id="toggleSpeech" class="control-btn secondary">
+                        <i class="fas fa-microphone"></i> Toggle Speech Detection
+                    </button>
+                    <button id="sendWelcome" class="control-btn secondary">
+                        <i class="fas fa-paper-plane"></i> Send Welcome Message
+                    </button>
+                    <button id="showTestimonialList" class="control-btn secondary">
+                        <i class="fas fa-list"></i> Show Available Testimonials
+                    </button>
+                </div>
+                
+                <!-- Testimonial Preview -->
+                <div class="testimonial-preview">
+                    <h3><i class="fas fa-video"></i> Testimonial System Status</h3>
+                    <div id="testimonialStatus">
+                        <p>Your testimonial player system is ready.</p>
+                        <p id="testimonialCount">Loading testimonial count...</p>
                     </div>
                 </div>
                 
-                <!-- VIDEO PLAYER -->
-                <div id="videoPlayer" class="video-player-container">
-                    <div class="video-header">
-                        <h3><i class="fas fa-video"></i> Testimonial Video</h3>
-                        <button id="closeVideo" class="close-btn">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="video-wrapper">
-                        <video id="testimonialVideo" controls>
-                            <source src="" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
+                <!-- Available Testimonials List -->
+                <div class="testimonial-preview" id="testimonialList" style="display: none;">
+                    <h3><i class="fas fa-film"></i> Available Testimonials</h3>
+                    <div id="testimonialItems">
+                        <!-- Filled by JavaScript -->
                     </div>
                 </div>
             </section>
@@ -547,12 +428,9 @@
                 <span class="status-indicator active" id="systemStatus"></span>
                 <span id="statusText">AI System Initializing...</span>
             </div>
-            <div class="controls">
-                <button id="toggleSpeech" class="btn">
-                    <i class="fas fa-microphone"></i> Toggle Speech
-                </button>
-                <button id="sendWelcome" class="btn">
-                    <i class="fas fa-paper-plane"></i> Send Welcome
+            <div class="control-buttons" style="flex-direction: row; gap: 8px;">
+                <button id="closeControlPanel" class="control-btn secondary" style="padding: 0.7rem 1rem;">
+                    <i class="fas fa-times"></i> Close
                 </button>
             </div>
         </footer>
@@ -564,7 +442,7 @@
         <span id="messageText">System ready</span>
     </div>
 
-    <!-- ===== COMPLETE JAVASCRIPT ===== -->
+    <!-- ===== CORRECT INTEGRATION WITH YOUR SYSTEM ===== -->
     <script>
         // ==================== MAIN CONTROLLER ====================
         class AIControlPanel {
@@ -572,7 +450,7 @@
                 this.clientId = this.getClientId();
                 this.widget = null;
                 this.speechActive = true;
-                this.currentVideo = null;
+                this.testimonialSystemReady = false;
                 this.init();
             }
             
@@ -587,7 +465,10 @@
                 
                 // Update UI
                 document.getElementById('clientDisplay').textContent = 
-                    `Client: ${this.clientId.replace('-', ' ').toUpperCase()}`;
+                    `Client: ${this.clientId.replace(/-/g, ' ').toUpperCase()}`;
+                
+                // Check if your testimonial system is loaded
+                this.checkTestimonialSystem();
                 
                 // Initialize subsystems
                 await this.initLemonSlice();
@@ -597,9 +478,146 @@
                 
                 // Update status
                 this.updateStatus('AI Control Panel Ready', 'success');
-                document.getElementById('statusText').textContent = 'AI System Active | Speech Detection: ON';
+                document.getElementById('statusText').textContent = 
+                    'AI System Active | Speech Detection: ON';
                 
                 console.log('✅ MobileWise AI Control Panel Ready!');
+            }
+            
+            // ==================== CHECK YOUR TESTIMONIAL SYSTEM ====================
+            checkTestimonialSystem() {
+                console.log('🔍 Checking for testimonial system...');
+                
+                if (window.testimonialData && window.showTestimonialSplashScreen) {
+                    console.log('✅ Found YOUR testimonial system!');
+                    this.testimonialSystemReady = true;
+                    
+                    // Update UI
+                    const testimonialCount = this.getTestimonialCount();
+                    document.getElementById('testimonialCount').textContent = 
+                        `${testimonialCount} testimonials available`;
+                    
+                    this.updateStatus('Testimonial system loaded', 'success');
+                } else {
+                    console.warn('⚠️ Your testimonial system not found');
+                    document.getElementById('testimonialCount').textContent = 
+                        'Testimonial system not loaded';
+                    this.updateStatus('Testimonial system missing', 'warning');
+                }
+            }
+            
+            getTestimonialCount() {
+                if (!window.testimonialData) return 0;
+                
+                let count = 0;
+                
+                // Count from testimonial groups
+                if (window.testimonialData.testimonialGroups) {
+                    Object.values(window.testimonialData.testimonialGroups).forEach(group => {
+                        if (group.testimonials) {
+                            count += group.testimonials.length;
+                        }
+                    });
+                }
+                
+                // Count from informational groups
+                if (window.testimonialData.informationalGroups) {
+                    Object.values(window.testimonialData.informationalGroups).forEach(group => {
+                        if (group.videos) {
+                            count += group.videos.length;
+                        }
+                    });
+                }
+                
+                return count;
+            }
+            
+            // ==================== TRIGGER YOUR TESTIMONIAL SYSTEM ====================
+            triggerTestimonialSystem() {
+                if (!this.testimonialSystemReady) {
+                    this.updateStatus('Testimonial system not loaded', 'error');
+                    return;
+                }
+                
+                console.log('🎬 Triggering YOUR testimonial system...');
+                
+                // Clear any existing testimonials
+                const container = document.getElementById('testimonialContainer');
+                if (container) {
+                    container.innerHTML = '';
+                }
+                
+                // Call YOUR function from testimonial-player.js
+                try {
+                    window.showTestimonialSplashScreen();
+                    this.updateStatus('Testimonial system activated', 'success');
+                    
+                    // Tell LemonSlice we're showing testimonials
+                    this.sendToBot("I'm now showing you client testimonials. Click any button to watch!");
+                    
+                } catch (error) {
+                    console.error('Failed to trigger testimonial system:', error);
+                    this.updateStatus('Failed to trigger testimonials', 'error');
+                }
+            }
+            
+            showTestimonialList() {
+                const listContainer = document.getElementById('testimonialList');
+                const itemsContainer = document.getElementById('testimonialItems');
+                
+                if (listContainer.style.display === 'none') {
+                    // Show list
+                    listContainer.style.display = 'block';
+                    
+                    // Load testimonials
+                    this.loadTestimonialList(itemsContainer);
+                } else {
+                    // Hide list
+                    listContainer.style.display = 'none';
+                }
+            }
+            
+            loadTestimonialList(container) {
+                if (!window.testimonialData) {
+                    container.innerHTML = '<p>No testimonial data available</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                let hasItems = false;
+                
+                // Add from testimonial groups
+                if (window.testimonialData.testimonialGroups) {
+                    Object.values(window.testimonialData.testimonialGroups).forEach(group => {
+                        if (group.testimonials) {
+                            group.testimonials.forEach(testimonial => {
+                                this.addTestimonialItem(container, testimonial, group);
+                                hasItems = true;
+                            });
+                        }
+                    });
+                }
+                
+                if (!hasItems) {
+                    container.innerHTML = '<p>No testimonials found</p>';
+                }
+            }
+            
+            addTestimonialItem(container, testimonial, group) {
+                const item = document.createElement('div');
+                item.className = 'preview-item';
+                item.innerHTML = `
+                    <h4>${testimonial.title || 'Untitled'}</h4>
+                    <p>${group.name || 'Testimonial'} • ${testimonial.author || 'Anonymous'}</p>
+                `;
+                
+                item.addEventListener('click', () => {
+                    // This would need to be connected to your player system
+                    // For now, just show a message
+                    this.updateStatus(`Selected: ${testimonial.title}`, 'info');
+                });
+                
+                container.appendChild(item);
             }
             
             // ==================== LEMONSLICE INTEGRATION ====================
@@ -644,29 +662,17 @@
             initSpeechDetection() {
                 console.log('🎤 Initializing Speech Detection...');
                 
-                this.triggers = {
-                    'results': [
-                        'show me results',
-                        'verified results', 
-                        'results gallery',
-                        'case studies',
-                        'show me the results'
-                    ],
-                    'success': [
-                        'success stories',
-                        'testimonials',
-                        'client stories',
-                        'happy clients',
-                        'client testimonials'
-                    ],
-                    'calculator': [
-                        'calculator',
-                        'roi calculator',
-                        'show calculator',
-                        'calculate',
-                        'mortgage calculator'
-                    ]
-                };
+                // Trigger phrases for YOUR testimonial system
+                this.triggerPhrases = [
+                    'show me testimonials',
+                    'client testimonials',
+                    'success stories',
+                    'show me results',
+                    'case studies',
+                    'show me videos',
+                    'client stories',
+                    'show testimonials'
+                ];
                 
                 // Start speech recognition if supported
                 if ('webkitSpeechRecognition' in window) {
@@ -718,11 +724,13 @@
                 
                 if (this.speechActive && this.recognition) {
                     this.recognition.start();
-                    document.getElementById('statusText').textContent = 'AI System Active | Speech Detection: ON';
+                    document.getElementById('statusText').textContent = 
+                        'AI System Active | Speech Detection: ON';
                     this.updateStatus('Speech detection ON', 'success');
                 } else if (this.recognition) {
                     this.recognition.stop();
-                    document.getElementById('statusText').textContent = 'AI System Active | Speech Detection: OFF';
+                    document.getElementById('statusText').textContent = 
+                        'AI System Active | Speech Detection: OFF';
                     this.updateStatus('Speech detection OFF', 'warning');
                 }
             }
@@ -733,99 +741,14 @@
             }
             
             checkForTriggers(text) {
-                for (const [module, phrases] of Object.entries(this.triggers)) {
-                    for (const phrase of phrases) {
-                        if (text.includes(phrase)) {
-                            console.log(`🎯 TRIGGER DETECTED: "${phrase}" -> Module: ${module}`);
-                            this.triggerModule(module, phrase);
-                            return true;
-                        }
+                for (const phrase of this.triggerPhrases) {
+                    if (text.includes(phrase)) {
+                        console.log(`🎯 TRIGGER DETECTED: "${phrase}"`);
+                        this.triggerTestimonialSystem();
+                        return true;
                     }
                 }
                 return false;
-            }
-            
-            triggerModule(module, phrase) {
-                // Find module card
-                const moduleCard = document.querySelector(`[data-module="${module}"]`);
-                if (!moduleCard) {
-                    console.error(`Module ${module} not found`);
-                    return;
-                }
-                
-                // Get video URL
-                const videoUrl = moduleCard.getAttribute('data-video');
-                
-                // Highlight module card
-                this.highlightModule(module);
-                
-                // Play video
-                this.playVideo(videoUrl, module);
-                
-                // Send message to LemonSlice
-                this.sendToBot(`Showing ${module} testimonial...`);
-                
-                // Notify client website
-                this.notifyClient(module, videoUrl);
-                
-                // Show status
-                this.updateStatus(`Playing ${module} video (triggered by: "${phrase}")`, 'success');
-            }
-            
-            highlightModule(module) {
-                // Remove active class from all
-                document.querySelectorAll('.module-card').forEach(card => {
-                    card.classList.remove('active');
-                });
-                
-                // Add active to current
-                const activeCard = document.querySelector(`[data-module="${module}"]`);
-                if (activeCard) {
-                    activeCard.classList.add('active');
-                    
-                    // Auto-remove after 5 seconds
-                    setTimeout(() => {
-                        activeCard.classList.remove('active');
-                    }, 5000);
-                }
-            }
-            
-            // ==================== VIDEO PLAYER ====================
-            playVideo(videoUrl, moduleName) {
-                const videoPlayer = document.getElementById('videoPlayer');
-                const videoElement = document.getElementById('testimonialVideo');
-                
-                // Update source
-                videoElement.src = videoUrl;
-                videoElement.load();
-                
-                // Show player
-                videoPlayer.classList.add('active');
-                
-                // Play
-                videoElement.play().catch(e => {
-                    console.log('Autoplay prevented:', e);
-                });
-                
-                // Update status
-                document.getElementById('statusText').textContent = 
-                    `Playing ${moduleName} testimonial`;
-                
-                this.currentVideo = videoUrl;
-            }
-            
-            closeVideo() {
-                const videoPlayer = document.getElementById('videoPlayer');
-                const videoElement = document.getElementById('testimonialVideo');
-                
-                videoElement.pause();
-                videoPlayer.classList.remove('active');
-                videoElement.src = '';
-                
-                document.getElementById('statusText').textContent = 
-                    'AI System Active | Speech Detection: ' + (this.speechActive ? 'ON' : 'OFF');
-                
-                this.currentVideo = null;
             }
             
             // ==================== CLIENT COMMUNICATION ====================
@@ -837,31 +760,10 @@
                     window.parent.postMessage({
                         type: 'CONTROL_PANEL_READY',
                         clientId: this.clientId,
+                        testimonialSystemReady: this.testimonialSystemReady,
                         timestamp: Date.now()
                     }, '*');
                     console.log('📨 Sent READY signal to client');
-                }
-            }
-            
-            notifyClient(module, videoUrl) {
-                const message = {
-                    type: 'MODULE_TRIGGERED',
-                    module: module,
-                    videoUrl: videoUrl,
-                    clientId: this.clientId,
-                    timestamp: Date.now()
-                };
-                
-                // Send to parent (client website)
-                if (window.parent !== window) {
-                    window.parent.postMessage(message, '*');
-                    console.log('📨 Sent module trigger to client:', module);
-                }
-                
-                // Send to opener (if opened in new window)
-                if (window.opener) {
-                    window.opener.postMessage(message, '*');
-                    console.log('📨 Sent module trigger to opener:', module);
                 }
             }
             
@@ -878,7 +780,7 @@
             }
             
             async sendWelcome() {
-                const welcomeMessage = "Hi! I'm your AI mortgage assistant. I can show you verified results, success stories, or help with calculations. Just ask!";
+                const welcomeMessage = "Hi! I'm your AI assistant. You can ask me about testimonials, success stories, or how our system works. Just say 'show me testimonials' to see real client stories!";
                 await this.sendToBot(welcomeMessage);
                 this.updateStatus('Welcome message sent', 'success');
             }
@@ -905,29 +807,11 @@
             
             // ==================== EVENT LISTENERS ====================
             initEventListeners() {
-                // Module card clicks
-                document.querySelectorAll('.module-card').forEach(card => {
-                    card.addEventListener('click', (e) => {
-                        if (!e.target.classList.contains('play-btn')) {
-                            const module = card.getAttribute('data-module');
-                            const videoUrl = card.getAttribute('data-video');
-                            this.triggerModule(module, 'manual click');
-                        }
-                    });
-                });
-                
-                // Play button clicks
-                document.querySelectorAll('.play-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const module = btn.getAttribute('data-module');
-                        const card = document.querySelector(`[data-module="${module}"]`);
-                        const videoUrl = card.getAttribute('data-video');
-                        this.triggerModule(module, 'manual play');
-                    });
-                });
-                
                 // Control buttons
+                document.getElementById('testimonialTrigger').addEventListener('click', () => {
+                    this.triggerTestimonialSystem();
+                });
+                
                 document.getElementById('toggleSpeech').addEventListener('click', () => {
                     this.toggleSpeech();
                 });
@@ -936,9 +820,12 @@
                     this.sendWelcome();
                 });
                 
-                // Close video button
-                document.getElementById('closeVideo').addEventListener('click', () => {
-                    this.closeVideo();
+                document.getElementById('showTestimonialList').addEventListener('click', () => {
+                    this.showTestimonialList();
+                });
+                
+                document.getElementById('closeControlPanel').addEventListener('click', () => {
+                    this.closeControlPanel();
                 });
                 
                 // Listen for messages from client
@@ -953,17 +840,27 @@
                 console.log('Received control command:', data);
                 
                 switch(data.command) {
-                    case 'open_chat':
-                        if (this.widget) {
-                            this.widget.setAttribute('controlled-widget-state', 'active');
-                        }
+                    case 'trigger_testimonials':
+                        this.triggerTestimonialSystem();
                         break;
                     case 'send_message':
                         this.sendToBot(data.message);
                         break;
-                    case 'trigger_module':
-                        this.triggerModule(data.module, 'remote command');
-                        break;
+                }
+            }
+            
+            closeControlPanel() {
+                // Notify parent to close this iframe
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'CLOSE_CONTROL_PANEL',
+                        clientId: this.clientId
+                    }, '*');
+                }
+                
+                // If opened in new window
+                if (window.opener) {
+                    window.close();
                 }
             }
         }
@@ -975,11 +872,11 @@
             controlPanel = new AIControlPanel();
         });
         
-        // Global functions for manual control
+        // Global functions for external access
         window.AIControlPanel = {
-            triggerModule: (module) => controlPanel.triggerModule(module, 'manual'),
-            playVideo: (url, name) => controlPanel.playVideo(url, name),
-            sendToBot: (message) => controlPanel.sendToBot(message)
+            triggerTestimonials: () => controlPanel.triggerTestimonialSystem(),
+            sendMessage: (message) => controlPanel.sendToBot(message),
+            updateStatus: (message, type) => controlPanel.updateStatus(message, type)
         };
     </script>
 </body>
