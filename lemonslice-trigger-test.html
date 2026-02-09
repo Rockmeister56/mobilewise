@@ -23,6 +23,16 @@
     
     <div id="log"></div>
 
+    <!-- AFTER the LemonSlice widget, add this: -->
+<div style="margin-top: 30px; border-top: 2px solid #444; padding-top: 20px;">
+    <h3>🎬 Testimonial Player Area</h3>
+    <div id="playerArea" style="min-height: 400px; background: #222; border-radius: 8px; padding: 20px;">
+        <p style="text-align: center; color: #888; padding: 100px 20px;">
+            Testimonial player will appear here when Botinia says "verified results gallery"
+        </p>
+    </div>
+</div>
+
     <script type="module">
         import 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
         log('Widget loaded. Click "Initialize System" then speak to Botinia.');
@@ -134,64 +144,7 @@
                     recognition.stop();
                     
                     // LAUNCH YOUR TESTIMONIAL PLAYER HERE
-                    // ========== LAUNCH TESTIMONIALS ==========
-function launchTestimonialPlayer() {
-    log('🚀 TRIGGER DETECTED! Launching testimonial player...', 'trigger');
-    document.getElementById('status').textContent = 'TRIGGERED! Loading testimonials...';
-    
-    // 1. Create the chat messages container (if needed)
-    if (!document.getElementById('chatMessages')) {
-        const chatDiv = document.createElement('div');
-        chatDiv.id = 'chatMessages';
-        chatDiv.style.cssText = 'position: relative; width: 100%; min-height: 400px;';
-        document.body.appendChild(chatDiv);
-        log('Created #chatMessages container', 'success');
-    }
-    
-    // 2. Load your testimonial player script (if not already loaded)
-    if (typeof window.showTestimonialSplashScreen === 'function') {
-        // Already loaded - call it directly
-        window.showTestimonialSplashScreen();
-        log('✅ Testimonial player launched!', 'success');
-    } else {
-        // Load the script first
-        log('Loading testimonial-player.js...', 'info');
-        const script = document.createElement('script');
-        script.src = 'testimonial-player.js'; // Your actual file
-        
-        script.onload = function() {
-            log('✅ testimonial-player.js loaded', 'success');
-            // Create testimonial data if needed
-            if (!window.testimonialData) {
-                window.testimonialData = {
-                    testimonialGroups: {
-                        group_1769476426538: {
-                            title: "Verified Results Gallery",
-                            testimonials: [
-                                {
-                                    title: "Personal Injury Lawyer 312% Boost",
-                                    author: "Law Firm Client",
-                                    concernType: "results",
-                                    hasVideoUrl: true,
-                                    videoUrl: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4"
-                                }
-                            ]
-                        }
-                    },
-                    currentGroup: 'group_1769476426538'
-                };
-            }
-            window.showTestimonialSplashScreen();
-            log('✅ Testimonial player launched!', 'success');
-        };
-        
-        script.onerror = function() {
-            log('❌ Failed to load testimonial player', 'error');
-        };
-        
-        document.head.appendChild(script);
-    }
-}
+                    launchTestimonialPlayer();
                 }
             };
             
@@ -211,19 +164,122 @@ function launchTestimonialPlayer() {
             }
         }
 
-        // ========== LAUNCH TESTIMONIALS ==========
-        function launchTestimonialPlayer() {
-            log('🚀 LAUNCHING TESTIMONIAL PLAYER...', 'trigger');
-            
-            // YOUR EXISTING FUNCTION TO LOAD TESTIMONIALS
-            if (typeof window.showTestimonialSplashScreen === 'function') {
-                window.showTestimonialSplashScreen();
-                log('✅ Testimonial player launched!', 'success');
-            } else {
-                log('Testimonial function not found. Loading player script...', 'info');
-                // loadAndShowPlayer(); // Your existing function
-            }
-        }
+        // ==================== UPDATE THESE FUNCTIONS IN YOUR CURRENT FILE ====================
+
+// 1. REPLACE the current launchTestimonialPlayer() function with this:
+function launchTestimonialPlayer() {
+    log('🚀 TRIGGER DETECTED! Launching testimonial player...', 'trigger');
+    document.getElementById('status').textContent = 'TRIGGERED! Loading testimonials...';
+    
+    // Call the PROVEN working function
+    loadAndShowPlayer();
+}
+
+// 2. ADD THESE FUNCTIONS (copy from your working version):
+function loadAndShowPlayer() {
+    log(`🚀 Loading testimonial player...`, "info");
+    
+    // Check if already loaded
+    if (typeof window.showTestimonialSplashScreen === 'function') {
+        createTestimonialData();
+        showPlayer();
+        return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = 'testimonial-player.js';
+    
+    script.onload = function() {
+        log(`✅ testimonial-player.js loaded`, "success");
+        createTestimonialData();
+        showPlayer();
+    };
+    
+    script.onerror = function() {
+        log(`❌ Failed to load testimonial-player.js`, "error");
+        showError();
+    };
+    
+    document.head.appendChild(script);
+}
+
+function createTestimonialData() {
+    if (!window.testimonialData) {
+        window.testimonialData = {
+            testimonialGroups: {
+                group_1769476426538: {
+                    title: "Verified Results Gallery",
+                    testimonials: [
+                        {
+                            title: "Personal Injury Lawyer 312% Boost",
+                            author: "Law Firm Client",
+                            concernType: "results",
+                            hasVideoUrl: true,
+                            videoUrl: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4"
+                        }
+                    ]
+                }
+            },
+            currentGroup: 'group_1769476426538'
+        };
+        log(`📦 Created testimonial data`, "success");
+    }
+}
+
+function showPlayer() {
+    // IMPORTANT: Your HTML needs a #playerArea div!
+    const playerArea = document.getElementById('playerArea');
+    if (!playerArea) {
+        log(`❌ ERROR: #playerArea div not found in HTML!`, "error");
+        log(`Add this to your HTML: <div id="playerArea"></div>`, "error");
+        return;
+    }
+    
+    playerArea.innerHTML = '';
+    
+    const chatMessages = document.createElement('div');
+    chatMessages.id = 'chatMessages';
+    chatMessages.style.cssText = `position: relative; width: 100%; min-height: 400px; background: #1a1a1a;`;
+    playerArea.appendChild(chatMessages);
+    
+    log(`📦 Created #chatMessages inside #playerArea`, "success");
+    
+    try {
+        window.showTestimonialSplashScreen();
+        log(`✅ Testimonial player launched`, "success");
+        document.getElementById('status').textContent = 'Testimonial Player Active!';
+    } catch (error) {
+        log(`❌ Error: ${error.message}`, "error");
+        showError();
+    }
+}
+
+function showError() {
+    const playerArea = document.getElementById('playerArea') || document.body;
+    playerArea.innerHTML = `
+        <div style="text-align: center; padding: 50px; color: #FF9800;">
+            <h3>⚠️ Player Load Issue</h3>
+            <p>Check console for errors. Make sure testimonial-player.js is in same folder.</p>
+            <button onclick="loadAndShowPlayer()" style="
+                background: #2196F3;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+                margin-top: 20px;
+            ">Try Again</button>
+        </div>
+    `;
+}
+
+// 3. UPDATE your HTML to include #playerArea:
+// In your HTML, add this div somewhere (probably below the widget):
+/*
+<div id="playerArea">
+    <p>Testimonial player will appear here when triggered</p>
+</div>
+*/
 
         // ========== TEST FUNCTION ==========
         function triggerTest() {
