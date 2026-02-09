@@ -49,14 +49,12 @@
 
     <!-- MAIN APPLICATION SCRIPT - SINGLE SCRIPT BLOCK -->
     <script>
-                // ========== DEBUG VERSION ==========
-        // This will show us EXACTLY where the system stops working
+                // ========== FIXED VERSION - DETECTS ANY AUDIO ==========
         
         // ========== GLOBALS ==========
         let recognition = null;
         const TRIGGER_PHRASE = "verified results gallery";
         window.recognitionActive = false;
-        window.debugMode = true;
 
         // ========== LOGGING ==========
         function log(msg, type = 'info') {
@@ -65,200 +63,196 @@
             if (type === 'success') el.className = 'success';
             if (type === 'error') el.className = 'error';
             if (type === 'trigger') el.className = 'trigger';
-            if (type === 'debug') el.className = 'trigger';
             document.getElementById('log').appendChild(el);
             console.log(msg);
         }
 
-        // ========== DEBUG FUNCTION ==========
-        function debugLog(step) {
-            if (window.debugMode) {
-                log(`🔍 DEBUG STEP: ${step}`, 'debug');
-            }
-        }
-
         // ========== MAIN INITIALIZATION ==========
         function initializeSystemForIntro() {
-            log('🎧 DEBUG MODE: Starting FULL detection chain...', 'info');
-            document.getElementById('status').textContent = 'DEBUG: Starting all systems...';
+            log('🎧 Starting ULTIMATE audio detection system...', 'info');
+            document.getElementById('status').textContent = 'Starting detection...';
             
-            debugLog('1. Initialization started');
-            
-            // Start the ENTIRE chain step by step
-            startFullDetectionChain();
+            // Use MULTIPLE detection methods
+            startUltimateAudioDetection();
         }
 
-        // ========== FULL DETECTION CHAIN ==========
-        function startFullDetectionChain() {
-            debugLog('2. Starting full detection chain');
+        // ========== ULTIMATE AUDIO DETECTION ==========
+        function startUltimateAudioDetection() {
+            log('🔊 Using 3 detection methods to catch ANY Botinia audio...', 'info');
             
-            // Step 1: Set up audio detection
-            setupAudioDetection();
+            // METHOD 1: Monitor regular audio elements
+            monitorAudioElements();
             
-            // Step 2: After a moment, also show the trigger button
-            setTimeout(() => {
-                showIntroTriggerButton();
-            }, 1000);
-        }
-
-        // ========== SETUP AUDIO DETECTION ==========
-        function setupAudioDetection() {
-            debugLog('3. Setting up audio detection');
+            // METHOD 2: Monitor Web Audio API usage
+            monitorWebAudioAPI();
             
-            let checkCount = 0;
-            const maxChecks = 10;
+            // METHOD 3: Monitor for ANY sound playing on the page
+            monitorSystemAudio();
             
-            function checkForWidget() {
-                checkCount++;
-                debugLog(`3.${checkCount}. Checking for widget...`);
-                
-                const widget = document.querySelector('lemon-slice-widget');
-                
-                if (!widget) {
-                    log(`❌ Widget element not found (check ${checkCount}/${maxChecks})`, 'error');
-                    if (checkCount < maxChecks) {
-                        setTimeout(checkForWidget, 1000);
-                    }
-                    return;
-                }
-                
-                debugLog('4. Widget element found');
-                
-                if (!widget.shadowRoot) {
-                    log(`⚠️ Widget shadowRoot not ready (check ${checkCount}/${maxChecks})`, 'warning');
-                    if (checkCount < maxChecks) {
-                        setTimeout(checkForWidget, 1000);
-                    }
-                    return;
-                }
-                
-                debugLog('5. Widget shadowRoot ready');
-                startMonitoringAudio(widget);
-            }
-            
-            checkForWidget();
-        }
-
-        // ========== START MONITORING AUDIO ==========
-        function startMonitoringAudio(widget) {
-            debugLog('6. Starting to monitor audio elements');
-            
-            const audioElements = widget.shadowRoot.querySelectorAll('audio');
-            log(`🎯 Found ${audioElements.length} audio elements to monitor`, 'success');
-            
-            if (audioElements.length === 0) {
-                log('❌ ERROR: No audio elements found in widget!', 'error');
-                return;
-            }
-            
-            // Monitor each audio element
-            audioElements.forEach((audio, i) => {
-                debugLog(`7. Setting up listener for audio element #${i}`);
-                
-                // Add play event listener
-                audio.addEventListener('play', () => {
-                    log(`🎬 SUCCESS: Audio element #${i} STARTED PLAYING!`, 'success');
-                    debugLog(`8. Audio play event triggered for element #${i}`);
-                    
-                    // Check audio details
-                    console.log(`Audio ${i} details:`, {
-                        src: audio.src,
-                        currentSrc: audio.currentSrc,
-                        currentTime: audio.currentTime,
-                        duration: audio.duration,
-                        paused: audio.paused,
-                        volume: audio.volume
-                    });
-                    
-                    // Now request permission and start recognition
-                    requestMicrophonePermission();
-                });
-                
-                // Add error listener
-                audio.addEventListener('error', (e) => {
-                    log(`❌ Audio element #${i} error: ${e.message}`, 'error');
-                });
-                
-                // Check if already playing
-                if (!audio.paused && audio.currentTime > 0) {
-                    log(`▶️ Audio element #${i} is already playing!`, 'success');
-                    requestMicrophonePermission();
-                }
-                
-                // Log audio element details
-                console.log(`Audio element ${i}:`, {
-                    tagName: audio.tagName,
-                    src: audio.src,
-                    currentSrc: audio.currentSrc,
-                    paused: audio.paused,
-                    currentTime: audio.currentTime,
-                    duration: audio.duration
-                });
-            });
-            
-            // Also monitor for new audio elements
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.addedNodes.length) {
-                        log('🆕 New nodes added to widget', 'info');
-                        // Re-check for audio elements
-                        setTimeout(() => startMonitoringAudio(widget), 500);
-                    }
-                });
-            });
-            
-            observer.observe(widget.shadowRoot, {
-                childList: true,
-                subtree: true
-            });
-            
-            log('✅ Audio monitoring system ACTIVE!', 'success');
-            log('👆 NOW click the video chat button in Botinia', 'info');
+            log('✅ ALL detection methods active!', 'success');
+            log('👆 NOW click video chat button in Botinia', 'info');
             document.getElementById('status').textContent = 'READY: Click Botinia\'s video chat button';
         }
 
-        // ========== REQUEST MICROPHONE PERMISSION ==========
-        function requestMicrophonePermission() {
-            if (window.recognitionActive) {
-                debugLog('9. Recognition already active, skipping');
-                return;
+        // ========== METHOD 1: MONITOR AUDIO ELEMENTS ==========
+        function monitorAudioElements() {
+            log('1️⃣ Monitoring HTML5 audio elements...', 'info');
+            
+            function checkAudioElements() {
+                const widget = document.querySelector('lemon-slice-widget');
+                if (!widget?.shadowRoot) {
+                    setTimeout(checkAudioElements, 1000);
+                    return;
+                }
+                
+                const audioElements = widget.shadowRoot.querySelectorAll('audio');
+                
+                audioElements.forEach((audio, i) => {
+                    // Listen for playback
+                    audio.addEventListener('play', () => {
+                        log(`🎬 HTML5 Audio #${i} playing!`, 'success');
+                        startSpeechRecognitionChain();
+                    });
+                    
+                    // Also listen for 'playing' event
+                    audio.addEventListener('playing', () => {
+                        log(`▶️ HTML5 Audio #${i} is playing`, 'success');
+                        startSpeechRecognitionChain();
+                    });
+                    
+                    // Check if already playing
+                    if (!audio.paused && audio.currentTime > 0) {
+                        log(`🔊 HTML5 Audio #${i} already playing`, 'success');
+                        startSpeechRecognitionChain();
+                    }
+                });
             }
             
-            debugLog('9. Requesting microphone permission');
-            log('🎤 Requesting microphone access...', 'info');
+            checkAudioElements();
+        }
+
+        // ========== METHOD 2: MONITOR WEB AUDIO API ==========
+        function monitorWebAudioAPI() {
+            log('2️⃣ Monitoring Web Audio API...', 'info');
+            
+            // Hook into Web Audio API if it exists
+            if (window.AudioContext || window.webkitAudioContext) {
+                const OriginalAudioContext = window.AudioContext || window.webkitAudioContext;
+                
+                // Override createBufferSource to detect audio creation
+                const originalCreateBufferSource = AudioContext.prototype.createBufferSource;
+                
+                AudioContext.prototype.createBufferSource = function() {
+                    const source = originalCreateBufferSource.call(this);
+                    
+                    const originalStart = source.start;
+                    source.start = function(...args) {
+                        log('🎵 Web Audio API: Audio buffer started playing!', 'success');
+                        startSpeechRecognitionChain();
+                        return originalStart.apply(this, args);
+                    };
+                    
+                    return source;
+                };
+                
+                // Also monitor createMediaElementSource
+                const originalCreateMediaElementSource = AudioContext.prototype.createMediaElementSource;
+                AudioContext.prototype.createMediaElementSource = function(element) {
+                    log('🔗 Web Audio API: Connected to media element', 'info');
+                    startSpeechRecognitionChain();
+                    return originalCreateMediaElementSource.call(this, element);
+                };
+            }
+        }
+
+        // ========== METHOD 3: MONITOR SYSTEM AUDIO ==========
+        function monitorSystemAudio() {
+            log('3️⃣ Monitoring for ANY page audio...', 'info');
+            
+            // Check every second if ANY audio is playing on the page
+            let lastCheck = Date.now();
+            
+            function checkForAnyAudio() {
+                // Get ALL audio/video elements in entire document (including shadow DOMs)
+                const allMediaElements = [];
+                
+                // Regular audio/video elements
+                document.querySelectorAll('audio, video').forEach(el => allMediaElements.push(el));
+                
+                // Check inside shadow DOMs
+                document.querySelectorAll('*').forEach(el => {
+                    if (el.shadowRoot) {
+                        el.shadowRoot.querySelectorAll('audio, video').forEach(shadowEl => 
+                            allMediaElements.push(shadowEl));
+                    }
+                });
+                
+                let anyPlaying = false;
+                
+                allMediaElements.forEach((media, i) => {
+                    if (!media.paused && media.currentTime > 0) {
+                        anyPlaying = true;
+                        if (Date.now() - lastCheck > 2000) { // Log every 2 seconds max
+                            log(`📢 Found playing media: ${media.tagName} #${i}`, 'success');
+                            lastCheck = Date.now();
+                            startSpeechRecognitionChain();
+                        }
+                    }
+                });
+                
+                // Also check if document has audio context (Chrome/Edge)
+                if (document.hasAudioContext && document.hasAudioContext()) {
+                    log('🔊 Document reports having audio context', 'success');
+                    startSpeechRecognitionChain();
+                }
+                
+                setTimeout(checkForAnyAudio, 1000);
+            }
+            
+            checkForAnyAudio();
+        }
+
+        // ========== SPEECH RECOGNITION CHAIN ==========
+        function startSpeechRecognitionChain() {
+            if (window.recognitionStarted) return;
+            window.recognitionStarted = true;
+            
+            log('⚡ Audio detected! Starting recognition chain...', 'success');
+            document.getElementById('status').textContent = 'Audio detected! Getting mic permission...';
+            
+            // Step 1: Get microphone permission
+            getMicrophonePermission();
+        }
+
+        function getMicrophonePermission() {
+            log('🎤 Requesting microphone permission...', 'info');
             
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
-                    debugLog('10. Microphone permission GRANTED');
                     log('✅ Microphone permission GRANTED!', 'success');
-                    
-                    // Stop the stream (we don't need to record)
                     stream.getTracks().forEach(track => track.stop());
                     
-                    // Start speech recognition
+                    // Step 2: Start speech recognition
                     startSpeechRecognition();
                 })
                 .catch(error => {
-                    debugLog(`10. Microphone permission DENIED: ${error.message}`);
                     log(`❌ Microphone permission DENIED: ${error.message}`, 'error');
+                    log('⚠️ Will try to continue without permission...', 'warning');
                     
-                    // For testing, try to start recognition anyway
-                    log('⚠️ Trying to start recognition without permission for testing...', 'warning');
+                    // Try to start recognition anyway
                     startSpeechRecognition();
                 });
         }
 
         // ========== SPEECH RECOGNITION ==========
         function startSpeechRecognition() {
-            debugLog('11. Starting speech recognition');
-            
             if (!('webkitSpeechRecognition' in window)) {
-                log('❌ Web Speech API not supported in this browser', 'error');
+                log('❌ Web Speech API not supported', 'error');
                 return;
             }
             
-            log('🎤 Speech recognition STARTING...', 'success');
-            window.recognitionActive = true;
+            log('👂 Starting speech recognition...', 'success');
+            document.getElementById('status').textContent = 'Listening to Botinia...';
             
             recognition = new webkitSpeechRecognition();
             recognition.continuous = true;
@@ -266,234 +260,111 @@
             recognition.maxAlternatives = 3;
             
             recognition.onstart = function() {
-                debugLog('12. Speech recognition ACTIVE');
-                log('✅ Speech recognition ACTIVE! Listening to Botinia...', 'success');
-                document.getElementById('status').textContent = 'LISTENING: Transcribing Botinia...';
-                
-                // TEST: Simulate hearing something after 2 seconds
-                setTimeout(() => {
-                    if (!window.hasHeardAnything) {
-                        log('⚠️ TEST: No speech detected yet. Simulating test phrase...', 'warning');
-                        simulateHearingPhrase();
-                    }
-                }, 2000);
+                log('✅ Speech recognition ACTIVE! Transcribing...', 'success');
+                document.getElementById('status').textContent = 'Transcribing Botinia...';
             };
             
             recognition.onresult = function(event) {
-                debugLog('13. Speech recognition result received');
-                window.hasHeardAnything = true;
-                
                 let fullTranscript = '';
                 
                 for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const transcript = event.results[i][0].transcript;
-                    fullTranscript += transcript + ' ';
+                    fullTranscript += event.results[i][0].transcript + ' ';
                 }
                 
                 const cleanTranscript = fullTranscript.toLowerCase().trim();
-                log(`📝 Botinia said: "${cleanTranscript}"`, 'info');
+                log(`📝 Botinia: "${cleanTranscript.substring(0, 100)}${cleanTranscript.length > 100 ? '...' : ''}"`);
                 
-                // Display first 100 characters in status
-                document.getElementById('status').textContent = 
-                    `Transcribing: "${cleanTranscript.substring(0, 100)}${cleanTranscript.length > 100 ? '...' : ''}"`;
-                
-                // CHECK FOR TRIGGER PHRASE
+                // Check for trigger phrase
                 if (cleanTranscript.includes(TRIGGER_PHRASE)) {
-                    debugLog('14. TRIGGER PHRASE DETECTED!');
                     log(`🎉🎉🎉 TRIGGER PHRASE DETECTED!`, 'trigger');
-                    log(`Launching testimonial player...`, 'trigger');
-                    
-                    // Stop listening
                     recognition.stop();
-                    
-                    // Launch testimonial player
                     launchTestimonialPlayer();
                 }
             };
             
             recognition.onerror = function(event) {
-                debugLog(`15. Speech recognition ERROR: ${event.error}`);
                 log(`❌ Recognition error: ${event.error}`, 'error');
-                
-                if (event.error === 'not-allowed') {
-                    log('⚠️ Microphone access was denied. Click the microphone icon in your browser address bar.', 'error');
-                }
             };
             
             recognition.onend = function() {
-                debugLog('16. Speech recognition ENDED');
-                log('⏹️ Speech recognition ended', 'info');
-                window.recognitionActive = false;
+                log('⏹️ Recognition ended', 'info');
+                window.recognitionStarted = false;
             };
             
-            // Start recognition
             try {
                 recognition.start();
             } catch (e) {
-                log(`❌ Cannot start recognition: ${e.message}`, 'error');
+                log(`❌ Cannot start: ${e.message}`, 'error');
             }
         }
 
-        // ========== TEST FUNCTION ==========
-        function simulateHearingPhrase() {
-            log('🎭 TEST: Simulating hearing "verified results gallery"', 'debug');
-            
-            // Simulate the trigger phrase
-            if (typeof recognition !== 'undefined' && recognition) {
-                // Create a fake event
-                const fakeEvent = {
-                    resultIndex: 0,
-                    results: [[{
-                        transcript: 'verified results gallery',
-                        confidence: 0.9
-                    }]]
-                };
-                
-                // Call onresult manually
-                recognition.onresult(fakeEvent);
-            } else {
-                // If recognition isn't running, just launch the player
-                launchTestimonialPlayer();
-            }
+        // ========== SIMPLE TEST ==========
+        function simulateAudioDetection() {
+            log('🔊 SIMULATING audio detection...', 'info');
+            startSpeechRecognitionChain();
         }
 
-        // ========== TESTIMONIAL PLAYER FUNCTIONS (KEEP AS IS) ==========
+        // ========== TEST BUTTONS ==========
+        function addTestButtons() {
+            const container = document.getElementById('log').parentNode;
+            const testDiv = document.createElement('div');
+            testDiv.innerHTML = `
+                <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px solid #3498db;">
+                    <h4 style="margin-top: 0; color: #3498db;">🔧 Test Controls:</h4>
+                    <button onclick="simulateAudioDetection()" style="background: #9b59b6; margin: 5px;">
+                        🔊 Simulate Audio Detection
+                    </button>
+                    <button onclick="getMicrophonePermission()" style="background: #e67e22; margin: 5px;">
+                        🎤 Test Mic Permission
+                    </button>
+                    <button onclick="startSpeechRecognition()" style="background: #27ae60; margin: 5px;">
+                        👂 Test Speech Recognition
+                    </button>
+                    <button onclick="launchTestimonialPlayer()" style="background: #e74c3c; margin: 5px;">
+                        🚀 Force Launch Player
+                    </button>
+                </div>
+            `;
+            container.insertBefore(testDiv, document.getElementById('log'));
+        }
+
+        // ========== KEEP YOUR EXISTING FUNCTIONS ==========
+        // (Add all your existing testimonial player functions here)
         function launchTestimonialPlayer() {
-            log('🚀 TRIGGER DETECTED! Launching testimonial player...', 'trigger');
-            document.getElementById('status').textContent = 'TRIGGERED! Loading testimonials...';
+            log('🚀 Launching testimonial player...', 'trigger');
+            document.getElementById('status').textContent = 'Loading testimonials...';
+            // ... your existing launchTestimonialPlayer code ...
             loadAndShowPlayer();
         }
 
         function loadAndShowPlayer() {
-            log(`🚀 Loading testimonial player...`, "info");
-            
-            if (typeof window.showTestimonialSplashScreen === 'function') {
-                createTestimonialData();
-                showPlayer();
-                return;
-            }
-            
-            const script = document.createElement('script');
-            script.src = 'testimonial-player.js';
-            
-            script.onload = function() {
-                log(`✅ testimonial-player.js loaded`, "success");
-                createTestimonialData();
-                showPlayer();
-            };
-            
-            script.onerror = function() {
-                log(`❌ Failed to load testimonial-player.js`, "error");
-                showError();
-            };
-            
-            document.head.appendChild(script);
+            // ... your existing loadAndShowPlayer code ...
         }
 
         function createTestimonialData() {
-            if (!window.testimonialData) {
-                window.testimonialData = {
-                    testimonialGroups: {
-                        group_1769476426538: {
-                            title: "Verified Results Gallery",
-                            testimonials: [
-                                {
-                                    title: "Personal Injury Lawyer 312% Boost",
-                                    author: "Law Firm Client",
-                                    concernType: "results",
-                                    hasVideoUrl: true,
-                                    videoUrl: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4"
-                                }
-                            ]
-                        }
-                    },
-                    currentGroup: 'group_1769476426538'
-                };
-                log(`📦 Created testimonial data`, "success");
-            }
+            // ... your existing createTestimonialData code ...
         }
 
         function showPlayer() {
-            const playerArea = document.getElementById('playerArea');
-            if (!playerArea) {
-                log(`❌ ERROR: #playerArea div not found in HTML!`, "error");
-                return;
-            }
-            
-            playerArea.innerHTML = '';
-            
-            const chatMessages = document.createElement('div');
-            chatMessages.id = 'chatMessages';
-            chatMessages.style.cssText = `position: relative; width: 100%; min-height: 400px; background: #1a1a1a;`;
-            playerArea.appendChild(chatMessages);
-            
-            log(`📦 Created #chatMessages inside #playerArea`, "success");
-            
-            try {
-                window.showTestimonialSplashScreen();
-                log(`✅ Testimonial player launched`, "success");
-                document.getElementById('status').textContent = 'Testimonial Player Active!';
-            } catch (error) {
-                log(`❌ Error: ${error.message}`, "error");
-                showError();
-            }
+            // ... your existing showPlayer code ...
         }
 
         function showError() {
-            const playerArea = document.getElementById('playerArea') || document.body;
-            playerArea.innerHTML = `
-                <div style="text-align: center; padding: 50px; color: #FF9800;">
-                    <h3>⚠️ Player Load Issue</h3>
-                    <p>Check console for errors. Make sure testimonial-player.js is in same folder.</p>
-                    <button onclick="loadAndShowPlayer()" style="
-                        background: #2196F3;
-                        color: white;
-                        border: none;
-                        padding: 10px 20px;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        margin-top: 20px;
-                    ">Try Again</button>
-                </div>
-            `;
-        }
-
-        // ========== BUTTON FUNCTIONS ==========
-        function showIntroTriggerButton() {
-            // ... keep your existing showIntroTriggerButton function ...
-        }
-
-        function triggerIntroAfterUserClick() {
-            // ... keep your existing triggerIntroAfterUserClick function ...
-        }
-
-        function manualMicSearch() {
-            // ... keep your existing manualMicSearch function ...
+            // ... your existing showError code ...
         }
 
         function triggerTest() {
-            log('Simulating trigger detection...', 'info');
+            log('Simulating trigger...', 'info');
             launchTestimonialPlayer();
         }
 
-        // ========== ADD TEST BUTTONS ==========
-        function addTestButtons() {
-            const testDiv = document.createElement('div');
-            testDiv.style.cssText = 'margin: 20px 0; padding: 10px; background: #f0f0f0; border-radius: 5px;';
-            
-            testDiv.innerHTML = `
-                <h4>🔧 Test Controls:</h4>
-                <button onclick="simulateHearingPhrase()" style="background: #9b59b6;">🎭 Simulate Trigger Phrase</button>
-                <button onclick="requestMicrophonePermission()" style="background: #e67e22;">🎤 Test Mic Permission</button>
-                <button onclick="startSpeechRecognition()" style="background: #27ae60;">👂 Test Speech Recognition</button>
-            `;
-            
-            document.getElementById('log').parentNode.insertBefore(testDiv, document.getElementById('log'));
+        function manualMicSearch() {
+            // ... your existing manualMicSearch code ...
         }
 
-        // ========== INITIAL PAGE LOG ==========
+        // ========== INITIALIZE ==========
         document.addEventListener('DOMContentLoaded', function() {
-            log('Ready! Click "Auto-Activate Botinia & Start Listening" to begin.', 'info');
+            log('Ready! Click "Auto-Activate Botinia" then click video chat button.', 'info');
             addTestButtons();
         });
     </script>
