@@ -22,6 +22,8 @@
     🚀 Auto-Activate Botinia & Start Listening
 </button>
     <button onclick="triggerTest()">Test Trigger (Simulate)</button>
+
+    <button onclick="manualMicSearch()">🔍 Debug: Show Widget Elements</button>
     
     <div id="log"></div>
 
@@ -132,9 +134,10 @@ function captureAudioAndStartRecognition(audioElement, index) {
         });
 }
 
-// ========== FIXED: AUTO-CLICK MIC BUTTON ==========
+// ========== AUTO-ACTIVATE MIC BUTTON ==========
+// ========== TWO-STEP WIDGET ACTIVATION ==========
 function activateWidgetMicButton() {
-    log('🔍 Looking for mic button in widget...', 'info');
+    log('🔍 Starting two-step widget activation...', 'info');
     
     const widget = document.querySelector('lemon-slice-widget');
     if (!widget?.shadowRoot) {
@@ -143,87 +146,167 @@ function activateWidgetMicButton() {
         return;
     }
     
-    // Search for mic button - FIXED SELECTOR
     const allButtons = widget.shadowRoot.querySelectorAll('button');
     log(`Found ${allButtons.length} buttons in widget`, 'info');
     
+    // STEP 1: Look for "Open widget" button first
+    let openButton = null;
     let micButton = null;
     
-    // STRATEGY 1: Find the ACTUAL button (not SVG inside it)
-    // Look for button CONTAINING an SVG (common for mic icons)
     for (const button of allButtons) {
-        // Check if button contains an SVG (mic icon)
-        const hasSVG = button.querySelector('svg') !== null;
-        // Check aria-label or title for mic-related text
         const ariaLabel = button.getAttribute('aria-label')?.toLowerCase() || '';
-        const title = button.getAttribute('title')?.toLowerCase() || '';
         const className = button.className.toLowerCase();
         
-        if (hasSVG || ariaLabel.includes('mic') || title.includes('mic') || 
-            ariaLabel.includes('start') || title.includes('start') ||
-            className.includes('mic') || className.includes('start')) {
+        // Button that opens/expands the widget
+        if (ariaLabel.includes('open widget') || ariaLabel.includes('expand') || 
+            ariaLabel.includes('start') || className.includes('open')) {
+            openButton = button;
+            log('Found "Open widget" button', 'success');
+        }
+        
+        // Actual mic button (might not exist yet if widget is closed)
+        if (ariaLabel.includes('mic') || ariaLabel.includes('microphone') || 
+            ariaLabel.includes('speak') || ariaLabel.includes('talk') ||
+            className.includes('mic') || className.includes('speak')) {
             micButton = button;
-            log('Found mic button by content/attributes', 'success');
-            console.log('Mic button details:', {
-                tagName: micButton.tagName,
-                className: micButton.className,
-                ariaLabel: micButton.getAttribute('aria-label'),
-                title: micButton.getAttribute('title'),
-                hasSVG: micButton.querySelector('svg') !== null
-            });
-            break;
+            log('Found potential mic button', 'success');
         }
     }
     
-    // STRATEGY 2: If still not found, try the LAST button (often the mic)
-    if (!micButton && allButtons.length > 0) {
-        micButton = allButtons[allButtons.length - 1];
-        log('Using last button as fallback mic button', 'warning');
+    // STEP 2: If widget is closed, open it first
+    if (openButton && !micButton) {
+        log('📱 Widget appears closed. Clicking "Open widget" first...', 'success');
+        openButton.click();
+        
+        // Wait for widget to expand, THEN look for mic button
+        setTimeout(() => {
+            log('Widget should be open now. Looking for mic button...', 'info');
+            findAndClickMicButton();
+        }, 1500); // Wait 1.5 seconds for animation
+        
+        return;
     }
     
-    // CLICK THE BUTTON if found
-    if (micButton && typeof micButton.click === 'function') {
-        log(`🎤 AUTO-CLICKING mic button (${micButton.tagName})...`, 'success');
-        console.log('Clicking button:', micButton);
+    // STEP 3: If mic button is already visible, click it
+    if (micButton) {
+        log('🎤 Mic button found! Clicking it...', 'success');
+        micButton.click();
         
-        // Try multiple click methods
-        try {
-            // Method 1: Standard click
-            micButton.click();
-            log('Standard click() executed', 'success');
-        } catch (e) {
-            log(`Standard click failed: ${e.message}`, 'error');
-            
-            // Method 2: Mouse events
-            try {
-                const clickEvent = new MouseEvent('click', {
-                    bubbles: true,
-                    cancelable: true,
-                    view: window
-                });
-                micButton.dispatchEvent(clickEvent);
-                log('MouseEvent click dispatched', 'success');
-            } catch (e2) {
-                log(`MouseEvent failed: ${e2.message}`, 'error');
-            }
-        }
-        
-        document.getElementById('status').textContent = 'Mic activated! Starting audio capture...';
-        
-        // Start audio capture
         setTimeout(() => {
             initializeAudioCapture();
-        }, 2000); // Give more time for activation
-        
-    } else {
-        log('❌ Could not find clickable mic button', 'error');
-        document.getElementById('status').textContent = 'Please click mic button manually';
-        
-        // DEBUG: Show all buttons found
-        allButtons.forEach((btn, i) => {
-            log(`Button ${i}: ${btn.tagName} - aria-label="${btn.getAttribute('aria-label')}"`, 'info');
-        });
+        }, 1000);
+        return;
     }
+    
+    // STEP 4: Last resort - try to interact with widget directly
+    log('Could not find standard buttons. Trying direct interaction...', 'warning');
+    tryDirectWidgetInteraction();
+}
+
+// ========== FIND MIC BUTTON AFTER WIDGET OPENS ==========
+function findAndClickMicButton() {
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget?.shadowRoot) return;
+    
+    // Look for mic button now that widget is open
+    const buttons = widget.shadowRoot.querySelectorAll('button');
+    
+    for (const button of buttons) {
+        const ariaLabel = button.getAttribute('aria-label')?.toLowerCase() || '';
+        const className = button.className.toLowerCase();
+        const text = button.textContent.toLowerCase();
+        
+        // Look for MIC-related buttons
+        const isMicButton = ariaLabel.includes('mic') || ariaLabel.includes('microphone') ||
+                           ariaLabel.includes('speak') || ariaLabel.includes('talk') ||
+                           ariaLabel.includes('start') || ariaLabel.includes('begin') ||
+                           className.includes('mic') || className.includes('speak') ||
+                           text.includes('mic') || text.includes('speak');
+        
+        if (isMicButton) {
+            log(`🎤 Found REAL mic button: ${ariaLabel || text}`, 'success');
+            console.log('Real mic button:', {
+                ariaLabel: button.getAttribute('aria-label'),
+                className: button.className,
+                innerHTML: button.innerHTML.substring(0, 100)
+            });
+            
+            button.click();
+            log('Real mic button clicked!', 'success');
+            
+            setTimeout(() => {
+                initializeAudioCapture();
+            }, 1000);
+            return;
+        }
+    }
+    
+    log('❌ Still cannot find mic button after opening widget', 'error');
+    log('Please click the mic button manually in the widget', 'error');
+}
+
+// ========== DIRECT INTERACTION (Fallback) ==========
+function tryDirectWidgetInteraction() {
+    log('Trying direct widget interaction...', 'info');
+    
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget) return;
+    
+    // Method 1: Try to focus and press Enter (common activation)
+    widget.focus();
+    widget.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter' }));
+    log('Sent Enter key to widget', 'info');
+    
+    // Method 2: Look for input/textarea and simulate typing
+    const inputs = widget.shadowRoot?.querySelectorAll('input, textarea') || [];
+    if (inputs.length > 0) {
+        inputs[0].focus();
+        log('Focused input in widget', 'info');
+    }
+    
+    // Method 3: Try to trigger any clickable area
+    const clickable = widget.shadowRoot?.querySelector('[role="button"], [onclick], .clickable') || widget;
+    clickable.click();
+    log('Clicked main widget area', 'info');
+    
+    // Then try to find mic button again
+    setTimeout(() => {
+        findAndClickMicButton();
+    }, 2000);
+}
+
+// ========== MANUAL OVERRIDE ==========
+// Add this button to your HTML for manual testing:
+// <button onclick="manualMicSearch()">🔍 Manual Mic Search</button>
+
+function manualMicSearch() {
+    log('=== MANUAL MIC SEARCH ===', 'info');
+    
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget?.shadowRoot) return;
+    
+    // Show ALL interactive elements
+    const interactive = widget.shadowRoot.querySelectorAll('button, [role="button"], [tabindex], [onclick]');
+    log(`Found ${interactive.length} interactive elements`, 'info');
+    
+    interactive.forEach((el, i) => {
+        const tag = el.tagName;
+        const aria = el.getAttribute('aria-label') || el.getAttribute('title') || '';
+        const cls = el.className;
+        const text = el.textContent.trim().substring(0, 30);
+        
+        log(`Element ${i}: ${tag} "${aria}" "${text}" class:${cls.substring(0, 30)}`, 'info');
+        
+        // Log to console for detailed inspection
+        console.log(`Element ${i}:`, {
+            tagName: tag,
+            ariaLabel: el.getAttribute('aria-label'),
+            title: el.getAttribute('title'),
+            className: cls,
+            textContent: text,
+            outerHTML: el.outerHTML.substring(0, 150)
+        });
+    });
 }
 
 // ========== UPDATED INITIALIZATION ==========
