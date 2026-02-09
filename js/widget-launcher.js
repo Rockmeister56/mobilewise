@@ -11,6 +11,7 @@
                 buttonColor: '#4361ee',
                 buttonPosition: 'bottom-right',
                 autoLoad: true,
+                serverUrl: 'https://your-mobilewise-ai-server.com', // ADDED THIS
                 ...config
             };
             
@@ -36,7 +37,7 @@
             this.addStyles();
             
             this.initialized = true;
-            console.log('🚀 MobileWise AI Widget Initialized');
+            console.log('🚀 MobileWise AI Widget Initialized for client:', this.config.clientId);
         }
         
         addFontAwesome() {
@@ -228,6 +229,12 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    transition: all 0.3s;
+                }
+                
+                .mw-ai-video-close:hover {
+                    background: #d32f2f;
+                    transform: scale(1.1);
                 }
             `;
             document.head.appendChild(style);
@@ -256,10 +263,10 @@
             this.modal = document.createElement('div');
             this.modal.id = 'mw-ai-modal';
             
-            // Create iframe
+            // Create iframe using serverUrl from config
             this.iframe = document.createElement('iframe');
             this.iframe.id = 'mw-ai-iframe';
-            this.iframe.src = `https://your-mobilewise-ai-server.com/ai-control-panel.html?client=${this.config.clientId}`;
+            this.iframe.src = `${this.config.serverUrl}/ai-control-panel.html?client=${this.config.clientId}`;
             
             // Create close button
             const closeBtn = document.createElement('button');
@@ -294,8 +301,11 @@
         }
         
         handleMessage(event) {
-            // Security check - verify origin if needed
-            // if (event.origin !== 'https://your-mobilewise-ai-server.com') return;
+            // Security check - verify origin matches configured server
+            if (this.config.serverUrl && !event.origin.startsWith(this.config.serverUrl)) {
+                console.warn('⚠️ Message from unauthorized origin:', event.origin);
+                return;
+            }
             
             const data = event.data;
             
@@ -308,6 +318,19 @@
                     
                 case 'CONTROL_PANEL_READY':
                     console.log('✅ Control panel ready for client:', data.clientId);
+                    break;
+                    
+                case 'CLOSE_CONTROL_PANEL':
+                    console.log('📨 Control panel requested close');
+                    this.closeControlPanel();
+                    break;
+                    
+                case 'TESTIMONIAL_TRIGGERED':
+                    console.log('🎬 Testimonial triggered:', data.testimonial?.title);
+                    // Optionally show testimonial on site
+                    if (data.videoUrl) {
+                        this.showVideoOnSite(data.videoUrl, 'testimonial');
+                    }
                     break;
             }
         }
@@ -324,13 +347,14 @@
             const moduleNames = {
                 'results': 'Results Gallery',
                 'success': 'Success Stories', 
-                'calculator': 'ROI Calculator'
+                'calculator': 'ROI Calculator',
+                'testimonial': 'Customer Testimonial'
             };
             
             container.innerHTML = `
                 <h3>
                     <i class="fas fa-video"></i>
-                    ${moduleNames[module] || 'AI-Guided Testimonial'}
+                    ${moduleNames[module] || 'AI-Guided Content'}
                 </h3>
                 <button class="mw-ai-video-close" onclick="this.parentElement.remove()">
                     <i class="fas fa-times"></i>
@@ -353,6 +377,25 @@
                 }
             }, 120000);
         }
+        
+        // Public API methods
+        open() {
+            this.openControlPanel();
+        }
+        
+        close() {
+            this.closeControlPanel();
+        }
+        
+        triggerModule(moduleName) {
+            // Allow external triggering of modules
+            if (this.iframe && this.iframe.contentWindow) {
+                this.iframe.contentWindow.postMessage({
+                    type: 'TRIGGER_MODULE',
+                    module: moduleName
+                }, this.config.serverUrl);
+            }
+        }
     }
     
     // Auto-initialize if config is provided
@@ -360,8 +403,9 @@
         window.MobileWiseAI = new MobileWiseAIWidget(window.MobileWiseAIConfig);
     }
     
-    // Global access
+    // Global access - provide both for compatibility
     window.MobileWiseAIWidget = MobileWiseAIWidget;
+    window.MobileWiseWidgetClass = MobileWiseAIWidget; // For backward compatibility
     
     console.log('📦 MobileWise AI Widget Loaded');
 })();
