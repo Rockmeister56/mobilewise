@@ -18,7 +18,9 @@
     <!-- Widget -->
     <lemon-slice-widget agent-id="agent_1db77d60ec132469"></lemon-slice-widget>
 
-    <button onclick="initializeSystem()">Initialize System</button>
+    <button onclick="initializeSystemForIntro()">
+    🚀 Auto-Activate Botinia & Start Listening
+</button>
     <button onclick="triggerTest()">Test Trigger (Simulate)</button>
     
     <div id="log"></div>
@@ -57,67 +59,214 @@
         }
 
     
-        // ========== IMMEDIATE LISTENER FOR INTRO ==========
+        // ========== UPDATED: WAIT FOR MIC CLICK ==========
 function initializeSystemForIntro() {
-    log('🚨 CRITICAL CHANGE: Listening for Botinia\'s INTRO speech...', 'info');
-    document.getElementById('status').textContent = 'Listening for Botinia\'s intro...';
+    log('🎤 WAITING for user to click mic button in widget...', 'info');
+    document.getElementById('status').textContent = 'Click the MIC button in the widget first!';
     
-    // Don't wait for user - start immediately
+    // Get widget
     const widget = document.querySelector('lemon-slice-widget');
     if (!widget?.shadowRoot) {
-        log('Widget not loaded yet. Retrying in 1 second...', 'warning');
+        log('Widget not ready. Retrying...', 'warning');
         setTimeout(initializeSystemForIntro, 1000);
         return;
     }
     
-    // Capture ALL audio elements immediately
     const audioElements = widget.shadowRoot.querySelectorAll('audio');
-    log(`Found ${audioElements.length} audio elements. Listening for ANY playback...`, 'info');
+    log(`Found ${audioElements.length} audio elements. Waiting for mic activation...`, 'info');
     
-    let hasCaptured = false;
-    
+    // STRATEGY: Watch for WHEN audio elements get their stream (after mic click)
     audioElements.forEach((audio, index) => {
-        // Listen for ANY playback (including intro)
-        audio.addEventListener('play', function() {
-            if (hasCaptured) return;
-            hasCaptured = true;
-            
-            log(`🎉 Botinia is SPEAKING (Intro/Audio #${index})!`, 'success');
-            
-            // Hook into audio stream
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const source = audioContext.createMediaElementSource(audio);
-                source.connect(audioContext.destination);
-                
-                log('✅ Audio stream CAPTURED! Now transcribing everything...', 'success');
-                document.getElementById('status').textContent = 'Transcribing Botinia...';
-                
-                // Start speech recognition IMMEDIATELY
-                startSpeechRecognition();
-                
-                // Also listen for the END of her intro
-                audio.addEventListener('ended', function() {
-                    log('Botinia finished speaking. Ready for conversation.', 'info');
-                });
-                
-            } catch (error) {
-                log(`Audio capture error: ${error.message}`, 'error');
-            }
-        });
-        
-        // Also watch for src changes (stream assignment)
-        if (!audio.src && !audio.currentSrc) {
-            const observer = new MutationObserver(() => {
-                if (audio.src || audio.currentSrc) {
-                    log(`Audio #${index} got stream assigned`, 'info');
+        // 1. Listen for src changes (stream assignment happens AFTER mic click)
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'src' && audio.src) {
+                    log(`🎯 Audio element #${index} got stream AFTER mic click!`, 'success');
+                    captureAudioAndStartRecognition(audio, index);
                 }
             });
-            observer.observe(audio, { attributes: true, attributeFilter: ['src', 'currentSrc'] });
-        }
+        });
+        observer.observe(audio, { attributes: true, attributeFilter: ['src', 'currentSrc'] });
+        
+        // 2. Also listen for playback
+        audio.addEventListener('play', () => {
+            log(`▶️ Audio #${index} playing (after mic click)`, 'success');
+            captureAudioAndStartRecognition(audio, index);
+        });
     });
     
-    log('System READY to capture Botinia\'s intro. She will speak any moment...', 'success');
+    log('System READY. Now: 1) Click MIC in widget, 2) Speak to Botinia', 'success');
+}
+
+// NEW HELPER FUNCTION
+function captureAudioAndStartRecognition(audioElement, index) {
+    if (window.hasCapturedAudio) return;
+    window.hasCapturedAudio = true;
+    
+    log(`✅ CAPTURED Audio #${index}! Starting recognition...`, 'success');
+    document.getElementById('status').textContent = 'Transcribing Botinia...';
+    
+    // Connect to Web Audio API
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaElementSource(audioElement);
+        source.connect(audioContext.destination);
+        log('Web Audio connected', 'success');
+    } catch (e) {
+        log(`Audio error: ${e.message}`, 'error');
+    }
+    
+    // CRITICAL: Request microphone permission before starting recognition
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            // We have permission (but don't use the stream)
+            stream.getTracks().forEach(track => track.stop());
+            log('✅ Microphone permission granted', 'success');
+            
+            // NOW start speech recognition
+            startSpeechRecognition();
+        })
+        .catch(error => {
+            log(`❌ Microphone permission DENIED: ${error.message}`, 'error');
+            log('System cannot work without microphone access', 'error');
+        });
+}
+
+// ========== AUTO-ACTIVATE MIC BUTTON ==========
+function activateWidgetMicButton() {
+    log('🔍 Looking for mic button in widget...', 'info');
+    
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget?.shadowRoot) {
+        log('Widget not ready. Retrying...', 'warning');
+        setTimeout(activateWidgetMicButton, 1000);
+        return;
+    }
+    
+    // Search for ANY button that looks like a mic button
+    const allButtons = widget.shadowRoot.querySelectorAll('button');
+    log(`Found ${allButtons.length} buttons in widget`, 'info');
+    
+    let micButton = null;
+    
+    // Common mic button selectors (try different patterns)
+    const possibleSelectors = [
+        'button[aria-label*="mic"]',
+        'button[aria-label*="Microphone"]', 
+        'button[title*="mic"]',
+        'button[title*="Microphone"]',
+        'button i', // Button with icon
+        'button svg', // Button with SVG
+        'button:last-child', // Last button (often the mic)
+    ];
+    
+    // Try each selector
+    for (const selector of possibleSelectors) {
+        const button = widget.shadowRoot.querySelector(selector);
+        if (button) {
+            micButton = button;
+            log(`Found potential mic button with selector: ${selector}`, 'success');
+            break;
+        }
+    }
+    
+    // If no selector worked, try to find by text/content
+    if (!micButton) {
+        allButtons.forEach(button => {
+            const text = button.textContent.toLowerCase();
+            const ariaLabel = button.getAttribute('aria-label')?.toLowerCase() || '';
+            const title = button.getAttribute('title')?.toLowerCase() || '';
+            
+            if (text.includes('mic') || ariaLabel.includes('mic') || title.includes('mic') ||
+                text.includes('start') || ariaLabel.includes('start') || title.includes('start')) {
+                micButton = button;
+                log('Found mic button by text/content', 'success');
+            }
+        });
+    }
+    
+    // CLICK THE BUTTON if found
+    if (micButton) {
+        log('🎤 Clicking mic button AUTOMATICALLY...', 'success');
+        micButton.click();
+        document.getElementById('status').textContent = 'Mic activated! Botinia ready...';
+        
+        // Now start listening for audio
+        setTimeout(() => {
+            initializeAudioCapture();
+        }, 1500); // Wait 1.5 seconds for stream to activate
+        
+    } else {
+        log('❌ Could not find mic button. Manual click required.', 'error');
+        document.getElementById('status').textContent = 'Please click mic button in widget';
+        
+        // Show button locations for debugging
+        allButtons.forEach((btn, i) => {
+            console.log(`Button ${i}:`, {
+                text: btn.textContent,
+                ariaLabel: btn.getAttribute('aria-label'),
+                title: btn.getAttribute('title'),
+                classes: btn.className,
+                html: btn.outerHTML.substring(0, 100)
+            });
+        });
+    }
+}
+
+// ========== UPDATED INITIALIZATION ==========
+function initializeSystemForIntro() {
+    log('🚀 AUTO-ACTIVATING widget mic button...', 'info');
+    document.getElementById('status').textContent = 'Activating Botinia...';
+    
+    // First activate the mic button
+    activateWidgetMicButton();
+}
+
+// ========== SIMPLIFIED AUDIO CAPTURE ==========
+function initializeAudioCapture() {
+    log('Starting audio capture after mic activation...', 'info');
+    
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget?.shadowRoot) return;
+    
+    const audioElements = widget.shadowRoot.querySelectorAll('audio');
+    log(`Monitoring ${audioElements.length} audio elements for stream...`, 'info');
+    
+    audioElements.forEach((audio, index) => {
+        // Watch for stream assignment
+        const observer = new MutationObserver(() => {
+            if (audio.src || audio.currentSrc) {
+                log(`🎯 Audio #${index} got stream!`, 'success');
+                startSpeechRecognitionWithPermission();
+                observer.disconnect(); // Stop watching
+            }
+        });
+        observer.observe(audio, { attributes: true, attributeFilter: ['src', 'currentSrc'] });
+        
+        // Also listen for playback
+        audio.addEventListener('play', () => {
+            log(`▶️ Audio #${index} playing!`, 'success');
+            startSpeechRecognitionWithPermission();
+        });
+    });
+}
+
+// ========== REQUEST MIC PERMISSION ==========
+function startSpeechRecognitionWithPermission() {
+    if (window.recognitionStarted) return;
+    window.recognitionStarted = true;
+    
+    log('Requesting microphone permission for speech recognition...', 'info');
+    
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            stream.getTracks().forEach(track => track.stop()); // Don't actually record
+            log('✅ Microphone permission granted', 'success');
+            startSpeechRecognition(); // Your existing function
+        })
+        .catch(error => {
+            log(`❌ Microphone permission denied: ${error.message}`, 'error');
+        });
 }
 
 // ========== UPDATE: AUTO-START ON PAGE LOAD ==========
