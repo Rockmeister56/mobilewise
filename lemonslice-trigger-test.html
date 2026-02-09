@@ -43,7 +43,7 @@
     </script>
 
     <script>
-        // ========== GLOBALS ==========
+               // ========== GLOBALS ==========
         let isInitialized = false;
         let audioContext = null;
         let recognition = null;
@@ -60,579 +60,293 @@
             console.log(msg);
         }
 
-    
-        // ========== UPDATED: WAIT FOR MIC CLICK ==========
-function initializeSystemForIntro() {
-    log('🎧 Capturing Botinia\'s FREE INTRO only (no credits)...', 'info');
-    document.getElementById('status').textContent = 'Click the "Trigger Intro" button below to start';
-    
-    // Show a user-friendly message and button
-    showIntroTriggerButton();
-}
-
-// ========== NEW: SHOW USER TRIGGER BUTTON ==========
-function showIntroTriggerButton() {
-    // Create or update a trigger button
-    const existingButton = document.getElementById('triggerIntroBtn');
-    
-    if (!existingButton) {
-        const button = document.createElement('button');
-        button.id = 'triggerIntroBtn';
-        button.textContent = '🎤 Trigger Botinia Intro';
-        button.style.cssText = `
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 10px 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
-        `;
-        
-        button.onmouseover = () => {
-            button.style.transform = 'translateY(-2px)';
-            button.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)';
-        };
-        
-        button.onmouseout = () => {
-            button.style.transform = 'translateY(0)';
-            button.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
-        };
-        
-        button.onclick = () => {
-            log('👆 User clicked to trigger intro...', 'success');
-            button.textContent = 'Triggering...';
-            button.disabled = true;
+        // ========== MAIN INITIALIZATION ==========
+        function initializeSystemForIntro() {
+            log('🎧 Capturing Botinia\'s FREE INTRO only (no credits)...', 'info');
+            document.getElementById('status').textContent = 'Click the "Trigger Intro" button below to start';
             
-            // Now trigger intro after user interaction
-            triggerIntroAfterUserClick();
-        };
-        
-        // Add after status
-        const status = document.getElementById('status');
-        status.parentNode.insertBefore(button, status.nextSibling);
-        
-        log('✅ Added "Trigger Intro" button for user interaction', 'info');
-    }
-}
-
-// ========== NEW: TRIGGER INTRO AFTER USER CLICK ==========
-function triggerIntroAfterUserClick() {
-    document.getElementById('status').textContent = 'Starting Botinia intro...';
-    
-    const widget = document.querySelector('lemon-slice-widget');
-    if (!widget?.shadowRoot) {
-        log('Widget not ready. Retrying...', 'warning');
-        setTimeout(triggerIntroAfterUserClick, 500);
-        return;
-    }
-    
-    // Try multiple strategies to trigger the intro
-    setTimeout(() => tryStrategy1(), 100);
-    setTimeout(() => tryStrategy2(), 600);
-    setTimeout(() => tryStrategy3(), 1100);
-    
-    // Start listening for audio
-    setTimeout(() => {
-        captureIntroAudioOnly();
-    }, 500);
-}
-
-// ========== STRATEGY 1: Find and click mic button ==========
-function tryStrategy1() {
-    const widget = document.querySelector('lemon-slice-widget');
-    if (!widget?.shadowRoot) return;
-    
-    const buttons = widget.shadowRoot.querySelectorAll('button');
-    
-    buttons.forEach((button, i) => {
-        const btnText = button.textContent?.toLowerCase() || '';
-        const ariaLabel = button.getAttribute('aria-label')?.toLowerCase() || '';
-        const className = button.className || '';
-        
-        // Look for mic/audio/play buttons
-        if (ariaLabel.includes('microphone') || 
-            ariaLabel.includes('mic') ||
-            ariaLabel.includes('audio') ||
-            ariaLabel.includes('voice') ||
-            ariaLabel.includes('speak') ||
-            className.includes('mic') ||
-            className.includes('audio') ||
-            btnText.includes('🎤') ||
-            btnText.includes('▶') ||
-            btnText.includes('talk') ||
-            btnText.includes('chat')) {
-            
-            log(`Strategy 1: Clicking mic button #${i} (aria: "${ariaLabel}")`, 'info');
-            button.click();
-            return true;
+            // Show a user-friendly message and button
+            showIntroTriggerButton();
         }
-    });
-    
-    return false;
-}
 
-// ========== STRATEGY 2: Click any non-close button with animation ==========
-function tryStrategy2() {
-    const widget = document.querySelector('lemon-slice-widget');
-    if (!widget?.shadowRoot) return;
-    
-    const buttons = widget.shadowRoot.querySelectorAll('button');
-    
-    for (let i = 0; i < buttons.length; i++) {
-        const ariaLabel = buttons[i].getAttribute('aria-label')?.toLowerCase() || '';
-        
-        // Skip close/minimize buttons
-        if (ariaLabel.includes('close') || 
-            ariaLabel.includes('minimize') || 
-            ariaLabel.includes('collapse')) {
-            continue;
-        }
-        
-        log(`Strategy 2: Clicking button #${i} (aria: "${ariaLabel}")`, 'info');
-        buttons[i].click();
-        return true;
-    }
-    
-    return false;
-}
-
-// ========== STRATEGY 3: Simulate spacebar press to trigger audio ==========
-function tryStrategy3() {
-    log('Strategy 3: Simulating keyboard interaction', 'info');
-    
-    // Simulate spacebar press (common play/pause trigger)
-    const spaceEvent = new KeyboardEvent('keydown', {
-        key: ' ',
-        code: 'Space',
-        keyCode: 32,
-        bubbles: true,
-        cancelable: true
-    });
-    
-    document.dispatchEvent(spaceEvent);
-    
-    // Also try enter key
-    setTimeout(() => {
-        const enterEvent = new KeyboardEvent('keydown', {
-            key: 'Enter',
-            code: 'Enter',
-            keyCode: 13,
-            bubbles: true
-        });
-        document.dispatchEvent(enterEvent);
-    }, 50);
-    
-    return true;
-}
-
-// ========== UPDATED CAPTURE INTRO FUNCTION ==========
-function captureIntroAudioOnly() {
-    log('🎧 Listening for Botinia audio...', 'info');
-    document.getElementById('status').textContent = 'Listening for intro audio...';
-    
-    let checkAttempts = 0;
-    const maxAttempts = 30; // 30 seconds max
-    
-    function checkAudio() {
-        checkAttempts++;
-        
-        const widget = document.querySelector('lemon-slice-widget');
-        if (!widget?.shadowRoot) {
-            if (checkAttempts < maxAttempts) {
-                setTimeout(checkAudio, 1000);
-            } else {
-                log('❌ Widget not found after multiple attempts', 'error');
-            }
-            return;
-        }
-        
-        const audioElements = widget.shadowRoot.querySelectorAll('audio');
-        let audioPlaying = false;
-        
-        // Check each audio element
-        audioElements.forEach((audio, i) => {
-            // Add event listener if not already added
-            if (!audio._listenerAdded) {
-                audio.addEventListener('play', () => {
-                    log(`🎬 Audio #${i} started playing!`, 'success');
-                    document.getElementById('status').textContent = 'Botinia is speaking!';
-                    startSpeechRecognitionWithPermission();
-                });
-                audio._listenerAdded = true;
-            }
+        // ========== SHOW USER TRIGGER BUTTON ==========
+        function showIntroTriggerButton() {
+            // Create or update a trigger button
+            const existingButton = document.getElementById('triggerIntroBtn');
             
-            // Check if currently playing
-            if (!audio.paused && audio.currentTime > 0) {
-                log(`✅ Detected active audio in element #${i}`, 'success');
-                audioPlaying = true;
-                startSpeechRecognitionWithPermission();
-            }
-        });
-        
-        if (!audioPlaying && checkAttempts < maxAttempts) {
-            // Update status message
-            if (checkAttempts % 5 === 0) {
-                document.getElementById('status').textContent = 
-                    `Listening for audio... (${checkAttempts}s elapsed)`;
-            }
-            setTimeout(checkAudio, 1000);
-        } else if (checkAttempts >= maxAttempts) {
-            log('⏰ Timeout waiting for audio', 'warning');
-            document.getElementById('status').textContent = 'Audio timeout. Try clicking Botinia\'s mic button.';
-        }
-    }
-    
-    checkAudio();
-}
-
-// NEW HELPER FUNCTION
-function captureAudioAndStartRecognition(audioElement, index) {
-    if (window.hasCapturedAudio) return;
-    window.hasCapturedAudio = true;
-    
-    log(`✅ CAPTURED Audio #${index}! Starting recognition...`, 'success');
-    document.getElementById('status').textContent = 'Transcribing Botinia...';
-    
-    // Connect to Web Audio API
-    try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const source = audioContext.createMediaElementSource(audioElement);
-        source.connect(audioContext.destination);
-        log('Web Audio connected', 'success');
-    } catch (e) {
-        log(`Audio error: ${e.message}`, 'error');
-    }
-    
-    // CRITICAL: Request microphone permission before starting recognition
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-            // We have permission (but don't use the stream)
-            stream.getTracks().forEach(track => track.stop());
-            log('✅ Microphone permission granted', 'success');
-            
-            // NOW start speech recognition
-            startSpeechRecognition();
-        })
-        .catch(error => {
-            log(`❌ Microphone permission DENIED: ${error.message}`, 'error');
-            log('System cannot work without microphone access', 'error');
-        });
-}
-
-function activateWidgetMicButton() {
-    // EMPTY FUNCTION - we're NOT activating anything
-    log('⚠️ Skipping button activation (using free intro only)', 'info');
-    document.getElementById('status').textContent = 'Using free intro, no activation needed';
-    
-    // Just start listening for intro audio
-    captureIntroAudioOnly();
-}
-
-// ========== NEW: CAPTURE INTRO AUDIO ONLY ==========
-function captureIntroAudioOnly() {
-    log('🎧 Trying to capture Botinia\'s INTRO audio (no activation needed)...', 'info');
-    document.getElementById('status').textContent = 'Listening for intro...';
-    
-    const widget = document.querySelector('lemon-slice-widget');
-    if (!widget?.shadowRoot) {
-        log('Widget not ready. Retrying...', 'warning');
-        setTimeout(captureIntroAudioOnly, 1000);
-        return;
-    }
-    
-    const audioElements = widget.shadowRoot.querySelectorAll('audio');
-    log(`Found ${audioElements.length} audio elements`, 'info');
-    
-    // Listen for ANY audio playback (including intro)
-    let hasStartedListening = false;
-    
-    audioElements.forEach((audio, i) => {
-        // Listen for playback start
-        audio.addEventListener('play', () => {
-            if (hasStartedListening) return;
-            hasStartedListening = true;
-            
-            log(`🎬 Audio element #${i} STARTED playing (INTRO!)`, 'success');
-            startSpeechRecognitionWithPermission();
-        });
-        
-        // Check if already playing
-        if (!audio.paused && audio.currentTime > 0) {
-            if (!hasStartedListening) {
-                hasStartedListening = true;
-                log(`✅ Intro already playing in audio #${i}`, 'success');
-                startSpeechRecognitionWithPermission();
+            if (!existingButton) {
+                const button = document.createElement('button');
+                button.id = 'triggerIntroBtn';
+                button.textContent = '🎤 Trigger Botinia Intro';
+                button.style.cssText = `
+                    padding: 12px 24px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    margin: 10px 0;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                    transition: transform 0.2s, box-shadow 0.2s;
+                `;
+                
+                button.onmouseover = () => {
+                    button.style.transform = 'translateY(-2px)';
+                    button.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)';
+                };
+                
+                button.onmouseout = () => {
+                    button.style.transform = 'translateY(0)';
+                    button.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+                };
+                
+                button.onclick = () => {
+                    log('👆 User clicked to trigger intro...', 'success');
+                    button.textContent = 'Triggering...';
+                    button.disabled = true;
+                    
+                    // Now trigger intro after user interaction
+                    triggerIntroAfterUserClick();
+                };
+                
+                // Add after status
+                const status = document.getElementById('status');
+                status.parentNode.insertBefore(button, status.nextSibling);
+                
+                log('✅ Added "Trigger Intro" button for user interaction', 'info');
             }
         }
-    });
-    
-    // If nothing detected after 3 seconds, check manually
-    setTimeout(() => {
-        if (!hasStartedListening) {
-            log('Still waiting for intro... Checking audio state:', 'info');
-            audioElements.forEach((audio, i) => {
-                console.log(`Audio ${i}: paused=${audio.paused}, currentTime=${audio.currentTime}, src="${audio.src}"`);
-            });
-        }
-    }, 3000);
-}
 
-// ========== NEW: SPEECH RECOGNITION FOR INTRO ==========
-function startSpeechRecognitionWithPermission() {
-    if (window.recognitionActive) return;
-    window.recognitionActive = true;
-    
-    log('Requesting microphone permission...', 'info');
-    
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-            stream.getTracks().forEach(track => track.stop());
-            log('✅ Permission granted. Listening to Botinia...', 'success');
+        // ========== TRIGGER INTRO AFTER USER CLICK ==========
+        function triggerIntroAfterUserClick() {
+            document.getElementById('status').textContent = 'Starting Botinia intro...';
             
-            // Use your EXISTING startSpeechRecognition() function
-            startSpeechRecognition();
+            const widget = document.querySelector('lemon-slice-widget');
+            if (!widget?.shadowRoot) {
+                log('Widget not ready. Retrying...', 'warning');
+                setTimeout(triggerIntroAfterUserClick, 500);
+                return;
+            }
             
-        })
-        .catch(error => {
-            log(`❌ Microphone permission denied: ${error.message}`, 'error');
-        });
-}
-
-// ========== FIND MIC BUTTON AFTER WIDGET OPENS ==========
-function findAndClickMicButton() {
-    const widget = document.querySelector('lemon-slice-widget');
-    if (!widget?.shadowRoot) return;
-    
-    // Look for mic button now that widget is open
-    const buttons = widget.shadowRoot.querySelectorAll('button');
-    
-    for (const button of buttons) {
-        const ariaLabel = button.getAttribute('aria-label')?.toLowerCase() || '';
-        const className = button.className.toLowerCase();
-        const text = button.textContent.toLowerCase();
-        
-        // Look for MIC-related buttons
-        const isMicButton = ariaLabel.includes('mic') || ariaLabel.includes('microphone') ||
-                           ariaLabel.includes('speak') || ariaLabel.includes('talk') ||
-                           ariaLabel.includes('start') || ariaLabel.includes('begin') ||
-                           className.includes('mic') || className.includes('speak') ||
-                           text.includes('mic') || text.includes('speak');
-        
-        if (isMicButton) {
-            log(`🎤 Found REAL mic button: ${ariaLabel || text}`, 'success');
-            console.log('Real mic button:', {
-                ariaLabel: button.getAttribute('aria-label'),
-                className: button.className,
-                innerHTML: button.innerHTML.substring(0, 100)
-            });
+            // Try multiple strategies to trigger the intro
+            setTimeout(() => tryStrategy1(), 100);
+            setTimeout(() => tryStrategy2(), 600);
+            setTimeout(() => tryStrategy3(), 1100);
             
-            button.click();
-            log('Real mic button clicked!', 'success');
-            
-            setTimeout(() => {
-                initializeAudioCapture();
-            }, 1000);
-            return;
-        }
-    }
-    
-    log('❌ Still cannot find mic button after opening widget', 'error');
-    log('Please click the mic button manually in the widget', 'error');
-}
-
-// ========== DIRECT INTERACTION (Fallback) ==========
-function tryDirectWidgetInteraction() {
-    log('Trying direct widget interaction...', 'info');
-    
-    const widget = document.querySelector('lemon-slice-widget');
-    if (!widget) return;
-    
-    // Method 1: Try to focus and press Enter (common activation)
-    widget.focus();
-    widget.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter' }));
-    log('Sent Enter key to widget', 'info');
-    
-    // Method 2: Look for input/textarea and simulate typing
-    const inputs = widget.shadowRoot?.querySelectorAll('input, textarea') || [];
-    if (inputs.length > 0) {
-        inputs[0].focus();
-        log('Focused input in widget', 'info');
-    }
-    
-    // Method 3: Try to trigger any clickable area
-    const clickable = widget.shadowRoot?.querySelector('[role="button"], [onclick], .clickable') || widget;
-    clickable.click();
-    log('Clicked main widget area', 'info');
-    
-    // Then try to find mic button again
-    setTimeout(() => {
-        findAndClickMicButton();
-    }, 2000);
-}
-
-// ========== MANUAL OVERRIDE ==========
-// Add this button to your HTML for manual testing:
-// <button onclick="manualMicSearch()">🔍 Manual Mic Search</button>
-
-function manualMicSearch() {
-    log('=== MANUAL MIC SEARCH ===', 'info');
-    
-    const widget = document.querySelector('lemon-slice-widget');
-    if (!widget?.shadowRoot) return;
-    
-    // Show ALL interactive elements
-    const interactive = widget.shadowRoot.querySelectorAll('button, [role="button"], [tabindex], [onclick]');
-    log(`Found ${interactive.length} interactive elements`, 'info');
-    
-    interactive.forEach((el, i) => {
-        const tag = el.tagName;
-        const aria = el.getAttribute('aria-label') || el.getAttribute('title') || '';
-        const cls = el.className;
-        const text = el.textContent.trim().substring(0, 30);
-        
-        log(`Element ${i}: ${tag} "${aria}" "${text}" class:${cls.substring(0, 30)}`, 'info');
-        
-        // Log to console for detailed inspection
-        console.log(`Element ${i}:`, {
-            tagName: tag,
-            ariaLabel: el.getAttribute('aria-label'),
-            title: el.getAttribute('title'),
-            className: cls,
-            textContent: text,
-            outerHTML: el.outerHTML.substring(0, 150)
-        });
-    });
-}
-
-function initializeSystemForIntro() {
-    log('🎧 Capturing Botinia\'s FREE INTRO only (no credits)...', 'info');
-    document.getElementById('status').textContent = 'Triggering intro then listening...';
-    
-    // FIRST trigger the intro to play, THEN listen
-    triggerIntroPlayback();
-}
-
-// ========== NEW: TRIGGER INTRO PLAYBACK ==========
-function triggerIntroPlayback() {
-    log('🔊 Attempting to trigger Botinia\'s intro...', 'info');
-    
-    const widget = document.querySelector('lemon-slice-widget');
-    if (!widget?.shadowRoot) {
-        log('Widget not ready. Retrying...', 'warning');
-        setTimeout(triggerIntroPlayback, 1000);
-        return;
-    }
-    
-    // Try to find and click the "Start Conversation" button or similar
-    const buttons = widget.shadowRoot.querySelectorAll('button');
-    let introTriggered = false;
-    
-    buttons.forEach((button, i) => {
-        const btnText = button.textContent?.toLowerCase() || '';
-        const ariaLabel = button.getAttribute('aria-label')?.toLowerCase() || '';
-        
-        // Look for buttons that might trigger the intro
-        if (btnText.includes('start') || 
-            btnText.includes('talk') || 
-            btnText.includes('chat') ||
-            ariaLabel.includes('start') ||
-            ariaLabel.includes('talk') ||
-            ariaLabel.includes('chat') ||
-            btnText.includes('▶') || // Play symbol
-            btnText.includes('🎤') || // Mic symbol
-            btnText === '') { // Empty button might be the mic
-            
-            log(`Clicking button #${i}: "${btnText}" (aria: "${ariaLabel}")`, 'info');
-            button.click();
-            introTriggered = true;
-            
-            // Wait a moment for intro to start, then listen
+            // Start listening for audio
             setTimeout(() => {
                 captureIntroAudioOnly();
             }, 500);
         }
-    });
-    
-    if (!introTriggered) {
-        log('No obvious intro trigger button found. Trying first available button...', 'warning');
-        
-        // Click the first non-close button
-        for (let i = 0; i < buttons.length; i++) {
-            const btnText = buttons[i].textContent?.toLowerCase() || '';
-            const ariaLabel = buttons[i].getAttribute('aria-label')?.toLowerCase() || '';
+
+        // ========== STRATEGY 1: Find and click mic button ==========
+        function tryStrategy1() {
+            const widget = document.querySelector('lemon-slice-widget');
+            if (!widget?.shadowRoot) return false;
             
-            if (!ariaLabel.includes('close') && !btnText.includes('close')) {
-                log(`Clicking fallback button #${i}`, 'info');
-                buttons[i].click();
+            const buttons = widget.shadowRoot.querySelectorAll('button');
+            
+            for (let i = 0; i < buttons.length; i++) {
+                const btnText = buttons[i].textContent?.toLowerCase() || '';
+                const ariaLabel = buttons[i].getAttribute('aria-label')?.toLowerCase() || '';
+                const className = buttons[i].className || '';
                 
-                setTimeout(() => {
-                    captureIntroAudioOnly();
-                }, 500);
-                break;
+                // Look for mic/audio/play buttons
+                if (ariaLabel.includes('microphone') || 
+                    ariaLabel.includes('mic') ||
+                    ariaLabel.includes('audio') ||
+                    ariaLabel.includes('voice') ||
+                    ariaLabel.includes('speak') ||
+                    className.includes('mic') ||
+                    className.includes('audio') ||
+                    btnText.includes('🎤') ||
+                    btnText.includes('▶') ||
+                    btnText.includes('talk') ||
+                    btnText.includes('chat')) {
+                    
+                    log(`Strategy 1: Clicking mic button #${i} (aria: "${ariaLabel}")`, 'info');
+                    buttons[i].click();
+                    return true;
+                }
             }
+            
+            return false;
         }
-    }
-}
 
-// ========== SIMPLIFIED AUDIO CAPTURE ==========
-function initializeAudioCapture() {
-    log('Starting audio capture after mic activation...', 'info');
-    
-    const widget = document.querySelector('lemon-slice-widget');
-    if (!widget?.shadowRoot) return;
-    
-    const audioElements = widget.shadowRoot.querySelectorAll('audio');
-    log(`Monitoring ${audioElements.length} audio elements for stream...`, 'info');
-    
-    audioElements.forEach((audio, index) => {
-        // Watch for stream assignment
-        const observer = new MutationObserver(() => {
-            if (audio.src || audio.currentSrc) {
-                log(`🎯 Audio #${index} got stream!`, 'success');
-                startSpeechRecognitionWithPermission();
-                observer.disconnect(); // Stop watching
+        // ========== STRATEGY 2: Click any non-close button ==========
+        function tryStrategy2() {
+            const widget = document.querySelector('lemon-slice-widget');
+            if (!widget?.shadowRoot) return false;
+            
+            const buttons = widget.shadowRoot.querySelectorAll('button');
+            
+            for (let i = 0; i < buttons.length; i++) {
+                const ariaLabel = buttons[i].getAttribute('aria-label')?.toLowerCase() || '';
+                
+                // Skip close/minimize buttons
+                if (ariaLabel.includes('close') || 
+                    ariaLabel.includes('minimize') || 
+                    ariaLabel.includes('collapse')) {
+                    continue;
+                }
+                
+                log(`Strategy 2: Clicking button #${i} (aria: "${ariaLabel}")`, 'info');
+                buttons[i].click();
+                return true;
             }
-        });
-        observer.observe(audio, { attributes: true, attributeFilter: ['src', 'currentSrc'] });
-        
-        // Also listen for playback
-        audio.addEventListener('play', () => {
-            log(`▶️ Audio #${index} playing!`, 'success');
-            startSpeechRecognitionWithPermission();
-        });
-    });
-}
+            
+            return false;
+        }
 
-// ========== REQUEST MIC PERMISSION ==========
-function startSpeechRecognitionWithPermission() {
-    if (window.recognitionStarted) return;
-    window.recognitionStarted = true;
-    
-    log('Requesting microphone permission for speech recognition...', 'info');
-    
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-            stream.getTracks().forEach(track => track.stop()); // Don't actually record
-            log('✅ Microphone permission granted', 'success');
-            startSpeechRecognition(); // Your existing function
-        })
-        .catch(error => {
-            log(`❌ Microphone permission denied: ${error.message}`, 'error');
+        // ========== STRATEGY 3: Simulate spacebar press ==========
+        function tryStrategy3() {
+            log('Strategy 3: Simulating keyboard interaction', 'info');
+            
+            // Simulate spacebar press
+            const spaceEvent = new KeyboardEvent('keydown', {
+                key: ' ',
+                code: 'Space',
+                keyCode: 32,
+                bubbles: true,
+                cancelable: true
+            });
+            
+            document.dispatchEvent(spaceEvent);
+            
+            // Also try enter key
+            setTimeout(() => {
+                const enterEvent = new KeyboardEvent('keydown', {
+                    key: 'Enter',
+                    code: 'Enter',
+                    keyCode: 13,
+                    bubbles: true
+                });
+                document.dispatchEvent(enterEvent);
+            }, 50);
+            
+            return true;
+        }
+
+        // ========== CAPTURE INTRO AUDIO FUNCTION ==========
+        function captureIntroAudioOnly() {
+            log('🎧 Listening for Botinia audio...', 'info');
+            document.getElementById('status').textContent = 'Listening for intro audio...';
+            
+            let checkAttempts = 0;
+            const maxAttempts = 30;
+            
+            function checkAudio() {
+                checkAttempts++;
+                
+                const widget = document.querySelector('lemon-slice-widget');
+                if (!widget?.shadowRoot) {
+                    if (checkAttempts < maxAttempts) {
+                        setTimeout(checkAudio, 1000);
+                    } else {
+                        log('❌ Widget not found after multiple attempts', 'error');
+                    }
+                    return;
+                }
+                
+                const audioElements = widget.shadowRoot.querySelectorAll('audio');
+                let audioPlaying = false;
+                
+                // Check each audio element
+                audioElements.forEach((audio, i) => {
+                    // Add event listener if not already added
+                    if (!audio._listenerAdded) {
+                        audio.addEventListener('play', () => {
+                            log(`🎬 Audio #${i} started playing!`, 'success');
+                            document.getElementById('status').textContent = 'Botinia is speaking!';
+                            startSpeechRecognitionWithPermission();
+                        });
+                        audio._listenerAdded = true;
+                    }
+                    
+                    // Check if currently playing
+                    if (!audio.paused && audio.currentTime > 0) {
+                        log(`✅ Detected active audio in element #${i}`, 'success');
+                        audioPlaying = true;
+                        startSpeechRecognitionWithPermission();
+                    }
+                });
+                
+                if (!audioPlaying && checkAttempts < maxAttempts) {
+                    // Update status message
+                    if (checkAttempts % 5 === 0) {
+                        document.getElementById('status').textContent = 
+                            `Listening for audio... (${checkAttempts}s elapsed)`;
+                    }
+                    setTimeout(checkAudio, 1000);
+                } else if (checkAttempts >= maxAttempts) {
+                    log('⏰ Timeout waiting for audio', 'warning');
+                    document.getElementById('status').textContent = 'Audio timeout. Try clicking Botinia\'s mic button.';
+                }
+            }
+            
+            checkAudio();
+        }
+
+        // ========== SPEECH RECOGNITION WITH PERMISSION ==========
+        function startSpeechRecognitionWithPermission() {
+            if (window.recognitionActive) return;
+            window.recognitionActive = true;
+            
+            log('Requesting microphone permission...', 'info');
+            
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    stream.getTracks().forEach(track => track.stop());
+                    log('✅ Permission granted. Listening to Botinia...', 'success');
+                    startSpeechRecognition();
+                })
+                .catch(error => {
+                    log(`❌ Microphone permission denied: ${error.message}`, 'error');
+                });
+        }
+
+        // ========== LEGACY FUNCTIONS (keep for compatibility) ==========
+        function activateWidgetMicButton() {
+            log('⚠️ Skipping button activation (using free intro only)', 'info');
+            document.getElementById('status').textContent = 'Using free intro, no activation needed';
+            captureIntroAudioOnly();
+        }
+
+        // ========== MANUAL DEBUG FUNCTIONS ==========
+        function manualMicSearch() {
+            log('=== MANUAL MIC SEARCH ===', 'info');
+            
+            const widget = document.querySelector('lemon-slice-widget');
+            if (!widget?.shadowRoot) return;
+            
+            const interactive = widget.shadowRoot.querySelectorAll('button, [role="button"], [tabindex], [onclick]');
+            log(`Found ${interactive.length} interactive elements`, 'info');
+            
+            interactive.forEach((el, i) => {
+                const tag = el.tagName;
+                const aria = el.getAttribute('aria-label') || el.getAttribute('title') || '';
+                const cls = el.className;
+                const text = el.textContent.trim().substring(0, 30);
+                
+                log(`Element ${i}: ${tag} "${aria}" "${text}" class:${cls.substring(0, 30)}`, 'info');
+                
+                console.log(`Element ${i}:`, {
+                    tagName: tag,
+                    ariaLabel: el.getAttribute('aria-label'),
+                    title: el.getAttribute('title'),
+                    className: cls,
+                    textContent: text,
+                    outerHTML: el.outerHTML.substring(0, 150)
+                });
+            });
+        }
+
+        // ========== PAGE LOAD ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Widget loaded. Click "Initialize System" then "Trigger Intro" button', 'info');
         });
-}
-
-// ========== UPDATE: AUTO-START ON PAGE LOAD ==========
-// Replace your current initialization code with this:
-document.addEventListener('DOMContentLoaded', function() {
-    log('Widget loaded. Click "Initialize System" then "Trigger Intro" button', 'info');
-});
-
-// Keep your existing startSpeechRecognition() and launchTestimonialPlayer() functions
 
         // ========== SPEECH RECOGNITION ==========
         function startSpeechRecognition() {
@@ -670,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Stop listening
                     recognition.stop();
                     
-                    // LAUNCH YOUR TESTIMONIAL PLAYER HERE
+                    // LAUNCH YOUR TESTIMONIAL PLAYER
                     launchTestimonialPlayer();
                 }
             };
@@ -691,128 +405,109 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // ==================== UPDATE THESE FUNCTIONS IN YOUR CURRENT FILE ====================
+        // ========== TESTIMONIAL PLAYER FUNCTIONS ==========
+        function launchTestimonialPlayer() {
+            log('🚀 TRIGGER DETECTED! Launching testimonial player...', 'trigger');
+            document.getElementById('status').textContent = 'TRIGGERED! Loading testimonials...';
+            loadAndShowPlayer();
+        }
 
-// 1. REPLACE the current launchTestimonialPlayer() function with this:
-function launchTestimonialPlayer() {
-    log('🚀 TRIGGER DETECTED! Launching testimonial player...', 'trigger');
-    document.getElementById('status').textContent = 'TRIGGERED! Loading testimonials...';
-    
-    // Call the PROVEN working function
-    loadAndShowPlayer();
-}
+        function loadAndShowPlayer() {
+            log(`🚀 Loading testimonial player...`, "info");
+            
+            if (typeof window.showTestimonialSplashScreen === 'function') {
+                createTestimonialData();
+                showPlayer();
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = 'testimonial-player.js';
+            
+            script.onload = function() {
+                log(`✅ testimonial-player.js loaded`, "success");
+                createTestimonialData();
+                showPlayer();
+            };
+            
+            script.onerror = function() {
+                log(`❌ Failed to load testimonial-player.js`, "error");
+                showError();
+            };
+            
+            document.head.appendChild(script);
+        }
 
-// 2. ADD THESE FUNCTIONS (copy from your working version):
-function loadAndShowPlayer() {
-    log(`🚀 Loading testimonial player...`, "info");
-    
-    // Check if already loaded
-    if (typeof window.showTestimonialSplashScreen === 'function') {
-        createTestimonialData();
-        showPlayer();
-        return;
-    }
-    
-    const script = document.createElement('script');
-    script.src = 'testimonial-player.js';
-    
-    script.onload = function() {
-        log(`✅ testimonial-player.js loaded`, "success");
-        createTestimonialData();
-        showPlayer();
-    };
-    
-    script.onerror = function() {
-        log(`❌ Failed to load testimonial-player.js`, "error");
-        showError();
-    };
-    
-    document.head.appendChild(script);
-}
-
-function createTestimonialData() {
-    if (!window.testimonialData) {
-        window.testimonialData = {
-            testimonialGroups: {
-                group_1769476426538: {
-                    title: "Verified Results Gallery",
-                    testimonials: [
-                        {
-                            title: "Personal Injury Lawyer 312% Boost",
-                            author: "Law Firm Client",
-                            concernType: "results",
-                            hasVideoUrl: true,
-                            videoUrl: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4"
+        function createTestimonialData() {
+            if (!window.testimonialData) {
+                window.testimonialData = {
+                    testimonialGroups: {
+                        group_1769476426538: {
+                            title: "Verified Results Gallery",
+                            testimonials: [
+                                {
+                                    title: "Personal Injury Lawyer 312% Boost",
+                                    author: "Law Firm Client",
+                                    concernType: "results",
+                                    hasVideoUrl: true,
+                                    videoUrl: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4"
+                                }
+                            ]
                         }
-                    ]
-                }
-            },
-            currentGroup: 'group_1769476426538'
-        };
-        log(`📦 Created testimonial data`, "success");
-    }
-}
+                    },
+                    currentGroup: 'group_1769476426538'
+                };
+                log(`📦 Created testimonial data`, "success");
+            }
+        }
 
-function showPlayer() {
-    // IMPORTANT: Your HTML needs a #playerArea div!
-    const playerArea = document.getElementById('playerArea');
-    if (!playerArea) {
-        log(`❌ ERROR: #playerArea div not found in HTML!`, "error");
-        log(`Add this to your HTML: <div id="playerArea"></div>`, "error");
-        return;
-    }
-    
-    playerArea.innerHTML = '';
-    
-    const chatMessages = document.createElement('div');
-    chatMessages.id = 'chatMessages';
-    chatMessages.style.cssText = `position: relative; width: 100%; min-height: 400px; background: #1a1a1a;`;
-    playerArea.appendChild(chatMessages);
-    
-    log(`📦 Created #chatMessages inside #playerArea`, "success");
-    
-    try {
-        window.showTestimonialSplashScreen();
-        log(`✅ Testimonial player launched`, "success");
-        document.getElementById('status').textContent = 'Testimonial Player Active!';
-    } catch (error) {
-        log(`❌ Error: ${error.message}`, "error");
-        showError();
-    }
-}
+        function showPlayer() {
+            const playerArea = document.getElementById('playerArea');
+            if (!playerArea) {
+                log(`❌ ERROR: #playerArea div not found in HTML!`, "error");
+                return;
+            }
+            
+            playerArea.innerHTML = '';
+            
+            const chatMessages = document.createElement('div');
+            chatMessages.id = 'chatMessages';
+            chatMessages.style.cssText = `position: relative; width: 100%; min-height: 400px; background: #1a1a1a;`;
+            playerArea.appendChild(chatMessages);
+            
+            log(`📦 Created #chatMessages inside #playerArea`, "success");
+            
+            try {
+                window.showTestimonialSplashScreen();
+                log(`✅ Testimonial player launched`, "success");
+                document.getElementById('status').textContent = 'Testimonial Player Active!';
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, "error");
+                showError();
+            }
+        }
 
-function showError() {
-    const playerArea = document.getElementById('playerArea') || document.body;
-    playerArea.innerHTML = `
-        <div style="text-align: center; padding: 50px; color: #FF9800;">
-            <h3>⚠️ Player Load Issue</h3>
-            <p>Check console for errors. Make sure testimonial-player.js is in same folder.</p>
-            <button onclick="loadAndShowPlayer()" style="
-                background: #2196F3;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 5px;
-                cursor: pointer;
-                margin-top: 20px;
-            ">Try Again</button>
-        </div>
-    `;
-}
-
-// 3. UPDATE your HTML to include #playerArea:
-// In your HTML, add this div somewhere (probably below the widget):
-/*
-<div id="playerArea">
-    <p>Testimonial player will appear here when triggered</p>
-</div>
-*/
+        function showError() {
+            const playerArea = document.getElementById('playerArea') || document.body;
+            playerArea.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: #FF9800;">
+                    <h3>⚠️ Player Load Issue</h3>
+                    <p>Check console for errors. Make sure testimonial-player.js is in same folder.</p>
+                    <button onclick="loadAndShowPlayer()" style="
+                        background: #2196F3;
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        margin-top: 20px;
+                    ">Try Again</button>
+                </div>
+            `;
+        }
 
         // ========== TEST FUNCTION ==========
         function triggerTest() {
             log('Simulating trigger detection...', 'info');
             launchTestimonialPlayer();
         }
-    </script>
-</body>
-</html>
