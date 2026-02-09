@@ -134,7 +134,64 @@
                     recognition.stop();
                     
                     // LAUNCH YOUR TESTIMONIAL PLAYER HERE
-                    launchTestimonialPlayer();
+                    // ========== LAUNCH TESTIMONIALS ==========
+function launchTestimonialPlayer() {
+    log('🚀 TRIGGER DETECTED! Launching testimonial player...', 'trigger');
+    document.getElementById('status').textContent = 'TRIGGERED! Loading testimonials...';
+    
+    // 1. Create the chat messages container (if needed)
+    if (!document.getElementById('chatMessages')) {
+        const chatDiv = document.createElement('div');
+        chatDiv.id = 'chatMessages';
+        chatDiv.style.cssText = 'position: relative; width: 100%; min-height: 400px;';
+        document.body.appendChild(chatDiv);
+        log('Created #chatMessages container', 'success');
+    }
+    
+    // 2. Load your testimonial player script (if not already loaded)
+    if (typeof window.showTestimonialSplashScreen === 'function') {
+        // Already loaded - call it directly
+        window.showTestimonialSplashScreen();
+        log('✅ Testimonial player launched!', 'success');
+    } else {
+        // Load the script first
+        log('Loading testimonial-player.js...', 'info');
+        const script = document.createElement('script');
+        script.src = 'testimonial-player.js'; // Your actual file
+        
+        script.onload = function() {
+            log('✅ testimonial-player.js loaded', 'success');
+            // Create testimonial data if needed
+            if (!window.testimonialData) {
+                window.testimonialData = {
+                    testimonialGroups: {
+                        group_1769476426538: {
+                            title: "Verified Results Gallery",
+                            testimonials: [
+                                {
+                                    title: "Personal Injury Lawyer 312% Boost",
+                                    author: "Law Firm Client",
+                                    concernType: "results",
+                                    hasVideoUrl: true,
+                                    videoUrl: "https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4"
+                                }
+                            ]
+                        }
+                    },
+                    currentGroup: 'group_1769476426538'
+                };
+            }
+            window.showTestimonialSplashScreen();
+            log('✅ Testimonial player launched!', 'success');
+        };
+        
+        script.onerror = function() {
+            log('❌ Failed to load testimonial player', 'error');
+        };
+        
+        document.head.appendChild(script);
+    }
+}
                 }
             };
             
