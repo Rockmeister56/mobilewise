@@ -19,8 +19,8 @@
     <lemon-slice-widget agent-id="agent_1db77d60ec132469"></lemon-slice-widget>
 
     <button onclick="initializeSystemForIntro()">
-    🚀 Auto-Activate Botinia & Start Listening
-</button>
+        🚀 Auto-Activate Botinia & Start Listening
+    </button>
     <button onclick="triggerTest()">Test Trigger (Simulate)</button>
 
     <button onclick="manualMicSearch()">🔍 Debug: Show Widget Elements</button>
@@ -28,22 +28,24 @@
     <div id="log"></div>
 
     <!-- AFTER the LemonSlice widget, add this: -->
-<div style="margin-top: 30px; border-top: 2px solid #444; padding-top: 20px;">
-    <h3>🎬 Testimonial Player Area</h3>
-    <div id="playerArea" style="min-height: 400px; background: #222; border-radius: 8px; padding: 20px;">
-        <p style="text-align: center; color: #888; padding: 100px 20px;">
-            Testimonial player will appear here when Botinia says "verified results gallery"
-        </p>
+    <div style="margin-top: 30px; border-top: 2px solid #444; padding-top: 20px;">
+        <h3>🎬 Testimonial Player Area</h3>
+        <div id="playerArea" style="min-height: 400px; background: #222; border-radius: 8px; padding: 20px;">
+            <p style="text-align: center; color: #888; padding: 100px 20px;">
+                Testimonial player will appear here when Botinia says "verified results gallery"
+            </p>
+        </div>
     </div>
-</div>
 
-<script type="module">
-    import 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
-    console.log('LemonSlice widget loaded. Click "Initialize System" then speak to Botinia.');
-</script>
+    <!-- WIDGET LOADING SCRIPT -->
+    <script type="module">
+        import 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
+        console.log('LemonSlice widget loaded. Click "Initialize System" then speak to Botinia.');
+    </script>
 
+    <!-- MAIN APPLICATION SCRIPT - SINGLE SCRIPT BLOCK -->
     <script>
-               // ========== GLOBALS ==========
+        // ========== GLOBALS ==========
         let isInitialized = false;
         let audioContext = null;
         let recognition = null;
@@ -343,11 +345,6 @@
             });
         }
 
-        // ========== PAGE LOAD ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            log('Widget loaded. Click "Initialize System" then "Trigger Intro" button', 'info');
-        });
-
         // ========== SPEECH RECOGNITION ==========
         function startSpeechRecognition() {
             if (!('webkitSpeechRecognition' in window)) {
@@ -511,3 +508,11 @@
             log('Simulating trigger detection...', 'info');
             launchTestimonialPlayer();
         }
+
+        // ========== INITIAL PAGE LOG ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Ready! Click "Auto-Activate Botinia & Start Listening" to begin.', 'info');
+        });
+    </script>
+</body>
+</html>
