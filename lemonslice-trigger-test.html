@@ -56,56 +56,83 @@
             console.log(msg);
         }
 
-        // ========== MAIN INITIALIZATION ==========
-        function initializeSystem() {
-            if (isInitialized) {
-                log('System already initialized.', 'info');
-                return;
-            }
+    
+        // ========== IMMEDIATE LISTENER FOR INTRO ==========
+function initializeSystemForIntro() {
+    log('🚨 CRITICAL CHANGE: Listening for Botinia\'s INTRO speech...', 'info');
+    document.getElementById('status').textContent = 'Listening for Botinia\'s intro...';
+    
+    // Don't wait for user - start immediately
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget?.shadowRoot) {
+        log('Widget not loaded yet. Retrying in 1 second...', 'warning');
+        setTimeout(initializeSystemForIntro, 1000);
+        return;
+    }
+    
+    // Capture ALL audio elements immediately
+    const audioElements = widget.shadowRoot.querySelectorAll('audio');
+    log(`Found ${audioElements.length} audio elements. Listening for ANY playback...`, 'info');
+    
+    let hasCaptured = false;
+    
+    audioElements.forEach((audio, index) => {
+        // Listen for ANY playback (including intro)
+        audio.addEventListener('play', function() {
+            if (hasCaptured) return;
+            hasCaptured = true;
             
-            log('Initializing audio capture system...');
-            document.getElementById('status').textContent = 'Listening for Botinia...';
+            log(`🎉 Botinia is SPEAKING (Intro/Audio #${index})!`, 'success');
             
-            // Get widget
-            const widget = document.querySelector('lemon-slice-widget');
-            if (!widget?.shadowRoot) {
-                log('ERROR: Widget not found', 'error');
-                return;
-            }
-
-            // Watch ALL audio elements for when Botinia speaks
-            const audioElements = widget.shadowRoot.querySelectorAll('audio');
-            log(`Found ${audioElements.length} audio elements in widget.`);
-            
-            audioElements.forEach((audio, index) => {
-                // Listen for when audio starts playing (Botinia speaks)
-                audio.addEventListener('play', function() {
-                    if (isInitialized) return;
-                    
-                    log(`🎉 BOTINIA IS SPEAKING! Audio element #${index} active.`, 'success');
-                    isInitialized = true;
-                    
-                    // Hook into the audio stream
-                    try {
-                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                        const source = audioContext.createMediaElementSource(audio);
-                        // Connect to destination so audio still plays
-                        source.connect(audioContext.destination);
-                        
-                        log('✅ Audio stream CAPTURED successfully!', 'success');
-                        document.getElementById('status').textContent = 'READY: Listening to Botinia...';
-                        
-                        // Start speech recognition
-                        startSpeechRecognition();
-                        
-                    } catch (error) {
-                        log(`Error: ${error.message}`, 'error');
-                    }
+            // Hook into audio stream
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaElementSource(audio);
+                source.connect(audioContext.destination);
+                
+                log('✅ Audio stream CAPTURED! Now transcribing everything...', 'success');
+                document.getElementById('status').textContent = 'Transcribing Botinia...';
+                
+                // Start speech recognition IMMEDIATELY
+                startSpeechRecognition();
+                
+                // Also listen for the END of her intro
+                audio.addEventListener('ended', function() {
+                    log('Botinia finished speaking. Ready for conversation.', 'info');
                 });
+                
+            } catch (error) {
+                log(`Audio capture error: ${error.message}`, 'error');
+            }
+        });
+        
+        // Also watch for src changes (stream assignment)
+        if (!audio.src && !audio.currentSrc) {
+            const observer = new MutationObserver(() => {
+                if (audio.src || audio.currentSrc) {
+                    log(`Audio #${index} got stream assigned`, 'info');
+                }
             });
-            
-            log('System initialized. Now speak to Botinia to activate capture.', 'success');
+            observer.observe(audio, { attributes: true, attributeFilter: ['src', 'currentSrc'] });
         }
+    });
+    
+    log('System READY to capture Botinia\'s intro. She will speak any moment...', 'success');
+}
+
+// ========== UPDATE: AUTO-START ON PAGE LOAD ==========
+// Replace your current initialization code with this:
+window.addEventListener('DOMContentLoaded', function() {
+    log('Page loaded. Starting IMMEDIATE audio capture for Botinia\'s intro...');
+    
+    // Start listening immediately (for intro)
+    setTimeout(initializeSystemForIntro, 1000); // 1 second delay to ensure widget loads
+    
+    // Also, add a manual button as backup
+    document.getElementById('status').textContent = 'Auto-listening for Botinia...';
+});
+
+// Keep your existing startSpeechRecognition() and launchTestimonialPlayer() functions
 
         // ========== SPEECH RECOGNITION ==========
         function startSpeechRecognition() {
