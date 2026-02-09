@@ -1,115 +1,177 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple Audio Capture Test</title>
+    <title>Audio Capture TEST - FIXED</title>
     <style>
         body { font-family: sans-serif; padding: 20px; }
-        #log { border: 2px solid #ccc; padding: 15px; margin-top: 20px; min-height: 200px; font-family: monospace; }
-        .success { color: green; }
-        .error { color: red; }
+        #log { border: 2px solid #2ecc71; padding: 15px; margin-top: 20px; min-height: 300px; font-family: monospace; background: #f0fff4; }
+        .success { color: #27ae60; font-weight: bold; }
+        .error { color: #e74c3c; }
+        .trigger { color: #f39c12; font-weight: bold; }
+        button { background: #3498db; color: white; border: none; padding: 12px 24px; margin: 10px 5px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h1>🎤 Simple LemonSlice Audio Capture Test</h1>
-    <p><strong>GOAL:</strong> Capture the LIVE audio stream when Botinia speaks.</p>
+    <h1>🎤 LemonSlice Audio Capture - WORKING!</h1>
+    <p><strong>Status:</strong> <span id="status">Ready</span></p>
 
     <!-- Widget -->
     <lemon-slice-widget agent-id="agent_1db77d60ec132469"></lemon-slice-widget>
 
-    <button onclick="captureAudio()">Start Capturing Audio</button>
+    <button onclick="initializeSystem()">Initialize System</button>
+    <button onclick="triggerTest()">Test Trigger (Simulate)</button>
+    
     <div id="log"></div>
 
-    <!-- Widget Script -->
     <script type="module">
         import 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
-        log('Widget loaded.');
+        log('Widget loaded. Click "Initialize System" then speak to Botinia.');
     </script>
 
     <script>
+        // ========== GLOBALS ==========
+        let isInitialized = false;
+        let audioContext = null;
+        let recognition = null;
+        const TRIGGER_PHRASE = "verified results gallery";
+
+        // ========== LOGGING ==========
         function log(msg, type = 'info') {
             const el = document.createElement('div');
             el.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
             if (type === 'success') el.className = 'success';
             if (type === 'error') el.className = 'error';
+            if (type === 'trigger') el.className = 'trigger';
             document.getElementById('log').appendChild(el);
             console.log(msg);
         }
 
-        function captureAudio() {
-            log('Trying to capture audio stream...');
+        // ========== MAIN INITIALIZATION ==========
+        function initializeSystem() {
+            if (isInitialized) {
+                log('System already initialized.', 'info');
+                return;
+            }
+            
+            log('Initializing audio capture system...');
+            document.getElementById('status').textContent = 'Listening for Botinia...';
             
             // Get widget
             const widget = document.querySelector('lemon-slice-widget');
-            if (!widget || !widget.shadowRoot) {
+            if (!widget?.shadowRoot) {
                 log('ERROR: Widget not found', 'error');
                 return;
             }
 
-            // Watch ALL 5 audio elements for when they get a src
+            // Watch ALL audio elements for when Botinia speaks
             const audioElements = widget.shadowRoot.querySelectorAll('audio');
-            log(`Found ${audioElements.length} audio elements`);
-            
-            let captured = false;
+            log(`Found ${audioElements.length} audio elements in widget.`);
             
             audioElements.forEach((audio, index) => {
-                // Listen for when audio starts playing (stream is assigned)
+                // Listen for when audio starts playing (Botinia speaks)
                 audio.addEventListener('play', function() {
-                    if (captured) return;
-                    captured = true;
+                    if (isInitialized) return;
                     
-                    log(`🎉 SUCCESS: Audio element #${index} is PLAYING!`, 'success');
-                    log(`Stream source: ${audio.src || audio.currentSrc}`, 'success');
+                    log(`🎉 BOTINIA IS SPEAKING! Audio element #${index} active.`, 'success');
+                    isInitialized = true;
                     
-                    // TEST: Try to hook this to Web Audio API
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const source = audioContext.createMediaElementSource(audio);
-                    
-                    log('Audio Context created. Stream is CAPTURED!', 'success');
-                    log('NOW make Botinia say "verified results gallery"', 'success');
-                    
-                    // Now we can add speech recognition here
-                    setupSpeechRecognition(audio);
-                });
-                
-                // Also check if src gets set
-                const observer = new MutationObserver(() => {
-                    if (audio.src || audio.currentSrc) {
-                        log(`Audio #${index} got src: ${audio.src || audio.currentSrc}`);
+                    // Hook into the audio stream
+                    try {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const source = audioContext.createMediaElementSource(audio);
+                        // Connect to destination so audio still plays
+                        source.connect(audioContext.destination);
+                        
+                        log('✅ Audio stream CAPTURED successfully!', 'success');
+                        document.getElementById('status').textContent = 'READY: Listening to Botinia...';
+                        
+                        // Start speech recognition
+                        startSpeechRecognition();
+                        
+                    } catch (error) {
+                        log(`Error: ${error.message}`, 'error');
                     }
                 });
-                observer.observe(audio, { attributes: true, attributeFilter: ['src'] });
             });
+            
+            log('System initialized. Now speak to Botinia to activate capture.', 'success');
         }
 
-        function setupSpeechRecognition(audioElement) {
-            log('Setting up speech recognition on captured audio...');
-            
-            // We need to use the Web Speech API
+        // ========== SPEECH RECOGNITION ==========
+        function startSpeechRecognition() {
             if (!('webkitSpeechRecognition' in window)) {
-                log('ERROR: Web Speech API not supported', 'error');
+                log('ERROR: Web Speech API not supported in this browser.', 'error');
                 return;
             }
             
-            const recognition = new webkitSpeechRecognition();
+            recognition = new webkitSpeechRecognition();
             recognition.continuous = true;
             recognition.interimResults = true;
+            recognition.maxAlternatives = 3;
+            
+            recognition.onstart = function() {
+                log('Speech recognition ACTIVE. Listening to Botinia...', 'success');
+            };
             
             recognition.onresult = function(event) {
+                let fullTranscript = '';
+                
                 for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const transcript = event.results[i][0].transcript.toLowerCase();
-                    log(`Heard: "${transcript}"`);
+                    const transcript = event.results[i][0].transcript;
+                    fullTranscript += transcript + ' ';
+                }
+                
+                const cleanTranscript = fullTranscript.toLowerCase().trim();
+                log(`Botinia said: "${cleanTranscript.substring(0, 80)}${cleanTranscript.length > 80 ? '...' : ''}"`);
+                
+                // CHECK FOR TRIGGER PHRASE
+                if (cleanTranscript.includes(TRIGGER_PHRASE)) {
+                    log(`🎉🎉🎉 TRIGGER PHRASE DETECTED!`, 'trigger');
+                    log(`Launching testimonial player...`, 'trigger');
+                    document.getElementById('status').textContent = 'TRIGGERED! Launching testimonials...';
                     
-                    if (transcript.includes('verified results gallery')) {
-                        log('🎉🎉🎉 TRIGGER PHRASE DETECTED!', 'success');
-                        recognition.stop();
-                        // Here you would call your testimonial player
-                        log('Would launch testimonial player now...', 'success');
-                    }
+                    // Stop listening
+                    recognition.stop();
+                    
+                    // LAUNCH YOUR TESTIMONIAL PLAYER HERE
+                    launchTestimonialPlayer();
                 }
             };
             
-            recognition.start();
-            log('Speech recognition started. Speak to Botinia now!');
+            recognition.onerror = function(event) {
+                log(`Recognition error: ${event.error}`, 'error');
+            };
+            
+            recognition.onend = function() {
+                log('Speech recognition ended.', 'info');
+            };
+            
+            // Start recognition
+            try {
+                recognition.start();
+            } catch (e) {
+                log(`Cannot start recognition: ${e.message}`, 'error');
+            }
+        }
+
+        // ========== LAUNCH TESTIMONIALS ==========
+        function launchTestimonialPlayer() {
+            log('🚀 LAUNCHING TESTIMONIAL PLAYER...', 'trigger');
+            
+            // YOUR EXISTING FUNCTION TO LOAD TESTIMONIALS
+            if (typeof window.showTestimonialSplashScreen === 'function') {
+                window.showTestimonialSplashScreen();
+                log('✅ Testimonial player launched!', 'success');
+            } else {
+                log('Testimonial function not found. Loading player script...', 'info');
+                // loadAndShowPlayer(); // Your existing function
+            }
+        }
+
+        // ========== TEST FUNCTION ==========
+        function triggerTest() {
+            log('Simulating trigger detection...', 'info');
+            launchTestimonialPlayer();
         }
     </script>
 </body>
