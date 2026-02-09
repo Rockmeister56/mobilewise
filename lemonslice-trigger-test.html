@@ -64,10 +64,230 @@
         // ========== UPDATED: WAIT FOR MIC CLICK ==========
 function initializeSystemForIntro() {
     log('🎧 Capturing Botinia\'s FREE INTRO only (no credits)...', 'info');
-    document.getElementById('status').textContent = 'Listening for free intro...';
+    document.getElementById('status').textContent = 'Click the "Trigger Intro" button below to start';
     
-    // DO NOT click any buttons - just listen for intro
-    captureIntroAudioOnly();
+    // Show a user-friendly message and button
+    showIntroTriggerButton();
+}
+
+// ========== NEW: SHOW USER TRIGGER BUTTON ==========
+function showIntroTriggerButton() {
+    // Create or update a trigger button
+    const existingButton = document.getElementById('triggerIntroBtn');
+    
+    if (!existingButton) {
+        const button = document.createElement('button');
+        button.id = 'triggerIntroBtn';
+        button.textContent = '🎤 Trigger Botinia Intro';
+        button.style.cssText = `
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        `;
+        
+        button.onmouseover = () => {
+            button.style.transform = 'translateY(-2px)';
+            button.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)';
+        };
+        
+        button.onmouseout = () => {
+            button.style.transform = 'translateY(0)';
+            button.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+        };
+        
+        button.onclick = () => {
+            log('👆 User clicked to trigger intro...', 'success');
+            button.textContent = 'Triggering...';
+            button.disabled = true;
+            
+            // Now trigger intro after user interaction
+            triggerIntroAfterUserClick();
+        };
+        
+        // Add after status
+        const status = document.getElementById('status');
+        status.parentNode.insertBefore(button, status.nextSibling);
+        
+        log('✅ Added "Trigger Intro" button for user interaction', 'info');
+    }
+}
+
+// ========== NEW: TRIGGER INTRO AFTER USER CLICK ==========
+function triggerIntroAfterUserClick() {
+    document.getElementById('status').textContent = 'Starting Botinia intro...';
+    
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget?.shadowRoot) {
+        log('Widget not ready. Retrying...', 'warning');
+        setTimeout(triggerIntroAfterUserClick, 500);
+        return;
+    }
+    
+    // Try multiple strategies to trigger the intro
+    setTimeout(() => tryStrategy1(), 100);
+    setTimeout(() => tryStrategy2(), 600);
+    setTimeout(() => tryStrategy3(), 1100);
+    
+    // Start listening for audio
+    setTimeout(() => {
+        captureIntroAudioOnly();
+    }, 500);
+}
+
+// ========== STRATEGY 1: Find and click mic button ==========
+function tryStrategy1() {
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget?.shadowRoot) return;
+    
+    const buttons = widget.shadowRoot.querySelectorAll('button');
+    
+    buttons.forEach((button, i) => {
+        const btnText = button.textContent?.toLowerCase() || '';
+        const ariaLabel = button.getAttribute('aria-label')?.toLowerCase() || '';
+        const className = button.className || '';
+        
+        // Look for mic/audio/play buttons
+        if (ariaLabel.includes('microphone') || 
+            ariaLabel.includes('mic') ||
+            ariaLabel.includes('audio') ||
+            ariaLabel.includes('voice') ||
+            ariaLabel.includes('speak') ||
+            className.includes('mic') ||
+            className.includes('audio') ||
+            btnText.includes('🎤') ||
+            btnText.includes('▶') ||
+            btnText.includes('talk') ||
+            btnText.includes('chat')) {
+            
+            log(`Strategy 1: Clicking mic button #${i} (aria: "${ariaLabel}")`, 'info');
+            button.click();
+            return true;
+        }
+    });
+    
+    return false;
+}
+
+// ========== STRATEGY 2: Click any non-close button with animation ==========
+function tryStrategy2() {
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget?.shadowRoot) return;
+    
+    const buttons = widget.shadowRoot.querySelectorAll('button');
+    
+    for (let i = 0; i < buttons.length; i++) {
+        const ariaLabel = buttons[i].getAttribute('aria-label')?.toLowerCase() || '';
+        
+        // Skip close/minimize buttons
+        if (ariaLabel.includes('close') || 
+            ariaLabel.includes('minimize') || 
+            ariaLabel.includes('collapse')) {
+            continue;
+        }
+        
+        log(`Strategy 2: Clicking button #${i} (aria: "${ariaLabel}")`, 'info');
+        buttons[i].click();
+        return true;
+    }
+    
+    return false;
+}
+
+// ========== STRATEGY 3: Simulate spacebar press to trigger audio ==========
+function tryStrategy3() {
+    log('Strategy 3: Simulating keyboard interaction', 'info');
+    
+    // Simulate spacebar press (common play/pause trigger)
+    const spaceEvent = new KeyboardEvent('keydown', {
+        key: ' ',
+        code: 'Space',
+        keyCode: 32,
+        bubbles: true,
+        cancelable: true
+    });
+    
+    document.dispatchEvent(spaceEvent);
+    
+    // Also try enter key
+    setTimeout(() => {
+        const enterEvent = new KeyboardEvent('keydown', {
+            key: 'Enter',
+            code: 'Enter',
+            keyCode: 13,
+            bubbles: true
+        });
+        document.dispatchEvent(enterEvent);
+    }, 50);
+    
+    return true;
+}
+
+// ========== UPDATED CAPTURE INTRO FUNCTION ==========
+function captureIntroAudioOnly() {
+    log('🎧 Listening for Botinia audio...', 'info');
+    document.getElementById('status').textContent = 'Listening for intro audio...';
+    
+    let checkAttempts = 0;
+    const maxAttempts = 30; // 30 seconds max
+    
+    function checkAudio() {
+        checkAttempts++;
+        
+        const widget = document.querySelector('lemon-slice-widget');
+        if (!widget?.shadowRoot) {
+            if (checkAttempts < maxAttempts) {
+                setTimeout(checkAudio, 1000);
+            } else {
+                log('❌ Widget not found after multiple attempts', 'error');
+            }
+            return;
+        }
+        
+        const audioElements = widget.shadowRoot.querySelectorAll('audio');
+        let audioPlaying = false;
+        
+        // Check each audio element
+        audioElements.forEach((audio, i) => {
+            // Add event listener if not already added
+            if (!audio._listenerAdded) {
+                audio.addEventListener('play', () => {
+                    log(`🎬 Audio #${i} started playing!`, 'success');
+                    document.getElementById('status').textContent = 'Botinia is speaking!';
+                    startSpeechRecognitionWithPermission();
+                });
+                audio._listenerAdded = true;
+            }
+            
+            // Check if currently playing
+            if (!audio.paused && audio.currentTime > 0) {
+                log(`✅ Detected active audio in element #${i}`, 'success');
+                audioPlaying = true;
+                startSpeechRecognitionWithPermission();
+            }
+        });
+        
+        if (!audioPlaying && checkAttempts < maxAttempts) {
+            // Update status message
+            if (checkAttempts % 5 === 0) {
+                document.getElementById('status').textContent = 
+                    `Listening for audio... (${checkAttempts}s elapsed)`;
+            }
+            setTimeout(checkAudio, 1000);
+        } else if (checkAttempts >= maxAttempts) {
+            log('⏰ Timeout waiting for audio', 'warning');
+            document.getElementById('status').textContent = 'Audio timeout. Try clicking Botinia\'s mic button.';
+        }
+    }
+    
+    checkAudio();
 }
 
 // NEW HELPER FUNCTION
@@ -408,14 +628,8 @@ function startSpeechRecognitionWithPermission() {
 
 // ========== UPDATE: AUTO-START ON PAGE LOAD ==========
 // Replace your current initialization code with this:
-window.addEventListener('DOMContentLoaded', function() {
-    log('Page loaded. Starting IMMEDIATE audio capture for Botinia\'s intro...');
-    
-    // Start listening immediately (for intro)
-    setTimeout(initializeSystemForIntro, 1000); // 1 second delay to ensure widget loads
-    
-    // Also, add a manual button as backup
-    document.getElementById('status').textContent = 'Auto-listening for Botinia...';
+document.addEventListener('DOMContentLoaded', function() {
+    log('Widget loaded. Click "Initialize System" then "Trigger Intro" button', 'info');
 });
 
 // Keep your existing startSpeechRecognition() and launchTestimonialPlayer() functions
