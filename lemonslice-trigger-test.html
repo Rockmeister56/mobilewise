@@ -24,6 +24,10 @@
     <button onclick="triggerTest()">Test Trigger (Simulate)</button>
 
     <button onclick="manualMicSearch()">🔍 Debug: Show Widget Elements</button>
+
+    <button onclick="forceTrigger()" style="background: #e74c3c;">
+    🔥 FORCE Trigger Testimonial Player
+</button>
     
     <div id="log"></div>
 
@@ -64,12 +68,94 @@
 
         // ========== MAIN INITIALIZATION ==========
         function initializeSystemForIntro() {
-            log('🎧 Capturing Botinia\'s FREE INTRO only (no credits)...', 'info');
-            document.getElementById('status').textContent = 'Click the "Trigger Intro" button below to start';
-            
-            // Show a user-friendly message and button
-            showIntroTriggerButton();
+    log('🎧 Setting up Botinia FREE INTRO capture...', 'info');
+    document.getElementById('status').textContent = 'Ready! Now click the video chat button in Botinia widget';
+    
+    // IMMEDIATELY start listening for ANY audio
+    startAudioDetectionNow();
+    
+    // Also show the trigger button as backup
+    showIntroTriggerButton();
+}
+
+function forceTrigger() {
+    log('🔥 FORCING testimonial player launch...', 'trigger');
+    document.getElementById('status').textContent = 'FORCING testimonial player...';
+    launchTestimonialPlayer();
+}
+
+// ========== NEW: IMMEDIATE AUDIO DETECTION ==========
+function startAudioDetectionNow() {
+    log('🔊 IMMEDIATELY starting audio detection...', 'info');
+    
+    // Start detection immediately and keep it running
+    function startDetection() {
+        const widget = document.querySelector('lemon-slice-widget');
+        if (!widget?.shadowRoot) {
+            log('Widget not ready yet, retrying...', 'warning');
+            setTimeout(startDetection, 1000);
+            return;
         }
+        
+        const audioElements = widget.shadowRoot.querySelectorAll('audio');
+        log(`🔍 Found ${audioElements.length} audio elements to monitor`, 'info');
+        
+        let detectionActive = false;
+        
+        audioElements.forEach((audio, i) => {
+            // Add play event listener
+            audio.addEventListener('play', () => {
+                if (!detectionActive) {
+                    detectionActive = true;
+                    log(`🎬 DETECTED! Audio #${i} is playing!`, 'success');
+                    document.getElementById('status').textContent = 'Botinia is speaking!';
+                    startSpeechRecognitionWithPermission();
+                }
+            });
+            
+            // Add ended listener to reset
+            audio.addEventListener('ended', () => {
+                detectionActive = false;
+                log(`⏹️ Audio #${i} ended`, 'info');
+            });
+            
+            // Check if already playing (in case we missed the start)
+            if (!audio.paused && audio.currentTime > 0) {
+                if (!detectionActive) {
+                    detectionActive = true;
+                    log(`▶️ Audio #${i} already playing when we checked`, 'success');
+                    startSpeechRecognitionWithPermission();
+                }
+            }
+        });
+        
+        // Also monitor for NEW audio elements being added
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.tagName === 'AUDIO' || 
+                            (node.querySelectorAll && node.querySelectorAll('audio').length)) {
+                            log('🆕 New audio element detected in widget', 'info');
+                            // Re-run detection to catch new audio elements
+                            setTimeout(startDetection, 500);
+                        }
+                    });
+                }
+            });
+        });
+        
+        observer.observe(widget.shadowRoot, {
+            childList: true,
+            subtree: true
+        });
+        
+        log('✅ Audio detection system active!', 'success');
+        log('Now click the video chat button in Botinia widget', 'info');
+    }
+    
+    startDetection();
+}
 
         // ========== SHOW USER TRIGGER BUTTON ==========
         function showIntroTriggerButton() {
@@ -123,25 +209,66 @@
 
         // ========== TRIGGER INTRO AFTER USER CLICK ==========
         function triggerIntroAfterUserClick() {
-            document.getElementById('status').textContent = 'Starting Botinia intro...';
+    document.getElementById('status').textContent = 'Starting Botinia intro...';
+    
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget?.shadowRoot) {
+        log('Widget not ready. Retrying...', 'warning');
+        setTimeout(triggerIntroAfterUserClick, 500);
+        return;
+    }
+    
+    // First, ensure audio detection is running
+    startAudioDetectionNow();
+    
+    // Then try to click the "video chat" button
+    setTimeout(() => clickVideoChatButton(), 300);
+}
+
+function clickVideoChatButton() {
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget?.shadowRoot) return false;
+    
+    const buttons = widget.shadowRoot.querySelectorAll('button');
+    
+    // From your debug log, we know:
+    // Element 2: BUTTON "" "" class:w-11 h-11 flex-none rounded-fu
+    // Element 3: BUTTON "" "" class:w-11 h-11 flex-none rounded-fu
+    // One of these is likely the video chat button
+    
+    for (let i = 0; i < buttons.length; i++) {
+        const className = buttons[i].className || '';
+        const outerHTML = buttons[i].outerHTML || '';
+        
+        // Look for video/chat/camera icons or specific classes
+        if (className.includes('w-11 h-11') && 
+            className.includes('rounded-full') &&
+            (className.includes('bg-white') || 
+             outerHTML.includes('video') || 
+             outerHTML.includes('chat') ||
+             outerHTML.includes('camera') ||
+             outerHTML.includes('▶') ||
+             outerHTML.includes('🎥'))) {
             
-            const widget = document.querySelector('lemon-slice-widget');
-            if (!widget?.shadowRoot) {
-                log('Widget not ready. Retrying...', 'warning');
-                setTimeout(triggerIntroAfterUserClick, 500);
-                return;
-            }
-            
-            // Try multiple strategies to trigger the intro
-            setTimeout(() => tryStrategy1(), 100);
-            setTimeout(() => tryStrategy2(), 600);
-            setTimeout(() => tryStrategy3(), 1100);
-            
-            // Start listening for audio
-            setTimeout(() => {
-                captureIntroAudioOnly();
-            }, 500);
+            log(`🎥 Clicking potential video chat button #${i}`, 'success');
+            buttons[i].click();
+            return true;
         }
+    }
+    
+    // If not found, click both empty buttons
+    log('Trying all empty buttons...', 'info');
+    let clicked = false;
+    buttons.forEach((button, i) => {
+        if (button.textContent === '' && !button.getAttribute('aria-label')?.includes('close')) {
+            log(`Clicking empty button #${i}`, 'info');
+            button.click();
+            clicked = true;
+        }
+    });
+    
+    return clicked;
+}
 
         // ========== STRATEGY 1: Find and click mic button ==========
         function tryStrategy1() {
