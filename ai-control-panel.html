@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Control Panel - Powered by MobileWise AI</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- LemonSlice Widget -->
+    <script type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"></script>
+    
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #4cc9f0;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border: rgba(255,255,255,0.1);
+            --shadow: 0 10px 30px rgba(0,0,0,0.2);
+            --radius: 12px;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* ===== DASHBOARD LAYOUT ===== */
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 100vw;
+        }
+        
+        /* ===== HEADER ===== */
+        header {
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo i {
+            color: var(--success);
+            font-size: 1.8rem;
+        }
+        
+        .logo span {
+            background: linear-gradient(90deg, var(--success), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .client-info {
+            background: rgba(67, 97, 238, 0.15);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            border: 1px solid rgba(67, 97, 238, 0.3);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .client-info i {
+            margin-right: 8px;
+            color: var(--success);
+        }
+        
+        /* ===== MAIN CONTENT ===== */
+        .content {
+            display: flex;
+            flex: 1;
+            padding: 2rem;
+            gap: 2rem;
+            overflow: hidden;
+        }
+        
+        /* ===== CHAT SECTION ===== */
+        .chat-section {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .chat-section h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--success);
+        }
+        
+        .chat-section h2 i {
+            font-size: 1.3rem;
+        }
+        
+        .widget-container {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            flex: 1;
+            min-height: 600px;
+            position: relative;
+        }
+        
+        /* ===== MODULES SECTION ===== */
+        .modules-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            min-width: 350px;
+        }
+        
+        .modules-section h2 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--success);
+        }
+        
+        .modules-section h2 i {
+            font-size: 1.3rem;
+        }
+        
+        /* ===== MODULE GRID ===== */
+        .module-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .module-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .module-card:hover {
+            background: rgba(67, 97, 238, 0.15);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+        
+        .module-card.active {
+            background: rgba(67, 97, 238, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(67, 97, 238, 0.2);
+        }
+        
+        .module-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(67, 97, 238, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--success);
+            flex-shrink: 0;
+        }
+        
+        .module-info {
+            flex: 1;
+        }
+        
+        .module-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: white;
+        }
+        
+        .module-info p {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+        
+        .module-info small {
+            font-size: 0.75rem;
+            color: var(--success);
+            display: block;
+        }
+        
+        .play-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .play-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+        
+        /* ===== VIDEO PLAYER ===== */
+        .video-player-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .video-player-container.active {
+            display: block;
+            animation: slideUp 0.4s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .video-header h3 {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--success);
+        }
+        
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .close-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .video-wrapper {
+            background: black;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        #testimonialVideo {
+            width: 100%;
+            display: block;
+        }
+        
+        /* ===== FOOTER ===== */
+        footer {
+            background: rgba(26, 26, 46, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-indicator.active {
+            background: #4CAF50;
+        }
+        
+        .status-indicator.inactive {
+            background: #f44336;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn i {
+            font-size: 0.9rem;
+        }
+        
+        /* ===== STATUS MESSAGES ===== */
+        .status-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            max-width: 300px;
+        }
+        
+        .status-message.show {
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .status-message.success { background: #4CAF50; }
+        .status-message.error { background: #f44336; }
+        .status-message.warning { background: #FF9800; }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .modules-section {
+                min-width: 100%;
+            }
+            
+            .widget-container {
+                min-height: 500px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .content {
+                padding: 1rem;
+            }
+            
+            footer {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- DASHBOARD -->
+    <div class="dashboard">
+        <!-- HEADER -->
+        <header>
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <span>MobileWise AI Control Panel</span>
+            </div>
+            <div class="client-info">
+                <i class="fas fa-user-tie"></i>
+                <span id="clientDisplay">Client: Loading...</span>
+            </div>
+        </header>
+        
+        <!-- MAIN CONTENT -->
+        <div class="content">
+            <!-- LEFT: LEMONSLICE CHAT -->
+            <section class="chat-section">
+                <h2><i class="fas fa-comments"></i> AI Conversation</h2>
+                <div class="widget-container">
+                    <lemon-slice-widget 
+                        agent-id="agent_1db77d60ec132469"
+                        controlled-widget-state="active"
+                        style="width: 100%; height: 100%;"
+                    ></lemon-slice-widget>
+                </div>
+            </section>
+            
+            <!-- RIGHT: YOUR MODULES -->
+            <section class="modules-section">
+                <h2><i class="fas fa-film"></i> Available Modules</h2>
+                
+                <!-- MODULE GRID -->
+                <div class="module-grid">
+                    <!-- Results Gallery Module -->
+                    <div class="module-card" data-module="results" data-video="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4">
+                        <div class="module-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="module-info">
+                            <h3>Results Gallery</h3>
+                            <p>Show verified mortgage results & case studies</p>
+                            <small>Trigger phrases: "show me results", "verified results", "case studies"</small>
+                        </div>
+                        <button class="play-btn" data-module="results">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Success Stories Module -->
+                    <div class="module-card" data-module="success" data-video="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4">
+                        <div class="module-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="module-info">
+                            <h3>Success Stories</h3>
+                            <p>Client testimonials & success stories</p>
+                            <small>Trigger phrases: "success stories", "testimonials", "client stories"</small>
+                        </div>
+                        <button class="play-btn" data-module="success">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- ROI Calculator Module -->
+                    <div class="module-card" data-module="calculator" data-video="https://odetjszursuaxpapfwcy.supabase.co/storage/v1/object/public/videos/video_1764614248418.mp4">
+                        <div class="module-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="module-info">
+                            <h3>ROI Calculator</h3>
+                            <p>Interactive mortgage calculator demo</p>
+                            <small>Trigger phrases: "calculator", "ROI calculator", "show calculator"</small>
+                        </div>
+                        <button class="play-btn" data-module="calculator">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- VIDEO PLAYER -->
+                <div id="videoPlayer" class="video-player-container">
+                    <div class="video-header">
+                        <h3><i class="fas fa-video"></i> Testimonial Video</h3>
+                        <button id="closeVideo" class="close-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="video-wrapper">
+                        <video id="testimonialVideo" controls>
+                            <source src="" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- FOOTER -->
+        <footer>
+            <div class="status">
+                <span class="status-indicator active" id="systemStatus"></span>
+                <span id="statusText">AI System Initializing...</span>
+            </div>
+            <div class="controls">
+                <button id="toggleSpeech" class="btn">
+                    <i class="fas fa-microphone"></i> Toggle Speech
+                </button>
+                <button id="sendWelcome" class="btn">
+                    <i class="fas fa-paper-plane"></i> Send Welcome
+                </button>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- STATUS MESSAGE -->
+    <div id="statusMessage" class="status-message">
+        <i class="fas fa-info-circle"></i>
+        <span id="messageText">System ready</span>
+    </div>
+
+    <!-- ===== COMPLETE JAVASCRIPT ===== -->
+    <script>
+        // ==================== MAIN CONTROLLER ====================
+        class AIControlPanel {
+            constructor() {
+                this.clientId = this.getClientId();
+                this.widget = null;
+                this.speechActive = true;
+                this.currentVideo = null;
+                this.init();
+            }
+            
+            getClientId() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('client') || 'mortgage-assist-demo';
+            }
+            
+            async init() {
+                console.log('🚀 MobileWise AI Control Panel Initializing...');
+                console.log('👤 Client:', this.clientId);
+                
+                // Update UI
+                document.getElementById('clientDisplay').textContent = 
+                    `Client: ${this.clientId.replace('-', ' ').toUpperCase()}`;
+                
+                // Initialize subsystems
+                await this.initLemonSlice();
+                this.initSpeechDetection();
+                this.initEventListeners();
+                this.initClientCommunication();
+                
+                // Update status
+                this.updateStatus('AI Control Panel Ready', 'success');
+                document.getElementById('statusText').textContent = 'AI System Active | Speech Detection: ON';
+                
+                console.log('✅ MobileWise AI Control Panel Ready!');
+            }
+            
+            // ==================== LEMONSLICE INTEGRATION ====================
+            async initLemonSlice() {
+                console.log('🔗 Initializing LemonSlice...');
+                
+                // Wait for widget to load
+                await this.waitForElement('lemon-slice-widget');
+                this.widget = document.querySelector('lemon-slice-widget');
+                
+                // Set widget to active state
+                this.widget.setAttribute('controlled-widget-state', 'active');
+                
+                // Listen for widget messages
+                this.widget.addEventListener('message', (event) => {
+                    const message = event.detail?.text;
+                    if (message) {
+                        console.log('🤖 LemonSlice Message:', message);
+                        this.processBotMessage(message.toLowerCase());
+                    }
+                });
+                
+                console.log('✅ LemonSlice Connected');
+                this.updateStatus('LemonSlice Connected', 'success');
+            }
+            
+            waitForElement(selector) {
+                return new Promise(resolve => {
+                    const check = () => {
+                        const element = document.querySelector(selector);
+                        if (element && element.shadowRoot) {
+                            resolve();
+                        } else {
+                            setTimeout(check, 100);
+                        }
+                    };
+                    check();
+                });
+            }
+            
+            // ==================== SPEECH DETECTION ====================
+            initSpeechDetection() {
+                console.log('🎤 Initializing Speech Detection...');
+                
+                this.triggers = {
+                    'results': [
+                        'show me results',
+                        'verified results', 
+                        'results gallery',
+                        'case studies',
+                        'show me the results'
+                    ],
+                    'success': [
+                        'success stories',
+                        'testimonials',
+                        'client stories',
+                        'happy clients',
+                        'client testimonials'
+                    ],
+                    'calculator': [
+                        'calculator',
+                        'roi calculator',
+                        'show calculator',
+                        'calculate',
+                        'mortgage calculator'
+                    ]
+                };
+                
+                // Start speech recognition if supported
+                if ('webkitSpeechRecognition' in window) {
+                    this.initWebSpeech();
+                } else {
+                    console.warn('Speech recognition not supported in this browser');
+                    this.updateStatus('Speech recognition not supported', 'warning');
+                }
+            }
+            
+            initWebSpeech() {
+                this.recognition = new webkitSpeechRecognition();
+                this.recognition.continuous = true;
+                this.recognition.interimResults = true;
+                this.recognition.lang = 'en-US';
+                
+                this.recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript.toLowerCase();
+                        }
+                    }
+                    
+                    if (finalTranscript) {
+                        console.log('🎤 Speech detected:', finalTranscript);
+                        this.checkForTriggers(finalTranscript);
+                    }
+                };
+                
+                this.recognition.onerror = (event) => {
+                    console.log('Speech recognition error:', event.error);
+                };
+                
+                this.recognition.onend = () => {
+                    if (this.speechActive) {
+                        setTimeout(() => this.recognition.start(), 500);
+                    }
+                };
+                
+                // Start listening
+                this.recognition.start();
+                console.log('✅ Speech detection active');
+            }
+            
+            toggleSpeech() {
+                this.speechActive = !this.speechActive;
+                
+                if (this.speechActive && this.recognition) {
+                    this.recognition.start();
+                    document.getElementById('statusText').textContent = 'AI System Active | Speech Detection: ON';
+                    this.updateStatus('Speech detection ON', 'success');
+                } else if (this.recognition) {
+                    this.recognition.stop();
+                    document.getElementById('statusText').textContent = 'AI System Active | Speech Detection: OFF';
+                    this.updateStatus('Speech detection OFF', 'warning');
+                }
+            }
+            
+            // ==================== TRIGGER PROCESSING ====================
+            processBotMessage(message) {
+                this.checkForTriggers(message);
+            }
+            
+            checkForTriggers(text) {
+                for (const [module, phrases] of Object.entries(this.triggers)) {
+                    for (const phrase of phrases) {
+                        if (text.includes(phrase)) {
+                            console.log(`🎯 TRIGGER DETECTED: "${phrase}" -> Module: ${module}`);
+                            this.triggerModule(module, phrase);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            
+            triggerModule(module, phrase) {
+                // Find module card
+                const moduleCard = document.querySelector(`[data-module="${module}"]`);
+                if (!moduleCard) {
+                    console.error(`Module ${module} not found`);
+                    return;
+                }
+                
+                // Get video URL
+                const videoUrl = moduleCard.getAttribute('data-video');
+                
+                // Highlight module card
+                this.highlightModule(module);
+                
+                // Play video
+                this.playVideo(videoUrl, module);
+                
+                // Send message to LemonSlice
+                this.sendToBot(`Showing ${module} testimonial...`);
+                
+                // Notify client website
+                this.notifyClient(module, videoUrl);
+                
+                // Show status
+                this.updateStatus(`Playing ${module} video (triggered by: "${phrase}")`, 'success');
+            }
+            
+            highlightModule(module) {
+                // Remove active class from all
+                document.querySelectorAll('.module-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+                
+                // Add active to current
+                const activeCard = document.querySelector(`[data-module="${module}"]`);
+                if (activeCard) {
+                    activeCard.classList.add('active');
+                    
+                    // Auto-remove after 5 seconds
+                    setTimeout(() => {
+                        activeCard.classList.remove('active');
+                    }, 5000);
+                }
+            }
+            
+            // ==================== VIDEO PLAYER ====================
+            playVideo(videoUrl, moduleName) {
+                const videoPlayer = document.getElementById('videoPlayer');
+                const videoElement = document.getElementById('testimonialVideo');
+                
+                // Update source
+                videoElement.src = videoUrl;
+                videoElement.load();
+                
+                // Show player
+                videoPlayer.classList.add('active');
+                
+                // Play
+                videoElement.play().catch(e => {
+                    console.log('Autoplay prevented:', e);
+                });
+                
+                // Update status
+                document.getElementById('statusText').textContent = 
+                    `Playing ${moduleName} testimonial`;
+                
+                this.currentVideo = videoUrl;
+            }
+            
+            closeVideo() {
+                const videoPlayer = document.getElementById('videoPlayer');
+                const videoElement = document.getElementById('testimonialVideo');
+                
+                videoElement.pause();
+                videoPlayer.classList.remove('active');
+                videoElement.src = '';
+                
+                document.getElementById('statusText').textContent = 
+                    'AI System Active | Speech Detection: ' + (this.speechActive ? 'ON' : 'OFF');
+                
+                this.currentVideo = null;
+            }
+            
+            // ==================== CLIENT COMMUNICATION ====================
+            initClientCommunication() {
+                console.log('📡 Initializing client communication...');
+                
+                // Send ready signal to parent (client website)
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'CONTROL_PANEL_READY',
+                        clientId: this.clientId,
+                        timestamp: Date.now()
+                    }, '*');
+                    console.log('📨 Sent READY signal to client');
+                }
+            }
+            
+            notifyClient(module, videoUrl) {
+                const message = {
+                    type: 'MODULE_TRIGGERED',
+                    module: module,
+                    videoUrl: videoUrl,
+                    clientId: this.clientId,
+                    timestamp: Date.now()
+                };
+                
+                // Send to parent (client website)
+                if (window.parent !== window) {
+                    window.parent.postMessage(message, '*');
+                    console.log('📨 Sent module trigger to client:', module);
+                }
+                
+                // Send to opener (if opened in new window)
+                if (window.opener) {
+                    window.opener.postMessage(message, '*');
+                    console.log('📨 Sent module trigger to opener:', module);
+                }
+            }
+            
+            // ==================== BOT INTERACTION ====================
+            async sendToBot(message) {
+                if (this.widget) {
+                    try {
+                        await this.widget.sendMessage(message);
+                        console.log('🤖 Sent to bot:', message);
+                    } catch (error) {
+                        console.error('Failed to send message to bot:', error);
+                    }
+                }
+            }
+            
+            async sendWelcome() {
+                const welcomeMessage = "Hi! I'm your AI mortgage assistant. I can show you verified results, success stories, or help with calculations. Just ask!";
+                await this.sendToBot(welcomeMessage);
+                this.updateStatus('Welcome message sent', 'success');
+            }
+            
+            // ==================== UI UPDATES ====================
+            updateStatus(message, type = 'info') {
+                const statusElement = document.getElementById('statusMessage');
+                const textElement = document.getElementById('messageText');
+                
+                // Update text
+                textElement.textContent = message;
+                
+                // Update type
+                statusElement.className = 'status-message ' + type;
+                statusElement.classList.add('show');
+                
+                // Auto-hide
+                setTimeout(() => {
+                    statusElement.classList.remove('show');
+                }, 3000);
+                
+                console.log(`📢 Status: ${message}`);
+            }
+            
+            // ==================== EVENT LISTENERS ====================
+            initEventListeners() {
+                // Module card clicks
+                document.querySelectorAll('.module-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('play-btn')) {
+                            const module = card.getAttribute('data-module');
+                            const videoUrl = card.getAttribute('data-video');
+                            this.triggerModule(module, 'manual click');
+                        }
+                    });
+                });
+                
+                // Play button clicks
+                document.querySelectorAll('.play-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const module = btn.getAttribute('data-module');
+                        const card = document.querySelector(`[data-module="${module}"]`);
+                        const videoUrl = card.getAttribute('data-video');
+                        this.triggerModule(module, 'manual play');
+                    });
+                });
+                
+                // Control buttons
+                document.getElementById('toggleSpeech').addEventListener('click', () => {
+                    this.toggleSpeech();
+                });
+                
+                document.getElementById('sendWelcome').addEventListener('click', () => {
+                    this.sendWelcome();
+                });
+                
+                // Close video button
+                document.getElementById('closeVideo').addEventListener('click', () => {
+                    this.closeVideo();
+                });
+                
+                // Listen for messages from client
+                window.addEventListener('message', (event) => {
+                    if (event.data.type === 'CONTROL_COMMAND') {
+                        this.handleControlCommand(event.data);
+                    }
+                });
+            }
+            
+            handleControlCommand(data) {
+                console.log('Received control command:', data);
+                
+                switch(data.command) {
+                    case 'open_chat':
+                        if (this.widget) {
+                            this.widget.setAttribute('controlled-widget-state', 'active');
+                        }
+                        break;
+                    case 'send_message':
+                        this.sendToBot(data.message);
+                        break;
+                    case 'trigger_module':
+                        this.triggerModule(data.module, 'remote command');
+                        break;
+                }
+            }
+        }
+        
+        // ==================== INITIALIZE ====================
+        let controlPanel;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            controlPanel = new AIControlPanel();
+        });
+        
+        // Global functions for manual control
+        window.AIControlPanel = {
+            triggerModule: (module) => controlPanel.triggerModule(module, 'manual'),
+            playVideo: (url, name) => controlPanel.playVideo(url, name),
+            sendToBot: (message) => controlPanel.sendToBot(message)
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Conversation Control Panel</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            margin: 0; 
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #container {
+            display: flex;
+            height: 100%;
+        }
+        #botinia-side {
+            flex: 3;
+            padding: 20px;
+        }
+        #control-side {
+            flex: 1;
+            background: #2c3e50;
+            padding: 20px;
+            border-left: 3px solid #3498db;
+        }
+        .module {
+            background: #34495e;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .module:hover {
+            background: #3498db;
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <!-- Left: Botinia Widget -->
+        <div id="botinia-side">
+            <h2>🎤 AI Conversation</h2>
+            <lemon-slice-widget agent-id="agent_1db77d60ec132469"></lemon-slice-widget>
+        </div>
+        
+        <!-- Right: Control Panel -->
+        <div id="control-side">
+            <h2>🎬 Trigger Modules</h2>
+            <div class="module" onclick="triggerModule('results')">
+                📊 Verified Results Gallery
+            </div>
+            <div class="module" onclick="triggerModule('success')">
+                🏆 Client Success Stories
+            </div>
+            <div class="module" onclick="triggerModule('roi')">
+                💰 ROI Calculator
+            </div>
+            <div class="module" onclick="triggerModule('demo')">
+                🎥 Interactive Demo
+            </div>
+            
+            <div id="status" style="margin-top: 30px; padding: 15px; background: #1a1a1a; border-radius: 5px;">
+                Status: Ready
+            </div>
+        </div>
+    </div>
+
+    <!-- LemonSlice Widget -->
+    <script type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"></script>
+    
+    <!-- Your Detection System -->
+    <script>
+        // Your WORKING detection code here!
+        let recognition = null;
+        const TRIGGER_PHRASE = "verified results gallery";
+        
+        function initializeDetection() {
+            console.log('🎯 Detection system active on phantom page');
+            startAudioDetection();
+        }
+        
+        // ... ALL your working detection code from before ...
+        
+        function triggerModule(moduleType) {
+            console.log(`🚀 Triggering ${moduleType} module`);
+            
+            // Send message to parent window (if in iframe)
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'TRIGGER_MODULE',
+                    module: moduleType,
+                    timestamp: Date.now()
+                }, '*');
+            }
+            
+            // Also show locally
+            document.getElementById('status').innerHTML = `
+                <strong>🎯 Module Triggered:</strong> ${moduleType}<br>
+                <small>${new Date().toLocaleTimeString()}</small>
+            `;
+        }
+        
+        // Auto-start detection
+        setTimeout(initializeDetection, 2000);
+    </script>
+</body>
+</html>
