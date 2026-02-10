@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mortgage AI Knowledge Hub | AI Mortgage Assistant Q&A</title>
+    <meta name="description" content="Complete AI training database for mortgage companies: Common questions, customer concerns, qualification criteria, rate inquiries, and trigger-based content delivery.">
+    <style>
+        /* ===== MORTGAGE AI STYLES ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            line-height: 1.7; color: #2c3e50; background: linear-gradient(135deg, #f8fafc 0%, #e6f7ff 100%);
+            max-width: 1200px; margin: 0 auto; padding: 20px;
+        }
+        
+        /* Header with Mortgage Theme */
+        .knowledge-header {
+            text-align: center; padding: 40px 20px; margin-bottom: 40px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298); color: white;
+            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-bottom: 5px solid #f8c400;
+        }
+       .company-name {
+    font-size: 2.8rem; 
+    margin-bottom: 10px; 
+    background: linear-gradient(135deg, #fff, #f8c400); 
+    
+    /* Standard first, then vendor prefixes */
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+        .product-name {
+            font-size: 1.8rem; color: #bbdefb; margin-bottom: 15px;
+        }
+        .ai-indicator {
+            display: inline-block; background: rgba(248, 196, 0, 0.2); padding: 8px 20px;
+            border-radius: 20px; margin-top: 20px; font-size: 0.9rem; border: 1px solid rgba(248, 196, 0, 0.3);
+        }
+        
+        /* Trigger Indicator */
+        .trigger-indicator {
+            display: inline-block; background: #10b981; color: white; padding: 4px 10px;
+            border-radius: 12px; font-size: 0.75rem; margin-left: 10px; vertical-align: middle;
+            font-weight: bold; animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        
+        /* Navigation */
+        .knowledge-nav {
+            background: white; padding: 20px; border-radius: 12px; margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: sticky; top: 20px; z-index: 100;
+        }
+        .nav-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
+        }
+        .nav-card {
+            background: #f8f9fa; padding: 15px; border-radius: 10px; text-decoration: none;
+            color: #2c3e50; transition: all 0.3s; border-left: 4px solid #2a5298;
+        }
+        .nav-card:hover { background: #e8f4ff; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(42, 82, 152, 0.2); }
+        
+        /* Main Layout */
+        .knowledge-container { display: grid; grid-template-columns: 280px 1fr; gap: 30px; }
+        .section-nav { position: sticky; top: 150px; align-self: start; }
+        .section-links { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .section-link { display: block; padding: 12px 15px; margin: 8px 0; color: #2c3e50;
+            text-decoration: none; border-left: 4px solid transparent; border-radius: 6px;
+            transition: all 0.2s; }
+        .section-link:hover, .section-link.active { background: #e8f4ff; border-left-color: #2a5298; }
+        
+        /* Q&A Sections */
+        .qa-section { 
+            background: white; padding: 30px; margin-bottom: 40px; border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06); border-top: 5px solid #2a5298;
+        }
+        .section-title { 
+            color: #1e3c72; font-size: 1.8rem; margin-bottom: 25px; padding-bottom: 15px;
+            border-bottom: 3px solid #e8f4ff; display: flex; align-items: center; gap: 15px;
+        }
+        .section-icon { font-size: 1.5rem; }
+        
+        /* Q&A Items */
+        .qa-item { 
+            margin: 25px 0; padding: 25px; background: #f8fbff; border-radius: 12px;
+            border: 1px solid #e8f4ff; transition: transform 0.3s; position: relative;
+        }
+        .qa-item:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(42, 82, 152, 0.1); }
+        .question { 
+            font-size: 1.3rem; font-weight: 600; color: #1e3c72; margin-bottom: 15px;
+            line-height: 1.4; display: flex; align-items: flex-start; gap: 10px;
+        }
+        .q-icon { color: #2a5298; font-size: 1.2rem; }
+        .answer { 
+            color: #455a64; font-size: 1.1rem; line-height: 1.7; margin-left: 30px;
+            padding-left: 20px; border-left: 3px solid #e8f4ff;
+        }
+        
+        /* Trigger Phrases Highlight */
+        .trigger-phrase {
+            background: #fffbeb; color: #d97706; padding: 8px 12px; border-radius: 8px;
+            margin: 10px 0; border-left: 4px solid #f8c400; font-weight: 600;
+            display: inline-block; border: 1px solid #fde68a;
+        }
+        
+        /* Tags */
+        .tags { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px; margin-left: 30px; }
+        .tag { 
+            display: inline-block; background: #e8f4ff; color: #2a5298; padding: 6px 14px;
+            border-radius: 20px; font-size: 0.85rem; transition: all 0.2s;
+        }
+        
+        /* Stats & Highlights */
+        .stat-highlight { 
+            background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px;
+            font-weight: 600; margin: 0 3px;
+        }
+        .key-term { 
+            color: #2a5298; font-weight: 600; border-bottom: 2px dotted #4f7ec9;
+            padding-bottom: 1px;
+        }
+        
+        /* Trigger Mapping Section */
+        .trigger-map {
+            background: #f0f9ff; border: 2px dashed #2a5298; padding: 20px;
+            border-radius: 10px; margin: 20px 0;
+        }
+        .trigger-category {
+            background: white; padding: 15px; margin: 10px 0; border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+        
+        /* Responsive */
+        @media (max-width: 900px) {
+            .knowledge-container { grid-template-columns: 1fr; }
+            .nav-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .company-name { font-size: 2rem; }
+            .nav-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER ===== -->
+    <header class="knowledge-header">
+        <h1 class="company-name">💰 Mortgage AI Assistant</h1>
+        <div class="product-name">Complete Mortgage Knowledge Base</div>
+        <p>AI-trained database with trigger phrases for video testimonials, rate comparisons, and customer success stories</p>
+        <div class="ai-indicator">🏠 Mortgage Industry Optimized | 🤖 Built for LemonSlice AI</div>
+    </header>
+    
+    <!-- ===== QUICK NAVIGATION ===== -->
+    <nav class="knowledge-nav">
+        <div class="nav-grid">
+            <a href="#rates" class="nav-card"><h3>📊 Rates & Programs</h3><p>Rate questions, loan types, comparisons</p></a>
+            <a href="#qualification" class="nav-card"><h3>✅ Qualification</h3><p>Credit, income, approval criteria</p></a>
+            <a href="#process" class="nav-card"><h3>🔄 Process & Timeline</h3><p>Application to closing steps</p></a>
+            <a href="#testimonials" class="nav-card"><h3>⭐ Customer Success</h3><p>Testimonials & success stories</p></a>
+            <a href="#advantages" class="nav-card"><h3>🚀 Why Choose Us</h3><p>Differentiators & advantages</p></a>
+            <a href="#objections" class="nav-card"><h3>❓ Common Concerns</h3><p>Overcoming objections</p></a>
+        </div>
+    </nav>
+
+    <!-- ===== TRIGGER MAPPING GUIDE ===== -->
+    <div class="trigger-map">
+        <h3 style="color: #1e3c72; margin-bottom: 15px;">🎯 Trigger Phrase Mapping Guide</h3>
+        <div class="trigger-category">
+            <strong>💰 RATE TESTIMONIALS TRIGGER:</strong> When customers ask about "best rates," "lowest rates," "rate comparison"
+        </div>
+        <div class="trigger-category">
+            <strong>⭐ SUCCESS STORIES TRIGGER:</strong> When customers ask about "success rate," "happy customers," "results"
+        </div>
+        <div class="trigger-category">
+            <strong>⚡ SPEED TESTIMONIALS TRIGGER:</strong> When customers ask about "fast closing," "quick approval," "timeline"
+        </div>
+        <div class="trigger-category">
+            <strong>🤝 SERVICE TESTIMONIALS TRIGGER:</strong> When customers ask about "customer service," "support," "guidance"
+        </div>
+    </div>
+    
+    <div class="knowledge-container">
+        <!-- ===== SECTION NAVIGATION ===== -->
+        <div class="section-nav">
+            <div class="section-links">
+                <strong>Jump to Section:</strong>
+                <a href="#rates" class="section-link active">Rates & Programs</a>
+                <a href="#qualification" class="section-link">Qualification</a>
+                <a href="#process" class="section-link">Process & Timeline</a>
+                <a href="#testimonials" class="section-link">Customer Success</a>
+                <a href="#advantages" class="section-link">Why Choose Us</a>
+                <a href="#objections" class="section-link">Common Concerns</a>
+                <a href="#triggers" class="section-link">🎯 Trigger Setup</a>
+            </div>
+        </div>
+        
+        <!-- ===== MAIN CONTENT ===== -->
+        <main>
+            <!-- SECTION 1: RATES & PROGRAMS -->
+            <section id="rates" class="qa-section">
+                <h2 class="section-title"><span class="section-icon">📊</span> Mortgage Rates & Loan Programs</h2>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> What mortgage rates can I qualify for right now?</div>
+                    <div class="answer">
+                        Current rates vary based on credit score, loan type, and market conditions. Our <span class="key-term">AI-powered rate analysis</span> can provide personalized rate estimates in seconds. For the most competitive rates, we recommend a credit score of 740+ and at least 20% down payment.
+                    </div>
+                    <div class="tags">
+                        <span class="tag">rates</span>
+                        <span class="tag">pricing</span>
+                        <span class="tag">qualification</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> Do you have the lowest rates available?</div>
+                    <div class="answer">
+                        We consistently offer <span class="key-term">among the most competitive rates</span> in the market. However, "lowest" depends on your unique financial profile. Our AI system analyzes <span class="stat-highlight">25+ lenders</span> to find you the optimal rate.
+                        <div class="trigger-phrase">🎯 TRIGGER: "Rate comparison video testimonial"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">rates-comparison</span>
+                        <span class="tag">competitive</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> What's the difference between fixed-rate and adjustable-rate mortgages?</div>
+                    <div class="answer">
+                        <span class="key-term">Fixed-rate mortgages</span> lock in your interest rate for the entire loan term (typically 15-30 years), providing payment stability. <span class="key-term">Adjustable-rate mortgages (ARMs)</span> start with a lower rate for an initial period (3-10 years), then adjust periodically based on market indexes. ARMs are great if you plan to sell or refinance within the fixed period.
+                    </div>
+                    <div class="tags">
+                        <span class="tag">loan-types</span>
+                        <span class="tag">fixed-vs-adjustable</span>
+                        <span class="tag">education</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> Should I choose a 15-year or 30-year mortgage?</div>
+                    <div class="answer">
+                        <span class="stat-highlight">30-year mortgages</span> offer lower monthly payments but higher total interest. <span class="stat-highlight">15-year mortgages</span> have higher payments but save significantly on interest and build equity faster. Our AI calculator can show you exactly how much you'll save with each option.
+                    </div>
+                    <div class="tags">
+                        <span class="tag">term-length</span>
+                        <span class="tag">15-vs-30</span>
+                        <span class="tag">calculator</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> What are today's current mortgage rates?</div>
+                    <div class="answer">
+                        Rates change daily based on market conditions. As of now, we're seeing:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>30-year Fixed: <span class="stat-highlight">6.5% - 7.2%</span></li>
+                            <li>15-year Fixed: <span class="stat-highlight">5.8% - 6.5%</span></li>
+                            <li>FHA Loans: <span class="stat-highlight">6.2% - 6.9%</span></li>
+                            <li>VA Loans: <span class="stat-highlight">6.0% - 6.7%</span></li>
+                        </ul>
+                        <div class="trigger-phrase">🎯 TRIGGER: "Current rate comparison dashboard"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">current-rates</span>
+                        <span class="tag">market-update</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECTION 2: QUALIFICATION -->
+            <section id="qualification" class="qa-section">
+                <h2 class="section-title"><span class="section-icon">✅</span> Qualification & Approval Criteria</h2>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> What credit score do I need to qualify for a mortgage?</div>
+                    <div class="answer">
+                        Minimum scores vary by loan type:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Conventional Loans: <span class="stat-highlight">620+</span> (best rates at 740+)</li>
+                            <li>FHA Loans: <span class="stat-highlight">580+</span> (500-579 with 10% down)</li>
+                            <li>VA Loans: <span class="stat-highlight">620+</span> (lender dependent)</li>
+                            <li>USDA Loans: <span class="stat-highlight">640+</span></li>
+                        </ul>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">credit-score</span>
+                        <span class="tag">minimum-requirements</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> How much down payment do I need?</div>
+                    <div class="answer">
+                        Down payment requirements:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Conventional: <span class="stat-highlight">3-20%</span> (20% avoids PMI)</li>
+                            <li>FHA: <span class="stat-highlight">3.5%</span> (with 580+ score)</li>
+                            <li>VA: <span class="stat-highlight">0%</span> (for eligible veterans)</li>
+                            <li>USDA: <span class="stat-highlight">0%</span> (rural properties)</li>
+                        </ul>
+                        <div class="trigger-phrase">🎯 TRIGGER: "Low down payment success stories"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">down-payment</span>
+                        <span class="tag">pmi</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> Can I get approved with a low credit score?</div>
+                    <div class="answer">
+                        Yes! We specialize in helping borrowers with <span class="key-term">challenged credit histories</span>. Our AI system identifies optimal loan programs and creates personalized credit improvement plans. Many clients improve their scores by <span class="stat-highlight">50-100 points</span> within 3-6 months.
+                        <div class="trigger-phrase">🎯 TRIGGER: "Credit repair success testimonials"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">low-credit</span>
+                        <span class="tag">credit-repair</span>
+                        <span class="tag">special-programs</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> How does debt-to-income ratio affect my approval?</div>
+                    <div class="answer">
+                        Your <span class="key-term">debt-to-income (DTI) ratio</span> compares monthly debt payments to gross income. Most lenders prefer:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Front-end DTI (housing only): <span class="stat-highlight">28% or less</span></li>
+                            <li>Back-end DTI (all debts): <span class="stat-highlight">36% or less</span></li>
+                            <li>Maximum acceptable: <span class="stat-highlight">43-50%</span> with strong compensating factors</li>
+                        </ul>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">dti</span>
+                        <span class="tag">debt-ratio</span>
+                        <span class="tag">approval-criteria</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> Can self-employed borrowers qualify?</div>
+                    <div class="answer">
+                        Absolutely! Self-employed borrowers need <span class="stat-highlight">2 years of tax returns</span> showing consistent income. We use <span class="key-term">bank statement programs</span> and <span class="key-term">non-QM loans</span> for those with complex income situations. Our AI analyzes 12-24 months of bank statements to verify income.
+                        <div class="trigger-phrase">🎯 TRIGGER: "Self-employed borrower success stories"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">self-employed</span>
+                        <span class="tag">non-traditional-income</span>
+                        <span class="tag">bank-statement-loans</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECTION 3: PROCESS & TIMELINE -->
+            <section id="process" class="qa-section">
+                <h2 class="section-title"><span class="section-icon">🔄</span> Application Process & Timeline</h2>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> How long does the mortgage process take?</div>
+                    <div class="answer">
+                        Typical timelines:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>Pre-approval: <span class="stat-highlight">1-3 business days</span></li>
+                            <li>Full approval: <span class="stat-highlight">21-30 days</span></li>
+                            <li>Closing: <span class="stat-highlight">30-45 days total</span></li>
+                        </ul>
+                        Our <span class="key-term">AI-accelerated process</span> can reduce this by up to 40% for qualified applicants.
+                        <div class="trigger-phrase">🎯 TRIGGER: "Fast closing timeline testimonials"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">timeline</span>
+                        <span class="tag">process-speed</span>
+                        <span class="tag">closing</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> What documents do I need to apply?</div>
+                    <div class="answer">
+                        Required documents typically include:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>🆔 Government-issued ID</li>
+                            <li>💰 2 years of tax returns & W-2s</li>
+                            <li>🏦 2 months of bank statements</li>
+                            <li>📄 30 days of pay stubs</li>
+                            <li>🏠 Purchase agreement (if applicable)</li>
+                        </ul>
+                        Our AI document assistant helps organize everything digitally.
+                    </div>
+                    <div class="tags">
+                        <span class="tag">documents</span>
+                        <span class="tag">application</span>
+                        <span class="tag">paperwork</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> What's the difference between pre-qualification and pre-approval?</div>
+                    <div class="answer">
+                        <span class="key-term">Pre-qualification</span> is a quick estimate based on unverified information. <span class="key-term">Pre-approval</span> involves verified documentation and credit checks, making your offer much stronger to sellers. Our AI system provides instant pre-qualification and accelerates pre-approval.
+                    </div>
+                    <div class="tags">
+                        <span class="tag">pre-approval</span>
+                        <span class="tag">pre-qualification</span>
+                        <span class="tag">buying-power</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> How can I speed up my mortgage approval?</div>
+                    <div class="answer">
+                        Speed tips:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>✅ Use our AI document upload system</li>
+                            <li>✅ Respond to lender requests within <span class="stat-highlight">24 hours</span></li>
+                            <li>✅ Avoid major financial changes during process</li>
+                            <li>✅ Choose our <span class="key-term">express approval program</span></li>
+                        </ul>
+                        <div class="trigger-phrase">🎯 TRIGGER: "Quick approval success stories"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">speed</span>
+                        <span class="tag">acceleration</span>
+                        <span class="tag">tips</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECTION 4: CUSTOMER SUCCESS -->
+            <section id="testimonials" class="qa-section">
+                <h2 class="section-title"><span class="section-icon">⭐</span> Customer Success Stories & Testimonials</h2>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> What's your success rate with mortgage approvals?</div>
+                    <div class="answer">
+                        Our <span class="stat-highlight">94% approval rate</span> is among the highest in the industry. For clients who complete our pre-qualification process, <span class="stat-highlight">9 out of 10</span> successfully close on their dream homes.
+                        <div class="trigger-phrase">🎯 TRIGGER: "High approval rate testimonial video"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">success-rate</span>
+                        <span class="tag">approval-stats</span>
+                        <span class="tag">results</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> Can you show me examples of clients you've helped?</div>
+                    <div class="answer">
+                        We have hundreds of success stories! Our AI can match you with testimonials from clients in similar situations:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>💰 First-time homebuyers with low down payments</li>
+                            <li>🏠 Self-employed entrepreneurs</li>
+                            <li>⭐ Credit-challenged borrowers</li>
+                            <li>⚡ Urgent closing situations</li>
+                        </ul>
+                        <div class="trigger-phrase">🎯 TRIGGER: "Customer success story gallery"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">case-studies</span>
+                        <span class="tag">examples</span>
+                        <span class="tag">proof</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> Do you have fast closing success stories?</div>
+                    <div class="answer">
+                        Yes! Our record is closing a mortgage in <span class="stat-highlight">14 days</span> from application to keys. Many clients close within <span class="stat-highlight">21-25 days</span> using our accelerated process.
+                        <div class="trigger-phrase">🎯 TRIGGER: "Fast closing timeline video testimonials"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">fast-closing</span>
+                        <span class="tag">speed-records</span>
+                        <span class="tag">urgency</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> How do your customers rate your service?</div>
+                    <div class="answer">
+                        Our clients consistently rate us <span class="stat-highlight">4.9/5 stars</span> across all review platforms. The most common feedback praises our <span class="key-term">responsive communication</span> and <span class="key-term">stress-free process</span>.
+                        <div class="trigger-phrase">🎯 TRIGGER: "Customer service rating testimonials"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">reviews</span>
+                        <span class="tag">ratings</span>
+                        <span class="tag">service-quality</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> Have you helped people with bad credit buy homes?</div>
+                    <div class="answer">
+                        Absolutely! This is one of our specialties. Sarah M. (credit score 580) just closed on her first home with only <span class="stat-highlight">3.5% down</span> through our FHA program. Watch her story to see how we made it possible.
+                        <div class="trigger-phrase">🎯 TRIGGER: "Low credit score success video testimonial"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">bad-credit</span>
+                        <span class="tag">success-stories</span>
+                        <span class="tag">fha</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECTION 5: ADVANTAGES -->
+            <section id="advantages" class="qa-section">
+                <h2 class="section-title"><span class="section-icon">🚀</span> Why Choose Our Mortgage Services</h2>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> What makes your mortgage process different?</div>
+                    <div class="answer">
+                        Three key differentiators:
+                        <ol style="margin-top: 10px; margin-left: 20px;">
+                            <li><span class="key-term">AI-Powered Matching</span>: Our system analyzes 100+ loan programs to find your perfect match</li>
+                            <li><span class="key-term">Digital-First Experience</span>: Complete 90% of the process from your phone</li>
+                            <li><span class="key-term">24/7 AI Assistant</span>: Get instant answers anytime, not just business hours</li>
+                        </ol>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">differentiators</span>
+                        <span class="tag">advantages</span>
+                        <span class="tag">unique-value</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> How does your AI technology help me?</div>
+                    <div class="answer">
+                        Our AI provides:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>🤖 <span class="key-term">Instant rate comparisons</span> across lenders</li>
+                            <li>📊 <span class="key-term">Personalized approval odds</span> before applying</li>
+                            <li>⚡ <span class="key-term">Document verification</span> in minutes, not days</li>
+                            <li>🎯 <span class="key-term">Optimal loan program matching</span></li>
+                        </ul>
+                        <div class="trigger-phrase">🎯 TRIGGER: "AI technology benefits explainer video"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">ai-technology</span>
+                        <span class="tag">benefits</span>
+                        <span class="tag">innovation</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> Do you work with first-time homebuyers?</div>
+                    <div class="answer">
+                        First-time buyers are our specialty! We offer:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>🎓 <span class="key-term">Free homebuyer education</span> courses</li>
+                            <li>💰 <span class="key-term">Down payment assistance</span> programs</li>
+                            <li>⭐ <span class="key-term">First-time buyer specific loans</span></li>
+                            <li>🤝 <span class="key-term">Dedicated first-time buyer advisors</span></li>
+                        </ul>
+                        <div class="trigger-phrase">🎯 TRIGGER: "First-time homebuyer success stories"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">first-time-buyers</span>
+                        <span class="tag">education</span>
+                        <span class="tag">assistance</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECTION 6: OBJECTIONS -->
+            <section id="objections" class="qa-section">
+                <h2 class="section-title"><span class="section-icon">❓</span> Overcoming Common Concerns</h2>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> Is now a good time to buy with current interest rates?</div>
+                    <div class="answer">
+                        While rates have increased from historic lows, they remain <span class="key-term">below historical averages</span>. More importantly, waiting for lower rates often means higher home prices. Our AI analysis shows buying now with a <span class="key-term">rate-lock strategy</span> is optimal for most buyers.
+                        <div class="trigger-phrase">🎯 TRIGGER: "Market timing advice video"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">market-timing</span>
+                        <span class="tag">interest-rates</span>
+                        <span class="tag">buy-vs-wait</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> What if my application gets denied?</div>
+                    <div class="answer">
+                        We have a <span class="stat-highlight">94% approval rate</span>, but if you're denied, we provide a <span class="key-term">detailed action plan</span> to improve your chances. This includes credit repair strategies, income documentation tips, and alternative loan programs. Most clients reapply successfully within 3-6 months.
+                    </div>
+                    <div class="tags">
+                        <span class="tag">denial</span>
+                        <span class="tag">reapplication</span>
+                        <span class="tag">improvement-plan</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> Are there any hidden fees?</div>
+                    <div class="answer">
+                        We provide <span class="key-term">full fee transparency</span> upfront with our AI-powered fee calculator. All costs are disclosed in your initial Loan Estimate, and we have a <span class="stat-highlight">No Surprise Fee Guarantee</span>. If any undisclosed fee appears at closing, we cover it.
+                        <div class="trigger-phrase">🎯 TRIGGER: "Transparent pricing testimonials"</div>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">fees</span>
+                        <span class="tag">transparency</span>
+                        <span class="tag">pricing</span>
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="question"><span class="q-icon">❓</span> What if I lose my job during the process?</div>
+                    <div class="answer">
+                        We understand life happens. Our <span class="key-term">Job Loss Protection Program</span> allows for:
+                        <ul style="margin-top: 10px; margin-left: 20px;">
+                            <li>📅 <span class="stat-highlight">90-day application pause</span></li>
+                            <li>🔄 <span class="stat-highlight">Seamless restart</span> once re-employed</li>
+                            <li>🤝 <span class="stat-highlight">Career transition resources</span></li>
+                        </ul>
+                    </div>
+                    <div class="tags">
+                        <span class="tag">job-loss</span>
+                        <span class="tag">protection</span>
+                        <span class="tag">contingency</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SECTION 7: TRIGGER SETUP GUIDE -->
+            <section id="triggers" class="qa-section" style="background: linear-gradient(135deg, #f0f9ff, #e6f7ff);">
+                <h2 class="section-title"><span class="section-icon">🎯</span> AI Trigger Phrase Setup Guide</h2>
+                
+                <div class="trigger-category">
+                    <h3>💰 Rate-Related Triggers</h3>
+                    <p><strong>Trigger Phrases:</strong> "lowest rates", "best interest rates", "rate comparison", "competitive rates", "today's mortgage rates"</p>
+                    <p><strong>Recommended Content:</strong> Rate comparison testimonials, lowest rate success stories, rate lock strategy videos</p>
+                </div>
+                
+                <div class="trigger-category">
+                    <h3>⭐ Success Story Triggers</h3>
+                    <p><strong>Trigger Phrases:</strong> "success rate", "happy customers", "people you've helped", "client results", "approval rate"</p>
+                    <p><strong>Recommended Content:</strong> Customer testimonial videos, before/after stories, approval celebration videos</p>
+                </div>
+                
+                <div class="trigger-category">
+                    <h3>⚡ Speed & Timeline Triggers</h3>
+                    <p><strong>Trigger Phrases:</strong> "fast closing", "quick approval", "how fast", "timeline", "urgency", "rush closing"</p>
+                    <p><strong>Recommended Content:</strong> Fast closing testimonials, timeline explainers, urgent situation success stories</p>
+                </div>
+                
+                <div class="trigger-category">
+                    <h3>🤝 Service Quality Triggers</h3>
+                    <p><strong>Trigger Phrases:</strong> "customer service", "support", "guidance", "helpful", "responsive", "communication"</p>
+                    <p><strong>Recommended Content:</strong> Service quality testimonials, advisor introduction videos, support team showcases</p>
+                </div>
+                
+                <div class="trigger-category">
+                    <h3>🎯 Special Situation Triggers</h3>
+                    <p><strong>Trigger Phrases:</strong> "bad credit", "self-employed", "first-time buyer", "low down payment", "debt consolidation"</p>
+                    <p><strong>Recommended Content:</strong> Niche success stories, program explainers, specialist advisor introductions</p>
+                </div>
+                
+                <div style="background: white; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <h3>📋 How to Set Up Triggers in LemonSlice:</h3>
+                    <ol>
+                        <li>Copy trigger phrases from above</li>
+                        <li>Paste into your trigger-control-system.html detection array</li>
+                        <li>Map each phrase to specific video/content modules</li>
+                        <li>Test by asking the AI the trigger questions</li>
+                        <li>Monitor which triggers get the most engagement</li>
+                    </ol>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script>
+        // Simple navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Section highlighting
+            const sections = document.querySelectorAll('.qa-section');
+            const links = document.querySelectorAll('.section-link');
+            
+            window.addEventListener('scroll', function() {
+                let current = '';
+                sections.forEach(section => {
+                    if (window.scrollY >= section.offsetTop - 150) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                links.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+            
+            // Trigger phrase highlighting
+            const triggerPhrases = document.querySelectorAll('.trigger-phrase');
+            triggerPhrases.forEach(phrase => {
+                phrase.addEventListener('click', function() {
+                    const text = this.textContent.replace('🎯 TRIGGER: ', '');
+                    navigator.clipboard.writeText(text);
+                    const original = this.textContent;
+                    this.textContent = '✅ Copied to clipboard!';
+                    setTimeout(() => {
+                        this.textContent = original;
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
