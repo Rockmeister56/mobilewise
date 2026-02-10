@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trigger Control System - Active Monitoring</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .logo h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .client-info {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .client-details h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            color: #00ff88;
+        }
+        
+        .status-indicators {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .status-dot.active { background: #00ff88; animation: pulse 1.5s infinite; }
+        .status-dot.ready { background: #00ccff; }
+        .status-dot.inactive { background: #ff4444; }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* BOHEMIA WIDGET AREA */
+        .widget-area {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .widget-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .widget-title h2 {
+            font-size: 1.4rem;
+            color: #00ccff;
+        }
+        
+        .widget-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            height: 600px;
+            position: relative;
+        }
+        
+        .widget-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #666;
+        }
+        
+        /* MONITORING PANEL */
+        .monitor-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        
+        .monitor-header {
+            margin-bottom: 25px;
+        }
+        
+        .monitor-header h2 {
+            font-size: 1.4rem;
+            color: #00ff88;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .control-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .control-btn {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .control-btn.active {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+        }
+        
+        .btn-icon {
+            font-size: 1.2rem;
+        }
+        
+        /* TRIGGER LOG */
+        .trigger-log {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .log-header h3 {
+            color: #00ccff;
+            font-size: 1.1rem;
+        }
+        
+        .log-entries {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .log-entry {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 12px 15px;
+            border-left: 4px solid #666;
+            font-size: 0.9rem;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .log-entry.trigger {
+            border-left-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .log-entry.audio {
+            border-left-color: #00ccff;
+            background: rgba(0, 204, 255, 0.1);
+        }
+        
+        .log-entry.error {
+            border-left-color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+        }
+        
+        .log-time {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 5px;
+        }
+        
+        .log-message {
+            line-height: 1.4;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* MODULE DISPLAY AREA */
+        .module-display {
+            grid-column: 1 / -1;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            min-height: 400px;
+        }
+        
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .module-header h2 {
+            color: #ffcc00;
+            font-size: 1.3rem;
+        }
+        
+        .module-content {
+            padding: 20px;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .module-placeholder {
+            font-size: 1.1rem;
+            opacity: 0.7;
+        }
+        
+        /* TEST BUTTONS */
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        
+        .test-btn {
+            background: rgba(255, 204, 0, 0.1);
+            border: 1px solid rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .test-btn:hover {
+            background: rgba(255, 204, 0, 0.2);
+        }
+        
+        .test-btn.trigger {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div style="font-size: 2.5rem;">🎯</div>
+                <h1>Trigger Control System</h1>
+            </div>
+            <p>Active monitoring of Bohemia conversation for trigger detection</p>
+        </header>
+        
+        <!-- CLIENT INFO -->
+        <div class="client-info">
+            <div class="client-details">
+                <h3 id="clientName">Loading Client...</h3>
+                <p>ID: <span id="clientId">-</span> | Active Triggers: <span id="triggerCount">0</span></p>
+            </div>
+            <div class="status-indicators">
+                <div class="status-item">
+                    <span class="status-dot" id="audioStatus"></span>
+                    <span id="audioStatusText">Audio Monitor</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot" id="recognitionStatus"></span>
+                    <span id="recognitionStatusText">Speech Recognition</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-dot" id="widgetStatus"></span>
+                    <span id="widgetStatusText">Bohemia Widget</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MAIN LAYOUT -->
+        <div class="main-layout">
+            <!-- LEFT: BOHEMIA WIDGET -->
+            <div class="widget-area">
+                <div class="widget-header">
+                    <div class="widget-title">
+                        <i class="fas fa-robot"></i>
+                        <h2>Bohemia (LemonSlice)</h2>
+                    </div>
+                    <div style="color: #00ccff; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Talk to trigger modules
+                    </div>
+                </div>
+                
+                <div class="widget-container" id="widgetContainer">
+                    <div class="widget-loading" id="widgetLoading">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>Loading Bohemia widget...</p>
+                    </div>
+                    <!-- LemonSlice Widget will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- RIGHT: MONITORING PANEL -->
+            <div class="monitor-panel">
+                <div class="monitor-header">
+                    <h2><i class="fas fa-heartbeat"></i> Live Monitoring</h2>
+                    <p style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">
+                        Detecting trigger phrases from Bohemia's responses
+                    </p>
+                </div>
+                
+                <div class="control-buttons">
+                    <button class="control-btn" id="toggleAudio" onclick="toggleAudioDetection()">
+                        <span>
+                            <i class="fas fa-microphone"></i> Audio Detection
+                        </span>
+                        <span class="btn-icon" id="audioToggleIcon">▶</span>
+                    </button>
+                    
+                    <button class="control-btn" id="toggleRecognition" onclick="toggleSpeechRecognition()">
+                        <span>
+                            <i class="fas fa-ear"></i> Speech Recognition
+                        </span>
+                        <span class="btn-icon" id="recognitionToggleIcon">▶</span>
+                    </button>
+                    
+                    <button class="control-btn" onclick="testAllTriggers()">
+                        <span>
+                            <i class="fas fa-vial"></i> Test All Triggers
+                        </span>
+                        <span class="btn-icon">⚡</span>
+                    </button>
+                    
+                    <button class="control-btn" onclick="clearLog()">
+                        <span>
+                            <i class="fas fa-broom"></i> Clear Log
+                        </span>
+                        <span class="btn-icon">🗑️</span>
+                    </button>
+                </div>
+                
+                <!-- ACTIVE TRIGGERS DISPLAY -->
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #00ccff; margin-bottom: 10px; font-size: 1.1rem;">
+                        <i class="fas fa-bullhorn"></i> Active Trigger Phrases
+                    </h3>
+                    <div id="activeTriggers" style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                        max-height: 120px;
+                        overflow-y: auto;
+                        padding: 10px;
+                        background: rgba(0,0,0,0.2);
+                        border-radius: 8px;
+                    ">
+                        <!-- Trigger phrases will appear here -->
+                    </div>
+                </div>
+                
+                <!-- TRIGGER LOG -->
+                <div class="trigger-log">
+                    <div class="log-header">
+                        <h3><i class="fas fa-scroll"></i> Trigger Log</h3>
+                        <span style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">
+                            Entries: <span id="logCount">0</span>
+                        </span>
+                    </div>
+                    <div class="log-entries" id="logEntries">
+                        <!-- Log entries will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MODULE DISPLAY AREA -->
+        <div class="module-display">
+            <div class="module-header">
+                <h2><i class="fas fa-play-circle"></i> Module Display Area</h2>
+                <button class="test-btn" onclick="clearModuleDisplay()">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+            <div class="module-content" id="moduleContent">
+                <div class="module-placeholder">
+                    <i class="fas fa-cube" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                    <p>Modules will appear here when triggered</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">
+                        Talk to Bohemia or use test buttons above
+                    </p>
+                </div>
+            </div>
+            
+            <!-- TEST BUTTONS -->
+            <div class="test-buttons">
+                <button class="test-btn trigger" onclick="simulateTrigger('testimonial', 'results')">
+                    Test: Results Testimonial
+                </button>
+                <button class="test-btn trigger" onclick="simulateTrigger('videoVault', 'product')">
+                    Test: Product Video
+                </button>
+                <button class="test-btn trigger" onclick="simulateTrigger('communication', 'consultation')">
+                    Test: Free Consultation
+                </button>
+                <button class="test-btn trigger" onclick="simulateTrigger('websiteInfo', 'navigation')">
+                    Test: Website Navigation
+                </button>
+                <button class="test-btn" onclick="playRandomAudio()">
+                    <i class="fas fa-volume-up"></i> Play Test Audio
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script type="module">
+        import 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
+        console.log('LemonSlice widget imported');
+        
+        // Initialize widget after import
+        setTimeout(() => {
+            initLemonSliceWidget();
+        }, 1000);
+    </script>
+
+    <script>
+        // ==================== TRIGGER CONTROL SYSTEM ====================
+        class TriggerControlSystem {
+            constructor() {
+                this.config = null;
+                this.clientId = null;
+                this.audioDetectionActive = false;
+                this.speechRecognitionActive = false;
+                this.recognition = null;
+                this.widget = null;
+                this.logEntries = [];
+                this.audioContext = null;
+                this.analyser = null;
+                
+                // Initialize
+                this.init();
+            }
+            
+            async init() {
+                console.log('🎯 Trigger Control System Initializing...');
+                
+                // Get client ID from URL
+                this.clientId = this.getClientIdFromURL();
+                if (!this.clientId) {
+                    this.log('❌ No client ID provided in URL', 'error');
+                    this.showError('Please launch from Trigger System Dashboard');
+                    return;
+                }
+                
+                // Load configuration
+                await this.loadConfiguration();
+                
+                // Initialize UI
+                this.initUI();
+                
+                // Start monitoring
+                this.startMonitoring();
+                
+                this.log('✅ Trigger Control System Ready', 'success');
+            }
+            
+            getClientIdFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('client');
+            }
+            
+            async loadConfiguration() {
+                try {
+                    // Try to load from localStorage (from dashboard)
+                    const savedConfigs = localStorage.getItem('triggerConfigs');
+                    if (savedConfigs) {
+                        const allConfigs = JSON.parse(savedConfigs);
+                        this.config = allConfigs[this.clientId];
+                        
+                        if (this.config) {
+                            this.log(`📂 Loaded config: ${this.config.name}`, 'success');
+                            this.updateClientInfo();
+                            return;
+                        }
+                    }
+                    
+                    // Try to load from JSON file
+                    const response = await fetch(`/configs/trigger-config-${this.clientId}.json`);
+                    if (response.ok) {
+                        this.config = await response.json();
+                        this.log(`📁 Loaded config from file: ${this.config.name}`, 'success');
+                        this.updateClientInfo();
+                    } else {
+                        throw new Error('Config not found');
+                    }
+                } catch (error) {
+                    this.log(`❌ Failed to load config: ${error.message}`, 'error');
+                    this.showError(`Configuration not found for client: ${this.clientId}`);
+                }
+            }
+            
+            updateClientInfo() {
+                if (!this.config) return;
+                
+                document.getElementById('clientName').textContent = this.config.name;
+                document.getElementById('clientId').textContent = this.config.id;
+                
+                // Count total trigger phrases
+                let totalTriggers = 0;
+                if (this.config.modules) {
+                    Object.values(this.config.modules).forEach(module => {
+                        if (module.triggers) {
+                            totalTriggers += module.triggers.length;
+                        }
+                    });
+                }
+                document.getElementById('triggerCount').textContent = totalTriggers;
+                
+                // Display active triggers
+                this.displayActiveTriggers();
+            }
+            
+            displayActiveTriggers() {
+                const container = document.getElementById('activeTriggers');
+                container.innerHTML = '';
+                
+                if (!this.config?.modules) return;
+                
+                Object.entries(this.config.modules).forEach(([moduleName, moduleConfig]) => {
+                    if (moduleConfig.triggers) {
+                        moduleConfig.triggers.forEach(trigger => {
+                            const tag = document.createElement('span');
+                            tag.textContent = trigger;
+                            tag.style.cssText = `
+                                background: rgba(0, 255, 136, 0.1);
+                                color: #00ff88;
+                                padding: 4px 10px;
+                                border-radius: 20px;
+                                font-size: 0.8rem;
+                                border: 1px solid rgba(0, 255, 136, 0.3);
+                            `;
+                            container.appendChild(tag);
+                        });
+                    }
+                });
+            }
+            
+            initUI() {
+                // Update status indicators
+                this.updateStatus('audioStatus', 'inactive', 'Audio Monitor: Ready');
+                this.updateStatus('recognitionStatus', 'inactive', 'Speech Recognition: Ready');
+                this.updateStatus('widgetStatus', 'inactive', 'Bohemia Widget: Loading...');
+                
+                // Initialize test buttons based on config
+                this.initTestButtons();
+            }
+            
+            initTestButtons() {
+                // This will be populated based on actual triggers
+            }
+            
+            async initLemonSliceWidget() {
+                try {
+                    // Create widget element
+                    const widgetContainer = document.getElementById('widgetContainer');
+                    const loadingElement = document.getElementById('widgetLoading');
+                    
+                    const widget = document.createElement('lemon-slice-widget');
+                    widget.setAttribute('agent-id', 'agent_1db77d60ec132469'); // Your agent ID
+                    widget.style.width = '100%';
+                    widget.style.height = '100%';
+                    widget.style.border = 'none';
+                    
+                    widgetContainer.appendChild(widget);
+                    
+                    // Hide loading
+                    setTimeout(() => {
+                        loadingElement.style.display = 'none';
+                        this.updateStatus('widgetStatus', 'active', 'Bohemia Widget: Active');
+                        this.widget = widget;
+                        this.log('✅ Bohemia widget loaded', 'success');
+                        
+                        // Start audio detection after widget loads
+                        setTimeout(() => {
+                            this.startAudioDetection();
+                        }, 2000);
+                    }, 2000);
+                    
+                } catch (error) {
+                    this.log(`❌ Failed to load widget: ${error.message}`, 'error');
+                    this.updateStatus('widgetStatus', 'inactive', 'Bohemia Widget: Failed');
+                }
+            }
+            
+            // ==================== AUDIO DETECTION ====================
+            startAudioDetection() {
+                this.log('🔊 Starting audio detection...', 'audio');
+                this.audioDetectionActive = true;
+                this.updateStatus('audioStatus', 'active', 'Audio Monitor: Active');
+                
+                // Method 1: Monitor audio/video elements
+                this.monitorMediaElements();
+                
+                // Method 2: Use Web Audio API for system audio detection
+                this.initWebAudioMonitoring();
+            }
+            
+            monitorMediaElements() {
+                const checkForAudio = () => {
+                    if (!this.audioDetectionActive) return;
+                    
+                    try {
+                        // Check in main document
+                        document.querySelectorAll('audio, video').forEach(media => {
+                            if (!media.paused && media.currentTime > 0) {
+                                this.onAudioDetected();
+                            }
+                        });
+                        
+                        // Check in shadow DOMs
+                        document.querySelectorAll('*').forEach(el => {
+                            if (el.shadowRoot) {
+                                el.shadowRoot.querySelectorAll('audio, video').forEach(shadowMedia => {
+                                    if (!shadowMedia.paused && shadowMedia.currentTime > 0) {
+                                        this.onAudioDetected();
+                                    }
+                                });
+                            }
+                        });
+                        
+                        // Check LemonSlice widget specifically
+                        if (this.widget?.shadowRoot) {
+                            const widgetMedia = this.widget.shadowRoot.querySelectorAll('audio, video');
+                            widgetMedia.forEach(media => {
+                                if (!media.paused && media.currentTime > 0) {
+                                    this.onAudioDetected();
+                                }
+                            });
+                        }
+                        
+                    } catch (error) {
+                        // Silently continue
+                    }
+                    
+                    // Continue monitoring
+                    setTimeout(checkForAudio, 500);
+                };
+                
+                checkForAudio();
+            }
+            
+            initWebAudioMonitoring() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.analyser = this.audioContext.createAnalyser();
+                    
+                    // Create media stream source
+                    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                            .then(stream => {
+                                const source = this.audioContext.createMediaStreamSource(stream);
+                                source.connect(this.analyser);
+                                this.analyser.connect(this.audioContext.destination);
+                                
+                                this.monitorAudioLevels();
+                            })
+                            .catch(error => {
+                                this.log(`Microphone access not available: ${error.message}`, 'error');
+                            });
+                    }
+                } catch (error) {
+                    console.log('Web Audio API not available:', error);
+                }
+            }
+            
+            monitorAudioLevels() {
+                if (!this.analyser || !this.audioDetectionActive) return;
+                
+                const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+                this.analyser.getByteFrequencyData(dataArray);
+                
+                // Calculate average volume
+                let sum = 0;
+                for (let i = 0; i < dataArray.length; i++) {
+                    sum += dataArray[i];
+                }
+                const average = sum / dataArray.length;
+                
+                // If volume exceeds threshold, audio is playing
+                if (average > 10) {
+                    this.onAudioDetected();
+                }
+                
+                // Continue monitoring
+                requestAnimationFrame(() => this.monitorAudioLevels());
+            }
+            
+            onAudioDetected() {
+                if (!this.audioDetectionActive || this.speechRecognitionActive) return;
+                
+                this.log('🎵 Audio detected from Bohemia', 'audio');
+                this.startSpeechRecognition();
+            }
+            
+            stopAudioDetection() {
+                this.audioDetectionActive = false;
+                this.updateStatus('audioStatus', 'inactive', 'Audio Monitor: Stopped');
+                
+                if (this.audioContext) {
+                    this.audioContext.close();
+                    this.audioContext = null;
+                }
+                
+                this.log('🔇 Audio detection stopped', 'info');
+            }
+            
+            // ==================== SPEECH RECOGNITION ====================
+            startSpeechRecognition() {
+                if (this.speechRecognitionActive || !('webkitSpeechRecognition' in window)) {
+                    return;
+                }
+                
+                this.log('👂 Starting speech recognition...', 'audio');
+                this.speechRecognitionActive = true;
+                this.updateStatus('recognitionStatus', 'active', 'Speech Recognition: Active');
+                
+                this.recognition = new webkitSpeechRecognition();
+                this.recognition.continuous = true;
+                this.recognition.interimResults = true;
+                this.recognition.lang = 'en-US';
+                
+                this.recognition.onstart = () => {
+                    this.log('✅ Speech recognition active', 'success');
+                };
+                
+                this.recognition.onresult = (event) => {
+                    let fullTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            fullTranscript += event.results[i][0].transcript + ' ';
+                        }
+                    }
+                    
+                    if (fullTranscript.trim()) {
+                        const cleanTranscript = fullTranscript.toLowerCase().trim();
+                        this.log(`📝 Bohemia: "${cleanTranscript.substring(0, 100)}..."`, 'audio');
+                        this.checkForTriggers(cleanTranscript);
+                    }
+                };
+                
+                this.recognition.onerror = (event) => {
+                    this.log(`❌ Recognition error: ${event.error}`, 'error');
+                    this.stopSpeechRecognition();
+                };
+                
+                this.recognition.onend = () => {
+                    this.log('⏹️ Speech recognition ended', 'info');
+                    this.speechRecognitionActive = false;
+                    this.updateStatus('recognitionStatus', 'inactive', 'Speech Recognition: Ready');
+                    
+                    // Restart if audio detection is still active
+                    if (this.audioDetectionActive) {
+                        setTimeout(() => {
+                            if (this.audioDetectionActive && !this.speechRecognitionActive) {
+                                this.startSpeechRecognition();
+                            }
+                        }, 1000);
+                    }
+                };
+                
+                try {
+                    this.recognition.start();
+                } catch (error) {
+                    this.log(`❌ Cannot start recognition: ${error.message}`, 'error');
+                    this.speechRecognitionActive = false;
+                }
+            }
+            
+            stopSpeechRecognition() {
+                if (this.recognition) {
+                    try {
+                        this.recognition.stop();
+                    } catch (error) {
+                        // Ignore stop errors
+                    }
+                }
+                this.speechRecognitionActive = false;
+                this.updateStatus('recognitionStatus', 'inactive', 'Speech Recognition: Stopped');
+                this.log('🛑 Speech recognition stopped', 'info');
+            }
+            
+            // ==================== TRIGGER DETECTION ====================
+            checkForTriggers(transcript) {
+                if (!this.config?.modules) return false;
+                
+                let triggered = false;
+                
+                // Check each module for triggers
+                Object.entries(this.config.modules).forEach(([moduleName, moduleConfig]) => {
+                    if (!moduleConfig.triggers) return;
+                    
+                    moduleConfig.triggers.forEach(triggerPhrase => {
+                        if (transcript.includes(triggerPhrase.toLowerCase())) {
+                            this.log(`🎯 TRIGGER DETECTED: "${triggerPhrase}" → ${moduleName}`, 'trigger');
+                            this.triggerModule(moduleName, moduleConfig, triggerPhrase);
+                            triggered = true;
+                            
+                            // Stop recognition temporarily
+                            this.stopSpeechRecognition();
+                            
+                            // Restart after delay
+                            setTimeout(() => {
+                                if (this.audioDetectionActive) {
+                                    this.startSpeechRecognition();
+                                }
+                            }, 3000);
+                        }
+                    });
+                });
+                
+                return triggered;
+            }
+            
+            triggerModule(moduleName, moduleConfig, triggerPhrase) {
+                this.log(`🚀 Launching module: ${moduleName}`, 'success');
+                
+                // Update module display
+                this.showModule(moduleName, moduleConfig, triggerPhrase);
+                
+                // Trigger specific actions based on module
+                switch(moduleName) {
+                    case 'testimonial':
+                        this.triggerTestimonialModule(moduleConfig);
+                        break;
+                    case 'videoVault':
+                        this.triggerVideoVaultModule(moduleConfig);
+                        break;
+                    case 'communication':
+                        this.triggerCommunicationModule(moduleConfig);
+                        break;
+                    case 'websiteInfo':
+                        this.triggerWebsiteInfoModule(moduleConfig);
+                        break;
+                }
+            }
+            
+            triggerTestimonialModule(config) {
+                // Call your existing testimonial system
+                if (window.showTestimonialSplashScreen) {
+                    window.showTestimonialSplashScreen();
+                } else {
+                    this.showModuleContent(`
+                        <div style="text-align: center; padding: 40px;">
+                            <h3 style="color: #00ff88; margin-bottom: 20px;">
+                                <i class="fas fa-video"></i> Testimonial Module Triggered
+                            </h3>
+                            <p>Group: <strong>${config.group || 'Results'}</strong></p>
+                            <p>Action: <strong>${config.action || 'Show Testimonials'}</strong></p>
+                            <div style="margin-top: 30px;">
+                                <button onclick="window.showTestimonialSplashScreen()" style="
+                                    background: #00ff88;
+                                    color: #000;
+                                    border: none;
+                                    padding: 12px 30px;
+                                    border-radius: 8px;
+                                    font-weight: bold;
+                                    cursor: pointer;
+                                ">
+                                    Launch Testimonial Player
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                }
+            }
+            
+            triggerVideoVaultModule(config) {
+                this.showModuleContent(`
+                    <div style="text-align: center; padding: 40px;">
+                        <h3 style="color: #f72585; margin-bottom: 20px;">
+                            <i class="fas fa-film"></i> Video Vault Module Triggered
+                        </h3>
+                        <p>Category: <strong>${config.category || 'Product Videos'}</strong></p>
+                        <p>Action: <strong>${config.action || 'Show Video Gallery'}</strong></p>
+                        <div style="margin-top: 30px;">
+                            <p><em>Video Vault module integration pending...</em></p>
+                            <button onclick="alert('Video Vault coming soon!')" style="
+                                background: #f72585;
+                                color: white;
+                                border: none;
+                                padding: 12px 30px;
+                                border-radius: 8px;
+                                font-weight: bold;
+                                cursor: pointer;
+                                margin-top: 20px;
+                            ">
+                                Simulate Video Playback
+                            </button>
+                        </div>
+                    </div>
+                `);
+            }
+            
+            triggerCommunicationModule(config) {
+                this.showModuleContent(`
+                    <div style="text-align: center; padding: 40px;">
+                        <h3 style="color: #00ccff; margin-bottom: 20px;">
+                            <i class="fas fa-comments"></i> Communication Hub Triggered
+                        </h3>
+                        <p>Interview Type: <strong>${config.interviewType || 'General Consultation'}</strong></p>
+                        <p>Action: <strong>${config.action || 'Start Interview'}</strong></p>
+                        <div style="margin-top: 30px;">
+                            <p><em>Communication Hub ready for integration...</em></p>
+                            <button onclick="alert('Starting qualification interview!')" style="
+                                background: #00ccff;
+                                color: #000;
+                                border: none;
+                                padding: 12px 30px;
+                                border-radius: 8px;
+                                font-weight: bold;
+                                cursor: pointer;
+                                margin-top: 20px;
+                            ">
+                                Start Qualification Interview
+                            </button>
+                        </div>
+                    </div>
+                `);
+            }
+            
+            triggerWebsiteInfoModule(config) {
+                this.showModuleContent(`
+                    <div style="text-align: center; padding: 40px;">
+                        <h3 style="color: #7209b7; margin-bottom: 20px;">
+                            <i class="fas fa-sitemap"></i> Website Info Center Triggered
+                        </h3>
+                        <p>Info Type: <strong>${config.infoType || 'Navigation'}</strong></p>
+                        <p>Action: <strong>${config.action || 'Show Smart Navigation'}</strong></p>
+                        <div style="margin-top: 30px;">
+                            <div style="
+                                background: rgba(255,255,255,0.1);
+                                border-radius: 10px;
+                                padding: 25px;
+                                max-width: 600px;
+                                margin: 0 auto;
+                                text-align: left;
+                            ">
+                                <h4 style="color: #ffcc00; margin-bottom: 15px;">Suggested Pages:</h4>
+                                <ul style="list-style: none; padding: 0;">
+                                    <li style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <a href="#" style="color: #00ccff; text-decoration: none;">
+                                            <i class="fas fa-home"></i> Home Page
+                                        </a>
+                                    </li>
+                                    <li style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <a href="#" style="color: #00ccff; text-decoration: none;">
+                                            <i class="fas fa-info-circle"></i> About Us
+                                        </a>
+                                    </li>
+                                    <li style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <a href="#" style="color: #00ccff; text-decoration: none;">
+                                            <i class="fas fa-handshake"></i> Services
+                                        </a>
+                                    </li>
+                                    <li style="padding: 10px;">
+                                        <a href="#" style="color: #00ccff; text-decoration: none;">
+                                            <i class="fas fa-phone"></i> Contact
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            }
+            
+            showModule(moduleName, config, triggerPhrase) {
+                const moduleContent = document.getElementById('moduleContent');
+                moduleContent.innerHTML = `
+                    <div style="
+                        background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%);
+                        border-radius: 15px;
+                        padding: 30px;
+                        border: 2px solid #00ff88;
+                        animation: fadeIn 0.5s ease;
+                    ">
+                        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px;">
+                            <div style="
+                                width: 70px;
+                                height: 70px;
+                                background: rgba(0, 255, 136, 0.2);
+                                border-radius: 15px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 2rem;
+                            ">
+                                ${this.getModuleIcon(moduleName)}
+                            </div>
+                            <div>
+                                <h3 style="color: #00ff88; font-size: 1.5rem; margin-bottom: 5px;">
+                                    ${this.getModuleTitle(moduleName)}
+                                </h3>
+                                <p style="color: rgba(255,255,255,0.7);">
+                                    Triggered by: <strong style="color: #ffcc00;">"${triggerPhrase}"</strong>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div style="
+                            background: rgba(0,0,0,0.2);
+                            border-radius: 10px;
+                            padding: 20px;
+                            margin-bottom: 20px;
+                        ">
+                            <h4 style="color: #00ccff; margin-bottom: 15px;">Configuration:</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                                ${this.getConfigDetails(config)}
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button onclick="triggerSystem.testModule('${moduleName}')" style="
+                                background: linear-gradient(90deg, #00ff88, #00ccff);
+                                color: #000;
+                                border: none;
+                                padding: 15px 40px;
+                                border-radius: 10px;
+                                font-weight: bold;
+                                font-size: 1.1rem;
+                                cursor: pointer;
+                                transition: all 0.3s;
+                            " onmouseover="this.style.transform='scale(1.05)'" 
+                            onmouseout="this.style.transform='scale(1)'">
+                                <i class="fas fa-play"></i> Launch ${this.getModuleTitle(moduleName)}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            getModuleIcon(moduleName) {
+                const icons = {
+                    'testimonial': '🎬',
+                    'videoVault': '📹', 
+                    'communication': '💬',
+                    'websiteInfo': '🌐'
+                };
+                return icons[moduleName] || '🚀';
+            }
+            
+            getModuleTitle(moduleName) {
+                const titles = {
+                    'testimonial': 'Testimonial Module',
+                    'videoVault': 'Video Vault Module',
+                    'communication': 'Communication Hub',
+                    'websiteInfo': 'Website Info Center'
+                };
+                return titles[moduleName] || 'Module';
+            }
+            
+            getConfigDetails(config) {
+                let details = '';
+                for (const [key, value] of Object.entries(config)) {
+                    if (key !== 'triggers') {
+                        details += `
+                            <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px;">
+                                <div style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">${key}</div>
+                                <div style="color: #ffcc00; font-weight: bold;">${value}</div>
+                            </div>
+                        `;
+                    }
+                }
+                return details;
+            }
+            
+            showModuleContent(html) {
+                const moduleContent = document.getElementById('moduleContent');
+                moduleContent.innerHTML = html;
+            }
+            
+            testModule(moduleName) {
+                this.log(`🧪 Testing module: ${moduleName}`, 'info');
+                alert(`Testing ${moduleName} module - Integration pending`);
+            }
+            
+            // ==================== LOGGING ====================
+            log(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = {
+                    time: timestamp,
+                    message: message,
+                    type: type
+                };
+                
+                this.logEntries.unshift(entry);
+                
+                // Update UI
+                this.updateLogDisplay();
+                
+                // Console log
+                console.log(`[${timestamp}] ${message}`);
+            }
+            
+            updateLogDisplay() {
+                const logContainer = document.getElementById('logEntries');
+                const logCount = document.getElementById('logCount');
+                
+                logContainer.innerHTML = '';
+                logCount.textContent = this.logEntries.length;
+                
+                // Show last 20 entries
+                this.logEntries.slice(0, 20).forEach(entry => {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = `log-entry ${entry.type}`;
+                    logEntry.innerHTML = `
+                        <div class="log-time">${entry.time}</div>
+                        <div class="log-message">${entry.message}</div>
+                    `;
+                    logContainer.appendChild(logEntry);
+                });
+            }
+            
+            // ==================== STATUS UPDATES ====================
+            updateStatus(elementId, state, text) {
+                const element = document.getElementById(elementId);
+                const textElement = document.getElementById(elementId + 'Text');
+                
+                if (element) {
+                    element.className = `status-dot ${state}`;
+                }
+                if (textElement) {
+                    textElement.textContent = text;
+                }
+            }
+            
+            // ==================== UI CONTROLS ====================
+            toggleAudioDetection() {
+                if (this.audioDetectionActive) {
+                    this.stopAudioDetection();
+                    document.getElementById('audioToggleIcon').textContent = '▶';
+                    document.getElementById('toggleAudio').classList.remove('active');
+                } else {
+                    this.startAudioDetection();
+                    document.getElementById('audioToggleIcon').textContent = '⏸';
+                    document.getElementById('toggleAudio').classList.add('active');
+                }
+            }
+            
+            toggleSpeechRecognition() {
+                if (this.speechRecognitionActive) {
+                    this.stopSpeechRecognition();
+                    document.getElementById('recognitionToggleIcon').textContent = '▶';
+                    document.getElementById('toggleRecognition').classList.remove('active');
+                } else {
+                    this.startSpeechRecognition();
+                    document.getElementById('recognitionToggleIcon').textContent = '⏸';
+                    document.getElementById('toggleRecognition').classList.add('active');
+                }
+            }
+            
+            // ==================== TEST FUNCTIONS ====================
+            simulateTrigger(moduleName, triggerType) {
+                const testTranscripts = {
+                    'testimonial': `Let me show you some amazing results from our clients`,
+                    'videoVault': `Here's a product video that explains how it works`,
+                    'communication': `Would you like a free consultation with our team?`,
+                    'websiteInfo': `Let me show you more information on our website`
+                };
+                
+                const transcript = testTranscripts[moduleName] || 'Test trigger';
+                this.log(`🧪 Simulating: "${transcript}"`, 'trigger');
+                this.checkForTriggers(transcript.toLowerCase());
+            }
+            
+            testAllTriggers() {
+                if (!this.config?.modules) return;
+                
+                this.log('🧪 Testing all configured triggers...', 'info');
+                
+                Object.entries(this.config.modules).forEach(([moduleName, moduleConfig]) => {
+                    if (moduleConfig.triggers && moduleConfig.triggers.length > 0) {
+                        const testPhrase = `Test: ${moduleConfig.triggers[0]}`;
+                        this.log(`Testing ${moduleName}: "${testPhrase}"`, 'trigger');
+                        setTimeout(() => {
+                            this.checkForTriggers(testPhrase.toLowerCase());
+                        }, 500);
+                    }
+                });
+            }
+            
+            playRandomAudio() {
+                // Create a test audio element
+                const audio = new Audio();
+                audio.src = 'https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3';
+                audio.volume = 0.5;
+                audio.play().then(() => {
+                    this.log('🔊 Playing test audio', 'audio');
+                }).catch(error => {
+                    this.log(`❌ Cannot play audio: ${error.message}`, 'error');
+                });
+            }
+            
+            showError(message) {
+                const moduleContent = document.getElementById('moduleContent');
+                moduleContent.innerHTML = `
+                    <div style="text-align: center; padding: 50px;">
+                        <div style="
+                            background: rgba(255, 68, 68, 0.1);
+                            border: 2px solid #ff4444;
+                            border-radius: 15px;
+                            padding: 30px;
+                            max-width: 600px;
+                            margin: 0 auto;
+                        ">
+                            <div style="font-size: 4rem; color: #ff4444; margin-bottom: 20px;">⚠️</div>
+                            <h3 style="color: #ff4444; margin-bottom: 15px;">Configuration Error</h3>
+                            <p style="color: rgba(255,255,255,0.8); margin-bottom: 25px;">${message}</p>
+                            <button onclick="window.history.back()" style="
+                                background: #ff4444;
+                                color: white;
+                                border: none;
+                                padding: 12px 30px;
+                                border-radius: 8px;
+                                font-weight: bold;
+                                cursor: pointer;
+                            ">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            startMonitoring() {
+                this.log('🔍 Starting system monitoring...', 'info');
+                
+                // Auto-start audio detection after delay
+                setTimeout(() => {
+                    if (!this.audioDetectionActive) {
+                        this.startAudioDetection();
+                        document.getElementById('toggleAudio').classList.add('active');
+                        document.getElementById('audioToggleIcon').textContent = '⏸';
+                    }
+                }, 3000);
+            }
+        }
+        
+        // ==================== GLOBAL FUNCTIONS ====================
+        let triggerSystem;
+        
+        function toggleAudioDetection() {
+            if (triggerSystem) triggerSystem.toggleAudioDetection();
+        }
+        
+        function toggleSpeechRecognition() {
+            if (triggerSystem) triggerSystem.toggleSpeechRecognition();
+        }
+        
+        function testAllTriggers() {
+            if (triggerSystem) triggerSystem.testAllTriggers();
+        }
+        
+        function clearLog() {
+            if (triggerSystem) {
+                triggerSystem.logEntries = [];
+                triggerSystem.updateLogDisplay();
+                triggerSystem.log('📝 Log cleared', 'info');
+            }
+        }
+        
+        function simulateTrigger(moduleName, triggerType) {
+            if (triggerSystem) triggerSystem.simulateTrigger(moduleName, triggerType);
+        }
+        
+        function playRandomAudio() {
+            if (triggerSystem) triggerSystem.playRandomAudio();
+        }
+        
+        function clearModuleDisplay() {
+            const moduleContent = document.getElementById('moduleContent');
+            moduleContent.innerHTML = `
+                <div class="module-placeholder">
+                    <i class="fas fa-cube" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                    <p>Modules will appear here when triggered</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">
+                        Talk to Bohemia or use test buttons above
+                    </p>
+                </div>
+            `;
+        }
+        
+        // ==================== INITIALIZE ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            triggerSystem = new TriggerControlSystem();
+            
+            // Make system available globally for debugging
+            window.triggerSystem = triggerSystem;
+        });
+    </script>
+</body>
+</html>
