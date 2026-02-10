@@ -203,6 +203,15 @@
             border-color: var(--primary);
         }
         
+        .control-btn.module-btn {
+            background: rgba(76, 201, 240, 0.2);
+            border-left: 4px solid var(--success);
+        }
+        
+        .control-btn.module-btn:hover {
+            background: rgba(76, 201, 240, 0.3);
+        }
+        
         /* ===== TESTIMONIAL PREVIEW ===== */
         .testimonial-preview {
             background: rgba(255, 255, 255, 0.05);
@@ -246,6 +255,21 @@
             font-size: 0.8rem;
             color: var(--gray);
         }
+        
+        .module-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .module-tag.results { background: #f72585; }
+        .module-tag.success { background: #4cc9f0; }
+        .module-tag.calculator { background: #7209b7; }
         
         /* ===== FOOTER ===== */
         footer {
@@ -316,6 +340,7 @@
         .status-message.success { background: #4CAF50; }
         .status-message.error { background: #f44336; }
         .status-message.warning { background: #FF9800; }
+        .status-message.info { background: #4361ee; }
         
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1200px) {
@@ -374,7 +399,7 @@
                 <div class="widget-container">
                     <!-- REPLACE THIS AGENT ID WITH YOUR ACTUAL LEMONSLICE AGENT ID -->
                     <lemon-slice-widget 
-                        agent-id="YOUR_ACTUAL_LEMONSLICE_AGENT_ID_HERE"
+                        agent-id="agent_1db77d60ec132469" 
                         controlled-widget-state="active"
                         style="width: 100%; height: 100%;"
                     ></lemon-slice-widget>
@@ -389,6 +414,19 @@
                 <h2><i class="fas fa-sliders-h"></i> Control Panel</h2>
                 
                 <div class="control-buttons">
+                    <button id="triggerResults" class="control-btn module-btn">
+                        <i class="fas fa-chart-line"></i> Trigger Results Gallery
+                        <span class="module-tag results">Results</span>
+                    </button>
+                    <button id="triggerSuccess" class="control-btn module-btn">
+                        <i class="fas fa-trophy"></i> Trigger Success Stories
+                        <span class="module-tag success">Success</span>
+                    </button>
+                    <button id="triggerCalculator" class="control-btn module-btn">
+                        <i class="fas fa-calculator"></i> Trigger ROI Calculator
+                        <span class="module-tag calculator">ROI</span>
+                    </button>
+                    
                     <button id="testimonialTrigger" class="control-btn">
                         <i class="fas fa-play-circle"></i> Trigger Testimonial System
                     </button>
@@ -399,22 +437,23 @@
                         <i class="fas fa-paper-plane"></i> Send Welcome Message
                     </button>
                     <button id="showTestimonialList" class="control-btn secondary">
-                        <i class="fas fa-list"></i> Show Available Testimonials
+                        <i class="fas fa-list"></i> Show Available Content
                     </button>
                 </div>
                 
-                <!-- Testimonial Preview -->
+                <!-- Module Status -->
                 <div class="testimonial-preview">
-                    <h3><i class="fas fa-video"></i> Testimonial System Status</h3>
-                    <div id="testimonialStatus">
-                        <p>Your testimonial player system is ready.</p>
-                        <p id="testimonialCount">Loading testimonial count...</p>
+                    <h3><i class="fas fa-cogs"></i> Module Status</h3>
+                    <div id="moduleStatus">
+                        <p><i class="fas fa-circle" style="color: #4CAF50;"></i> AI System: <span id="aiStatus">Active</span></p>
+                        <p><i class="fas fa-circle" style="color: #4CAF50;"></i> Testimonial System: <span id="testimonialStatusText">Ready</span></p>
+                        <p><i class="fas fa-circle" style="color: #4CAF50;"></i> Speech Detection: <span id="speechStatus">ON</span></p>
                     </div>
                 </div>
                 
-                <!-- Available Testimonials List -->
+                <!-- Available Content List -->
                 <div class="testimonial-preview" id="testimonialList" style="display: none;">
-                    <h3><i class="fas fa-film"></i> Available Testimonials</h3>
+                    <h3><i class="fas fa-film"></i> Available Content</h3>
                     <div id="testimonialItems">
                         <!-- Filled by JavaScript -->
                     </div>
@@ -444,181 +483,355 @@
 
     <!-- ===== CORRECT INTEGRATION WITH YOUR SYSTEM ===== -->
     <script>
-        // ==================== MAIN CONTROLLER ====================
-        class AIControlPanel {
-            constructor() {
-                this.clientId = this.getClientId();
-                this.widget = null;
-                this.speechActive = true;
-                this.testimonialSystemReady = false;
-                this.init();
-            }
+    // ==================== MAIN CONTROLLER ====================
+    class AIControlPanel {
+        constructor() {
+            this.clientId = this.getClientId();
+            this.widget = null;
+            this.speechActive = true;
+            this.testimonialSystemReady = false;
             
-            getClientId() {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get('client') || 'mortgage-assist-demo';
-            }
+            // NO hardcoded URLs - we'll get them from your testimonial system
+            this.availableTestimonials = [];
+            this.modules = {
+                results: {
+                    name: 'Results Gallery',
+                    description: 'Client results and metrics',
+                    group: 'results' // This should match a group in your testimonialData
+                },
+                success: {
+                    name: 'Success Stories', 
+                    description: 'Real client success stories',
+                    group: 'success'
+                },
+                calculator: {
+                    name: 'ROI Calculator',
+                    description: 'Calculate your potential ROI',
+                    // This might be a special module, not necessarily a testimonial
+                },
+                testimonial: {
+                    name: 'Testimonial Gallery',
+                    description: 'Client video testimonials'
+                }
+            };
             
-            async init() {
-                console.log('🚀 MobileWise AI Control Panel Initializing...');
-                console.log('👤 Client:', this.clientId);
+            this.init();
+        }
+        
+        getClientId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('client') || 'mortgage-assist-demo';
+        }
+        
+        async init() {
+            console.log('🚀 MobileWise AI Control Panel Initializing...');
+            console.log('👤 Client:', this.clientId);
+            
+            // Update UI
+            document.getElementById('clientDisplay').textContent = 
+                `Client: ${this.clientId.replace(/-/g, ' ').toUpperCase()}`;
+            
+            // Check if your testimonial system is loaded
+            this.checkTestimonialSystem();
+            
+            // Initialize subsystems
+            await this.initLemonSlice();
+            this.initSpeechDetection();
+            this.initEventListeners();
+            this.initClientCommunication();
+            
+            // Update status
+            this.updateStatus('AI Control Panel Ready', 'success');
+            document.getElementById('statusText').textContent = 
+                'AI System Active | Speech Detection: ON';
+            
+            console.log('✅ MobileWise AI Control Panel Ready!');
+        }
+        
+        // ==================== CHECK YOUR TESTIMONIAL SYSTEM ====================
+        checkTestimonialSystem() {
+            console.log('🔍 Checking for testimonial system...');
+            
+            if (window.testimonialData && window.showTestimonialSplashScreen) {
+                console.log('✅ Found YOUR testimonial system!');
+                this.testimonialSystemReady = true;
+                
+                // Load available testimonials
+                this.loadAvailableTestimonials();
                 
                 // Update UI
-                document.getElementById('clientDisplay').textContent = 
-                    `Client: ${this.clientId.replace(/-/g, ' ').toUpperCase()}`;
+                const testimonialCount = this.getTestimonialCount();
+                document.getElementById('testimonialStatusText').textContent = 
+                    `${testimonialCount} testimonials available`;
                 
-                // Check if your testimonial system is loaded
-                this.checkTestimonialSystem();
-                
-                // Initialize subsystems
-                await this.initLemonSlice();
-                this.initSpeechDetection();
-                this.initEventListeners();
-                this.initClientCommunication();
-                
-                // Update status
-                this.updateStatus('AI Control Panel Ready', 'success');
-                document.getElementById('statusText').textContent = 
-                    'AI System Active | Speech Detection: ON';
-                
-                console.log('✅ MobileWise AI Control Panel Ready!');
+                this.updateStatus('Testimonial system loaded', 'success');
+            } else {
+                console.warn('⚠️ Your testimonial system not found');
+                document.getElementById('testimonialStatusText').textContent = 
+                    'Testimonial system not loaded';
+                this.updateStatus('Testimonial system missing', 'warning');
             }
+        }
+        
+        loadAvailableTestimonials() {
+            if (!window.testimonialData) return;
             
-            // ==================== CHECK YOUR TESTIMONIAL SYSTEM ====================
-            checkTestimonialSystem() {
-                console.log('🔍 Checking for testimonial system...');
-                
-                if (window.testimonialData && window.showTestimonialSplashScreen) {
-                    console.log('✅ Found YOUR testimonial system!');
-                    this.testimonialSystemReady = true;
-                    
-                    // Update UI
-                    const testimonialCount = this.getTestimonialCount();
-                    document.getElementById('testimonialCount').textContent = 
-                        `${testimonialCount} testimonials available`;
-                    
-                    this.updateStatus('Testimonial system loaded', 'success');
-                } else {
-                    console.warn('⚠️ Your testimonial system not found');
-                    document.getElementById('testimonialCount').textContent = 
-                        'Testimonial system not loaded';
-                    this.updateStatus('Testimonial system missing', 'warning');
-                }
-            }
+            this.availableTestimonials = [];
             
-            getTestimonialCount() {
-                if (!window.testimonialData) return 0;
-                
-                let count = 0;
-                
-                // Count from testimonial groups
-                if (window.testimonialData.testimonialGroups) {
-                    Object.values(window.testimonialData.testimonialGroups).forEach(group => {
-                        if (group.testimonials) {
-                            count += group.testimonials.length;
-                        }
-                    });
-                }
-                
-                // Count from informational groups
-                if (window.testimonialData.informationalGroups) {
-                    Object.values(window.testimonialData.informationalGroups).forEach(group => {
-                        if (group.videos) {
-                            count += group.videos.length;
-                        }
-                    });
-                }
-                
-                return count;
-            }
-            
-            // ==================== TRIGGER YOUR TESTIMONIAL SYSTEM ====================
-            triggerTestimonialSystem() {
-                if (!this.testimonialSystemReady) {
-                    this.updateStatus('Testimonial system not loaded', 'error');
-                    return;
-                }
-                
-                console.log('🎬 Triggering YOUR testimonial system...');
-                
-                // Clear any existing testimonials
-                const container = document.getElementById('testimonialContainer');
-                if (container) {
-                    container.innerHTML = '';
-                }
-                
-                // Call YOUR function from testimonial-player.js
-                try {
-                    window.showTestimonialSplashScreen();
-                    this.updateStatus('Testimonial system activated', 'success');
-                    
-                    // Tell LemonSlice we're showing testimonials
-                    this.sendToBot("I'm now showing you client testimonials. Click any button to watch!");
-                    
-                } catch (error) {
-                    console.error('Failed to trigger testimonial system:', error);
-                    this.updateStatus('Failed to trigger testimonials', 'error');
-                }
-            }
-            
-            showTestimonialList() {
-                const listContainer = document.getElementById('testimonialList');
-                const itemsContainer = document.getElementById('testimonialItems');
-                
-                if (listContainer.style.display === 'none') {
-                    // Show list
-                    listContainer.style.display = 'block';
-                    
-                    // Load testimonials
-                    this.loadTestimonialList(itemsContainer);
-                } else {
-                    // Hide list
-                    listContainer.style.display = 'none';
-                }
-            }
-            
-            loadTestimonialList(container) {
-                if (!window.testimonialData) {
-                    container.innerHTML = '<p>No testimonial data available</p>';
-                    return;
-                }
-                
-                container.innerHTML = '';
-                let hasItems = false;
-                
-                // Add from testimonial groups
-                if (window.testimonialData.testimonialGroups) {
-                    Object.values(window.testimonialData.testimonialGroups).forEach(group => {
-                        if (group.testimonials) {
-                            group.testimonials.forEach(testimonial => {
-                                this.addTestimonialItem(container, testimonial, group);
-                                hasItems = true;
+            // Collect testimonials from all groups
+            if (window.testimonialData.testimonialGroups) {
+                Object.entries(window.testimonialData.testimonialGroups).forEach(([groupName, group]) => {
+                    if (group.testimonials) {
+                        group.testimonials.forEach(testimonial => {
+                            this.availableTestimonials.push({
+                                ...testimonial,
+                                group: groupName,
+                                groupName: group.name,
+                                type: 'testimonial'
                             });
-                        }
-                    });
+                        });
+                    }
+                });
+            }
+            
+            // Collect from informational groups
+            if (window.testimonialData.informationalGroups) {
+                Object.entries(window.testimonialData.informationalGroups).forEach(([groupName, group]) => {
+                    if (group.videos) {
+                        group.videos.forEach(video => {
+                            this.availableTestimonials.push({
+                                ...video,
+                                group: groupName,
+                                groupName: group.name,
+                                type: 'informational'
+                            });
+                        });
+                    }
+                });
+            }
+            
+            console.log('📊 Available testimonials:', this.availableTestimonials.length);
+        }
+        
+        getTestimonialCount() {
+            return this.availableTestimonials.length || 0;
+        }
+        
+        // ==================== MODULE TRIGGERS ====================
+        triggerModule(moduleName) {
+            console.log(`🎬 Triggering module: ${moduleName}`);
+            
+            const moduleInfo = this.modules[moduleName];
+            
+            if (!moduleInfo) {
+                console.error(`Module ${moduleName} not found`);
+                return;
+            }
+            
+            // If it's the testimonial module, trigger your testimonial system
+            if (moduleName === 'testimonial') {
+                this.triggerTestimonialSystem();
+                return;
+            }
+            
+            // For other modules, find a relevant testimonial
+            const testimonial = this.findTestimonialForModule(moduleName);
+            
+            if (testimonial) {
+                // Send message to parent widget with actual testimonial data
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'MODULE_TRIGGERED',
+                        module: moduleName,
+                        videoUrl: testimonial.videoUrl || testimonial.url,
+                        moduleName: moduleInfo.name,
+                        clientId: this.clientId,
+                        testimonialTitle: testimonial.title,
+                        timestamp: Date.now()
+                    }, '*');
+                    
+                    console.log('📨 Sent MODULE_TRIGGERED to parent:', testimonial.title);
+                    
+                    // Update status
+                    this.updateStatus(`Triggered: ${testimonial.title}`, 'success');
+                    
+                    // Notify the bot
+                    this.sendToBot(`I've found a ${moduleInfo.name} video for you: "${testimonial.title}"`);
                 }
+            } else {
+                // No specific testimonial found for this module
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'MODULE_TRIGGERED',
+                        module: moduleName,
+                        videoUrl: this.getDefaultVideoForModule(moduleName),
+                        moduleName: moduleInfo.name,
+                        clientId: this.clientId,
+                        timestamp: Date.now()
+                    }, '*');
+                    
+                    console.log('📨 Sent generic MODULE_TRIGGERED to parent');
+                    
+                    this.updateStatus(`Triggered: ${moduleInfo.name}`, 'success');
+                    this.sendToBot(`I'm showing you ${moduleInfo.name}`);
+                }
+            }
+        }
+        
+        findTestimonialForModule(moduleName) {
+            // Try to find a testimonial that matches the module
+            const moduleKeywords = {
+                results: ['results', 'metrics', 'performance', 'numbers', 'data'],
+                success: ['success', 'story', 'case study', 'client', 'testimonial'],
+                calculator: ['calculator', 'roi', 'calculate', 'return']
+            };
+            
+            const keywords = moduleKeywords[moduleName] || [];
+            
+            for (const testimonial of this.availableTestimonials) {
+                const searchText = (testimonial.title + ' ' + testimonial.description + ' ' + testimonial.groupName).toLowerCase();
                 
-                if (!hasItems) {
-                    container.innerHTML = '<p>No testimonials found</p>';
+                for (const keyword of keywords) {
+                    if (searchText.includes(keyword)) {
+                        return testimonial;
+                    }
                 }
             }
             
-            addTestimonialItem(container, testimonial, group) {
-                const item = document.createElement('div');
-                item.className = 'preview-item';
-                item.innerHTML = `
+            // Return first testimonial as fallback
+            return this.availableTestimonials[0];
+        }
+        
+        getDefaultVideoForModule(moduleName) {
+            // This should point to a generic/default video for each module
+            // You can update these to point to actual default videos
+            const defaults = {
+                results: '/videos/default-results.mp4',
+                success: '/videos/default-success.mp4',
+                calculator: '/videos/default-calculator.mp4',
+                testimonial: '/videos/default-testimonial.mp4'
+            };
+            
+            return defaults[moduleName] || '/videos/default.mp4';
+        }
+        
+        // ==================== TRIGGER YOUR TESTIMONIAL SYSTEM ====================
+        triggerTestimonialSystem() {
+            if (!this.testimonialSystemReady) {
+                this.updateStatus('Testimonial system not loaded', 'error');
+                return;
+            }
+            
+            console.log('🎬 Triggering YOUR testimonial system...');
+            
+            // Clear any existing testimonials
+            const container = document.getElementById('testimonialContainer');
+            if (container) {
+                container.innerHTML = '';
+            }
+            
+            // Call YOUR function from testimonial-player.js
+            try {
+                window.showTestimonialSplashScreen();
+                this.updateStatus('Testimonial system activated', 'success');
+                
+                // Get a random testimonial to send to parent
+                const randomTestimonial = this.getRandomTestimonial();
+                
+                // Notify parent
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'TESTIMONIAL_TRIGGERED',
+                        clientId: this.clientId,
+                        videoUrl: randomTestimonial?.videoUrl || randomTestimonial?.url,
+                        testimonial: randomTestimonial,
+                        timestamp: Date.now()
+                    }, '*');
+                }
+                
+                // Tell LemonSlice we're showing testimonials
+                this.sendToBot("I'm now showing you client testimonials. Click any button to watch!");
+                
+            } catch (error) {
+                console.error('Failed to trigger testimonial system:', error);
+                this.updateStatus('Failed to trigger testimonials', 'error');
+            }
+        }
+        
+        getRandomTestimonial() {
+            if (this.availableTestimonials.length === 0) return null;
+            const randomIndex = Math.floor(Math.random() * this.availableTestimonials.length);
+            return this.availableTestimonials[randomIndex];
+        }
+        
+        showTestimonialList() {
+            const listContainer = document.getElementById('testimonialList');
+            const itemsContainer = document.getElementById('testimonialItems');
+            
+            if (listContainer.style.display === 'none') {
+                // Show list
+                listContainer.style.display = 'block';
+                
+                // Load content list
+                this.loadContentList(itemsContainer);
+            } else {
+                // Hide list
+                listContainer.style.display = 'none';
+            }
+        }
+        
+        loadContentList(container) {
+            container.innerHTML = '';
+            
+            if (this.availableTestimonials.length === 0) {
+                container.innerHTML = '<p>No content available</p>';
+                return;
+            }
+            
+            // Show actual testimonials from your system
+            this.availableTestimonials.slice(0, 10).forEach(testimonial => {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                
+                // Determine module tag based on content
+                const moduleTag = this.getModuleTagForTestimonial(testimonial);
+                
+                div.innerHTML = `
                     <h4>${testimonial.title || 'Untitled'}</h4>
-                    <p>${group.name || 'Testimonial'} • ${testimonial.author || 'Anonymous'}</p>
+                    <p>${testimonial.groupName || 'Content'} • ${testimonial.author || 'Client'}</p>
+                    ${moduleTag ? `<span class="module-tag ${moduleTag}">${moduleTag.toUpperCase()}</span>` : ''}
                 `;
                 
-                item.addEventListener('click', () => {
-                    // This would need to be connected to your player system
-                    // For now, just show a message
-                    this.updateStatus(`Selected: ${testimonial.title}`, 'info');
+                div.addEventListener('click', () => {
+                    // Determine which module to trigger
+                    const module = this.getModuleForTestimonial(testimonial);
+                    this.triggerModule(module);
+                    
+                    this.updateStatus(`Starting: ${testimonial.title}`, 'info');
                 });
                 
-                container.appendChild(item);
+                container.appendChild(div);
+            });
+        }
+        
+        getModuleTagForTestimonial(testimonial) {
+            const text = (testimonial.title + ' ' + testimonial.description).toLowerCase();
+            
+            if (text.includes('result') || text.includes('metric') || text.includes('data')) {
+                return 'results';
+            } else if (text.includes('success') || text.includes('story') || text.includes('case')) {
+                return 'success';
+            } else if (text.includes('calculator') || text.includes('roi') || text.includes('calculate')) {
+                return 'calculator';
             }
+            
+            return null;
+        }
+        
+        getModuleForTestimonial(testimonial) {
+            const tag = this.getModuleTagForTestimonial(testimonial);
+            return tag || 'testimonial';
+        }
             
             // ==================== LEMONSLICE INTEGRATION ====================
             async initLemonSlice() {
@@ -662,17 +875,13 @@
             initSpeechDetection() {
                 console.log('🎤 Initializing Speech Detection...');
                 
-                // Trigger phrases for YOUR testimonial system
-                this.triggerPhrases = [
-                    'show me testimonials',
-                    'client testimonials',
-                    'success stories',
-                    'show me results',
-                    'case studies',
-                    'show me videos',
-                    'client stories',
-                    'show testimonials'
-                ];
+                // Trigger phrases for modules
+                this.triggerPhrases = {
+                    'results': ['show results', 'results gallery', 'metrics', 'performance'],
+                    'success': ['success stories', 'successful clients', 'stories', 'case studies'],
+                    'calculator': ['calculator', 'roi', 'calculate', 'return on investment'],
+                    'testimonial': ['testimonials', 'client stories', 'reviews', 'feedback']
+                };
                 
                 // Start speech recognition if supported
                 if ('webkitSpeechRecognition' in window) {
@@ -724,11 +933,13 @@
                 
                 if (this.speechActive && this.recognition) {
                     this.recognition.start();
+                    document.getElementById('speechStatus').textContent = 'ON';
                     document.getElementById('statusText').textContent = 
                         'AI System Active | Speech Detection: ON';
                     this.updateStatus('Speech detection ON', 'success');
                 } else if (this.recognition) {
                     this.recognition.stop();
+                    document.getElementById('speechStatus').textContent = 'OFF';
                     document.getElementById('statusText').textContent = 
                         'AI System Active | Speech Detection: OFF';
                     this.updateStatus('Speech detection OFF', 'warning');
@@ -741,11 +952,13 @@
             }
             
             checkForTriggers(text) {
-                for (const phrase of this.triggerPhrases) {
-                    if (text.includes(phrase)) {
-                        console.log(`🎯 TRIGGER DETECTED: "${phrase}"`);
-                        this.triggerTestimonialSystem();
-                        return true;
+                for (const [module, phrases] of Object.entries(this.triggerPhrases)) {
+                    for (const phrase of phrases) {
+                        if (text.includes(phrase)) {
+                            console.log(`🎯 TRIGGER DETECTED: "${phrase}" -> ${module}`);
+                            this.triggerModule(module);
+                            return true;
+                        }
                     }
                 }
                 return false;
@@ -780,7 +993,7 @@
             }
             
             async sendWelcome() {
-                const welcomeMessage = "Hi! I'm your AI assistant. You can ask me about testimonials, success stories, or how our system works. Just say 'show me testimonials' to see real client stories!";
+                const welcomeMessage = "Hi! I'm your AI assistant. You can ask me about testimonials, success stories, ROI calculations, or how our system works. Try saying 'show me success stories' or 'calculate ROI'!";
                 await this.sendToBot(welcomeMessage);
                 this.updateStatus('Welcome message sent', 'success');
             }
@@ -807,9 +1020,22 @@
             
             // ==================== EVENT LISTENERS ====================
             initEventListeners() {
+                // Module buttons
+                document.getElementById('triggerResults').addEventListener('click', () => {
+                    this.triggerModule('results');
+                });
+                
+                document.getElementById('triggerSuccess').addEventListener('click', () => {
+                    this.triggerModule('success');
+                });
+                
+                document.getElementById('triggerCalculator').addEventListener('click', () => {
+                    this.triggerModule('calculator');
+                });
+                
                 // Control buttons
                 document.getElementById('testimonialTrigger').addEventListener('click', () => {
-                    this.triggerTestimonialSystem();
+                    this.triggerModule('testimonial');
                 });
                 
                 document.getElementById('toggleSpeech').addEventListener('click', () => {
@@ -830,7 +1056,9 @@
                 
                 // Listen for messages from client
                 window.addEventListener('message', (event) => {
-                    if (event.data.type === 'CONTROL_COMMAND') {
+                    if (event.data.type === 'TRIGGER_MODULE') {
+                        this.triggerModule(event.data.module);
+                    } else if (event.data.type === 'CONTROL_COMMAND') {
                         this.handleControlCommand(event.data);
                     }
                 });
@@ -841,7 +1069,10 @@
                 
                 switch(data.command) {
                     case 'trigger_testimonials':
-                        this.triggerTestimonialSystem();
+                        this.triggerModule('testimonial');
+                        break;
+                    case 'trigger_results':
+                        this.triggerModule('results');
                         break;
                     case 'send_message':
                         this.sendToBot(data.message);
@@ -874,6 +1105,9 @@
         
         // Global functions for external access
         window.AIControlPanel = {
+            triggerResults: () => controlPanel.triggerModule('results'),
+            triggerSuccess: () => controlPanel.triggerModule('success'),
+            triggerCalculator: () => controlPanel.triggerModule('calculator'),
             triggerTestimonials: () => controlPanel.triggerTestimonialSystem(),
             sendMessage: (message) => controlPanel.sendToBot(message),
             updateStatus: (message, type) => controlPanel.updateStatus(message, type)
