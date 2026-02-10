@@ -967,7 +967,7 @@
     <script>
         // Utility functions for the deployment guide
         
-         function downloadFile(filename) {
+        function downloadFile(filename) {
             let content = '';
             
             if (filename === 'widget-dashboard.html') {
@@ -990,12 +990,13 @@
             document.getElementById('widgetCodeSection').scrollIntoView({ behavior: 'smooth' });
         }
         
-        function generateEmbedCode() {
+                function generateEmbedCode() {
             const serverUrl = prompt('Enter your server URL (e.g., https://your-domain.com):', 'https://your-server.com');
             const clientId = prompt('Enter client ID (from dashboard):', 'mortgage-assist');
             const buttonColor = prompt('Enter button color (hex):', '#4361ee');
             
             if (serverUrl && clientId && buttonColor) {
+                // We use <\/script> to prevent the HTML parser from thinking the script block ends here
                 const embedCode = `<!-- Add before closing </body> tag -->
 <script>
   window.MobileWiseWidgetConfig = {
@@ -1005,8 +1006,8 @@
     autoOpen: false,
     position: "bottom-right"
   };
-</script>
-<script src="${serverUrl}/js/client-website-widget.js"></script>`;
+<\/script>
+<script src="${serverUrl}/js/client-website-widget.js"><\/script>`;
                 
                 navigator.clipboard.writeText(embedCode).then(() => {
                     alert('Embed code copied to clipboard! Give this to your client.');
