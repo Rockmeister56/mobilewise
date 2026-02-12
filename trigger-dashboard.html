@@ -3,795 +3,918 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trigger Dashboard - Configure Bohemia Triggers</title>
+    <title>Trigger Dashboard · MobileWise AI · Industry Preset System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ----- DARK PREMIUM THEME ----- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(145deg, #0a0f1e 0%, #0f1a2f 100%);
             color: #fff;
+            line-height: 1.6;
+            padding: 24px;
             min-height: 100vh;
-            padding: 20px;
-            padding-bottom: 100px; /* ADDED: Space for fixed status bar */
         }
-        
+
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
-        
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .logo {
+
+        /* ----- HEADER ----- */
+        .dashboard-header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 20px;
         }
-        
-        .logo h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(90deg, #4361ee, #4cc9f0);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
-        
+
         .logo-icon {
             font-size: 2.8rem;
-            animation: pulse 2s infinite;
+            animation: pulse 3s infinite;
         }
-        
+
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
-        
-        .client-selector {
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 30px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
+
+        .logo-area h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #a0c8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        
-        .client-field {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .client-field label {
-            margin-bottom: 8px;
-            color: #4cc9f0;
+
+        .badge {
+            background: rgba(248, 196, 0, 0.15);
+            border: 1px solid #f8c400;
+            color: #ffd966;
+            padding: 8px 20px;
+            border-radius: 40px;
             font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        .client-field input,
-        .client-field select {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-size: 15px;
-            width: 100%;
-        }
-        
-        .client-field input::placeholder {
-            color: rgba(255,255,255,0.5);
-        }
-        
-        .client-field input[readonly] {
-            background: rgba(255,255,255,0.05);
-            color: rgba(255,255,255,0.7);
-        }
-        
-        .client-field input[type="color"] {
-            height: 45px;
-            padding: 5px;
-            cursor: pointer;
-        }
-        
-        .client-field input[type="number"] {
-            width: 100px;
-        }
-        
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        
-        @media (max-width: 1300px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .module-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            padding: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s;
-        }
-        
-        .module-card:hover {
-            border-color: #4361ee;
-            background: rgba(67, 97, 238, 0.05);
-        }
-        
-        .module-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        
-        .module-icon {
-            font-size: 2rem;
-            width: 60px;
-            height: 60px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .module-title h2 {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
-        }
-        
-        .module-title p {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.9rem;
-        }
-        
-        .trigger-input {
-            margin-bottom: 20px;
-        }
-        
-        .trigger-input label {
-            display: block;
-            margin-bottom: 8px;
-            color: #4cc9f0;
-            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        
-        .trigger-input textarea {
+
+        /* ----- CLIENT CONFIG BAR ----- */
+        .client-config-bar {
+            background: rgba(12, 25, 45, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 24px 28px;
+            margin-bottom: 32px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            box-shadow: 0 15px 35px -10px rgba(0,0,0,0.5);
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a0c8ff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .field input, .field select {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: #f8c400;
+            background: rgba(0,0,0,0.6);
+        }
+
+        .field input[readonly] {
+            background: rgba(0,0,0,0.2);
+            color: rgba(255,255,255,0.6);
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        /* ----- MODULE GRID ----- */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(650px, 1fr));
+            gap: 28px;
+            margin-bottom: 40px;
+        }
+
+        .module-card {
+            background: rgba(18, 28, 46, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 28px;
+            padding: 28px;
+            transition: all 0.2s;
+            box-shadow: 0 10px 30px -15px rgba(0,0,0,0.5);
+        }
+
+        .module-card:hover {
+            border-color: rgba(248, 196, 0, 0.3);
+            background: rgba(22, 35, 55, 0.8);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .module-icon {
+            font-size: 1.8rem;
+            width: 55px;
+            height: 55px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f8c400;
+        }
+
+        .module-title h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .module-title p {
+            color: rgba(255,255,255,0.55);
+            font-size: 0.85rem;
+        }
+
+        /* ----- TRIGGER SECTION ----- */
+        .trigger-section {
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .trigger-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .trigger-header label {
+            font-weight: 600;
+            color: #f8c400;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preset-badge {
+            background: #1e3a5a;
+            color: #a0c8ff;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .trigger-textarea {
             width: 100%;
             background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 16px;
             color: white;
-            padding: 15px;
-            font-size: 14px;
+            font-size: 0.95rem;
+            line-height: 1.6;
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
             font-family: monospace;
-            line-height: 1.5;
         }
-        
-        .trigger-input textarea:focus {
-            outline: none;
-            border-color: #4361ee;
-        }
-        
-        .trigger-examples {
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.7);
-        }
-        
-        .trigger-examples strong {
-            color: #4cc9f0;
-        }
-        
-        .module-options {
-            background: rgba(0,0,0,0.2);
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        
-        .option-row {
+
+        .custom-trigger-add {
             display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
         }
-        
-        .option-row label {
-            min-width: 180px;
-            font-weight: 500;
-            color: rgba(255,255,255,0.9);
-        }
-        
-        .option-row select,
-        .option-row input:not([type="color"]) {
+
+        .custom-trigger-add input {
             flex: 1;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 30px;
+            padding: 10px 16px;
             color: white;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-size: 14px;
         }
-        
-        .option-row textarea {
-            flex: 1;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-size: 14px;
-            min-height: 60px;
-            resize: vertical;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 40px;
-            margin-bottom: 100px; /* ADDED: More space for fixed status bar */
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 15px 40px;
-            border-radius: 10px;
-            border: none;
-            font-size: 16px;
+
+        .btn-add {
+            background: rgba(248, 196, 0, 0.15);
+            border: 1px solid #f8c400;
+            color: #f8c400;
+            padding: 10px 20px;
+            border-radius: 30px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover {
+            background: #f8c400;
+            color: #0a0f1e;
+        }
+
+        /* ----- MODULE OPTIONS ----- */
+        .module-options {
+            background: rgba(0,0,0,0.15);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .option-row {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 20px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .option-row label {
+            min-width: 160px;
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+        }
+
+        .option-row select, .option-row input {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 10px 16px;
+            color: white;
+        }
+
+        /* ----- VISUAL PROOF ROWS ----- */
+        .image-row {
+            background: rgba(0,0,0,0.2);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border-left: 4px solid #f8c400;
+        }
+
+        .image-row-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1.5fr 2fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .image-row input {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-remove {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            color: #f44336;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-remove:hover {
+            background: #f44336;
+            color: white;
+        }
+
+        /* ----- ACTION BUTTONS ----- */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
             justify-content: center;
-            min-width: 200px;
+            margin: 40px 0 60px;
+            flex-wrap: wrap;
         }
-        
+
+        .btn {
+            padding: 16px 36px;
+            border-radius: 40px;
+            border: none;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+
         .btn-primary {
-            background: linear-gradient(90deg, #4361ee, #3a56d4);
-            color: white;
+            background: linear-gradient(145deg, #f8c400, #e0b000);
+            color: #0a0f1e;
+            box-shadow: 0 10px 25px -5px rgba(248,196,0,0.3);
         }
-        
+
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px -5px rgba(248,196,0,0.4);
         }
-        
+
         .btn-secondary {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.08);
             color: white;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
         }
-        
+
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.12);
         }
-        
+
         .btn-success {
-            background: linear-gradient(90deg, #4CAF50, #45a049);
+            background: linear-gradient(145deg, #00c853, #00a844);
             color: white;
         }
-        
+
+        /* ----- STATUS BAR ----- */
         .status-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
+            background: rgba(8, 16, 30, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 16px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            z-index: 1000; /* ADDED: Ensure it's above other content */
+            border-top: 1px solid rgba(255,255,255,0.08);
+            z-index: 1000;
         }
-        
+
         .status-indicator {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
-        
+
         .status-dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: #4CAF50;
-            animation: pulse 2s infinite;
+            background: #00c853;
+            box-shadow: 0 0 15px #00c853;
         }
-        
-        .status-dot.inactive {
-            background: #f44336;
-        }
-        
-        .status-dot.warning {
-            background: #FF9800;
-        }
-        
-        .config-info {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.9rem;
-        }
-        
-        .color-preview {
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            border: 2px solid rgba(255,255,255,0.3);
-            margin-left: 10px;
-        }
-        
-        /* Tooltip */
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-        }
-        
-        .tooltip .tooltip-text {
-            visibility: hidden;
-            width: 300px;
-            background-color: rgba(0,0,0,0.9);
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 10px;
-            position: absolute;
-            z-index: 10000;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.85rem;
-            font-weight: normal;
-            pointer-events: none;
-        }
-        
-        .tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
+
+        .status-dot.warning { background: #ff9800; box-shadow: 0 0 15px #ff9800; }
+        .status-dot.error { background: #f44336; box-shadow: 0 0 15px #f44336; }
+
+        @media (max-width: 700px) {
+            .module-grid { grid-template-columns: 1fr; }
+            .image-row-grid { grid-template-columns: 1fr; }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="logo">
+
+        <!-- ===== HEADER ===== -->
+        <div class="dashboard-header">
+            <div class="logo-area">
                 <div class="logo-icon">🤖</div>
                 <h1>Trigger Dashboard</h1>
-            </div>
-            <p>Configure LemonSlice triggers and widget settings for each client</p>
-        </header>
-        
-        <!-- CLIENT SELECTOR -->
-        <div class="client-selector">
-            <div class="client-field">
-                <label for="clientSelect">Select Client:</label>
-                <select id="clientSelect">
-                    <option value="">-- New Client --</option>
-                    <option value="mortgage-assist">Mortgage Assist</option>
-                    <option value="law-firm">Law Firm Demo</option>
-                    <option value="health-clinic">Health Clinic</option>
-                </select>
-            </div>
-            
-            <div class="client-field">
-                <label for="clientName">Client Name:</label>
-                <input type="text" id="clientName" placeholder="Enter client business name...">
-            </div>
-            
-            <div class="client-field">
-                <label for="clientId">Client ID:</label>
-                <input type="text" id="clientId" placeholder="auto-generated" readonly>
-            </div>
-            
-            <div class="client-field">
-                <label for="agentId">
-                    <i class="fas fa-robot"></i> LemonSlice Agent ID
-                    <span class="tooltip">
-                        <i class="fas fa-question-circle"></i>
-                        <span class="tooltip-text">Get this from your LemonSlice dashboard. Format: agent_xxxxxxxxxxxxxxxx</span>
-                    </span>
-                </label>
-                <input type="text" id="agentId" placeholder="agent_xxxxxxxxxxxxxxxx">
-            </div>
-            
-            <div class="client-field">
-                <label for="themeColor">
-                    <i class="fas fa-palette"></i> Theme Color
-                </label>
-                <div style="display: flex; align-items: center;">
-                    <input type="color" id="themeColor" value="#4361ee">
-                    <div class="color-preview" id="colorPreview" style="background: #4361ee;"></div>
+                <div class="badge">
+                    <i class="fas fa-industry"></i> INDUSTRY PRESET SYSTEM
                 </div>
+            </div>
+            <div class="badge">
+                <i class="fas fa-check-circle"></i> v2.0 · BOTEMIA READY
             </div>
         </div>
-        
-        <!-- MODULE CONFIGURATION GRID -->
-        <div class="dashboard-grid">
-            <!-- MODULE 1: WIDGET SETTINGS -->
+
+        <!-- ===== CLIENT CONFIGURATION ===== -->
+        <div class="client-config-bar">
+            <div class="field">
+                <label><i class="fas fa-user"></i> SELECT CLIENT</label>
+                <select id="clientSelect">
+                    <option value="">— New Client —</option>
+                </select>
+            </div>
+            <div class="field">
+                <label><i class="fas fa-building"></i> CLIENT NAME</label>
+                <input type="text" id="clientName" placeholder="e.g. Mortgage Assist" value="Mortgage Assist Demo">
+            </div>
+            <div class="field">
+                <label><i class="fas fa-id"></i> CLIENT ID</label>
+                <input type="text" id="clientId" readonly value="mortgage-assist-demo">
+            </div>
+            <div class="field">
+                <label><i class="fas fa-industry"></i> INDUSTRY PRESET</label>
+                <select id="industryPreset">
+                    <option value="mortgage" selected>🏠 Mortgage</option>
+                    <option value="legal">⚖️ Legal / Personal Injury</option>
+                    <option value="tax">📋 Tax Resolution</option>
+                    <option value="dental">🦷 Dental / Medical</option>
+                    <option value="manufacturing">🏭 Manufacturing</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ===== MODULE 1: LEMONSLICE API CONFIG ===== -->
+        <div class="module-grid">
             <div class="module-card">
                 <div class="module-header">
-                    <div class="module-icon" style="color: #ff9900;">
-                        <i class="fas fa-sliders-h"></i>
-                    </div>
+                    <div class="module-icon"><i class="fas fa-plug"></i></div>
                     <div class="module-title">
-                        <h2>Widget Settings</h2>
-                        <p>LemonSlice Widget Configuration</p>
+                        <h2>⚙️ LemonSlice API Config</h2>
+                        <p>Connection settings for Bohemia</p>
+                    </div>
+                </div>
+                <div style="display: grid; gap: 20px;">
+                    <div class="option-row">
+                        <label><i class="fas fa-key"></i> Agent ID <span style="color: #f8c400;">*</span></label>
+                        <input type="text" id="agentId" placeholder="agent_xxxxxxxxxxxxxxxx" value="agent_1db77d60ec132469">
+                    </div>
+                    <div class="option-row">
+                        <label><i class="fas fa-id-card"></i> Widget ID</label>
+                        <input type="text" id="widgetId" placeholder="widget_xxxxxxxxxxxxxxxx (optional)">
+                    </div>
+                    <div class="option-row">
+                        <label><i class="fas fa-lock"></i> API Key</label>
+                        <input type="password" id="apiKey" placeholder="•••••••••••••••• (optional)">
+                    </div>
+                    <div class="option-row">
+                        <label><i class="fas fa-cloud"></i> Environment</label>
+                        <select id="environment">
+                            <option value="production" selected>production</option>
+                            <option value="staging">staging</option>
+                            <option value="development">development</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top: 16px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+                    <i class="fas fa-info-circle"></i> All dialog content comes from your knowledge base. This section only configures the LemonSlice connection.
+                </div>
+            </div>
+
+            <!-- ===== MODULE 2: TESTIMONIAL MODULE ===== -->
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="module-icon"><i class="fas fa-video"></i></div>
+                    <div class="module-title">
+                        <h2>🎬 Testimonial Module</h2>
+                        <p>Success stories by concern type</p>
                     </div>
                 </div>
                 
+                <!-- INDUSTRY PRESET TRIGGERS (Mortgage default) -->
+                <div class="trigger-section">
+                    <div class="trigger-header">
+                        <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
+                        <span class="preset-badge"><i class="fas fa-robot"></i> MORTGAGE PRESET</span>
+                    </div>
+                    <textarea id="testimonialTriggers" class="trigger-textarea">rates, pre-approval, credit score, down payment, closing costs, fha, va, usda, interest rate, mortgage insurance, pmi, dti, debt to income, first-time buyer</textarea>
+                    <div class="custom-trigger-add">
+                        <input type="text" id="newTestimonialTrigger" placeholder="Add custom trigger phrase...">
+                        <button class="btn-add" onclick="addCustomTrigger('testimonial')"><i class="fas fa-plus"></i> Add</button>
+                    </div>
+                </div>
+
                 <div class="module-options">
                     <div class="option-row">
-                        <label>Default Widget State:</label>
-                        <select id="widgetState">
-                            <option value="minimized">Minimized (Chat Bubble)</option>
-                            <option value="active" selected>Active (Open Chat)</option>
-                            <option value="hidden">Hidden (Manual Open)</option>
+                        <label><i class="fas fa-play"></i> Action</label>
+                        <select id="testimonialAction">
+                            <option value="showTestimonialPlayer" selected>🎬 Show Testimonial Player</option>
+                            <option value="showSpecificGroup">📂 Show Specific Group</option>
+                            <option value="randomTestimonial">🎲 Play Random Testimonial</option>
                         </select>
                     </div>
-                    
                     <div class="option-row">
-                        <label>Auto-Start Microphone:</label>
-                        <select id="autoMic">
-                            <option value="false">Off</option>
-                            <option value="true">On</option>
+                        <label><i class="fas fa-tag"></i> Default Group</label>
+                        <select id="testimonialGroup">
+                            <option value="auto" selected>🤖 Auto-match to concern</option>
+                            <option value="pricing">💰 Pricing/Value</option>
+                            <option value="service">🤝 Customer Service</option>
+                            <option value="results">📊 Results/Success</option>
+                            <option value="credibility">⭐ Credibility/Trust</option>
                         </select>
                     </div>
-                    
+                </div>
+            </div>
+
+            <!-- ===== MODULE 3: VIDEO VAULT MODULE ===== -->
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="module-icon"><i class="fas fa-film"></i></div>
+                    <div class="module-title">
+                        <h2>📹 Video Vault Module</h2>
+                        <p>Product, how-to, and educational videos</p>
+                    </div>
+                </div>
+
+                <div class="trigger-section">
+                    <div class="trigger-header">
+                        <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
+                        <span class="preset-badge"><i class="fas fa-robot"></i> MORTGAGE PRESET</span>
+                    </div>
+                    <textarea id="videoTriggers" class="trigger-textarea">how to apply, loan process, closing timeline, documents needed, first-time buyer, what is escrow, appraisal, underwriting, pre-approval vs pre-qualification, mortgage terms</textarea>
+                    <div class="custom-trigger-add">
+                        <input type="text" id="newVideoTrigger" placeholder="Add custom trigger phrase...">
+                        <button class="btn-add" onclick="addCustomTrigger('video')"><i class="fas fa-plus"></i> Add</button>
+                    </div>
+                </div>
+
+                <div class="module-options">
                     <div class="option-row">
-                        <label>Auto-Open Delay:</label>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="number" id="openDelay" min="0" max="30" value="5" style="width: 80px;">
-                            <span>seconds (0 = immediate)</span>
+                        <label><i class="fas fa-play"></i> Action</label>
+                        <select id="videoAction">
+                            <option value="showVideoGallery" selected>📺 Show Video Gallery</option>
+                            <option value="playSpecificVideo">▶️ Play Specific Video</option>
+                            <option value="showByCategory">📁 Show Category Videos</option>
+                        </select>
+                    </div>
+                    <div class="option-row">
+                        <label><i class="fas fa-tag"></i> Default Category</label>
+                        <select id="videoCategory">
+                            <option value="auto" selected>🤖 Auto-match to topic</option>
+                            <option value="process">🔄 Loan Process</option>
+                            <option value="first-time">🏠 First-Time Buyer</option>
+                            <option value="documents">📄 Document Prep</option>
+                            <option value="closing">✍️ Closing Day</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== MODULE 4: VISUAL PROOF VAULT ===== -->
+            <div class="module-card">
+                <div class="module-header">
+                    <div class="module-icon"><i class="fas fa-images"></i></div>
+                    <div class="module-title">
+                        <h2>📸 Visual Proof Vault</h2>
+                        <p>Success images, avatars, before/after</p>
+                    </div>
+                </div>
+
+                <div class="trigger-section">
+                    <div class="trigger-header">
+                        <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
+                        <span class="preset-badge"><i class="fas fa-robot"></i> MORTGAGE PRESET</span>
+                    </div>
+                    <textarea id="visualProofTriggers" class="trigger-textarea">show me an example, success story, before after, what does sarah look like, credit repair example, first-time buyer success, self-employed approval, bad credit approval</textarea>
+                    <div class="custom-trigger-add">
+                        <input type="text" id="newVisualTrigger" placeholder="Add custom trigger phrase...">
+                        <button class="btn-add" onclick="addCustomTrigger('visual')"><i class="fas fa-plus"></i> Add</button>
+                    </div>
+                </div>
+
+                <!-- IMAGE GALLERY ROWS (Supabase CDN) -->
+                <div id="imageGalleryContainer">
+                    <div class="image-row" id="imageRow1">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="color: #f8c400; font-weight: 600;"><i class="fas fa-image"></i> IMAGE 1</span>
+                            <button class="btn-remove" onclick="removeImageRow(1)" style="padding: 6px 16px;">Remove</button>
+                        </div>
+                        <div class="image-row-grid">
+                            <input type="text" placeholder="Image Name" id="img1_name" value="Sarah's Success">
+                            <input type="text" placeholder="Supabase CDN URL" id="img1_url" value="https://xyz.supabase.co/storage/v1/object/public/botemia/sarah-580.jpg">
+                            <input type="text" placeholder="Caption" id="img1_caption" value="580 credit → closed FHA 3.5% down">
+                            <input type="text" placeholder="Trigger Match (comma)" id="img1_trigger" value="sarah, 580, bad credit, fha">
                         </div>
                     </div>
-                    
-                    <div class="option-row">
-                        <label>Welcome Message:</label>
-                        <textarea id="welcomeMessage" placeholder="Hi! I'm your AI assistant. How can I help you today?">Hi! I'm your AI assistant. You can ask me about testimonials, videos, or schedule a consultation!</textarea>
+                    <div class="image-row" id="imageRow2">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="color: #f8c400; font-weight: 600;"><i class="fas fa-image"></i> IMAGE 2</span>
+                            <button class="btn-remove" onclick="removeImageRow(2)" style="padding: 6px 16px;">Remove</button>
+                        </div>
+                        <div class="image-row-grid">
+                            <input type="text" placeholder="Image Name" id="img2_name" value="Marcus Self-Employed">
+                            <input type="text" placeholder="Supabase CDN URL" id="img2_url" value="https://xyz.supabase.co/storage/v1/object/public/botemia/marcus-se.jpg">
+                            <input type="text" placeholder="Caption" id="img2_caption" value="Self-employed, 10% down, bank statement loan">
+                            <input type="text" placeholder="Trigger Match (comma)" id="img2_trigger" value="self-employed, 1099, business owner">
+                        </div>
                     </div>
-                    
+                </div>
+                <button class="btn-add" onclick="addImageRow()" style="width: 100%; margin-top: 12px; padding: 14px;">
+                    <i class="fas fa-plus-circle"></i> ADD ANOTHER IMAGE
+                </button>
+
+                <div class="module-options" style="margin-top: 20px;">
                     <div class="option-row">
-                        <label>Auto-Responses:</label>
-                        <textarea id="autoResponses" placeholder="Add auto-response triggers (one per line)...">show testimonials=Let me show you some client testimonials!
-show videos=I have some great videos to show you
-schedule call=Let me help you schedule a consultation</textarea>
+                        <label><i class="fas fa-cog"></i> Default Action</label>
+                        <select id="visualProofAction">
+                            <option value="showBestMatch" selected>🎯 Show Best Match</option>
+                            <option value="showGallery">🖼️ Show Gallery Grid</option>
+                            <option value="rotate">🔄 Rotating Spotlight</option>
+                        </select>
                     </div>
                 </div>
             </div>
-            
-            <!-- MODULE 2: TESTIMONIALS -->
+
+            <!-- ===== MODULE 5: COMMUNICATION HUB ===== -->
             <div class="module-card">
                 <div class="module-header">
-                    <div class="module-icon" style="color: #4361ee;">
-                        <i class="fas fa-video"></i>
-                    </div>
+                    <div class="module-icon"><i class="fas fa-comments"></i></div>
                     <div class="module-title">
-                        <h2>Testimonial Module</h2>
-                        <p>Video testimonials by concern type</p>
+                        <h2>💬 Communication Hub</h2>
+                        <p>5 action types · Lead capture</p>
                     </div>
                 </div>
-                
-                <div class="trigger-input">
-                    <label for="testimonialTriggers">
-                        <i class="fas fa-bullhorn"></i> Trigger Phrases
-                    </label>
-                    <textarea id="testimonialTriggers" placeholder="Enter trigger phrases (comma separated)...">results, pricing, cost, affordable, credibility, trust, reviews, quality, service, support, testimonials, case studies</textarea>
-                    <div class="trigger-examples">
-                        <strong>Examples:</strong> When Bohemia says "Let me show you some <strong>results</strong>" or "Here are some <strong>pricing</strong> testimonials"
+
+                <div class="trigger-section">
+                    <div class="trigger-header">
+                        <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
+                        <span class="preset-badge"><i class="fas fa-robot"></i> MORTGAGE PRESET</span>
+                    </div>
+                    <textarea id="commTriggers" class="trigger-textarea">talk to someone, call me, contact, speak with, schedule, appointment, consultation, apply now, get started, pre-qualify, loan officer</textarea>
+                    <div class="custom-trigger-add">
+                        <input type="text" id="newCommTrigger" placeholder="Add custom trigger phrase...">
+                        <button class="btn-add" onclick="addCustomTrigger('comm')"><i class="fas fa-plus"></i> Add</button>
                     </div>
                 </div>
-                
+
+                <!-- COMMUNICATION ACTION TYPE -->
                 <div class="module-options">
                     <div class="option-row">
-                        <label>Default Testimonial Group:</label>
-                        <select id="testimonialGroup">
-                            <option value="results">Results Testimonials</option>
-                            <option value="pricing">Price/Value Testimonials</option>
-                            <option value="credibility">Credibility Testimonials</option>
-                            <option value="quality">Quality Testimonials</option>
-                            <option value="service">Customer Service Testimonials</option>
+                        <label><i class="fas fa-phone-alt"></i> Action Type</label>
+                        <select id="commActionType" onchange="toggleCommFields()">
+                            <option value="clickToCall" selected>📞 Click to Call</option>
+                            <option value="requestCallback">🔄 Request a Call Back</option>
+                            <option value="freeConsultation">🎓 Free Consultation</option>
+                            <option value="leadMagnet">🎁 Lead Magnet Request</option>
+                            <option value="preQual">✅ Pre-Qualification Interview</option>
                         </select>
                     </div>
-                    <div class="option-row">
-                        <label>Action:</label>
-                        <select id="testimonialAction">
-                            <option value="showTestimonialSplashScreen">Show Testimonial Player</option>
-                            <option value="showSpecificGroup">Show Specific Group</option>
-                            <option value="randomTestimonial">Play Random Testimonial</option>
-                        </select>
+
+                    <!-- DYNAMIC FIELDS - Click to Call (Default) -->
+                    <div id="commFields_clickToCall">
+                        <div class="option-row">
+                            <label>Phone Number</label>
+                            <input type="text" id="commPhone" value="+1 (555) 123-4567" placeholder="+1 (555) 123-4567">
+                        </div>
+                        <div class="option-row">
+                            <label>Button Text</label>
+                            <input type="text" id="commButtonText" value="Call Us Now">
+                        </div>
+                    </div>
+
+                    <div id="commFields_requestCallback" style="display: none;">
+                        <div class="option-row">
+                            <label>Email Recipient</label>
+                            <input type="email" id="commCallbackEmail" value="loanofficer@mortgageassist.com">
+                        </div>
+                        <div class="option-row">
+                            <label>Email Subject</label>
+                            <input type="text" id="commCallbackSubject" value="Callback Request from Botemia">
+                        </div>
+                    </div>
+
+                    <div id="commFields_freeConsultation" style="display: none;">
+                        <div class="option-row">
+                            <label>Email Recipient</label>
+                            <input type="email" id="commConsultEmail" value="schedule@mortgageassist.com">
+                        </div>
+                        <div class="option-row">
+                            <label>Calendar Link (optional)</label>
+                            <input type="text" id="commCalendarLink" placeholder="https://calendly.com/...">
+                        </div>
+                    </div>
+
+                    <div id="commFields_leadMagnet" style="display: none;">
+                        <div class="option-row">
+                            <label>Lead Magnet Offer</label>
+                            <select id="commLeadMagnetOffer">
+                                <option value="homebuyer">🏡 Free Homebuyer Guide</option>
+                                <option value="credit">📊 Credit Repair Checklist</option>
+                                <option value="rates">📈 Current Rate Sheet</option>
+                                <option value="calculator">🧮 Mortgage Calculator</option>
+                            </select>
+                        </div>
+                        <div class="option-row">
+                            <label>Email Recipient</label>
+                            <input type="email" id="commLeadEmail" value="leads@mortgageassist.com">
+                        </div>
+                    </div>
+
+                    <div id="commFields_preQual" style="display: none;">
+                        <div class="option-row">
+                            <label>Interview URL</label>
+                            <input type="text" id="commPreQualUrl" value="/BOTEMIA_PREQUAL_v4.html">
+                        </div>
+                        <div class="option-row">
+                            <label>Loan Officer Email</label>
+                            <input type="email" id="commLoanOfficerEmail" value="loanofficer@mortgageassist.com">
+                        </div>
+                    </div>
+
+                    <!-- EMAIL NOTIFICATION SETTINGS (Global for actions 2-5) -->
+                    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <i class="fas fa-envelope" style="color: #f8c400;"></i>
+                            <span style="font-weight: 600;">EMAIL NOTIFICATION SETTINGS</span>
+                        </div>
+                        <div class="option-row">
+                            <label>Send To</label>
+                            <input type="email" id="commEmailSendTo" value="loanofficer@mortgageassist.com">
+                        </div>
+                        <div class="option-row">
+                            <label>CC</label>
+                            <input type="text" id="commEmailCC" placeholder="ops@mortgageassist.com">
+                        </div>
+                        <div class="option-row">
+                            <label>From Name</label>
+                            <input type="text" id="commFromName" value="Botemia AI Assistant">
+                        </div>
+                        <div class="option-row">
+                            <label style="min-width: auto;">
+                                <input type="checkbox" id="commSendConfirmation" checked> Send confirmation to visitor
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- MODULE 3: VIDEO VAULT -->
+
+            <!-- ===== MODULE 6: WEBSITE INFO CENTER ===== -->
             <div class="module-card">
                 <div class="module-header">
-                    <div class="module-icon" style="color: #f72585;">
-                        <i class="fas fa-film"></i>
-                    </div>
+                    <div class="module-icon"><i class="fas fa-sitemap"></i></div>
                     <div class="module-title">
-                        <h2>Video Vault Module</h2>
-                        <p>Product, how-to, and company videos</p>
-                    </div>
-                </div>
-                
-                <div class="trigger-input">
-                    <label for="videoTriggers">
-                        <i class="fas fa-bullhorn"></i> Trigger Phrases
-                    </label>
-                    <textarea id="videoTriggers" placeholder="Enter trigger phrases (comma separated)...">product video, how to, tutorial, demonstration, explain, assembly, about your company, your story, show me, video, watch</textarea>
-                    <div class="trigger-examples">
-                        <strong>Examples:</strong> When Bohemia says "Let me show you a <strong>product video</strong>" or "Here's a <strong>tutorial</strong> on how it works"
-                    </div>
-                </div>
-                
-                <div class="module-options">
-                    <div class="option-row">
-                        <label>Default Video Category:</label>
-                        <select id="videoCategory">
-                            <option value="product">Product Videos</option>
-                            <option value="howto">How-to/Tutorial Videos</option>
-                            <option value="assembly">Assembly/Setup Videos</option>
-                            <option value="about">About Us/Company Story</option>
-                        </select>
-                    </div>
-                    <div class="option-row">
-                        <label>Action:</label>
-                        <select id="videoAction">
-                            <option value="showVideoGallery">Show Video Gallery</option>
-                            <option value="playSpecificVideo">Play Specific Video</option>
-                            <option value="showVideoByCategory">Show Category Videos</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- MODULE 4: COMMUNICATION HUB -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon" style="color: #4cc9f0;">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <div class="module-title">
-                        <h2>Communication Hub</h2>
-                        <p>Client interviews & qualification</p>
-                    </div>
-                </div>
-                
-                <div class="trigger-input">
-                    <label for="commTriggers">
-                        <i class="fas fa-bullhorn"></i> Trigger Phrases
-                    </label>
-                    <textarea id="commTriggers" placeholder="Enter trigger phrases (comma separated)...">free consultation, talk to someone, request call, schedule appointment, pre-qualify, am I eligible, urgent help, immediate assistance, call back, contact, speak with</textarea>
-                    <div class="trigger-examples">
-                        <strong>Examples:</strong> When Bohemia says "Would you like a <strong>free consultation</strong>?" or "Let me <strong>schedule a call</strong> for you"
-                    </div>
-                </div>
-                
-                <div class="module-options">
-                    <div class="option-row">
-                        <label>Default Interview Type:</label>
-                        <select id="commInterviewType">
-                            <option value="general">General Consultation</option>
-                            <option value="qualification">Pre-Qualification</option>
-                            <option value="urgent">Urgent Assistance</option>
-                            <option value="callback">Callback Request</option>
-                        </select>
-                    </div>
-                    <div class="option-row">
-                        <label>Action:</label>
-                        <select id="commAction">
-                            <option value="startQualificationInterview">Start Qualification Interview</option>
-                            <option value="showContactForm">Show Contact Form</option>
-                            <option value="scheduleCall">Schedule Call Button</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- MODULE 5: WEBSITE INFO CENTER -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon" style="color: #7209b7;">
-                        <i class="fas fa-sitemap"></i>
-                    </div>
-                    <div class="module-title">
-                        <h2>Website Info Center</h2>
+                        <h2>🌐 Website Info Center</h2>
                         <p>Smart navigation & page guidance</p>
                     </div>
                 </div>
-                
-                <div class="trigger-input">
-                    <label for="websiteTriggers">
-                        <i class="fas fa-bullhorn"></i> Trigger Phrases
-                    </label>
-                    <textarea id="websiteTriggers" placeholder="Enter trigger phrases (comma separated)...">website, more information, details, learn more, explore, navigation, where can I find, what pages, tell me about, information, help</textarea>
-                    <div class="trigger-examples">
-                        <strong>Examples:</strong> When Bohemia says "Let me show you <strong>more information</strong> on our website" or "Here's <strong>where you can find</strong> that"
+
+                <div class="trigger-section">
+                    <div class="trigger-header">
+                        <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
+                        <span class="preset-badge"><i class="fas fa-robot"></i> MORTGAGE PRESET</span>
+                    </div>
+                    <textarea id="websiteTriggers" class="trigger-textarea">rates page, loan programs, about us, contact, locations, calculators, FAQs, learn more, more information, website, navigation</textarea>
+                    <div class="custom-trigger-add">
+                        <input type="text" id="newWebsiteTrigger" placeholder="Add custom trigger phrase...">
+                        <button class="btn-add" onclick="addCustomTrigger('website')"><i class="fas fa-plus"></i> Add</button>
                     </div>
                 </div>
-                
+
                 <div class="module-options">
                     <div class="option-row">
-                        <label>Info Type:</label>
+                        <label><i class="fas fa-info-circle"></i> Info Type</label>
                         <select id="websiteInfoType">
-                            <option value="navigation">Page Navigation</option>
-                            <option value="faq">FAQ/Information</option>
-                            <option value="links">Direct Links</option>
-                            <option value="sitemap">Site Map</option>
+                            <option value="navigation" selected>🧭 Page Navigation</option>
+                            <option value="faq">❓ FAQ/Information</option>
+                            <option value="links">🔗 Direct Links</option>
+                            <option value="sitemap">🗺️ Site Map</option>
                         </select>
                     </div>
                     <div class="option-row">
-                        <label>Action:</label>
+                        <label><i class="fas fa-play"></i> Action</label>
                         <select id="websiteAction">
-                            <option value="showSmartNavigation">Show Smart Navigation</option>
-                            <option value="showRelevantLinks">Show Relevant Links</option>
-                            <option value="displayFAQ">Display FAQ Section</option>
+                            <option value="showSmartNavigation" selected>🧠 Show Smart Navigation</option>
+                            <option value="showRelevantLinks">🔗 Show Relevant Links</option>
+                            <option value="displayFAQ">📋 Display FAQ Section</option>
                         </select>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- ACTION BUTTONS -->
+
+        <!-- ===== ACTION BUTTONS ===== -->
         <div class="action-buttons">
             <button class="btn btn-secondary" onclick="loadDefaultTriggers()">
-                <i class="fas fa-redo"></i> Load Default Triggers
+                <i class="fas fa-redo"></i> Load Defaults
             </button>
             <button class="btn btn-secondary" onclick="saveConfiguration()">
-                <i class="fas fa-save"></i> Save Configuration
+                <i class="fas fa-save"></i> Save Config
             </button>
-            <button class="btn btn-success" onclick="exportConfiguration()">
-                <i class="fas fa-download"></i> Export Config
+            <button class="btn btn-secondary" onclick="exportConfiguration()">
+                <i class="fas fa-download"></i> Export JSON
             </button>
             <button class="btn btn-primary" onclick="launchTriggerSystem()">
                 <i class="fas fa-rocket"></i> Launch Trigger System
             </button>
         </div>
-    </div>
-    
-    <!-- STATUS BAR -->
-    <div class="status-bar">
-        <div class="status-indicator">
-            <span class="status-dot" id="configStatus"></span>
-            <span id="configStatusText">Configuration Ready</span>
-        </div>
-        <div class="config-info">
-            Client: <span id="currentClient">Not Selected</span> | 
-            Last Saved: <span id="lastSaved">Never</span> |
-            Agent: <span id="currentAgent">Not Set</span>
+
+        <!-- ===== STATUS BAR ===== -->
+        <div class="status-bar">
+            <div class="status-indicator">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Configuration Ready</span>
+            </div>
+            <div class="status-indicator">
+                <span id="clientStatus">Client: Mortgage Assist Demo</span>
+                <span style="margin-left: 20px;" id="saveStatus">Last Saved: Never</span>
+            </div>
         </div>
     </div>
 
     <script>
-        // ==================== CONFIGURATION MANAGER ====================
-        class WidgetConfigManager {
-            constructor() {
-                this.currentConfig = null;
-                this.availableClients = {};
-                this.init();
-            }
-            
+        // ============================================
+        // MOBILEWISE TRIGGER DASHBOARD v2.0
+        // Complete · Industry Presets · 6 Modules
+        // ============================================
+
+        let configManager = {
+            clients: {},
+            currentClientId: null,
+            imageRowCounter: 2,
+
             init() {
-                // Load saved configurations
-                this.loadSavedConfigs();
-                
-                // Set up event listeners
+                this.loadSavedClients();
                 this.setupEventListeners();
-                
-                // Generate client ID
+                this.updateStatus('Dashboard ready', 'ready');
                 this.generateClientId();
-                
-                // Update color preview
-                this.setupColorPreview();
-                
-                // Update status
-                this.updateStatus('Configuration system ready', 'ready');
-            }
-            
-            loadSavedConfigs() {
+                this.loadIndustryPreset('mortgage');
+            },
+
+            loadSavedClients() {
                 try {
-                    const saved = localStorage.getItem('widgetConfigs');
+                    const saved = localStorage.getItem('mobilewise_clients');
                     if (saved) {
-                        this.availableClients = JSON.parse(saved);
-                        console.log('📂 Loaded saved configurations:', Object.keys(this.availableClients).length);
-                        
-                        // Populate client dropdown
-                        this.populateClientDropdown();
-                    } else {
-                        console.log('📂 No saved configurations found');
+                        this.clients = JSON.parse(saved);
+                        this.populateClientSelect();
                     }
-                } catch (error) {
-                    console.error('Error loading configs:', error);
-                    this.availableClients = {};
-                }
-            }
-            
-            populateClientDropdown() {
+                } catch(e) { console.error('Error loading clients:', e); }
+            },
+
+            populateClientSelect() {
                 const select = document.getElementById('clientSelect');
-                select.innerHTML = '<option value="">-- New Client --</option>';
-                
-                Object.keys(this.availableClients).forEach(clientId => {
-                    const client = this.availableClients[clientId];
+                select.innerHTML = '<option value="">— New Client —</option>';
+                Object.keys(this.clients).forEach(id => {
                     const option = document.createElement('option');
-                    option.value = clientId;
-                    option.textContent = client.name;
+                    option.value = id;
+                    option.textContent = this.clients[id].name || id;
                     select.appendChild(option);
                 });
-            }
-            
+            },
+
             setupEventListeners() {
-                // Client selection
                 document.getElementById('clientSelect').addEventListener('change', (e) => {
-                    if (e.target.value) {
-                        this.loadClientConfig(e.target.value);
-                    } else {
-                        this.newClientConfig();
-                    }
+                    if (e.target.value) this.loadClient(e.target.value);
+                    else this.newClient();
                 });
+
+                document.getElementById('clientName').addEventListener('input', () => this.generateClientId());
                 
-                // Client name auto-generates ID
-                document.getElementById('clientName').addEventListener('input', (e) => {
-                    this.generateClientId();
+                document.getElementById('industryPreset').addEventListener('change', (e) => {
+                    this.loadIndustryPreset(e.target.value);
                 });
-                
-                // Theme color preview
-                document.getElementById('themeColor').addEventListener('input', (e) => {
-                    document.getElementById('colorPreview').style.background = e.target.value;
-                });
-                
-                // Auto-save indicator
-                const inputs = document.querySelectorAll('textarea, select, input');
-                inputs.forEach(input => {
-                    input.addEventListener('change', () => {
-                        this.updateStatus('Unsaved changes', 'warning');
-                    });
-                });
-            }
-            
-            setupColorPreview() {
-                const colorInput = document.getElementById('themeColor');
-                const preview = document.getElementById('colorPreview');
-                preview.style.background = colorInput.value;
-            }
-            
+            },
+
             generateClientId() {
                 const name = document.getElementById('clientName').value;
                 if (name) {
@@ -801,347 +924,345 @@ schedule call=Let me help you schedule a consultation</textarea>
                         .substring(0, 50);
                     document.getElementById('clientId').value = id;
                 }
-            }
-            
-            newClientConfig() {
-                // Clear form for new client
+            },
+
+            loadIndustryPreset(industry) {
+                // Testimonial triggers
+                const testimonialPresets = {
+                    mortgage: 'rates, pre-approval, credit score, down payment, closing costs, fha, va, usda, interest rate, mortgage insurance, pmi, dti, debt to income, first-time buyer',
+                    legal: 'settlement, verdict, case value, contingency, statute of limitations, personal injury, accident, compensation, lawsuit, attorney',
+                    tax: 'irs, audit, tax lien, offer in compromise, unfiled returns, tax debt, penalty abatement, installment agreement, cpa',
+                    dental: 'implants, veneers, financing, insurance, payment plans, sedation, crowns, braces, oral surgery, dentures',
+                    manufacturing: 'equipment, OSHA, compliance, supply chain, quality control, safety, ISO, lean manufacturing, automation'
+                };
+                if (testimonialPresets[industry]) {
+                    document.getElementById('testimonialTriggers').value = testimonialPresets[industry];
+                }
+
+                // Video triggers
+                const videoPresets = {
+                    mortgage: 'how to apply, loan process, closing timeline, documents needed, first-time buyer, what is escrow, appraisal, underwriting, pre-approval vs pre-qualification, mortgage terms',
+                    legal: 'deposition, mediation, trial prep, settlement process, client consultation, case evaluation, discovery, filing',
+                    tax: 'tax resolution process, audit representation, offer in compromise steps, tax relief options, filing back taxes',
+                    dental: 'procedure walkthrough, implant process, sedation options, payment plans, before and after, recovery',
+                    manufacturing: 'safety training, equipment operation, compliance audit, quality inspection, process improvement'
+                };
+                if (videoPresets[industry]) {
+                    document.getElementById('videoTriggers').value = videoPresets[industry];
+                }
+
+                // Visual proof triggers
+                const visualPresets = {
+                    mortgage: 'show me an example, success story, before after, what does sarah look like, credit repair example, first-time buyer success, self-employed approval, bad credit approval',
+                    legal: 'case result, settlement amount, verdict, client testimonial, jury award, negotiation outcome',
+                    tax: 'tax debt reduction, penalty removal, audit result, savings example, client success',
+                    dental: 'smile gallery, before after, patient results, cosmetic work, full mouth reconstruction',
+                    manufacturing: 'facility tour, equipment demo, before after efficiency, safety improvement, ROI case study'
+                };
+                if (visualPresets[industry]) {
+                    document.getElementById('visualProofTriggers').value = visualPresets[industry];
+                }
+
+                // Communication triggers
+                const commPresets = {
+                    mortgage: 'talk to someone, call me, contact, speak with, schedule, appointment, consultation, apply now, get started, pre-qualify, loan officer',
+                    legal: 'free consultation, case evaluation, speak to attorney, contingency fee, call today, schedule meeting',
+                    tax: 'tax help, speak to specialist, IRS problem, consultation, callback, tax relief',
+                    dental: 'new patient, schedule appointment, financing questions, insurance verification, consultation',
+                    manufacturing: 'quote, speak to rep, equipment quote, compliance help, schedule visit, contact sales'
+                };
+                if (commPresets[industry]) {
+                    document.getElementById('commTriggers').value = commPresets[industry];
+                }
+
+                // Website triggers
+                const websitePresets = {
+                    mortgage: 'rates page, loan programs, about us, contact, locations, calculators, FAQs, learn more, more information, website, navigation',
+                    legal: 'practice areas, attorney bio, case results, contact us, firm history, testimonials, resources',
+                    tax: 'services, tax relief programs, about our firm, contact tax specialist, resources, blog',
+                    dental: 'services, about our practice, meet the dentist, insurance, patient forms, contact us, new patients',
+                    manufacturing: 'products, services, about us, contact sales, resources, compliance, quality certifications'
+                };
+                if (websitePresets[industry]) {
+                    document.getElementById('websiteTriggers').value = websitePresets[industry];
+                }
+
+                this.updateStatus(`Loaded ${industry} industry preset`, 'ready');
+            },
+
+            newClient() {
                 document.getElementById('clientName').value = '';
                 document.getElementById('clientId').value = '';
-                document.getElementById('agentId').value = '';
-                document.getElementById('themeColor').value = '#4361ee';
-                document.getElementById('colorPreview').style.background = '#4361ee';
+                document.getElementById('agentId').value = 'agent_1db77d60ec132469';
+                document.getElementById('industryPreset').value = 'mortgage';
+                this.loadIndustryPreset('mortgage');
+                this.updateStatus('New client', 'ready');
+            },
+
+            loadClient(id) {
+                const client = this.clients[id];
+                if (!client) return;
                 
-                // Load default triggers
-                this.loadDefaultTriggers();
+                document.getElementById('clientName').value = client.name || '';
+                document.getElementById('clientId').value = id;
+                document.getElementById('agentId').value = client.agentId || 'agent_1db77d60ec132469';
                 
-                this.updateStatus('New client configuration', 'ready');
-                document.getElementById('currentClient').textContent = 'New Client';
-                document.getElementById('currentAgent').textContent = 'Not Set';
-            }
-            
-            loadClientConfig(clientId) {
-                const config = this.availableClients[clientId];
-                if (!config) return;
-                
-                // Load client info
-                document.getElementById('clientName').value = config.name || '';
-                document.getElementById('clientId').value = clientId;
-                document.getElementById('agentId').value = config.agentId || '';
-                document.getElementById('themeColor').value = config.widgetSettings?.themeColor || '#4361ee';
-                document.getElementById('colorPreview').style.background = config.widgetSettings?.themeColor || '#4361ee';
-                
-                document.getElementById('currentClient').textContent = config.name;
-                document.getElementById('currentAgent').textContent = config.agentId ? 'Configured' : 'Not Set';
-                
-                // Load module configurations
-                this.loadModuleConfigs(config);
-                
-                this.updateStatus(`Loaded: ${config.name}`, 'success');
-            }
-            
-            loadModuleConfigs(config) {
-                // Widget Settings
-                if (config.widgetSettings) {
-                    document.getElementById('widgetState').value = config.widgetSettings.defaultState || 'active';
-                    document.getElementById('autoMic').value = config.widgetSettings.autoMic ? 'true' : 'false';
-                    document.getElementById('openDelay').value = config.widgetSettings.openDelay || 5;
-                    document.getElementById('welcomeMessage').value = config.widgetSettings.welcomeMessage || '';
-                    document.getElementById('autoResponses').value = config.widgetSettings.autoResponses || '';
+                if (client.industry) {
+                    document.getElementById('industryPreset').value = client.industry;
+                    this.loadIndustryPreset(client.industry);
                 }
                 
-                // Testimonial Module
-                if (config.modules?.testimonial) {
-                    document.getElementById('testimonialTriggers').value = 
-                        config.modules.testimonial.triggers?.join(', ') || '';
-                    document.getElementById('testimonialGroup').value = 
-                        config.modules.testimonial.group || 'results';
-                    document.getElementById('testimonialAction').value = 
-                        config.modules.testimonial.action || 'showTestimonialSplashScreen';
-                }
-                
-                // Video Vault Module
-                if (config.modules?.videoVault) {
-                    document.getElementById('videoTriggers').value = 
-                        config.modules.videoVault.triggers?.join(', ') || '';
-                    document.getElementById('videoCategory').value = 
-                        config.modules.videoVault.category || 'product';
-                    document.getElementById('videoAction').value = 
-                        config.modules.videoVault.action || 'showVideoGallery';
-                }
-                
-                // Communication Hub
-                if (config.modules?.communication) {
-                    document.getElementById('commTriggers').value = 
-                        config.modules.communication.triggers?.join(', ') || '';
-                    document.getElementById('commInterviewType').value = 
-                        config.modules.communication.interviewType || 'general';
-                    document.getElementById('commAction').value = 
-                        config.modules.communication.action || 'startQualificationInterview';
-                }
-                
-                // Website Info Center
-                if (config.modules?.websiteInfo) {
-                    document.getElementById('websiteTriggers').value = 
-                        config.modules.websiteInfo.triggers?.join(', ') || '';
-                    document.getElementById('websiteInfoType').value = 
-                        config.modules.websiteInfo.infoType || 'navigation';
-                    document.getElementById('websiteAction').value = 
-                        config.modules.websiteInfo.action || 'showSmartNavigation';
-                }
-            }
-            
+                this.updateStatus(`Loaded ${client.name}`, 'ready');
+            },
+
             getCurrentConfig() {
-                const clientId = document.getElementById('clientId').value;
-                const clientName = document.getElementById('clientName').value;
-                const agentId = document.getElementById('agentId').value.trim();
-                
-                if (!clientId || !clientName) {
-                    alert('Please enter a client name');
-                    return null;
-                }
-                
-                if (!agentId) {
-                    alert('Please enter a LemonSlice Agent ID');
-                    return null;
-                }
-                
-                if (!agentId.startsWith('agent_')) {
-                    alert('Agent ID must start with "agent_"');
-                    return null;
-                }
-                
-                return {
-                    id: clientId,
-                    name: clientName,
-                    agentId: agentId,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    widgetSettings: {
-                        defaultState: document.getElementById('widgetState').value,
-                        autoMic: document.getElementById('autoMic').value === 'true',
-                        openDelay: parseInt(document.getElementById('openDelay').value) || 5,
-                        welcomeMessage: document.getElementById('welcomeMessage').value,
-                        autoResponses: document.getElementById('autoResponses').value,
-                        themeColor: document.getElementById('themeColor').value
-                    },
+                const config = {
+                    id: document.getElementById('clientId').value,
+                    name: document.getElementById('clientName').value,
+                    agentId: document.getElementById('agentId').value,
+                    widgetId: document.getElementById('widgetId').value,
+                    apiKey: document.getElementById('apiKey').value,
+                    environment: document.getElementById('environment').value,
+                    industry: document.getElementById('industryPreset').value,
                     modules: {
                         testimonial: {
-                            triggers: this.parseTriggers('testimonialTriggers'),
-                            group: document.getElementById('testimonialGroup').value,
-                            action: document.getElementById('testimonialAction').value
+                            triggers: document.getElementById('testimonialTriggers').value.split(',').map(t => t.trim()).filter(t => t),
+                            action: document.getElementById('testimonialAction').value,
+                            group: document.getElementById('testimonialGroup').value
                         },
                         videoVault: {
-                            triggers: this.parseTriggers('videoTriggers'),
-                            category: document.getElementById('videoCategory').value,
-                            action: document.getElementById('videoAction').value
+                            triggers: document.getElementById('videoTriggers').value.split(',').map(t => t.trim()).filter(t => t),
+                            action: document.getElementById('videoAction').value,
+                            category: document.getElementById('videoCategory').value
+                        },
+                        visualProof: {
+                            triggers: document.getElementById('visualProofTriggers').value.split(',').map(t => t.trim()).filter(t => t),
+                            action: document.getElementById('visualProofAction').value,
+                            images: this.getImageGallery()
                         },
                         communication: {
-                            triggers: this.parseTriggers('commTriggers'),
-                            interviewType: document.getElementById('commInterviewType').value,
-                            action: document.getElementById('commAction').value
+                            triggers: document.getElementById('commTriggers').value.split(',').map(t => t.trim()).filter(t => t),
+                            actionType: document.getElementById('commActionType').value,
+                            emailSettings: {
+                                sendTo: document.getElementById('commEmailSendTo').value,
+                                cc: document.getElementById('commEmailCC').value,
+                                fromName: document.getElementById('commFromName').value,
+                                sendConfirmation: document.getElementById('commSendConfirmation').checked
+                            },
+                            // Action-specific fields
+                            clickToCall: {
+                                phone: document.getElementById('commPhone').value,
+                                buttonText: document.getElementById('commButtonText').value
+                            },
+                            requestCallback: {
+                                email: document.getElementById('commCallbackEmail').value,
+                                subject: document.getElementById('commCallbackSubject').value
+                            },
+                            freeConsultation: {
+                                email: document.getElementById('commConsultEmail').value,
+                                calendarLink: document.getElementById('commCalendarLink').value
+                            },
+                            leadMagnet: {
+                                offer: document.getElementById('commLeadMagnetOffer').value,
+                                email: document.getElementById('commLeadEmail').value
+                            },
+                            preQual: {
+                                url: document.getElementById('commPreQualUrl').value,
+                                email: document.getElementById('commLoanOfficerEmail').value
+                            }
                         },
                         websiteInfo: {
-                            triggers: this.parseTriggers('websiteTriggers'),
+                            triggers: document.getElementById('websiteTriggers').value.split(',').map(t => t.trim()).filter(t => t),
                             infoType: document.getElementById('websiteInfoType').value,
                             action: document.getElementById('websiteAction').value
                         }
-                    }
+                    },
+                    updatedAt: new Date().toISOString()
                 };
-            }
-            
-            parseTriggers(elementId) {
-                const text = document.getElementById(elementId).value;
-                return text.split(',')
-                    .map(t => t.trim())
-                    .filter(t => t.length > 0);
-            }
-            
+                return config;
+            },
+
+            getImageGallery() {
+                const images = [];
+                for (let i = 1; i <= this.imageRowCounter; i++) {
+                    const row = document.getElementById(`imageRow${i}`);
+                    if (row) {
+                        const name = document.getElementById(`img${i}_name`)?.value;
+                        const url = document.getElementById(`img${i}_url`)?.value;
+                        const caption = document.getElementById(`img${i}_caption`)?.value;
+                        const trigger = document.getElementById(`img${i}_trigger`)?.value;
+                        
+                        if (name && url) {
+                            images.push({
+                                name,
+                                url,
+                                caption: caption || '',
+                                triggerMatch: trigger ? trigger.split(',').map(t => t.trim()) : []
+                            });
+                        }
+                    }
+                }
+                return images;
+            },
+
             saveConfiguration() {
                 const config = this.getCurrentConfig();
-                if (!config) return;
-                
-                // Save to available clients
-                this.availableClients[config.id] = config;
-                
-                // Save to localStorage
-                localStorage.setItem('widgetConfigs', JSON.stringify(this.availableClients));
-                
-                // Update UI
-                this.updateStatus(`Saved: ${config.name}`, 'success');
-                document.getElementById('lastSaved').textContent = new Date().toLocaleTimeString();
-                document.getElementById('currentClient').textContent = config.name;
-                document.getElementById('currentAgent').textContent = 'Configured';
-                
-                // Update dropdown
-                this.populateClientDropdown();
+                if (!config.id || !config.name) {
+                    alert('Please enter a client name');
+                    return;
+                }
+
+                this.clients[config.id] = config;
+                localStorage.setItem('mobilewise_clients', JSON.stringify(this.clients));
+                this.populateClientSelect();
                 document.getElementById('clientSelect').value = config.id;
                 
-                console.log('💾 Saved configuration:', config);
-            }
-            
+                document.getElementById('saveStatus').innerHTML = `Last Saved: ${new Date().toLocaleTimeString()}`;
+                this.updateStatus(`Saved ${config.name}`, 'success');
+            },
+
             exportConfiguration() {
                 const config = this.getCurrentConfig();
-                if (!config) return;
-                
+                if (!config.id || !config.name) {
+                    alert('Please enter a client name');
+                    return;
+                }
+
                 const dataStr = JSON.stringify(config, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                
-                // Create download link
+                const blob = new Blob([dataStr], { type: 'application/json' });
                 const link = document.createElement('a');
-                link.href = URL.createObjectURL(dataBlob);
-                link.download = `widget-config-${config.id}.json`;
+                link.href = URL.createObjectURL(blob);
+                link.download = `${config.id}-config.json`;
                 link.click();
                 
-                this.updateStatus(`Exported: ${config.name}.json`, 'success');
-            }
-            
-            importConfiguration(file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const config = JSON.parse(e.target.result);
-                        
-                        // Validate config structure
-                        if (!config.id || !config.name || !config.agentId) {
-                            throw new Error('Invalid configuration file');
-                        }
-                        
-                        // Load the configuration
-                        this.availableClients[config.id] = config;
-                        localStorage.setItem('widgetConfigs', JSON.stringify(this.availableClients));
-                        
-                        // Select the client
-                        this.populateClientDropdown();
-                        document.getElementById('clientSelect').value = config.id;
-                        this.loadClientConfig(config.id);
-                        
-                        this.updateStatus(`Imported: ${config.name}`, 'success');
-                    } catch (error) {
-                        alert('Error importing configuration: ' + error.message);
-                    }
-                };
-                reader.readAsText(file);
-            }
-            
-            loadDefaultTriggers() {
-                // Default widget settings
-                document.getElementById('widgetState').value = 'active';
-                document.getElementById('autoMic').value = 'false';
-                document.getElementById('openDelay').value = 5;
-                document.getElementById('welcomeMessage').value = 'Hi! I\'m your AI assistant. You can ask me about testimonials, videos, or schedule a consultation!';
-                document.getElementById('autoResponses').value = 'show testimonials=Let me show you some client testimonials!\nshow videos=I have some great videos to show you\nschedule call=Let me help you schedule a consultation';
-                
-                // Default module triggers
-                document.getElementById('testimonialTriggers').value = 
-                    'results, pricing, cost, affordable, credibility, trust, reviews, quality, service, support, testimonials, case studies';
-                document.getElementById('videoTriggers').value = 
-                    'product video, how to, tutorial, demonstration, explain, assembly, about your company, your story, show me, video, watch';
-                document.getElementById('commTriggers').value = 
-                    'free consultation, talk to someone, request call, schedule appointment, pre-qualify, am I eligible, urgent help, immediate assistance, call back, contact, speak with';
-                document.getElementById('websiteTriggers').value = 
-                    'website, more information, details, learn more, explore, navigation, where can I find, what pages, tell me about, information, help';
-                
-                this.updateStatus('Default triggers loaded', 'info');
-            }
-            
-            updateStatus(message, type = 'info') {
-                const statusDot = document.getElementById('configStatus');
-                const statusText = document.getElementById('configStatusText');
-                
-                statusText.textContent = message;
-                
-                // Update dot color
-                statusDot.className = 'status-dot';
-                if (type === 'success') {
-                    statusDot.style.background = '#4CAF50';
-                } else if (type === 'warning') {
-                    statusDot.style.background = '#FF9800';
-                } else if (type === 'error') {
-                    statusDot.style.background = '#f44336';
-                } else {
-                    statusDot.style.background = '#4361ee';
-                }
-            }
-            
+                this.updateStatus('Configuration exported', 'success');
+            },
+
             launchTriggerSystem() {
                 const config = this.getCurrentConfig();
-                if (!config) return;
-                
-                // Save first
+                if (!config.id || !config.name) {
+                    alert('Please enter a client name');
+                    return;
+                }
+
+                // Save before launching
                 this.saveConfiguration();
-                
-                // Launch trigger system in new window with ALL needed parameters
-                const triggerSystemUrl = `trigger-control-system.html?client=${config.id}&agent=${encodeURIComponent(config.agentId)}&color=${encodeURIComponent(config.widgetSettings.themeColor)}&name=${encodeURIComponent(config.name)}`;
-                
-                // ADDED: Also pass trigger phrases as URL parameters
+
+                // Build URL with config
                 const params = new URLSearchParams();
                 params.append('client', config.id);
                 params.append('agent', config.agentId);
-                params.append('color', config.widgetSettings.themeColor);
-                params.append('name', config.name);
+                params.append('industry', config.industry);
                 
-                // Add module triggers
-                params.append('testimonialTriggers', config.modules.testimonial.triggers.join(','));
-                params.append('videoTriggers', config.modules.videoVault.triggers.join(','));
-                params.append('commTriggers', config.modules.communication.triggers.join(','));
-                params.append('websiteTriggers', config.modules.websiteInfo.triggers.join(','));
-                
-                const fullUrl = `trigger-control-system.html?${params.toString()}`;
-                
-                window.open(fullUrl, '_blank', 'width=1400,height=900,menubar=no,toolbar=no,location=no,status=no');
+                // Pass full config as JSON (for demo)
+                params.append('config', encodeURIComponent(JSON.stringify(config)));
+
+                const url = `trigger-control-system.html?${params.toString()}`;
+                window.open(url, '_blank', 'width=1400,height=900');
                 
                 this.updateStatus(`Launching trigger system for ${config.name}`, 'success');
+            },
+
+            updateStatus(message, type) {
+                const dot = document.getElementById('statusDot');
+                const text = document.getElementById('statusText');
+                text.textContent = message;
+                
+                dot.className = 'status-dot';
+                if (type === 'success') dot.style.background = '#00c853';
+                else if (type === 'warning') { dot.style.background = '#ff9800'; dot.classList.add('warning'); }
+                else if (type === 'error') { dot.style.background = '#f44336'; dot.classList.add('error'); }
+                else dot.style.background = '#00c853';
+            }
+        };
+
+        // ===== GLOBAL FUNCTIONS =====
+        function addCustomTrigger(module) {
+            let input, textareaId;
+            if (module === 'testimonial') {
+                input = document.getElementById('newTestimonialTrigger');
+                textareaId = 'testimonialTriggers';
+            } else if (module === 'video') {
+                input = document.getElementById('newVideoTrigger');
+                textareaId = 'videoTriggers';
+            } else if (module === 'visual') {
+                input = document.getElementById('newVisualTrigger');
+                textareaId = 'visualProofTriggers';
+            } else if (module === 'comm') {
+                input = document.getElementById('newCommTrigger');
+                textareaId = 'commTriggers';
+            } else if (module === 'website') {
+                input = document.getElementById('newWebsiteTrigger');
+                textareaId = 'websiteTriggers';
+            }
+
+            if (input && input.value.trim()) {
+                const textarea = document.getElementById(textareaId);
+                const current = textarea.value;
+                textarea.value = current + (current ? ', ' : '') + input.value.trim();
+                input.value = '';
+                configManager.updateStatus('Custom trigger added', 'success');
             }
         }
-        
-        // ==================== INITIALIZE ====================
-        let configManager;
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            configManager = new WidgetConfigManager();
+
+        let imageRowCounter = 2;
+        function addImageRow() {
+            imageRowCounter++;
+            const container = document.getElementById('imageGalleryContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'image-row';
+            newRow.id = `imageRow${imageRowCounter}`;
+            newRow.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <span style="color: #f8c400; font-weight: 600;"><i class="fas fa-image"></i> IMAGE ${imageRowCounter}</span>
+                    <button class="btn-remove" onclick="removeImageRow(${imageRowCounter})" style="padding: 6px 16px;">Remove</button>
+                </div>
+                <div class="image-row-grid">
+                    <input type="text" placeholder="Image Name" id="img${imageRowCounter}_name">
+                    <input type="text" placeholder="Supabase CDN URL" id="img${imageRowCounter}_url">
+                    <input type="text" placeholder="Caption" id="img${imageRowCounter}_caption">
+                    <input type="text" placeholder="Trigger Match (comma)" id="img${imageRowCounter}_trigger">
+                </div>
+            `;
+            container.appendChild(newRow);
+            configManager.imageRowCounter = imageRowCounter;
+        }
+
+        function removeImageRow(id) {
+            const row = document.getElementById(`imageRow${id}`);
+            if (row) row.remove();
+        }
+
+        function toggleCommFields() {
+            const actionType = document.getElementById('commActionType').value;
             
-            // Load default triggers for new client
-            configManager.loadDefaultTriggers();
+            // Hide all
+            document.getElementById('commFields_clickToCall').style.display = 'none';
+            document.getElementById('commFields_requestCallback').style.display = 'none';
+            document.getElementById('commFields_freeConsultation').style.display = 'none';
+            document.getElementById('commFields_leadMagnet').style.display = 'none';
+            document.getElementById('commFields_preQual').style.display = 'none';
             
-            // Add import functionality
-            const importInput = document.createElement('input');
-            importInput.type = 'file';
-            importInput.accept = '.json';
-            importInput.style.display = 'none';
-            importInput.addEventListener('change', (e) => {
-                if (e.target.files[0]) {
-                    configManager.importConfiguration(e.target.files[0]);
-                }
-            });
-            document.body.appendChild(importInput);
-            
-            // Add import button to action buttons
-            const actionButtons = document.querySelector('.action-buttons');
-            const importBtn = document.createElement('button');
-            importBtn.className = 'btn btn-secondary';
-            importBtn.innerHTML = '<i class="fas fa-upload"></i> Import Config';
-            importBtn.onclick = () => importInput.click();
-            
-            // Insert before the last button (Launch Trigger System)
-            actionButtons.insertBefore(importBtn, actionButtons.children[actionButtons.children.length - 1]);
-        });
-        
-        // Global functions for button clicks
+            // Show selected
+            document.getElementById(`commFields_${actionType}`).style.display = 'block';
+        }
+
+        // Load default triggers
         function loadDefaultTriggers() {
-            configManager.loadDefaultTriggers();
+            const industry = document.getElementById('industryPreset').value;
+            configManager.loadIndustryPreset(industry);
         }
-        
-        function saveConfiguration() {
-            configManager.saveConfiguration();
-        }
-        
-        function exportConfiguration() {
-            configManager.exportConfiguration();
-        }
-        
-        function launchTriggerSystem() {
-            configManager.launchTriggerSystem();
-        }
+
+        function saveConfiguration() { configManager.saveConfiguration(); }
+        function exportConfiguration() { configManager.exportConfiguration(); }
+        function launchTriggerSystem() { configManager.launchTriggerSystem(); }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            window.configManager = configManager;
+            configManager.init();
+            toggleCommFields();
+        });
     </script>
 </body>
 </html>
