@@ -820,6 +820,100 @@ injectLemonSlice() {
     document.head.appendChild(script);
 }
 
+// 1. ADD THIS METHOD for system audio capture (from working test)
+async captureSystemAudio() {
+    try {
+        // Get display media with audio
+        const displayStream = await navigator.mediaDevices.getDisplayMedia({ 
+            video: true, 
+            audio: true 
+        });
+        
+        // Get microphone
+        const micStream = await navigator.mediaDevices.getUserMedia({ 
+            audio: true 
+        });
+        
+        // Combine streams
+        const audioContext = new AudioContext();
+        const destination = audioContext.createMediaStreamDestination();
+        
+        // Add display audio
+        const displaySource = audioContext.createMediaStreamSource(displayStream);
+        displaySource.connect(destination);
+        
+        // Add mic audio
+        const micSource = audioContext.createMediaStreamSource(micStream);
+        micSource.connect(destination);
+        
+        // Use combined stream for recognition
+        this.recognition = new SpeechRecognition();
+        // ... rest of setup
+        
+        console.log('✅ System audio capture active');
+        this.addToTranscriptFeed('🎤 Listening to Botinia + Mic');
+        
+    } catch(error) {
+        console.error('Audio capture failed:', error);
+    }
+}
+
+// 2. ADD TEST BUTTON to config panel
+<button class="btn btn-primary" onclick="window.triggerSystem?.runFullTest()">
+    🧪 TEST SYSTEM (Complete)
+</button>
+
+// 3. ADD COMPREHENSIVE TEST METHOD
+runFullTest() {
+    console.log('=== BOTEMIA SYSTEM TEST ===');
+    console.log('1. Checking configuration:', this.config);
+    console.log('2. Agent ID:', this.config?.agentId);
+    console.log('3. Speech recognition:', this.recognition ? '✅' : '❌');
+    console.log('4. Modules loaded:', Object.keys(this.config?.modules || {}));
+    console.log('5. Botinia widget:', document.querySelector('lemon-slice-widget') ? '✅' : '❌');
+    
+    this.addToTranscriptFeed('🔬 Running full system test...');
+    
+    // Test trigger detection
+    setTimeout(() => {
+        this.addToTranscriptFeed('🎯 Testing trigger: "verified results gallery"');
+        this.processTranscript('Show me the verified results gallery');
+    }, 2000);
+}
+
+// 4. ENHANCE AUDIO MONITORING
+monitorBotiniaAudio() {
+    this.addToTranscriptFeed('🎧 Monitoring for Botinia audio...');
+    
+    // Check for ANY audio output from Botinia widget
+    const widget = document.querySelector('lemon-slice-widget');
+    if (widget?.shadowRoot) {
+        // Look for audio elements
+        const audioElements = widget.shadowRoot.querySelectorAll('audio');
+        
+        // Also look for WebRTC connections
+        this.checkWebRTC(widget);
+        
+        // Also monitor DOM for changes
+        const observer = new MutationObserver(() => {
+            this.checkForAudioActivity(widget);
+        });
+        observer.observe(widget.shadowRoot, { childList: true, subtree: true });
+    }
+}
+
+checkForAudioActivity(widget) {
+    // Check all possible audio sources
+    const audioElements = widget.shadowRoot?.querySelectorAll('audio, video') || [];
+    
+    audioElements.forEach(el => {
+        if (!el.paused && el.currentTime > 0) {
+            console.log('🔊 Botinia audio detected!', el);
+            this.startListeningToBotinia();
+        }
+    });
+}
+
 // ========== ADD THIS NEW METHOD ==========
 // Add this to your TriggerControlSystem class (around line 400)
 
