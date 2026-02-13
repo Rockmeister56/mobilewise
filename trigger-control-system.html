@@ -365,6 +365,10 @@
             </div>
         </div>
 
+        <button class="btn btn-primary" onclick="window.triggerSystem?.runDiagnosticTest()">
+    🔍 Run Diagnostic Test
+</button>
+
         <!-- Status Bar -->
         <div class="status-bar" id="statusBar">
             <div class="status-indicator">
@@ -728,6 +732,58 @@
                     }
                 }
                 this.listeningToBotinia = false;
+            }
+
+                        // ========== DIAGNOSTIC TEST ==========
+            runDiagnosticTest() {
+                console.log('=== BOTEMIA DIAGNOSTIC TEST ===');
+                
+                // 1. Check if widget exists
+                const widget = document.querySelector('lemon-slice-widget');
+                console.log('1. Widget found:', widget ? '✅' : '❌');
+                
+                if (!widget) {
+                    this.addToTranscriptFeed('❌ Widget not found - click "Load Bohemia"');
+                    return;
+                }
+                
+                // 2. Check shadow root
+                console.log('2. Shadow root:', widget.shadowRoot ? '✅' : '❌');
+                
+                if (!widget.shadowRoot) {
+                    this.addToTranscriptFeed('❌ Shadow root not accessible');
+                    return;
+                }
+                
+                // 3. Check for audio elements
+                const audioElements = widget.shadowRoot.querySelectorAll('audio');
+                console.log('3. Audio elements found:', audioElements.length);
+                this.addToTranscriptFeed(`🔊 Found ${audioElements.length} audio elements`);
+                
+                // 4. Check audio state
+                audioElements.forEach((audio, i) => {
+                    console.log(`   Audio ${i}: paused=${audio.paused}, currentTime=${audio.currentTime}`);
+                    if (!audio.paused && audio.currentTime > 0) {
+                        this.addToTranscriptFeed(`✅ Audio ${i} is PLAYING`);
+                    }
+                });
+                
+                // 5. Check if we have recognition
+                console.log('4. Speech recognition:', this.recognition ? '✅' : '❌');
+                
+                // 6. Check listening state
+                console.log('5. Listening to Botinia:', this.listeningToBotinia ? '✅' : '❌');
+                
+                // 7. Manually trigger detection
+                if (audioElements.length > 0) {
+                    const anyPlaying = Array.from(audioElements).some(a => !a.paused && a.currentTime > 0);
+                    if (anyPlaying && !this.listeningToBotinia) {
+                        this.addToTranscriptFeed('🔊 Audio playing but not listening - forcing start');
+                        this.startListeningToBotinia();
+                    }
+                }
+                
+                console.log('=== TEST COMPLETE ===');
             }
 
             setupSpeechRecognition() {
