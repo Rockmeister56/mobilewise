@@ -668,37 +668,53 @@
                 checkForAnyAudio();
             }
 
-                        monitorBotiniaAudio() {
+                                    monitorBotiniaAudio() {
                 this.addToTranscriptFeed('🎧 Monitoring for Botinia audio...');
                 
-                const checkAudio = () => {
+                // Function to check audio and set up listeners
+                const setupAudioListeners = () => {
                     const widget = document.querySelector('lemon-slice-widget');
                     if (!widget?.shadowRoot) {
-                        setTimeout(checkAudio, 1000);
+                        // If widget not ready, try again in 1 second
+                        setTimeout(setupAudioListeners, 1000);
                         return;
                     }
                     
-                    // Check audio elements
-                    const audioElements = widget.shadowRoot.querySelectorAll('audio');
-                    audioElements.forEach((audio) => {
-                        // Remove any existing listeners to prevent duplicates
-                        audio.removeEventListener('play', this.handleBotiniaPlay);
-                        audio.removeEventListener('pause', this.handleBotiniaPause);
-                        audio.removeEventListener('ended', this.handleBotiniaEnd);
+                    this.addToTranscriptFeed('✅ Found Botinia widget, setting up audio detection...');
+                    
+                    // Check for audio elements every second
+                    setInterval(() => {
+                        const audioElements = widget.shadowRoot.querySelectorAll('audio');
                         
-                        // Add new listeners
-                        audio.addEventListener('play', () => this.handleBotiniaPlay());
-                        audio.addEventListener('pause', () => this.handleBotiniaPause());
-                        audio.addEventListener('ended', () => this.handleBotiniaEnd());
-                        
-                        // Check current state
-                        if (!audio.paused && audio.currentTime > 0) {
-                            this.handleBotiniaPlay();
-                        }
-                    });
+                        audioElements.forEach((audio) => {
+                            // Check if audio is playing right now
+                            if (!audio.paused && audio.currentTime > 0 && !this.listeningToBotinia) {
+                                this.addToTranscriptFeed('📢 Botinia is speaking!');
+                                this.startListeningToBotinia();
+                            }
+                            
+                            // Listen for when it starts playing
+                            audio.addEventListener('play', () => {
+                                this.addToTranscriptFeed('🎬 Botinia STARTED speaking!');
+                                this.startListeningToBotinia();
+                            });
+                            
+                            // Listen for when it stops
+                            audio.addEventListener('pause', () => {
+                                this.addToTranscriptFeed('⏸️ Botinia stopped speaking');
+                                this.stopListeningToBotinia();
+                            });
+                            
+                            audio.addEventListener('ended', () => {
+                                this.addToTranscriptFeed('⏹️ Botinia finished speaking');
+                                this.stopListeningToBotinia();
+                            });
+                        });
+                    }, 1000);
                 };
                 
-                checkAudio();
+                // Start the process
+                setupAudioListeners();
             }
 
             // New helper methods
@@ -723,11 +739,11 @@
                 }
             }
 
-            stopListeningToBotinia() {
+                        stopListeningToBotinia() {
                 if (this.recognition && this.listeningToBotinia) {
                     try {
                         this.recognition.stop();
-                        this.addToTranscriptFeed('🛑 Speech recognition paused');
+                        this.addToTranscriptFeed('🛑 Speech recognition stopped');
                     } catch(e) {
                         console.error('Error stopping recognition:', e);
                     }
