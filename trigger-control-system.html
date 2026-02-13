@@ -447,9 +447,15 @@
                 <button class="btn" onclick="reconnectMicrophone()">
                     🎤 Reconnect Mic
                 </button>
-               <button class="btn" onclick="window.triggerSystem?.loadLemonSlice()">
-               🔄 Load Bohemia
-              </button>
+                <button class="btn" onclick="window.triggerSystem?.loadLemonSlice()">
+                    🔄 Load Bohemia
+                </button>
+                <button class="btn btn-primary" onclick="window.triggerSystem?.runFullTest()">
+                    🧪 TEST SYSTEM (Complete)
+                </button>
+                <button class="btn btn-primary" onclick="window.triggerSystem?.captureSystemAudio()">
+                    🎤 Capture System Audio
+                </button>
                 <button class="btn btn-primary" onclick="window.close()">
                     🚪 Close Control System
                 </button>
@@ -463,61 +469,25 @@
 
     <script>
         // ============================================
-        // BOTEMIA TRIGGER CONTROL SYSTEM v1.0
+        // BOTEMIA TRIGGER CONTROL SYSTEM v1.0 - CLEAN VERSION
         // Listen · Detect · Launch · Close
         // ============================================
 
         class TriggerControlSystem {
             constructor() {
-    this.config = null;
-    this.lemonSliceWidget = null;
-    this.recognition = null;
-    this.transcriptHistory = [];
-    this.activeTriggers = [];
-    this.modules = [
-        'testimonial', 'videoVault', 'visualProof', 
-        'communication', 'websiteInfo'
-    ];
-    
-    this.init();
-}
-
-loadLemonSlice() {
-    if (!this.config?.agentId) {
-        this.addToTranscriptFeed('⚠️ No Agent ID configured');
-        return;
-    }
-
-    // Check if already loaded
-    if (document.querySelector('lemon-slice-widget')) {
-        this.addToTranscriptFeed('✅ Bohemia already loaded');
-        return;
-    }
-
-    // Load the module from unpkg
-    const moduleScript = document.createElement('script');
-    moduleScript.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
-    moduleScript.type = 'module';
-    
-    moduleScript.onload = () => {
-        // Create widget element
-        const widget = document.createElement('lemon-slice-widget');
-        widget.setAttribute('agent-id', this.config.agentId);
-        document.body.appendChild(widget);
-        
-        this.lemonSliceLoaded = true;
-        this.addToTranscriptFeed('✅ Bohemia widget connected');
-        this.updateStatus('Bohemia ready', 'ready');
-    };
-    
-    moduleScript.onerror = (err) => {
-        console.error('LemonSlice load error:', err);
-        this.addToTranscriptFeed('❌ Failed to load Bohemia widget');
-        this.updateStatus('Load failed', 'error');
-    };
-    
-    document.head.appendChild(moduleScript);
-}
+                this.config = null;
+                this.lemonSliceWidget = null;
+                this.recognition = null;
+                this.transcriptHistory = [];
+                this.activeTriggers = [];
+                this.listeningToBotinia = false;
+                this.modules = [
+                    'testimonial', 'videoVault', 'visualProof', 
+                    'communication', 'websiteInfo'
+                ];
+                
+                this.init();
+            }
 
             async init() {
                 this.updateStatus('Initializing...', 'warning');
@@ -525,7 +495,7 @@ loadLemonSlice() {
                 // 1. Load configuration
                 await this.loadConfig();
                 
-                // 2. Setup speech recognition
+                // 2. Setup speech recognition (don't start yet)
                 this.setupSpeechRecognition();
                 
                 // 3. Inject LemonSlice widget
@@ -534,125 +504,47 @@ loadLemonSlice() {
                 // 4. Render UI
                 this.renderModules();
                 
-                this.updateStatus('Ready · Listening for Bohemia', 'ready');
+                this.updateStatus('Ready · Waiting for Bohemia', 'ready');
             }
 
-            // ========== SYSTEM AUDIO CAPTURE ==========
-async captureSystemAudio() {
-    try {
-        this.addToTranscriptFeed('🎤 Setting up system audio capture...');
-        
-        // Get display media with audio
-        const displayStream = await navigator.mediaDevices.getDisplayMedia({ 
-            video: true, 
-            audio: true 
-        });
-        
-        // Get microphone
-        const micStream = await navigator.mediaDevices.getUserMedia({ 
-            audio: true 
-        });
-        
-        // Combine streams
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const destination = audioContext.createMediaStreamDestination();
-        
-        // Add display audio
-        const displaySource = audioContext.createMediaStreamSource(displayStream);
-        displaySource.connect(destination);
-        
-        // Add mic audio
-        const micSource = audioContext.createMediaStreamSource(micStream);
-        micSource.connect(destination);
-        
-        // Use combined stream for recognition
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        this.recognition = new SpeechRecognition();
-        this.recognition.continuous = true;
-        this.recognition.interimResults = true;
-        
-        // Rest of recognition setup...
-        this.recognition.onresult = (event) => {
-            const transcript = Array.from(event.results)
-                .map(result => result[0].transcript)
-                .join('');
-            this.processTranscript(transcript);
-        };
-        
-        this.recognition.start();
-        
-        this.addToTranscriptFeed('✅ System audio capture active');
-        console.log('System audio capture started');
-        
-    } catch(error) {
-        console.error('Audio capture failed:', error);
-        this.addToTranscriptFeed('❌ System audio capture failed: ' + error.message);
-    }
-}
+            loadLemonSlice() {
+                if (!this.config?.agentId) {
+                    this.addToTranscriptFeed('⚠️ No Agent ID configured');
+                    return;
+                }
 
-// ========== COMPREHENSIVE TEST METHOD ==========
-runFullTest() {
-    console.log('=== BOTEMIA SYSTEM TEST ===');
-    console.log('1. Checking configuration:', this.config);
-    console.log('2. Agent ID:', this.config?.agentId);
-    console.log('3. Speech recognition:', this.recognition ? '✅' : '❌');
-    console.log('4. Modules loaded:', Object.keys(this.config?.modules || {}));
-    console.log('5. Botinia widget:', document.querySelector('lemon-slice-widget') ? '✅' : '❌');
-    
-    this.addToTranscriptFeed('🔬 Running full system test...');
-    
-    // Test trigger detection
-    setTimeout(() => {
-        this.addToTranscriptFeed('🎯 Testing trigger: "verified results gallery"');
-        this.processTranscript('Show me the verified results gallery');
-    }, 2000);
-}
+                // Check if already loaded
+                if (document.querySelector('lemon-slice-widget')) {
+                    this.addToTranscriptFeed('✅ Bohemia already loaded');
+                    return;
+                }
 
-// ========== ENHANCED AUDIO MONITORING ==========
-checkForAudioActivity(widget) {
-    if (!widget || !widget.shadowRoot) return false;
-    
-    // Check all possible audio sources
-    const audioElements = widget.shadowRoot.querySelectorAll('audio, video');
-    let audioDetected = false;
-    
-    audioElements.forEach(el => {
-        if (!el.paused && el.currentTime > 0) {
-            console.log('🔊 Botinia audio detected!', el);
-            audioDetected = true;
-            this.startListeningToBotinia();
-        }
-    });
-    
-    return audioDetected;
-}
-
-// Override the existing monitorBotiniaAudio with this enhanced version
-enhancedMonitorBotiniaAudio() {
-    this.addToTranscriptFeed('🎧 Enhanced monitoring for Botinia audio...');
-    
-    const checkAudio = () => {
-        const widget = document.querySelector('lemon-slice-widget');
-        if (!widget?.shadowRoot) {
-            setTimeout(checkAudio, 1000);
-            return;
-        }
-        
-        // Check for audio activity
-        const audioActive = this.checkForAudioActivity(widget);
-        
-        // Also monitor DOM for changes
-        const observer = new MutationObserver(() => {
-            this.checkForAudioActivity(widget);
-        });
-        observer.observe(widget.shadowRoot, { childList: true, subtree: true });
-        
-        // Initial check
-        this.checkForAudioActivity(widget);
-    };
-    
-    checkAudio();
-}
+                // Load the module from unpkg
+                const moduleScript = document.createElement('script');
+                moduleScript.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
+                moduleScript.type = 'module';
+                
+                moduleScript.onload = () => {
+                    // Create widget element
+                    const widget = document.createElement('lemon-slice-widget');
+                    widget.setAttribute('agent-id', this.config.agentId);
+                    document.body.appendChild(widget);
+                    
+                    this.addToTranscriptFeed('✅ Bohemia widget connected');
+                    this.updateStatus('Bohemia ready', 'ready');
+                    
+                    // Start monitoring for audio
+                    this.monitorBotiniaAudio();
+                };
+                
+                moduleScript.onerror = (err) => {
+                    console.error('LemonSlice load error:', err);
+                    this.addToTranscriptFeed('❌ Failed to load Bohemia widget');
+                    this.updateStatus('Load failed', 'error');
+                };
+                
+                document.head.appendChild(moduleScript);
+            }
 
             async loadConfig() {
                 // Try URL parameters first
@@ -742,18 +634,12 @@ enhancedMonitorBotiniaAudio() {
                 this.recognition.lang = 'en-US';
 
                 this.recognition.onstart = () => {
-                    this.updateStatus('🎤 Listening...', 'ready');
-                    document.getElementById('micStatus').innerHTML = 'MIC ACTIVE';
-                    document.getElementById('micStatus').style.color = '#00c853';
+                    this.updateStatus('🎤 Listening for Botinia...', 'ready');
+                    document.getElementById('micStatus').innerHTML = 'LISTENING TO BOTINIA';
                 };
 
                 this.recognition.onerror = (event) => {
                     console.error('Speech error:', event.error);
-                    if (event.error === 'not-allowed') {
-                        this.updateStatus('❌ Microphone access denied', 'error');
-                        document.getElementById('micStatus').innerHTML = 'MIC BLOCKED';
-                        document.getElementById('micStatus').style.color = '#f44336';
-                    }
                 };
 
                 this.recognition.onresult = (event) => {
@@ -764,28 +650,144 @@ enhancedMonitorBotiniaAudio() {
                     this.processTranscript(transcript);
                 };
 
+                // Don't start automatically - wait for audio detection
+            }
+
+            startListeningToBotinia() {
+                if (this.listeningToBotinia) return;
+                this.listeningToBotinia = true;
+                
+                this.addToTranscriptFeed('🎤 Activating speech recognition for Botinia...');
+                
+                // Request mic permission
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        stream.getTracks().forEach(track => track.stop());
+                        this.addToTranscriptFeed('✅ Microphone access granted');
+                        
+                        try {
+                            this.recognition.start();
+                            this.addToTranscriptFeed('👂 Now listening to Botinia\'s voice...');
+                        } catch(e) {
+                            console.error('Could not start recognition:', e);
+                        }
+                    })
+                    .catch(error => {
+                        this.addToTranscriptFeed('⚠️ Microphone permission needed');
+                        try {
+                            this.recognition.start();
+                        } catch(e) {
+                            console.error('Could not start recognition:', e);
+                        }
+                    });
+            }
+
+            monitorBotiniaAudio() {
+                this.addToTranscriptFeed('🎧 Monitoring for Botinia audio...');
+                
+                const checkAudio = () => {
+                    const widget = document.querySelector('lemon-slice-widget');
+                    if (!widget?.shadowRoot) {
+                        setTimeout(checkAudio, 1000);
+                        return;
+                    }
+                    
+                    // Find audio elements in widget's shadow DOM
+                    const audioElements = widget.shadowRoot.querySelectorAll('audio');
+                    
+                    if (audioElements.length > 0) {
+                        this.addToTranscriptFeed(`🔊 Found ${audioElements.length} audio element(s)`);
+                    }
+                    
+                    audioElements.forEach((audio) => {
+                        audio.addEventListener('play', () => {
+                            this.addToTranscriptFeed('🎬 Botinia STARTED speaking!');
+                            this.startListeningToBotinia();
+                        });
+                        
+                        if (!audio.paused && audio.currentTime > 0) {
+                            this.addToTranscriptFeed('🔊 Botinia is already speaking');
+                            this.startListeningToBotinia();
+                        }
+                    });
+                };
+                
+                checkAudio();
+            }
+
+            async captureSystemAudio() {
                 try {
+                    this.addToTranscriptFeed('🎤 Setting up system audio capture...');
+                    
+                    const displayStream = await navigator.mediaDevices.getDisplayMedia({ 
+                        video: true, 
+                        audio: true 
+                    });
+                    
+                    const micStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: true 
+                    });
+                    
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const destination = audioContext.createMediaStreamDestination();
+                    
+                    const displaySource = audioContext.createMediaStreamSource(displayStream);
+                    displaySource.connect(destination);
+                    
+                    const micSource = audioContext.createMediaStreamSource(micStream);
+                    micSource.connect(destination);
+                    
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    this.recognition.continuous = true;
+                    this.recognition.interimResults = true;
+                    
+                    this.recognition.onresult = (event) => {
+                        const transcript = Array.from(event.results)
+                            .map(result => result[0].transcript)
+                            .join('');
+                        this.processTranscript(transcript);
+                    };
+                    
                     this.recognition.start();
-                } catch(e) {
-                    console.error('Could not start recognition:', e);
+                    
+                    this.addToTranscriptFeed('✅ System audio capture active');
+                    console.log('System audio capture started');
+                    
+                } catch(error) {
+                    console.error('Audio capture failed:', error);
+                    this.addToTranscriptFeed('❌ System audio capture failed: ' + error.message);
                 }
             }
 
+            runFullTest() {
+                console.log('=== BOTEMIA SYSTEM TEST ===');
+                console.log('1. Checking configuration:', this.config);
+                console.log('2. Agent ID:', this.config?.agentId);
+                console.log('3. Speech recognition:', this.recognition ? '✅' : '❌');
+                console.log('4. Modules loaded:', Object.keys(this.config?.modules || {}));
+                console.log('5. Botinia widget:', document.querySelector('lemon-slice-widget') ? '✅' : '❌');
+                
+                this.addToTranscriptFeed('🔬 Running full system test...');
+                
+                setTimeout(() => {
+                    this.addToTranscriptFeed('🎯 Testing trigger: "verified results gallery"');
+                    this.processTranscript('Show me the verified results gallery');
+                }, 2000);
+            }
+
             processTranscript(transcript) {
-                // Add to feed
                 this.addToTranscriptFeed(transcript);
                 
-                // Convert to lowercase for matching
                 const lowerTranscript = transcript.toLowerCase();
                 
-                // Check each module for triggers
                 for (const [moduleName, moduleConfig] of Object.entries(this.config.modules)) {
                     if (!moduleConfig.triggers) continue;
                     
                     for (const trigger of moduleConfig.triggers) {
                         if (lowerTranscript.includes(trigger.toLowerCase())) {
                             this.triggerModule(moduleName, trigger, transcript);
-                            return; // Only trigger one module per utterance
+                            return;
                         }
                     }
                 }
@@ -794,20 +796,14 @@ enhancedMonitorBotiniaAudio() {
             triggerModule(moduleName, triggerPhrase, fullTranscript) {
                 console.log(`🎯 Trigger detected: ${moduleName} · "${triggerPhrase}"`);
                 
-                // Show alert
                 const alertEl = document.getElementById('triggerAlert');
                 document.getElementById('triggerModuleTag').innerHTML = this.getModuleIcon(moduleName) + ' ' + moduleName;
                 document.getElementById('triggerPhraseDisplay').innerHTML = `"${triggerPhrase}"`;
                 document.getElementById('triggerActionDisplay').innerHTML = this.getModuleAction(moduleName, triggerPhrase);
                 alertEl.style.display = 'block';
                 
-                // Highlight module
                 this.highlightModule(moduleName);
-                
-                // Execute module action
                 this.executeModule(moduleName, triggerPhrase, fullTranscript);
-                
-                // Send to client widget
                 this.sendToClientWidget(moduleName, triggerPhrase);
             }
 
@@ -843,12 +839,9 @@ enhancedMonitorBotiniaAudio() {
                 const grid = document.getElementById('imageGrid');
                 
                 if (matchedImage) {
-                    // Show matched image
                     grid.innerHTML = `
                         <div class="image-card">
-                            <div class="image-placeholder">
-                                🖼️
-                            </div>
+                            <div class="image-placeholder">🖼️</div>
                             <div class="image-caption">
                                 <strong>${matchedImage.name}</strong><br>
                                 ${matchedImage.caption}
@@ -861,7 +854,6 @@ enhancedMonitorBotiniaAudio() {
                     document.getElementById('imageMatchCount').innerHTML = '🎯 Best Match Found';
                     section.style.display = 'block';
                 } else {
-                    // Show all images
                     grid.innerHTML = images.map(img => `
                         <div class="image-card">
                             <div class="image-placeholder">🖼️</div>
@@ -880,12 +872,10 @@ enhancedMonitorBotiniaAudio() {
                 const commConfig = this.config.modules.communication;
                 
                 if (commConfig.actionType === 'preQual') {
-                    // Extract name if available
                     let name = 'Valued Client';
                     const nameMatch = fullTranscript.match(/(?:my name is|I'm|I am) ([A-Z][a-z]+)/i);
                     if (nameMatch) name = nameMatch[1];
                     
-                    // Open pre-qualification interview
                     const url = commConfig.preQual.url + `?name=${encodeURIComponent(name)}&client=${this.config.id}`;
                     window.open(url, '_blank', 'width=1000,height=800');
                     
@@ -895,7 +885,6 @@ enhancedMonitorBotiniaAudio() {
 
             launchTestimonial() {
                 this.addToTranscriptFeed('🎬 Launching testimonial player...');
-                // In production, this would trigger the testimonial module
             }
 
             launchVideoVault() {
@@ -905,149 +894,6 @@ enhancedMonitorBotiniaAudio() {
             launchWebsiteInfo() {
                 this.addToTranscriptFeed('🌐 Showing smart navigation...');
             }
-
-           // ========== FIX THE LEMONSLICE WIDGET LOADING ==========
-// Replace your injectLemonSlice function (around line 790) with:
-
-injectLemonSlice() {
-    if (!this.config?.agentId) return;
-    
-    // FIXED: Use the correct unpkg URL (same as your working test file)
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget'; // FIXED URL
-    script.type = 'module';
-    
-    script.onload = () => {
-        // Create widget element
-        const widget = document.createElement('lemon-slice-widget');
-        widget.setAttribute('agent-id', this.config.agentId);
-        document.body.appendChild(widget);
-        
-        this.addToTranscriptFeed('✅ Bohemia widget connected');
-        
-        // NOW start monitoring for audio (THIS is the key part!)
-        this.monitorBotiniaAudio();
-    };
-    
-    script.onerror = (err) => {
-        console.error('LemonSlice load error:', err);
-        this.addToTranscriptFeed('❌ Failed to load Bohemia widget');
-    };
-    
-    document.head.appendChild(script);
-}
-
-// ========== ADD THIS NEW METHOD ==========
-// Add this to your TriggerControlSystem class (around line 400)
-
-monitorBotiniaAudio() {
-    this.addToTranscriptFeed('🎧 Monitoring for Botinia audio...');
-    
-    const checkAudio = () => {
-        const widget = document.querySelector('lemon-slice-widget');
-        if (!widget?.shadowRoot) {
-            setTimeout(checkAudio, 1000);
-            return;
-        }
-        
-        // Find audio elements in widget's shadow DOM
-        const audioElements = widget.shadowRoot.querySelectorAll('audio');
-        
-        if (audioElements.length > 0) {
-            this.addToTranscriptFeed(`🔊 Found ${audioElements.length} audio element(s)`);
-        }
-        
-        audioElements.forEach((audio, i) => {
-            // Listen for when audio starts playing
-            audio.addEventListener('play', () => {
-                this.addToTranscriptFeed('🎬 Botinia STARTED speaking!');
-                this.startListeningToBotinia();
-            });
-            
-            // Check if already playing
-            if (!audio.paused && audio.currentTime > 0) {
-                this.addToTranscriptFeed('🔊 Botinia is already speaking');
-                this.startListeningToBotinia();
-            }
-        });
-    };
-    
-    checkAudio();
-}
-
-// ========== FIX THE SPEECH RECOGNITION ==========
-// Replace your setupSpeechRecognition with this:
-
-setupSpeechRecognition() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        this.updateStatus('❌ Speech recognition not supported', 'error');
-        return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    this.recognition = new SpeechRecognition();
-    
-    this.recognition.continuous = true;
-    this.recognition.interimResults = true;
-    this.recognition.lang = 'en-US';
-
-    this.recognition.onstart = () => {
-        this.updateStatus('🎤 Listening for Botinia...', 'ready');
-        document.getElementById('micStatus').innerHTML = 'LISTENING TO BOTINIA';
-    };
-
-    this.recognition.onerror = (event) => {
-        console.error('Speech error:', event.error);
-    };
-
-    this.recognition.onresult = (event) => {
-        const transcript = Array.from(event.results)
-            .map(result => result[0].transcript)
-            .join('');
-        
-        this.processTranscript(transcript);
-    };
-
-    // DON'T start automatically - wait for audio detection
-    // this.recognition.start(); // REMOVE THIS LINE
-}
-
-// ========== ADD THIS NEW METHOD ==========
-startListeningToBotinia() {
-    if (this.listeningToBotinia) return;
-    this.listeningToBotinia = true;
-    
-    this.addToTranscriptFeed('🎤 Activating speech recognition for Botinia...');
-    
-    // Request mic permission (required for speech recognition)
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-            // Stop the stream immediately - we just needed permission
-            stream.getTracks().forEach(track => track.stop());
-            this.addToTranscriptFeed('✅ Microphone access granted');
-            
-            // Now start recognition
-            try {
-                this.recognition.start();
-                this.addToTranscriptFeed('👂 Now listening to Botinia\'s voice...');
-            } catch(e) {
-                console.error('Could not start recognition:', e);
-            }
-        })
-        .catch(error => {
-            this.addToTranscriptFeed('⚠️ Microphone permission needed for speech recognition');
-            // Try anyway - browser might still work
-            try {
-                this.recognition.start();
-            } catch(e) {
-                console.error('Could not start recognition:', e);
-            }
-        });
-}
-
-// ========== REMOVE THE OBSERVE FUNCTION ==========
-// Delete or comment out the observeBotiniaText() function at the bottom
-// It's not needed and might be causing confusion
 
             // UI Helpers
             addToTranscriptFeed(text) {
@@ -1065,7 +911,6 @@ startListeningToBotinia() {
                 feed.appendChild(entry);
                 feed.scrollTop = feed.scrollHeight;
                 
-                // Keep last 10 entries
                 if (feed.children.length > 10) {
                     feed.removeChild(feed.children[0]);
                 }
@@ -1096,12 +941,10 @@ startListeningToBotinia() {
             }
 
             highlightModule(moduleName) {
-                // Remove active class from all
                 document.querySelectorAll('.module-card').forEach(el => {
                     el.classList.remove('active');
                 });
                 
-                // Add active class to triggered module
                 const moduleEl = document.getElementById(`module-${moduleName}`);
                 if (moduleEl) moduleEl.classList.add('active');
             }
@@ -1133,7 +976,6 @@ startListeningToBotinia() {
             }
 
             sendToClientWidget(moduleName, triggerPhrase) {
-                // Post message to parent window (client website)
                 if (window.opener) {
                     window.opener.postMessage({
                         type: 'MODULE_TRIGGERED',
@@ -1204,7 +1046,6 @@ startListeningToBotinia() {
         document.addEventListener('DOMContentLoaded', () => {
             window.triggerSystem = new TriggerControlSystem();
             
-            // Add Font Awesome
             const link = document.createElement('link');
             link.rel = 'stylesheet';
             link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
