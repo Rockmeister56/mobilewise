@@ -966,6 +966,35 @@ loadLemonSlice() {
             document.head.appendChild(link);
         });
 
+        // ADD THIS to your file (around line 200)
+function observeBotiniaText() {
+    const widget = document.querySelector('lemon-slice-widget');
+    if (!widget?.shadowRoot) return;
+    
+    // Look for text elements where Botinia's speech appears
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                const text = mutation.target.textContent || '';
+                if (text.toLowerCase().includes('verified results gallery')) {
+                    log('🎯 Botinia text detected directly!', 'trigger');
+                    launchTestimonialPlayer();
+                }
+            }
+        });
+    });
+    
+    // Observe the widget for text changes
+    observer.observe(widget.shadowRoot, {
+        childList: true,
+        subtree: true,
+        characterData: true
+    });
+}
+
+// Call this after widget loads
+setTimeout(observeBotiniaText, 3000);
+
         // Global functions for buttons
         function launchTestTrigger() {
             triggerSystem.triggerModule('visualProof', 'show me an example', 'Test: User asked to see an example');
