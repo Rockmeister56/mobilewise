@@ -447,9 +447,9 @@
                 <button class="btn" onclick="reconnectMicrophone()">
                     🎤 Reconnect Mic
                 </button>
-                <button class="btn" onclick="reloadLemonSlice()">
-                    🔄 Reload Bohemia
-                </button>
+               <button class="btn" onclick="window.triggerSystem?.loadLemonSlice()">
+               🔄 Load Bohemia
+              </button>
                 <button class="btn btn-primary" onclick="window.close()">
                     🚪 Close Control System
                 </button>
@@ -480,6 +480,43 @@
     ];
     
     this.init();
+}
+
+loadLemonSlice() {
+    if (!this.config?.agentId) {
+        this.addToTranscriptFeed('⚠️ No Agent ID configured');
+        return;
+    }
+
+    // Check if already loaded
+    if (document.querySelector('lemon-slice-widget')) {
+        this.addToTranscriptFeed('✅ Bohemia already loaded');
+        return;
+    }
+
+    // Load the module from unpkg
+    const moduleScript = document.createElement('script');
+    moduleScript.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
+    moduleScript.type = 'module';
+    
+    moduleScript.onload = () => {
+        // Create widget element
+        const widget = document.createElement('lemon-slice-widget');
+        widget.setAttribute('agent-id', this.config.agentId);
+        document.body.appendChild(widget);
+        
+        this.lemonSliceLoaded = true;
+        this.addToTranscriptFeed('✅ Bohemia widget connected');
+        this.updateStatus('Bohemia ready', 'ready');
+    };
+    
+    moduleScript.onerror = (err) => {
+        console.error('LemonSlice load error:', err);
+        this.addToTranscriptFeed('❌ Failed to load Bohemia widget');
+        this.updateStatus('Load failed', 'error');
+    };
+    
+    document.head.appendChild(moduleScript);
 }
 
             async init() {
