@@ -789,20 +789,148 @@ loadLemonSlice() {
                 this.addToTranscriptFeed('🌐 Showing smart navigation...');
             }
 
-            injectLemonSlice() {
-                if (!this.config?.agentId) return;
-                
-                // Create script for LemonSlice
-                const script = document.createElement('script');
-                script.src = `https://app.lemonslice.com/widget.js?agent=${this.config.agentId}`;
-                script.async = true;
-                
-                script.onload = () => {
-                    this.addToTranscriptFeed('✅ Bohemia connected');
-                };
-                
-                document.head.appendChild(script);
+           // ========== FIX THE LEMONSLICE WIDGET LOADING ==========
+// Replace your injectLemonSlice function (around line 790) with:
+
+injectLemonSlice() {
+    if (!this.config?.agentId) return;
+    
+    // FIXED: Use the correct unpkg URL (same as your working test file)
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget'; // FIXED URL
+    script.type = 'module';
+    
+    script.onload = () => {
+        // Create widget element
+        const widget = document.createElement('lemon-slice-widget');
+        widget.setAttribute('agent-id', this.config.agentId);
+        document.body.appendChild(widget);
+        
+        this.addToTranscriptFeed('✅ Bohemia widget connected');
+        
+        // NOW start monitoring for audio (THIS is the key part!)
+        this.monitorBotiniaAudio();
+    };
+    
+    script.onerror = (err) => {
+        console.error('LemonSlice load error:', err);
+        this.addToTranscriptFeed('❌ Failed to load Bohemia widget');
+    };
+    
+    document.head.appendChild(script);
+}
+
+// ========== ADD THIS NEW METHOD ==========
+// Add this to your TriggerControlSystem class (around line 400)
+
+monitorBotiniaAudio() {
+    this.addToTranscriptFeed('🎧 Monitoring for Botinia audio...');
+    
+    const checkAudio = () => {
+        const widget = document.querySelector('lemon-slice-widget');
+        if (!widget?.shadowRoot) {
+            setTimeout(checkAudio, 1000);
+            return;
+        }
+        
+        // Find audio elements in widget's shadow DOM
+        const audioElements = widget.shadowRoot.querySelectorAll('audio');
+        
+        if (audioElements.length > 0) {
+            this.addToTranscriptFeed(`🔊 Found ${audioElements.length} audio element(s)`);
+        }
+        
+        audioElements.forEach((audio, i) => {
+            // Listen for when audio starts playing
+            audio.addEventListener('play', () => {
+                this.addToTranscriptFeed('🎬 Botinia STARTED speaking!');
+                this.startListeningToBotinia();
+            });
+            
+            // Check if already playing
+            if (!audio.paused && audio.currentTime > 0) {
+                this.addToTranscriptFeed('🔊 Botinia is already speaking');
+                this.startListeningToBotinia();
             }
+        });
+    };
+    
+    checkAudio();
+}
+
+// ========== FIX THE SPEECH RECOGNITION ==========
+// Replace your setupSpeechRecognition with this:
+
+setupSpeechRecognition() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        this.updateStatus('❌ Speech recognition not supported', 'error');
+        return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    this.recognition = new SpeechRecognition();
+    
+    this.recognition.continuous = true;
+    this.recognition.interimResults = true;
+    this.recognition.lang = 'en-US';
+
+    this.recognition.onstart = () => {
+        this.updateStatus('🎤 Listening for Botinia...', 'ready');
+        document.getElementById('micStatus').innerHTML = 'LISTENING TO BOTINIA';
+    };
+
+    this.recognition.onerror = (event) => {
+        console.error('Speech error:', event.error);
+    };
+
+    this.recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+            .map(result => result[0].transcript)
+            .join('');
+        
+        this.processTranscript(transcript);
+    };
+
+    // DON'T start automatically - wait for audio detection
+    // this.recognition.start(); // REMOVE THIS LINE
+}
+
+// ========== ADD THIS NEW METHOD ==========
+startListeningToBotinia() {
+    if (this.listeningToBotinia) return;
+    this.listeningToBotinia = true;
+    
+    this.addToTranscriptFeed('🎤 Activating speech recognition for Botinia...');
+    
+    // Request mic permission (required for speech recognition)
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            // Stop the stream immediately - we just needed permission
+            stream.getTracks().forEach(track => track.stop());
+            this.addToTranscriptFeed('✅ Microphone access granted');
+            
+            // Now start recognition
+            try {
+                this.recognition.start();
+                this.addToTranscriptFeed('👂 Now listening to Botinia\'s voice...');
+            } catch(e) {
+                console.error('Could not start recognition:', e);
+            }
+        })
+        .catch(error => {
+            this.addToTranscriptFeed('⚠️ Microphone permission needed for speech recognition');
+            // Try anyway - browser might still work
+            try {
+                this.recognition.start();
+            } catch(e) {
+                console.error('Could not start recognition:', e);
+            }
+        });
+}
+
+// ========== REMOVE THE OBSERVE FUNCTION ==========
+// Delete or comment out the observeBotiniaText() function at the bottom
+// It's not needed and might be causing confusion
 
             // UI Helpers
             addToTranscriptFeed(text) {
@@ -965,35 +1093,6 @@ loadLemonSlice() {
             link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
             document.head.appendChild(link);
         });
-
-        // ADD THIS to your file (around line 200)
-function observeBotiniaText() {
-    const widget = document.querySelector('lemon-slice-widget');
-    if (!widget?.shadowRoot) return;
-    
-    // Look for text elements where Botinia's speech appears
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                const text = mutation.target.textContent || '';
-                if (text.toLowerCase().includes('verified results gallery')) {
-                    log('🎯 Botinia text detected directly!', 'trigger');
-                    launchTestimonialPlayer();
-                }
-            }
-        });
-    });
-    
-    // Observe the widget for text changes
-    observer.observe(widget.shadowRoot, {
-        childList: true,
-        subtree: true,
-        characterData: true
-    });
-}
-
-// Call this after widget loads
-setTimeout(observeBotiniaText, 3000);
 
         // Global functions for buttons
         function launchTestTrigger() {
