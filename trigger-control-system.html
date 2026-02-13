@@ -622,10 +622,16 @@
             }
 
             // ========== AUDIO MONITORING METHODS ==========
-            monitorSystemAudio() {
+                        monitorSystemAudio() {
                 this.addToTranscriptFeed('🔊 Monitoring ALL audio sources...');
                 
                 const checkForAnyAudio = () => {
+                    // Skip if already listening to prevent loops
+                    if (this.listeningToBotinia) {
+                        setTimeout(checkForAnyAudio, 1000);
+                        return;
+                    }
+                    
                     const allMediaElements = [];
                     
                     // Check all audio/video in main document
@@ -639,12 +645,17 @@
                         }
                     });
                     
+                    let audioDetected = false;
                     allMediaElements.forEach((media) => {
                         if (!media.paused && media.currentTime > 0) {
-                            this.addToTranscriptFeed('📢 Botinia audio detected!');
-                            this.startListeningToBotinia();
+                            audioDetected = true;
                         }
                     });
+                    
+                    if (audioDetected && !this.listeningToBotinia) {
+                        this.addToTranscriptFeed('📢 Botinia audio detected!');
+                        this.startListeningToBotinia();
+                    }
                     
                     setTimeout(checkForAnyAudio, 1000);
                 };
@@ -716,8 +727,11 @@
                 // Don't start automatically - wait for audio detection
             }
 
-            startListeningToBotinia() {
-                if (this.listeningToBotinia) return;
+                        startListeningToBotinia() {
+                if (this.listeningToBotinia) {
+                    this.addToTranscriptFeed('⚠️ Already listening to Botinia');
+                    return;
+                }
                 this.listeningToBotinia = true;
                 
                 this.addToTranscriptFeed('🎤 Activating speech recognition for Botinia...');
@@ -733,6 +747,7 @@
                             this.addToTranscriptFeed('👂 Now listening to Botinia\'s voice...');
                         } catch(e) {
                             console.error('Could not start recognition:', e);
+                            this.listeningToBotinia = false;
                         }
                     })
                     .catch(error => {
@@ -741,6 +756,7 @@
                             this.recognition.start();
                         } catch(e) {
                             console.error('Could not start recognition:', e);
+                            this.listeningToBotinia = false;
                         }
                     });
             }
