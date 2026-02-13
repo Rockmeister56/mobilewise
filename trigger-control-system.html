@@ -486,6 +486,7 @@
                 this.activeTriggers = [];
                 this.listeningToBotinia = false;
                 this.playerLaunched = false;
+                this.lastTriggerTime = null;
                 this.modules = [
                     'testimonial', 'videoVault', 'visualProof', 
                     'communication', 'websiteInfo'
@@ -922,7 +923,15 @@
                 }
             }
 
-            triggerModule(moduleName, triggerPhrase, fullTranscript) {
+                        triggerModule(moduleName, triggerPhrase, fullTranscript) {
+                // Add cooldown to prevent multiple triggers
+                const now = Date.now();
+                if (this.lastTriggerTime && (now - this.lastTriggerTime < 5000)) {
+                    console.log('⏳ Trigger cooldown - ignoring');
+                    return;
+                }
+                this.lastTriggerTime = now;
+                
                 console.log(`🎯 Trigger detected: ${moduleName} · "${triggerPhrase}"`);
                 
                 const alertEl = document.getElementById('triggerAlert');
