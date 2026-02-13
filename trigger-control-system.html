@@ -663,7 +663,7 @@
                 checkForAnyAudio();
             }
 
-            monitorBotiniaAudio() {
+                        monitorBotiniaAudio() {
                 this.addToTranscriptFeed('🎧 Monitoring for Botinia audio...');
                 
                 const checkAudio = () => {
@@ -673,25 +673,61 @@
                         return;
                     }
                     
-                    // Method 1: Check audio elements
+                    // Check audio elements
                     const audioElements = widget.shadowRoot.querySelectorAll('audio');
                     audioElements.forEach((audio) => {
-                        audio.addEventListener('play', () => {
-                            this.addToTranscriptFeed('🎬 Botinia STARTED speaking!');
-                            this.startListeningToBotinia();
-                        });
+                        // Remove any existing listeners to prevent duplicates
+                        audio.removeEventListener('play', this.handleBotiniaPlay);
+                        audio.removeEventListener('pause', this.handleBotiniaPause);
+                        audio.removeEventListener('ended', this.handleBotiniaEnd);
                         
+                        // Add new listeners
+                        audio.addEventListener('play', () => this.handleBotiniaPlay());
+                        audio.addEventListener('pause', () => this.handleBotiniaPause());
+                        audio.addEventListener('ended', () => this.handleBotiniaEnd());
+                        
+                        // Check current state
                         if (!audio.paused && audio.currentTime > 0) {
-                            this.addToTranscriptFeed('🔊 Botinia is already speaking');
-                            this.startListeningToBotinia();
+                            this.handleBotiniaPlay();
                         }
                     });
                 };
                 
                 checkAudio();
-                
-                // Method 2: Also monitor system audio
-                this.monitorSystemAudio();
+            }
+
+            // New helper methods
+            handleBotiniaPlay() {
+                if (!this.listeningToBotinia) {
+                    this.addToTranscriptFeed('🎬 Botinia STARTED speaking - listening only for Botinia');
+                    this.startListeningToBotinia();
+                }
+            }
+
+            handleBotiniaPause() {
+                if (this.listeningToBotinia) {
+                    this.addToTranscriptFeed('⏸️ Botinia stopped speaking - pausing recognition');
+                    this.stopListeningToBotinia();
+                }
+            }
+
+            handleBotiniaEnd() {
+                if (this.listeningToBotinia) {
+                    this.addToTranscriptFeed('⏹️ Botinia finished speaking - stopping recognition');
+                    this.stopListeningToBotinia();
+                }
+            }
+
+            stopListeningToBotinia() {
+                if (this.recognition && this.listeningToBotinia) {
+                    try {
+                        this.recognition.stop();
+                        this.addToTranscriptFeed('🛑 Speech recognition paused');
+                    } catch(e) {
+                        console.error('Error stopping recognition:', e);
+                    }
+                }
+                this.listeningToBotinia = false;
             }
 
             setupSpeechRecognition() {
@@ -727,38 +763,20 @@
                 // Don't start automatically - wait for audio detection
             }
 
-                        startListeningToBotinia() {
+                                    startListeningToBotinia() {
                 if (this.listeningToBotinia) {
-                    this.addToTranscriptFeed('⚠️ Already listening to Botinia');
                     return;
                 }
                 this.listeningToBotinia = true;
                 
-                this.addToTranscriptFeed('🎤 Activating speech recognition for Botinia...');
+                this.addToTranscriptFeed('🎤 Listening for Botinia trigger phrases...');
                 
-                // Request mic permission
-                navigator.mediaDevices.getUserMedia({ audio: true })
-                    .then(stream => {
-                        stream.getTracks().forEach(track => track.stop());
-                        this.addToTranscriptFeed('✅ Microphone access granted');
-                        
-                        try {
-                            this.recognition.start();
-                            this.addToTranscriptFeed('👂 Now listening to Botinia\'s voice...');
-                        } catch(e) {
-                            console.error('Could not start recognition:', e);
-                            this.listeningToBotinia = false;
-                        }
-                    })
-                    .catch(error => {
-                        this.addToTranscriptFeed('⚠️ Microphone permission needed');
-                        try {
-                            this.recognition.start();
-                        } catch(e) {
-                            console.error('Could not start recognition:', e);
-                            this.listeningToBotinia = false;
-                        }
-                    });
+                try {
+                    this.recognition.start();
+                } catch(e) {
+                    console.error('Could not start recognition:', e);
+                    this.listeningToBotinia = false;
+                }
             }
 
             async captureSystemAudio() {
