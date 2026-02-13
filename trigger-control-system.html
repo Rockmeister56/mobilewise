@@ -566,7 +566,7 @@
                 this.config = {
                     id: 'mortgage-assist-demo',
                     name: 'Mortgage Assist Demo',
-                    agentId: 'agent_1db77d60ec132469',
+                    agentId: 'agent_7b0776ef6b855de5',
                     industry: 'mortgage',
                     modules: {
                         testimonial: {
@@ -927,17 +927,17 @@
                 ];
                 
                 grid.innerHTML = modules.map(m => `
-                    <div class="module-card" id="module-${m.name}">
-                        <div class="module-icon">${m.icon}</div>
-                        <div class="module-name">${m.label}</div>
-                        <div class="module-triggers">
-                            ${m.triggers.map(t => `"${t}"`).join(' · ')}
-                        </div>
-                        <button class="launch-btn" onclick="triggerSystem.manualLaunch('${m.name}')">
-                            ▶️ Launch
-                        </button>
-                    </div>
-                `).join('');
+            <div class="module-card" id="module-${m.name}">
+            <div class="module-icon">${m.icon}</div>
+            <div class="module-name">${m.label}</div>
+            <div class="module-triggers">
+            ${m.triggers.map(t => `"${t}"`).join(' · ')}
+            </div>
+            <button class="launch-btn" onclick="safeManualLaunch('${m.name}')">
+            ▶️ Launch
+          </button>
+          </div>
+          `).join('');
             }
 
             highlightModule(moduleName) {
@@ -1052,22 +1052,49 @@
             document.head.appendChild(link);
         });
 
-        // Global functions for buttons
-        function launchTestTrigger() {
-            triggerSystem.triggerModule('visualProof', 'show me an example', 'Test: User asked to see an example');
-        }
+        // Global functions for buttons - make them safe
+function launchTestTrigger() {
+    if (window.triggerSystem) {
+        window.triggerSystem.triggerModule('visualProof', 'show me an example', 'Test: User asked to see an example');
+    } else {
+        console.error('Trigger system not initialized yet');
+        alert('System still initializing, please wait a moment');
+    }
+}
 
-        function viewFullConfig() {
-            triggerSystem.viewFullConfig();
-        }
+function viewFullConfig() {
+    if (window.triggerSystem) {
+        window.triggerSystem.viewFullConfig();
+    } else {
+        alert('System not initialized');
+    }
+}
 
-        function reconnectMicrophone() {
-            triggerSystem.reconnectMicrophone();
-        }
+function reconnectMicrophone() {
+    if (window.triggerSystem) {
+        window.triggerSystem.reconnectMicrophone();
+    } else {
+        alert('System not initialized');
+    }
+}
 
-        function reloadLemonSlice() {
-            triggerSystem.reloadLemonSlice();
-        }
+function reloadLemonSlice() {
+    if (window.triggerSystem) {
+        window.triggerSystem.reloadLemonSlice();
+    } else {
+        alert('System not initialized');
+    }
+}
+
+// Add safe wrapper for manual launches
+function safeManualLaunch(moduleName) {
+    if (window.triggerSystem) {
+        window.triggerSystem.manualLaunch(moduleName);
+    } else {
+        console.error('Trigger system not ready');
+        alert('System still initializing, please wait');
+    }
+}
     </script>
 </body>
 </html>
