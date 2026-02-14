@@ -1484,56 +1484,124 @@
     configManager.updateStatus(`Bridge file generated for ${config.name}`, 'success');
 }
 
-         function generateInstallationGuide() {
-        var config = configManager.getCurrentConfig();
-        if (!config.id || !config.name) {
-            alert('Please enter a client name');
-            return;
+             function generateBridgeFile() {
+            var config = configManager.getCurrentConfig();
+            if (!config.id || !config.name) {
+                alert('Please enter a client name');
+                return;
+            }
+
+            var bridgeCode = '// Botemia Bridge for ' + config.name + '\n' +
+                '// Generated: ' + new Date().toLocaleString() + '\n' +
+                '// Client ID: ' + config.id + '\n' +
+                '// Version: 3.0\n\n' +
+                '(function() {\n' +
+                '    "use strict";\n\n' +
+                '    const CLIENT_CONFIG = {\n' +
+                '        id: "' + config.id + '",\n' +
+                '        name: "' + config.name + '",\n' +
+                '        agentId: "' + config.agentId + '",\n' +
+                '        environment: "' + config.environment + '",\n' +
+                '        industry: "' + config.industry + '"\n' +
+                '    };\n\n' +
+                '    const SUPABASE_CONFIG = {\n' +
+                '        url: "https://your-project.supabase.co",\n' +
+                '        anonKey: "your-anon-key",\n' +
+                '        tables: {\n' +
+                '            clients: "clients",\n' +
+                '            analytics: "widget_analytics"\n' +
+                '        }\n' +
+                '    };\n\n' +
+                '    class BotemiaBridge {\n' +
+                '        constructor() {\n' +
+                '            this.clientId = CLIENT_CONFIG.id;\n' +
+                '            this.agentId = CLIENT_CONFIG.agentId;\n' +
+                '            this.init();\n' +
+                '        }\n\n' +
+                '        async init() {\n' +
+                '            console.log("Botemia Bridge initializing for " + this.clientId);\n' +
+                '            await this.loadConfig();\n' +
+                '            this.loadWidget();\n' +
+                '        }\n\n' +
+                '        async loadConfig() {\n' +
+                '            try {\n' +
+                '                const { createClient } = supabase;\n' +
+                '                const supabaseClient = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);\n' +
+                '                const { data, error } = await supabaseClient\n' +
+                '                    .from(SUPABASE_CONFIG.tables.clients)\n' +
+                '                    .select("*")\n' +
+                '                    .eq("client_id", this.clientId)\n' +
+                '                    .single();\n\n' +
+                '                if (data) {\n' +
+                '                    window.botemiaConfig = data.config;\n' +
+                '                }\n' +
+                '            } catch (error) {\n' +
+                '                console.error("Failed to load config:", error);\n' +
+                '            }\n' +
+                '        }\n\n' +
+                '        loadWidget() {\n' +
+                '            var script = document.createElement("script");\n' +
+                '            script.src = "https://cdn.botemia.com/widget.js";\n' +
+                '            script.async = true;\n' +
+                '            document.head.appendChild(script);\n' +
+                '        }\n' +
+                '    }\n\n' +
+                '    if (document.readyState === "loading") {\n' +
+                '        document.addEventListener("DOMContentLoaded", function() {\n' +
+                '            new BotemiaBridge();\n' +
+                '        });\n' +
+                '    } else {\n' +
+                '        new BotemiaBridge();\n' +
+                '    }\n' +
+                '})();';
+
+            var blob = new Blob([bridgeCode], { type: 'application/javascript' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'bridge-' + config.id + '.js';
+            link.click();
+
+            configManager.updateStatus('Bridge file generated for ' + config.name, 'success');
         }
 
-        // We are using single quotes and plus signs. 
-        // This eliminates the "Unterminated template literal" error completely.
-        var guide = "";
-        guide += "# Botemia Installation Guide for " + config.name + "\n";
-        guide += "\n";
-        guide += "## Installation Instructions\n";
-        guide += "\n";
-        guide += "### 1. Upload the Bridge File\n";
-        guide += "Upload bridge-" + config.id + ".js to your website's CDN or server.\n";
-        guide += "\n";
-        guide += "### 2. Add the Script Tag\n";
-        guide += "Add the following line just before the closing </body> tag on your website:\n";
-        guide += "\n";
-        // Using tildes (~~~) for the markdown code block so we don't need backticks
-        guide += "~~~html\n";
-        guide += "<script src=\"https://your-cdn.com/bridge-" + config.id + ".js\"></script>\n";
-        guide += "~~~\n";
-        guide += "\n";
-        guide += "### 3. Verify Installation\n";
-        guide += "The Botemia widget should now appear on your website. You can verify by:\n";
-        guide += "- Checking the browser console for \"Botemia Bridge initializing\"\n";
-        guide += "- Looking for the widget in the bottom corner of your site\n";
-        guide += "\n";
-        guide += "## Configuration Details\n";
-        guide += "- **Client ID:** " + config.id + "\n";
-        guide += "- **Agent ID:** " + config.agentId + "\n";
-        guide += "- **Environment:** " + config.environment + "\n";
-        guide += "- **Industry:** " + config.industry + "\n";
-        guide += "\n";
-        guide += "## Support\n";
-        guide += "If you encounter any issues, please contact support@mobilewise.ai\n";
-        guide += "\n";
-        guide += "---\n";
-        guide += "Generated by MobileWise Trigger Dashboard on " + new Date().toLocaleString() + "\n";
+        function generateInstallationGuide() {
+            var config = configManager.getCurrentConfig();
+            if (!config.id || !config.name) {
+                alert('Please enter a client name');
+                return;
+            }
 
-        var blob = new Blob([guide], { type: 'text/markdown' });
-        var link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = config.id + '-installation-guide.md';
-        link.click();
+            var guide = '# Botemia Installation Guide for ' + config.name + '\n\n' +
+                '## Installation Instructions\n\n' +
+                '### 1. Upload the Bridge File\n' +
+                'Upload bridge-' + config.id + '.js to your website\'s CDN or server.\n\n' +
+                '### 2. Add the Script Tag\n' +
+                'Add the following line just before the closing </body> tag on your website:\n\n' +
+                '```html\n' +
+                '<script src="https://your-cdn.com/bridge-' + config.id + '.js"></script>\n' +
+                '```\n\n' +
+                '### 3. Verify Installation\n' +
+                'The Botemia widget should now appear on your website. You can verify by:\n' +
+                '- Checking the browser console for "Botemia Bridge initializing"\n' +
+                '- Looking for the widget in the bottom corner of your site\n\n' +
+                '## Configuration Details\n' +
+                '- **Client ID:** ' + config.id + '\n' +
+                '- **Agent ID:** ' + config.agentId + '\n' +
+                '- **Environment:** ' + config.environment + '\n' +
+                '- **Industry:** ' + config.industry + '\n\n' +
+                '## Support\n' +
+                'If you encounter any issues, please contact support@mobilewise.ai\n\n' +
+                '---\n' +
+                'Generated by MobileWise Trigger Dashboard on ' + new Date().toLocaleString() + '\n';
 
-        configManager.updateStatus('Installation guide generated', 'success');
-    }
+            var blob = new Blob([guide], { type: 'text/markdown' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = config.id + '-installation-guide.md';
+            link.click();
+
+            configManager.updateStatus('Installation guide generated', 'success');
+        }
 
         function loadDefaultTriggers() {
             const industry = document.getElementById('industryPreset').value;
