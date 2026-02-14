@@ -302,7 +302,7 @@
             color: white;
         }
 
-        /* ----- VISUAL PROOF ROWS ----- */
+        /* ----- VISUAL PROOF ROWS (SMART SCREEN) ----- */
         .image-row {
             background: rgba(0,0,0,0.2);
             border-radius: 14px;
@@ -313,7 +313,7 @@
 
         .image-row-grid {
             display: grid;
-            grid-template-columns: 1fr 2fr 1.5fr 2fr;
+            grid-template-columns: 1fr 2fr 1.5fr 1.5fr 2fr;
             gap: 12px;
             align-items: center;
         }
@@ -391,6 +391,16 @@
             color: white;
         }
 
+        .btn-purple {
+            background: linear-gradient(145deg, #9c27b0, #7b1fa2);
+            color: white;
+        }
+
+        .btn-purple:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px -5px rgba(156,39,176,0.4);
+        }
+
         /* ----- STATUS BAR ----- */
         .status-bar {
             position: fixed;
@@ -424,6 +434,60 @@
         .status-dot.warning { background: #ff9800; box-shadow: 0 0 15px #ff9800; }
         .status-dot.error { background: #f44336; box-shadow: 0 0 15px #f44336; }
 
+        /* ----- EXPORT SECTION ----- */
+        .export-section {
+            background: rgba(12, 25, 45, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .export-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #f8c400;
+        }
+
+        .export-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .export-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .export-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: white;
+        }
+
+        .export-card p {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .bridge-preview {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #a0c8ff;
+            margin-bottom: 16px;
+            max-height: 200px;
+            overflow: auto;
+        }
+
         @media (max-width: 700px) {
             .module-grid { grid-template-columns: 1fr; }
             .image-row-grid { grid-template-columns: 1fr; }
@@ -443,7 +507,7 @@
                 </div>
             </div>
             <div class="badge">
-                <i class="fas fa-check-circle"></i> v2.0 · BOTEMIA READY
+                <i class="fas fa-check-circle"></i> v3.0 · BRIDGE GENERATOR
             </div>
         </div>
 
@@ -482,7 +546,7 @@
                     <div class="module-icon"><i class="fas fa-plug"></i></div>
                     <div class="module-title">
                         <h2>⚙️ LemonSlice API Config</h2>
-                        <p>Connection settings for Bohemia</p>
+                        <p>Connection settings for Botemia</p>
                     </div>
                 </div>
                 <div style="display: grid; gap: 20px;">
@@ -522,11 +586,11 @@
                     </div>
                 </div>
                 
-                <!-- INDUSTRY PRESET TRIGGERS (Mortgage default) -->
+                <!-- INDUSTRY PRESET TRIGGERS -->
                 <div class="trigger-section">
                     <div class="trigger-header">
                         <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
-                        <span class="preset-badge"><i class="fas fa-robot"></i> MORTGAGE PRESET</span>
+                        <span class="preset-badge"><i class="fas fa-robot"></i> PRESET</span>
                     </div>
                     <textarea id="testimonialTriggers" class="trigger-textarea">rates, pre-approval, credit score, down payment, closing costs, fha, va, usda, interest rate, mortgage insurance, pmi, dti, debt to income, first-time buyer</textarea>
                     <div class="custom-trigger-add">
@@ -570,7 +634,7 @@
                 <div class="trigger-section">
                     <div class="trigger-header">
                         <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
-                        <span class="preset-badge"><i class="fas fa-robot"></i> MORTGAGE PRESET</span>
+                        <span class="preset-badge"><i class="fas fa-robot"></i> PRESET</span>
                     </div>
                     <textarea id="videoTriggers" class="trigger-textarea">how to apply, loan process, closing timeline, documents needed, first-time buyer, what is escrow, appraisal, underwriting, pre-approval vs pre-qualification, mortgage terms</textarea>
                     <div class="custom-trigger-add">
@@ -601,29 +665,29 @@
                 </div>
             </div>
 
-            <!-- ===== MODULE 4: VISUAL PROOF VAULT ===== -->
+            <!-- ===== MODULE 4: SMART SCREEN ===== -->
             <div class="module-card">
                 <div class="module-header">
                     <div class="module-icon"><i class="fas fa-images"></i></div>
                     <div class="module-title">
-                        <h2>📸 Visual Proof Vault</h2>
-                        <p>Success images, avatars, before/after</p>
+                        <h2>📸 Smart Screen</h2>
+                        <p>Success images, avatars, before/after with optional links</p>
                     </div>
                 </div>
 
                 <div class="trigger-section">
                     <div class="trigger-header">
                         <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
-                        <span class="preset-badge"><i class="fas fa-robot"></i> MORTGAGE PRESET</span>
+                        <span class="preset-badge"><i class="fas fa-robot"></i> PRESET</span>
                     </div>
-                    <textarea id="visualProofTriggers" class="trigger-textarea">show me an example, success story, before after, what does sarah look like, credit repair example, first-time buyer success, self-employed approval, bad credit approval</textarea>
+                    <textarea id="smartScreenTriggers" class="trigger-textarea">show me an example, success story, before after, what does sarah look like, credit repair example, first-time buyer success, self-employed approval, bad credit approval</textarea>
                     <div class="custom-trigger-add">
-                        <input type="text" id="newVisualTrigger" placeholder="Add custom trigger phrase...">
-                        <button class="btn-add" onclick="addCustomTrigger('visual')"><i class="fas fa-plus"></i> Add</button>
+                        <input type="text" id="newSmartScreenTrigger" placeholder="Add custom trigger phrase...">
+                        <button class="btn-add" onclick="addCustomTrigger('smartscreen')"><i class="fas fa-plus"></i> Add</button>
                     </div>
                 </div>
 
-                <!-- IMAGE GALLERY ROWS (Supabase CDN) -->
+                <!-- IMAGE GALLERY ROWS WITH OPTIONAL LINKS -->
                 <div id="imageGalleryContainer">
                     <div class="image-row" id="imageRow1">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -634,6 +698,7 @@
                             <input type="text" placeholder="Image Name" id="img1_name" value="Sarah's Success">
                             <input type="text" placeholder="Supabase CDN URL" id="img1_url" value="https://xyz.supabase.co/storage/v1/object/public/botemia/sarah-580.jpg">
                             <input type="text" placeholder="Caption" id="img1_caption" value="580 credit → closed FHA 3.5% down">
+                            <input type="text" placeholder="Link URL (optional)" id="img1_link" value="https://mortgageassist.com/fha-loans">
                             <input type="text" placeholder="Trigger Match (comma)" id="img1_trigger" value="sarah, 580, bad credit, fha">
                         </div>
                     </div>
@@ -646,6 +711,7 @@
                             <input type="text" placeholder="Image Name" id="img2_name" value="Marcus Self-Employed">
                             <input type="text" placeholder="Supabase CDN URL" id="img2_url" value="https://xyz.supabase.co/storage/v1/object/public/botemia/marcus-se.jpg">
                             <input type="text" placeholder="Caption" id="img2_caption" value="Self-employed, 10% down, bank statement loan">
+                            <input type="text" placeholder="Link URL (optional)" id="img2_link" value="">
                             <input type="text" placeholder="Trigger Match (comma)" id="img2_trigger" value="self-employed, 1099, business owner">
                         </div>
                     </div>
@@ -657,7 +723,7 @@
                 <div class="module-options" style="margin-top: 20px;">
                     <div class="option-row">
                         <label><i class="fas fa-cog"></i> Default Action</label>
-                        <select id="visualProofAction">
+                        <select id="smartScreenAction">
                             <option value="showBestMatch" selected>🎯 Show Best Match</option>
                             <option value="showGallery">🖼️ Show Gallery Grid</option>
                             <option value="rotate">🔄 Rotating Spotlight</option>
@@ -666,130 +732,7 @@
                 </div>
             </div>
 
-            <!-- ===== MODULE 5: COMMUNICATION HUB ===== -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon"><i class="fas fa-comments"></i></div>
-                    <div class="module-title">
-                        <h2>💬 Communication Hub</h2>
-                        <p>5 action types · Lead capture</p>
-                    </div>
-                </div>
-
-                <div class="trigger-section">
-                    <div class="trigger-header">
-                        <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
-                        <span class="preset-badge"><i class="fas fa-robot"></i> MORTGAGE PRESET</span>
-                    </div>
-                    <textarea id="commTriggers" class="trigger-textarea">talk to someone, call me, contact, speak with, schedule, appointment, consultation, apply now, get started, pre-qualify, loan officer</textarea>
-                    <div class="custom-trigger-add">
-                        <input type="text" id="newCommTrigger" placeholder="Add custom trigger phrase...">
-                        <button class="btn-add" onclick="addCustomTrigger('comm')"><i class="fas fa-plus"></i> Add</button>
-                    </div>
-                </div>
-
-                <!-- COMMUNICATION ACTION TYPE -->
-                <div class="module-options">
-                    <div class="option-row">
-                        <label><i class="fas fa-phone-alt"></i> Action Type</label>
-                        <select id="commActionType" onchange="toggleCommFields()">
-                            <option value="clickToCall" selected>📞 Click to Call</option>
-                            <option value="requestCallback">🔄 Request a Call Back</option>
-                            <option value="freeConsultation">🎓 Free Consultation</option>
-                            <option value="leadMagnet">🎁 Lead Magnet Request</option>
-                            <option value="preQual">✅ Pre-Qualification Interview</option>
-                        </select>
-                    </div>
-
-                    <!-- DYNAMIC FIELDS - Click to Call (Default) -->
-                    <div id="commFields_clickToCall">
-                        <div class="option-row">
-                            <label>Phone Number</label>
-                            <input type="text" id="commPhone" value="+1 (555) 123-4567" placeholder="+1 (555) 123-4567">
-                        </div>
-                        <div class="option-row">
-                            <label>Button Text</label>
-                            <input type="text" id="commButtonText" value="Call Us Now">
-                        </div>
-                    </div>
-
-                    <div id="commFields_requestCallback" style="display: none;">
-                        <div class="option-row">
-                            <label>Email Recipient</label>
-                            <input type="email" id="commCallbackEmail" value="loanofficer@mortgageassist.com">
-                        </div>
-                        <div class="option-row">
-                            <label>Email Subject</label>
-                            <input type="text" id="commCallbackSubject" value="Callback Request from Botemia">
-                        </div>
-                    </div>
-
-                    <div id="commFields_freeConsultation" style="display: none;">
-                        <div class="option-row">
-                            <label>Email Recipient</label>
-                            <input type="email" id="commConsultEmail" value="schedule@mortgageassist.com">
-                        </div>
-                        <div class="option-row">
-                            <label>Calendar Link (optional)</label>
-                            <input type="text" id="commCalendarLink" placeholder="https://calendly.com/...">
-                        </div>
-                    </div>
-
-                    <div id="commFields_leadMagnet" style="display: none;">
-                        <div class="option-row">
-                            <label>Lead Magnet Offer</label>
-                            <select id="commLeadMagnetOffer">
-                                <option value="homebuyer">🏡 Free Homebuyer Guide</option>
-                                <option value="credit">📊 Credit Repair Checklist</option>
-                                <option value="rates">📈 Current Rate Sheet</option>
-                                <option value="calculator">🧮 Mortgage Calculator</option>
-                            </select>
-                        </div>
-                        <div class="option-row">
-                            <label>Email Recipient</label>
-                            <input type="email" id="commLeadEmail" value="leads@mortgageassist.com">
-                        </div>
-                    </div>
-
-                    <div id="commFields_preQual" style="display: none;">
-                        <div class="option-row">
-                            <label>Interview URL</label>
-                            <input type="text" id="commPreQualUrl" value="/BOTEMIA_PREQUAL_v4.html">
-                        </div>
-                        <div class="option-row">
-                            <label>Loan Officer Email</label>
-                            <input type="email" id="commLoanOfficerEmail" value="loanofficer@mortgageassist.com">
-                        </div>
-                    </div>
-
-                    <!-- EMAIL NOTIFICATION SETTINGS (Global for actions 2-5) -->
-                    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                            <i class="fas fa-envelope" style="color: #f8c400;"></i>
-                            <span style="font-weight: 600;">EMAIL NOTIFICATION SETTINGS</span>
-                        </div>
-                        <div class="option-row">
-                            <label>Send To</label>
-                            <input type="email" id="commEmailSendTo" value="loanofficer@mortgageassist.com">
-                        </div>
-                        <div class="option-row">
-                            <label>CC</label>
-                            <input type="text" id="commEmailCC" placeholder="ops@mortgageassist.com">
-                        </div>
-                        <div class="option-row">
-                            <label>From Name</label>
-                            <input type="text" id="commFromName" value="Botemia AI Assistant">
-                        </div>
-                        <div class="option-row">
-                            <label style="min-width: auto;">
-                                <input type="checkbox" id="commSendConfirmation" checked> Send confirmation to visitor
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== MODULE 6: WEBSITE INFO CENTER ===== -->
+            <!-- ===== MODULE 5: WEBSITE INFO CENTER ===== -->
             <div class="module-card">
                 <div class="module-header">
                     <div class="module-icon"><i class="fas fa-sitemap"></i></div>
@@ -802,7 +745,7 @@
                 <div class="trigger-section">
                     <div class="trigger-header">
                         <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
-                        <span class="preset-badge"><i class="fas fa-robot"></i> MORTGAGE PRESET</span>
+                        <span class="preset-badge"><i class="fas fa-robot"></i> PRESET</span>
                     </div>
                     <textarea id="websiteTriggers" class="trigger-textarea">rates page, loan programs, about us, contact, locations, calculators, FAQs, learn more, more information, website, navigation</textarea>
                     <div class="custom-trigger-add">
@@ -833,6 +776,39 @@
             </div>
         </div>
 
+        <!-- ===== EXPORT SECTION ===== -->
+        <div class="export-section">
+            <div class="export-title">
+                <i class="fas fa-download"></i> DEPLOYMENT PACKAGE
+            </div>
+            <div class="export-grid">
+                <div class="export-card">
+                    <h3><i class="fas fa-database"></i> 1. Supabase Config</h3>
+                    <p>CSV file for uploading to Supabase. Contains all client configuration data including triggers and smart screen links.</p>
+                    <button class="btn btn-secondary" onclick="exportSupabaseCSV()" style="width: 100%;">
+                        <i class="fas fa-file-csv"></i> Export Supabase CSV
+                    </button>
+                </div>
+                <div class="export-card">
+                    <h3><i class="fas fa-code"></i> 2. Client Bridge File</h3>
+                    <p>JavaScript bridge file with client ID hardcoded. Give this to the client to install on their website.</p>
+                    <div class="bridge-preview" id="bridgePreview">
+                        // Preview will appear here
+                    </div>
+                    <button class="btn btn-purple" onclick="generateBridgeFile()" style="width: 100%;">
+                        <i class="fas fa-file-code"></i> Generate Bridge JS
+                    </button>
+                </div>
+                <div class="export-card">
+                    <h3><i class="fas fa-rocket"></i> 3. Installation Instructions</h3>
+                    <p>Step-by-step guide for the client to install the bridge file.</p>
+                    <button class="btn btn-secondary" onclick="generateInstallationGuide()" style="width: 100%;">
+                        <i class="fas fa-file-pdf"></i> Generate Guide
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- ===== ACTION BUTTONS ===== -->
         <div class="action-buttons">
             <button class="btn btn-secondary" onclick="loadDefaultTriggers()">
@@ -840,9 +816,6 @@
             </button>
             <button class="btn btn-secondary" onclick="saveConfiguration()">
                 <i class="fas fa-save"></i> Save Config
-            </button>
-            <button class="btn btn-secondary" onclick="exportConfiguration()">
-                <i class="fas fa-download"></i> Export JSON
             </button>
             <button class="btn btn-primary" onclick="launchTriggerSystem()">
                 <i class="fas fa-rocket"></i> Launch Trigger System
@@ -864,8 +837,8 @@
 
     <script>
         // ============================================
-        // MOBILEWISE TRIGGER DASHBOARD v2.0
-        // Complete · Industry Presets · 6 Modules
+        // MOBILEWISE TRIGGER DASHBOARD v3.0
+        // Complete · Industry Presets · Bridge Generator
         // ============================================
 
         let configManager = {
@@ -879,6 +852,7 @@
                 this.updateStatus('Dashboard ready', 'ready');
                 this.generateClientId();
                 this.loadIndustryPreset('mortgage');
+                this.updateBridgePreview();
             },
 
             loadSavedClients() {
@@ -908,10 +882,18 @@
                     else this.newClient();
                 });
 
-                document.getElementById('clientName').addEventListener('input', () => this.generateClientId());
+                document.getElementById('clientName').addEventListener('input', () => {
+                    this.generateClientId();
+                    this.updateBridgePreview();
+                });
                 
                 document.getElementById('industryPreset').addEventListener('change', (e) => {
                     this.loadIndustryPreset(e.target.value);
+                });
+
+                // Update bridge preview when relevant fields change
+                ['agentId', 'widgetId', 'environment'].forEach(id => {
+                    document.getElementById(id).addEventListener('input', () => this.updateBridgePreview());
                 });
             },
 
@@ -951,28 +933,16 @@
                     document.getElementById('videoTriggers').value = videoPresets[industry];
                 }
 
-                // Visual proof triggers
-                const visualPresets = {
+                // Smart Screen triggers
+                const smartScreenPresets = {
                     mortgage: 'show me an example, success story, before after, what does sarah look like, credit repair example, first-time buyer success, self-employed approval, bad credit approval',
                     legal: 'case result, settlement amount, verdict, client testimonial, jury award, negotiation outcome',
                     tax: 'tax debt reduction, penalty removal, audit result, savings example, client success',
                     dental: 'smile gallery, before after, patient results, cosmetic work, full mouth reconstruction',
                     manufacturing: 'facility tour, equipment demo, before after efficiency, safety improvement, ROI case study'
                 };
-                if (visualPresets[industry]) {
-                    document.getElementById('visualProofTriggers').value = visualPresets[industry];
-                }
-
-                // Communication triggers
-                const commPresets = {
-                    mortgage: 'talk to someone, call me, contact, speak with, schedule, appointment, consultation, apply now, get started, pre-qualify, loan officer',
-                    legal: 'free consultation, case evaluation, speak to attorney, contingency fee, call today, schedule meeting',
-                    tax: 'tax help, speak to specialist, IRS problem, consultation, callback, tax relief',
-                    dental: 'new patient, schedule appointment, financing questions, insurance verification, consultation',
-                    manufacturing: 'quote, speak to rep, equipment quote, compliance help, schedule visit, contact sales'
-                };
-                if (commPresets[industry]) {
-                    document.getElementById('commTriggers').value = commPresets[industry];
+                if (smartScreenPresets[industry]) {
+                    document.getElementById('smartScreenTriggers').value = smartScreenPresets[industry];
                 }
 
                 // Website triggers
@@ -996,6 +966,7 @@
                 document.getElementById('agentId').value = 'agent_1db77d60ec132469';
                 document.getElementById('industryPreset').value = 'mortgage';
                 this.loadIndustryPreset('mortgage');
+                this.updateBridgePreview();
                 this.updateStatus('New client', 'ready');
             },
 
@@ -1012,6 +983,7 @@
                     this.loadIndustryPreset(client.industry);
                 }
                 
+                this.updateBridgePreview();
                 this.updateStatus(`Loaded ${client.name}`, 'ready');
             },
 
@@ -1035,41 +1007,10 @@
                             action: document.getElementById('videoAction').value,
                             category: document.getElementById('videoCategory').value
                         },
-                        visualProof: {
-                            triggers: document.getElementById('visualProofTriggers').value.split(',').map(t => t.trim()).filter(t => t),
-                            action: document.getElementById('visualProofAction').value,
+                        smartScreen: {
+                            triggers: document.getElementById('smartScreenTriggers').value.split(',').map(t => t.trim()).filter(t => t),
+                            action: document.getElementById('smartScreenAction').value,
                             images: this.getImageGallery()
-                        },
-                        communication: {
-                            triggers: document.getElementById('commTriggers').value.split(',').map(t => t.trim()).filter(t => t),
-                            actionType: document.getElementById('commActionType').value,
-                            emailSettings: {
-                                sendTo: document.getElementById('commEmailSendTo').value,
-                                cc: document.getElementById('commEmailCC').value,
-                                fromName: document.getElementById('commFromName').value,
-                                sendConfirmation: document.getElementById('commSendConfirmation').checked
-                            },
-                            // Action-specific fields
-                            clickToCall: {
-                                phone: document.getElementById('commPhone').value,
-                                buttonText: document.getElementById('commButtonText').value
-                            },
-                            requestCallback: {
-                                email: document.getElementById('commCallbackEmail').value,
-                                subject: document.getElementById('commCallbackSubject').value
-                            },
-                            freeConsultation: {
-                                email: document.getElementById('commConsultEmail').value,
-                                calendarLink: document.getElementById('commCalendarLink').value
-                            },
-                            leadMagnet: {
-                                offer: document.getElementById('commLeadMagnetOffer').value,
-                                email: document.getElementById('commLeadEmail').value
-                            },
-                            preQual: {
-                                url: document.getElementById('commPreQualUrl').value,
-                                email: document.getElementById('commLoanOfficerEmail').value
-                            }
                         },
                         websiteInfo: {
                             triggers: document.getElementById('websiteTriggers').value.split(',').map(t => t.trim()).filter(t => t),
@@ -1086,10 +1027,11 @@
                 const images = [];
                 for (let i = 1; i <= this.imageRowCounter; i++) {
                     const row = document.getElementById(`imageRow${i}`);
-                    if (row) {
+                    if (row && row.parentNode) { // Check if row exists and is in DOM
                         const name = document.getElementById(`img${i}_name`)?.value;
                         const url = document.getElementById(`img${i}_url`)?.value;
                         const caption = document.getElementById(`img${i}_caption`)?.value;
+                        const link = document.getElementById(`img${i}_link`)?.value;
                         const trigger = document.getElementById(`img${i}_trigger`)?.value;
                         
                         if (name && url) {
@@ -1097,6 +1039,7 @@
                                 name,
                                 url,
                                 caption: caption || '',
+                                link: link || '', // Optional link field
                                 triggerMatch: trigger ? trigger.split(',').map(t => t.trim()) : []
                             });
                         }
@@ -1121,46 +1064,53 @@
                 this.updateStatus(`Saved ${config.name}`, 'success');
             },
 
-            exportConfiguration() {
-                const config = this.getCurrentConfig();
-                if (!config.id || !config.name) {
-                    alert('Please enter a client name');
-                    return;
-                }
+            updateBridgePreview() {
+    const clientId = document.getElementById('clientId').value || 'client-id';
+    const agentId = document.getElementById('agentId').value || 'agent_id';
+    const preview = document.getElementById('bridgePreview');
+    
+    preview.innerHTML = `// Botemia Bridge for ${clientId}
+(function() {
+    "use strict";
 
-                const dataStr = JSON.stringify(config, null, 2);
-                const blob = new Blob([dataStr], { type: 'application/json' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `${config.id}-config.json`;
-                link.click();
-                
-                this.updateStatus('Configuration exported', 'success');
-            },
+    const CLIENT_CONFIG = {
+        id: '${clientId}',
+        agentId: '${agentId}',
+        environment: '${document.getElementById('environment').value}'
+    };
 
-            launchTriggerSystem() {
-                const config = this.getCurrentConfig();
-                if (!config.id || !config.name) {
-                    alert('Please enter a client name');
-                    return;
-                }
+    class BotemiaBridge {
+        constructor() {
+            this.clientId = CLIENT_CONFIG.id;
+            this.agentId = CLIENT_CONFIG.agentId;
+            console.log('Bridge initializing for ' + this.clientId);
+            this.init();
+        }
 
-                // Save before launching
-                this.saveConfiguration();
+        async init() {
+            // Load config from Supabase
+            const { data, error } = await supabase
+                .from('clients')
+                .select('*')
+                .eq('client_id', this.clientId)
+                .single();
 
-                // Build URL with config
-                const params = new URLSearchParams();
-                params.append('client', config.id);
-                params.append('agent', config.agentId);
-                params.append('industry', config.industry);
-                
-                // Pass full config as JSON (for demo)
-                params.append('config', encodeURIComponent(JSON.stringify(config)));
+            if (data) {
+                window.botemiaConfig = data.config;
+                this.loadWidget();
+            }
+        }
 
-                const url = `trigger-control-system.html?${params.toString()}`;
-                window.open(url, '_blank', 'width=1400,height=900');
-                
-                this.updateStatus(`Launching trigger system for ${config.name}`, 'success');
+        loadWidget() {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.botemia.com/widget.js';
+            script.async = true;
+            document.head.appendChild(script);
+        }
+    }
+
+    new BotemiaBridge();
+})();`; 
             },
 
             updateStatus(message, type) {
@@ -1185,12 +1135,9 @@
             } else if (module === 'video') {
                 input = document.getElementById('newVideoTrigger');
                 textareaId = 'videoTriggers';
-            } else if (module === 'visual') {
-                input = document.getElementById('newVisualTrigger');
-                textareaId = 'visualProofTriggers';
-            } else if (module === 'comm') {
-                input = document.getElementById('newCommTrigger');
-                textareaId = 'commTriggers';
+            } else if (module === 'smartscreen') {
+                input = document.getElementById('newSmartScreenTrigger');
+                textareaId = 'smartScreenTriggers';
             } else if (module === 'website') {
                 input = document.getElementById('newWebsiteTrigger');
                 textareaId = 'websiteTriggers';
@@ -1221,6 +1168,7 @@
                     <input type="text" placeholder="Image Name" id="img${imageRowCounter}_name">
                     <input type="text" placeholder="Supabase CDN URL" id="img${imageRowCounter}_url">
                     <input type="text" placeholder="Caption" id="img${imageRowCounter}_caption">
+                    <input type="text" placeholder="Link URL (optional)" id="img${imageRowCounter}_link">
                     <input type="text" placeholder="Trigger Match (comma)" id="img${imageRowCounter}_trigger">
                 </div>
             `;
@@ -1233,35 +1181,377 @@
             if (row) row.remove();
         }
 
-        function toggleCommFields() {
-            const actionType = document.getElementById('commActionType').value;
-            
-            // Hide all
-            document.getElementById('commFields_clickToCall').style.display = 'none';
-            document.getElementById('commFields_requestCallback').style.display = 'none';
-            document.getElementById('commFields_freeConsultation').style.display = 'none';
-            document.getElementById('commFields_leadMagnet').style.display = 'none';
-            document.getElementById('commFields_preQual').style.display = 'none';
-            
-            // Show selected
-            document.getElementById(`commFields_${actionType}`).style.display = 'block';
+        function exportSupabaseCSV() {
+            const config = configManager.getCurrentConfig();
+            if (!config.id || !config.name) {
+                alert('Please enter a client name');
+                return;
+            }
+
+            // Convert config to CSV format for Supabase
+            const csvData = [
+                ['client_id', 'config_json', 'industry', 'updated_at'],
+                [config.id, JSON.stringify(config), config.industry, new Date().toISOString()]
+            ];
+
+            const csv = csvData.map(row => row.map(cell => 
+                typeof cell === 'string' ? `"${cell.replace(/"/g, '""')}"` : cell
+            ).join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${config.id}-supabase-config.csv`;
+            link.click();
+
+            configManager.updateStatus('Supabase CSV exported', 'success');
         }
 
-        // Load default triggers
+       function generateBridgeFile() {
+    const config = configManager.getCurrentConfig();
+    if (!config.id || !config.name) {
+        alert('Please enter a client name');
+        return;
+    }
+
+    const bridgeCode = `// Botemia Bridge for ${config.name}
+// Generated: ${new Date().toLocaleString()}
+// Client ID: ${config.id}
+// Version: 3.0
+
+(function() {
+    "use strict";
+
+    // ============================================
+    // HARDCODED CLIENT CONFIGURATION
+    // This file is unique to this client
+    // ============================================
+    const CLIENT_CONFIG = {
+        id: '${config.id}',
+        name: '${config.name}',
+        agentId: '${config.agentId}',
+        environment: '${config.environment}',
+        industry: '${config.industry}'
+    };
+
+    // ============================================
+    // SUPABASE CONNECTION CONFIGURATION
+    // ============================================
+    const SUPABASE_CONFIG = {
+        url: 'https://your-project.supabase.co',
+        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ...',
+        tables: {
+            clients: 'clients',
+            analytics: 'widget_analytics'
+        }
+    };
+
+    class BotemiaBridge {
+        constructor() {
+            // Client identification - hardcoded in this unique bridge file
+            this.clientId = CLIENT_CONFIG.id;
+            this.clientName = CLIENT_CONFIG.name;
+            this.agentId = CLIENT_CONFIG.agentId;
+            this.environment = CLIENT_CONFIG.environment;
+            
+            // State
+            this.supabase = null;
+            this.config = null;
+            this.widget = null;
+            this.initialized = false;
+            
+            // Initialize - USING SINGLE QUOTES AND CONCATENATION
+            console.log('🔌 Botemia Bridge initializing for client: ' + this.clientName + ' (' + this.clientId + ')');
+            this.init();
+        }
+
+        async init() {
+            try {
+                // 1. Initialize Supabase client
+                await this.initSupabase();
+                
+                // 2. Load client configuration from Supabase using client_id
+                await this.loadConfig();
+                
+                // 3. Initialize the LemonSlice widget
+                await this.initWidget();
+                
+                this.initialized = true;
+                console.log('✅ Botemia Bridge successfully initialized for ' + this.clientName);
+                
+            } catch (error) {
+                console.error('❌ Botemia Bridge initialization failed:', error);
+                this.loadFallbackConfig();
+            }
+        }
+
+        async initSupabase() {
+            // Dynamically load Supabase if not already loaded
+            if (typeof supabase === 'undefined') {
+                await this.loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+            }
+            
+            // Create Supabase client
+            const { createClient } = supabase;
+            this.supabase = createClient(
+                SUPABASE_CONFIG.url, 
+                SUPABASE_CONFIG.anonKey
+            );
+            
+            console.log('📡 Supabase client initialized');
+        }
+
+        async loadConfig() {
+            try {
+                // Query Supabase for this client's configuration
+                // Using clientId which matches the 'client_id' column in Supabase
+                const { data, error } = await this.supabase
+                    .from(SUPABASE_CONFIG.tables.clients)
+                    .select('*')
+                    .eq('client_id', this.clientId)  // Match on client_id column
+                    .single();
+
+                if (error) {
+                    console.error('Supabase query error:', error);
+                    throw error;
+                }
+
+                if (data) {
+                    // Parse and store the configuration
+                    this.config = {
+                        id: data.client_id,
+                        name: data.name,
+                        industry: data.industry,
+                        modules: data.config || data.metadata?.config || {},
+                        updatedAt: data.updated_at
+                    };
+                    
+                    console.log('📋 Configuration loaded from Supabase for ' + this.clientId);
+                    
+                } else {
+                    console.warn('No configuration found for client ID: ' + this.clientId);
+                    this.loadFallbackConfig();
+                }
+
+            } catch (error) {
+                console.error('Failed to load config from Supabase:', error);
+                this.loadFallbackConfig();
+            }
+        }
+
+        loadFallbackConfig() {
+            console.log('📋 Using fallback configuration');
+            
+            // Default fallback config in case Supabase is unreachable
+            this.config = {
+                id: this.clientId,
+                name: this.clientName,
+                industry: CLIENT_CONFIG.industry,
+                modules: {
+                    testimonial: {
+                        triggers: ["rates", "pre-approval", "credit score"],
+                        action: "showTestimonialPlayer",
+                        group: "auto"
+                    },
+                    videoVault: {
+                        triggers: ["how to apply", "loan process", "closing timeline"],
+                        action: "showVideoGallery",
+                        category: "auto"
+                    },
+                    smartScreen: {
+                        triggers: ["show me an example", "success story", "before after"],
+                        action: "showBestMatch",
+                        images: []
+                    },
+                    websiteInfo: {
+                        triggers: ["rates page", "loan programs", "about us"],
+                        infoType: "navigation",
+                        action: "showSmartNavigation"
+                    }
+                }
+            };
+        }
+
+        async initWidget() {
+            // Load LemonSlice widget script
+            await this.loadScript('https://cdn.lemonslice.com/widget.js');
+            
+            // Initialize widget with client config
+            if (window.LemonSliceWidget) {
+                this.widget = new LemonSliceWidget({
+                    agentId: this.agentId,
+                    environment: this.environment,
+                    config: this.config,
+                    onEvent: (event) => this.handleWidgetEvent(event)
+                });
+                
+                console.log('🤖 LemonSlice widget initialized');
+            } else {
+                console.error('LemonSliceWidget not available');
+            }
+        }
+
+        handleWidgetEvent(event) {
+            // Track important events
+            switch(event.type) {
+                case 'trigger_matched':
+                    this.trackEvent('trigger_used', {
+                        trigger: event.trigger,
+                        module: event.module
+                    });
+                    break;
+                    
+                case 'smart_screen_clicked':
+                    if (event.link) {
+                        // Track clicks on smart screen images with links
+                        this.trackEvent('smart_screen_click', {
+                            imageName: event.imageName,
+                            link: event.link
+                        });
+                    }
+                    break;
+                    
+                case 'navigation_used':
+                    this.trackEvent('navigation_click', {
+                        page: event.page,
+                        link: event.link
+                    });
+                    break;
+            }
+        }
+
+        async trackEvent(eventName, eventData) {
+            if (!this.supabase) return;
+            
+            try {
+                await this.supabase
+                    .from(SUPABASE_CONFIG.tables.analytics)
+                    .insert([{
+                        client_id: this.clientId,
+                        event_name: eventName,
+                        event_data: eventData,
+                        page_url: window.location.href,
+                        user_agent: navigator.userAgent,
+                        timestamp: new Date().toISOString()
+                    }]);
+            } catch (error) {
+                // Silently fail - analytics shouldn't break the widget
+                console.debug('Analytics error:', error);
+            }
+        }
+
+        loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.async = true;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        // Public method to get config (for debugging)
+        getConfig() {
+            return this.config;
+        }
+
+        // Public method to manually trigger a module
+        triggerModule(moduleName, triggerPhrase) {
+            if (this.widget && this.widget.triggerModule) {
+                this.widget.triggerModule(moduleName, triggerPhrase);
+            }
+        }
+    }
+
+    // Auto-initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            window.BotemiaBridge = new BotemiaBridge();
+        });
+    } else {
+        window.BotemiaBridge = new BotemiaBridge();
+    }
+})();`;
+
+    // Create and download the bridge file
+    const blob = new Blob([bridgeCode], { type: 'application/javascript' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `bridge-${config.id}.js`;
+    link.click();
+
+    configManager.updateStatus(`Bridge file generated for ${config.name}`, 'success');
+}
+
+        function generateInstallationGuide() {
+            const config = configManager.getCurrentConfig();
+            if (!config.id || !config.name) {
+                alert('Please enter a client name');
+                return;
+            }
+
+            const guide = `# Botemia Installation Guide for ${config.name}
+
+## Installation Instructions
+
+### 1. Upload the Bridge File
+Upload bridge-${config.id}.js to your website's CDN or server.
+
+### 2. Add the Script Tag
+Add the following line just before the closing </body> tag on your website:
+
+~~~html
+<script src="https://your-cdn.com/bridge-${config.id}.js"></script>
+~~~
+
+### 3. Verify Installation
+The Botemia widget should now appear on your website. You can verify by:
+- Checking the browser console for "Botemia Bridge initializing"
+- Looking for the widget in the bottom corner of your site
+
+## Configuration Details
+- **Client ID:** ${config.id}
+- **Agent ID:** ${config.agentId}
+- **Environment:** ${config.environment}
+- **Industry:** ${config.industry}
+
+## Support
+If you encounter any issues, please contact support@mobilewise.ai
+
+---
+Generated by MobileWise Trigger Dashboard on ${new Date().toLocaleString()}
+`;
+
+            const blob = new Blob([guide], { type: 'text/markdown' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${config.id}-installation-guide.md`;
+            link.click();
+
+            configManager.updateStatus('Installation guide generated', 'success');
+        }
+
         function loadDefaultTriggers() {
             const industry = document.getElementById('industryPreset').value;
             configManager.loadIndustryPreset(industry);
         }
 
         function saveConfiguration() { configManager.saveConfiguration(); }
-        function exportConfiguration() { configManager.exportConfiguration(); }
-        function launchTriggerSystem() { configManager.launchTriggerSystem(); }
+        function launchTriggerSystem() { 
+            const config = configManager.getCurrentConfig();
+            if (!config.id || !config.name) {
+                alert('Please enter a client name');
+                return;
+            }
+            configManager.saveConfiguration();
+            window.open('trigger-control-system.html?client=' + config.id, '_blank');
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             window.configManager = configManager;
             configManager.init();
-            toggleCommFields();
         });
     </script>
 </body>
