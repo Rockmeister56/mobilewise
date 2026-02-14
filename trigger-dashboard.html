@@ -1484,124 +1484,50 @@
     configManager.updateStatus(`Bridge file generated for ${config.name}`, 'success');
 }
 
-             function generateBridgeFile() {
-            var config = configManager.getCurrentConfig();
-            if (!config.id || !config.name) {
-                alert('Please enter a client name');
-                return;
-            }
-
-            var bridgeCode = '// Botemia Bridge for ' + config.name + '\n' +
-                '// Generated: ' + new Date().toLocaleString() + '\n' +
-                '// Client ID: ' + config.id + '\n' +
-                '// Version: 3.0\n\n' +
-                '(function() {\n' +
-                '    "use strict";\n\n' +
-                '    const CLIENT_CONFIG = {\n' +
-                '        id: "' + config.id + '",\n' +
-                '        name: "' + config.name + '",\n' +
-                '        agentId: "' + config.agentId + '",\n' +
-                '        environment: "' + config.environment + '",\n' +
-                '        industry: "' + config.industry + '"\n' +
-                '    };\n\n' +
-                '    const SUPABASE_CONFIG = {\n' +
-                '        url: "https://your-project.supabase.co",\n' +
-                '        anonKey: "your-anon-key",\n' +
-                '        tables: {\n' +
-                '            clients: "clients",\n' +
-                '            analytics: "widget_analytics"\n' +
-                '        }\n' +
-                '    };\n\n' +
-                '    class BotemiaBridge {\n' +
-                '        constructor() {\n' +
-                '            this.clientId = CLIENT_CONFIG.id;\n' +
-                '            this.agentId = CLIENT_CONFIG.agentId;\n' +
-                '            this.init();\n' +
-                '        }\n\n' +
-                '        async init() {\n' +
-                '            console.log("Botemia Bridge initializing for " + this.clientId);\n' +
-                '            await this.loadConfig();\n' +
-                '            this.loadWidget();\n' +
-                '        }\n\n' +
-                '        async loadConfig() {\n' +
-                '            try {\n' +
-                '                const { createClient } = supabase;\n' +
-                '                const supabaseClient = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);\n' +
-                '                const { data, error } = await supabaseClient\n' +
-                '                    .from(SUPABASE_CONFIG.tables.clients)\n' +
-                '                    .select("*")\n' +
-                '                    .eq("client_id", this.clientId)\n' +
-                '                    .single();\n\n' +
-                '                if (data) {\n' +
-                '                    window.botemiaConfig = data.config;\n' +
-                '                }\n' +
-                '            } catch (error) {\n' +
-                '                console.error("Failed to load config:", error);\n' +
-                '            }\n' +
-                '        }\n\n' +
-                '        loadWidget() {\n' +
-                '            var script = document.createElement("script");\n' +
-                '            script.src = "https://cdn.botemia.com/widget.js";\n' +
-                '            script.async = true;\n' +
-                '            document.head.appendChild(script);\n' +
-                '        }\n' +
-                '    }\n\n' +
-                '    if (document.readyState === "loading") {\n' +
-                '        document.addEventListener("DOMContentLoaded", function() {\n' +
-                '            new BotemiaBridge();\n' +
-                '        });\n' +
-                '    } else {\n' +
-                '        new BotemiaBridge();\n' +
-                '    }\n' +
-                '})();';
-
-            var blob = new Blob([bridgeCode], { type: 'application/javascript' });
-            var link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'bridge-' + config.id + '.js';
-            link.click();
-
-            configManager.updateStatus('Bridge file generated for ' + config.name, 'success');
-        }
-
-        function generateInstallationGuide() {
-            var config = configManager.getCurrentConfig();
-            if (!config.id || !config.name) {
-                alert('Please enter a client name');
-                return;
-            }
-
-            var guide = '# Botemia Installation Guide for ' + config.name + '\n\n' +
-                '## Installation Instructions\n\n' +
-                '### 1. Upload the Bridge File\n' +
-                'Upload bridge-' + config.id + '.js to your website\'s CDN or server.\n\n' +
-                '### 2. Add the Script Tag\n' +
-                'Add the following line just before the closing </body> tag on your website:\n\n' +
-                '```html\n' +
-                '<script src="https://your-cdn.com/bridge-' + config.id + '.js"></script>\n' +
-                '```\n\n' +
-                '### 3. Verify Installation\n' +
-                'The Botemia widget should now appear on your website. You can verify by:\n' +
-                '- Checking the browser console for "Botemia Bridge initializing"\n' +
-                '- Looking for the widget in the bottom corner of your site\n\n' +
-                '## Configuration Details\n' +
-                '- **Client ID:** ' + config.id + '\n' +
-                '- **Agent ID:** ' + config.agentId + '\n' +
-                '- **Environment:** ' + config.environment + '\n' +
-                '- **Industry:** ' + config.industry + '\n\n' +
-                '## Support\n' +
-                'If you encounter any issues, please contact support@mobilewise.ai\n\n' +
-                '---\n' +
-                'Generated by MobileWise Trigger Dashboard on ' + new Date().toLocaleString() + '\n';
-
-            var blob = new Blob([guide], { type: 'text/markdown' });
-            var link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = config.id + '-installation-guide.md';
-            link.click();
-
-            configManager.updateStatus('Installation guide generated', 'success');
-        }
+     function generateBridgeSimple() {
+    var config = getConfig();
+    
+    // Build the bridge code using an array (safest method)
+    var lines = [];
+    lines.push('// Botemia Bridge for ' + config.name);
+    lines.push('// Generated: ' + new Date().toLocaleString());
+    lines.push('// Client ID: ' + config.id);
+    lines.push('');
+    lines.push('(function() {');
+    lines.push('    "use strict";');
+    lines.push('    ');
+    lines.push('    var CLIENT_ID = "' + config.id + '";');
+    lines.push('    var AGENT_ID = "' + config.agentId + '";');
+    lines.push('    var CLIENT_NAME = "' + config.name + '";');
+    lines.push('    ');
+    lines.push('    console.log("Bridge loading for " + CLIENT_NAME);');
+    lines.push('    ');
+    lines.push('    function loadWidget() {');
+    lines.push('        var s = document.createElement("script");');
+    lines.push('        s.src = "https://cdn.botemia.com/widget.js";');
+    lines.push('        s.async = true;');
+    lines.push('        s.onload = function() {');
+    lines.push('            if (window.BotemiaWidget) {');
+    lines.push('                window.BotemiaWidget.init({');
+    lines.push('                    clientId: CLIENT_ID,');
+    lines.push('                    agentId: AGENT_ID');
+    lines.push('                });');
+    lines.push('            }');
+    lines.push('        };');
+    lines.push('        document.head.appendChild(s);');
+    lines.push('    }');
+    lines.push('    ');
+    lines.push('    loadWidget();');
+    lines.push('    ');
+    lines.push('})();');
+    
+    var bridgeCode = lines.join('\n');
+    var blob = new Blob([bridgeCode], { type: 'application/javascript' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'bridge-' + config.id + '.js';
+    link.click();
+}
 
         function loadDefaultTriggers() {
             const industry = document.getElementById('industryPreset').value;
