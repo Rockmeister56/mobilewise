@@ -1115,7 +1115,7 @@
 })();`;
 
                 // ===== 3. Generate Installation Guide =====
-                const guideCode = `BOTEMIA INSTALLATION GUIDE
+const guideCode = `BOTEMIA INSTALLATION GUIDE
 ========================
 Client: ${config.name}
 Client ID: ${config.id}
@@ -1123,8 +1123,8 @@ Generated: ${new Date().toLocaleString()}
 
 INSTALLATION STEPS:
 1. Upload the bridge file to your website's root folder
-2. Add this line to your website, just before the closing </body> tag:
-   <script src="bridge-${config.id}.js"></script>
+2. Add this line to your website, just before the closing <\/body> tag:
+   <script src="bridge-${config.id}.js"><\/script>
 3. That's it! The widget will load automatically
 
 TROUBLESHOOTING:
