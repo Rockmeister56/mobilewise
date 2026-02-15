@@ -1231,22 +1231,18 @@ Contact: support@botemia.com`;
     // Update status dot if it exists
     if (dot) {
         dot.className = 'status-dot';
-        if (type === 'success' || type === 'ready') {
+        if (type === 'success') {
             dot.style.background = '#00c853';
-            dot.style.boxShadow = '0 0 15px #00c853';
         } else if (type === 'warning') {
             dot.style.background = '#ff9800';
-            dot.style.boxShadow = '0 0 15px #ff9800';
         } else if (type === 'error') {
             dot.style.background = '#f44336';
-            dot.style.boxShadow = '0 0 15px #f44336';
         } else {
             dot.style.background = '#00c853';
-            dot.style.boxShadow = '0 0 15px #00c853';
         }
     }
     
-    // Update save status if it exists
+    // Update save status if it exists (matches your original)
     if (saveStatus) {
         saveStatus.textContent = `Last Saved: ${new Date().toLocaleTimeString()}`;
     }
