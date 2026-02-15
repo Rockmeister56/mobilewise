@@ -1064,7 +1064,7 @@
                 ).join(',')).join('\n');
                 
                 // ===== 2. Generate Bridge File with Embedded Config =====
-                const bridgeCode = `// Botemia Bridge for ${config.name}
+const bridgeCode = `// Botemia Bridge for ${config.name}
 // Generated: ${new Date().toLocaleString()}
 // Client ID: ${config.id}
 // Version: 4.0 - EMBEDDED CONFIG
@@ -1075,6 +1075,65 @@
     // ===== EMBEDDED CLIENT CONFIGURATION =====
     window.BotemiaConfig = ${JSON.stringify(config, null, 4)};
 
+    // ===== LISTEN FOR TRIGGERS FROM CONTROL SYSTEM =====
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'MODULE_TRIGGERED') {
+            console.log('🎯 Module triggered:', event.data.module, event.data.triggerPhrase);
+            
+            // Show popup notification
+            const div = document.createElement('div');
+            div.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#f8c400; color:black; padding:20px; border-radius:12px; z-index:9999; font-family:Arial; box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+            div.innerHTML = \`<strong>⚡ \${event.data.module}</strong><br>\${event.data.triggerPhrase}\`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+            
+            // Find the widget
+            const widget = document.querySelector('lemon-slice-widget');
+            if (!widget) return;
+            
+            // Pass config to widget
+            widget.botemiaConfig = window.BotemiaConfig;
+            
+            // Handle different module types
+            switch(event.data.module) {
+                case 'smartScreen':
+                    const images = window.BotemiaConfig.modules.smartScreen.images;
+                    const matchedImage = images.find(img => 
+                        img.triggerMatch.some(t => 
+                            event.data.triggerPhrase.toLowerCase().includes(t.toLowerCase())
+                        )
+                    );
+                    
+                    if (matchedImage) {
+                        const smartScreen = document.createElement('div');
+                        smartScreen.className = 'botemia-smart-screen';
+                        smartScreen.style.cssText = 'position:fixed; bottom:80px; right:20px; background:white; border-radius:12px; padding:20px; max-width:300px; box-shadow:0 4px 20px rgba(0,0,0,0.2); z-index:9998;';
+                        smartScreen.innerHTML = \`
+                            <h3 style="margin:0 0 10px 0; color:#333;">\${matchedImage.name}</h3>
+                            <img src="\${matchedImage.url}" style="width:100%; border-radius:8px; margin-bottom:10px;">
+                            <p style="margin:0 0 10px 0; color:#666;">\${matchedImage.caption}</p>
+                            \${matchedImage.link ? \`<a href="\${matchedImage.link}" target="_blank" style="color:#f8c400; text-decoration:none; font-weight:bold;">Learn More →</a>\` : ''}
+                        \`;
+                        document.body.appendChild(smartScreen);
+                        setTimeout(() => smartScreen.remove(), 8000);
+                    }
+                    break;
+                    
+                case 'testimonial':
+                    console.log('Show testimonial');
+                    break;
+                    
+                case 'videoVault':
+                    console.log('Show video vault');
+                    break;
+                    
+                case 'websiteInfo':
+                    console.log('Show website info');
+                    break;
+            }
+        }
+    });
+
     // ===== LOAD OR UPDATE WIDGET =====
     function initWidget() {
         // Check if widget already exists
@@ -1082,6 +1141,7 @@
         if (widget) {
             console.log('✅ Updating existing widget');
             widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
+            widget.botemiaConfig = window.BotemiaConfig;
             return;
         }
 
@@ -1101,6 +1161,7 @@
         if (document.querySelector('lemon-slice-widget')) return;
         const widget = document.createElement('lemon-slice-widget');
         widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
+        widget.botemiaConfig = window.BotemiaConfig;
         document.body.appendChild(widget);
         console.log('✅ Widget created for', window.BotemiaConfig.name);
     }
