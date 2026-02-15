@@ -1052,6 +1052,15 @@
                 localStorage.setItem('mobilewise_clients', JSON.stringify(this.clients));
                 this.populateClientSelect();
                 document.getElementById('clientSelect').value = config.id;
+
+                  // FIX THIS LINE - add null check
+         const saveStatus = document.getElementById('saveStatus');
+        if (saveStatus) {
+        saveStatus.innerHTML = `Last Saved: ${new Date().toLocaleTimeString()}`;
+            }
+    
+            this.updateStatus(`Saved ${config.name}`, 'success');
+
                 
                 document.getElementById('saveStatus').innerHTML = `Last Saved: ${new Date().toLocaleTimeString()}`;
                 this.updateStatus(`Saved ${config.name}`, 'success');
