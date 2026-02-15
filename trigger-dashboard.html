@@ -1143,15 +1143,15 @@ uploadToSupabase(config, supabaseUrl, supabaseKey) {
     const { createClient } = supabase;
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
     
-    // Prepare data for Supabase
+    // Prepare data to match your CSV structure EXACTLY
     const supabaseData = {
         client_id: config.id,
-        name: config.name,
-        agent_id: config.agentId,
+        config_json: config,  // This matches your CSV column name
         industry: config.industry,
-        config_json: config,
         updated_at: new Date().toISOString()
     };
+    
+    console.log('Sending to Supabase:', supabaseData);
     
     // Upsert (insert or update) the client data
     supabaseClient
