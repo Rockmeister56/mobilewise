@@ -1048,6 +1048,123 @@
                 this.updateStatus(`Saved ${config.name}`, 'success');
             },
 
+                        generateDeploymentPackage() {
+                const config = this.getCurrentConfig();
+                if (!config.id || !config.name) {
+                    alert('Please enter a client name');
+                    return;
+                }
+
+                // ===== 1. Generate Supabase CSV =====
+                const csvData = [
+                    ['client_id', 'config_json', 'industry', 'updated_at'],
+                    [config.id, JSON.stringify(config), config.industry, new Date().toISOString()]
+                ];
+                const csv = csvData.map(row => row.map(cell => 
+                    typeof cell === 'string' ? `"${cell.replace(/"/g, '""')}"` : cell
+                ).join(',')).join('\n');
+                
+                // ===== 2. Generate Bridge File with Embedded Config =====
+                const bridgeCode = `// Botemia Bridge for ${config.name}
+// Generated: ${new Date().toLocaleString()}
+// Client ID: ${config.id}
+// Version: 4.0 - EMBEDDED CONFIG
+
+(function() {
+    "use strict";
+
+    // ===== EMBEDDED CLIENT CONFIGURATION =====
+    window.BotemiaConfig = ${JSON.stringify(config, null, 4)};
+
+    // ===== LOAD OR UPDATE WIDGET =====
+    function initWidget() {
+        // Check if widget already exists
+        let widget = document.querySelector('lemon-slice-widget');
+        if (widget) {
+            console.log('✅ Updating existing widget');
+            widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
+            return;
+        }
+
+        // Check if script is loaded
+        if (!document.querySelector('script[src*="lemon-slice-widget"]')) {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
+            script.type = 'module';
+            script.onload = createWidget;
+            document.head.appendChild(script);
+        } else {
+            createWidget();
+        }
+    }
+
+    function createWidget() {
+        if (document.querySelector('lemon-slice-widget')) return;
+        const widget = document.createElement('lemon-slice-widget');
+        widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
+        document.body.appendChild(widget);
+        console.log('✅ Widget created for', window.BotemiaConfig.name);
+    }
+
+    // Start when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initWidget);
+    } else {
+        initWidget();
+    }
+})();`;
+
+                // ===== 3. Generate Installation Guide =====
+                const guideCode = `BOTEMIA INSTALLATION GUIDE
+========================
+Client: ${config.name}
+Client ID: ${config.id}
+Generated: ${new Date().toLocaleString()}
+
+INSTALLATION STEPS:
+1. Upload the bridge file to your website's root folder
+2. Add this line to your website, just before the closing </body> tag:
+   <script src="bridge-${config.id}.js"></script>
+3. That's it! The widget will load automatically
+
+TROUBLESHOOTING:
+- Open browser console (F12) to verify bridge loaded
+- Look for "✅ Widget created" message
+- Config is available at window.BotemiaConfig
+
+SUPPORT:
+Contact: support@botemia.com`;
+
+                // ===== 4. Download all three files =====
+                try {
+                    // Download CSV
+                    const csvBlob = new Blob([csv], { type: 'text/csv' });
+                    const csvLink = document.createElement('a');
+                    csvLink.href = URL.createObjectURL(csvBlob);
+                    csvLink.download = config.id + '-config.csv';
+                    csvLink.click();
+
+                    // Download Bridge
+                    const bridgeBlob = new Blob([bridgeCode], { type: 'application/javascript' });
+                    const bridgeLink = document.createElement('a');
+                    bridgeLink.href = URL.createObjectURL(bridgeBlob);
+                    bridgeLink.download = 'bridge-' + config.id + '.js';
+                    bridgeLink.click();
+
+                    // Download Guide
+                    const guideBlob = new Blob([guideCode], { type: 'text/plain' });
+                    const guideLink = document.createElement('a');
+                    guideLink.href = URL.createObjectURL(guideBlob);
+                    guideLink.download = config.id + '-install.txt';
+                    guideLink.click();
+
+                    this.updateStatus('✅ Complete deployment package generated for ' + config.name, 'success');
+                } catch (error) {
+                    console.error('Download error:', error);
+                    this.updateStatus('❌ Error generating package', 'error');
+                }
+            },
+
             updateBridgePreview() {
     const clientId = document.getElementById('clientId').value || 'client-id';
     const agentId = document.getElementById('agentId').value || 'agent_id';
