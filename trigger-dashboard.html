@@ -849,24 +849,79 @@
             },
 
             loadSavedClients() {
-                try {
-                    const saved = localStorage.getItem('mobilewise_clients');
-                    if (saved) {
-                        this.clients = JSON.parse(saved);
-                        this.populateClientSelect();
-                    }
-                } catch(e) { console.error('Error loading clients:', e); }
-            },
+    // First load from localStorage (fast)
+    try {
+        const saved = localStorage.getItem('mobilewise_clients');
+        if (saved) {
+            this.clients = JSON.parse(saved);
+            this.populateClientSelect();
+        }
+    } catch(e) { 
+        console.error('Error loading clients from localStorage:', e); 
+    }
+    
+    // Then load from Supabase (server) - this will override localStorage
+    this.loadFromSupabase();
+},
 
-            populateClientSelect() {
-                const select = document.getElementById('clientSelect');
-                select.innerHTML = '<option value="">— New Client —</option>';
-                Object.keys(this.clients).forEach(id => {
-                    const option = document.createElement('option');
-                    option.value = id;
-                    option.textContent = this.clients[id].name || id;
-                    select.appendChild(option);
+loadFromSupabase() {
+    const supabaseUrl = 'https://fcgbusobfdwnpoqyuzoe.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk';
+    
+    // Load Supabase script if needed
+    if (typeof supabase === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.onload = () => this.fetchFromSupabase(supabaseUrl, supabaseKey);
+        document.head.appendChild(script);
+    } else {
+        this.fetchFromSupabase(supabaseUrl, supabaseKey);
+    }
+},
+
+fetchFromSupabase(supabaseUrl, supabaseKey) {
+    const { createClient } = supabase;
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
+    
+    supabaseClient
+        .from('clients')
+        .select('*')
+        .then(({ data, error }) => {
+            if (data && data.length > 0) {
+                // Convert array to object keyed by client_id
+                const supabaseClients = {};
+                data.forEach(client => {
+                    supabaseClients[client.client_id] = client.config_json;
                 });
+                
+                // Merge with existing clients (Supabase takes priority)
+                this.clients = {...this.clients, ...supabaseClients};
+                
+                // Update localStorage with merged data
+                localStorage.setItem('mobilewise_clients', JSON.stringify(this.clients));
+                
+                // Refresh the dropdown
+                this.populateClientSelect();
+                
+                console.log('✅ Loaded', data.length, 'clients from Supabase');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Supabase load failed:', error);
+        });
+},
+
+populateClientSelect() {
+    const select = document.getElementById('clientSelect');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">— New Client —</option>';
+    Object.keys(this.clients).forEach(id => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = this.clients[id]?.name || id;
+        select.appendChild(option);
+    });
             },
 
             setupEventListeners() {
@@ -1048,10 +1103,68 @@
         return;
     }
 
+    // Save to localStorage (for quick access)
     this.clients[config.id] = config;
     localStorage.setItem('mobilewise_clients', JSON.stringify(this.clients));
     this.populateClientSelect();
     document.getElementById('clientSelect').value = config.id;
+
+    // Save to Supabase (for permanent storage)
+    this.saveToSupabase(config);
+
+    // Update UI
+    const saveStatus = document.getElementById('saveStatus');
+    if (saveStatus) {
+        saveStatus.innerHTML = `Last Saved: ${new Date().toLocaleTimeString()}`;
+    }
+
+    this.updateStatus(`Saved ${config.name}`, 'success');
+},
+
+saveToSupabase(config) {
+    // Your Supabase credentials
+    const supabaseUrl = 'https://fcgbusobfdwnpoqyuzoe.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk';
+    
+    // Dynamically load Supabase if not already loaded
+    if (typeof supabase === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.onload = () => {
+            this.uploadToSupabase(config, supabaseUrl, supabaseKey);
+        };
+        document.head.appendChild(script);
+    } else {
+        this.uploadToSupabase(config, supabaseUrl, supabaseKey);
+    }
+},
+
+uploadToSupabase(config, supabaseUrl, supabaseKey) {
+    const { createClient } = supabase;
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
+    
+    // Prepare data for Supabase
+    const supabaseData = {
+        client_id: config.id,
+        name: config.name,
+        agent_id: config.agentId,
+        industry: config.industry,
+        config_json: config,
+        updated_at: new Date().toISOString()
+    };
+    
+    // Upsert (insert or update) the client data
+    supabaseClient
+        .from('clients')
+        .upsert(supabaseData, { onConflict: 'client_id' })
+        .then(response => {
+            console.log('✅ Saved to Supabase:', response);
+            this.updateStatus('Synced with Supabase', 'success');
+        })
+        .catch(error => {
+            console.error('❌ Supabase save failed:', error);
+            this.updateStatus('Supabase sync failed', 'error');
+        });
 
     // SAFE update with null check
     const saveStatus = document.getElementById('saveStatus');
