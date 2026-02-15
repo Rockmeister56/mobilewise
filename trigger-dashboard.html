@@ -886,12 +886,18 @@ fetchFromSupabase(supabaseUrl, supabaseKey) {
     supabaseClient
         .from('clients')
         .select('*')
+        .not('client_id', 'is', null)  // Only get records with client_id
         .then(({ data, error }) => {
             if (data && data.length > 0) {
                 // Convert array to object keyed by client_id
                 const supabaseClients = {};
                 data.forEach(client => {
-                    supabaseClients[client.client_id] = client.config_json;
+                    // Use metadata if it exists, otherwise create basic config
+                    supabaseClients[client.client_id] = client.metadata || {
+                        id: client.client_id,
+                        name: client.name,
+                        industry: client.industry
+                    };
                 });
                 
                 // Merge with existing clients (Supabase takes priority)
@@ -1143,17 +1149,23 @@ uploadToSupabase(config, supabaseUrl, supabaseKey) {
     const { createClient } = supabase;
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
     
-    // Prepare data to match your CSV structure EXACTLY
+    // Match the actual table structure with client_id added
     const supabaseData = {
-        client_id: config.id,
-        config_json: config,  // This matches your CSV column name
+        client_id: config.id,           // Your mortgage-assist-demo ID
+        name: config.name,
         industry: config.industry,
+        metadata: config,                // Store entire config in metadata JSONB
         updated_at: new Date().toISOString()
     };
     
+    // If this is a new record, also set created_at
+    if (!this.clients[config.id]) {
+        supabaseData.created_at = new Date().toISOString();
+    }
+    
     console.log('Sending to Supabase:', supabaseData);
     
-    // Upsert (insert or update) the client data
+    // Upsert using client_id as the conflict target
     supabaseClient
         .from('clients')
         .upsert(supabaseData, { onConflict: 'client_id' })
