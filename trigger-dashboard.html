@@ -776,65 +776,49 @@
             </div>
         </div>
 
-        <!-- ===== EXPORT SECTION ===== -->
-        <div class="export-section">
-            <div class="export-title">
-                <i class="fas fa-download"></i> DEPLOYMENT PACKAGE
-            </div>
-            <div class="export-grid">
-                <div class="export-card">
-                    <h3><i class="fas fa-database"></i> 1. Supabase Config</h3>
-                    <p>CSV file for uploading to Supabase. Contains all client configuration data including triggers and smart screen links.</p>
-                    <button class="btn btn-secondary" onclick="exportSupabaseCSV()" style="width: 100%;">
-                        <i class="fas fa-file-csv"></i> Export Supabase CSV
-                    </button>
-                </div>
-                <div class="export-card">
-                    <h3><i class="fas fa-code"></i> 2. Client Bridge File</h3>
-                    <p>JavaScript bridge file with client ID hardcoded. Give this to the client to install on their website.</p>
-                    <div class="bridge-preview" id="bridgePreview">
-                        // Preview will appear here
-                    </div>
-                    <button class="btn btn-purple" onclick="generateBridgeFile()" style="width: 100%;">
-                        <i class="fas fa-file-code"></i> Generate Bridge JS
-                    </button>
-                </div>
-                <div class="export-card">
-                    <h3><i class="fas fa-rocket"></i> 3. Installation Instructions</h3>
-                    <p>Step-by-step guide for the client to install the bridge file.</p>
-                    <button class="btn btn-secondary" onclick="generateInstallationGuide()" style="width: 100%;">
-                        <i class="fas fa-file-pdf"></i> Generate Guide
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== ACTION BUTTONS ===== -->
-        <div class="action-buttons">
-            <button class="btn btn-secondary" onclick="loadDefaultTriggers()">
-                <i class="fas fa-redo"></i> Load Defaults
+        <!-- ===== DEPLOYMENT PACKAGE SECTION ===== -->
+<div class="export-section">
+    <div class="export-title">
+        <i class="fas fa-download"></i> DEPLOYMENT PACKAGE
+    </div>
+    
+    <!-- SINGLE UNIFIED DEPLOYMENT CARD -->
+    <div class="export-card" style="grid-column: 1 / -1; background: linear-gradient(145deg, rgba(248,196,0,0.1), rgba(0,0,0,0.2)); border: 1px solid #f8c400;">
+        <h3 style="color: #f8c400; font-size: 1.3rem;">
+            <i class="fas fa-rocket"></i> Complete Deployment Package
+        </h3>
+        <p style="color: rgba(255,255,255,0.8); margin-bottom: 25px;">
+            Generate everything you need in one click: Supabase CSV + Client Bridge File + Installation Guide
+        </p>
+        
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+            <button class="btn btn-primary" onclick="generateDeploymentPackage()" style="padding: 18px 45px; font-size: 1.2rem;">
+                <i class="fas fa-download"></i> Generate Complete Package
             </button>
-            <button class="btn btn-secondary" onclick="saveConfiguration()">
-                <i class="fas fa-save"></i> Save Config
+            <button class="btn btn-secondary" onclick="previewDeploymentPackage()">
+                <i class="fas fa-eye"></i> Preview
             </button>
-            <button class="btn btn-primary" onclick="launchTriggerSystem()">
-                <i class="fas fa-rocket"></i> Launch Trigger System
-            </button>
-        </div>
-
-        <!-- ===== STATUS BAR ===== -->
-        <div class="status-bar">
-            <div class="status-indicator">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">Configuration Ready</span>
-            </div>
-            <div class="status-indicator">
-                <span id="clientStatus">Client: Mortgage Assist Demo</span>
-                <span style="margin-left: 20px;" id="saveStatus">Last Saved: Never</span>
-            </div>
         </div>
     </div>
 
+    <!-- PREVIEW SECTION (optional, shows what will be generated) -->
+    <div class="export-grid" style="margin-top: 20px; display: none;" id="previewSection">
+        <div class="export-card">
+            <h4><i class="fas fa-database"></i> Supabase Config Preview</h4>
+            <div class="bridge-preview" id="csvPreview">client_id,config_json,industry,updated_at</div>
+        </div>
+        <div class="export-card">
+            <h4><i class="fas fa-code"></i> Bridge File Preview</h4>
+            <div class="bridge-preview" id="bridgePreview">// Botemia Bridge with embedded config</div>
+        </div>
+        <div class="export-card">
+            <h4><i class="fas fa-file-alt"></i> Installation Guide</h4>
+            <div class="bridge-preview" id="guidePreview">1. Upload bridge.js to your server...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Keep the action buttons and status bar as they are -->
     <script>
         // ============================================
         // MOBILEWISE TRIGGER DASHBOARD v3.0
@@ -1206,6 +1190,139 @@
 
             configManager.updateStatus('Supabase CSV exported', 'success');
         }
+
+        function generateDeploymentPackage() {
+    const config = configManager.getCurrentConfig();
+    if (!config.id || !config.name) {
+        alert('Please enter a client name');
+        return;
+    }
+
+    // ===== 1. Generate Supabase CSV =====
+    const csvData = [
+        ['client_id', 'config_json', 'industry', 'updated_at'],
+        [config.id, JSON.stringify(config), config.industry, new Date().toISOString()]
+    ];
+    const csv = csvData.map(row => row.map(cell => 
+        typeof cell === 'string' ? `"${cell.replace(/"/g, '""')}"` : cell
+    ).join(',')).join('\n');
+    
+    // ===== 2. Generate Bridge File with Embedded Config =====
+    const bridgeCode = `// Botemia Bridge for ${config.name}
+// Generated: ${new Date().toLocaleString()}
+// Client ID: ${config.id}
+// Version: 4.0 - EMBEDDED CONFIG
+
+(function() {
+    "use strict";
+
+    // ===== EMBEDDED CLIENT CONFIGURATION =====
+    window.BotemiaConfig = ${JSON.stringify(config, null, 4)};
+
+    // ===== LOAD OR UPDATE WIDGET =====
+    function initWidget() {
+        // Check if widget already exists
+        let widget = document.querySelector('lemon-slice-widget');
+        if (widget) {
+            console.log('✅ Updating existing widget');
+            widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
+            return;
+        }
+
+        // Check if script is loaded
+        if (!document.querySelector('script[src*="lemon-slice-widget"]')) {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
+            script.type = 'module';
+            script.onload = createWidget;
+            document.head.appendChild(script);
+        } else {
+            createWidget();
+        }
+    }
+
+    function createWidget() {
+        if (document.querySelector('lemon-slice-widget')) return;
+        const widget = document.createElement('lemon-slice-widget');
+        widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
+        document.body.appendChild(widget);
+        console.log('✅ Widget created for', window.BotemiaConfig.name);
+    }
+
+    // Start when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initWidget);
+    } else {
+        initWidget();
+    }
+})();`;
+
+    // ===== 3. Generate Installation Guide =====
+    const guideCode = `BOTEMIA INSTALLATION GUIDE
+========================
+Client: ${config.name}
+Client ID: ${config.id}
+Generated: ${new Date().toLocaleString()}
+
+INSTALLATION STEPS:
+1. Upload the bridge file to your website's root folder
+2. Add this line to your website, just before the closing </body> tag:
+   <script src="bridge-${config.id}.js"></script>
+3. That's it! The widget will load automatically
+
+TROUBLESHOOTING:
+- Open browser console (F12) to verify bridge loaded
+- Look for "✅ Widget created" message
+- Config is available at window.BotemiaConfig
+
+SUPPORT:
+Contact: support@botemia.com`;
+
+    // ===== 4. Create ZIP package (download all three) =====
+    // For simplicity, we'll download them separately
+    // But you can see all three files are generated
+    
+    // Download CSV
+    const csvBlob = new Blob([csv], { type: 'text/csv' });
+    const csvLink = document.createElement('a');
+    csvLink.href = URL.createObjectURL(csvBlob);
+    csvLink.download = `${config.id}-config.csv`;
+    csvLink.click();
+
+    // Download Bridge
+    const bridgeBlob = new Blob([bridgeCode], { type: 'application/javascript' });
+    const bridgeLink = document.createElement('a');
+    bridgeLink.href = URL.createObjectURL(bridgeBlob);
+    bridgeLink.download = `bridge-${config.id}.js`;
+    bridgeLink.click();
+
+    // Download Guide
+    const guideBlob = new Blob([guideCode], { type: 'text/plain' });
+    const guideLink = document.createElement('a');
+    guideLink.href = URL.createObjectURL(guideBlob);
+    guideLink.download = `${config.id}-install.txt`;
+    guideLink.click();
+
+    configManager.updateStatus(`✅ Complete deployment package generated for ${config.name}`, 'success');
+}
+
+function previewDeploymentPackage() {
+    const previewSection = document.getElementById('previewSection');
+    if (previewSection.style.display === 'none') {
+        previewSection.style.display = 'grid';
+        
+        // Update previews with current config
+        const config = configManager.getCurrentConfig();
+        document.getElementById('csvPreview').innerHTML = 
+            `client_id,config_json,industry,updated_at<br>${config.id}, {...}, ${config.industry}, ${new Date().toISOString().slice(0,10)}`;
+        document.getElementById('bridgePreview').innerHTML = 
+            `// Botemia Bridge for ${config.name}\n// Embedded config ready`;
+        document.getElementById('guidePreview').innerHTML = 
+            `1. Upload bridge-${config.id}.js to server\n2. Add <script src="bridge-${config.id}.js">`;
+    } else {
+        previewSection.style.display = 'none';
+    }
+}
 
        // REPLACE your existing generateBridgeFile() function with this:
 
