@@ -1231,18 +1231,22 @@ Contact: support@botemia.com`;
     // Update status dot if it exists
     if (dot) {
         dot.className = 'status-dot';
-        if (type === 'success') {
+        if (type === 'success' || type === 'ready') {
             dot.style.background = '#00c853';
+            dot.style.boxShadow = '0 0 15px #00c853';
         } else if (type === 'warning') {
             dot.style.background = '#ff9800';
+            dot.style.boxShadow = '0 0 15px #ff9800';
         } else if (type === 'error') {
             dot.style.background = '#f44336';
+            dot.style.boxShadow = '0 0 15px #f44336';
         } else {
             dot.style.background = '#00c853';
+            dot.style.boxShadow = '0 0 15px #00c853';
         }
     }
     
-    // Update save status if it exists (matches your original)
+    // Update save status if it exists
     if (saveStatus) {
         saveStatus.textContent = `Last Saved: ${new Date().toLocaleTimeString()}`;
     }
@@ -1330,10 +1334,15 @@ Contact: support@botemia.com`;
             configManager.updateStatus('Supabase CSV exported', 'success');
         }
 
-        // TEMPORARY TEST - Replace your generateDeploymentPackage with this
-function generateDeploymentPackage() {
-    alert('Test function works!');
-    console.log('Config:', configManager.getCurrentConfig());
+     function previewDeploymentPackage() {
+    const previewSection = document.getElementById('previewSection');
+    if (previewSection) {
+        if (previewSection.style.display === 'none') {
+            previewSection.style.display = 'grid';
+        } else {
+            previewSection.style.display = 'none';
+        }
+    }
 }
 
        // REPLACE your existing generateBridgeFile() function with this:
