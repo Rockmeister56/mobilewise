@@ -800,6 +800,16 @@
     </button>
 </div>
 
+<!-- ===== ACTION BUTTONS ===== -->
+<div class="action-buttons">
+    <button class="btn btn-secondary" onclick="configManager.saveConfiguration()">
+        <i class="fas fa-save"></i> Save Config
+    </button>
+    <button class="btn btn-primary" onclick="configManager.generateDeploymentPackage()">
+        <i class="fas fa-download"></i> Generate Bridge
+    </button>
+</div>
+
     <!-- PREVIEW SECTION (optional, shows what will be generated) -->
     <div class="export-grid" style="margin-top: 20px; display: none;" id="previewSection">
         <div class="export-card">
