@@ -553,75 +553,42 @@
             }
 
             async loadConfig() {
-                // Try URL parameters first
-                const urlParams = new URLSearchParams(window.location.search);
-                const configParam = urlParams.get('config');
-                
-                if (configParam) {
-                    try {
-                        this.config = JSON.parse(decodeURIComponent(configParam));
-                        this.updateClientInfo();
-                        this.updateStatus('Config loaded from dashboard', 'ready');
-                        return;
-                    } catch(e) {
-                        console.error('Error parsing config:', e);
-                    }
-                }
-
-                // Fallback to demo config
-                this.config = {
-                    id: 'mortgage-assist-demo',
-                    name: 'Mortgage Assist Demo',
-                    agentId: 'agent_1db77d60ec132469',
-                    industry: 'mortgage',
-                    modules: {
-                        testimonial: {
-                            triggers: ['rates', 'pre-approval', 'credit score', 'down payment', 'testimonials'],
-                            action: 'showTestimonialPlayer',
-                            group: 'auto'
-                        },
-                        videoVault: {
-                            triggers: ['how to apply', 'loan process', 'closing timeline', 'documents needed'],
-                            action: 'showVideoGallery',
-                            category: 'auto'
-                        },
-                        visualProof: {
-                            triggers: ['show me an example', 'success story', 'sarah', '580', 'bad credit', 'verified results gallery'],
-                            action: 'showBestMatch',
-                            images: [
-                                {
-                                    name: 'Sarah\'s Success',
-                                    url: 'https://xyz.supabase.co/storage/v1/object/public/botemia/sarah-580.jpg',
-                                    caption: '580 credit → closed FHA 3.5% down',
-                                    triggerMatch: ['sarah', '580', 'bad credit', 'fha']
-                                },
-                                {
-                                    name: 'Marcus Self-Employed',
-                                    url: 'https://xyz.supabase.co/storage/v1/object/public/botemia/marcus-se.jpg',
-                                    caption: 'Self-employed, 10% down, bank statement loan',
-                                    triggerMatch: ['self-employed', '1099', 'business owner']
-                                }
-                            ]
-                        },
-                        communication: {
-                            triggers: ['talk to someone', 'call me', 'schedule', 'pre-qualify', 'apply now'],
-                            actionType: 'preQual',
-                            emailSettings: {
-                                sendTo: 'loanofficer@mortgageassist.com',
-                                fromName: 'Botemia AI Assistant'
-                            },
-                            preQual: {
-                                url: '/BOTEMIA_PREQUAL_v4.html',
-                                email: 'loanofficer@mortgageassist.com'
-                            }
-                        },
-                        websiteInfo: {
-                            triggers: ['rates page', 'loan programs', 'about us', 'contact'],
-                            action: 'showSmartNavigation',
-                            infoType: 'navigation'
-                        }
-                    }
-                };
+    // Try URL parameters first
+    const urlParams = new URLSearchParams(window.location.search);
+    const configParam = urlParams.get('config');
+    
+    if (configParam) {
+        try {
+            this.config = JSON.parse(decodeURIComponent(configParam));
+            this.updateClientInfo();
+            this.updateStatus('Config loaded from dashboard', 'ready');
+            return;
+        } catch(e) {
+            console.error('Error parsing config:', e);
+            this.addToTranscriptFeed('❌ Failed to load config from URL');
+        }
+    }
+    
+    // Try to get from parent window (if opened from dashboard)
+    if (window.opener && window.opener.BotemiaConfig) {
+        this.config = window.opener.BotemiaConfig;
+        this.updateClientInfo();
+        this.updateStatus('Config loaded from parent', 'ready');
+        return;
+    }
+    
+    // Last resort - ask user to configure
+    this.addToTranscriptFeed('⚠️ Please configure client from dashboard');
+    this.updateStatus('No configuration', 'error');
+    
+    // Minimal fallback - empty config
+    this.config = {
+        id: 'unknown',
+        name: 'Unknown Client',
+        agentId: '',
+        industry: 'unknown',
+        modules: {}
+    };
                 
                 this.updateClientInfo();
             }
@@ -1141,13 +1108,13 @@
             }
 
             updateClientInfo() {
-                if (!this.config) return;
-                
-                document.getElementById('clientNameDisplay').innerHTML = this.config.name || '—';
-                document.getElementById('agentIdDisplay').innerHTML = this.config.agentId ? 
-                    this.config.agentId.substring(0, 15) + '...' : '—';
-                document.getElementById('industryDisplay').innerHTML = this.config.industry || '—';
-            }
+    if (!this.config) return;
+    
+    document.getElementById('clientNameDisplay').innerHTML = this.config.name || '—';
+    document.getElementById('agentIdDisplay').innerHTML = this.config.agentId ? 
+        this.config.agentId.substring(0, 15) + '...' : 'Not configured';
+    document.getElementById('industryDisplay').innerHTML = this.config.industry || '—';
+}
 
             updateStatus(message, type) {
                 const dot = document.getElementById('statusDot');
