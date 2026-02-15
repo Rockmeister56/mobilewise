@@ -1015,14 +1015,14 @@ populateClientSelect() {
             },
 
             newClient() {
-                document.getElementById('clientName').value = '';
-                document.getElementById('clientId').value = '';
-                document.getElementById('agentId').value = 'agent_1db77d60ec132469';
-                document.getElementById('industryPreset').value = 'mortgage';
-                this.loadIndustryPreset('mortgage');
-                this.updateBridgePreview();
-                this.updateStatus('New client', 'ready');
-            },
+    document.getElementById('clientName').value = '';
+    document.getElementById('clientId').value = '';
+    document.getElementById('agentId').value = '';  // Empty instead of hardcoded
+    document.getElementById('industryPreset').value = 'mortgage';
+    this.loadIndustryPreset('mortgage');
+    this.updateBridgePreview();
+    this.updateStatus('New client', 'ready');
+},
 
             loadClient(id) {
                 const client = this.clients[id];
