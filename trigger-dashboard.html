@@ -792,14 +792,13 @@
         </p>
         
         <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
-            <button class="btn btn-primary" onclick="generateDeploymentPackage()" style="padding: 18px 45px; font-size: 1.2rem;">
-                <i class="fas fa-download"></i> Generate Complete Package
-            </button>
-            <button class="btn btn-secondary" onclick="previewDeploymentPackage()">
-                <i class="fas fa-eye"></i> Preview
-            </button>
-        </div>
-    </div>
+    <button class="btn btn-primary" onclick="configManager.generateDeploymentPackage()" style="padding: 18px 45px; font-size: 1.2rem;">
+        <i class="fas fa-download"></i> Generate Complete Package
+    </button>
+    <button class="btn btn-secondary" onclick="previewDeploymentPackage()">
+        <i class="fas fa-eye"></i> Preview
+    </button>
+</div>
 
     <!-- PREVIEW SECTION (optional, shows what will be generated) -->
     <div class="export-grid" style="margin-top: 20px; display: none;" id="previewSection">
