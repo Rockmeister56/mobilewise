@@ -1207,271 +1207,92 @@
             configManager.updateStatus('Supabase CSV exported', 'success');
         }
 
-       function generateBridgeFile() {
+       // REPLACE your existing generateBridgeFile() function with this:
+
+function generateBridgeFile() {
     const config = configManager.getCurrentConfig();
     if (!config.id || !config.name) {
         alert('Please enter a client name');
         return;
     }
 
+    // Build the bridge code with EMBEDDED CONFIG (no Supabase calls)
     const bridgeCode = `// Botemia Bridge for ${config.name}
 // Generated: ${new Date().toLocaleString()}
 // Client ID: ${config.id}
-// Version: 3.0
+// Version: 4.0 - SIMPLE EMBEDDED CONFIG
 
 (function() {
     "use strict";
 
     // ============================================
-    // HARDCODED CLIENT CONFIGURATION
+    // EMBEDDED CLIENT CONFIGURATION
     // This file is unique to this client
+    // All config is RIGHT HERE - no Supabase calls needed
     // ============================================
-    const CLIENT_CONFIG = {
+    
+    window.BotemiaConfig = {
         id: '${config.id}',
         name: '${config.name}',
         agentId: '${config.agentId}',
-        environment: '${config.environment}',
-        industry: '${config.industry}'
+        industry: '${config.industry || 'general'}',
+        modules: ${JSON.stringify(config.modules, null, 4)}
     };
 
     // ============================================
-    // SUPABASE CONNECTION CONFIGURATION
+    // LOAD THE WIDGET (if not already present)
     // ============================================
-    const SUPABASE_CONFIG = {
-        url: 'https://your-project.supabase.co',
-        anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ...',
-        tables: {
-            clients: 'clients',
-            analytics: 'widget_analytics'
-        }
-    };
-
-    class BotemiaBridge {
-        constructor() {
-            // Client identification - hardcoded in this unique bridge file
-            this.clientId = CLIENT_CONFIG.id;
-            this.clientName = CLIENT_CONFIG.name;
-            this.agentId = CLIENT_CONFIG.agentId;
-            this.environment = CLIENT_CONFIG.environment;
-            
-            // State
-            this.supabase = null;
-            this.config = null;
-            this.widget = null;
-            this.initialized = false;
-            
-            // Initialize - USING SINGLE QUOTES AND CONCATENATION
-            console.log('🔌 Botemia Bridge initializing for client: ' + this.clientName + ' (' + this.clientId + ')');
-            this.init();
+    
+    function loadWidget() {
+        // Check if widget is already on the page
+        if (document.querySelector('lemon-slice-widget')) {
+            console.log('✅ Widget already exists, updating agent ID');
+            const widget = document.querySelector('lemon-slice-widget');
+            widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
+            return;
         }
 
-        async init() {
-            try {
-                // 1. Initialize Supabase client
-                await this.initSupabase();
-                
-                // 2. Load client configuration from Supabase using client_id
-                await this.loadConfig();
-                
-                // 3. Initialize the LemonSlice widget
-                await this.initWidget();
-                
-                this.initialized = true;
-                console.log('✅ Botemia Bridge successfully initialized for ' + this.clientName);
-                
-            } catch (error) {
-                console.error('❌ Botemia Bridge initialization failed:', error);
-                this.loadFallbackConfig();
-            }
+        // Check if widget script is already loaded
+        if (document.querySelector('script[src*="lemon-slice-widget"]')) {
+            console.log('✅ Widget script already loaded');
+            createWidget();
+            return;
         }
 
-        async initSupabase() {
-            // Dynamically load Supabase if not already loaded
-            if (typeof supabase === 'undefined') {
-                await this.loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
-            }
-            
-            // Create Supabase client
-            const { createClient } = supabase;
-            this.supabase = createClient(
-                SUPABASE_CONFIG.url, 
-                SUPABASE_CONFIG.anonKey
-            );
-            
-            console.log('📡 Supabase client initialized');
-        }
-
-        async loadConfig() {
-            try {
-                // Query Supabase for this client's configuration
-                // Using clientId which matches the 'client_id' column in Supabase
-                const { data, error } = await this.supabase
-                    .from(SUPABASE_CONFIG.tables.clients)
-                    .select('*')
-                    .eq('client_id', this.clientId)  // Match on client_id column
-                    .single();
-
-                if (error) {
-                    console.error('Supabase query error:', error);
-                    throw error;
-                }
-
-                if (data) {
-                    // Parse and store the configuration
-                    this.config = {
-                        id: data.client_id,
-                        name: data.name,
-                        industry: data.industry,
-                        modules: data.config || data.metadata?.config || {},
-                        updatedAt: data.updated_at
-                    };
-                    
-                    console.log('📋 Configuration loaded from Supabase for ' + this.clientId);
-                    
-                } else {
-                    console.warn('No configuration found for client ID: ' + this.clientId);
-                    this.loadFallbackConfig();
-                }
-
-            } catch (error) {
-                console.error('Failed to load config from Supabase:', error);
-                this.loadFallbackConfig();
-            }
-        }
-
-        loadFallbackConfig() {
-            console.log('📋 Using fallback configuration');
-            
-            // Default fallback config in case Supabase is unreachable
-            this.config = {
-                id: this.clientId,
-                name: this.clientName,
-                industry: CLIENT_CONFIG.industry,
-                modules: {
-                    testimonial: {
-                        triggers: ["rates", "pre-approval", "credit score"],
-                        action: "showTestimonialPlayer",
-                        group: "auto"
-                    },
-                    videoVault: {
-                        triggers: ["how to apply", "loan process", "closing timeline"],
-                        action: "showVideoGallery",
-                        category: "auto"
-                    },
-                    smartScreen: {
-                        triggers: ["show me an example", "success story", "before after"],
-                        action: "showBestMatch",
-                        images: []
-                    },
-                    websiteInfo: {
-                        triggers: ["rates page", "loan programs", "about us"],
-                        infoType: "navigation",
-                        action: "showSmartNavigation"
-                    }
-                }
-            };
-        }
-
-        async initWidget() {
-            // Load LemonSlice widget script
-            await this.loadScript('https://cdn.lemonslice.com/widget.js');
-            
-            // Initialize widget with client config
-            if (window.LemonSliceWidget) {
-                this.widget = new LemonSliceWidget({
-                    agentId: this.agentId,
-                    environment: this.environment,
-                    config: this.config,
-                    onEvent: (event) => this.handleWidgetEvent(event)
-                });
-                
-                console.log('🤖 LemonSlice widget initialized');
-            } else {
-                console.error('LemonSliceWidget not available');
-            }
-        }
-
-        handleWidgetEvent(event) {
-            // Track important events
-            switch(event.type) {
-                case 'trigger_matched':
-                    this.trackEvent('trigger_used', {
-                        trigger: event.trigger,
-                        module: event.module
-                    });
-                    break;
-                    
-                case 'smart_screen_clicked':
-                    if (event.link) {
-                        // Track clicks on smart screen images with links
-                        this.trackEvent('smart_screen_click', {
-                            imageName: event.imageName,
-                            link: event.link
-                        });
-                    }
-                    break;
-                    
-                case 'navigation_used':
-                    this.trackEvent('navigation_click', {
-                        page: event.page,
-                        link: event.link
-                    });
-                    break;
-            }
-        }
-
-        async trackEvent(eventName, eventData) {
-            if (!this.supabase) return;
-            
-            try {
-                await this.supabase
-                    .from(SUPABASE_CONFIG.tables.analytics)
-                    .insert([{
-                        client_id: this.clientId,
-                        event_name: eventName,
-                        event_data: eventData,
-                        page_url: window.location.href,
-                        user_agent: navigator.userAgent,
-                        timestamp: new Date().toISOString()
-                    }]);
-            } catch (error) {
-                // Silently fail - analytics shouldn't break the widget
-                console.debug('Analytics error:', error);
-            }
-        }
-
-        loadScript(src) {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = src;
-                script.async = true;
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
-        }
-
-        // Public method to get config (for debugging)
-        getConfig() {
-            return this.config;
-        }
-
-        // Public method to manually trigger a module
-        triggerModule(moduleName, triggerPhrase) {
-            if (this.widget && this.widget.triggerModule) {
-                this.widget.triggerModule(moduleName, triggerPhrase);
-            }
-        }
+        // Load widget script
+        console.log('📦 Loading LemonSlice widget...');
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
+        script.type = 'module';
+        script.onload = createWidget;
+        script.onerror = function() {
+            console.error('❌ Failed to load widget');
+        };
+        document.head.appendChild(script);
     }
 
-    // Auto-initialize when DOM is ready
+    function createWidget() {
+        // Check if widget already exists
+        if (document.querySelector('lemon-slice-widget')) {
+            return;
+        }
+
+        console.log('🤖 Creating widget with agent ID:', window.BotemiaConfig.agentId);
+        const widget = document.createElement('lemon-slice-widget');
+        widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
+        document.body.appendChild(widget);
+        console.log('✅ Widget created successfully');
+    }
+
+    // Initialize when DOM is ready
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            window.BotemiaBridge = new BotemiaBridge();
-        });
+        document.addEventListener('DOMContentLoaded', loadWidget);
     } else {
-        window.BotemiaBridge = new BotemiaBridge();
+        loadWidget();
     }
+
+    console.log('✅ Botemia Bridge loaded for ${config.name}');
+    console.log('📋 Config available at window.BotemiaConfig');
 })();`;
 
     // Create and download the bridge file
@@ -1484,50 +1305,6 @@
     configManager.updateStatus(`Bridge file generated for ${config.name}`, 'success');
 }
 
-     function generateBridgeSimple() {
-    var config = getConfig();
-    
-    // Build the bridge code using an array (safest method)
-    var lines = [];
-    lines.push('// Botemia Bridge for ' + config.name);
-    lines.push('// Generated: ' + new Date().toLocaleString());
-    lines.push('// Client ID: ' + config.id);
-    lines.push('');
-    lines.push('(function() {');
-    lines.push('    "use strict";');
-    lines.push('    ');
-    lines.push('    var CLIENT_ID = "' + config.id + '";');
-    lines.push('    var AGENT_ID = "' + config.agentId + '";');
-    lines.push('    var CLIENT_NAME = "' + config.name + '";');
-    lines.push('    ');
-    lines.push('    console.log("Bridge loading for " + CLIENT_NAME);');
-    lines.push('    ');
-    lines.push('    function loadWidget() {');
-    lines.push('        var s = document.createElement("script");');
-    lines.push('        s.src = "https://cdn.botemia.com/widget.js";');
-    lines.push('        s.async = true;');
-    lines.push('        s.onload = function() {');
-    lines.push('            if (window.BotemiaWidget) {');
-    lines.push('                window.BotemiaWidget.init({');
-    lines.push('                    clientId: CLIENT_ID,');
-    lines.push('                    agentId: AGENT_ID');
-    lines.push('                });');
-    lines.push('            }');
-    lines.push('        };');
-    lines.push('        document.head.appendChild(s);');
-    lines.push('    }');
-    lines.push('    ');
-    lines.push('    loadWidget();');
-    lines.push('    ');
-    lines.push('})();');
-    
-    var bridgeCode = lines.join('\n');
-    var blob = new Blob([bridgeCode], { type: 'application/javascript' });
-    var link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'bridge-' + config.id + '.js';
-    link.click();
-}
 
         function loadDefaultTriggers() {
             const industry = document.getElementById('industryPreset').value;
