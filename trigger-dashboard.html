@@ -1042,24 +1042,25 @@
             },
 
             saveConfiguration() {
-                const config = this.getCurrentConfig();
-                if (!config.id || !config.name) {
-                    alert('Please enter a client name');
-                    return;
-                }
+    const config = this.getCurrentConfig();
+    if (!config.id || !config.name) {
+        alert('Please enter a client name');
+        return;
+    }
 
-                this.clients[config.id] = config;
-                localStorage.setItem('mobilewise_clients', JSON.stringify(this.clients));
-                this.populateClientSelect();
-                document.getElementById('clientSelect').value = config.id;
+    this.clients[config.id] = config;
+    localStorage.setItem('mobilewise_clients', JSON.stringify(this.clients));
+    this.populateClientSelect();
+    document.getElementById('clientSelect').value = config.id;
 
-                  // FIX THIS LINE - add null check
-         const saveStatus = document.getElementById('saveStatus');
-        if (saveStatus) {
+    // SAFE update with null check
+    const saveStatus = document.getElementById('saveStatus');
+    if (saveStatus) {
         saveStatus.innerHTML = `Last Saved: ${new Date().toLocaleTimeString()}`;
-            }   
-                document.getElementById('saveStatus').innerHTML = `Last Saved: ${new Date().toLocaleTimeString()}`;
-                this.updateStatus(`Saved ${config.name}`, 'success');
+    }
+
+    this.updateStatus(`Saved ${config.name}`, 'success');
+}
             },
 
                         generateDeploymentPackage() {
