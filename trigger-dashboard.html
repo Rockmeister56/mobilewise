@@ -1233,28 +1233,27 @@ uploadToSupabase(config, supabaseUrl, supabaseKey) {
     this.updateStatus(`Saved ${config.name}`, 'success');
 
             },
+generateDeploymentPackage() {
+    const config = this.getCurrentConfig();
+    if (!config.id || !config.name) {
+        alert('Please enter a client name');
+        return;
+    }
 
-                        generateDeploymentPackage() {
-                const config = this.getCurrentConfig();
-                if (!config.id || !config.name) {
-                    alert('Please enter a client name');
-                    return;
-                }
-
-                // ===== 1. Generate Supabase CSV =====
-                const csvData = [
-                    ['client_id', 'config_json', 'industry', 'updated_at'],
-                    [config.id, JSON.stringify(config), config.industry, new Date().toISOString()]
-                ];
-                const csv = csvData.map(row => row.map(cell => 
-                    typeof cell === 'string' ? `"${cell.replace(/"/g, '""')}"` : cell
-                ).join(',')).join('\n');
-                
-                // ===== 2. Generate Bridge File with Embedded Config =====
-const bridgeCode = `// Botemia Bridge for ${config.name}
+    // ===== 1. Generate Supabase CSV =====
+    const csvData = [
+        ['client_id', 'config_json', 'industry', 'updated_at'],
+        [config.id, JSON.stringify(config), config.industry, new Date().toISOString()]
+    ];
+    const csv = csvData.map(row => row.map(cell => 
+        typeof cell === 'string' ? `"${cell.replace(/"/g, '""')}"` : cell
+    ).join(',')).join('\n');
+    
+    // ===== 2. Generate Bridge File with ALL Latest Improvements =====
+    const bridgeCode = `// Botemia Bridge for ${config.name}
 // Generated: ${new Date().toLocaleString()}
 // Client ID: ${config.id}
-// Version: 4.0 - EMBEDDED CONFIG
+// Version: 5.0 - FULL SMART SCREEN WITH BACKDROP
 
 (function() {
     "use strict";
@@ -1262,95 +1261,175 @@ const bridgeCode = `// Botemia Bridge for ${config.name}
     // ===== EMBEDDED CLIENT CONFIGURATION =====
     window.BotemiaConfig = ${JSON.stringify(config, null, 4)};
 
-    // ===== LISTEN FOR TRIGGERS FROM CONTROL SYSTEM =====
+    // ===== AUTO-TRIGGER CONTROL =====
+    window.disableBridgeTriggers = false; // Can be toggled from TCS
+    
+    // ===== LISTEN FOR MESSAGES FROM TCS =====
     window.addEventListener('message', function(event) {
-        if (event.data.type === 'MODULE_TRIGGERED') {
-            console.log('🎯 Module triggered:', event.data.module, event.data.triggerPhrase);
-            
-            // Show popup notification
-            const div = document.createElement('div');
-            div.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#f8c400; color:black; padding:20px; border-radius:12px; z-index:9999; font-family:Arial; box-shadow:0 4px 20px rgba(0,0,0,0.3);';
-            div.innerHTML = \`<strong>⚡ \${event.data.module}</strong><br>\${event.data.triggerPhrase}\`;
-            document.body.appendChild(div);
-            setTimeout(() => div.remove(), 3000);
-            
-            // Find the widget
-            const widget = document.querySelector('lemon-slice-widget');
-            if (!widget) return;
-            
-            // Pass config to widget
-            widget.botemiaConfig = window.BotemiaConfig;
-            
-            // Handle different module types
-            switch(event.data.module) {
-                case 'smartScreen':
-                    const images = window.BotemiaConfig.modules.smartScreen.images;
-                    const matchedImage = images.find(img => 
-                        img.triggerMatch.some(t => 
-                            event.data.triggerPhrase.toLowerCase().includes(t.toLowerCase())
-                        )
-                    );
-                    
-                    if (matchedImage) {
-                        const smartScreen = document.createElement('div');
-                        smartScreen.className = 'botemia-smart-screen';
-                        smartScreen.style.cssText = 'position:fixed; bottom:80px; right:20px; background:white; border-radius:12px; padding:20px; max-width:300px; box-shadow:0 4px 20px rgba(0,0,0,0.2); z-index:9998;';
-                        smartScreen.innerHTML = \`
-                            <h3 style="margin:0 0 10px 0; color:#333;">\${matchedImage.name}</h3>
-                            <img src="\${matchedImage.url}" style="width:100%; border-radius:8px; margin-bottom:10px;">
-                            <p style="margin:0 0 10px 0; color:#666;">\${matchedImage.caption}</p>
-                            \${matchedImage.link ? \`<a href="\${matchedImage.link}" target="_blank" style="color:#f8c400; text-decoration:none; font-weight:bold;">Learn More →</a>\` : ''}
-                        \`;
-                        document.body.appendChild(smartScreen);
-                        setTimeout(() => smartScreen.remove(), 8000);
-                    }
-                    break;
-                    
-                case 'testimonial':
-                    console.log('Show testimonial');
-                    break;
-                    
-                case 'videoVault':
-                    console.log('Show video vault');
-                    break;
-                    
-                case 'websiteInfo':
-                    console.log('Show website info');
-                    break;
+        // Handle control commands from TCS
+        if (event.data.type === 'DASHBOARD_COMMAND') {
+            if (event.data.command === 'toggleOverlays') {
+                window.disableBridgeTriggers = event.data.disabled;
+                console.log(\`🔕 Overlays \${event.data.disabled ? 'disabled' : 'enabled'}\`);
             }
+            return;
+        }
+        
+        // Handle module triggers
+        if (event.data.type === 'MODULE_TRIGGERED' && !window.disableBridgeTriggers) {
+            console.log('🎯 Module triggered:', event.data.module, event.data.triggerPhrase);
+            window.showModule(event.data.module, event.data.triggerPhrase);
         }
     });
 
-    // ===== LOAD OR UPDATE WIDGET =====
+    // ===== SMART SCREEN DISPLAY FUNCTION =====
+    window.showModule = function(moduleName, triggerPhrase) {
+        console.log('🖥️ Showing module:', moduleName, triggerPhrase);
+        
+        // Remove any existing overlay first
+        const existing = document.getElementById('botemia-overlay');
+        if (existing) existing.remove();
+
+        // Create backdrop with blur
+        const backdrop = document.createElement('div');
+        backdrop.id = 'botemia-overlay';
+        backdrop.style.cssText = \`
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 999998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        \`;
+
+        // Create content card
+        const card = document.createElement('div');
+        card.style.cssText = \`
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 999999;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            border: 3px solid #f8c400;
+            position: relative;
+            pointer-events: auto;
+            animation: slideUp 0.3s ease;
+        \`;
+
+        // Add animation
+        const style = document.createElement('style');
+        style.textContent = \`
+            @keyframes slideUp {
+                from { transform: translateY(30px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        \`;
+        document.head.appendChild(style);
+
+        // Close button
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '✕';
+        closeBtn.style.cssText = \`
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f0f0f0;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            z-index: 100000;
+        \`;
+        closeBtn.onmouseover = () => closeBtn.style.background = '#ddd';
+        closeBtn.onmouseout = () => closeBtn.style.background = '#f0f0f0';
+        closeBtn.onclick = () => backdrop.remove();
+
+        // Module-specific content
+        let content = '';
+
+        if (moduleName === 'smartScreen') {
+            const images = window.BotemiaConfig.modules?.smartScreen?.images || [];
+            const matchedImage = images.find(img => 
+                img.triggerMatch?.some(t => 
+                    triggerPhrase.toLowerCase().includes(t.toLowerCase())
+                )
+            );
+            
+            if (matchedImage) {
+                content = \`
+                    <h2 style="margin:0 0 15px 0; color:#333; font-size:24px;">\${matchedImage.name}</h2>
+                    <img src="\${matchedImage.url}" style="width:100%; border-radius:12px; margin-bottom:15px; border:1px solid #eee;">
+                    <p style="margin:0 0 15px 0; color:#666; line-height:1.5; font-size:16px;">\${matchedImage.caption}</p>
+                    \${matchedImage.link ? 
+                        \`<a href="\${matchedImage.link}" target="_blank" 
+                            style="display:inline-block; background:#f8c400; color:black; padding:12px 24px; border-radius:30px; text-decoration:none; font-weight:bold; margin-top:5px;">
+                            🔗 Learn More →
+                        </a>\` : ''
+                    }
+                \`;
+            } else {
+                content = \`<p style="color:#999;">No matching image found for "\${triggerPhrase}"</p>\`;
+            }
+        } else {
+            // Generic display for other modules
+            content = \`
+                <h2 style="margin:0 0 15px 0; color:#333;">⚡ \${moduleName} Triggered</h2>
+                <p style="color:#666;">Trigger phrase: "\${triggerPhrase}"</p>
+            \`;
+        }
+
+        // Assemble
+        card.innerHTML = content;
+        card.appendChild(closeBtn);
+        backdrop.appendChild(card);
+        document.body.appendChild(backdrop);
+
+        // Auto-remove after 8 seconds
+        setTimeout(() => {
+            const el = document.getElementById('botemia-overlay');
+            if (el) el.remove();
+        }, 8000);
+    };
+
+    // ===== LOAD WIDGET =====
     function initWidget() {
         // Check if widget already exists
-        let widget = document.querySelector('lemon-slice-widget');
-        if (widget) {
-            console.log('✅ Updating existing widget');
-            widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
-            widget.botemiaConfig = window.BotemiaConfig;
+        if (document.querySelector('lemon-slice-widget')) {
+            console.log('✅ Widget already exists');
             return;
         }
 
-        // Check if script is loaded
-        if (!document.querySelector('script[src*="lemon-slice-widget"]')) {
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
-            script.type = 'module';
-            script.onload = createWidget;
-            document.head.appendChild(script);
-        } else {
-            createWidget();
-        }
-    }
-
-    function createWidget() {
-        if (document.querySelector('lemon-slice-widget')) return;
-        const widget = document.createElement('lemon-slice-widget');
-        widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
-        widget.botemiaConfig = window.BotemiaConfig;
-        document.body.appendChild(widget);
-        console.log('✅ Widget created for', window.BotemiaConfig.name);
+        // Load widget script
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
+        script.type = 'module';
+        script.onload = () => {
+            const widget = document.createElement('lemon-slice-widget');
+            widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
+            document.body.appendChild(widget);
+            console.log('✅ Widget created for', window.BotemiaConfig.name);
+        };
+        script.onerror = () => console.error('❌ Failed to load widget');
+        document.head.appendChild(script);
     }
 
     // Start when DOM is ready
@@ -1359,6 +1438,8 @@ const bridgeCode = `// Botemia Bridge for ${config.name}
     } else {
         initWidget();
     }
+
+    console.log('✅ Botemia Bridge v5.0 loaded for', window.BotemiaConfig.name);
 })();`;
 
                 // ===== 3. Generate Installation Guide =====
