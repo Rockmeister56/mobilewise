@@ -921,15 +921,15 @@
     alertEl.style.display = 'block';
     
     this.highlightModule(moduleName);
-    this.executeModule(moduleName, triggerPhrase, fullTranscript);
-    
-    // Try old method if it exists
-    if (this.sendToClientWidget) {
-        this.sendToClientWidget(moduleName, triggerPhrase);
-    }
-    
-    // NEW: Try direct client communication
-    this.sendToClientWebsite(moduleName, triggerPhrase);
+this.executeModule(moduleName, triggerPhrase, fullTranscript);
+
+// Send to client website (primary method)
+this.sendToClientWebsite(moduleName, triggerPhrase);
+
+// Optional: keep old method for backward compatibility
+if (this.sendToClientWidget) {
+    this.sendToClientWidget(moduleName, triggerPhrase);
+}
 }
 
 // ===== NEW FUNCTION - ADD THIS RIGHT AFTER triggerModule =====
@@ -972,7 +972,7 @@ sendToClientWebsite(moduleName, triggerPhrase) {
 
 executeModule(moduleName, triggerPhrase, fullTranscript) {
     switch(moduleName) {
-        case 'smartScreen':  // Changed from visualProof
+        case 'smartScreen':      // ← changed from visualProof
             this.showSmartScreen(triggerPhrase);
             break;
         case 'testimonial':
@@ -984,20 +984,23 @@ executeModule(moduleName, triggerPhrase, fullTranscript) {
         case 'websiteInfo':
             this.launchWebsiteInfo();
             break;
-        // Removed 'communication' case
+        default:
+            this.addToTranscriptFeed(`⚡ Module ${moduleName} triggered (no visual)`);
     }
 }
 
 showSmartScreen(triggerPhrase) {
     const images = this.config.modules.smartScreen?.images || [];
     const matchedImage = images.find(img => 
-        img.triggerMatch.some(t => 
+        img.triggerMatch?.some(t => 
             triggerPhrase.toLowerCase().includes(t.toLowerCase())
         )
     );
     
     const section = document.getElementById('visualProofSection');
     const grid = document.getElementById('imageGrid');
+    
+    if (!section || !grid) return;
     
     if (matchedImage) {
         grid.innerHTML = `
@@ -1024,7 +1027,6 @@ showSmartScreen(triggerPhrase) {
             </div>
         `;
         document.getElementById('imageMatchCount').innerHTML = '🎯 Best Match Found';
-        section.style.display = 'block';
     } else {
         grid.innerHTML = images.map(img => `
             <div class="image-card">
@@ -1046,8 +1048,8 @@ showSmartScreen(triggerPhrase) {
             </div>
         `).join('');
         document.getElementById('imageMatchCount').innerHTML = `📸 ${images.length} Success Stories`;
-        section.style.display = 'block';
     }
+    section.style.display = 'block';
 }
 
 sendToClientWidget(moduleName, triggerPhrase) {
@@ -1155,28 +1157,29 @@ sendToClientWidget(moduleName, triggerPhrase) {
             }
 
             renderModules() {
-                const grid = document.getElementById('moduleGrid');
-                const modules = [
-                    { name: 'testimonial', icon: '🎬', label: 'Testimonial', triggers: this.config.modules.testimonial?.triggers?.slice(0, 3) || [] },
-                    { name: 'videoVault', icon: '📹', label: 'Video Vault', triggers: this.config.modules.videoVault?.triggers?.slice(0, 3) || [] },
-                    { name: 'visualProof', icon: '📸', label: 'Visual Proof', triggers: this.config.modules.visualProof?.triggers?.slice(0, 3) || [] },
-                    { name: 'communication', icon: '💬', label: 'Communication', triggers: this.config.modules.communication?.triggers?.slice(0, 3) || [] },
-                    { name: 'websiteInfo', icon: '🌐', label: 'Website Info', triggers: this.config.modules.websiteInfo?.triggers?.slice(0, 3) || [] }
-                ];
-                
-                grid.innerHTML = modules.map(m => `
-                    <div class="module-card" id="module-${m.name}">
-                        <div class="module-icon">${m.icon}</div>
-                        <div class="module-name">${m.label}</div>
-                        <div class="module-triggers">
-                            ${m.triggers.map(t => `"${t}"`).join(' · ')}
-                        </div>
-                        <button class="launch-btn" onclick="safeManualLaunch('${m.name}')">
-                            ▶️ Launch
-                        </button>
-                    </div>
-                `).join('');
-            }
+    const grid = document.getElementById('moduleGrid');
+    if (!grid) return;
+    
+    const modules = [
+        { name: 'testimonial', icon: '🎬', label: 'Testimonial', triggers: this.config.modules.testimonial?.triggers?.slice(0, 3) || [] },
+        { name: 'videoVault', icon: '📹', label: 'Video Vault', triggers: this.config.modules.videoVault?.triggers?.slice(0, 3) || [] },
+        { name: 'smartScreen', icon: '📸', label: 'Smart Screen', triggers: this.config.modules.smartScreen?.triggers?.slice(0, 3) || [] },
+        { name: 'websiteInfo', icon: '🌐', label: 'Website Info', triggers: this.config.modules.websiteInfo?.triggers?.slice(0, 3) || [] }
+    ];
+    
+    grid.innerHTML = modules.map(m => `
+        <div class="module-card" id="module-${m.name}">
+            <div class="module-icon">${m.icon}</div>
+            <div class="module-name">${m.label}</div>
+            <div class="module-triggers">
+                ${m.triggers.map(t => `"${t}"`).join(' · ')}
+            </div>
+            <button class="launch-btn" onclick="safeManualLaunch('${m.name}')">
+                ▶️ Launch
+            </button>
+        </div>
+    `).join('');
+}
 
             highlightModule(moduleName) {
                 document.querySelectorAll('.module-card').forEach(el => {
@@ -1192,25 +1195,24 @@ sendToClientWidget(moduleName, triggerPhrase) {
             }
 
             getModuleIcon(moduleName) {
-        const icons = {
+    const icons = {
         testimonial: '🎬',
         videoVault: '📹',
-        smartScreen: '📸',  // Changed from visualProof
+        smartScreen: '📸',    // ← changed from visualProof
         websiteInfo: '🌐'
-        };
-        return icons[moduleName] || '🎯';
-            }
+    };
+    return icons[moduleName] || '🎯';
+}
 
             getModuleAction(moduleName, triggerPhrase) {
-                const actions = {
-                    testimonial: 'Playing matching testimonial...',
-                    videoVault: 'Opening video gallery...',
-                    visualProof: `Showing success story for "${triggerPhrase}"...`,
-                    communication: 'Starting qualification interview...',
-                    websiteInfo: 'Opening smart navigation...'
-                };
-                return actions[moduleName] || 'Launching module...';
-            }
+    const actions = {
+        testimonial: 'Playing matching testimonial...',
+        videoVault: 'Opening video gallery...',
+        smartScreen: `Showing success story for "${triggerPhrase}"...`,
+        websiteInfo: 'Opening smart navigation...'
+    };
+    return actions[moduleName] || 'Launching module...';
+}
 
             sendToClientWidget(moduleName, triggerPhrase) {
                 if (window.opener) {
@@ -1274,17 +1276,11 @@ sendToClientWidget(moduleName, triggerPhrase) {
                 this.addToTranscriptFeed('🔄 Reloading Bohemia...');
                 location.reload();
             }
-        }
 
-        // Global instance
-        let triggerSystem;
-
-
-        // ===== SEND TRIGGER TO CLIENT WEBSITE =====
+            // ===== SEND TRIGGER TO CLIENT WEBSITE =====
 sendToClientWebsite(moduleName, triggerPhrase) {
     console.log('📤 Sending to client:', moduleName, triggerPhrase);
 
-    // Try opener (if TCS was opened from client site)
     if (window.opener && !window.opener.closed) {
         try {
             window.opener.postMessage({
@@ -1299,7 +1295,6 @@ sendToClientWebsite(moduleName, triggerPhrase) {
         }
     }
 
-    // Try parent (if iframe)
     if (window.parent && window.parent !== window) {
         try {
             window.parent.postMessage({
@@ -1317,6 +1312,9 @@ sendToClientWebsite(moduleName, triggerPhrase) {
     console.log('❌ Could not send — no target found');
     return false;
 }
+}
+        // Global instance
+        let triggerSystem;
 
         // Safe wrapper for manual launches
         function safeManualLaunch(moduleName) {
