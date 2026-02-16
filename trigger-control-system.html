@@ -553,55 +553,42 @@
             }
 
             async loadConfig() {
-    // Try URL parameters first
-    const urlParams = new URLSearchParams(window.location.search);
-    const configParam = urlParams.get('config');
-    
-   if (configParam) {
-    try {
-        // Try base64 first (our new method)
-        try {
-            const jsonStr = decodeURIComponent(escape(atob(configParam)));
-            this.config = JSON.parse(jsonStr);
-            this.updateClientInfo();
-            this.updateStatus('Config loaded from dashboard', 'ready');
-            return;
-        } catch(base64Error) {
-            // Fall back to old method for backwards compatibility
-            this.config = JSON.parse(decodeURIComponent(configParam));
-            this.updateClientInfo();
-            this.updateStatus('Config loaded from dashboard', 'ready');
-            return;
-        }
-    } catch(e) {
-        console.error('Error parsing config:', e);
-        this.addToTranscriptFeed('❌ Failed to load config from URL');
-    }
-}
-    
-    // Try to get from parent window (if opened from dashboard)
-    if (window.opener && window.opener.BotemiaConfig) {
-        this.config = window.opener.BotemiaConfig;
-        this.updateClientInfo();
-        this.updateStatus('Config loaded from parent', 'ready');
-        return;
-    }
-    
-    // Last resort - ask user to configure
-    this.addToTranscriptFeed('⚠️ Please configure client from dashboard');
-    this.updateStatus('No configuration', 'error');
-    
-    // Minimal fallback - empty config
+    // TEMPORARY: Hardcoded config for testing
     this.config = {
-        id: 'unknown',
-        name: 'Unknown Client',
-        agentId: '',
-        industry: 'unknown',
-        modules: {}
-    };
-                
-                this.updateClientInfo();
+        id: 'mortgage-assist-demo',
+        name: 'Mortgage Assist Demo',
+        agentId: 'agent_7b0776ef6b855de5',
+        industry: 'mortgage',
+        modules: {
+            testimonial: {
+                triggers: ["rates", "pre-approval", "credit score", "interest rate"]
+            },
+            videoVault: {
+                triggers: ["how to apply", "loan process"]
+            },
+            smartScreen: {
+                triggers: ["show me an example", "success story"],
+                images: [{
+                    name: "Sarah's Success",
+                    url: "https://xyz.supabase.co/sarah.jpg",
+                    caption: "580 credit success",
+                    triggerMatch: ["sarah", "580", "example"]
+                }]
+            },
+            websiteInfo: {
+                triggers: ["rates page", "about us"]
             }
+        }
+    };
+    
+    this.updateClientInfo();
+    this.updateStatus('Config loaded (hardcoded)', 'ready');
+    this.addToTranscriptFeed('✅ Using hardcoded test config');
+    
+    // Load the widget with this config
+    this.loadLemonSlice();
+}
+                
 
             // ========== AUDIO MONITORING METHODS ==========
                         monitorSystemAudio() {
