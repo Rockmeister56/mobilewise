@@ -916,7 +916,7 @@
                 }
             }
 
-                        triggerModule(moduleName, triggerPhrase, fullTranscript) {
+        triggerModule(moduleName, triggerPhrase, fullTranscript) {
     // Add cooldown to prevent multiple triggers
     const now = Date.now();
     if (this.lastTriggerTime && (now - this.lastTriggerTime < 5000)) {
@@ -936,8 +936,51 @@
     this.highlightModule(moduleName);
     this.executeModule(moduleName, triggerPhrase, fullTranscript);
     
-    // SEND MESSAGE TO CLIENT WEBSITE
-    this.sendToClientWidget(moduleName, triggerPhrase);
+    // Try old method if it exists
+    if (this.sendToClientWidget) {
+        this.sendToClientWidget(moduleName, triggerPhrase);
+    }
+    
+    // NEW: Try direct client communication
+    this.sendToClientWebsite(moduleName, triggerPhrase);
+}
+
+// ===== NEW FUNCTION - ADD THIS RIGHT AFTER triggerModule =====
+sendToClientWebsite(moduleName, triggerPhrase) {
+    console.log('📤 Sending to client:', moduleName, triggerPhrase);
+
+    // Try opener (if TCS was opened from client site)
+    if (window.opener && !window.opener.closed) {
+        try {
+            window.opener.postMessage({
+                type: 'MODULE_TRIGGERED',
+                module: moduleName,
+                triggerPhrase: triggerPhrase
+            }, '*');
+            console.log('✅ Sent via opener');
+            return true;
+        } catch (e) {
+            console.log('Opener failed:', e);
+        }
+    }
+
+    // Try parent (if iframe)
+    if (window.parent && window.parent !== window) {
+        try {
+            window.parent.postMessage({
+                type: 'MODULE_TRIGGERED',
+                module: moduleName,
+                triggerPhrase: triggerPhrase
+            }, '*');
+            console.log('✅ Sent via parent');
+            return true;
+        } catch (e) {
+            console.log('Parent failed:', e);
+        }
+    }
+
+    console.log('❌ Could not send — no target found');
+    return false;
 }
 
 executeModule(moduleName, triggerPhrase, fullTranscript) {
