@@ -830,10 +830,11 @@
     </button>
 </div>
 
-<button onclick="if(tcsWindow && !tcsWindow.closed) tcsWindow.postMessage({type:'TOGGLE_OVERLAYS', disabled:true}, '*')">
+<button onclick="controlTCS('toggleOverlays', true)" style="background: #888; color: white; border: none; padding: 12px 20px; margin: 5px; border-radius: 8px; cursor: pointer;">
     🔕 Disable Overlays
 </button>
-<button onclick="if(tcsWindow && !tcsWindow.closed) tcsWindow.postMessage({type:'TOGGLE_OVERLAYS', disabled:false}, '*')">
+
+<button onclick="controlTCS('toggleOverlays', false)" style="background: #00c853; color: white; border: none; padding: 12px 20px; margin: 5px; border-radius: 8px; cursor: pointer;">
     ✅ Enable Overlays
 </button>
 
@@ -1674,7 +1675,7 @@ function generateBridgeFile() {
 // ===== REMOTE CONTROL FOR TCS AND CLIENT =====
 let tcsWindow = null;
 
-function controlTCS(action) {
+function controlTCS(action, value) {
     const config = configManager.getCurrentConfig();
     if (!config.id || !config.name) {
         alert('Please select a client first');
@@ -1683,35 +1684,46 @@ function controlTCS(action) {
 
     switch(action) {
         case 'enableAuto':
-            // Send command to client to enable auto-trigger
             if (tcsWindow && !tcsWindow.closed) {
                 tcsWindow.postMessage({
                     type: 'DASHBOARD_COMMAND',
                     command: 'setAutoTrigger',
-                    value: false  // false = enable (double negative, I know)
+                    value: false
                 }, '*');
-                alert('✅ Command sent: Enable auto trigger');
+                alert('✅ Auto trigger ENABLED');
             } else {
                 alert('⚠️ TCS not open. Open it first.');
             }
             break;
 
         case 'disableAuto':
-            // Send command to client to disable auto-trigger
             if (tcsWindow && !tcsWindow.closed) {
                 tcsWindow.postMessage({
                     type: 'DASHBOARD_COMMAND',
                     command: 'setAutoTrigger',
-                    value: true  // true = disable
+                    value: true
                 }, '*');
-                alert('✅ Command sent: Disable auto trigger');
+                alert('✅ Auto trigger DISABLED');
+            } else {
+                alert('⚠️ TCS not open. Open it first.');
+            }
+            break;
+
+        // ✅ NEW: Overlay toggle
+        case 'toggleOverlays':
+            if (tcsWindow && !tcsWindow.closed) {
+                tcsWindow.postMessage({
+                    type: 'DASHBOARD_COMMAND',
+                    command: 'toggleOverlays',
+                    disabled: value  // true = disable, false = enable
+                }, '*');
+                alert(`✅ Overlays ${value ? 'DISABLED' : 'ENABLED'}`);
             } else {
                 alert('⚠️ TCS not open. Open it first.');
             }
             break;
 
         case 'openTCS':
-            // Open TCS from the client (sets opener correctly)
             const encodedConfig = encodeURIComponent(JSON.stringify(config));
             tcsWindow = window.open(
                 'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig,
