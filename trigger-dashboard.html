@@ -1001,56 +1001,53 @@ populateClientSelect() {
                 }
             },
 
-            loadIndustryPreset(industry) {
-                // Testimonial triggers
-                const testimonialPresets = {
-                    mortgage: 'rates, pre-approval, credit score, down payment, closing costs, fha, va, usda, interest rate, mortgage insurance, pmi, dti, debt to income, first-time buyer',
-                    legal: 'settlement, verdict, case value, contingency, statute of limitations, personal injury, accident, compensation, lawsuit, attorney',
-                    tax: 'irs, audit, tax lien, offer in compromise, unfiled returns, tax debt, penalty abatement, installment agreement, cpa',
-                    dental: 'implants, veneers, financing, insurance, payment plans, sedation, crowns, braces, oral surgery, dentures',
-                    manufacturing: 'equipment, OSHA, compliance, supply chain, quality control, safety, ISO, lean manufacturing, automation'
-                };
-                if (testimonialPresets[industry]) {
-                    document.getElementById('testimonialTriggers').value = testimonialPresets[industry];
-                }
+           loadIndustryPreset(industry) {
+    // Testimonial triggers
+    const testimonialPresets = {
+        mortgage: 'rates, pre-approval, credit score, down payment, closing costs, fha, va, usda, interest rate, mortgage insurance, pmi, dti, debt to income, first-time buyer',
+        legal: 'settlement, verdict, case value, contingency, statute of limitations, personal injury, accident, compensation, lawsuit, attorney',
+        tax: 'irs, audit, tax lien, offer in compromise, unfiled returns, tax debt, penalty abatement, installment agreement, cpa',
+        dental: 'implants, veneers, financing, insurance, payment plans, sedation, crowns, braces, oral surgery, dentures',
+        manufacturing: 'equipment, OSHA, compliance, supply chain, quality control, safety, ISO, lean manufacturing, automation'
+    };
+    
+    const testimonialEl = document.getElementById('testimonialTriggers');
+    if (testimonialEl && testimonialPresets[industry]) {
+        testimonialEl.value = testimonialPresets[industry];
+    }
 
-                // Video triggers
-                const videoPresets = {
-                    mortgage: 'how to apply, loan process, closing timeline, documents needed, first-time buyer, what is escrow, appraisal, underwriting, pre-approval vs pre-qualification, mortgage terms',
-                    legal: 'deposition, mediation, trial prep, settlement process, client consultation, case evaluation, discovery, filing',
-                    tax: 'tax resolution process, audit representation, offer in compromise steps, tax relief options, filing back taxes',
-                    dental: 'procedure walkthrough, implant process, sedation options, payment plans, before and after, recovery',
-                    manufacturing: 'safety training, equipment operation, compliance audit, quality inspection, process improvement'
-                };
-                if (videoPresets[industry]) {
-                    document.getElementById('videoTriggers').value = videoPresets[industry];
-                }
+    // Video triggers
+    const videoPresets = {
+        mortgage: 'how to apply, loan process, closing timeline, documents needed, first-time buyer, what is escrow, appraisal, underwriting, pre-approval vs pre-qualification, mortgage terms',
+        legal: 'deposition, mediation, trial prep, settlement process, client consultation, case evaluation, discovery, filing',
+        tax: 'tax resolution process, audit representation, offer in compromise steps, tax relief options, filing back taxes',
+        dental: 'procedure walkthrough, implant process, sedation options, payment plans, before and after, recovery',
+        manufacturing: 'safety training, equipment operation, compliance audit, quality inspection, process improvement'
+    };
+    
+    const videoEl = document.getElementById('videoTriggers');
+    if (videoEl && videoPresets[industry]) {
+        videoEl.value = videoPresets[industry];
+    }
 
-                // Smart Screen triggers
-                const smartScreenPresets = {
-                    mortgage: 'show me an example, success story, before after, what does sarah look like, credit repair example, first-time buyer success, self-employed approval, bad credit approval',
-                    legal: 'case result, settlement amount, verdict, client testimonial, jury award, negotiation outcome',
-                    tax: 'tax debt reduction, penalty removal, audit result, savings example, client success',
-                    dental: 'smile gallery, before after, patient results, cosmetic work, full mouth reconstruction',
-                    manufacturing: 'facility tour, equipment demo, before after efficiency, safety improvement, ROI case study'
-                };
-                if (smartScreenPresets[industry]) {
-                    document.getElementById('smartScreenTriggers').value = smartScreenPresets[industry];
-                }
+    // Smart Screen triggers - SKIP since we removed global triggers
+    // Each screen has its own triggers now
+    
+    // Website triggers
+    const websitePresets = {
+        mortgage: 'rates page, loan programs, about us, contact, locations, calculators, FAQs, learn more, more information, website, navigation',
+        legal: 'practice areas, attorney bio, case results, contact us, firm history, testimonials, resources',
+        tax: 'services, tax relief programs, about our firm, contact tax specialist, resources, blog',
+        dental: 'services, about our practice, meet the dentist, insurance, patient forms, contact us, new patients',
+        manufacturing: 'products, services, about us, contact sales, resources, compliance, quality certifications'
+    };
+    
+    const websiteEl = document.getElementById('websiteTriggers');
+    if (websiteEl && websitePresets[industry]) {
+        websiteEl.value = websitePresets[industry];
+    }
 
-                // Website triggers
-                const websitePresets = {
-                    mortgage: 'rates page, loan programs, about us, contact, locations, calculators, FAQs, learn more, more information, website, navigation',
-                    legal: 'practice areas, attorney bio, case results, contact us, firm history, testimonials, resources',
-                    tax: 'services, tax relief programs, about our firm, contact tax specialist, resources, blog',
-                    dental: 'services, about our practice, meet the dentist, insurance, patient forms, contact us, new patients',
-                    manufacturing: 'products, services, about us, contact sales, resources, compliance, quality certifications'
-                };
-                if (websitePresets[industry]) {
-                    document.getElementById('websiteTriggers').value = websitePresets[industry];
-                }
-
-                this.updateStatus(`Loaded ${industry} industry preset`, 'ready');
+    this.updateStatus(`Loaded ${industry} industry preset`, 'ready');
             },
 
             newClient() {
