@@ -830,6 +830,13 @@
     </button>
 </div>
 
+<button onclick="if(tcsWindow && !tcsWindow.closed) tcsWindow.postMessage({type:'TOGGLE_OVERLAYS', disabled:true}, '*')">
+    🔕 Disable Overlays
+</button>
+<button onclick="if(tcsWindow && !tcsWindow.closed) tcsWindow.postMessage({type:'TOGGLE_OVERLAYS', disabled:false}, '*')">
+    ✅ Enable Overlays
+</button>
+
     <!-- PREVIEW SECTION (optional, shows what will be generated) -->
     <div class="export-grid" style="margin-top: 20px; display: none;" id="previewSection">
         <div class="export-card">

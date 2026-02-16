@@ -511,22 +511,34 @@
     this.renderModules();
     
     // 5. Listen for commands from dashboard
-    window.addEventListener('message', (event) => {
-        if (event.data.type === 'DASHBOARD_COMMAND') {
-            console.log('📨 Dashboard command:', event.data);
-            
-            if (event.data.command === 'setAutoTrigger') {
-                // Forward to client website
-                if (window.opener && !window.opener.closed) {
-                    window.opener.postMessage({
-                        type: 'SET_AUTO_TRIGGER',
-                        disabled: event.data.value
-                    }, '*');
-                    this.addToTranscriptFeed(`⚙️ Auto trigger ${event.data.value ? 'DISABLED' : 'ENABLED'}`);
-                }
+   window.addEventListener('message', (event) => {
+    if (event.data.type === 'DASHBOARD_COMMAND') {
+        console.log('📨 Dashboard command:', event.data);
+        
+        if (event.data.command === 'setAutoTrigger') {
+            // Forward to client website
+            if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({
+                    type: 'SET_AUTO_TRIGGER',
+                    disabled: event.data.value
+                }, '*');
+                this.addToTranscriptFeed(`⚙️ Auto trigger ${event.data.value ? 'DISABLED' : 'ENABLED'}`);
             }
         }
-    });
+        
+        // ✅ ADD THIS NEW BLOCK HERE
+        if (event.data.command === 'toggleOverlays') {
+            if (window.opener && !window.opener.closed) {
+                window.opener.postMessage({
+                    type: 'SET_OVERLAYS',
+                    disabled: event.data.disabled
+                }, '*');
+                this.addToTranscriptFeed(`🎨 Overlays ${event.data.disabled ? 'DISABLED' : 'ENABLED'}`);
+            }
+        }
+    }
+    
+});
     
     this.updateStatus('Ready · Waiting for Bohemia', 'ready');
 }
