@@ -665,72 +665,85 @@
                 </div>
             </div>
 
-            <!-- ===== MODULE 4: SMART SCREEN ===== -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon"><i class="fas fa-images"></i></div>
-                    <div class="module-title">
-                        <h2>📸 Smart Screen</h2>
-                        <p>Success images, avatars, before/after with optional links</p>
-                    </div>
-                </div>
+           <!-- ===== MODULE 4: SMART SCREEN (REDESIGNED) ===== -->
+<div class="module-card">
+    <div class="module-header">
+        <div class="module-icon"><i class="fas fa-images"></i></div>
+        <div class="module-title">
+            <h2>📸 Smart Screens</h2>
+            <p>Each screen has its own image, caption, link, and trigger phrases</p>
+        </div>
+    </div>
 
-                <div class="trigger-section">
-                    <div class="trigger-header">
-                        <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
-                        <span class="preset-badge"><i class="fas fa-robot"></i> PRESET</span>
-                    </div>
-                    <textarea id="smartScreenTriggers" class="trigger-textarea">show me an example, success story, before after, what does sarah look like, credit repair example, first-time buyer success, self-employed approval, bad credit approval</textarea>
-                    <div class="custom-trigger-add">
-                        <input type="text" id="newSmartScreenTrigger" placeholder="Add custom trigger phrase...">
-                        <button class="btn-add" onclick="addCustomTrigger('smartscreen')"><i class="fas fa-plus"></i> Add</button>
-                    </div>
-                </div>
+    <!-- GLOBAL TRIGGERS REMOVED — each screen has its own -->
 
-                <!-- IMAGE GALLERY ROWS WITH OPTIONAL LINKS -->
-                <div id="imageGalleryContainer">
-                    <div class="image-row" id="imageRow1">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <span style="color: #f8c400; font-weight: 600;"><i class="fas fa-image"></i> IMAGE 1</span>
-                            <button class="btn-remove" onclick="removeImageRow(1)" style="padding: 6px 16px;">Remove</button>
-                        </div>
-                        <div class="image-row-grid">
-                            <input type="text" placeholder="Image Name" id="img1_name" value="Sarah's Success">
-                            <input type="text" placeholder="Supabase CDN URL" id="img1_url" value="https://xyz.supabase.co/storage/v1/object/public/botemia/sarah-580.jpg">
-                            <input type="text" placeholder="Caption" id="img1_caption" value="580 credit → closed FHA 3.5% down">
-                            <input type="text" placeholder="Link URL (optional)" id="img1_link" value="https://mortgageassist.com/fha-loans">
-                            <input type="text" placeholder="Trigger Match (comma)" id="img1_trigger" value="sarah, 580, bad credit, fha">
-                        </div>
-                    </div>
-                    <div class="image-row" id="imageRow2">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <span style="color: #f8c400; font-weight: 600;"><i class="fas fa-image"></i> IMAGE 2</span>
-                            <button class="btn-remove" onclick="removeImageRow(2)" style="padding: 6px 16px;">Remove</button>
-                        </div>
-                        <div class="image-row-grid">
-                            <input type="text" placeholder="Image Name" id="img2_name" value="Marcus Self-Employed">
-                            <input type="text" placeholder="Supabase CDN URL" id="img2_url" value="https://xyz.supabase.co/storage/v1/object/public/botemia/marcus-se.jpg">
-                            <input type="text" placeholder="Caption" id="img2_caption" value="Self-employed, 10% down, bank statement loan">
-                            <input type="text" placeholder="Link URL (optional)" id="img2_link" value="">
-                            <input type="text" placeholder="Trigger Match (comma)" id="img2_trigger" value="self-employed, 1099, business owner">
-                        </div>
-                    </div>
-                </div>
-                <button class="btn-add" onclick="addImageRow()" style="width: 100%; margin-top: 12px; padding: 14px;">
-                    <i class="fas fa-plus-circle"></i> ADD ANOTHER IMAGE
-                </button>
+    <!-- SMART SCREEN LIST (SCROLLABLE) -->
+    <div style="margin-bottom: 20px; max-height: 400px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; background: rgba(0,0,0,0.15);" id="smartScreenList">
+        <!-- Screens will be dynamically populated here -->
+        <div style="text-align: center; padding: 30px; color: rgba(255,255,255,0.3);" id="smartScreenEmptyState">
+            <i class="fas fa-plus-circle" style="font-size: 3rem; margin-bottom: 10px;"></i>
+            <p>No smart screens yet. Add your first one below.</p>
+        </div>
+    </div>
 
-                <div class="module-options" style="margin-top: 20px;">
-                    <div class="option-row">
-                        <label><i class="fas fa-cog"></i> Default Action</label>
-                        <select id="smartScreenAction">
-                            <option value="showBestMatch" selected>🎯 Show Best Match</option>
-                            <option value="showGallery">🖼️ Show Gallery Grid</option>
-                            <option value="rotate">🔄 Rotating Spotlight</option>
-                        </select>
-                    </div>
-                </div>
+    <!-- ADD NEW SMART SCREEN FORM -->
+    <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
+        <h3 style="color: #f8c400; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-plus-circle"></i> Add New Smart Screen
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📛 Screen Name</label>
+                <input type="text" id="newSmartScreenName" placeholder="e.g., Sarah's Success" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
             </div>
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔗 Optional Link</label>
+                <input type="text" id="newSmartScreenLink" placeholder="https://..." style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📝 Caption</label>
+            <input type="text" id="newSmartScreenCaption" placeholder="e.g., 580 credit → closed FHA 3.5% down" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
+
+        <!-- IMAGE UPLOAD -->
+        <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px; border: 1px dashed #f8c400;">
+            <label style="color: #f8c400; font-size: 0.9rem; display: block; margin-bottom: 10px;">
+                <i class="fas fa-cloud-upload-alt"></i> Upload Image (recommended: 600px × 400px, max 2MB)
+            </label>
+            <input type="file" id="smartScreenImageUpload" accept="image/*" style="color: white; margin-bottom: 10px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="newSmartScreenImageUrl" placeholder="Or enter CDN URL directly" style="flex:1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                <span style="color: rgba(255,255,255,0.4); font-size:0.8rem;">OR</span>
+            </div>
+        </div>
+
+        <!-- TRIGGER PHRASES (per screen) -->
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
+                <i class="fas fa-bullhorn"></i> Trigger Phrases (comma separated) — unique to this screen
+            </label>
+            <textarea id="newSmartScreenTriggers" class="trigger-textarea" placeholder="e.g., sarah, 580, bad credit, fha" style="min-height: 60px;">sarah, 580, bad credit, fha</textarea>
+        </div>
+
+        <button class="btn-add" onclick="addNewSmartScreen()" style="width: 100%; padding: 16px; font-size: 1.1rem;">
+            <i class="fas fa-save"></i> SAVE THIS SMART SCREEN
+        </button>
+    </div>
+
+    <div class="module-options" style="margin-top: 20px;">
+        <div class="option-row">
+            <label><i class="fas fa-cog"></i> Default Display Mode</label>
+            <select id="smartScreenAction">
+                <option value="showBestMatch" selected>🎯 Show Best Match</option>
+                <option value="showGallery">🖼️ Show Gallery Grid</option>
+                <option value="rotate">🔄 Rotating Spotlight</option>
+            </select>
+        </div>
+    </div>
+</div>
 
             <!-- ===== MODULE 5: WEBSITE INFO CENTER ===== -->
             <div class="module-card">
@@ -1104,29 +1117,36 @@ populateClientSelect() {
             },
 
             getImageGallery() {
-                const images = [];
-                for (let i = 1; i <= this.imageRowCounter; i++) {
-                    const row = document.getElementById(`imageRow${i}`);
-                    if (row && row.parentNode) { // Check if row exists and is in DOM
-                        const name = document.getElementById(`img${i}_name`)?.value;
-                        const url = document.getElementById(`img${i}_url`)?.value;
-                        const caption = document.getElementById(`img${i}_caption`)?.value;
-                        const link = document.getElementById(`img${i}_link`)?.value;
-                        const trigger = document.getElementById(`img${i}_trigger`)?.value;
-                        
-                        if (name && url) {
-                            images.push({
-                                name,
-                                url,
-                                caption: caption || '',
-                                link: link || '', // Optional link field
-                                triggerMatch: trigger ? trigger.split(',').map(t => t.trim()) : []
-                            });
-                        }
-                    }
-                }
-                return images;
-            },
+    // Load from localStorage if not already in memory
+    if (typeof smartScreens === 'undefined' || smartScreens.length === 0) {
+        const saved = localStorage.getItem('botemia_smartScreens');
+        if (saved) {
+            try {
+                const screens = JSON.parse(saved);
+                return screens.map(screen => ({
+                    name: screen.name,
+                    url: screen.imageUrl,
+                    caption: screen.caption || '',
+                    link: screen.link || '',
+                    triggerMatch: screen.triggers || []
+                }));
+            } catch(e) {
+                console.error('Error parsing smart screens:', e);
+                return [];
+            }
+        }
+        return [];
+    }
+    
+    // Use the global smartScreens array
+    return smartScreens.map(screen => ({
+        name: screen.name,
+        url: screen.imageUrl,
+        caption: screen.caption || '',
+        link: screen.link || '',
+        triggerMatch: screen.triggers || []
+    }));
+},
 
             saveConfiguration() {
     const config = this.getCurrentConfig();
@@ -1516,6 +1536,119 @@ Contact: support@botemia.com`;
                 configManager.updateStatus('Custom trigger added', 'success');
             }
         }
+
+        // ===== SMART SCREEN MANAGEMENT =====
+let smartScreens = [];
+
+function loadSmartScreens() {
+    const saved = localStorage.getItem('botemia_smartScreens');
+    if (saved) {
+        smartScreens = JSON.parse(saved);
+        renderSmartScreenList();
+    }
+}
+
+function renderSmartScreenList() {
+    const container = document.getElementById('smartScreenList');
+    const emptyState = document.getElementById('smartScreenEmptyState');
+    
+    if (!container) return;
+    
+    if (smartScreens.length === 0) {
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+    
+    if (emptyState) emptyState.style.display = 'none';
+    
+    let html = '';
+    smartScreens.forEach((screen, index) => {
+        html += `
+            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
+                <div style="display: flex; gap: 15px;">
+                    <img src="${screen.imageUrl}" style="width:80px; height:60px; object-fit:cover; border-radius:6px; border:1px solid #f8c400;">
+                    <div style="flex:1;">
+                        <h4 style="margin:0 0 5px 0; color:white;">${screen.name}</h4>
+                        <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">${screen.caption}</p>
+                        <p style="margin:0; color:#f8c400; font-size:0.8rem;">
+                            <i class="fas fa-bullhorn"></i> ${screen.triggers.join(', ')}
+                        </p>
+                        ${screen.link ? `<p style="margin:5px 0 0 0; font-size:0.8rem;"><a href="${screen.link}" target="_blank" style="color:#4caf50;">🔗 ${screen.link}</a></p>` : ''}
+                    </div>
+                </div>
+                <button onclick="deleteSmartScreen(${index})" style="position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.7rem;">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function addNewSmartScreen() {
+    const name = document.getElementById('newSmartScreenName')?.value.trim();
+    const link = document.getElementById('newSmartScreenLink')?.value.trim();
+    const caption = document.getElementById('newSmartScreenCaption')?.value.trim();
+    const imageUrl = document.getElementById('newSmartScreenImageUrl')?.value.trim();
+    const triggersRaw = document.getElementById('newSmartScreenTriggers')?.value.trim();
+    const fileInput = document.getElementById('smartScreenImageUpload');
+    
+    if (!name) {
+        alert('Please enter a screen name');
+        return;
+    }
+    
+    if (!imageUrl && (!fileInput || fileInput.files.length === 0)) {
+        alert('Please provide an image (upload or URL)');
+        return;
+    }
+    
+    const triggers = triggersRaw.split(',').map(t => t.trim()).filter(t => t);
+    
+    if (triggers.length === 0) {
+        alert('Please enter at least one trigger phrase');
+        return;
+    }
+    
+    // For now, use URL if provided, otherwise placeholder
+    const finalImageUrl = imageUrl || (fileInput.files.length > 0 ? URL.createObjectURL(fileInput.files[0]) : '');
+    
+    const newScreen = {
+        name,
+        link,
+        caption,
+        imageUrl: finalImageUrl,
+        triggers
+    };
+    
+    smartScreens.push(newScreen);
+    localStorage.setItem('botemia_smartScreens', JSON.stringify(smartScreens));
+    renderSmartScreenList();
+    
+    // Clear form
+    document.getElementById('newSmartScreenName').value = '';
+    document.getElementById('newSmartScreenLink').value = '';
+    document.getElementById('newSmartScreenCaption').value = '';
+    document.getElementById('newSmartScreenImageUrl').value = '';
+    document.getElementById('smartScreenImageUpload').value = '';
+    document.getElementById('newSmartScreenTriggers').value = '';
+    
+    configManager.updateStatus('Smart screen added', 'success');
+}
+
+function deleteSmartScreen(index) {
+    if (confirm('Delete this smart screen?')) {
+        smartScreens.splice(index, 1);
+        localStorage.setItem('botemia_smartScreens', JSON.stringify(smartScreens));
+        renderSmartScreenList();
+        configManager.updateStatus('Smart screen deleted', 'success');
+    }
+}
+
+// Load on init
+document.addEventListener('DOMContentLoaded', () => {
+    loadSmartScreens();
+});
 
         let imageRowCounter = 2;
         function addImageRow() {
