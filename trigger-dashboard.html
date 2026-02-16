@@ -1408,6 +1408,81 @@ generateDeploymentPackage() {
         }, 8000);
     };
 
+        // ===== AUTO-TRIGGER SYSTEM - LISTENS FOR BOTANIA'S SPEECH =====
+    (function initTriggerSystem() {
+        console.log('🎯 Auto-trigger system active for', window.BotemiaConfig.name);
+        
+        let lastTriggerTime = 0;
+        const TRIGGER_COOLDOWN = 5000; // 5 seconds between triggers
+        
+        function checkForTriggers(transcript) {
+            if (window.disableBridgeTriggers) return;
+            
+            const now = Date.now();
+            if (now - lastTriggerTime < TRIGGER_COOLDOWN) return;
+            
+            const lowerTranscript = transcript.toLowerCase();
+            const modules = window.BotemiaConfig.modules;
+            
+            // Check each module's triggers
+            for (const [moduleName, moduleConfig] of Object.entries(modules)) {
+                // Skip smartScreen - it uses per-image triggers
+                if (moduleName === 'smartScreen') {
+                    const images = moduleConfig.images || [];
+                    for (const image of images) {
+                        if (image.triggerMatch) {
+                            for (const trigger of image.triggerMatch) {
+                                if (lowerTranscript.includes(trigger.toLowerCase())) {
+                                    console.log('🎯 SMART SCREEN TRIGGER:', image.name, trigger);
+                                    lastTriggerTime = now;
+                                    window.showModule('smartScreen', trigger);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    continue;
+                }
+                
+                // Check regular module triggers
+                if (moduleConfig.triggers) {
+                    for (const trigger of moduleConfig.triggers) {
+                        if (lowerTranscript.includes(trigger.toLowerCase())) {
+                            console.log('🎯 TRIGGER:', moduleName, trigger);
+                            lastTriggerTime = now;
+                            window.showModule(moduleName, trigger);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Watch for Botania's messages in the DOM
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList') {
+                    // Look for Botania's message bubbles
+                    document.querySelectorAll('.message-bubble, .botania-message, [class*="message"], [class*="transcript"]').forEach(el => {
+                        if (el.textContent && !el.dataset.botemiaProcessed) {
+                            el.dataset.botemiaProcessed = 'true';
+                            checkForTriggers(el.textContent);
+                        }
+                    });
+                }
+            });
+        });
+        
+        // Start observing when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                observer.observe(document.body, { childList: true, subtree: true });
+            });
+        } else {
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+    })();
+
     // ===== LOAD WIDGET =====
     function initWidget() {
         // Check if widget already exists
