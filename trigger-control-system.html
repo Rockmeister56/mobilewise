@@ -495,23 +495,41 @@
                 this.init();
             }
 
-            async init() {
-                this.updateStatus('Initializing...', 'warning');
-                
-                // 1. Load configuration
-                await this.loadConfig();
-                
-                // 2. Setup speech recognition (don't start yet)
-                this.setupSpeechRecognition();
-                
-                // 3. Load LemonSlice widget
-                this.loadLemonSlice();
-                
-                // 4. Render UI
-                this.renderModules();
-                
-                this.updateStatus('Ready · Waiting for Bohemia', 'ready');
+           async init() {
+    this.updateStatus('Initializing...', 'warning');
+    
+    // 1. Load configuration
+    await this.loadConfig();
+    
+    // 2. Setup speech recognition (don't start yet)
+    this.setupSpeechRecognition();
+    
+    // 3. Load LemonSlice widget
+    this.loadLemonSlice();
+    
+    // 4. Render UI
+    this.renderModules();
+    
+    // 5. Listen for commands from dashboard
+    window.addEventListener('message', (event) => {
+        if (event.data.type === 'DASHBOARD_COMMAND') {
+            console.log('📨 Dashboard command:', event.data);
+            
+            if (event.data.command === 'setAutoTrigger') {
+                // Forward to client website
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage({
+                        type: 'SET_AUTO_TRIGGER',
+                        disabled: event.data.value
+                    }, '*');
+                    this.addToTranscriptFeed(`⚙️ Auto trigger ${event.data.value ? 'DISABLED' : 'ENABLED'}`);
+                }
             }
+        }
+    });
+    
+    this.updateStatus('Ready · Waiting for Bohemia', 'ready');
+}
 
             loadLemonSlice() {
                 if (!this.config?.agentId) {
