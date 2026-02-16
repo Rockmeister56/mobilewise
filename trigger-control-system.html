@@ -1279,6 +1279,45 @@ sendToClientWidget(moduleName, triggerPhrase) {
         // Global instance
         let triggerSystem;
 
+
+        // ===== SEND TRIGGER TO CLIENT WEBSITE =====
+sendToClientWebsite(moduleName, triggerPhrase) {
+    console.log('📤 Sending to client:', moduleName, triggerPhrase);
+
+    // Try opener (if TCS was opened from client site)
+    if (window.opener && !window.opener.closed) {
+        try {
+            window.opener.postMessage({
+                type: 'MODULE_TRIGGERED',
+                module: moduleName,
+                triggerPhrase: triggerPhrase
+            }, '*');
+            console.log('✅ Sent via opener');
+            return true;
+        } catch (e) {
+            console.log('Opener failed:', e);
+        }
+    }
+
+    // Try parent (if iframe)
+    if (window.parent && window.parent !== window) {
+        try {
+            window.parent.postMessage({
+                type: 'MODULE_TRIGGERED',
+                module: moduleName,
+                triggerPhrase: triggerPhrase
+            }, '*');
+            console.log('✅ Sent via parent');
+            return true;
+        } catch (e) {
+            console.log('Parent failed:', e);
+        }
+    }
+
+    console.log('❌ Could not send — no target found');
+    return false;
+}
+
         // Safe wrapper for manual launches
         function safeManualLaunch(moduleName) {
             if (window.triggerSystem) {
