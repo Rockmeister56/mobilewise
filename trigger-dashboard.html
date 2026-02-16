@@ -1650,15 +1650,23 @@ function generateBridgeFile() {
         }
 
         function saveConfiguration() { configManager.saveConfiguration(); }
-        function launchTriggerSystem() { 
-            const config = configManager.getCurrentConfig();
-            if (!config.id || !config.name) {
-                alert('Please enter a client name');
-                return;
-            }
-            configManager.saveConfiguration();
-            window.open('trigger-control-system.html?client=' + config.id, '_blank');
-        }
+
+function launchTriggerSystem() { 
+    const config = configManager.getCurrentConfig();
+    if (!config.id || !config.name) {
+        alert('Please enter a client name');
+        return;
+    }
+    configManager.saveConfiguration();
+    
+    // NEW: Pass the FULL config via URL instead of just client ID
+    const encodedConfig = encodeURIComponent(JSON.stringify(config));
+    window.open(
+        'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig,
+        'BotemiaControl',
+        'width=1400,height=900,scrollbars=yes,resizable=yes'
+    );
+}
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
