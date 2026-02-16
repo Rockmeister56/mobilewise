@@ -810,6 +810,26 @@
     </button>
 </div>
 
+<div style="margin-top: 20px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid #f8c400;">
+    <h3 style="color: #f8c400; margin-bottom: 15px;">🎛️ Remote Control</h3>
+    
+    <button onclick="controlTCS('enableAuto')" style="background: #00c853; color: white; border: none; padding: 12px 20px; margin: 5px; border-radius: 8px; cursor: pointer;">
+        ✅ Enable Auto Trigger (on client)
+    </button>
+    
+    <button onclick="controlTCS('disableAuto')" style="background: #f44336; color: white; border: none; padding: 12px 20px; margin: 5px; border-radius: 8px; cursor: pointer;">
+        ❌ Disable Auto Trigger (on client)
+    </button>
+    
+    <button onclick="controlTCS('openTCS')" style="background: #f8c400; color: black; border: none; padding: 12px 20px; margin: 5px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+        🚀 Open TCS (from client)
+    </button>
+    
+    <button onclick="controlTCS('closeTCS')" style="background: #888; color: white; border: none; padding: 12px 20px; margin: 5px; border-radius: 8px; cursor: pointer;">
+        ❌ Close TCS
+    </button>
+</div>
+
     <!-- PREVIEW SECTION (optional, shows what will be generated) -->
     <div class="export-grid" style="margin-top: 20px; display: none;" id="previewSection">
         <div class="export-card">
@@ -1644,6 +1664,64 @@ function generateBridgeFile() {
     configManager.updateStatus(`Bridge file generated for ${config.name}`, 'success');
 }
 
+// ===== REMOTE CONTROL FOR TCS AND CLIENT =====
+let tcsWindow = null;
+
+function controlTCS(action) {
+    const config = configManager.getCurrentConfig();
+    if (!config.id || !config.name) {
+        alert('Please select a client first');
+        return;
+    }
+
+    switch(action) {
+        case 'enableAuto':
+            // Send command to client to enable auto-trigger
+            if (tcsWindow && !tcsWindow.closed) {
+                tcsWindow.postMessage({
+                    type: 'DASHBOARD_COMMAND',
+                    command: 'setAutoTrigger',
+                    value: false  // false = enable (double negative, I know)
+                }, '*');
+                alert('✅ Command sent: Enable auto trigger');
+            } else {
+                alert('⚠️ TCS not open. Open it first.');
+            }
+            break;
+
+        case 'disableAuto':
+            // Send command to client to disable auto-trigger
+            if (tcsWindow && !tcsWindow.closed) {
+                tcsWindow.postMessage({
+                    type: 'DASHBOARD_COMMAND',
+                    command: 'setAutoTrigger',
+                    value: true  // true = disable
+                }, '*');
+                alert('✅ Command sent: Disable auto trigger');
+            } else {
+                alert('⚠️ TCS not open. Open it first.');
+            }
+            break;
+
+        case 'openTCS':
+            // Open TCS from the client (sets opener correctly)
+            const encodedConfig = encodeURIComponent(JSON.stringify(config));
+            tcsWindow = window.open(
+                'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig,
+                'TCS',
+                'width=1400,height=900'
+            );
+            break;
+
+        case 'closeTCS':
+            if (tcsWindow && !tcsWindow.closed) {
+                tcsWindow.close();
+                tcsWindow = null;
+            }
+            break;
+    }
+}
+
         function loadDefaultTriggers() {
             const industry = document.getElementById('industryPreset').value;
             configManager.loadIndustryPreset(industry);
@@ -1651,7 +1729,7 @@ function generateBridgeFile() {
 
         function saveConfiguration() { configManager.saveConfiguration(); }
 
-function launchTriggerSystem() { 
+function launchTriggerSystem() {
     const config = configManager.getCurrentConfig();
     if (!config.id || !config.name) {
         alert('Please enter a client name');
@@ -1659,10 +1737,15 @@ function launchTriggerSystem() {
     }
     configManager.saveConfiguration();
     
-    // NEW: Pass the FULL config via URL instead of just client ID
-    const encodedConfig = encodeURIComponent(JSON.stringify(config));
+    // Step 1: Convert config to JSON string
+    const configString = JSON.stringify(config);
+    
+    // Step 2: Encode for URL (base64 is safer than encodeURIComponent for complex strings)
+    const base64Config = btoa(unescape(encodeURIComponent(configString)));
+    
+    // Step 3: Open TCS with base64 config
     window.open(
-        'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig,
+        'https://mobilewise.netlify.app/trigger-control-system?config=' + base64Config,
         'BotemiaControl',
         'width=1400,height=900,scrollbars=yes,resizable=yes'
     );
