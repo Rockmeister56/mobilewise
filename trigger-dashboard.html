@@ -1098,10 +1098,10 @@ populateClientSelect() {
                             category: document.getElementById('videoCategory').value
                         },
                         smartScreen: {
-                            triggers: document.getElementById('smartScreenTriggers').value.split(',').map(t => t.trim()).filter(t => t),
-                            action: document.getElementById('smartScreenAction').value,
-                            images: this.getImageGallery()
-                        },
+    // REMOVED the global triggers line since it doesn't exist
+    action: document.getElementById('smartScreenAction')?.value || 'showBestMatch',
+    images: this.getImageGallery()
+},
                         websiteInfo: {
                             triggers: document.getElementById('websiteTriggers').value.split(',').map(t => t.trim()).filter(t => t),
                             infoType: document.getElementById('websiteInfoType').value,
@@ -1144,6 +1144,7 @@ populateClientSelect() {
         triggerMatch: screen.triggers || []
     }));
 },
+
 
             saveConfiguration() {
     const config = this.getCurrentConfig();
