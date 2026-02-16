@@ -558,16 +558,26 @@
     const configParam = urlParams.get('config');
     
     if (configParam) {
+    try {
+        // Try base64 first (our new method)
         try {
+            const jsonStr = decodeURIComponent(escape(atob(configParam)));
+            this.config = JSON.parse(jsonStr);
+            this.updateClientInfo();
+            this.updateStatus('Config loaded from dashboard', 'ready');
+            return;
+        } catch(base64Error) {
+            // Fall back to old method for backwards compatibility
             this.config = JSON.parse(decodeURIComponent(configParam));
             this.updateClientInfo();
             this.updateStatus('Config loaded from dashboard', 'ready');
             return;
-        } catch(e) {
-            console.error('Error parsing config:', e);
-            this.addToTranscriptFeed('❌ Failed to load config from URL');
         }
+    } catch(e) {
+        console.error('Error parsing config:', e);
+        this.addToTranscriptFeed('❌ Failed to load config from URL');
     }
+}
     
     // Try to get from parent window (if opened from dashboard)
     if (window.opener && window.opener.BotemiaConfig) {
