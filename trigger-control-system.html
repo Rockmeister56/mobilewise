@@ -907,54 +907,131 @@
             }
 
                         triggerModule(moduleName, triggerPhrase, fullTranscript) {
-                // Add cooldown to prevent multiple triggers
-                const now = Date.now();
-                if (this.lastTriggerTime && (now - this.lastTriggerTime < 5000)) {
-                    console.log('⏳ Trigger cooldown - ignoring');
-                    return;
-                }
-                this.lastTriggerTime = now;
-                
-                console.log(`🎯 Trigger detected: ${moduleName} · "${triggerPhrase}"`);
-                
-                const alertEl = document.getElementById('triggerAlert');
-                document.getElementById('triggerModuleTag').innerHTML = this.getModuleIcon(moduleName) + ' ' + moduleName;
-                document.getElementById('triggerPhraseDisplay').innerHTML = `"${triggerPhrase}"`;
-                document.getElementById('triggerActionDisplay').innerHTML = this.getModuleAction(moduleName, triggerPhrase);
-                alertEl.style.display = 'block';
-                
-                this.highlightModule(moduleName);
-                this.executeModule(moduleName, triggerPhrase, fullTranscript);
-                this.sendToClientWidget(moduleName, triggerPhrase);
-            }
+    // Add cooldown to prevent multiple triggers
+    const now = Date.now();
+    if (this.lastTriggerTime && (now - this.lastTriggerTime < 5000)) {
+        console.log('⏳ Trigger cooldown - ignoring');
+        return;
+    }
+    this.lastTriggerTime = now;
+    
+    console.log(`🎯 Trigger detected: ${moduleName} · "${triggerPhrase}"`);
+    
+    const alertEl = document.getElementById('triggerAlert');
+    document.getElementById('triggerModuleTag').innerHTML = this.getModuleIcon(moduleName) + ' ' + moduleName;
+    document.getElementById('triggerPhraseDisplay').innerHTML = `"${triggerPhrase}"`;
+    document.getElementById('triggerActionDisplay').innerHTML = this.getModuleAction(moduleName, triggerPhrase);
+    alertEl.style.display = 'block';
+    
+    this.highlightModule(moduleName);
+    this.executeModule(moduleName, triggerPhrase, fullTranscript);
+    
+    // SEND MESSAGE TO CLIENT WEBSITE
+    this.sendToClientWidget(moduleName, triggerPhrase);
+}
 
-            executeModule(moduleName, triggerPhrase, fullTranscript) {
-                switch(moduleName) {
-                    case 'visualProof':
-                        this.showVisualProof(triggerPhrase);
-                        break;
-                    case 'communication':
-                        this.launchCommunication(triggerPhrase, fullTranscript);
-                        break;
-                    case 'testimonial':
-                        this.launchTestimonial();
-                        break;
-                    case 'videoVault':
-                        this.launchVideoVault();
-                        break;
-                    case 'websiteInfo':
-                        this.launchWebsiteInfo();
-                        break;
-                }
-            }
+executeModule(moduleName, triggerPhrase, fullTranscript) {
+    switch(moduleName) {
+        case 'smartScreen':  // Changed from visualProof
+            this.showSmartScreen(triggerPhrase);
+            break;
+        case 'testimonial':
+            this.launchTestimonial();
+            break;
+        case 'videoVault':
+            this.launchVideoVault();
+            break;
+        case 'websiteInfo':
+            this.launchWebsiteInfo();
+            break;
+        // Removed 'communication' case
+    }
+}
 
-            showVisualProof(triggerPhrase) {
-                const images = this.config.modules.visualProof?.images || [];
-                const matchedImage = images.find(img => 
-                    img.triggerMatch.some(t => 
-                        triggerPhrase.toLowerCase().includes(t.toLowerCase())
-                    )
-                );
+showSmartScreen(triggerPhrase) {
+    const images = this.config.modules.smartScreen?.images || [];
+    const matchedImage = images.find(img => 
+        img.triggerMatch.some(t => 
+            triggerPhrase.toLowerCase().includes(t.toLowerCase())
+        )
+    );
+    
+    const section = document.getElementById('visualProofSection');
+    const grid = document.getElementById('imageGrid');
+    
+    if (matchedImage) {
+        grid.innerHTML = `
+            <div class="image-card">
+                <div class="image-placeholder">
+                    <img src="${matchedImage.url}" alt="${matchedImage.name}" 
+                         style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div class="image-caption">
+                    <strong>${matchedImage.name}</strong><br>
+                    ${matchedImage.caption}
+                    ${matchedImage.link ? 
+                        `<div class="image-trigger">
+                            <a href="${matchedImage.link}" target="_blank" 
+                               style="color: #f8c400; text-decoration: none;">
+                                🔗 Click to learn more
+                            </a>
+                        </div>` : ''
+                    }
+                    <div class="image-trigger">
+                        ⚡ Triggered by: "${triggerPhrase}"
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('imageMatchCount').innerHTML = '🎯 Best Match Found';
+        section.style.display = 'block';
+    } else {
+        grid.innerHTML = images.map(img => `
+            <div class="image-card">
+                <div class="image-placeholder">
+                    <img src="${img.url}" alt="${img.name}" 
+                         style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div class="image-caption">
+                    <strong>${img.name}</strong><br>
+                    ${img.caption}
+                    ${img.link ? 
+                        `<div class="image-trigger">
+                            <a href="${img.link}" target="_blank">
+                                🔗 Visit page
+                            </a>
+                        </div>` : ''
+                    }
+                </div>
+            </div>
+        `).join('');
+        document.getElementById('imageMatchCount').innerHTML = `📸 ${images.length} Success Stories`;
+        section.style.display = 'block';
+    }
+}
+
+sendToClientWidget(moduleName, triggerPhrase) {
+    // If this window was opened from a client site
+    if (window.opener) {
+        window.opener.postMessage({
+            type: 'MODULE_TRIGGERED',
+            module: moduleName,
+            triggerPhrase: triggerPhrase,
+            timestamp: new Date().toISOString()
+        }, '*');
+        console.log('📨 Sent trigger to opener window');
+    }
+    
+    // Also try to find any parent windows
+    if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+            type: 'MODULE_TRIGGERED',
+            module: moduleName,
+            triggerPhrase: triggerPhrase,
+            timestamp: new Date().toISOString()
+        }, '*');
+        console.log('📨 Sent trigger to parent window');
+    }
                 
                 const section = document.getElementById('visualProofSection');
                 const grid = document.getElementById('imageGrid');
@@ -1075,14 +1152,13 @@
             }
 
             getModuleIcon(moduleName) {
-                const icons = {
-                    testimonial: '🎬',
-                    videoVault: '📹',
-                    visualProof: '📸',
-                    communication: '💬',
-                    websiteInfo: '🌐'
-                };
-                return icons[moduleName] || '🎯';
+        const icons = {
+        testimonial: '🎬',
+        videoVault: '📹',
+        smartScreen: '📸',  // Changed from visualProof
+        websiteInfo: '🌐'
+        };
+        return icons[moduleName] || '🎯';
             }
 
             getModuleAction(moduleName, triggerPhrase) {
