@@ -1569,11 +1569,14 @@ generateDeploymentPackage() {
                                     if (el.textContent && !el.dataset.botemiaProcessed) {
                                         el.dataset.botemiaProcessed = 'true';
                                         checkForTriggers(el.textContent);
-                                    }
-                                });
+                                                                                    }
+                                            }
+                                        }
+                                    );
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             });
         });
