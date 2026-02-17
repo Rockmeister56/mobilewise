@@ -1542,7 +1542,7 @@ generateDeploymentPackage() {
             el.dataset.botemiaProcessed = 'true';
         });
         
-        // Watch for NEW messages only
+                // Watch for NEW messages only
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 // Only process if nodes were ADDED to the DOM
@@ -1569,14 +1569,11 @@ generateDeploymentPackage() {
                                     if (el.textContent && !el.dataset.botemiaProcessed) {
                                         el.dataset.botemiaProcessed = 'true';
                                         checkForTriggers(el.textContent);
-                                                                                    }
-                                            }
-                                        }
-                                    );
-                                }
+                                    }
+                                });
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             });
         });
