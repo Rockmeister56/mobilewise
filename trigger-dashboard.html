@@ -1490,25 +1490,33 @@ generateDeploymentPackage() {
         }, 8000);
     };
 
-        // ===== AUTO-TRIGGER SYSTEM - LISTENS FOR BOTANIA'S SPEECH =====
+            // ===== AUTO-TRIGGER SYSTEM - WITH SENTENCE COMPLETION =====
     (function initTriggerSystem() {
         console.log('🎯 Auto-trigger system active for', window.BotemiaConfig.name);
         
         let lastTriggerTime = 0;
         const TRIGGER_COOLDOWN = 5000; // 5 seconds between triggers
+        let lastProcessedText = ''; // Track last processed text to avoid duplicates
+        let pendingText = ''; // Accumulate text until sentence completes
+        let sentenceTimer = null;
         
-        function checkForTriggers(transcript) {
+        function processCompleteSentence(fullText) {
             if (window.disableBridgeTriggers) return;
             
             const now = Date.now();
             if (now - lastTriggerTime < TRIGGER_COOLDOWN) return;
             
-            const lowerTranscript = transcript.toLowerCase();
+            // Don't process if it's the same as last time
+            if (fullText === lastProcessedText) return;
+            lastProcessedText = fullText;
+            
+            const lowerTranscript = fullText.toLowerCase();
             const modules = window.BotemiaConfig.modules;
+            
+            console.log('📝 Processing complete sentence:', fullText.substring(0, 50) + '...');
             
             // Check each module's triggers
             for (const [moduleName, moduleConfig] of Object.entries(modules)) {
-                // Skip smartScreen - it uses per-image triggers
                 if (moduleName === 'smartScreen') {
                     const images = moduleConfig.images || [];
                     for (const image of images) {
@@ -1526,7 +1534,6 @@ generateDeploymentPackage() {
                     continue;
                 }
                 
-                // Check regular module triggers
                 if (moduleConfig.triggers) {
                     for (const trigger of moduleConfig.triggers) {
                         if (lowerTranscript.includes(trigger.toLowerCase())) {
@@ -1540,14 +1547,35 @@ generateDeploymentPackage() {
             }
         }
         
-         // Watch for NEW messages only
+        function checkForTriggers(transcript) {
+            if (window.disableBridgeTriggers) return;
+            
+            // Clear any pending timer
+            if (sentenceTimer) clearTimeout(sentenceTimer);
+            
+            // Add to pending text
+            pendingText = transcript;
+            
+            // Wait for a pause to detect sentence completion
+            sentenceTimer = setTimeout(() => {
+                if (pendingText.trim()) {
+                    processCompleteSentence(pendingText);
+                    pendingText = '';
+                }
+            }, 800); // Wait 800ms of silence before processing
+        }
+        
+        // Clear any existing messages from being processed on startup
+        document.querySelectorAll('.message-bubble, .ai-message, .user-message, .botania-message, [class*="message"]').forEach(el => {
+            el.dataset.botemiaProcessed = 'true';
+        });
+        
+        // Watch for NEW messages only
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
-                // Only process if nodes were ADDED to the DOM
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
                     mutation.addedNodes.forEach(node => {
-                        if (node.nodeType === 1) { // Element node
-                            // Check if the added node itself is a message
+                        if (node.nodeType === 1) {
                             if (node.matches && (
                                 node.matches('.message-bubble') || 
                                 node.matches('.botania-message') || 
@@ -1561,7 +1589,6 @@ generateDeploymentPackage() {
                                 }
                             }
                             
-                            // Also check children of the added node
                             if (node.querySelectorAll) {
                                 node.querySelectorAll('.message-bubble, .botania-message, .ai-message, .user-message, [class*="message"]').forEach(el => {
                                     if (el.textContent && !el.dataset.botemiaProcessed) {
@@ -1575,6 +1602,15 @@ generateDeploymentPackage() {
                 }
             });
         });
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                observer.observe(document.body, { childList: true, subtree: true });
+            });
+        } else {
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+    })();
         
         // Start observing when DOM is ready
         if (document.readyState === 'loading') {
