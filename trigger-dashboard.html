@@ -2131,53 +2131,6 @@ function exportBridgeOnly() {
             if (el) el.remove();
         }, 8000);
     };
-
-    // ===== AUTO-TRIGGER SYSTEM =====
-    (function initTriggerSystem() {
-        console.log('🎯 Auto-trigger system active for', window.BotemiaConfig.name);
-        
-        let lastTriggerTime = 0;
-        const TRIGGER_COOLDOWN = 5000;
-        
-        function checkForTriggers(transcript) {
-            if (window.disableBridgeTriggers) return;
-            
-            const now = Date.now();
-            if (now - lastTriggerTime < TRIGGER_COOLDOWN) return;
-            
-            const lowerTranscript = transcript.toLowerCase();
-            const modules = window.BotemiaConfig.modules;
-            
-            for (const [moduleName, moduleConfig] of Object.entries(modules)) {
-                if (moduleName === 'smartScreen') {
-                    const images = moduleConfig.images || [];
-                    for (const image of images) {
-                        if (image.triggerMatch) {
-                            for (const trigger of image.triggerMatch) {
-                                if (lowerTranscript.includes(trigger.toLowerCase())) {
-                                    console.log('🎯 SMART SCREEN TRIGGER:', image.name, trigger);
-                                    lastTriggerTime = now;
-                                    window.showModule('smartScreen', trigger);
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                    continue;
-                }
-                
-                if (moduleConfig.triggers) {
-                    for (const trigger of moduleConfig.triggers) {
-                        if (lowerTranscript.includes(trigger.toLowerCase())) {
-                            console.log('🎯 TRIGGER:', moduleName, trigger);
-                            lastTriggerTime = now;
-                            window.showModule(moduleName, trigger);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
         
         // Clear any existing messages from being processed on startup
         document.querySelectorAll('.message-bubble, .ai-message, .user-message, .botania-message, [class*="message"]').forEach(el => {
@@ -2378,59 +2331,41 @@ function controlTCS(action, value) {
     }
 
     switch(action) {
-        case 'enableAuto':
-            if (tcsWindow && !tcsWindow.closed) {
-                tcsWindow.postMessage({
-                    type: 'DASHBOARD_COMMAND',
-                    command: 'setAutoTrigger',
-                    value: false
-                }, '*');
-                alert('✅ Auto trigger ENABLED');
-            } else {
-                alert('⚠️ TCS not open. Open it first.');
-            }
-            break;
-
-        case 'disableAuto':
-            if (tcsWindow && !tcsWindow.closed) {
-                tcsWindow.postMessage({
-                    type: 'DASHBOARD_COMMAND',
-                    command: 'setAutoTrigger',
-                    value: true
-                }, '*');
-                alert('✅ Auto trigger DISABLED');
-            } else {
-                alert('⚠️ TCS not open. Open it first.');
-            }
-            break;
-
-        // ✅ NEW: Overlay toggle
-        case 'toggleOverlays':
-            if (tcsWindow && !tcsWindow.closed) {
-                tcsWindow.postMessage({
-                    type: 'DASHBOARD_COMMAND',
-                    command: 'toggleOverlays',
-                    disabled: value  // true = disable, false = enable
-                }, '*');
-                alert(`✅ Overlays ${value ? 'DISABLED' : 'ENABLED'}`);
-            } else {
-                alert('⚠️ TCS not open. Open it first.');
-            }
-            break;
-
         case 'openTCS':
-            const encodedConfig = encodeURIComponent(JSON.stringify(config));
-            tcsWindow = window.open(
-                'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig,
-                'TCS',
-                'width=1400,height=900'
+            // Encode config for passing to TCS
+            const configString = JSON.stringify(config);
+            const encodedConfig = btoa(unescape(encodeURIComponent(configString)));
+            
+            // Open in new window - NOT iframe
+            window.open(
+                'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig + '&clientId=' + config.id,
+                'BotemiaTCS',
+                'width=1400,height=900,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes'
             );
             break;
-
+            
+        case 'enableAuto':
+        case 'disableAuto':
+        case 'toggleOverlays':
+            // Send to all open TCS windows
+            const message = {
+                type: 'DASHBOARD_COMMAND',
+                command: action === 'enableAuto' ? 'setAutoTrigger' : 
+                        action === 'disableAuto' ? 'setAutoTrigger' : 'toggleOverlays',
+                value: action === 'enableAuto' ? false : 
+                       action === 'disableAuto' ? true : value
+            };
+            
+            // Try to find any open TCS windows
+            if (window.tcsWindow && !window.tcsWindow.closed) {
+                window.tcsWindow.postMessage(message, '*');
+            }
+            break;
+            
         case 'closeTCS':
-            if (tcsWindow && !tcsWindow.closed) {
-                tcsWindow.close();
-                tcsWindow = null;
+            if (window.tcsWindow && !window.tcsWindow.closed) {
+                window.tcsWindow.close();
+                window.tcsWindow = null;
             }
             break;
     }
