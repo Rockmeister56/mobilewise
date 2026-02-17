@@ -1537,12 +1537,7 @@ generateDeploymentPackage() {
             }
         }
         
-               // Clear any existing messages from being processed on startup
-        document.querySelectorAll('.message-bubble, .ai-message, .user-message, .botania-message, [class*="message"]').forEach(el => {
-            el.dataset.botemiaProcessed = 'true';
-        });
-        
-                // Watch for NEW messages only
+        // Watch for Botania's messages in the DOM
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 // Only process if nodes were ADDED to the DOM
@@ -1563,7 +1558,7 @@ generateDeploymentPackage() {
                                 }
                             }
                             
-                            // Also check children of the added node
+                            // Also check children of the added node for messages
                             if (node.querySelectorAll) {
                                 node.querySelectorAll('.message-bubble, .botania-message, .ai-message, .user-message, [class*="message"]').forEach(el => {
                                     if (el.textContent && !el.dataset.botemiaProcessed) {
