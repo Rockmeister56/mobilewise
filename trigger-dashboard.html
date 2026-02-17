@@ -2167,61 +2167,6 @@ function exportBridgeOnly() {
             if (el) el.remove();
         }, 8000);
     };
-
-    // ===== AUTO-TRIGGER SYSTEM =====
-    (function initTriggerSystem() {
-        console.log('🎯 Auto-trigger system active for', window.BotemiaConfig.name);
-        
-        let lastTriggerTime = 0;
-        const TRIGGER_COOLDOWN = 5000;
-        let lastProcessedText = '';
-        let pendingText = '';
-        let sentenceTimer = null;
-        
-        function checkForTriggers(transcript) {
-            if (window.disableBridgeTriggers) return;
-            
-            const now = Date.now();
-            if (now - lastTriggerTime < TRIGGER_COOLDOWN) return;
-            
-            const lowerTranscript = transcript.toLowerCase();
-            const modules = window.BotemiaConfig.modules;
-            
-            for (const [moduleName, moduleConfig] of Object.entries(modules)) {
-                if (moduleName === 'smartScreen') {
-                    const images = moduleConfig.images || [];
-                    for (const image of images) {
-                        if (image.triggerMatch) {
-                            for (const trigger of image.triggerMatch) {
-                                if (lowerTranscript.includes(trigger.toLowerCase())) {
-                                    console.log('🎯 SMART SCREEN TRIGGER:', image.name, trigger);
-                                    lastTriggerTime = now;
-                                    window.showModule('smartScreen', trigger);
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                    continue;
-                }
-                
-                if (moduleConfig.triggers) {
-                    for (const trigger of moduleConfig.triggers) {
-                        if (lowerTranscript.includes(trigger.toLowerCase())) {
-                            console.log('🎯 TRIGGER:', moduleName, trigger);
-                            lastTriggerTime = now;
-                            window.showModule(moduleName, trigger);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Clear any existing messages from being processed on startup
-        document.querySelectorAll('.message-bubble, .ai-message, .user-message, .botania-message, [class*="message"]').forEach(el => {
-            el.dataset.botemiaProcessed = 'true';
-        });
         
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
