@@ -686,52 +686,107 @@
         </div>
     </div>
 
-    <!-- ADD NEW SMART SCREEN FORM -->
-    <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
-        <h3 style="color: #f8c400; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-plus-circle"></i> Add New Smart Screen
-        </h3>
+   <!-- ADD NEW SMART SCREEN FORM -->
+<div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
+    <h3 style="color: #f8c400; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-plus-circle"></i> Add New Smart Screen
+    </h3>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div>
-                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📛 Screen Name</label>
-                <input type="text" id="newSmartScreenName" placeholder="e.g., Sarah's Success" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-            </div>
-            <div>
-                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔗 Optional Link</label>
-                <input type="text" id="newSmartScreenLink" placeholder="https://..." style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-            </div>
-        </div>
-
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <div>
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📛 Screen Name</label>
+            <input type="text" id="newSmartScreenName" placeholder="e.g., Sarah's Success" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
         <div style="margin-bottom: 15px;">
-            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📝 Caption</label>
-            <input type="text" id="newSmartScreenCaption" placeholder="e.g., 580 credit → closed FHA 3.5% down" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+    <label style="display: flex; align-items: center; gap: 10px; color: #a0c8ff;">
+        <input type="checkbox" id="newSmartScreenShowTitle" checked> Show title on smart screen
+    </label>
+</div>
+        <div>
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔗 Optional Link</label>
+            <input type="text" id="newSmartScreenLink" placeholder="https://..." style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
         </div>
-
-        <!-- IMAGE UPLOAD -->
-        <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px; border: 1px dashed #f8c400;">
-            <label style="color: #f8c400; font-size: 0.9rem; display: block; margin-bottom: 10px;">
-                <i class="fas fa-cloud-upload-alt"></i> Upload Image (recommended: 600px × 400px, max 2MB)
-            </label>
-            <input type="file" id="smartScreenImageUpload" accept="image/*" style="color: white; margin-bottom: 10px;">
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" id="newSmartScreenImageUrl" placeholder="Or enter CDN URL directly" style="flex:1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-                <span style="color: rgba(255,255,255,0.4); font-size:0.8rem;">OR</span>
-            </div>
-        </div>
-
-        <!-- TRIGGER PHRASES (per screen) -->
-        <div style="margin-bottom: 15px;">
-            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
-                <i class="fas fa-bullhorn"></i> Trigger Phrases (comma separated) — unique to this screen
-            </label>
-            <textarea id="newSmartScreenTriggers" class="trigger-textarea" placeholder="e.g., sarah, 580, bad credit, fha" style="min-height: 60px;">sarah, 580, bad credit, fha</textarea>
-        </div>
-
-        <button class="btn-add" onclick="addNewSmartScreen()" style="width: 100%; padding: 16px; font-size: 1.1rem;">
-            <i class="fas fa-save"></i> SAVE THIS SMART SCREEN
-        </button>
     </div>
+
+    <div style="margin-bottom: 15px;">
+        <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📝 Caption</label>
+        <input type="text" id="newSmartScreenCaption" placeholder="e.g., 580 credit → closed FHA 3.5% down" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+    </div>
+
+    <!-- IMAGE UPLOAD -->
+    <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px; border: 1px dashed #f8c400;">
+        <label style="color: #f8c400; font-size: 0.9rem; display: block; margin-bottom: 10px;">
+            <i class="fas fa-cloud-upload-alt"></i> Upload Image (recommended: 600px × 400px, max 2MB)
+        </label>
+        <input type="file" id="smartScreenImageUpload" accept="image/*" style="color: white; margin-bottom: 10px;">
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" id="newSmartScreenImageUrl" placeholder="Or enter CDN URL directly" style="flex:1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+            <span style="color: rgba(255,255,255,0.4); font-size:0.8rem;">OR</span>
+        </div>
+    </div>
+
+    <!-- NEW STYLING CONTROLS -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <!-- Image Size Control -->
+        <div>
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📏 Image Size</label>
+            <select id="newSmartScreenSize" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                <option value="300px">Small (300px)</option>
+                <option value="400px" selected>Medium (400px)</option>
+                <option value="500px">Large (500px)</option>
+                <option value="600px">X-Large (600px)</option>
+                <option value="full">Full Width</option>
+            </select>
+        </div>
+
+        <!-- Card Background Color with Transparency -->
+        <div>
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎨 Card Background</label>
+            <select id="newSmartScreenBgColor" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                <option value="white" selected>White</option>
+                <option value="rgba(0,0,0,0.85)">Black (85% opaque)</option>
+                <option value="rgba(0,0,0,0.7)">Black (70% opaque)</option>
+                <option value="rgba(0,0,0,0.5)">Black (50% semi-transparent)</option>
+                <option value="rgba(0,0,0,0.3)">Black (30% light)</option>
+                <option value="rgba(255,255,255,0.9)">White (90% opaque)</option>
+                <option value="rgba(255,255,255,0.7)">White (70% semi-transparent)</option>
+            </select>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <!-- Backdrop Darkness Control -->
+        <div>
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔲 Backdrop Darkness</label>
+            <select id="newSmartScreenBackdrop" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                <option value="0.3">Light (30%)</option>
+                <option value="0.5" selected>Medium (50%)</option>
+                <option value="0.7">Dark (70%)</option>
+                <option value="0.9">Very Dark (90%)</option>
+            </select>
+        </div>
+
+        <!-- Optional Title Toggle -->
+        <div>
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📌 Title Display</label>
+            <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px;">
+                <input type="checkbox" id="newSmartScreenShowTitle" checked style="width: 18px; height: 18px;">
+                <label for="newSmartScreenShowTitle" style="color: white; font-size: 0.9rem;">Show title on screen</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRIGGER PHRASES (per screen) -->
+    <div style="margin-bottom: 15px;">
+        <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
+            <i class="fas fa-bullhorn"></i> Trigger Phrases (comma separated) — unique to this screen
+        </label>
+        <textarea id="newSmartScreenTriggers" class="trigger-textarea" placeholder="e.g., sarah, 580, bad credit, fha" style="min-height: 60px; width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white; font-family: monospace;"></textarea>
+    </div>
+
+    <button class="btn-add" onclick="addNewSmartScreen()" style="width: 100%; padding: 16px; font-size: 1.1rem;">
+        <i class="fas fa-save"></i> SAVE THIS SMART SCREEN
+    </button>
+</div>
 
     <div class="module-options" style="margin-top: 20px;">
         <div class="option-row">
@@ -1280,7 +1335,7 @@ generateDeploymentPackage() {
         }
     });
 
-    // ===== SMART SCREEN DISPLAY FUNCTION =====
+        // ===== SMART SCREEN DISPLAY FUNCTION =====
     window.showModule = function(moduleName, triggerPhrase) {
         console.log('🖥️ Showing module:', moduleName, triggerPhrase);
         
@@ -1288,111 +1343,120 @@ generateDeploymentPackage() {
         const existing = document.getElementById('botemia-overlay');
         if (existing) existing.remove();
 
-        // Create backdrop with blur
-        const backdrop = document.createElement('div');
-        backdrop.id = 'botemia-overlay';
-        backdrop.style.cssText = \`
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            z-index: 999998;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-        \`;
-
-        // Create content card
-        const card = document.createElement('div');
-        card.style.cssText = \`
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            z-index: 999999;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            border: 3px solid #f8c400;
-            position: relative;
-            pointer-events: auto;
-            animation: slideUp 0.3s ease;
-        \`;
-
-        // Add animation
-        const style = document.createElement('style');
-        style.textContent = \`
-            @keyframes slideUp {
-                from { transform: translateY(30px); opacity: 0; }
-                to { transform: translateY(0); opacity: 1; }
-            }
-        \`;
-        document.head.appendChild(style);
-
-        // Close button
-        const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = '✕';
-        closeBtn.style.cssText = \`
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #f0f0f0;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-            z-index: 100000;
-        \`;
-        closeBtn.onmouseover = () => closeBtn.style.background = '#ddd';
-        closeBtn.onmouseout = () => closeBtn.style.background = '#f0f0f0';
-        closeBtn.onclick = () => backdrop.remove();
-
-        // Module-specific content
-        let content = '';
-
+        // Find matched image and get its custom settings
+        let matchedImage = null;
+        let bgColor = 'white';
+        let backdropOpacity = 0.5;
+        let imageSize = '400px';
+        let showTitle = true;
+        
         if (moduleName === 'smartScreen') {
             const images = window.BotemiaConfig.modules?.smartScreen?.images || [];
-            const matchedImage = images.find(img => 
+            matchedImage = images.find(img => 
                 img.triggerMatch?.some(t => 
                     triggerPhrase.toLowerCase().includes(t.toLowerCase())
                 )
             );
             
+            // Get custom settings from the matched image
             if (matchedImage) {
-                content = \`
-                    <h2 style="margin:0 0 15px 0; color:#333; font-size:24px;">\${matchedImage.name}</h2>
-                    <img src="\${matchedImage.url}" style="width:100%; border-radius:12px; margin-bottom:15px; border:1px solid #eee;">
-                    <p style="margin:0 0 15px 0; color:#666; line-height:1.5; font-size:16px;">\${matchedImage.caption}</p>
-                    \${matchedImage.link ? 
-                        \`<a href="\${matchedImage.link}" target="_blank" 
-                            style="display:inline-block; background:#f8c400; color:black; padding:12px 24px; border-radius:30px; text-decoration:none; font-weight:bold; margin-top:5px;">
-                            🔗 Learn More →
-                        </a>\` : ''
-                    }
-                \`;
-            } else {
-                content = \`<p style="color:#999;">No matching image found for "\${triggerPhrase}"</p>\`;
+                bgColor = matchedImage.bgColor || 'white';
+                backdropOpacity = matchedImage.backdropOpacity || 0.5;
+                imageSize = matchedImage.imageSize || '400px';
+                showTitle = matchedImage.showTitle !== false;
             }
+        }
+
+                // Create backdrop with blur and custom opacity
+        const backdrop = document.createElement('div');
+        backdrop.id = 'botemia-overlay';
+        backdrop.style.cssText = 
+            'position: fixed;' +
+            'top: 0;' +
+            'left: 0;' +
+            'width: 100%;' +
+            'height: 100%;' +
+            'background: rgba(0, 0, 0, ' + backdropOpacity + ');' +
+            'backdrop-filter: blur(4px);' +
+            'z-index: 999998;' +
+            'display: flex;' +
+            'align-items: center;' +
+            'justify-content: center;' +
+            'pointer-events: none;';
+
+        // Determine text color based on background
+        const textColor = bgColor.includes('black') || bgColor.includes('0,0,0') ? '#ffffff' : '#333333';
+        const borderColor = '#f8c400';
+        const closeBtnBg = bgColor.includes('black') ? '#333333' : '#f0f0f0';
+        const closeBtnColor = bgColor.includes('black') ? '#ffffff' : '#333333';
+        const closeBtnHover = bgColor.includes('black') ? '#555555' : '#dddddd';
+
+        // Create content card with custom settings
+        const card = document.createElement('div');
+        card.style.cssText = 
+            'background: ' + bgColor + ';' +
+            'border-radius: 20px;' +
+            'padding: 30px;' +
+            'max-width: ' + (imageSize === 'full' ? '90%' : imageSize) + ';' +
+            'width: ' + (imageSize === 'full' ? '90%' : '100%') + ';' +
+            'max-height: 80vh;' +
+            'overflow-y: auto;' +
+            'box-shadow: 0 20px 60px rgba(0,0,0,0.3);' +
+            'z-index: 999999;' +
+            'font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif;' +
+            'border: 3px solid ' + borderColor + ';' +
+            'position: relative;' +
+            'pointer-events: auto;' +
+            'animation: slideUp 0.3s ease;' +
+            'color: ' + textColor + ';';
+
+        // Add animation
+        const style = document.createElement('style');
+        style.textContent = 
+            '@keyframes slideUp {' +
+            'from { transform: translateY(30px); opacity: 0; }' +
+            'to { transform: translateY(0); opacity: 1; }' +
+            '}';
+        document.head.appendChild(style);
+
+        // Close button with custom colors
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '✕';
+        closeBtn.style.cssText = 
+            'position: absolute;' +
+            'top: 15px;' +
+            'right: 15px;' +
+            'background: ' + closeBtnBg + ';' +
+            'border: none;' +
+            'width: 32px;' +
+            'height: 32px;' +
+            'border-radius: 16px;' +
+            'font-size: 18px;' +
+            'font-weight: bold;' +
+            'cursor: pointer;' +
+            'color: ' + closeBtnColor + ';' +
+            'display: flex;' +
+            'align-items: center;' +
+            'justify-content: center;' +
+            'transition: background 0.2s;' +
+            'z-index: 100000;';
+        closeBtn.onmouseover = () => closeBtn.style.background = closeBtnHover;
+        closeBtn.onmouseout = () => closeBtn.style.background = closeBtnBg;
+        closeBtn.onclick = () => backdrop.remove();
+
+        // Module-specific content
+        let content = '';
+
+        if (moduleName === 'smartScreen' && matchedImage) {
+            content = (showTitle ? '<h2 style=\"margin:0 0 15px 0; font-size:24px; color:' + textColor + ';\">' + matchedImage.name + '</h2>' : '') +
+                '<img src=\"' + matchedImage.url + '\" style=\"width:100%; border-radius:12px; margin-bottom:15px; border:1px solid ' + (bgColor.includes('black') ? '#444' : '#eee') + ';\">' +
+                '<p style=\"margin:0 0 15px 0; line-height:1.5; font-size:16px; color:' + textColor + ';\">' + matchedImage.caption + '</p>' +
+                (matchedImage.link ? '<a href=\"' + matchedImage.link + '\" target=\"_blank\" style=\"display:inline-block; background:#f8c400; color:black; padding:12px 24px; border-radius:30px; text-decoration:none; font-weight:bold; margin-top:5px;\">🔗 Learn More →</a>' : '');
+        } else if (moduleName === 'smartScreen') {
+            content = '<p style=\"color:#999;\">No matching image found for \"' + triggerPhrase + '\"</p>';
         } else {
-            // Generic display for other modules
-            content = \`
-                <h2 style="margin:0 0 15px 0; color:#333;">⚡ \${moduleName} Triggered</h2>
-                <p style="color:#666;">Trigger phrase: "\${triggerPhrase}"</p>
-            \`;
+            content = '<h2 style=\"margin:0 0 15px 0; color:' + textColor + ';\">⚡ ' + moduleName + ' Triggered</h2>' +
+                     '<p style=\"color:' + textColor + ';\">Trigger phrase: \"' + triggerPhrase + '\"</p>';
         }
 
         // Assemble
