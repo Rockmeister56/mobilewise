@@ -1536,14 +1536,14 @@ generateDeploymentPackage() {
         alert(\'Playing video: \' + video.name + \'\\n\' + video.url);
     };
 
-            // ===== AUTO-TRIGGER SYSTEM - WITH SENTENCE COMPLETION =====
+               // ===== AUTO-TRIGGER SYSTEM - WITH SENTENCE COMPLETION =====
     (function initTriggerSystem() {
         console.log('🎯 Auto-trigger system active for', window.BotemiaConfig.name);
         
         let lastTriggerTime = 0;
-        const TRIGGER_COOLDOWN = 5000; // 5 seconds between triggers
-        let lastProcessedText = ''; // Track last processed text to avoid duplicates
-        let pendingText = ''; // Accumulate text until sentence completes
+        const TRIGGER_COOLDOWN = 5000;
+        let lastProcessedText = '';
+        let pendingText = '';
         let sentenceTimer = null;
         
         function processCompleteSentence(fullText) {
@@ -1551,93 +1551,105 @@ generateDeploymentPackage() {
             
             const now = Date.now();
             if (now - lastTriggerTime < TRIGGER_COOLDOWN) return;
-            
-            // Don't process if it's the same as last time
             if (fullText === lastProcessedText) return;
-            lastProcessedText = fullText;
             
+            lastProcessedText = fullText;
             const lowerTranscript = fullText.toLowerCase();
             const modules = window.BotemiaConfig.modules;
             
             console.log('📝 Processing complete sentence:', fullText.substring(0, 50) + '...');
             
-            // Check each module's triggers
-            for (const [moduleName, moduleConfig] of Object.entries(modules)) {
-                if (moduleName === 'smartScreen') {
-                    const images = moduleConfig.images || [];
-                    for (const image of images) {
-                        if (image.triggerMatch) {
-                            for (const trigger of image.triggerMatch) {
-                                if (lowerTranscript.includes(trigger.toLowerCase())) {
-                                    console.log('🎯 SMART SCREEN TRIGGER:', image.name, trigger);
-                                    lastTriggerTime = now;
-                                    window.showModule('smartScreen', trigger);
-                                    return;
-                                }
-                            }
-                        }
+            // Check testimonial groups
+            if (modules.testimonial && modules.testimonial.groups) {
+                for (const group of modules.testimonial.groups) {
+                    if (lowerTranscript.includes(group.triggerPhrase.toLowerCase())) {
+                        console.log('🎯 Testimonial group triggered:', group.name);
+                        lastTriggerTime = now;
+                        window.showTestimonialGroup(group);
+                        return;
                     }
-                    continue;
                 }
-                
-                if (moduleConfig.triggers) {
-                    for (const trigger of moduleConfig.triggers) {
-                        if (lowerTranscript.includes(trigger.toLowerCase())) {
-                            console.log('🎯 TRIGGER:', moduleName, trigger);
-                            lastTriggerTime = now;
-                            window.showModule(moduleName, trigger);
-                            return;
+            }
+            
+            // Check single videos
+            if (modules.videoVault && modules.videoVault.videos) {
+                for (const video of modules.videoVault.videos) {
+                    if (lowerTranscript.includes(video.triggerPhrase.toLowerCase())) {
+                        console.log('🎯 Video triggered:', video.name);
+                        lastTriggerTime = now;
+                        window.showVideo(video);
+                        return;
+                    }
+                }
+            }
+            
+            // Check smart screens
+            if (modules.smartScreen && modules.smartScreen.images) {
+                for (const image of modules.smartScreen.images) {
+                    if (image.triggerMatch) {
+                        for (const trigger of image.triggerMatch) {
+                            if (lowerTranscript.includes(trigger.toLowerCase())) {
+                                console.log('🎯 Smart screen triggered:', image.name);
+                                lastTriggerTime = now;
+                                window.showModule('smartScreen', trigger);
+                                return;
+                            }
                         }
                     }
                 }
             }
         }
         
-       // Inside the bridgeCode template string, replace the trigger checking logic with:
-
-function checkForTriggers(transcript) {
-    if (window.disableBridgeTriggers) return;
-    
-    const lowerText = transcript.toLowerCase();
-    const modules = window.BotemiaConfig.modules;
-    
-    // Check testimonial groups
-    if (modules.testimonial && modules.testimonial.groups) {
-        for (const group of modules.testimonial.groups) {
-            if (lowerText.includes(group.triggerPhrase.toLowerCase())) {
-                console.log('🎯 Testimonial group triggered:', group.name);
-                window.showTestimonialGroup(group);
-                return;
-            }
-        }
-    }
-    
-    // Check single videos
-    if (modules.videoVault && modules.videoVault.videos) {
-        for (const video of modules.videoVault.videos) {
-            if (lowerText.includes(video.triggerPhrase.toLowerCase())) {
-                console.log('🎯 Video triggered:', video.name);
-                window.showVideo(video);
-                return;
-            }
-        }
-    }
-    
-    // Check smart screens (existing logic)
-    if (modules.smartScreen && modules.smartScreen.images) {
-        for (const image of modules.smartScreen.images) {
-            if (image.triggerMatch) {
-                for (const trigger of image.triggerMatch) {
-                    if (lowerText.includes(trigger.toLowerCase())) {
-                        console.log('🎯 Smart screen triggered:', image.name);
-                        window.showModule('smartScreen', trigger);
-                        return;
-                    }
+        function checkForTriggers(transcript) {
+            if (window.disableBridgeTriggers) return;
+            
+            if (sentenceTimer) clearTimeout(sentenceTimer);
+            pendingText = transcript;
+            
+            sentenceTimer = setTimeout(() => {
+                if (pendingText.trim()) {
+                    processCompleteSentence(pendingText);
+                    pendingText = '';
                 }
-            }
+            }, 800);
         }
-    }
-}
+        
+        // Clear any existing messages from being processed on startup
+        document.querySelectorAll('.message-bubble, .ai-message, .user-message, .botania-message, [class*="message"]').forEach(el => {
+            el.dataset.botemiaProcessed = 'true';
+        });
+        
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1) {
+                            if (node.matches && (
+                                node.matches('.message-bubble') || 
+                                node.matches('.botania-message') || 
+                                node.matches('.ai-message') ||
+                                node.matches('.user-message') ||
+                                node.matches('[class*="message"]')
+                            )) {
+                                if (node.textContent && !node.dataset.botemiaProcessed) {
+                                    node.dataset.botemiaProcessed = 'true';
+                                    checkForTriggers(node.textContent);
+                                }
+                            }
+                            
+                            if (node.querySelectorAll) {
+                                node.querySelectorAll('.message-bubble, .botania-message, .ai-message, .user-message, [class*="message"]').forEach(el => {
+                                    if (el.textContent && !el.dataset.botemiaProcessed) {
+                                        el.dataset.botemiaProcessed = 'true';
+                                        checkForTriggers(el.textContent);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
         
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
