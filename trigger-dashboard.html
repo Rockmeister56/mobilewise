@@ -1113,218 +1113,117 @@ populateClientSelect() {
             },
 
            loadIndustryPreset(industry) {
-
-            // ===== TESTIMONIAL GROUPS MANAGEMENT =====
-let testimonialGroups = [];
-
-function loadTestimonialGroups() {
-    const saved = localStorage.getItem('botemia_testimonialGroups');
-    if (saved) {
-        testimonialGroups = JSON.parse(saved);
-        renderTestimonialGroups();
-    }
-}
-
-function renderTestimonialGroups() {
-    const container = document.getElementById('testimonialGroupsList');
-    const emptyState = document.getElementById('testimonialGroupsEmpty');
-    
-    if (!container) return;
-    
-    if (testimonialGroups.length === 0) {
-        if (emptyState) emptyState.style.display = 'block';
-        return;
-    }
-    
-    if (emptyState) emptyState.style.display = 'none';
-    
-    let html = '';
-    testimonialGroups.forEach((group, index) => {
-        const videoCount = group.videos ? group.videos.length : 0;
-        
-        html += `
-            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
-                <div style="flex:1;">
-                    <h4 style="margin:0 0 5px 0; color:white;">${group.name}</h4>
-                    <p style="margin:0 0 5px 0; color:#f8c400; font-size:0.9rem;">
-                        <i class="fas fa-bullhorn"></i> "${group.triggerPhrase}"
-                    </p>
-                    <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">
-                        <i class="fas fa-folder"></i> Category: ${group.category} | 
-                        <i class="fas fa-video"></i> ${videoCount} video(s)
-                    </p>
-                    ${videoCount > 0 ? `
-                        <div style="margin-top:8px; font-size:0.8rem; color:#888;">
-                            ${group.videos.map(v => `🔗 ${v.substring(0, 30)}...`).join('<br>')}
-                        </div>
-                    ` : ''}
-                </div>
-                <button onclick="deleteTestimonialGroup(${index})" style="position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.7rem;">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-function addTestimonialGroup() {
-    const name = document.getElementById('newTestimonialGroupName')?.value.trim();
-    const triggerPhrase = document.getElementById('newTestimonialTrigger')?.value.trim();
-    const category = document.getElementById('newTestimonialCategory')?.value;
-    const videosRaw = document.getElementById('newTestimonialVideos')?.value.trim();
-    
-    if (!name) {
-        alert('Please enter a group name');
-        return;
-    }
-    
-    if (!triggerPhrase) {
-        alert('Please enter a trigger phrase');
-        return;
-    }
-    
-    // Parse videos (comma separated URLs)
-    const videos = videosRaw ? videosRaw.split(',').map(v => v.trim()).filter(v => v) : [];
-    
-    const newGroup = {
-        name: name,
-        triggerPhrase: triggerPhrase,
-        category: category || 'other',
-        videos: videos
+    // Testimonial triggers
+    const testimonialPresets = {
+        mortgage: 'rates, pre-approval, credit score, down payment, closing costs, fha, va, usda, interest rate, mortgage insurance, pmi, dti, debt to income, first-time buyer',
+        legal: 'settlement, verdict, case value, contingency, statute of limitations, personal injury, accident, compensation, lawsuit, attorney',
+        tax: 'irs, audit, tax lien, offer in compromise, unfiled returns, tax debt, penalty abatement, installment agreement, cpa',
+        dental: 'implants, veneers, financing, insurance, payment plans, sedation, crowns, braces, oral surgery, dentures',
+        manufacturing: 'equipment, OSHA, compliance, supply chain, quality control, safety, ISO, lean manufacturing, automation'
     };
     
-    testimonialGroups.push(newGroup);
-    localStorage.setItem('botemia_testimonialGroups', JSON.stringify(testimonialGroups));
-    renderTestimonialGroups();
-    
-    // Clear form
-    document.getElementById('newTestimonialGroupName').value = '';
-    document.getElementById('newTestimonialTrigger').value = '';
-    document.getElementById('newTestimonialVideos').value = '';
-    
-    configManager.updateStatus('Testimonial group added', 'success');
-}
+    const testimonialEl = document.getElementById('testimonialTriggers');
+    if (testimonialEl && testimonialPresets[industry]) {
+        testimonialEl.value = testimonialPresets[industry];
+    }
 
-function deleteTestimonialGroup(index) {
-    if (confirm('Delete this testimonial group?')) {
-        testimonialGroups.splice(index, 1);
-        localStorage.setItem('botemia_testimonialGroups', JSON.stringify(testimonialGroups));
-        renderTestimonialGroups();
-        configManager.updateStatus('Testimonial group deleted', 'success');
-    }
-}
-
-// ===== SINGLE VIDEOS MANAGEMENT =====
-let videos = [];
-
-function loadVideos() {
-    const saved = localStorage.getItem('botemia_videos');
-    if (saved) {
-        videos = JSON.parse(saved);
-        renderVideos();
-    }
-}
-
-function renderVideos() {
-    const container = document.getElementById('videoList');
-    const emptyState = document.getElementById('videoListEmpty');
-    
-    if (!container) return;
-    
-    if (videos.length === 0) {
-        if (emptyState) emptyState.style.display = 'block';
-        return;
-    }
-    
-    if (emptyState) emptyState.style.display = 'none';
-    
-    let html = '';
-    videos.forEach((video, index) => {
-        html += `
-            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
-                <div style="flex:1;">
-                    <h4 style="margin:0 0 5px 0; color:white;">${video.name}</h4>
-                    <p style="margin:0 0 5px 0; color:#f8c400; font-size:0.9rem;">
-                        <i class="fas fa-bullhorn"></i> "${video.triggerPhrase}"
-                    </p>
-                    <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">
-                        <i class="fas fa-folder"></i> Category: ${video.category}
-                    </p>
-                    <p style="margin:0; font-size:0.8rem; color:#888;">
-                        <i class="fas fa-link"></i> ${video.url.substring(0, 50)}...
-                    </p>
-                    ${video.description ? `<p style="margin:5px 0 0 0; font-size:0.8rem; color:#666;">📝 ${video.description}</p>` : ''}
-                </div>
-                <button onclick="deleteVideo(${index})" style="position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.7rem;">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-function addVideo() {
-    const name = document.getElementById('newVideoName')?.value.trim();
-    const triggerPhrase = document.getElementById('newVideoTrigger')?.value.trim();
-    const url = document.getElementById('newVideoUrl')?.value.trim();
-    const description = document.getElementById('newVideoDescription')?.value.trim();
-    const category = document.getElementById('newVideoCategory')?.value;
-    
-    if (!name) {
-        alert('Please enter a video title');
-        return;
-    }
-    
-    if (!triggerPhrase) {
-        alert('Please enter a trigger phrase');
-        return;
-    }
-    
-    if (!url) {
-        alert('Please enter a video URL');
-        return;
-    }
-    
-    const newVideo = {
-        name: name,
-        triggerPhrase: triggerPhrase,
-        url: url,
-        description: description || '',
-        category: category || 'other'
+    // Video triggers
+    const videoPresets = {
+        mortgage: 'how to apply, loan process, closing timeline, documents needed, first-time buyer, what is escrow, appraisal, underwriting, pre-approval vs pre-qualification, mortgage terms',
+        legal: 'deposition, mediation, trial prep, settlement process, client consultation, case evaluation, discovery, filing',
+        tax: 'tax resolution process, audit representation, offer in compromise steps, tax relief options, filing back taxes',
+        dental: 'procedure walkthrough, implant process, sedation options, payment plans, before and after, recovery',
+        manufacturing: 'safety training, equipment operation, compliance audit, quality inspection, process improvement'
     };
     
-    videos.push(newVideo);
-    localStorage.setItem('botemia_videos', JSON.stringify(videos));
-    renderVideos();
-    
-    // Clear form
-    document.getElementById('newVideoName').value = '';
-    document.getElementById('newVideoTrigger').value = '';
-    document.getElementById('newVideoUrl').value = '';
-    document.getElementById('newVideoDescription').value = '';
-    
-    configManager.updateStatus('Video added', 'success');
-}
-
-function deleteVideo(index) {
-    if (confirm('Delete this video?')) {
-        videos.splice(index, 1);
-        localStorage.setItem('botemia_videos', JSON.stringify(videos));
-        renderVideos();
-        configManager.updateStatus('Video deleted', 'success');
+    const videoEl = document.getElementById('videoTriggers');
+    if (videoEl && videoPresets[industry]) {
+        videoEl.value = videoPresets[industry];
     }
-}
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    loadTestimonialGroups();
-    loadVideos();
-});
+    // Smart Screen triggers - SKIP since we removed global triggers
+    // Each screen has its own triggers now
     
+    // Website triggers
+    const websitePresets = {
+        mortgage: 'rates page, loan programs, about us, contact, locations, calculators, FAQs, learn more, more information, website, navigation',
+        legal: 'practice areas, attorney bio, case results, contact us, firm history, testimonials, resources',
+        tax: 'services, tax relief programs, about our firm, contact tax specialist, resources, blog',
+        dental: 'services, about our practice, meet the dentist, insurance, patient forms, contact us, new patients',
+        manufacturing: 'products, services, about us, contact sales, resources, compliance, quality certifications'
+    };
+    
+    const websiteEl = document.getElementById('websiteTriggers');
+    if (websiteEl && websitePresets[industry]) {
+        websiteEl.value = websitePresets[industry];
+    }
+
+    this.updateStatus(`Loaded ${industry} industry preset`, 'ready');
+            },
+
+            newClient() {
+    document.getElementById('clientName').value = '';
+    document.getElementById('clientId').value = '';
+    document.getElementById('agentId').value = '';  // Empty instead of hardcoded
+    document.getElementById('industryPreset').value = 'mortgage';
+    this.loadIndustryPreset('mortgage');
+    this.updateBridgePreview();
+    this.updateStatus('New client', 'ready');
 },
-                       
+
+            loadClient(id) {
+                const client = this.clients[id];
+                if (!client) return;
+                
+                document.getElementById('clientName').value = client.name || '';
+                document.getElementById('clientId').value = id;
+                document.getElementById('agentId').value = client.agentId || '';
+                
+                if (client.industry) {
+                    document.getElementById('industryPreset').value = client.industry;
+                    this.loadIndustryPreset(client.industry);
+                }
+                
+                this.updateBridgePreview();
+                this.updateStatus(`Loaded ${client.name}`, 'ready');
+            },
+
+            getCurrentConfig() {
+                const config = {
+                    id: document.getElementById('clientId').value,
+                    name: document.getElementById('clientName').value,
+                    agentId: document.getElementById('agentId').value,
+                    widgetId: document.getElementById('widgetId').value,
+                    apiKey: document.getElementById('apiKey').value,
+                    environment: document.getElementById('environment').value,
+                    industry: document.getElementById('industryPreset').value,
+                    modules: {
+                        testimonial: {
+                            triggers: document.getElementById('testimonialTriggers').value.split(',').map(t => t.trim()).filter(t => t),
+                            action: document.getElementById('testimonialAction').value,
+                            group: document.getElementById('testimonialGroup').value
+                        },
+                        videoVault: {
+                            triggers: document.getElementById('videoTriggers').value.split(',').map(t => t.trim()).filter(t => t),
+                            action: document.getElementById('videoAction').value,
+                            category: document.getElementById('videoCategory').value
+                        },
+                        smartScreen: {
+    // REMOVED the global triggers line since it doesn't exist
+    action: document.getElementById('smartScreenAction')?.value || 'showBestMatch',
+    images: this.getImageGallery()
+},
+                        websiteInfo: {
+                            triggers: document.getElementById('websiteTriggers').value.split(',').map(t => t.trim()).filter(t => t),
+                            infoType: document.getElementById('websiteInfoType').value,
+                            action: document.getElementById('websiteAction').value
+                        }
+                    },
+                    updatedAt: new Date().toISOString()
+                };
+                return config;
+            },
+
             getImageGallery() {
     // Load from localStorage if not already in memory
     if (typeof smartScreens === 'undefined' || smartScreens.length === 0) {
