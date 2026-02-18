@@ -2171,6 +2171,13 @@ function addNewSmartScreen() {
     const triggersRaw = document.getElementById('newSmartScreenTriggers')?.value.trim();
     const fileInput = document.getElementById('smartScreenImageUpload');
     
+    // Get styling values
+    const imageSize = document.getElementById('newSmartScreenSize')?.value || '400px';
+    const bgColor = document.getElementById('newSmartScreenBgColor')?.value || 'white';
+    const backdropOpacity = parseFloat(document.getElementById('newSmartScreenBackdrop')?.value || '0.5');
+    const showTitle = document.getElementById('newSmartScreenShowTitle')?.checked || true;
+    const borderColor = document.getElementById('newSmartScreenBorderColor')?.value || '#f8c400';
+    
     if (!name) {
         alert('Please enter a screen name');
         return;
@@ -2181,14 +2188,13 @@ function addNewSmartScreen() {
         return;
     }
     
-    const triggers = triggersRaw.split(',').map(t => t.trim()).filter(t => t);
+    const triggerMatch = triggersRaw.split(',').map(t => t.trim()).filter(t => t);
     
-    if (triggers.length === 0) {
+    if (triggerMatch.length === 0) {
         alert('Please enter at least one trigger phrase');
         return;
     }
     
-    // For now, use URL if provided, otherwise placeholder
     const finalImageUrl = imageUrl || (fileInput.files.length > 0 ? URL.createObjectURL(fileInput.files[0]) : '');
     
     const newScreen = {
@@ -2196,11 +2202,35 @@ function addNewSmartScreen() {
         link,
         caption,
         imageUrl: finalImageUrl,
-        triggers
+        triggerMatch: triggerMatch,  // Fixed: now using triggerMatch, not triggers
+        // Styling fields
+        imageSize: imageSize,
+        bgColor: bgColor,
+        backdropOpacity: backdropOpacity,
+        showTitle: showTitle,
+        borderColor: borderColor
     };
     
+    // Get existing screens or initialize empty array
+    let smartScreens = JSON.parse(localStorage.getItem('botemia_smartScreens') || '[]');
     smartScreens.push(newScreen);
     localStorage.setItem('botemia_smartScreens', JSON.stringify(smartScreens));
+    
+    // Update the client data
+    const clientId = document.getElementById('clientId').value;
+    if (clientId && configManager.clients[clientId]) {
+        if (!configManager.clients[clientId].modules) {
+            configManager.clients[clientId].modules = {};
+        }
+        if (!configManager.clients[clientId].modules.smartScreen) {
+            configManager.clients[clientId].modules.smartScreen = { images: [] };
+        }
+        configManager.clients[clientId].modules.smartScreen.images = smartScreens;
+        
+        // Save to localStorage
+        localStorage.setItem('mobilewise_clients', JSON.stringify(configManager.clients));
+    }
+    
     renderSmartScreenList();
     
     // Clear form
@@ -2210,6 +2240,18 @@ function addNewSmartScreen() {
     document.getElementById('newSmartScreenImageUrl').value = '';
     document.getElementById('smartScreenImageUpload').value = '';
     document.getElementById('newSmartScreenTriggers').value = '';
+    
+    // Clear styling fields
+    if (document.getElementById('newSmartScreenSize')) 
+        document.getElementById('newSmartScreenSize').value = '400px';
+    if (document.getElementById('newSmartScreenBgColor')) 
+        document.getElementById('newSmartScreenBgColor').value = 'white';
+    if (document.getElementById('newSmartScreenBackdrop')) 
+        document.getElementById('newSmartScreenBackdrop').value = '0.5';
+    if (document.getElementById('newSmartScreenShowTitle')) 
+        document.getElementById('newSmartScreenShowTitle').checked = true;
+    if (document.getElementById('newSmartScreenBorderColor')) 
+        document.getElementById('newSmartScreenBorderColor').value = '#f8c400';
     
     configManager.updateStatus('Smart screen added', 'success');
 }
