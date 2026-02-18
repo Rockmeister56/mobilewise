@@ -1337,23 +1337,38 @@ uploadToSupabase(config, supabaseUrl, supabaseKey) {
             },
             
 generateDeploymentPackage() {
-    const config = this.getCurrentConfig();
-    if (!config.id || !config.name) {
-        alert('Please enter a client name');
-        return;
-    }
+    // ===== MOVE TRY BLOCK TO TOP TO CATCH STRINGIFY ERRORS =====
+    try {
+        const config = this.getCurrentConfig();
+        
+        if (!config.id || !config.name) {
+            alert('Please enter a client name');
+            return;
+        }
 
-    // ===== 1. Generate Supabase CSV =====
-    const csvData = [
-        ['client_id', 'config_json', 'industry', 'updated_at'],
-        [config.id, JSON.stringify(config), config.industry, new Date().toISOString()]
-    ];
-    const csv = csvData.map(row => row.map(cell => 
-        typeof cell === 'string' ? `"${cell.replace(/"/g, '""')}"` : cell
-    ).join(',')).join('\n');
-    
-    // ===== 2. Generate Bridge File with ALL Latest Improvements =====
-    const bridgeCode = `// Botemia Bridge for ${config.name}
+        // Safe Stringify to handle circular references (common cause of crashes)
+        const safeStringify = (obj) => {
+            const cache = new Set();
+            return JSON.stringify(obj, (key, value) => {
+                if (typeof value === 'object' && value !== null) {
+                    if (cache.has(value)) return; // Discard circular references
+                    cache.add(value);
+                }
+                return value;
+            }, 4);
+        };
+
+        // ===== 1. Generate Supabase CSV =====
+        const csvData = [
+            ['client_id', 'config_json', 'industry', 'updated_at'],
+            [config.id, safeStringify(config), config.industry || '', new Date().toISOString()]
+        ];
+        const csv = csvData.map(row => row.map(cell => 
+            typeof cell === 'string' ? `"${cell.replace(/"/g, '""')}"` : (cell || '')
+        ).join(',')).join('\n');
+        
+        // ===== 2. Generate Bridge File (CLEANED UP) =====
+        const bridgeCode = `// Botemia Bridge for ${config.name.replace(/`/g, '')}
 // Generated: ${new Date().toLocaleString()}
 // Client ID: ${config.id}
 // Version: 5.0 - FULL SMART SCREEN WITH BACKDROP
@@ -1362,14 +1377,13 @@ generateDeploymentPackage() {
     "use strict";
 
     // ===== EMBEDDED CLIENT CONFIGURATION =====
-    window.BotemiaConfig = ${JSON.stringify(config, null, 4)};
+    window.BotemiaConfig = ${safeStringify(config)};
 
     // ===== AUTO-TRIGGER CONTROL =====
-    window.disableBridgeTriggers = false; // Can be toggled from TCS
+    window.disableBridgeTriggers = false;
     
     // ===== LISTEN FOR MESSAGES FROM TCS =====
     window.addEventListener('message', function(event) {
-        // Handle control commands from TCS
         if (event.data.type === 'DASHBOARD_COMMAND') {
             if (event.data.command === 'toggleOverlays') {
                 window.disableBridgeTriggers = event.data.disabled;
@@ -1378,22 +1392,19 @@ generateDeploymentPackage() {
             return;
         }
         
-        // Handle module triggers
         if (event.data.type === 'MODULE_TRIGGERED' && !window.disableBridgeTriggers) {
             console.log('🎯 Module triggered:', event.data.module, event.data.triggerPhrase);
             window.showModule(event.data.module, event.data.triggerPhrase);
         }
     });
 
-        // ===== SMART SCREEN DISPLAY FUNCTION =====
+    // ===== SMART SCREEN DISPLAY FUNCTION =====
     window.showModule = function(moduleName, triggerPhrase) {
         console.log('🖥️ Showing module:', moduleName, triggerPhrase);
         
-        // Remove any existing overlay first
         const existing = document.getElementById('botemia-overlay');
         if (existing) existing.remove();
 
-        // Find matched image and get its custom settings
         let matchedImage = null;
         let bgColor = 'white';
         let backdropOpacity = 0.5;
@@ -1408,7 +1419,6 @@ generateDeploymentPackage() {
                 )
             );
             
-            // Get custom settings from the matched image
             if (matchedImage) {
                 bgColor = matchedImage.bgColor || 'white';
                 backdropOpacity = matchedImage.backdropOpacity || 0.5;
@@ -1417,50 +1427,38 @@ generateDeploymentPackage() {
             }
         }
 
-                // Create backdrop with blur and custom opacity
         const backdrop = document.createElement('div');
         backdrop.id = 'botemia-overlay';
         backdrop.style.cssText = 
             'position: fixed;' +
-            'top: 0;' +
-            'left: 0;' +
-            'width: 100%;' +
-            'height: 100%;' +
+            'top: 0; left: 0; width: 100%; height: 100%;' +
             'background: rgba(0, 0, 0, ' + backdropOpacity + ');' +
             'backdrop-filter: blur(4px);' +
             'z-index: 999998;' +
-            'display: flex;' +
-            'align-items: center;' +
-            'justify-content: center;' +
+            'display: flex; align-items: center; justify-content: center;' +
             'pointer-events: none;';
 
-        // Determine text color based on background
         const textColor = bgColor.includes('black') || bgColor.includes('0,0,0') ? '#ffffff' : '#333333';
         const borderColor = '#f8c400';
         const closeBtnBg = bgColor.includes('black') ? '#333333' : '#f0f0f0';
         const closeBtnColor = bgColor.includes('black') ? '#ffffff' : '#333333';
         const closeBtnHover = bgColor.includes('black') ? '#555555' : '#dddddd';
 
-        // Create content card with custom settings
         const card = document.createElement('div');
         card.style.cssText = 
             'background: ' + bgColor + ';' +
-            'border-radius: 20px;' +
-            'padding: 30px;' +
+            'border-radius: 20px; padding: 30px;' +
             'max-width: ' + (imageSize === 'full' ? '90%' : imageSize) + ';' +
             'width: ' + (imageSize === 'full' ? '90%' : '100%') + ';' +
-            'max-height: 80vh;' +
-            'overflow-y: auto;' +
+            'max-height: 80vh; overflow-y: auto;' +
             'box-shadow: 0 20px 60px rgba(0,0,0,0.3);' +
             'z-index: 999999;' +
-            'font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif;' +
+            'font-family: -apple-system, BlinkMacSystemFont, \\'Segoe UI\\', Roboto, sans-serif;' +
             'border: 3px solid ' + borderColor + ';' +
             'position: relative;' +
-            'pointer-events: auto;' +
-            'animation: slideUp 0.3s ease;' +
+            'pointer-events: auto; animation: slideUp 0.3s ease;' +
             'color: ' + textColor + ';';
 
-        // Add animation
         const style = document.createElement('style');
         style.textContent = 
             '@keyframes slideUp {' +
@@ -1469,53 +1467,37 @@ generateDeploymentPackage() {
             '}';
         document.head.appendChild(style);
 
-        // Close button with custom colors
         const closeBtn = document.createElement('button');
         closeBtn.innerHTML = '✕';
         closeBtn.style.cssText = 
-            'position: absolute;' +
-            'top: 15px;' +
-            'right: 15px;' +
-            'background: ' + closeBtnBg + ';' +
-            'border: none;' +
-            'width: 32px;' +
-            'height: 32px;' +
-            'border-radius: 16px;' +
-            'font-size: 18px;' +
-            'font-weight: bold;' +
-            'cursor: pointer;' +
-            'color: ' + closeBtnColor + ';' +
-            'display: flex;' +
-            'align-items: center;' +
-            'justify-content: center;' +
-            'transition: background 0.2s;' +
-            'z-index: 100000;';
+            'position: absolute; top: 15px; right: 15px;' +
+            'background: ' + closeBtnBg + '; border: none; width: 32px; height: 32px;' +
+            'border-radius: 16px; font-size: 18px; font-weight: bold; cursor: pointer;' +
+            'color: ' + closeBtnColor + '; display: flex; align-items: center; justify-content: center;' +
+            'transition: background 0.2s; z-index: 100000;';
         closeBtn.onmouseover = () => closeBtn.style.background = closeBtnHover;
         closeBtn.onmouseout = () => closeBtn.style.background = closeBtnBg;
         closeBtn.onclick = () => backdrop.remove();
 
-        // Module-specific content
         let content = '';
 
         if (moduleName === 'smartScreen' && matchedImage) {
-            content = (showTitle ? '<h2 style=\"margin:0 0 15px 0; font-size:24px; color:' + textColor + ';\">' + matchedImage.name + '</h2>' : '') +
-                '<img src=\"' + matchedImage.url + '\" style=\"width:100%; border-radius:12px; margin-bottom:15px; border:1px solid ' + (bgColor.includes('black') ? '#444' : '#eee') + ';\">' +
-                '<p style=\"margin:0 0 15px 0; line-height:1.5; font-size:16px; color:' + textColor + ';\">' + matchedImage.caption + '</p>' +
-                (matchedImage.link ? '<a href=\"' + matchedImage.link + '\" target=\"_blank\" style=\"display:inline-block; background:#f8c400; color:black; padding:12px 24px; border-radius:30px; text-decoration:none; font-weight:bold; margin-top:5px;\">🔗 Learn More →</a>' : '');
+            content = (showTitle ? '<h2 style="margin:0 0 15px 0; font-size:24px; color:' + textColor + ';">' + matchedImage.name + '</h2>' : '') +
+                '<img src="' + matchedImage.url + '" style="width:100%; border-radius:12px; margin-bottom:15px; border:1px solid ' + (bgColor.includes('black') ? '#444' : '#eee') + ';">' +
+                '<p style="margin:0 0 15px 0; line-height:1.5; font-size:16px; color:' + textColor + ';">' + matchedImage.caption + '</p>' +
+                (matchedImage.link ? '<a href="' + matchedImage.link + '" target="_blank" style="display:inline-block; background:#f8c400; color:black; padding:12px 24px; border-radius:30px; text-decoration:none; font-weight:bold; margin-top:5px;">🔗 Learn More →</a>' : '');
         } else if (moduleName === 'smartScreen') {
-            content = '<p style=\"color:#999;\">No matching image found for \"' + triggerPhrase + '\"</p>';
+            content = '<p style="color:#999;">No matching image found for "' + triggerPhrase + '"</p>';
         } else {
-            content = '<h2 style=\"margin:0 0 15px 0; color:' + textColor + ';\">⚡ ' + moduleName + ' Triggered</h2>' +
-                     '<p style=\"color:' + textColor + ';\">Trigger phrase: \"' + triggerPhrase + '\"</p>';
+            content = '<h2 style="margin:0 0 15px 0; color:' + textColor + ';">⚡ ' + moduleName + ' Triggered</h2>' +
+                     '<p style="color:' + textColor + ';">Trigger phrase: "' + triggerPhrase + '"</p>';
         }
 
-        // Assemble
         card.innerHTML = content;
         card.appendChild(closeBtn);
         backdrop.appendChild(card);
         document.body.appendChild(backdrop);
 
-        // Auto-remove after 8 seconds
         setTimeout(() => {
             const el = document.getElementById('botemia-overlay');
             if (el) el.remove();
@@ -1524,19 +1506,17 @@ generateDeploymentPackage() {
 
     // ===== TESTIMONIAL GROUP DISPLAY =====
     window.showTestimonialGroup = function(group) {
-        console.log(\'📺 Showing testimonial group:\', group.name);
-        // This will call your testimonial player with the group\'s videos
-        alert(\'Showing \' + group.videos.length + \' testimonials about \' + group.category);
+        console.log('📺 Showing testimonial group:', group.name);
+        alert('Showing ' + group.videos.length + ' testimonials about ' + group.category);
     };
 
     // ===== SINGLE VIDEO DISPLAY =====
     window.showVideo = function(video) {
-        console.log(\'📹 Playing video:\', video.name);
-        // This will call your video player with the single video
-        alert(\'Playing video: \' + video.name + \'\\n\' + video.url);
+        console.log('📹 Playing video:', video.name);
+        alert('Playing video: ' + video.name + '\\n' + video.url);
     };
 
-               // ===== AUTO-TRIGGER SYSTEM - WITH SENTENCE COMPLETION =====
+    // ===== AUTO-TRIGGER SYSTEM - CLEANED UP (NO DUPLICATES) =====
     (function initTriggerSystem() {
         console.log('🎯 Auto-trigger system active for', window.BotemiaConfig.name);
         
@@ -1557,13 +1537,10 @@ generateDeploymentPackage() {
             const lowerTranscript = fullText.toLowerCase();
             const modules = window.BotemiaConfig.modules;
             
-            console.log('📝 Processing complete sentence:', fullText.substring(0, 50) + '...');
-            
             // Check testimonial groups
             if (modules.testimonial && modules.testimonial.groups) {
                 for (const group of modules.testimonial.groups) {
                     if (lowerTranscript.includes(group.triggerPhrase.toLowerCase())) {
-                        console.log('🎯 Testimonial group triggered:', group.name);
                         lastTriggerTime = now;
                         window.showTestimonialGroup(group);
                         return;
@@ -1575,7 +1552,6 @@ generateDeploymentPackage() {
             if (modules.videoVault && modules.videoVault.videos) {
                 for (const video of modules.videoVault.videos) {
                     if (lowerTranscript.includes(video.triggerPhrase.toLowerCase())) {
-                        console.log('🎯 Video triggered:', video.name);
                         lastTriggerTime = now;
                         window.showVideo(video);
                         return;
@@ -1589,7 +1565,6 @@ generateDeploymentPackage() {
                     if (image.triggerMatch) {
                         for (const trigger of image.triggerMatch) {
                             if (lowerTranscript.includes(trigger.toLowerCase())) {
-                                console.log('🎯 Smart screen triggered:', image.name);
                                 lastTriggerTime = now;
                                 window.showModule('smartScreen', trigger);
                                 return;
@@ -1614,7 +1589,7 @@ generateDeploymentPackage() {
             }, 800);
         }
         
-        // Clear any existing messages from being processed on startup
+        // Clear existing messages
         document.querySelectorAll('.message-bubble, .ai-message, .user-message, .botania-message, [class*="message"]').forEach(el => {
             el.dataset.botemiaProcessed = 'true';
         });
@@ -1651,6 +1626,7 @@ generateDeploymentPackage() {
             });
         });
         
+        // ===== SINGLE CLEAN DOM READY CHECK =====
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 observer.observe(document.body, { childList: true, subtree: true });
@@ -1658,27 +1634,17 @@ generateDeploymentPackage() {
         } else {
             observer.observe(document.body, { childList: true, subtree: true });
         }
-    })();
         
-        // Start observing when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                observer.observe(document.body, { childList: true, subtree: true });
-            });
-        } else {
-            observer.observe(document.body, { childList: true, subtree: true });
-        }
+        // ===== REMOVED DUPLICATE OBSERVER LOGIC THAT WAS HERE =====
     })();
 
     // ===== LOAD WIDGET =====
     function initWidget() {
-        // Check if widget already exists
         if (document.querySelector('lemon-slice-widget')) {
             console.log('✅ Widget already exists');
             return;
         }
 
-    // Load widget script
         const script = document.createElement('script');
         script.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
         script.type = 'module';
@@ -1692,7 +1658,6 @@ generateDeploymentPackage() {
         document.head.appendChild(script);
     }
 
-    // Start when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initWidget);
     } else {
@@ -1702,8 +1667,8 @@ generateDeploymentPackage() {
     console.log('✅ Botemia Bridge v5.0 loaded for', window.BotemiaConfig.name);
 })();`;
 
-                // ===== 3. Generate Installation Guide =====
-const guideCode = `BOTEMIA INSTALLATION GUIDE
+        // ===== 3. Generate Installation Guide =====
+        const guideCode = `BOTEMIA INSTALLATION GUIDE
 ========================
 Client: ${config.name}
 Client ID: ${config.id}
@@ -1723,35 +1688,30 @@ TROUBLESHOOTING:
 SUPPORT:
 Contact: support@botemia.com`;
 
-                // ===== 4. Download all three files =====
-                try {
-                    // Download CSV
-                    const csvBlob = new Blob([csv], { type: 'text/csv' });
-                    const csvLink = document.createElement('a');
-                    csvLink.href = URL.createObjectURL(csvBlob);
-                    csvLink.download = config.id + '-config.csv';
-                    csvLink.click();
+        // ===== 4. Download all three files =====
+        // Helper to download
+        const downloadFile = (content, fileName, mimeType) => {
+            const blob = new Blob([content], { type: mimeType });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        };
 
-                    // Download Bridge
-                    const bridgeBlob = new Blob([bridgeCode], { type: 'application/javascript' });
-                    const bridgeLink = document.createElement('a');
-                    bridgeLink.href = URL.createObjectURL(bridgeBlob);
-                    bridgeLink.download = 'bridge-' + config.id + '.js';
-                    bridgeLink.click();
+        // Execute Downloads
+        downloadFile(csv, config.id + '-config.csv', 'text/csv');
+        setTimeout(() => downloadFile(bridgeCode, 'bridge-' + config.id + '.js', 'application/javascript'), 100);
+        setTimeout(() => downloadFile(guideCode, config.id + '-install.txt', 'text/plain'), 200);
 
-                    // Download Guide
-                    const guideBlob = new Blob([guideCode], { type: 'text/plain' });
-                    const guideLink = document.createElement('a');
-                    guideLink.href = URL.createObjectURL(guideBlob);
-                    guideLink.download = config.id + '-install.txt';
-                    guideLink.click();
+        this.updateStatus('✅ Complete deployment package generated for ' + config.name, 'success');
 
-                    this.updateStatus('✅ Complete deployment package generated for ' + config.name, 'success');
-                } catch (error) {
-                    console.error('Download error:', error);
-                    this.updateStatus('❌ Error generating package', 'error');
-                }
-            },
+    } catch (error) {
+        console.error('Deployment Error:', error);
+        this.updateStatus('❌ Error generating package: ' + error.message, 'error');
+        alert('Error generating package: ' + error.message);
+    }
+},
 
             updateBridgePreview() {
     const clientId = document.getElementById('clientId').value || 'client-id';
