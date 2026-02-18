@@ -2132,8 +2132,12 @@ function renderSmartScreenList() {
     
     if (!container) return;
     
+    // Get the latest smart screens from localStorage
+    smartScreens = JSON.parse(localStorage.getItem('botemia_smartScreens') || '[]');
+    
     if (smartScreens.length === 0) {
         if (emptyState) emptyState.style.display = 'block';
+        container.innerHTML = ''; // Clear container
         return;
     }
     
@@ -2141,15 +2145,18 @@ function renderSmartScreenList() {
     
     let html = '';
     smartScreens.forEach((screen, index) => {
+        // Use triggerMatch instead of triggers
+        const triggerText = screen.triggerMatch ? screen.triggerMatch.join(', ') : '';
+        
         html += `
             <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
                 <div style="display: flex; gap: 15px;">
                     <img src="${screen.imageUrl}" style="width:80px; height:60px; object-fit:cover; border-radius:6px; border:1px solid #f8c400;">
                     <div style="flex:1;">
                         <h4 style="margin:0 0 5px 0; color:white;">${screen.name}</h4>
-                        <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">${screen.caption}</p>
+                        <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">${screen.caption || ''}</p>
                         <p style="margin:0; color:#f8c400; font-size:0.8rem;">
-                            <i class="fas fa-bullhorn"></i> ${screen.triggers.join(', ')}
+                            <i class="fas fa-bullhorn"></i> ${triggerText}
                         </p>
                         ${screen.link ? `<p style="margin:5px 0 0 0; font-size:0.8rem;"><a href="${screen.link}" target="_blank" style="color:#4caf50;">🔗 ${screen.link}</a></p>` : ''}
                     </div>
@@ -2202,8 +2209,7 @@ function addNewSmartScreen() {
         link,
         caption,
         imageUrl: finalImageUrl,
-        triggerMatch: triggerMatch,  // Fixed: now using triggerMatch, not triggers
-        // Styling fields
+        triggerMatch: triggerMatch,
         imageSize: imageSize,
         bgColor: bgColor,
         backdropOpacity: backdropOpacity,
@@ -2233,25 +2239,8 @@ function addNewSmartScreen() {
     
     renderSmartScreenList();
     
-    // Clear form
-    document.getElementById('newSmartScreenName').value = '';
-    document.getElementById('newSmartScreenLink').value = '';
-    document.getElementById('newSmartScreenCaption').value = '';
-    document.getElementById('newSmartScreenImageUrl').value = '';
-    document.getElementById('smartScreenImageUpload').value = '';
-    document.getElementById('newSmartScreenTriggers').value = '';
-    
-    // Clear styling fields
-    if (document.getElementById('newSmartScreenSize')) 
-        document.getElementById('newSmartScreenSize').value = '400px';
-    if (document.getElementById('newSmartScreenBgColor')) 
-        document.getElementById('newSmartScreenBgColor').value = 'white';
-    if (document.getElementById('newSmartScreenBackdrop')) 
-        document.getElementById('newSmartScreenBackdrop').value = '0.5';
-    if (document.getElementById('newSmartScreenShowTitle')) 
-        document.getElementById('newSmartScreenShowTitle').checked = true;
-    if (document.getElementById('newSmartScreenBorderColor')) 
-        document.getElementById('newSmartScreenBorderColor').value = '#f8c400';
+    // ===== REMOVED THE FORM CLEARING CODE =====
+    // Now the form fields will keep their values
     
     configManager.updateStatus('Smart screen added', 'success');
 }
