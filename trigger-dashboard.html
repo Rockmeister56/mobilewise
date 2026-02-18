@@ -576,94 +576,133 @@
                 </div>
             </div>
 
-            <!-- ===== MODULE 2: TESTIMONIAL MODULE ===== -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon"><i class="fas fa-video"></i></div>
-                    <div class="module-title">
-                        <h2>🎬 Testimonial Module</h2>
-                        <p>Success stories by concern type</p>
-                    </div>
-                </div>
-                
-                <!-- INDUSTRY PRESET TRIGGERS -->
-                <div class="trigger-section">
-                    <div class="trigger-header">
-                        <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
-                        <span class="preset-badge"><i class="fas fa-robot"></i> PRESET</span>
-                    </div>
-                    <textarea id="testimonialTriggers" class="trigger-textarea">Verified Testimonial Gallery</textarea>
-                    <div class="custom-trigger-add">
-                        <input type="text" id="newTestimonialTrigger" placeholder="Add custom trigger phrase...">
-                        <button class="btn-add" onclick="addCustomTrigger('testimonial')"><i class="fas fa-plus"></i> Add</button>
-                    </div>
-                </div>
+           <!-- ===== MODULE 2: TESTIMONIAL GROUPS ===== -->
+<div class="module-card">
+    <div class="module-header">
+        <div class="module-icon"><i class="fas fa-users"></i></div>
+        <div class="module-title">
+            <h2>📺 Testimonial Groups</h2>
+            <p>Each group has one trigger phrase - displays multiple testimonials</p>
+        </div>
+    </div>
 
-                <div class="module-options">
-                    <div class="option-row">
-                        <label><i class="fas fa-play"></i> Action</label>
-                        <select id="testimonialAction">
-                            <option value="showTestimonialPlayer" selected>🎬 Show Testimonial Player</option>
-                            <option value="showSpecificGroup">📂 Show Specific Group</option>
-                            <option value="randomTestimonial">🎲 Play Random Testimonial</option>
-                        </select>
-                    </div>
-                    <div class="option-row">
-                        <label><i class="fas fa-tag"></i> Default Group</label>
-                        <select id="testimonialGroup">
-                            <option value="auto" selected>🤖 Auto-match to concern</option>
-                            <option value="pricing">💰 Pricing/Value</option>
-                            <option value="service">🤝 Customer Service</option>
-                            <option value="results">📊 Results/Success</option>
-                            <option value="credibility">⭐ Credibility/Trust</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+    <!-- TESTIMONIAL GROUPS LIST -->
+    <div style="margin-bottom: 20px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; background: rgba(0,0,0,0.15);" id="testimonialGroupsList">
+        <!-- Groups will be dynamically populated here -->
+        <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3);" id="testimonialGroupsEmpty">
+            <i class="fas fa-plus-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+            <p>No testimonial groups yet. Add your first group below.</p>
+        </div>
+    </div>
 
-            <!-- ===== MODULE 3: VIDEO VAULT MODULE ===== -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon"><i class="fas fa-film"></i></div>
-                    <div class="module-title">
-                        <h2>📹 Video Information Module</h2>
-                        <p>Product, how-to, and educational videos</p>
-                    </div>
-                </div>
+    <!-- ADD NEW TESTIMONIAL GROUP FORM -->
+    <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
+        <h3 style="color: #f8c400; margin-bottom: 20px;">
+            <i class="fas fa-plus-circle"></i> Add Testimonial Group
+        </h3>
 
-                <div class="trigger-section">
-                    <div class="trigger-header">
-                        <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
-                        <span class="preset-badge"><i class="fas fa-robot"></i> PRESET</span>
-                    </div>
-                    <textarea id="videoTriggers" class="trigger-textarea">Video Information Library</textarea>
-                    <div class="custom-trigger-add">
-                        <input type="text" id="newVideoTrigger" placeholder="Add custom trigger phrase...">
-                        <button class="btn-add" onclick="addCustomTrigger('video')"><i class="fas fa-plus"></i> Add</button>
-                    </div>
-                </div>
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📛 Group Name</label>
+            <input type="text" id="newTestimonialGroupName" placeholder="e.g., Rate Success Stories" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
 
-                <div class="module-options">
-                    <div class="option-row">
-                        <label><i class="fas fa-play"></i> Action</label>
-                        <select id="videoAction">
-                            <option value="showVideoLibrary" selected>📺 Show Video Library</option>
-                            <option value="playSpecificVideo">▶️ Play Specific Video</option>
-                            <option value="showByCategory">📁 Show Category Videos</option>
-                        </select>
-                    </div>
-                    <div class="option-row">
-                        <label><i class="fas fa-tag"></i> Default Category</label>
-                        <select id="videoCategory">
-                            <option value="auto" selected>🤖 Auto-match to topic</option>
-                            <option value="process">🔄 Loan Process</option>
-                            <option value="first-time">🏠 First-Time Buyer</option>
-                            <option value="documents">📄 Document Prep</option>
-                            <option value="closing">✍️ Closing Day</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎯 Trigger Phrase (what Botania says)</label>
+            <input type="text" id="newTestimonialTrigger" placeholder="e.g., Show me rate testimonials" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+            <p style="color: #f8c400; font-size:0.8rem; margin-top:5px;">
+                <i class="fas fa-info-circle"></i> Botania says this exact phrase to show this group
+            </p>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📁 Category/Theme</label>
+            <select id="newTestimonialCategory" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                <option value="rates">Rates</option>
+                <option value="first-time">First-Time Buyer</option>
+                <option value="service">Customer Service</option>
+                <option value="results">Success Results</option>
+                <option value="credibility">Trust & Credibility</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎬 Testimonial Videos (comma separated URLs)</label>
+            <textarea id="newTestimonialVideos" placeholder="https://youtube.com/..., https://vimeo.com/..." style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white; min-height: 60px;"></textarea>
+            <p style="color: #aaa; font-size:0.8rem; margin-top:5px;">All videos in this group will play in the testimonial player</p>
+        </div>
+
+        <button class="btn-add" onclick="addTestimonialGroup()" style="width: 100%; padding: 16px;">
+            <i class="fas fa-save"></i> SAVE TESTIMONIAL GROUP
+        </button>
+    </div>
+</div>
+
+            <!-- ===== MODULE 3: VIDEO VAULT (SINGLE VIDEOS) ===== -->
+<div class="module-card">
+    <div class="module-header">
+        <div class="module-icon"><i class="fas fa-film"></i></div>
+        <div class="module-title">
+            <h2>📹 Video Library</h2>
+            <p>Each video has its own trigger phrase - plays one video</p>
+        </div>
+    </div>
+
+    <!-- VIDEOS LIST -->
+    <div style="margin-bottom: 20px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; background: rgba(0,0,0,0.15);" id="videoList">
+        <!-- Videos will be dynamically populated here -->
+        <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3);" id="videoListEmpty">
+            <i class="fas fa-plus-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+            <p>No videos yet. Add your first video below.</p>
+        </div>
+    </div>
+
+    <!-- ADD NEW VIDEO FORM -->
+    <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
+        <h3 style="color: #f8c400; margin-bottom: 20px;">
+            <i class="fas fa-plus-circle"></i> Add Single Video
+        </h3>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📛 Video Title</label>
+            <input type="text" id="newVideoName" placeholder="e.g., Loan Process Overview" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎯 Trigger Phrase (what Botania says)</label>
+            <input type="text" id="newVideoTrigger" placeholder="e.g., Show me the loan process video" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+            <p style="color: #f8c400; font-size:0.8rem; margin-top:5px;">
+                <i class="fas fa-info-circle"></i> Botania says this exact phrase to play this video
+            </p>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔗 Video URL</label>
+            <input type="text" id="newVideoUrl" placeholder="https://youtube.com/..." style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📝 Description (optional)</label>
+            <input type="text" id="newVideoDescription" placeholder="Brief description of video content" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📁 Category</label>
+            <select id="newVideoCategory" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                <option value="process">Loan Process</option>
+                <option value="documents">Document Prep</option>
+                <option value="first-time">First-Time Buyer</option>
+                <option value="closing">Closing Day</option>
+                <option value="faq">FAQ</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+
+        <button class="btn-add" onclick="addVideo()" style="width: 100%; padding: 16px;">
+            <i class="fas fa-save"></i> SAVE VIDEO
+        </button>
+    </div>
+</div>
 
            <!-- ===== MODULE 4: SMART SCREEN (REDESIGNED) ===== -->
 <div class="module-card">
@@ -1074,117 +1113,218 @@ populateClientSelect() {
             },
 
            loadIndustryPreset(industry) {
-    // Testimonial triggers
-    const testimonialPresets = {
-        mortgage: 'rates, pre-approval, credit score, down payment, closing costs, fha, va, usda, interest rate, mortgage insurance, pmi, dti, debt to income, first-time buyer',
-        legal: 'settlement, verdict, case value, contingency, statute of limitations, personal injury, accident, compensation, lawsuit, attorney',
-        tax: 'irs, audit, tax lien, offer in compromise, unfiled returns, tax debt, penalty abatement, installment agreement, cpa',
-        dental: 'implants, veneers, financing, insurance, payment plans, sedation, crowns, braces, oral surgery, dentures',
-        manufacturing: 'equipment, OSHA, compliance, supply chain, quality control, safety, ISO, lean manufacturing, automation'
+
+            // ===== TESTIMONIAL GROUPS MANAGEMENT =====
+let testimonialGroups = [];
+
+function loadTestimonialGroups() {
+    const saved = localStorage.getItem('botemia_testimonialGroups');
+    if (saved) {
+        testimonialGroups = JSON.parse(saved);
+        renderTestimonialGroups();
+    }
+}
+
+function renderTestimonialGroups() {
+    const container = document.getElementById('testimonialGroupsList');
+    const emptyState = document.getElementById('testimonialGroupsEmpty');
+    
+    if (!container) return;
+    
+    if (testimonialGroups.length === 0) {
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+    
+    if (emptyState) emptyState.style.display = 'none';
+    
+    let html = '';
+    testimonialGroups.forEach((group, index) => {
+        const videoCount = group.videos ? group.videos.length : 0;
+        
+        html += `
+            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
+                <div style="flex:1;">
+                    <h4 style="margin:0 0 5px 0; color:white;">${group.name}</h4>
+                    <p style="margin:0 0 5px 0; color:#f8c400; font-size:0.9rem;">
+                        <i class="fas fa-bullhorn"></i> "${group.triggerPhrase}"
+                    </p>
+                    <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">
+                        <i class="fas fa-folder"></i> Category: ${group.category} | 
+                        <i class="fas fa-video"></i> ${videoCount} video(s)
+                    </p>
+                    ${videoCount > 0 ? `
+                        <div style="margin-top:8px; font-size:0.8rem; color:#888;">
+                            ${group.videos.map(v => `🔗 ${v.substring(0, 30)}...`).join('<br>')}
+                        </div>
+                    ` : ''}
+                </div>
+                <button onclick="deleteTestimonialGroup(${index})" style="position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.7rem;">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function addTestimonialGroup() {
+    const name = document.getElementById('newTestimonialGroupName')?.value.trim();
+    const triggerPhrase = document.getElementById('newTestimonialTrigger')?.value.trim();
+    const category = document.getElementById('newTestimonialCategory')?.value;
+    const videosRaw = document.getElementById('newTestimonialVideos')?.value.trim();
+    
+    if (!name) {
+        alert('Please enter a group name');
+        return;
+    }
+    
+    if (!triggerPhrase) {
+        alert('Please enter a trigger phrase');
+        return;
+    }
+    
+    // Parse videos (comma separated URLs)
+    const videos = videosRaw ? videosRaw.split(',').map(v => v.trim()).filter(v => v) : [];
+    
+    const newGroup = {
+        name: name,
+        triggerPhrase: triggerPhrase,
+        category: category || 'other',
+        videos: videos
     };
     
-    const testimonialEl = document.getElementById('testimonialTriggers');
-    if (testimonialEl && testimonialPresets[industry]) {
-        testimonialEl.value = testimonialPresets[industry];
-    }
+    testimonialGroups.push(newGroup);
+    localStorage.setItem('botemia_testimonialGroups', JSON.stringify(testimonialGroups));
+    renderTestimonialGroups();
+    
+    // Clear form
+    document.getElementById('newTestimonialGroupName').value = '';
+    document.getElementById('newTestimonialTrigger').value = '';
+    document.getElementById('newTestimonialVideos').value = '';
+    
+    configManager.updateStatus('Testimonial group added', 'success');
+}
 
-    // Video triggers
-    const videoPresets = {
-        mortgage: 'how to apply, loan process, closing timeline, documents needed, first-time buyer, what is escrow, appraisal, underwriting, pre-approval vs pre-qualification, mortgage terms',
-        legal: 'deposition, mediation, trial prep, settlement process, client consultation, case evaluation, discovery, filing',
-        tax: 'tax resolution process, audit representation, offer in compromise steps, tax relief options, filing back taxes',
-        dental: 'procedure walkthrough, implant process, sedation options, payment plans, before and after, recovery',
-        manufacturing: 'safety training, equipment operation, compliance audit, quality inspection, process improvement'
+function deleteTestimonialGroup(index) {
+    if (confirm('Delete this testimonial group?')) {
+        testimonialGroups.splice(index, 1);
+        localStorage.setItem('botemia_testimonialGroups', JSON.stringify(testimonialGroups));
+        renderTestimonialGroups();
+        configManager.updateStatus('Testimonial group deleted', 'success');
+    }
+}
+
+// ===== SINGLE VIDEOS MANAGEMENT =====
+let videos = [];
+
+function loadVideos() {
+    const saved = localStorage.getItem('botemia_videos');
+    if (saved) {
+        videos = JSON.parse(saved);
+        renderVideos();
+    }
+}
+
+function renderVideos() {
+    const container = document.getElementById('videoList');
+    const emptyState = document.getElementById('videoListEmpty');
+    
+    if (!container) return;
+    
+    if (videos.length === 0) {
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+    
+    if (emptyState) emptyState.style.display = 'none';
+    
+    let html = '';
+    videos.forEach((video, index) => {
+        html += `
+            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
+                <div style="flex:1;">
+                    <h4 style="margin:0 0 5px 0; color:white;">${video.name}</h4>
+                    <p style="margin:0 0 5px 0; color:#f8c400; font-size:0.9rem;">
+                        <i class="fas fa-bullhorn"></i> "${video.triggerPhrase}"
+                    </p>
+                    <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">
+                        <i class="fas fa-folder"></i> Category: ${video.category}
+                    </p>
+                    <p style="margin:0; font-size:0.8rem; color:#888;">
+                        <i class="fas fa-link"></i> ${video.url.substring(0, 50)}...
+                    </p>
+                    ${video.description ? `<p style="margin:5px 0 0 0; font-size:0.8rem; color:#666;">📝 ${video.description}</p>` : ''}
+                </div>
+                <button onclick="deleteVideo(${index})" style="position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.7rem;">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function addVideo() {
+    const name = document.getElementById('newVideoName')?.value.trim();
+    const triggerPhrase = document.getElementById('newVideoTrigger')?.value.trim();
+    const url = document.getElementById('newVideoUrl')?.value.trim();
+    const description = document.getElementById('newVideoDescription')?.value.trim();
+    const category = document.getElementById('newVideoCategory')?.value;
+    
+    if (!name) {
+        alert('Please enter a video title');
+        return;
+    }
+    
+    if (!triggerPhrase) {
+        alert('Please enter a trigger phrase');
+        return;
+    }
+    
+    if (!url) {
+        alert('Please enter a video URL');
+        return;
+    }
+    
+    const newVideo = {
+        name: name,
+        triggerPhrase: triggerPhrase,
+        url: url,
+        description: description || '',
+        category: category || 'other'
     };
     
-    const videoEl = document.getElementById('videoTriggers');
-    if (videoEl && videoPresets[industry]) {
-        videoEl.value = videoPresets[industry];
-    }
-
-    // Smart Screen triggers - SKIP since we removed global triggers
-    // Each screen has its own triggers now
+    videos.push(newVideo);
+    localStorage.setItem('botemia_videos', JSON.stringify(videos));
+    renderVideos();
     
-    // Website triggers
-    const websitePresets = {
-        mortgage: 'rates page, loan programs, about us, contact, locations, calculators, FAQs, learn more, more information, website, navigation',
-        legal: 'practice areas, attorney bio, case results, contact us, firm history, testimonials, resources',
-        tax: 'services, tax relief programs, about our firm, contact tax specialist, resources, blog',
-        dental: 'services, about our practice, meet the dentist, insurance, patient forms, contact us, new patients',
-        manufacturing: 'products, services, about us, contact sales, resources, compliance, quality certifications'
-    };
+    // Clear form
+    document.getElementById('newVideoName').value = '';
+    document.getElementById('newVideoTrigger').value = '';
+    document.getElementById('newVideoUrl').value = '';
+    document.getElementById('newVideoDescription').value = '';
     
-    const websiteEl = document.getElementById('websiteTriggers');
-    if (websiteEl && websitePresets[industry]) {
-        websiteEl.value = websitePresets[industry];
+    configManager.updateStatus('Video added', 'success');
+}
+
+function deleteVideo(index) {
+    if (confirm('Delete this video?')) {
+        videos.splice(index, 1);
+        localStorage.setItem('botemia_videos', JSON.stringify(videos));
+        renderVideos();
+        configManager.updateStatus('Video deleted', 'success');
     }
+}
 
-    this.updateStatus(`Loaded ${industry} industry preset`, 'ready');
-            },
-
-            newClient() {
-    document.getElementById('clientName').value = '';
-    document.getElementById('clientId').value = '';
-    document.getElementById('agentId').value = '';  // Empty instead of hardcoded
-    document.getElementById('industryPreset').value = 'mortgage';
-    this.loadIndustryPreset('mortgage');
-    this.updateBridgePreview();
-    this.updateStatus('New client', 'ready');
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadTestimonialGroups();
+    loadVideos();
+});
+    
 },
-
-            loadClient(id) {
-                const client = this.clients[id];
-                if (!client) return;
-                
-                document.getElementById('clientName').value = client.name || '';
-                document.getElementById('clientId').value = id;
-                document.getElementById('agentId').value = client.agentId || '';
-                
-                if (client.industry) {
-                    document.getElementById('industryPreset').value = client.industry;
-                    this.loadIndustryPreset(client.industry);
-                }
-                
-                this.updateBridgePreview();
-                this.updateStatus(`Loaded ${client.name}`, 'ready');
-            },
-
-            getCurrentConfig() {
-                const config = {
-                    id: document.getElementById('clientId').value,
-                    name: document.getElementById('clientName').value,
-                    agentId: document.getElementById('agentId').value,
-                    widgetId: document.getElementById('widgetId').value,
-                    apiKey: document.getElementById('apiKey').value,
-                    environment: document.getElementById('environment').value,
-                    industry: document.getElementById('industryPreset').value,
-                    modules: {
-                        testimonial: {
-                            triggers: document.getElementById('testimonialTriggers').value.split(',').map(t => t.trim()).filter(t => t),
-                            action: document.getElementById('testimonialAction').value,
-                            group: document.getElementById('testimonialGroup').value
-                        },
-                        videoVault: {
-                            triggers: document.getElementById('videoTriggers').value.split(',').map(t => t.trim()).filter(t => t),
-                            action: document.getElementById('videoAction').value,
-                            category: document.getElementById('videoCategory').value
-                        },
-                        smartScreen: {
-    // REMOVED the global triggers line since it doesn't exist
-    action: document.getElementById('smartScreenAction')?.value || 'showBestMatch',
-    images: this.getImageGallery()
-},
-                        websiteInfo: {
-                            triggers: document.getElementById('websiteTriggers').value.split(',').map(t => t.trim()).filter(t => t),
-                            infoType: document.getElementById('websiteInfoType').value,
-                            action: document.getElementById('websiteAction').value
-                        }
-                    },
-                    updatedAt: new Date().toISOString()
-                };
-                return config;
-            },
-
+                       
             getImageGallery() {
     // Load from localStorage if not already in memory
     if (typeof smartScreens === 'undefined' || smartScreens.length === 0) {
