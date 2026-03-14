@@ -3316,15 +3316,6 @@ function toggleCustomPosition() {
     if (positionEl && customControls) {
         const position = positionEl.value;
         customControls.style.display = position === 'custom' ? 'grid' : 'none';
-        
-        // Enable/disable the number inputs when custom is selected
-        const bottomInput = document.getElementById('customBottom');
-        const rightInput = document.getElementById('customRight');
-        
-        if (bottomInput && rightInput) {
-            bottomInput.disabled = position !== 'custom';
-            rightInput.disabled = position !== 'custom';
-        }
     }
 }
 
