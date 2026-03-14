@@ -1136,7 +1136,7 @@
 </button>
         </div>
         
-        <!-- Main Deployment Card -->
+               <!-- Main Deployment Card -->
         <div style="background: linear-gradient(145deg, rgba(248,196,0,0.1), rgba(0,0,0,0.2)); border: 1px solid #f8c400; border-radius: 20px; padding: 30px; margin-bottom: 30px; width: 100%;">
             <h3 style="color: #f8c400; font-size: 1.5rem; margin-top: 0; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
                 <i class="fas fa-rocket"></i> Complete Deployment Package
@@ -1145,13 +1145,40 @@
                 Generate everything you need in one click: Supabase CSV + Client Bridge File + Installation Guide
             </p>
             
-            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
                 <button onclick="configManager.generateDeploymentPackage()" style="background: linear-gradient(145deg, #f8c400, #e0b000); color: #0a0f1e; border: none; padding: 18px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; gap: 12px; cursor: pointer; box-shadow: 0 10px 25px -5px rgba(248,196,0,0.3);">
                     <i class="fas fa-download"></i> Generate Complete Package
                 </button>
                 <button onclick="previewDeploymentPackage()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 18px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; gap: 12px; cursor: pointer;">
                     <i class="fas fa-eye"></i> Preview Package
                 </button>
+            </div>
+            
+            <!-- NEW: Client Test Button Row -->
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; border-top: 1px solid rgba(248,196,0,0.2); padding-top: 25px;">
+                <button onclick="generateClientTest()" style="background: linear-gradient(145deg, #00c853, #00a844); color: white; border: none; padding: 16px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 12px; cursor: pointer; box-shadow: 0 10px 25px -5px rgba(0,200,0,0.3); flex: 1; justify-content: center;">
+                    <i class="fas fa-flask"></i> 🧪 Generate Client Test (Screenshot + Bridge)
+                </button>
+                <button onclick="showTestingInstructions()" style="background: rgba(255,255,255,0.05); color: #f8c400; border: 1px solid #f8c400; padding: 16px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 0.5; justify-content: center;">
+                    <i class="fas fa-question-circle"></i> How to Test
+                </button>
+            </div>
+            
+            <!-- Testing Instructions (Hidden by default) -->
+            <div id="testingInstructions" style="display: none; margin-top: 20px; background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; border-left: 4px solid #00c853;">
+                <h4 style="color: #00c853; margin-bottom: 10px;"><i class="fas fa-flask"></i> How to Test Your Client's Bridge</h4>
+                <ol style="color: rgba(255,255,255,0.9); margin-left: 20px; line-height: 1.8;">
+                    <li><strong>Click "Generate Client Test"</strong> above</li>
+                    <li><strong>Upload a screenshot</strong> of the client's website when prompted</li>
+                    <li><strong>Two files will download:</strong> bridge-client.js and test-client.html</li>
+                    <li><strong>Upload both files to Netlify</strong> (rename test file to index.html)</li>
+                    <li><strong>Open the Netlify URL</strong> — you'll see their website screenshot with your splash screen overlaid</li>
+                    <li><strong>Test all buttons:</strong> "Get AI help" and "Just Browsing"</li>
+                    <li><strong>Send the Netlify link</strong> to your client for approval</li>
+                </ol>
+                <p style="color: #f8c400; margin-top: 10px; font-size: 0.9rem;">
+                    <i class="fas fa-lightbulb"></i> Once approved, send the bridge file to your client for production installation.
+                </p>
             </div>
         </div>
 
@@ -2609,7 +2636,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
        // REPLACE your existing generateBridgeFile() function with this:
 
-// Export only the bridge file
+// ===== EXPORT BRIDGE ONLY (UPDATED WITH SPLASH SCREEN) =====
 function exportBridgeOnly() {
     console.log('🔧 Exporting bridge only...');
     
@@ -2620,135 +2647,7 @@ function exportBridgeOnly() {
             return;
         }
         
-        // Generate the bridge code
-        const bridgeCode = `// Botemia Bridge for ${config.name}
-// Generated: ${new Date().toLocaleString()}
-// Client ID: ${config.id}
-// Version: 5.0 - FULL SMART SCREEN WITH BACKDROP
-
-(function() {
-    "use strict";
-
-    // ===== EMBEDDED CLIENT CONFIGURATION =====
-    window.BotemiaConfig = ${JSON.stringify(config, null, 4)};
-
-    // ===== AUTO-TRIGGER CONTROL =====
-    window.disableBridgeTriggers = false;
-    
-    // ===== LISTEN FOR MESSAGES FROM TCS =====
-    window.addEventListener('message', function(event) {
-        if (event.data.type === 'DASHBOARD_COMMAND') {
-            if (event.data.command === 'toggleOverlays') {
-                window.disableBridgeTriggers = event.data.disabled;
-                console.log(\`🔕 Overlays \${event.data.disabled ? 'disabled' : 'enabled'}\`);
-            }
-            return;
-        }
-        
-        if (event.data.type === 'MODULE_TRIGGERED' && !window.disableBridgeTriggers) {
-            console.log('🎯 Module triggered:', event.data.module, event.data.triggerPhrase);
-            window.showModule(event.data.module, event.data.triggerPhrase);
-        }
-    });
-        
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                    mutation.addedNodes.forEach(node => {
-                        if (node.nodeType === 1) {
-                            if (node.matches && (
-                                node.matches('.message-bubble') || 
-                                node.matches('.botania-message') || 
-                                node.matches('.ai-message') ||
-                                node.matches('.user-message') ||
-                                node.matches('[class*="message"]')
-                            )) {
-                                if (node.textContent && !node.dataset.botemiaProcessed) {
-                                    node.dataset.botemiaProcessed = 'true';
-                                    checkForTriggers(node.textContent);
-                                }
-                            }
-                            
-                            if (node.querySelectorAll) {
-                                node.querySelectorAll('.message-bubble, .botania-message, .ai-message, .user-message, [class*="message"]').forEach(el => {
-                                    if (el.textContent && !el.dataset.botemiaProcessed) {
-                                        el.dataset.botemiaProcessed = 'true';
-                                        checkForTriggers(el.textContent);
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
-            });
-        });
-        
-               if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                observer.observe(document.body, { childList: true, subtree: true });
-            });
-        } else {
-            observer.observe(document.body, { childList: true, subtree: true });
-        }
-    })();
-
-    // ===== LOAD WIDGET =====
-    function initWidget() {
-        if (document.querySelector('lemon-slice-widget')) {
-            console.log('✅ Widget already exists');
-            return;
-        }
-
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
-        script.type = 'module';
-        script.onload = () => {
-            const widget = document.createElement('lemon-slice-widget');
-            widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
-            document.body.appendChild(widget);
-            console.log('✅ Widget created for', window.BotemiaConfig.name);
-        };
-        script.onerror = () => console.error('❌ Failed to load widget');
-        document.head.appendChild(script);
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initWidget);
-    } else {
-        initWidget();
-    }
-
-    console.log('✅ Botemia Bridge v5.0 loaded for', window.BotemiaConfig.name);
-})();`;
-
-        // Create and download just the bridge file
-        const bridgeBlob = new Blob([bridgeCode], { type: 'application/javascript' });
-        const bridgeLink = document.createElement('a');
-        bridgeLink.href = URL.createObjectURL(bridgeBlob);
-        bridgeLink.download = 'bridge-' + config.id + '.js';
-        bridgeLink.click();
-        URL.revokeObjectURL(bridgeLink.href);
-        
-        configManager.updateStatus('✅ Bridge file exported for ' + config.name, 'success');
-        console.log('✅ Bridge only export completed');
-        
-    } catch (error) {
-        console.error('❌ Bridge export error:', error);
-        alert('Error exporting bridge: ' + error.message);
-    }
-}
-
-function exportBridgeOnly() {
-    console.log('🔧 Exporting bridge only...');
-    
-    try {
-        const config = configManager.getCurrentConfig();
-        if (!config.id || !config.name) {
-            alert('Please enter a client name');
-            return;
-        }
-        
-        // Use the SAME bridge code generation as generateDeploymentPackage
+        // Use safeStringify to handle circular references
         const safeStringify = (obj) => {
             const cache = new Set();
             return JSON.stringify(obj, (key, value) => {
@@ -2770,7 +2669,6 @@ function exportBridgeOnly() {
 
     // ===== EMBEDDED CLIENT CONFIGURATION =====
     window.BotemiaConfig = ${safeStringify(config)};
-
     
     // ===== ADD SPLASH SCREEN CSS =====
     const style = document.createElement('style');
@@ -3271,11 +3169,9 @@ function controlTCS(action, value) {
 
     switch(action) {
         case 'openTCS':
-            // Encode config for passing to TCS
             const configString = JSON.stringify(config);
             const encodedConfig = btoa(unescape(encodeURIComponent(configString)));
             
-            // Open in new window - NOT iframe
             window.open(
                 'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig + '&clientId=' + config.id,
                 'BotemiaTCS',
@@ -3286,7 +3182,6 @@ function controlTCS(action, value) {
         case 'enableAuto':
         case 'disableAuto':
         case 'toggleOverlays':
-            // Send to all open TCS windows
             const message = {
                 type: 'DASHBOARD_COMMAND',
                 command: action === 'enableAuto' ? 'setAutoTrigger' : 
@@ -3295,7 +3190,6 @@ function controlTCS(action, value) {
                        action === 'disableAuto' ? true : value
             };
             
-            // Try to find any open TCS windows
             if (window.tcsWindow && !window.tcsWindow.closed) {
                 window.tcsWindow.postMessage(message, '*');
             }
@@ -3310,12 +3204,14 @@ function controlTCS(action, value) {
     }
 }
 
-        function loadDefaultTriggers() {
-            const industry = document.getElementById('industryPreset').value;
-            configManager.loadIndustryPreset(industry);
-        }
+function loadDefaultTriggers() {
+    const industry = document.getElementById('industryPreset').value;
+    configManager.loadIndustryPreset(industry);
+}
 
-        function saveConfiguration() { configManager.saveConfiguration(); }
+function saveConfiguration() { 
+    configManager.saveConfiguration(); 
+}
 
 function launchTriggerSystem() {
     const config = configManager.getCurrentConfig();
@@ -3325,13 +3221,9 @@ function launchTriggerSystem() {
     }
     configManager.saveConfiguration();
     
-    // Step 1: Convert config to JSON string
     const configString = JSON.stringify(config);
-    
-    // Step 2: Encode for URL (base64 is safer than encodeURIComponent for complex strings)
     const base64Config = btoa(unescape(encodeURIComponent(configString)));
     
-    // Step 3: Open TCS with base64 config
     window.open(
         'https://mobilewise.netlify.app/trigger-control-system?config=' + base64Config,
         'BotemiaControl',
@@ -3339,16 +3231,7 @@ function launchTriggerSystem() {
     );
 }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            window.configManager = configManager;
-            configManager.init();
-        });
-    </script>
-   
-   <script>
-
-  // ===== SPLASH SCREEN PREVIEW FUNCTIONS =====
+// ===== SPLASH SCREEN PREVIEW FUNCTIONS =====
 function updateSplashPreview() {
     const topText = document.getElementById('splashTopText')?.value || 'Meet Tess';
     const subText = document.getElementById('splashSubText')?.value || 'Your Personal AI Smart Guide';
@@ -3368,21 +3251,21 @@ function updateSplashPreview() {
     document.getElementById('previewSecondary').style.color = 'white';
 }
 
+function previewDeploymentPackage() {
+    const previewSection = document.getElementById('previewSection');
+    if (previewSection) {
+        previewSection.style.display = previewSection.style.display === 'none' ? 'grid' : 'none';
+    }
+}
+
 function toggleGradientControls() {
     const bgStyleEl = document.getElementById('splashBgStyle');
     const gradientControls = document.getElementById('gradientControls');
     const solidControl = document.getElementById('solidColorControl');
     
-    if (!bgStyleEl || !gradientControls || !solidControl) return;
-    
-    const bgStyle = bgStyleEl.value;
-    
-    if (bgStyle === 'solid') {
-        gradientControls.style.display = 'none';
-        solidControl.style.display = 'block';
-    } else {
-        gradientControls.style.display = 'grid';
-        solidControl.style.display = 'none';
+    if (bgStyleEl && gradientControls && solidControl) {
+        gradientControls.style.display = bgStyleEl.value === 'solid' ? 'none' : 'grid';
+        solidControl.style.display = bgStyleEl.value === 'solid' ? 'block' : 'none';
     }
 }
 
@@ -3391,8 +3274,7 @@ function toggleCustomPosition() {
     const customControls = document.getElementById('customPositionControls');
     
     if (positionEl && customControls) {
-        const position = positionEl.value;
-        customControls.style.display = position === 'custom' ? 'grid' : 'none';
+        customControls.style.display = positionEl.value === 'custom' ? 'grid' : 'none';
     }
 }
 
@@ -3403,7 +3285,6 @@ function handleTessImageUpload(input) {
             const imageData = e.target.result;
             document.getElementById('splashTessImageData').value = imageData;
             
-            // Update preview icon to 170x170
             const persistentIcon = document.getElementById('previewPersistentIcon');
             persistentIcon.innerHTML = `<img src="${imageData}" style="width:170px; height:170px; border-radius:50%; object-fit:cover; border:3px solid #f8c400;">`;
         };
@@ -3421,22 +3302,133 @@ function handleBrandLogoUpload(input) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Only call these if the elements exist
+function showTestingInstructions() {
+    const instructions = document.getElementById('testingInstructions');
+    if (instructions) {
+        instructions.style.display = instructions.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+function generateClientTest() {
+    const config = configManager.getCurrentConfig();
+    
+    if (!config.id || !config.name) {
+        alert('Please save client configuration first');
+        return;
+    }
+    
+    // Step 1: Generate bridge file
+    exportBridgeOnly();
+    
+    // Step 2: Create a file input for screenshot
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(readerEvent) {
+            const screenshotData = readerEvent.target.result;
+            createTestPage(config, screenshotData);
+        };
+        reader.readAsDataURL(file);
+    };
+    fileInput.click();
+}
+
+function createTestPage(config, screenshotData) {
+    const testHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test: ${config.name}</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-image: url('${screenshotData}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .test-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(248,196,0,0.95);
+            color: #000;
+            padding: 12px;
+            text-align: center;
+            z-index: 1000000;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            backdrop-filter: blur(4px);
+        }
+        .test-banner i {
+            margin-right: 8px;
+        }
+        .test-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.2);
+            pointer-events: none;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-banner">
+        <i class="fas fa-flask"></i> TEST MODE: ${config.name} — Bridge active below
+    </div>
+    <div class="test-overlay"></div>
+    
+    <script type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"></script>
+    <script src="bridge-${config.id}.js"></script>
+    
+    <div style="position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #f8c400; padding: 8px 16px; border-radius: 30px; font-size: 12px; border: 1px solid #f8c400; z-index: 1000000;">
+        ⚡ Splash screen will appear...
+    </div>
+</body>
+</html>`;
+
+    const blob = new Blob([testHtml], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `test-${config.id}.html`;
+    a.click();
+    
+    alert(`✅ Test page created!\n\nTo test:\n1. Upload both files to Netlify:\n   - test-${config.id}.html (rename to index.html)\n   - bridge-${config.id}.js\n2. Open the Netlify URL`);
+    
+    configManager.updateStatus('Test page generated', 'success');
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    window.configManager = configManager;
+    configManager.init();
+    
+    // Initialize preview functions if elements exist
     if (document.getElementById('splashTopText')) {
         updateSplashPreview();
     }
-    
-    // Check if splash elements exist before calling
     if (document.getElementById('splashBgStyle')) {
         toggleGradientControls();
     }
-    
     if (document.getElementById('persistentButtonPosition')) {
         toggleCustomPosition();
     }
 });
-
 </script>
 </body>
 </html>
