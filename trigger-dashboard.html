@@ -582,7 +582,7 @@
         <div class="module-icon"><i class="fas fa-images"></i></div>
         <div class="module-title">
             <h2>🚀 Splash Screen Configuration</h2>
-            <p>Instant-load welcome screen — beats bounce rate</p>
+            <p>Instant-load welcome screen with live avatar — beats bounce rate</p>
         </div>
     </div>
 
@@ -609,6 +609,25 @@
             </div>
         </div>
 
+        <!-- AGENT ID SECTION (NEW) -->
+        <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #f8c400;">
+            <h4 style="color: #f8c400; margin-bottom: 15px;"><i class="fas fa-robot"></i> Lemon Slice Agent Configuration</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="field">
+                    <label><i class="fas fa-id-card"></i> Agent ID (same for both widgets)</label>
+                    <input type="text" id="splashAgentId" value="agent_7b0776ef6b855de5" placeholder="agent_...">
+                </div>
+                <div class="field">
+                    <label><i class="fas fa-ruler"></i> Splash Widget Size</label>
+                    <select id="splashWidgetSize">
+                        <option value="252" selected>Medium (252×377)</option>
+                        <option value="300">Large (300×450)</option>
+                        <option value="200">Small (200×300)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <div style="display: grid; gap: 20px;">
             <!-- Headlines -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -622,29 +641,21 @@
                 </div>
             </div>
 
-            <!-- Tess Image Upload -->
+            <!-- Tess Image Upload (for fallback/persistent button) -->
             <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; border: 1px dashed #f8c400;">
                 <label style="color: #f8c400; font-weight: 600; display: block; margin-bottom: 15px;">
-                    <i class="fas fa-cloud-upload-alt"></i> Tess Image
+                    <i class="fas fa-cloud-upload-alt"></i> Tess Image (for persistent button)
                 </label>
                 <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
                     <div>
                         <input type="file" id="splashTessImageUpload" accept="image/*" onchange="handleTessImageUpload(this)">
-                        <p style="color: #aaa; font-size:0.8rem; margin-top:8px;">Recommended: 200x200 PNG (will auto-resize for button)</p>
+                        <p style="color: #aaa; font-size:0.8rem; margin-top:8px;">Recommended: 170×170 PNG with transparency</p>
                     </div>
-                    <div style="display: flex; gap: 20px;">
-                        <div style="text-align: center;">
-                            <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid #f8c400; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;" id="previewSmallIcon">
-                                <i class="fas fa-user-circle" style="font-size: 30px; color: #f8c400;"></i>
-                            </div>
-                            <span style="color: #aaa; font-size:0.7rem;">60×60 button</span>
+                    <div style="text-align: center;">
+                        <div style="width: 170px; height: 170px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 3px solid #f8c400; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;" id="previewPersistentIcon">
+                            <i class="fas fa-user-circle" style="font-size: 80px; color: #f8c400;"></i>
                         </div>
-                        <div style="text-align: center;">
-                            <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid #f8c400; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;" id="previewLargeIcon">
-                                <i class="fas fa-user-circle" style="font-size: 50px; color: #f8c400;"></i>
-                            </div>
-                            <span style="color: #aaa; font-size:0.7rem;">splash screen</span>
-                        </div>
+                        <span style="color: #aaa; font-size:0.8rem;">170×170 persistent button</span>
                     </div>
                 </div>
                 <input type="hidden" id="splashTessImageData" value="">
@@ -739,7 +750,7 @@
                     <div class="field">
                         <label><i class="fas fa-mouse-pointer"></i> Click Action</label>
                         <select id="persistentButtonAction">
-                            <option value="activate-tess" selected>Activate Tess</option>
+                            <option value="activate-tess" selected>Activate Tess (mic on)</option>
                             <option value="show-splash">Show Splash Screen Again</option>
                             <option value="open-chat">Open Chat Window</option>
                         </select>
@@ -1363,28 +1374,30 @@ populateClientSelect() {
         modules: {
             // ===== NEW: SPLASH SCREEN MODULE =====
             splashScreen: {
-                enabled: document.getElementById('splashEnabled')?.checked || false,
-                topText: document.getElementById('splashTopText')?.value || 'Meet Tess',
-                subText: document.getElementById('splashSubText')?.value || 'Your Personal AI Smart Guide',
-                tessImage: document.getElementById('splashTessImageData')?.value || '',
-                bgStyle: document.getElementById('splashBgStyle')?.value || 'gradient-blue',
-                gradientTop: document.getElementById('splashGradientTop')?.value || '#0f1a2f',
-                gradientBottom: document.getElementById('splashGradientBottom')?.value || '#1e4a8a',
-                solidColor: document.getElementById('splashSolidColor')?.value || '#0f1a2f',
-                primaryButton: {
-                    text: document.getElementById('splashPrimaryText')?.value || 'Get AI help with Tess',
-                    color: document.getElementById('splashPrimaryColor')?.value || '#f8c400'
-                },
-                secondaryButton: {
-                    text: document.getElementById('splashSecondaryText')?.value || 'Just Browsing',
-                    color: document.getElementById('splashSecondaryColor')?.value || '#555555'
-                },
-                persistentButton: {
-                    enabled: document.getElementById('persistentButtonEnabled')?.checked || true,
-                    position: document.getElementById('persistentButtonPosition')?.value || 'bottom-left',
-                    action: document.getElementById('persistentButtonAction')?.value || 'activate-tess',
-                    customBottom: document.getElementById('customBottom')?.value || 20,
-                    customRight: document.getElementById('customRight')?.value || 20
+    enabled: document.getElementById('splashEnabled')?.checked || false,
+    agentId: document.getElementById('splashAgentId')?.value || 'agent_7b0776ef6b855de5',
+    splashWidgetSize: document.getElementById('splashWidgetSize')?.value || '252',
+    topText: document.getElementById('splashTopText')?.value || 'Meet Tess',
+    subText: document.getElementById('splashSubText')?.value || 'Your Personal AI Smart Guide',
+    tessImage: document.getElementById('splashTessImageData')?.value || '',
+    bgStyle: document.getElementById('splashBgStyle')?.value || 'gradient-blue',
+    gradientTop: document.getElementById('splashGradientTop')?.value || '#0f1a2f',
+    gradientBottom: document.getElementById('splashGradientBottom')?.value || '#1e4a8a',
+    solidColor: document.getElementById('splashSolidColor')?.value || '#0f1a2f',
+    primaryButton: {
+        text: document.getElementById('splashPrimaryText')?.value || 'Get AI help with Tess',
+        color: document.getElementById('splashPrimaryColor')?.value || '#f8c400'
+    },
+    secondaryButton: {
+        text: document.getElementById('splashSecondaryText')?.value || 'Just Browsing',
+        color: document.getElementById('splashSecondaryColor')?.value || '#555555'
+    },
+    persistentButton: {
+        enabled: document.getElementById('persistentButtonEnabled')?.checked || true,
+        position: document.getElementById('persistentButtonPosition')?.value || 'bottom-left',
+        action: document.getElementById('persistentButtonAction')?.value || 'activate-tess',
+        customBottom: document.getElementById('customBottom')?.value || 20,
+        customRight: document.getElementById('customRight')?.value || 20
                 }
             },
             
@@ -3067,12 +3080,9 @@ function handleTessImageUpload(input) {
             const imageData = e.target.result;
             document.getElementById('splashTessImageData').value = imageData;
             
-            // Update preview icons
-            const smallIcon = document.getElementById('previewSmallIcon');
-            const largeIcon = document.getElementById('previewLargeIcon');
-            
-            smallIcon.innerHTML = `<img src="${imageData}" style="width:60px; height:60px; border-radius:50%; object-fit:cover;">`;
-            largeIcon.innerHTML = `<img src="${imageData}" style="width:100px; height:100px; border-radius:50%; object-fit:cover;">`;
+            // Update preview icon to 170x170
+            const persistentIcon = document.getElementById('previewPersistentIcon');
+            persistentIcon.innerHTML = `<img src="${imageData}" style="width:170px; height:170px; border-radius:50%; object-fit:cover; border:3px solid #f8c400;">`;
         };
         reader.readAsDataURL(input.files[0]);
     }
@@ -3084,6 +3094,7 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleGradientControls();
     toggleCustomPosition();
 });
+
 </script>
 </body>
 </html>
