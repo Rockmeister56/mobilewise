@@ -1824,7 +1824,7 @@ Contact: support@botemia.com`;
 }
         };
 
-        // ===== GLOBAL FUNCTIONS =====
+                // ===== GLOBAL FUNCTIONS =====
         function addCustomTrigger(module) {
             let input, textareaId;
             if (module === 'testimonial') {
@@ -1851,358 +1851,272 @@ Contact: support@botemia.com`;
         }
 
         // ===== SMART SCREEN MANAGEMENT =====
-let smartScreens = [];
+        let smartScreens = [];
 
-function loadSmartScreens() {
-    const saved = localStorage.getItem('botemia_smartScreens');
-    if (saved) {
-        smartScreens = JSON.parse(saved);
-        renderSmartScreenList();
-    }
-}
+        function loadSmartScreens() {
+            const saved = localStorage.getItem('botemia_smartScreens');
+            if (saved) {
+                smartScreens = JSON.parse(saved);
+                renderSmartScreenList();
+            }
+        }
 
-// ===== TESTIMONIAL GROUPS MANAGEMENT =====
-let testimonialGroups = [];
+        // ===== TESTIMONIAL GROUPS MANAGEMENT =====
+        let testimonialGroups = [];
 
-function loadTestimonialGroups() {
-    const saved = localStorage.getItem('botemia_testimonialGroups');
-    if (saved) {
-        testimonialGroups = JSON.parse(saved);
-        renderTestimonialGroups();
-    }
-}
+        function loadTestimonialGroups() {
+            const saved = localStorage.getItem('botemia_testimonialGroups');
+            if (saved) {
+                testimonialGroups = JSON.parse(saved);
+                renderTestimonialGroups();
+            }
+        }
 
-function renderTestimonialGroups() {
-    const container = document.getElementById('testimonialGroupsList');
-    const emptyState = document.getElementById('testimonialGroupsEmpty');
-    
-    if (!container) return;
-    
-    if (testimonialGroups.length === 0) {
-        if (emptyState) emptyState.style.display = 'block';
-        return;
-    }
-    
-    if (emptyState) emptyState.style.display = 'none';
-    
-    let html = '';
-    testimonialGroups.forEach((group, index) => {
-        const videoCount = group.videos ? group.videos.length : 0;
-        
-        html += `
-            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
-                <div style="flex:1;">
-                    <h4 style="margin:0 0 5px 0; color:white;">${group.name}</h4>
-                    <p style="margin:0 0 5px 0; color:#f8c400; font-size:0.9rem;">
-                        <i class="fas fa-bullhorn"></i> "${group.triggerPhrase}"
-                    </p>
-                    <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">
-                        <i class="fas fa-folder"></i> Category: ${group.category} | 
-                        <i class="fas fa-video"></i> ${videoCount} video(s)
-                    </p>
-                    ${videoCount > 0 ? `
-                        <div style="margin-top:8px; font-size:0.8rem; color:#888;">
-                            ${group.videos.map(v => `🔗 ${v.substring(0, 30)}...`).join('<br>')}
+        function renderTestimonialGroups() {
+            const container = document.getElementById('testimonialGroupsList');
+            const emptyState = document.getElementById('testimonialGroupsEmpty');
+            
+            if (!container) return;
+            
+            if (testimonialGroups.length === 0) {
+                if (emptyState) emptyState.style.display = 'block';
+                return;
+            }
+            
+            if (emptyState) emptyState.style.display = 'none';
+            
+            let html = '';
+            testimonialGroups.forEach((group, index) => {
+                const videoCount = group.videos ? group.videos.length : 0;
+                
+                html += `
+                    <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
+                        <div style="flex:1;">
+                            <h4 style="margin:0 0 5px 0; color:white;">${group.name}</h4>
+                            <p style="margin:0 0 5px 0; color:#f8c400; font-size:0.9rem;">
+                                <i class="fas fa-bullhorn"></i> "${group.triggerPhrase}"
+                            </p>
+                            <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">
+                                <i class="fas fa-folder"></i> Category: ${group.category} | 
+                                <i class="fas fa-video"></i> ${videoCount} video(s)
+                            </p>
+                            ${videoCount > 0 ? `
+                                <div style="margin-top:8px; font-size:0.8rem; color:#888;">
+                                    ${group.videos.map(v => `🔗 ${v.substring(0, 30)}...`).join('<br>')}
+                                </div>
+                            ` : ''}
                         </div>
-                    ` : ''}
-                </div>
-                <button onclick="deleteTestimonialGroup(${index})" style="position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.7rem;">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-function addTestimonialGroup() {
-    const name = document.getElementById('newTestimonialGroupName')?.value.trim();
-    const triggerPhrase = document.getElementById('newTestimonialTrigger')?.value.trim();
-    const category = document.getElementById('newTestimonialCategory')?.value;
-    const videosRaw = document.getElementById('newTestimonialVideos')?.value.trim();
-    
-    if (!name) {
-        alert('Please enter a group name');
-        return;
-    }
-    
-    if (!triggerPhrase) {
-        alert('Please enter a trigger phrase');
-        return;
-    }
-    
-    // Parse videos (comma separated URLs)
-    const videos = videosRaw ? videosRaw.split(',').map(v => v.trim()).filter(v => v) : [];
-    
-    const newGroup = {
-        name: name,
-        triggerPhrase: triggerPhrase,
-        category: category || 'other',
-        videos: videos
-    };
-    
-    testimonialGroups.push(newGroup);
-    localStorage.setItem('botemia_testimonialGroups', JSON.stringify(testimonialGroups));
-    renderTestimonialGroups();
-    
-    // Clear form
-    document.getElementById('newTestimonialGroupName').value = '';
-    document.getElementById('newTestimonialTrigger').value = '';
-    document.getElementById('newTestimonialVideos').value = '';
-    
-    configManager.updateStatus('Testimonial group added', 'success');
-}
-
-function deleteTestimonialGroup(index) {
-    if (confirm('Delete this testimonial group?')) {
-        testimonialGroups.splice(index, 1);
-        localStorage.setItem('botemia_testimonialGroups', JSON.stringify(testimonialGroups));
-        renderTestimonialGroups();
-        configManager.updateStatus('Testimonial group deleted', 'success');
-    }
-}
-
-// ===== SINGLE VIDEOS MANAGEMENT =====
-let videos = [];
-
-function loadVideos() {
-    const saved = localStorage.getItem('botemia_videos');
-    if (saved) {
-        videos = JSON.parse(saved);
-        renderVideos();
-    }
-}
-
-function renderVideos() {
-    const container = document.getElementById('videoList');
-    const emptyState = document.getElementById('videoListEmpty');
-    
-    if (!container) return;
-    
-    if (videos.length === 0) {
-        if (emptyState) emptyState.style.display = 'block';
-        return;
-    }
-    
-    if (emptyState) emptyState.style.display = 'none';
-    
-    let html = '';
-    videos.forEach((video, index) => {
-        html += `
-            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
-                <div style="flex:1;">
-                    <h4 style="margin:0 0 5px 0; color:white;">${video.name}</h4>
-                    <p style="margin:0 0 5px 0; color:#f8c400; font-size:0.9rem;">
-                        <i class="fas fa-bullhorn"></i> "${video.triggerPhrase}"
-                    </p>
-                    <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">
-                        <i class="fas fa-folder"></i> Category: ${video.category}
-                    </p>
-                    <p style="margin:0; font-size:0.8rem; color:#888;">
-                        <i class="fas fa-link"></i> ${video.url.substring(0, 50)}...
-                    </p>
-                    ${video.description ? `<p style="margin:5px 0 0 0; font-size:0.8rem; color:#666;">📝 ${video.description}</p>` : ''}
-                </div>
-                <button onclick="deleteVideo(${index})" style="position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.7rem;">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-function addVideo() {
-    const name = document.getElementById('newVideoName')?.value.trim();
-    const triggerPhrase = document.getElementById('newVideoTrigger')?.value.trim();
-    const url = document.getElementById('newVideoUrl')?.value.trim();
-    const description = document.getElementById('newVideoDescription')?.value.trim();
-    const category = document.getElementById('newVideoCategory')?.value;
-    
-    if (!name) {
-        alert('Please enter a video title');
-        return;
-    }
-    
-    if (!triggerPhrase) {
-        alert('Please enter a trigger phrase');
-        return;
-    }
-    
-    if (!url) {
-        alert('Please enter a video URL');
-        return;
-    }
-    
-    const newVideo = {
-        name: name,
-        triggerPhrase: triggerPhrase,
-        url: url,
-        description: description || '',
-        category: category || 'other'
-    };
-    
-    videos.push(newVideo);
-    localStorage.setItem('botemia_videos', JSON.stringify(videos));
-    renderVideos();
-    
-    // Clear form
-    document.getElementById('newVideoName').value = '';
-    document.getElementById('newVideoTrigger').value = '';
-    document.getElementById('newVideoUrl').value = '';
-    document.getElementById('newVideoDescription').value = '';
-    
-    configManager.updateStatus('Video added', 'success');
-}
-
-function deleteVideo(index) {
-    if (confirm('Delete this video?')) {
-        videos.splice(index, 1);
-        localStorage.setItem('botemia_videos', JSON.stringify(videos));
-        renderVideos();
-        configManager.updateStatus('Video deleted', 'success');
-    }
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    loadTestimonialGroups();
-    loadVideos();
-});
-
-function renderSmartScreenList() {
-    const container = document.getElementById('smartScreenList');
-    const emptyState = document.getElementById('smartScreenEmptyState');
-    
-    if (!container) return;
-    
-    // Get the latest smart screens from localStorage
-    smartScreens = JSON.parse(localStorage.getItem('botemia_smartScreens') || '[]');
-    
-    if (smartScreens.length === 0) {
-        if (emptyState) emptyState.style.display = 'block';
-        container.innerHTML = ''; // Clear container
-        return;
-    }
-    
-    if (emptyState) emptyState.style.display = 'none';
-    
-    let html = '';
-    smartScreens.forEach((screen, index) => {
-        // Use triggerMatch instead of triggers
-        const triggerText = screen.triggerMatch ? screen.triggerMatch.join(', ') : '';
-        
-        html += `
-            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
-                <div style="display: flex; gap: 15px;">
-                    <img src="${screen.imageUrl}" style="width:80px; height:60px; object-fit:cover; border-radius:6px; border:1px solid #f8c400;">
-                    <div style="flex:1;">
-                        <h4 style="margin:0 0 5px 0; color:white;">${screen.name}</h4>
-                        <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">${screen.caption || ''}</p>
-                        <p style="margin:0; color:#f8c400; font-size:0.8rem;">
-                            <i class="fas fa-bullhorn"></i> ${triggerText}
-                        </p>
-                        ${screen.link ? `<p style="margin:5px 0 0 0; font-size:0.8rem;"><a href="${screen.link}" target="_blank" style="color:#4caf50;">🔗 ${screen.link}</a></p>` : ''}
+                        <button onclick="deleteTestimonialGroup(${index})" style="position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.7rem;">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
                     </div>
-                </div>
-                <button onclick="deleteSmartScreen(${index})" style="position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.7rem;">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-function addNewSmartScreen() {
-    const name = document.getElementById('newSmartScreenName')?.value.trim();
-    const link = document.getElementById('newSmartScreenLink')?.value.trim();
-    const caption = document.getElementById('newSmartScreenCaption')?.value.trim();
-    const imageUrl = document.getElementById('newSmartScreenImageUrl')?.value.trim();
-    const triggersRaw = document.getElementById('newSmartScreenTriggers')?.value.trim();
-    const fileInput = document.getElementById('smartScreenImageUpload');
-    
-    // Get styling values
-    const imageSize = document.getElementById('newSmartScreenSize')?.value || '400px';
-    const bgColor = document.getElementById('newSmartScreenBgColor')?.value || 'white';
-    const backdropOpacity = parseFloat(document.getElementById('newSmartScreenBackdrop')?.value || '0.5');
-    const showTitle = document.getElementById('newSmartScreenShowTitle')?.checked || true;
-    const borderColor = document.getElementById('newSmartScreenBorderColor')?.value || '#f8c400';
-    
-    if (!name) {
-        alert('Please enter a screen name');
-        return;
-    }
-    
-    if (!imageUrl && (!fileInput || fileInput.files.length === 0)) {
-        alert('Please provide an image (upload or URL)');
-        return;
-    }
-    
-    const triggerMatch = triggersRaw.split(',').map(t => t.trim()).filter(t => t);
-    
-    if (triggerMatch.length === 0) {
-        alert('Please enter at least one trigger phrase');
-        return;
-    }
-    
-    const finalImageUrl = imageUrl || (fileInput.files.length > 0 ? URL.createObjectURL(fileInput.files[0]) : '');
-    
-    const newScreen = {
-        name,
-        link,
-        caption,
-        imageUrl: finalImageUrl,
-        triggerMatch: triggerMatch,
-        imageSize: imageSize,
-        bgColor: bgColor,
-        backdropOpacity: backdropOpacity,
-        showTitle: showTitle,
-        borderColor: borderColor
-    };
-    
-    // Get existing screens or initialize empty array
-    let smartScreens = JSON.parse(localStorage.getItem('botemia_smartScreens') || '[]');
-    smartScreens.push(newScreen);
-    localStorage.setItem('botemia_smartScreens', JSON.stringify(smartScreens));
-    
-    // Update the client data
-    const clientId = document.getElementById('clientId').value;
-    if (clientId && configManager.clients[clientId]) {
-        if (!configManager.clients[clientId].modules) {
-            configManager.clients[clientId].modules = {};
+                `;
+            });
+            container.innerHTML = html;
         }
-        if (!configManager.clients[clientId].modules.smartScreen) {
-            configManager.clients[clientId].modules.smartScreen = { images: [] };
+
+        function addTestimonialGroup() {
+            const name = document.getElementById('newTestimonialGroupName')?.value.trim();
+            const triggerPhrase = document.getElementById('newTestimonialTrigger')?.value.trim();
+            const category = document.getElementById('newTestimonialCategory')?.value;
+            const videosRaw = document.getElementById('newTestimonialVideos')?.value.trim();
+            
+            if (!name) { alert('Please enter a group name'); return; }
+            if (!triggerPhrase) { alert('Please enter a trigger phrase'); return; }
+            
+            const videos = videosRaw ? videosRaw.split(',').map(v => v.trim()).filter(v => v) : [];
+            
+            const newGroup = { name, triggerPhrase, category: category || 'other', videos };
+            
+            testimonialGroups.push(newGroup);
+            localStorage.setItem('botemia_testimonialGroups', JSON.stringify(testimonialGroups));
+            renderTestimonialGroups();
+            
+            document.getElementById('newTestimonialGroupName').value = '';
+            document.getElementById('newTestimonialTrigger').value = '';
+            document.getElementById('newTestimonialVideos').value = '';
+            
+            configManager.updateStatus('Testimonial group added', 'success');
         }
-        configManager.clients[clientId].modules.smartScreen.images = smartScreens;
-        
-        // Save to localStorage
-        localStorage.setItem('mobilewise_clients', JSON.stringify(configManager.clients));
-    }
-    
-    renderSmartScreenList();
-    
-    // ===== REMOVED THE FORM CLEARING CODE =====
-    // Now the form fields will keep their values
-    
-    configManager.updateStatus('Smart screen added', 'success');
-}
 
-function deleteSmartScreen(index) {
-    if (confirm('Delete this smart screen?')) {
-        smartScreens.splice(index, 1);
-        localStorage.setItem('botemia_smartScreens', JSON.stringify(smartScreens));
-        renderSmartScreenList();
-        configManager.updateStatus('Smart screen deleted', 'success');
-    }
-}
+        function deleteTestimonialGroup(index) {
+            if (confirm('Delete this testimonial group?')) {
+                testimonialGroups.splice(index, 1);
+                localStorage.setItem('botemia_testimonialGroups', JSON.stringify(testimonialGroups));
+                renderTestimonialGroups();
+                configManager.updateStatus('Testimonial group deleted', 'success');
+            }
+        }
 
-// Load on init
-document.addEventListener('DOMContentLoaded', () => {
-    loadSmartScreens();
-});
+        // ===== SINGLE VIDEOS MANAGEMENT =====
+        let videos = [];
 
+        function loadVideos() {
+            const saved = localStorage.getItem('botemia_videos');
+            if (saved) {
+                videos = JSON.parse(saved);
+                renderVideos();
+            }
+        }
+
+        function renderVideos() {
+            const container = document.getElementById('videoList');
+            const emptyState = document.getElementById('videoListEmpty');
+            
+            if (!container) return;
+            
+            if (videos.length === 0) {
+                if (emptyState) emptyState.style.display = 'block';
+                return;
+            }
+            
+            if (emptyState) emptyState.style.display = 'none';
+            
+            let html = '';
+            videos.forEach((video, index) => {
+                html += `
+                    <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
+                        <div style="flex:1;">
+                            <h4 style="margin:0 0 5px 0; color:white;">${video.name}</h4>
+                            <p style="margin:0 0 5px 0; color:#f8c400; font-size:0.9rem;">
+                                <i class="fas fa-bullhorn"></i> "${video.triggerPhrase}"
+                            </p>
+                            <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">
+                                <i class="fas fa-folder"></i> Category: ${video.category}
+                            </p>
+                            <p style="margin:0; font-size:0.8rem; color:#888;">
+                                <i class="fas fa-link"></i> ${video.url.substring(0, 50)}...
+                            </p>
+                        </div>
+                        <button onclick="deleteVideo(${index})" style="position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.7rem;">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function addVideo() {
+            const name = document.getElementById('newVideoName')?.value.trim();
+            const triggerPhrase = document.getElementById('newVideoTrigger')?.value.trim();
+            const url = document.getElementById('newVideoUrl')?.value.trim();
+            const description = document.getElementById('newVideoDescription')?.value.trim();
+            const category = document.getElementById('newVideoCategory')?.value;
+            
+            if (!name) { alert('Please enter a video title'); return; }
+            if (!triggerPhrase) { alert('Please enter a trigger phrase'); return; }
+            if (!url) { alert('Please enter a video URL'); return; }
+            
+            const newVideo = { name, triggerPhrase, url, description: description || '', category: category || 'other' };
+            
+            videos.push(newVideo);
+            localStorage.setItem('botemia_videos', JSON.stringify(videos));
+            renderVideos();
+            
+            document.getElementById('newVideoName').value = '';
+            document.getElementById('newVideoTrigger').value = '';
+            document.getElementById('newVideoUrl').value = '';
+            document.getElementById('newVideoDescription').value = '';
+            
+            configManager.updateStatus('Video added', 'success');
+        }
+
+        function deleteVideo(index) {
+            if (confirm('Delete this video?')) {
+                videos.splice(index, 1);
+                localStorage.setItem('botemia_videos', JSON.stringify(videos));
+                renderVideos();
+                configManager.updateStatus('Video deleted', 'success');
+            }
+        }
+
+        function renderSmartScreenList() {
+            const container = document.getElementById('smartScreenList');
+            const emptyState = document.getElementById('smartScreenEmptyState');
+            
+            if (!container) return;
+            
+            smartScreens = JSON.parse(localStorage.getItem('botemia_smartScreens') || '[]');
+            
+            if (smartScreens.length === 0) {
+                if (emptyState) emptyState.style.display = 'block';
+                container.innerHTML = '';
+                return;
+            }
+            
+            if (emptyState) emptyState.style.display = 'none';
+            
+            let html = '';
+            smartScreens.forEach((screen, index) => {
+                const triggerText = screen.triggerMatch ? screen.triggerMatch.join(', ') : '';
+                
+                html += `
+                    <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400; position: relative;">
+                        <div style="display: flex; gap: 15px;">
+                            <img src="${screen.imageUrl}" style="width:80px; height:60px; object-fit:cover; border-radius:6px; border:1px solid #f8c400;">
+                            <div style="flex:1;">
+                                <h4 style="margin:0 0 5px 0; color:white;">${screen.name}</h4>
+                                <p style="margin:0 0 5px 0; color:#aaa; font-size:0.85rem;">${screen.caption || ''}</p>
+                                <p style="margin:0; color:#f8c400; font-size:0.8rem;">
+                                    <i class="fas fa-bullhorn"></i> ${triggerText}
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="deleteSmartScreen(${index})" style="position:absolute; top:10px; right:10px; background:#f44336; color:white; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.7rem;">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function addNewSmartScreen() {
+            const name = document.getElementById('newSmartScreenName')?.value.trim();
+            const link = document.getElementById('newSmartScreenLink')?.value.trim();
+            const caption = document.getElementById('newSmartScreenCaption')?.value.trim();
+            const imageUrl = document.getElementById('newSmartScreenImageUrl')?.value.trim();
+            const triggersRaw = document.getElementById('newSmartScreenTriggers')?.value.trim();
+            const fileInput = document.getElementById('smartScreenImageUpload');
+            
+            const imageSize = document.getElementById('newSmartScreenSize')?.value || '400px';
+            const bgColor = document.getElementById('newSmartScreenBgColor')?.value || 'white';
+            const backdropOpacity = parseFloat(document.getElementById('newSmartScreenBackdrop')?.value || '0.5');
+            const showTitle = document.getElementById('newSmartScreenShowTitle')?.checked || true;
+            const borderColor = document.getElementById('newSmartScreenBorderColor')?.value || '#f8c400';
+            
+            if (!name) { alert('Please enter a screen name'); return; }
+            if (!imageUrl && (!fileInput || fileInput.files.length === 0)) { alert('Please provide an image'); return; }
+            
+            const triggerMatch = triggersRaw.split(',').map(t => t.trim()).filter(t => t);
+            if (triggerMatch.length === 0) { alert('Please enter at least one trigger phrase'); return; }
+            
+            const finalImageUrl = imageUrl || (fileInput.files.length > 0 ? URL.createObjectURL(fileInput.files[0]) : '');
+            
+            const newScreen = {
+                name, link, caption, imageUrl: finalImageUrl, triggerMatch,
+                imageSize, bgColor, backdropOpacity, showTitle, borderColor
+            };
+            
+            let smartScreens = JSON.parse(localStorage.getItem('botemia_smartScreens') || '[]');
+            smartScreens.push(newScreen);
+            localStorage.setItem('botemia_smartScreens', JSON.stringify(smartScreens));
+            
+            renderSmartScreenList();
+            configManager.updateStatus('Smart screen added', 'success');
+        }
+
+        function deleteSmartScreen(index) {
+            if (confirm('Delete this smart screen?')) {
+                smartScreens.splice(index, 1);
+                localStorage.setItem('botemia_smartScreens', JSON.stringify(smartScreens));
+                renderSmartScreenList();
+                configManager.updateStatus('Smart screen deleted', 'success');
+            }
+        }
+
+        // ===== IMAGE GALLERY ROWS =====
         let imageRowCounter = 2;
         function addImageRow() {
             imageRowCounter++;
@@ -2239,7 +2153,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Convert config to CSV format for Supabase
             const csvData = [
                 ['client_id', 'config_json', 'industry', 'updated_at'],
                 [config.id, JSON.stringify(config), config.industry, new Date().toISOString()]
@@ -2258,724 +2171,189 @@ document.addEventListener('DOMContentLoaded', () => {
             configManager.updateStatus('Supabase CSV exported', 'success');
         }
 
-// ===== EXPORT BRIDGE ONLY (UPDATED WITH SPLASH SCREEN) =====
-function exportBridgeOnly() {
-    console.log('🔧 Exporting bridge only...');
-    
-    try {
-        const config = configManager.getCurrentConfig();
-        if (!config.id || !config.name) {
-            alert('Please enter a client name');
-            return;
-        }
-        
-        // Use safeStringify to handle circular references
-        const safeStringify = (obj) => {
-            const cache = new Set();
-            return JSON.stringify(obj, (key, value) => {
-                if (typeof value === 'object' && value !== null) {
-                    if (cache.has(value)) return;
-                    cache.add(value);
-                }
-                return value;
-            }, 4);
-        };
-        
-        const bridgeCode = `// Botemia Bridge for ${config.name.replace(/`/g, '')}
-// Generated: ${new Date().toLocaleString()}
-// Client ID: ${config.id}
-// Version: 5.0 - FULL SMART SCREEN WITH BACKDROP
+        // ===== REMOTE CONTROL FOR TCS AND CLIENT =====
+        let tcsWindow = null;
 
-(function() {
-    "use strict";
-
-    // ===== EMBEDDED CLIENT CONFIGURATION =====
-    window.BotemiaConfig = ${safeStringify(config)};
-    
-    // ===== ADD SPLASH SCREEN CSS =====
-    const style = document.createElement('style');
-    style.textContent = \`
-        .splash-avatar-container {
-            width: 260px;
-            height: 380px;
-            margin: 0 auto 25px;
-            border-radius: 20px;
-            overflow: hidden;
-            background: #000;
-            box-shadow: 0 20px 30px rgba(0,0,0,0.5);
-            border: 2px solid rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .splash-avatar-container lemon-slice-widget {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 280px !important;
-            height: 400px !important;
-            max-width: none !important;
-            max-height: none !important;
-        }
-        .splash-card {
-            background: radial-gradient(circle at center, \${window.BotemiaConfig.modules?.splashScreen?.gradientCenter || '#1e4a8a'} 0%, \${window.BotemiaConfig.modules?.splashScreen?.gradientOuter || '#0a1a2f'} 80%);
-            border-radius: 48px;
-            padding: 40px 30px;
-            max-width: 600px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-            animation: slideUp 0.4s ease;
-        }
-        .splash-card h1 {
-            color: white;
-            font-size: 2.5rem;
-            margin-bottom: 5px;
-            font-weight: 700;
-        }
-        .splash-card h2 {
-            color: rgba(255,255,255,0.9);
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            font-weight: 300;
-        }
-        .button-group {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-        .primary-btn, .secondary-btn {
-            padding: 12px 20px;
-            border-radius: 40px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            flex: 1;
-            max-width: 200px;
-            border: none;
-            transition: all 0.2s;
-        }
-        .primary-btn:hover, .secondary-btn:hover {
-            transform: scale(1.02);
-        }
-    \`;
-    document.head.appendChild(style);
-
-    // ===== SPLASH SCREEN FUNCTIONS =====
-    function createSplashWidget() {
-        const widget = document.createElement('lemon-slice-widget');
-        widget.setAttribute('agent-id', window.BotemiaConfig.modules?.splashScreen?.agentId || window.BotemiaConfig.agentId);
-        widget.setAttribute('inline', '');
-        widget.setAttribute('custom-minimized-width', '280');
-        widget.setAttribute('custom-minimized-height', '400');
-        widget.setAttribute('initial-state', 'active');
-        widget.setAttribute('hide-ui', '');
-        widget.id = 'splash-widget';
-        return widget;
-    }
-
-    function createMainWidget() {
-        const widget = document.createElement('lemon-slice-widget');
-        widget.setAttribute('agent-id', window.BotemiaConfig.modules?.splashScreen?.agentId || window.BotemiaConfig.agentId);
-        widget.setAttribute('custom-minimized-width', '144');
-        widget.setAttribute('custom-minimized-height', '216');
-        widget.setAttribute('initial-state', 'minimized');
-        widget.id = 'main-widget';
-        widget.style.display = 'none';
-        return widget;
-    }
-
-    function showSplash() {
-        const config = window.BotemiaConfig.modules?.splashScreen;
-        if (!config || !config.enabled) return;
-
-        const overlay = document.createElement('div');
-        overlay.className = 'splash-overlay';
-        overlay.id = 'splashOverlay';
-        overlay.style.cssText = \`
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 99999;
-        \`;
-
-        const card = document.createElement('div');
-        card.className = 'splash-card';
-card.style.background = \`radial-gradient(circle at center, \${config.gradientCenter || '#1e4a8a'} 0%, \${config.gradientOuter || '#0a1a2f'} 80%)\`;
-        
-        // Build HTML with proper escaping
-        let cardHTML = \`
-            <h1>\${config.title || 'Meet Tess'}</h1>
-            <h2>\${config.subtitle || 'Your Personal AI Smart Guide'}</h2>
-            <div class="splash-avatar-container" id="splashAvatarContainer"></div>
-            <div class="button-group">
-                <button class="primary-btn" id="activateTessBtn" style="background: linear-gradient(145deg, \${config.primaryButton?.gradientTop || '#f8c400'}, \${config.primaryButton?.gradientBottom || '#d4a000'}); color: \${config.primaryButton?.textColor || '#0a0f1e'};">\${config.primaryButton?.text || 'Get AI help with Tess'}</button>
-                <button class="secondary-btn" id="justBrowsingBtn" style="background: linear-gradient(145deg, \${config.secondaryButton?.gradientTop || '#3a4050'}, \${config.secondaryButton?.gradientBottom || '#2a2f3f'}); color: \${config.secondaryButton?.textColor || '#ffffff'};">\${config.secondaryButton?.text || 'Just Browsing'}</button>
-            </div>
-        \`;
-        
-        // Add branding footer if exists
-        if (config.branding?.name || config.branding?.logo) {
-            cardHTML += \`
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 6px; color: rgba(255,255,255,0.4); font-size: 0.75rem;">
-                    \${config.branding?.logo ? '<img src="' + config.branding.logo + '" style="height: 18px; opacity: 0.6;">' : ''}
-                    \${config.branding?.name ? '<span>' + config.branding.name + '</span>' : ''}
-                </div>
-            \`;
-        }
-        
-        card.innerHTML = cardHTML;
-
-        overlay.appendChild(card);
-        document.body.appendChild(overlay);
-
-        const container = document.getElementById('splashAvatarContainer');
-        const splashWidget = createSplashWidget();
-        container.appendChild(splashWidget);
-
-        document.getElementById('activateTessBtn').addEventListener('click', activateTess);
-        document.getElementById('justBrowsingBtn').addEventListener('click', justBrowsing);
-
-        // Hover effects
-        const primaryBtn = document.getElementById('activateTessBtn');
-        primaryBtn.onmouseover = () => {
-            primaryBtn.style.background = \`linear-gradient(145deg, \${config.primaryButton?.hoverTop || '#ffd700'}, \${config.primaryButton?.hoverBottom || '#e0b000'})\`;
-            primaryBtn.style.transform = 'scale(1.02)';
-        };
-        primaryBtn.onmouseout = () => {
-            primaryBtn.style.background = \`linear-gradient(145deg, \${config.primaryButton?.gradientTop || '#f8c400'}, \${config.primaryButton?.gradientBottom || '#d4a000'})\`;
-            primaryBtn.style.transform = 'scale(1)';
-        };
-
-        const secondaryBtn = document.getElementById('justBrowsingBtn');
-        secondaryBtn.onmouseover = () => {
-            secondaryBtn.style.background = \`linear-gradient(145deg, \${config.secondaryButton?.hoverTop || '#4a5060'}, \${config.secondaryButton?.hoverBottom || '#3a4050'})\`;
-            secondaryBtn.style.transform = 'scale(1.02)';
-        };
-        secondaryBtn.onmouseout = () => {
-            secondaryBtn.style.background = \`linear-gradient(145deg, \${config.secondaryButton?.gradientTop || '#3a4050'}, \${config.secondaryButton?.gradientBottom || '#2a2f3f'})\`;
-            secondaryBtn.style.transform = 'scale(1)';
-        };
-    }
-
-    function activateTess() {
-        const overlay = document.getElementById('splashOverlay');
-        if (overlay) overlay.remove();
-
-        if (!window.mainWidget || !document.body.contains(window.mainWidget)) {
-            window.mainWidget = createMainWidget();
-            document.body.appendChild(window.mainWidget);
-        }
-        window.mainWidget.style.display = 'block';
-        setTimeout(() => {
-            if (window.mainWidget) window.mainWidget.micOn();
-        }, 500);
-    }
-
-    function justBrowsing() {
-        const overlay = document.getElementById('splashOverlay');
-        if (overlay) overlay.remove();
-
-        if (!window.mainWidget || !document.body.contains(window.mainWidget)) {
-            window.mainWidget = createMainWidget();
-            document.body.appendChild(window.mainWidget);
-        }
-        window.mainWidget.style.display = 'block';
-    }
-
-    // ===== AUTO-TRIGGER CONTROL =====
-    window.disableBridgeTriggers = false;
-    
-    // ===== LISTEN FOR MESSAGES FROM TCS =====
-    window.addEventListener('message', function(event) {
-        if (event.data.type === 'DASHBOARD_COMMAND') {
-            if (event.data.command === 'toggleOverlays') {
-                window.disableBridgeTriggers = event.data.disabled;
-                console.log(\`🔕 Overlays \${event.data.disabled ? 'disabled' : 'enabled'}\`);
+        function controlTCS(action, value) {
+            const config = configManager.getCurrentConfig();
+            if (!config.id || !config.name) {
+                alert('Please select a client first');
+                return;
             }
-            return;
-        }
-        
-        if (event.data.type === 'MODULE_TRIGGERED' && !window.disableBridgeTriggers) {
-            console.log('🎯 Module triggered:', event.data.module, event.data.triggerPhrase);
-            window.showModule(event.data.module, event.data.triggerPhrase);
-        }
-    });
 
-    // ===== SMART SCREEN DISPLAY FUNCTION =====
-    window.showModule = function(moduleName, triggerPhrase) {
-        console.log('🖥️ Showing module:', moduleName, triggerPhrase);
-        
-        const existing = document.getElementById('botemia-overlay');
-        if (existing) existing.remove();
-
-        let matchedImage = null;
-        let bgColor = 'white';
-        let backdropOpacity = 0.5;
-        let imageSize = '400px';
-        let showTitle = true;
-        
-        if (moduleName === 'smartScreen') {
-            const images = window.BotemiaConfig.modules?.smartScreen?.images || [];
-            matchedImage = images.find(img => 
-                img.triggerMatch?.some(t => 
-                    triggerPhrase.toLowerCase().includes(t.toLowerCase())
-                )
-            );
-            
-            if (matchedImage) {
-                bgColor = matchedImage.bgColor || 'white';
-                backdropOpacity = matchedImage.backdropOpacity || 0.5;
-                imageSize = matchedImage.imageSize || '400px';
-                showTitle = matchedImage.showTitle !== false;
-            }
-        }
-
-        const backdrop = document.createElement('div');
-        backdrop.id = 'botemia-overlay';
-        backdrop.style.cssText = 
-            'position: fixed;' +
-            'top: 0; left: 0; width: 100%; height: 100%;' +
-            'background: rgba(0, 0, 0, ' + backdropOpacity + ');' +
-            'backdrop-filter: blur(4px);' +
-            'z-index: 999998;' +
-            'display: flex; align-items: center; justify-content: center;' +
-            'pointer-events: none;';
-
-        const textColor = bgColor.includes('black') || bgColor.includes('0,0,0') ? '#ffffff' : '#333333';
-        const borderColor = '#f8c400';
-        const closeBtnBg = bgColor.includes('black') ? '#333333' : '#f0f0f0';
-        const closeBtnColor = bgColor.includes('black') ? '#ffffff' : '#333333';
-        const closeBtnHover = bgColor.includes('black') ? '#555555' : '#dddddd';
-
-        const card = document.createElement('div');
-        card.style.cssText = 
-            'background: ' + bgColor + ';' +
-            'border-radius: 20px; padding: 30px;' +
-            'max-width: ' + (imageSize === 'full' ? '90%' : imageSize) + ';' +
-            'width: ' + (imageSize === 'full' ? '90%' : '100%') + ';' +
-            'max-height: 80vh; overflow-y: auto;' +
-            'box-shadow: 0 20px 60px rgba(0,0,0,0.3);' +
-            'z-index: 999999;' +
-            'font-family: -apple-system, BlinkMacSystemFont, \\'Segoe UI\\', Roboto, sans-serif;' +
-            'border: 3px solid ' + borderColor + ';' +
-            'position: relative;' +
-            'pointer-events: auto; animation: slideUp 0.3s ease;' +
-            'color: ' + textColor + ';';
-
-        const style = document.createElement('style');
-        style.textContent = 
-            '@keyframes slideUp {' +
-            'from { transform: translateY(30px); opacity: 0; }' +
-            'to { transform: translateY(0); opacity: 1; }' +
-            '}';
-        document.head.appendChild(style);
-
-        const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = '✕';
-        closeBtn.style.cssText = 
-            'position: absolute; top: 15px; right: 15px;' +
-            'background: ' + closeBtnBg + '; border: none; width: 32px; height: 32px;' +
-            'border-radius: 16px; font-size: 18px; font-weight: bold; cursor: pointer;' +
-            'color: ' + closeBtnColor + '; display: flex; align-items: center; justify-content: center;' +
-            'transition: background 0.2s; z-index: 100000;';
-        closeBtn.onmouseover = () => closeBtn.style.background = closeBtnHover;
-        closeBtn.onmouseout = () => closeBtn.style.background = closeBtnBg;
-        closeBtn.onclick = () => backdrop.remove();
-
-        let content = '';
-
-        if (moduleName === 'smartScreen' && matchedImage) {
-            content = (showTitle ? '<h2 style="margin:0 0 15px 0; font-size:24px; color:' + textColor + ';">' + matchedImage.name + '</h2>' : '') +
-                '<img src="' + matchedImage.url + '" style="width:100%; border-radius:12px; margin-bottom:15px; border:1px solid ' + (bgColor.includes('black') ? '#444' : '#eee') + ';">' +
-                '<p style="margin:0 0 15px 0; line-height:1.5; font-size:16px; color:' + textColor + ';">' + matchedImage.caption + '</p>' +
-                (matchedImage.link ? '<a href="' + matchedImage.link + '" target="_blank" style="display:inline-block; background:#f8c400; color:black; padding:12px 24px; border-radius:30px; text-decoration:none; font-weight:bold; margin-top:5px;">🔗 Learn More →</a>' : '');
-        } else if (moduleName === 'smartScreen') {
-            content = '<p style="color:#999;">No matching image found for "' + triggerPhrase + '"</p>';
-        } else {
-            content = '<h2 style="margin:0 0 15px 0; color:' + textColor + ';">⚡ ' + moduleName + ' Triggered</h2>' +
-                     '<p style="color:' + textColor + ';">Trigger phrase: "' + triggerPhrase + '"</p>';
-        }
-
-        card.innerHTML = content;
-        card.appendChild(closeBtn);
-        backdrop.appendChild(card);
-        document.body.appendChild(backdrop);
-
-        setTimeout(() => {
-            const el = document.getElementById('botemia-overlay');
-            if (el) el.remove();
-        }, 8000);
-    };
-
-    // ===== TESTIMONIAL GROUP DISPLAY =====
-    window.showTestimonialGroup = function(group) {
-        console.log('📺 Showing testimonial group:', group.name);
-        alert('Showing ' + group.videos.length + ' testimonials about ' + group.category);
-    };
-
-    // ===== SINGLE VIDEO DISPLAY =====
-    window.showVideo = function(video) {
-        console.log('📹 Playing video:', video.name);
-        alert('Playing video: ' + video.name + '\\n' + video.url);
-    };
-
-    // ===== AUTO-TRIGGER SYSTEM =====
-    (function initTriggerSystem() {
-        console.log('🎯 Auto-trigger system active for', window.BotemiaConfig.name);
-        
-        let lastTriggerTime = 0;
-        const TRIGGER_COOLDOWN = 5000;
-        let lastProcessedText = '';
-        let pendingText = '';
-        let sentenceTimer = null;
-        
-        function processCompleteSentence(fullText) {
-            if (window.disableBridgeTriggers) return;
-            
-            const now = Date.now();
-            if (now - lastTriggerTime < TRIGGER_COOLDOWN) return;
-            if (fullText === lastProcessedText) return;
-            
-            lastProcessedText = fullText;
-            const lowerTranscript = fullText.toLowerCase();
-            const modules = window.BotemiaConfig.modules;
-            
-            if (modules.testimonial && modules.testimonial.groups) {
-                for (const group of modules.testimonial.groups) {
-                    if (lowerTranscript.includes(group.triggerPhrase.toLowerCase())) {
-                        lastTriggerTime = now;
-                        window.showTestimonialGroup(group);
-                        return;
+            switch(action) {
+                case 'openTCS':
+                    const configString = JSON.stringify(config);
+                    const encodedConfig = btoa(unescape(encodeURIComponent(configString)));
+                    
+                    window.open(
+                        'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig + '&clientId=' + config.id,
+                        'BotemiaTCS',
+                        'width=1400,height=900,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes'
+                    );
+                    break;
+                    
+                case 'enableAuto':
+                case 'disableAuto':
+                case 'toggleOverlays':
+                    const message = {
+                        type: 'DASHBOARD_COMMAND',
+                        command: action === 'enableAuto' ? 'setAutoTrigger' : 
+                                action === 'disableAuto' ? 'setAutoTrigger' : 'toggleOverlays',
+                        value: action === 'enableAuto' ? false : 
+                               action === 'disableAuto' ? true : value
+                    };
+                    
+                    if (window.tcsWindow && !window.tcsWindow.closed) {
+                        window.tcsWindow.postMessage(message, '*');
                     }
-                }
-            }
-            
-            if (modules.videoVault && modules.videoVault.videos) {
-                for (const video of modules.videoVault.videos) {
-                    if (lowerTranscript.includes(video.triggerPhrase.toLowerCase())) {
-                        lastTriggerTime = now;
-                        window.showVideo(video);
-                        return;
+                    break;
+                    
+                case 'closeTCS':
+                    if (window.tcsWindow && !window.tcsWindow.closed) {
+                        window.tcsWindow.close();
+                        window.tcsWindow = null;
                     }
-                }
-            }
-            
-            if (modules.smartScreen && modules.smartScreen.images) {
-                for (const image of modules.smartScreen.images) {
-                    if (image.triggerMatch) {
-                        for (const trigger of image.triggerMatch) {
-                            if (lowerTranscript.includes(trigger.toLowerCase())) {
-                                lastTriggerTime = now;
-                                window.showModule('smartScreen', trigger);
-                                return;
-                            }
-                        }
-                    }
-                }
+                    break;
             }
         }
-        
-        function checkForTriggers(transcript) {
-            if (window.disableBridgeTriggers) return;
+
+        function loadDefaultTriggers() {
+            const industry = document.getElementById('industryPreset').value;
+            configManager.loadIndustryPreset(industry);
+        }
+
+        function saveConfiguration() { 
+            configManager.saveConfiguration(); 
+        }
+
+        function launchTriggerSystem() {
+            const config = configManager.getCurrentConfig();
+            if (!config.id || !config.name) {
+                alert('Please enter a client name');
+                return;
+            }
+            configManager.saveConfiguration();
             
-            if (sentenceTimer) clearTimeout(sentenceTimer);
-            pendingText = transcript;
-            
-            sentenceTimer = setTimeout(() => {
-                if (pendingText.trim()) {
-                    processCompleteSentence(pendingText);
-                    pendingText = '';
-                }
-            }, 800);
-        }
-        
-        document.querySelectorAll('.message-bubble, .ai-message, .user-message, .botania-message, [class*="message"]').forEach(el => {
-            el.dataset.botemiaProcessed = 'true';
-        });
-        
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                    mutation.addedNodes.forEach(node => {
-                        if (node.nodeType === 1) {
-                            if (node.matches && (
-                                node.matches('.message-bubble') || 
-                                node.matches('.botania-message') || 
-                                node.matches('.ai-message') ||
-                                node.matches('.user-message') ||
-                                node.matches('[class*="message"]')
-                            )) {
-                                if (node.textContent && !node.dataset.botemiaProcessed) {
-                                    node.dataset.botemiaProcessed = 'true';
-                                    checkForTriggers(node.textContent);
-                                }
-                            }
-                            
-                            if (node.querySelectorAll) {
-                                node.querySelectorAll('.message-bubble, .botania-message, .ai-message, .user-message, [class*="message"]').forEach(el => {
-                                    if (el.textContent && !el.dataset.botemiaProcessed) {
-                                        el.dataset.botemiaProcessed = 'true';
-                                        checkForTriggers(el.textContent);
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
-            });
-        });
-        
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                observer.observe(document.body, { childList: true, subtree: true });
-            });
-        } else {
-            observer.observe(document.body, { childList: true, subtree: true });
-        }
-    })();
-
-    // ===== LOAD WIDGET =====
-    function initWidget() {
-        if (document.querySelector('lemon-slice-widget')) {
-            console.log('✅ Widget already exists');
-            return;
-        }
-
-         // Show splash screen on page load
-        setTimeout(() => {
-            showSplash();
-        }, 100);
-
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
-        script.type = 'module';
-        script.onload = () => {
-            const widget = document.createElement('lemon-slice-widget');
-            widget.setAttribute('agent-id', window.BotemiaConfig.agentId);
-            document.body.appendChild(widget);
-            console.log('✅ Widget created for', window.BotemiaConfig.name);
-        };
-        script.onerror = () => console.error('❌ Failed to load widget');
-        document.head.appendChild(script);
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initWidget);
-    } else {
-        initWidget();
-    }
-
-    console.log('✅ Botemia Bridge v5.0 loaded for', window.BotemiaConfig.name);
-})();`;
-
-        // Download just the bridge file
-        const bridgeBlob = new Blob([bridgeCode], { type: 'application/javascript' });
-        const bridgeLink = document.createElement('a');
-        bridgeLink.href = URL.createObjectURL(bridgeBlob);
-        bridgeLink.download = 'bridge-' + config.id + '.js';
-        bridgeLink.click();
-        URL.revokeObjectURL(bridgeLink.href);
-        
-        configManager.updateStatus('✅ Bridge file exported for ' + config.name, 'success');
-        console.log('✅ Bridge only export completed');
-        
-    } catch (error) {
-        console.error('❌ Bridge export error:', error);
-        alert('Error exporting bridge: ' + error.message);
-    }
-}
-
-// ===== REMOTE CONTROL FOR TCS AND CLIENT =====
-let tcsWindow = null;
-
-function controlTCS(action, value) {
-    const config = configManager.getCurrentConfig();
-    if (!config.id || !config.name) {
-        alert('Please select a client first');
-        return;
-    }
-
-    switch(action) {
-        case 'openTCS':
             const configString = JSON.stringify(config);
-            const encodedConfig = btoa(unescape(encodeURIComponent(configString)));
+            const base64Config = btoa(unescape(encodeURIComponent(configString)));
             
             window.open(
-                'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig + '&clientId=' + config.id,
-                'BotemiaTCS',
-                'width=1400,height=900,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes'
+                'https://mobilewise.netlify.app/trigger-control-system?config=' + base64Config,
+                'BotemiaControl',
+                'width=1400,height=900,scrollbars=yes,resizable=yes'
             );
-            break;
+        }
+
+        // ===== SPLASH SCREEN PREVIEW FUNCTIONS =====
+        function updateSplashPreview() {
+            const topText = document.getElementById('splashTopText')?.value || 'Meet Tess';
+            const subText = document.getElementById('splashSubText')?.value || 'Your Personal AI Smart Guide';
+            const primaryText = document.getElementById('splashPrimaryText')?.value || 'Get AI help with Tess';
+            const secondaryText = document.getElementById('splashSecondaryText')?.value || 'Just Browsing';
+            const primaryColor = document.getElementById('splashPrimaryColor')?.value || '#f8c400';
+            const secondaryColor = document.getElementById('splashSecondaryColor')?.value || '#555555';
             
-        case 'enableAuto':
-        case 'disableAuto':
-        case 'toggleOverlays':
-            const message = {
-                type: 'DASHBOARD_COMMAND',
-                command: action === 'enableAuto' ? 'setAutoTrigger' : 
-                        action === 'disableAuto' ? 'setAutoTrigger' : 'toggleOverlays',
-                value: action === 'enableAuto' ? false : 
-                       action === 'disableAuto' ? true : value
+            document.getElementById('previewTopText').textContent = topText;
+            document.getElementById('previewSubText').textContent = subText;
+            document.getElementById('previewPrimary').textContent = primaryText;
+            document.getElementById('previewSecondary').textContent = secondaryText;
+            
+            document.getElementById('previewPrimary').style.background = primaryColor;
+            document.getElementById('previewPrimary').style.color = '#0a0f1e';
+            document.getElementById('previewSecondary').style.background = secondaryColor;
+            document.getElementById('previewSecondary').style.color = 'white';
+        }
+
+        function previewDeploymentPackage() {
+            const previewSection = document.getElementById('previewSection');
+            if (previewSection) {
+                previewSection.style.display = previewSection.style.display === 'none' ? 'grid' : 'none';
+            }
+        }
+
+        function toggleGradientControls() {
+            const bgStyleEl = document.getElementById('splashBgStyle');
+            const gradientControls = document.getElementById('gradientControls');
+            const solidControl = document.getElementById('solidColorControl');
+            
+            if (bgStyleEl && gradientControls && solidControl) {
+                gradientControls.style.display = bgStyleEl.value === 'solid' ? 'none' : 'grid';
+                solidControl.style.display = bgStyleEl.value === 'solid' ? 'block' : 'none';
+            }
+        }
+
+        function toggleCustomPosition() {
+            const positionEl = document.getElementById('persistentButtonPosition');
+            const customControls = document.getElementById('customPositionControls');
+            
+            if (positionEl && customControls) {
+                customControls.style.display = positionEl.value === 'custom' ? 'grid' : 'none';
+            }
+        }
+
+        function handleTessImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = e.target.result;
+                    document.getElementById('splashTessImageData').value = imageData;
+                    
+                    const persistentIcon = document.getElementById('previewPersistentIcon');
+                    persistentIcon.innerHTML = `<img src="${imageData}" style="width:170px; height:170px; border-radius:50%; object-fit:cover; border:3px solid #f8c400;">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function handleBrandLogoUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('splashBrandLogoData').value = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function showTestingInstructions() {
+            const instructions = document.getElementById('testingInstructions');
+            if (instructions) {
+                instructions.style.display = instructions.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function generateClientTest() {
+            const config = configManager.getCurrentConfig();
+            
+            if (!config.id || !config.name) {
+                alert('Please save client configuration first');
+                return;
+            }
+            
+            // Step 1: Generate bridge file
+            exportBridgeOnly();
+            
+            // Step 2: Create a file input for screenshot
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(readerEvent) {
+                    const screenshotData = readerEvent.target.result;
+                    createTestPage(config, screenshotData);
+                };
+                reader.readAsDataURL(file);
             };
-            
-            if (window.tcsWindow && !window.tcsWindow.closed) {
-                window.tcsWindow.postMessage(message, '*');
-            }
-            break;
-            
-        case 'closeTCS':
-            if (window.tcsWindow && !window.tcsWindow.closed) {
-                window.tcsWindow.close();
-                window.tcsWindow = null;
-            }
-            break;
-    }
-}
+            fileInput.click();
+        }
 
-function loadDefaultTriggers() {
-    const industry = document.getElementById('industryPreset').value;
-    configManager.loadIndustryPreset(industry);
-}
-
-function saveConfiguration() { 
-    configManager.saveConfiguration(); 
-}
-
-function launchTriggerSystem() {
-    const config = configManager.getCurrentConfig();
-    if (!config.id || !config.name) {
-        alert('Please enter a client name');
-        return;
-    }
-    configManager.saveConfiguration();
-    
-    const configString = JSON.stringify(config);
-    const base64Config = btoa(unescape(encodeURIComponent(configString)));
-    
-    window.open(
-        'https://mobilewise.netlify.app/trigger-control-system?config=' + base64Config,
-        'BotemiaControl',
-        'width=1400,height=900,scrollbars=yes,resizable=yes'
-    );
-}
-
-// ===== SPLASH SCREEN PREVIEW FUNCTIONS =====
-function updateSplashPreview() {
-    const topText = document.getElementById('splashTopText')?.value || 'Meet Tess';
-    const subText = document.getElementById('splashSubText')?.value || 'Your Personal AI Smart Guide';
-    const primaryText = document.getElementById('splashPrimaryText')?.value || 'Get AI help with Tess';
-    const secondaryText = document.getElementById('splashSecondaryText')?.value || 'Just Browsing';
-    const primaryColor = document.getElementById('splashPrimaryColor')?.value || '#f8c400';
-    const secondaryColor = document.getElementById('splashSecondaryColor')?.value || '#555555';
-    
-    document.getElementById('previewTopText').textContent = topText;
-    document.getElementById('previewSubText').textContent = subText;
-    document.getElementById('previewPrimary').textContent = primaryText;
-    document.getElementById('previewSecondary').textContent = secondaryText;
-    
-    document.getElementById('previewPrimary').style.background = primaryColor;
-    document.getElementById('previewPrimary').style.color = '#0a0f1e';
-    document.getElementById('previewSecondary').style.background = secondaryColor;
-    document.getElementById('previewSecondary').style.color = 'white';
-}
-
-function previewDeploymentPackage() {
-    const previewSection = document.getElementById('previewSection');
-    if (previewSection) {
-        previewSection.style.display = previewSection.style.display === 'none' ? 'grid' : 'none';
-    }
-}
-
-function toggleGradientControls() {
-    const bgStyleEl = document.getElementById('splashBgStyle');
-    const gradientControls = document.getElementById('gradientControls');
-    const solidControl = document.getElementById('solidColorControl');
-    
-    if (bgStyleEl && gradientControls && solidControl) {
-        gradientControls.style.display = bgStyleEl.value === 'solid' ? 'none' : 'grid';
-        solidControl.style.display = bgStyleEl.value === 'solid' ? 'block' : 'none';
-    }
-}
-
-function toggleCustomPosition() {
-    const positionEl = document.getElementById('persistentButtonPosition');
-    const customControls = document.getElementById('customPositionControls');
-    
-    if (positionEl && customControls) {
-        customControls.style.display = positionEl.value === 'custom' ? 'grid' : 'none';
-    }
-}
-
-function handleTessImageUpload(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const imageData = e.target.result;
-            document.getElementById('splashTessImageData').value = imageData;
-            
-            const persistentIcon = document.getElementById('previewPersistentIcon');
-            persistentIcon.innerHTML = `<img src="${imageData}" style="width:170px; height:170px; border-radius:50%; object-fit:cover; border:3px solid #f8c400;">`;
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function handleBrandLogoUpload(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('splashBrandLogoData').value = e.target.result;
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function showTestingInstructions() {
-    const instructions = document.getElementById('testingInstructions');
-    if (instructions) {
-        instructions.style.display = instructions.style.display === 'none' ? 'block' : 'none';
-    }
-}
-
-function generateClientTest() {
-    const config = configManager.getCurrentConfig();
-    
-    if (!config.id || !config.name) {
-        alert('Please save client configuration first');
-        return;
-    }
-    
-    // Step 1: Generate bridge file
-    exportBridgeOnly();
-    
-    // Step 2: Create a file input for screenshot
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.onchange = function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = function(readerEvent) {
-            const screenshotData = readerEvent.target.result;
-            createTestPage(config, screenshotData);
-        };
-        reader.readAsDataURL(file);
-    };
-    fileInput.click();
-}
-
-function createTestPage(config, screenshotData) {
-    const testHtml = `<!DOCTYPE html>
+        function createTestPage(config, screenshotData) {
+            const testHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -3037,34 +2415,28 @@ function createTestPage(config, screenshotData) {
 </body>
 </html>`;
 
-    const blob = new Blob([testHtml], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `test-${config.id}.html`;
-    a.click();
-    
-    alert(`✅ Test page created!\n\nTo test:\n1. Upload both files to Netlify:\n   - test-${config.id}.html (rename to index.html)\n   - bridge-${config.id}.js\n2. Open the Netlify URL`);
-    
-    configManager.updateStatus('Test page generated', 'success');
-}
+            const blob = new Blob([testHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `test-${config.id}.html`;
+            a.click();
+            
+            alert(`✅ Test page created!\n\nTo test:\n1. Upload both files to Netlify:\n   - test-${config.id}.html (rename to index.html)\n   - bridge-${config.id}.js\n2. Open the Netlify URL`);
+            
+            configManager.updateStatus('Test page generated', 'success');
+        }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    window.configManager = configManager;
-    configManager.init();
-    
-    // Initialize preview functions if elements exist
-    if (document.getElementById('splashTopText')) {
-        updateSplashPreview();
-    }
-    if (document.getElementById('splashBgStyle')) {
-        toggleGradientControls();
-    }
-    if (document.getElementById('persistentButtonPosition')) {
-        toggleCustomPosition();
-    }
-});
-</script>
-</body>
-</html>
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', () => {
+            window.configManager = configManager;
+            configManager.init();
+            
+            loadTestimonialGroups();
+            loadVideos();
+            loadSmartScreens();
+            
+            if (document.getElementById('splashTopText')) updateSplashPreview();
+            if (document.getElementById('splashBgStyle')) toggleGradientControls();
+            if (document.getElementById('persistentButtonPosition')) toggleCustomPosition();
+        });
