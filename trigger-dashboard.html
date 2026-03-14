@@ -2772,6 +2772,78 @@ function exportBridgeOnly() {
     window.BotemiaConfig = ${safeStringify(config)};
 
     
+    // ===== ADD SPLASH SCREEN CSS =====
+    const style = document.createElement('style');
+    style.textContent = \`
+        .splash-avatar-container {
+            width: 260px;
+            height: 380px;
+            margin: 0 auto 25px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .splash-avatar-container lemon-slice-widget {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px !important;
+            height: 400px !important;
+            max-width: none !important;
+            max-height: none !important;
+        }
+        .splash-card {
+            background: radial-gradient(circle at center, \${window.BotemiaConfig.modules?.splashScreen?.gradientCenter || '#1e4a8a'} 0%, \${window.BotemiaConfig.modules?.splashScreen?.gradientOuter || '#0a1a2f'} 80%);
+            border-radius: 48px;
+            padding: 40px 30px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            animation: slideUp 0.4s ease;
+        }
+        .splash-card h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        .splash-card h2 {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .primary-btn, .secondary-btn {
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            max-width: 200px;
+            border: none;
+            transition: all 0.2s;
+        }
+        .primary-btn:hover, .secondary-btn:hover {
+            transform: scale(1.02);
+        }
+    \`;
+    document.head.appendChild(style);
+
     // ===== SPLASH SCREEN FUNCTIONS =====
     function createSplashWidget() {
         const widget = document.createElement('lemon-slice-widget');
@@ -2816,6 +2888,7 @@ function exportBridgeOnly() {
 
         const card = document.createElement('div');
         card.className = 'splash-card';
+card.style.background = \`radial-gradient(circle at center, \${config.gradientCenter || '#1e4a8a'} 0%, \${config.gradientOuter || '#0a1a2f'} 80%)\`;
         card.innerHTML = \`
             <h1>\${config.title || 'Meet Tess'}</h1>
             <h2>\${config.subtitle || 'Your Personal AI Smart Guide'}</h2>
