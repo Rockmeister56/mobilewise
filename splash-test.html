@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧪 Tess Splash Screen Test</title>
+    <title>Tess Splash Screen - Dark Premium</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,6 @@
             flex-direction: column;
         }
 
-        /* TEST CONTROLS (top bar - not part of splash) */
         .test-controls {
             background: #1a1f2e;
             color: white;
@@ -66,7 +65,6 @@
             color: #0a0f1e;
         }
 
-        /* MAIN CONTENT AREA - where splash will appear */
         .content-area {
             flex: 1;
             position: relative;
@@ -77,57 +75,36 @@
             justify-content: center;
         }
 
-        /* This is where the magic happens */
         #splashContainer {
             width: 100%;
             height: 100%;
             position: relative;
         }
 
-        /* SPLASH OVERLAY STYLES (matching our dashboard) */
         .splash-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 99999;
-            transition: opacity 0.3s ease;
         }
 
         .splash-card {
-    background: linear-gradient(145deg, #0a0f1c, #03050a);
-    border-radius: 48px;
-    padding: 50px 40px;
-    max-width: 650px;
-    width: 90%;
-    text-align: center;
-    border: none;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05) inset;
-    animation: slideUp 0.4s ease;
-    position: relative;
-}
-
-.splash-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 48px;
-    padding: 2px;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent 70%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-}
+            background: linear-gradient(145deg, #0a0f1c, #03050a);
+            border-radius: 48px;
+            padding: 50px 40px;
+            max-width: 650px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,215,0,0.2) inset;
+            animation: slideUp 0.4s ease;
+        }
 
         @keyframes slideUp {
             from { transform: translateY(30px); opacity: 0; }
@@ -135,32 +112,31 @@
         }
 
         .splash-card h1 {
-    color: white;
-    font-size: 3rem;
-    margin-bottom: 8px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-}
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
 
-.splash-card h2 {
-    color: rgba(255,255,255,0.7);
-    font-size: 1.4rem;
-    margin-bottom: 30px;
-    font-weight: 300;
-    letter-spacing: 0.5px;
-}
+        .splash-card h2 {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
 
-        /* Lemon Slice avatar container */
-       .avatar-container {
-    width: 280px;
-    height: 400px;
-    margin: 0 auto 30px;
-    border-radius: 24px;
-    overflow: hidden;
-    background: #000;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
-}
+        .avatar-container {
+            width: 280px;
+            height: 400px;
+            margin: 0 auto 30px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,215,0,0.2);
+        }
 
         .button-group {
             display: flex;
@@ -170,47 +146,46 @@
         }
 
         .primary-btn {
-    background: linear-gradient(145deg, #2a2f3f, #1a1e2a);
-    color: #f8c400;
-    border: 1px solid rgba(248,196,0,0.3);
-    padding: 18px 36px;
-    border-radius: 60px;
-    font-size: 1.2rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    flex: 1;
-    max-width: 260px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-}
+            background: linear-gradient(145deg, #2a2f3f, #1a1e2a);
+            color: #f8c400;
+            border: 1px solid rgba(248,196,0,0.3);
+            padding: 18px 36px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            max-width: 260px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            transition: all 0.2s;
+        }
 
-.primary-btn:hover {
-    background: linear-gradient(145deg, #3a3f4f, #2a2e3a);
-    border-color: rgba(248,196,0,0.6);
-    transform: scale(1.02);
-}
+        .primary-btn:hover {
+            background: linear-gradient(145deg, #3a3f4f, #2a2e3a);
+            border-color: rgba(248,196,0,0.6);
+            transform: scale(1.02);
+        }
 
-.secondary-btn {
-    background: rgba(255,255,255,0.05);
-    color: rgba(255,255,255,0.8);
-    border: 1px solid rgba(255,255,255,0.1);
-    padding: 18px 36px;
-    border-radius: 60px;
-    font-size: 1.2rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    flex: 1;
-    max-width: 260px;
-    backdrop-filter: blur(5px);
-}
+        .secondary-btn {
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 18px 36px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            max-width: 260px;
+            backdrop-filter: blur(5px);
+            transition: all 0.2s;
+        }
 
-.secondary-btn:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.2);
-}
+        .secondary-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+        }
 
-        /* Persistent button (170x170) */
         .persistent-btn {
             position: fixed;
             bottom: 30px;
@@ -225,12 +200,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #0a0f1e;
             z-index: 9999;
             transition: transform 0.2s;
-            display: none; /* Hidden by default */
+            display: none;
+            overflow: hidden;
         }
 
         .persistent-btn:hover {
@@ -238,13 +211,11 @@
         }
 
         .persistent-btn img {
-            width: 170px;
-            height: 170px;
-            border-radius: 50%;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
         }
 
-        /* Status indicator */
         .status {
             position: fixed;
             bottom: 20px;
@@ -261,12 +232,12 @@
 </head>
 <body>
     <div class="test-controls">
-        <h1>🧪 Tess Splash Screen Test</h1>
+        <h1>✨ Tess Splash Screen - Dark Premium</h1>
         <p>Agent ID: <strong id="agentIdDisplay">agent_7b0776ef6b855de5</strong></p>
         <div class="button-row">
             <button class="test-btn" onclick="showSplash()">🔄 Show Splash Again</button>
-            <button class="test-btn" onclick="resetToSplash()">🛑 Hide Everything & Reset</button>
-            <button class="test-btn reset" onclick="useTestImage()">🖼️ Use Test Tess Image</button>
+            <button class="test-btn" onclick="resetToSplash()">🛑 Reset Everything</button>
+            <button class="test-btn reset" onclick="useTestImage()">🖼️ Load Tess Image</button>
         </div>
     </div>
 
@@ -274,29 +245,23 @@
         <div id="splashContainer"></div>
     </div>
 
-    <!-- Persistent button will be injected here -->
     <div id="persistentButtonContainer"></div>
-
-    <div class="status" id="status">⚪ Splash ready</div>
+    <div class="status" id="status">⚪ Ready</div>
 
     <!-- Lemon Slice Widget Script -->
     <script type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"></script>
 
     <script>
-        // Agent ID - change this to test different agents
         const AGENT_ID = 'agent_7b0776ef6b855de5';
         document.getElementById('agentIdDisplay').textContent = AGENT_ID;
 
-        // Test Tess image (base64 purple circle with T)
         const TEST_TESS_IMAGE = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'170\' height=\'170\' viewBox=\'0 0 170 170\'%3E%3Ccircle cx=\'85\' cy=\'85\' r=\'80\' fill=\'%23f8c400\'/%3E%3Ctext x=\'85\' y=\'115\' font-size=\'70\' text-anchor=\'middle\' fill=\'%230a0f1e\' font-family=\'Arial\' font-weight=\'bold\'%3ET%3C/text%3E%3C/svg%3E';
 
-        // State
         let splashWidget = null;
         let mainWidget = null;
         let persistentButton = null;
         let currentTessImage = TEST_TESS_IMAGE;
 
-        // ===== CREATE SPLASH WIDGET =====
         function createSplashWidget() {
             const widget = document.createElement('lemon-slice-widget');
             widget.setAttribute('agent-id', AGENT_ID);
@@ -309,7 +274,6 @@
             return widget;
         }
 
-        // ===== CREATE MAIN WIDGET (corner) =====
         function createMainWidget() {
             const widget = document.createElement('lemon-slice-widget');
             widget.setAttribute('agent-id', AGENT_ID);
@@ -317,11 +281,10 @@
             widget.setAttribute('custom-minimized-height', '216');
             widget.setAttribute('initial-state', 'minimized');
             widget.id = 'main-widget';
-            widget.style.display = 'none'; // Hidden initially
+            widget.style.display = 'none';
             return widget;
         }
 
-        // ===== CREATE PERSISTENT BUTTON =====
         function createPersistentButton() {
             const container = document.getElementById('persistentButtonContainer');
             container.innerHTML = '';
@@ -340,198 +303,105 @@
             persistentButton = btn;
         }
 
-       // ===== SHOW SPLASH SCREEN (premium dark version) =====
-function showSplash() {
-    // Hide any existing splash
-    const existing = document.querySelector('.splash-overlay');
-    if (existing) existing.remove();
+        function showSplash() {
+            const existing = document.querySelector('.splash-overlay');
+            if (existing) existing.remove();
 
-    // Create splash overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'splash-overlay';
-    overlay.id = 'splashOverlay';
+            const overlay = document.createElement('div');
+            overlay.className = 'splash-overlay';
+            overlay.id = 'splashOverlay';
 
-    // Create splash card with premium dark styling
-    const card = document.createElement('div');
-    card.className = 'splash-card';
-    card.style.cssText = `
-        background: linear-gradient(145deg, #0a0f1c, #03050a);
-        border-radius: 48px;
-        padding: 50px 40px;
-        max-width: 650px;
-        width: 90%;
-        text-align: center;
-        border: none;
-        box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05) inset;
-        animation: slideUp 0.4s ease;
-        position: relative;
-    `;
+            const card = document.createElement('div');
+            card.className = 'splash-card';
 
-    // Add subtle inner glow effect
-    const style = document.createElement('style');
-    style.textContent = `
-        .splash-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: 48px;
-            padding: 2px;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent 70%);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-        }
-    `;
-    document.head.appendChild(style);
+            card.innerHTML = `
+                <h1>Meet Tess</h1>
+                <h2>Your Personal AI Smart Guide</h2>
+                <div class="avatar-container" id="splashAvatarContainer"></div>
+                <div class="button-group">
+                    <button class="primary-btn" id="activateTessBtn">Get AI help with Tess</button>
+                    <button class="secondary-btn" id="justBrowsingBtn">Just Browsing</button>
+                </div>
+            `;
 
-    // Add content with updated styling
-    card.innerHTML = `
-        <h1 style="color: white; font-size: 3rem; margin-bottom: 8px; font-weight: 700; letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">Meet Tess</h1>
-        <h2 style="color: rgba(255,255,255,0.7); font-size: 1.4rem; margin-bottom: 30px; font-weight: 300; letter-spacing: 0.5px;">Your Personal AI Smart Guide</h2>
-        <div class="avatar-container" id="splashAvatarContainer" style="width: 280px; height: 400px; margin: 0 auto 30px; border-radius: 24px; overflow: hidden; background: #000; box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);"></div>
-        <div class="button-group" style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
-            <button class="primary-btn" id="activateTessBtn" style="background: linear-gradient(145deg, #2a2f3f, #1a1e2a); color: #f8c400; border: 1px solid rgba(248,196,0,0.3); padding: 18px 36px; border-radius: 60px; font-size: 1.2rem; font-weight: 600; cursor: pointer; flex: 1; max-width: 260px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); transition: all 0.2s;">Get AI help with Tess</button>
-            <button class="secondary-btn" id="justBrowsingBtn" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.1); padding: 18px 36px; border-radius: 60px; font-size: 1.2rem; font-weight: 600; cursor: pointer; flex: 1; max-width: 260px; backdrop-filter: blur(5px); transition: all 0.2s;">Just Browsing</button>
-        </div>
-    `;
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
 
-    overlay.appendChild(card);
-    document.body.appendChild(overlay);
+            const container = document.getElementById('splashAvatarContainer');
+            splashWidget = createSplashWidget();
+            container.appendChild(splashWidget);
 
-    // Add widget to avatar container
-    const container = document.getElementById('splashAvatarContainer');
-    splashWidget = createSplashWidget();
-    container.appendChild(splashWidget);
+            document.getElementById('activateTessBtn').addEventListener('click', activateTess);
+            document.getElementById('justBrowsingBtn').addEventListener('click', justBrowsing);
 
-    // Add button handlers
-    document.getElementById('activateTessBtn').addEventListener('click', activateTess);
-    document.getElementById('justBrowsingBtn').addEventListener('click', justBrowsing);
-
-    // Add hover effects
-    const primaryBtn = document.getElementById('activateTessBtn');
-    primaryBtn.onmouseover = () => {
-        primaryBtn.style.background = 'linear-gradient(145deg, #3a3f4f, #2a2e3a)';
-        primaryBtn.style.borderColor = 'rgba(248,196,0,0.6)';
-        primaryBtn.style.transform = 'scale(1.02)';
-    };
-    primaryBtn.onmouseout = () => {
-        primaryBtn.style.background = 'linear-gradient(145deg, #2a2f3f, #1a1e2a)';
-        primaryBtn.style.borderColor = 'rgba(248,196,0,0.3)';
-        primaryBtn.style.transform = 'scale(1)';
-    };
-
-    const secondaryBtn = document.getElementById('justBrowsingBtn');
-    secondaryBtn.onmouseover = () => {
-        secondaryBtn.style.background = 'rgba(255,255,255,0.1)';
-        secondaryBtn.style.borderColor = 'rgba(255,255,255,0.2)';
-    };
-    secondaryBtn.onmouseout = () => {
-        secondaryBtn.style.background = 'rgba(255,255,255,0.05)';
-        secondaryBtn.style.borderColor = 'rgba(255,255,255,0.1)';
-    };
-
-    // Hide persistent button if visible
-    if (persistentButton) persistentButton.style.display = 'none';
-    
-    updateStatus('Splash visible (premium dark)', 'active');
-}
-
-        // ===== ACTIVATE TESS (Get AI help) =====
-        function activateTess() {
-            console.log('🎯 Activating Tess');
+            if (persistentButton) persistentButton.style.display = 'none';
             
-            // Hide splash
+            updateStatus('Splash visible', 'active');
+        }
+
+        function activateTess() {
             const overlay = document.getElementById('splashOverlay');
             if (overlay) overlay.remove();
 
-            // Show main widget
             if (!mainWidget || !document.body.contains(mainWidget)) {
                 mainWidget = createMainWidget();
                 document.body.appendChild(mainWidget);
             }
             mainWidget.style.display = 'block';
 
-            // Activate mic/send message
             setTimeout(() => {
                 if (mainWidget) {
                     mainWidget.micOn();
-                    // Or use sendMessage:
-                    // mainWidget.sendMessage('Hello Tess!');
                 }
             }, 500);
 
-            // Hide persistent button (Tess is active)
             if (persistentButton) persistentButton.style.display = 'none';
-            
-            updateStatus('Tess active (mic on)', 'active');
+            updateStatus('Tess active', 'active');
         }
 
-        // ===== JUST BROWSING =====
         function justBrowsing() {
-            console.log('👆 Just browsing');
-            
-            // Hide splash
             const overlay = document.getElementById('splashOverlay');
             if (overlay) overlay.remove();
 
-            // Show main widget minimized
             if (!mainWidget || !document.body.contains(mainWidget)) {
                 mainWidget = createMainWidget();
                 document.body.appendChild(mainWidget);
             }
             mainWidget.style.display = 'block';
 
-            // Show persistent button
             if (persistentButton) persistentButton.style.display = 'flex';
             
-            updateStatus('Splash dismissed - Tess minimized', 'inactive');
+            updateStatus('Tess minimized', 'inactive');
         }
 
-        // ===== ACTIVATE TESS FROM PERSISTENT BUTTON =====
         function activateTessFromButton() {
-            console.log('🔘 Persistent button clicked');
-            
-            // Show main widget if hidden
             if (mainWidget) {
                 mainWidget.style.display = 'block';
                 mainWidget.micOn();
             }
 
-            // Hide persistent button
             if (persistentButton) persistentButton.style.display = 'none';
-            
             updateStatus('Tess reactivated', 'active');
         }
 
-        // ===== RESET EVERYTHING =====
         function resetToSplash() {
-            // Remove all widgets
             if (splashWidget && splashWidget.parentNode) splashWidget.remove();
             if (mainWidget && mainWidget.parentNode) mainWidget.remove();
             
-            // Remove splash overlay
             const overlay = document.getElementById('splashOverlay');
             if (overlay) overlay.remove();
             
-            // Hide persistent button
             if (persistentButton) persistentButton.style.display = 'none';
             
-            // Show splash again
             showSplash();
         }
 
-        // ===== USE TEST IMAGE =====
         function useTestImage() {
             currentTessImage = TEST_TESS_IMAGE;
             createPersistentButton();
             updateStatus('Test image loaded', 'success');
         }
 
-        // ===== UPDATE STATUS =====
         function updateStatus(message, type) {
             const status = document.getElementById('status');
             status.textContent = `⚪ ${message}`;
@@ -544,13 +414,11 @@ function showSplash() {
             }
         }
 
-        // ===== INIT =====
         function init() {
             createPersistentButton();
             showSplash();
         }
 
-        // Start when ready
         window.onload = init;
     </script>
 </body>
