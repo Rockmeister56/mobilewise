@@ -794,7 +794,7 @@
     </div>
 </div>
 
-                <!-- Custom Position Controls -->
+                                <!-- Custom Position Controls -->
                 <div id="customPositionControls" style="display: none; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px;">
                     <div class="field">
                         <label>Distance from Bottom (px)</label>
@@ -806,17 +806,13 @@
                     </div>
                     <div class="field">
                         <label>Distance from Left (px)</label>
-                        <input type="number" id="customLeft" value="auto" placeholder="auto" disabled>
+                        <input type="text" id="customLeft" value="auto" placeholder="auto" disabled style="color: #888; background: rgba(0,0,0,0.2);">
                     </div>
                     <div class="field">
                         <label>Distance from Top (px)</label>
-                        <input type="number" id="customTop" value="auto" placeholder="auto" disabled>
+                        <input type="text" id="customTop" value="auto" placeholder="auto" disabled style="color: #888; background: rgba(0,0,0,0.2);">
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
 
            <!-- ===== MODULE 2: TESTIMONIAL GROUPS ===== -->
 <div class="module-card">
@@ -3320,6 +3316,15 @@ function toggleCustomPosition() {
     if (positionEl && customControls) {
         const position = positionEl.value;
         customControls.style.display = position === 'custom' ? 'grid' : 'none';
+        
+        // Enable/disable the number inputs when custom is selected
+        const bottomInput = document.getElementById('customBottom');
+        const rightInput = document.getElementById('customRight');
+        
+        if (bottomInput && rightInput) {
+            bottomInput.disabled = position !== 'custom';
+            rightInput.disabled = position !== 'custom';
+        }
     }
 }
 
