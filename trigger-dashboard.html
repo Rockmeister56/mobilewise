@@ -3001,7 +3001,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
     }
 }
 
-        // ===== THE MISSING ENGINE: Generates the actual JS code =====
+                // ===== THE MISSING ENGINE: Generates the actual JS code =====
         function generateBridgeContent(config, safeStringify) {
             const splashScreen = config.modules?.splashScreen || {};
             
@@ -3009,7 +3009,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '// Botemia Bridge for ' + (config.name || 'Client') + '\n';
             code += '// Generated: ' + new Date().toLocaleString() + '\n';
             code += '// Client ID: ' + config.id + '\n';
-            code += '// Version: 5.2 - DEFINITIVE FIX\n\n';
+            code += '// Version: 5.3 - SINGLE WIDGET FIX\n\n';
             
             code += '(function() {\n';
             code += '    "use strict";\n\n';
@@ -3030,7 +3030,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '            display: flex; align-items: center; justify-content: center;\n';
             code += '        }\n';
             
-            // === CRITICAL: Target the ID specifically for the splash widget ===
+            // Target the ID specifically for the splash widget
             code += '        #splash-widget {\n';
             code += '            width: 100% !important;\n';
             code += '            height: 100% !important;\n';
@@ -3098,33 +3098,43 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '        document.getElementById(\'browseBtn\').onclick = justBrowsing;\n';
             code += '    }\n\n';
 
-            // === THE BATON PASS LOGIC ===
+            // === THE BATON PASS LOGIC (CORRECTED) ===
             code += '    function activateTess() {\n';
+            
+            // 1. Destroy the Splash Widget to free up the "Single Instance"
+            code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
+            code += '        if (splashWidget) splashWidget.remove();\n\n';
+            
             code += '        document.getElementById(\'splashOverlay\')?.remove();\n';
+            
+            // 2. Create the Main Widget fresh
             code += '        if (!window.mainWidget) { \n';
             code += '            window.mainWidget = createMainWidget(); \n';
             code += '            document.body.appendChild(window.mainWidget); \n';
             code += '        }\n';
             
-            // 1. Ensure it is visible
+            // 3. Ensure it is visible
             code += '        window.mainWidget.style.display = \'block\';\n';
             
-            // 2. Force it to Active State (Expands it)
+            // 4. Force it to Active State (Expands it)
             code += '        window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
             
-            // 3. Wait for initialization, then Mic On
+            // 5. Wait for initialization, then Mic On
             code += '        setTimeout(() => {\n';
             code += '            console.log("🎤 Turning on microphone...");\n';
             code += '            if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
             code += '                window.mainWidget.micOn();\n';
-            code += '            } else {\n';
-            code += '                console.error("micOn function not found on widget");\n';
             code += '            }\n';
             code += '        }, 750);\n'; 
             code += '    }\n\n';
 
             code += '    function justBrowsing() {\n';
             code += '        document.getElementById(\'splashOverlay\')?.remove();\n';
+            
+            // Destroy splash widget here too
+            code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
+            code += '        if (splashWidget) splashWidget.remove();\n\n';
+            
             code += '        if (!window.mainWidget) { window.mainWidget = createMainWidget(); document.body.appendChild(window.mainWidget); }\n';
             code += '        window.mainWidget.style.display = \'block\';\n';
             code += '    }\n\n';
@@ -3136,7 +3146,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '        else setTimeout(showSplash, 100);\n';
             code += '    })();\n\n';
             
-            code += '    console.log(\'✅ Botemia Bridge v5.2 loaded for\', window.BotemiaConfig.name);\n';
+            code += '    console.log(\'✅ Botemia Bridge v5.3 (Single Widget Fix) loaded for\', window.BotemiaConfig.name);\n';
             code += '})();';
             
             return code;
