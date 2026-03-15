@@ -2328,7 +2328,7 @@ Contact: support@botemia.com`;
             }
         }
 
-                        function generateClientTest() {
+                                function generateClientTest() {
             const config = configManager.getCurrentConfig();
             
             if (!config.id || !config.name) {
@@ -2336,39 +2336,65 @@ Contact: support@botemia.com`;
                 return;
             }
             
-            // Step 1: Generate the bridge file
+            // Step 1: Generate bridge file
             exportBridgeOnly();
             
-            // Step 2: Create the clean test page (NO IMAGE UPLOAD)
-            createTestPage(config);
+            // Step 2: Prompt for screenshot
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(readerEvent) {
+                    const screenshotData = readerEvent.target.result;
+                    createTestPage(config, screenshotData);
+                };
+                reader.readAsDataURL(file);
+            };
+            fileInput.click();
         }
 
-        function createTestPage(config) {
-            // We build a CLEAN HTML file with no image data to avoid the "garbage" text.
+                function createTestPage(config, screenshotData) {
+            // We build the HTML string manually to ensure it is clean and readable
             
             let html = '';
             html += '<!DOCTYPE html>\n';
             html += '<html lang="en">\n';
             html += '<head>\n';
             html += '    <meta charset="UTF-8">\n';
+            html += '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n';
             html += '    <title>Test: ' + config.name + '</title>\n';
             html += '    <style>\n';
-            html += '        body { margin: 0; padding: 0; background: #0a0f1e; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; }\n';
-            html += '        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #f8c400; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }\n';
-            html += '        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }\n';
+            html += '        body { margin: 0; padding: 0; min-height: 100vh; ';
+            
+            // --- THIS IS THE FIX: We insert the screenshot as the background image ---
+            // We check if screenshotData exists. If not, we use a fallback color.
+            if (screenshotData) {
+                html += 'background-image: url(\'' + screenshotData + '\'); background-size: cover; background-position: center; ';
+            } else {
+                html += 'background-color: #0a0f1e; '; // Fallback if no image
+            }
+            
+            html += 'font-family: sans-serif; }\n';
+            html += '        .test-banner { position: fixed; top: 0; left: 0; right: 0; ';
+            html += 'background: rgba(248,196,0,0.95); color: #000; padding: 12px; ';
+            html += 'text-align: center; z-index: 1000000; font-weight: 600; }\n';
+            html += '        .status-toast { position: fixed; bottom: 20px; right: 20px; ';
+            html += 'background: rgba(0,0,0,0.8); color: #f8c400; padding: 12px 20px; ';
+            html += 'border-radius: 30px; font-size: 14px; border: 1px solid #f8c400; z-index: 1000000; }\n';
             html += '    </style>\n';
             html += '</head>\n';
             html += '<body>\n';
-            html += '    <div>\n';
-            html += '        <div class="loader"></div>\n';
-            html += '        <h3>Test Mode: ' + config.name + '</h3>\n';
-            html += '        <p style="color:#888;">Bridge is loading... The Splash Screen should appear automatically.</p>\n';
-            html += '    </div>\n';
+            html += '    <div class="test-banner">🧪 TEST MODE: ' + config.name + '</div>\n';
             
             // Break script tags to be safe
             html += '    <scr' + 'ipt type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"></scr' + 'ipt>\n';
             html += '    <scr' + 'ipt src="bridge-' + config.id + '.js"></scr' + 'ipt>\n';
             
+            html += '    <div class="status-toast">⚡ Bridge Loaded. Splash should appear...</div>\n';
             html += '</body>\n';
             html += '</html>';
 
@@ -2386,9 +2412,9 @@ Contact: support@botemia.com`;
             // Clean up memory
             setTimeout(() => URL.revokeObjectURL(url), 100);
             
-            alert('✅ Clean Test Files Generated!\n\n1. You have 2 files:\n   - bridge-' + config.id + '.js\n   - test-' + config.id + '.html\n\n2. Upload BOTH to Netlify.\n3. Rename the HTML file to index.html\n\nNo more "garbage" code!');
+            alert('✅ Test Page Generated!\n\n1. You should have 2 files:\n   - bridge-' + config.id + '.js\n   - test-' + config.id + '.html\n2. Upload BOTH to Netlify.\n3. Rename the HTML file to index.html');
             
-            configManager.updateStatus('Clean test page generated', 'success');
+            configManager.updateStatus('Test page generated', 'success');
         }
 
         // ==========================================
