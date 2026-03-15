@@ -3004,9 +3004,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
     }
 }
 
-// ===== THE MISSING ENGINE: Generates the actual JS code =====
-                // ===== THE MISSING ENGINE: Generates the actual JS code =====
-                // ===== THE MISSING ENGINE: Generates the actual JS code =====
+        // ===== THE MISSING ENGINE: Generates the actual JS code =====
         function generateBridgeContent(config, safeStringify) {
             // We use string concatenation to safely build the code without nesting issues
             
@@ -3016,7 +3014,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '// Botemia Bridge for ' + (config.name || 'Client') + '\n';
             code += '// Generated: ' + new Date().toLocaleString() + '\n';
             code += '// Client ID: ' + config.id + '\n';
-            code += '// Version: 5.1 - INSTANT LOAD ARCHITECTURE\n\n';
+            code += '// Version: 5.1 - BATON PASS FIX\n\n';
             
             code += '(function() {\n';
             code += '    "use strict";\n\n';
@@ -3072,7 +3070,6 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '    }\n\n';
 
             // === BUILD THE HTML STRINGS SAFELY ===
-            // We build the HTML string in variables to avoid nesting backticks inside backticks
             code += '    const h1Content = c.title || "Meet Tess";\n';
             code += '    const h2Content = c.subtitle || "Your AI Guide";\n';
             code += '    const btn1Text = c.primaryButton?.text || "Get Started";\n';
@@ -3106,11 +3103,29 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '        document.getElementById(\'browseBtn\').onclick = justBrowsing;\n';
             code += '    }\n\n';
 
+            // === THE CRITICAL FIX: BATON PASS LOGIC ===
             code += '    function activateTess() {\n';
             code += '        document.getElementById(\'splashOverlay\')?.remove();\n';
-            code += '        if (!window.mainWidget) { window.mainWidget = createMainWidget(); document.body.appendChild(window.mainWidget); }\n';
+            code += '        if (!window.mainWidget) { \n';
+            code += '            window.mainWidget = createMainWidget(); \n';
+            code += '            document.body.appendChild(window.mainWidget); \n';
+            code += '        }\n';
+            
+            // 1. Ensure it is visible
             code += '        window.mainWidget.style.display = \'block\';\n';
-            code += '        setTimeout(() => window.mainWidget?.micOn?.(), 500);\n';
+            
+            // 2. Force it to Active State (Expands it)
+            code += '        window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
+            
+            // 3. Wait for initialization, then Mic On
+            code += '        setTimeout(() => {\n';
+            code += '            console.log("🎤 Turning on microphone...");\n';
+            code += '            if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
+            code += '                window.mainWidget.micOn();\n';
+            code += '            } else {\n';
+            code += '                console.error("micOn function not found on widget");\n';
+            code += '            }\n';
+            code += '        }, 750);\n'; // Increased wait time to 750ms for safety
             code += '    }\n\n';
 
             code += '    function justBrowsing() {\n';
@@ -3126,7 +3141,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '        else setTimeout(showSplash, 100);\n';
             code += '    })();\n\n';
             
-            code += '    console.log(\'✅ Botemia Bridge v5.1 loaded for\', window.BotemiaConfig.name);\n';
+            code += '    console.log(\'✅ Botemia Bridge v5.1 (Baton Pass) loaded for\', window.BotemiaConfig.name);\n';
             code += '})();';
             
             return code;
