@@ -3003,9 +3003,9 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
 
 // ===== THE MISSING ENGINE: Generates the actual JS code =====
                 // ===== THE MISSING ENGINE: Generates the actual JS code =====
+                // ===== THE MISSING ENGINE: Generates the actual JS code =====
         function generateBridgeContent(config, safeStringify) {
-            // Note: We use regular string concatenation here to avoid "garbage text" encoding issues.
-            // Template literals can sometimes cause issues if not handled carefully in nested generation.
+            // We use string concatenation to safely build the code without nesting issues
             
             const splashScreen = config.modules?.splashScreen || {};
             
@@ -3013,7 +3013,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '// Botemia Bridge for ' + (config.name || 'Client') + '\n';
             code += '// Generated: ' + new Date().toLocaleString() + '\n';
             code += '// Client ID: ' + config.id + '\n';
-            code += '// Version: 5.0 - FULL SMART SCREEN WITH BACKDROP\n\n';
+            code += '// Version: 5.1 - INSTANT LOAD ARCHITECTURE\n\n';
             
             code += '(function() {\n';
             code += '    "use strict";\n\n';
@@ -3024,8 +3024,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             // CSS Injection
             code += '    // ===== ADD SPLASH SCREEN CSS =====\n';
             code += '    const style = document.createElement(\'style\');\n';
-            // Use escaped backticks (\`) inside the string
-            code += '    style.textContent = \\`\n';
+            code += '    style.textContent = `\n';
             code += '        .splash-avatar-container {\n';
             code += '            width: 260px; height: 380px; margin: 0 auto 25px;\n';
             code += '            border-radius: 20px; overflow: hidden;\n';
@@ -3047,7 +3046,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
             code += '            animation: slideUp 0.4s ease;\n';
             code += '        }\n';
-            code += '    \\`;\n'; // Escaped closing backtick
+            code += '    `;\n';
             code += '    document.head.appendChild(style);\n\n';
             
             // Helper Functions
@@ -3068,6 +3067,13 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '        return w;\n';
             code += '    }\n\n';
 
+            // === BUILD THE HTML STRINGS SAFELY ===
+            // We build the HTML string in variables to avoid nesting backticks inside backticks
+            code += '    const h1Content = c.title || "Meet Tess";\n';
+            code += '    const h2Content = c.subtitle || "Your AI Guide";\n';
+            code += '    const btn1Text = c.primaryButton?.text || "Get Started";\n';
+            code += '    const btn2Text = c.secondaryButton?.text || "Just Browsing";\n\n';
+
             code += '    function showSplash() {\n';
             code += '        const c = window.BotemiaConfig.modules?.splashScreen;\n';
             code += '        if (!c || !c.enabled) return;\n\n';
@@ -3077,16 +3083,16 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             
             code += '        const card = document.createElement(\'div\');\n';
             code += '        card.className = \'splash-card\';\n';
-            // Use escaped backticks (\`) inside the string for the innerHTML template
-            code += '        card.innerHTML = \\`\n';
-            code += '            <h1>${c.title || \'Meet Tess\'}</h1>\n';
-            code += '            <h2>${c.subtitle || \'Your AI Guide\'}</h2>\n';
-            code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
-            code += '            <div style="display:flex; gap:10px; justify-content:center;">\n';
-            code += '                <button id="activateBtn" style="padding:12px 20px; border-radius:40px; background:linear-gradient(145deg, #f8c400, #d4a000); border:none; font-weight:600; cursor:pointer;">${c.primaryButton?.text || \'Get Started\'}</button>\n';
-            code += '                <button id="browseBtn" style="padding:12px 20px; border-radius:40px; background:#333; color:white; border:none; font-weight:600; cursor:pointer;">${c.secondaryButton?.text || \'Just Browsing\'}</button>\n';
-            code += '            </div>\n';
-            code += '        \\`;\n'; // Escaped closing backtick
+            
+            // Use concatenation instead of template literals for safety
+            code += '        card.innerHTML = \n';
+            code += '            \'<h1>\' + h1Content + \'</h1>\' +\n';
+            code += '            \'<h2>\' + h2Content + \'</h2>\' +\n';
+            code += '            \'<div class="splash-avatar-container" id="splashAvatarContainer"></div>\' +\n';
+            code += '            \'<div style="display:flex; gap:10px; justify-content:center;">\' +\n';
+            code += '                \'<button id="activateBtn" style="padding:12px 20px; border-radius:40px; background:linear-gradient(145deg, #f8c400, #d4a000); border:none; font-weight:600; cursor:pointer;">\' + btn1Text + \'</button>\' +\n';
+            code += '                \'<button id="browseBtn" style="padding:12px 20px; border-radius:40px; background:#333; color:white; border:none; font-weight:600; cursor:pointer;">\' + btn2Text + \'</button>\' +\n';
+            code += '            \'</div>\';\n';
             
             code += '        overlay.appendChild(card);\n';
             code += '        document.body.appendChild(overlay);\n\n';
@@ -3116,7 +3122,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '        else setTimeout(showSplash, 100);\n';
             code += '    })();\n\n';
             
-            code += '    console.log(\'✅ Botemia Bridge v5.0 loaded for\', window.BotemiaConfig.name);\n';
+            code += '    console.log(\'✅ Botemia Bridge v5.1 loaded for\', window.BotemiaConfig.name);\n';
             code += '})();';
             
             return code;
