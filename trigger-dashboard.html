@@ -2328,7 +2328,7 @@ Contact: support@botemia.com`;
             }
         }
 
-        function generateClientTest() {
+                function generateClientTest() {
             const config = configManager.getCurrentConfig();
             
             if (!config.id || !config.name) {
@@ -2344,6 +2344,7 @@ Contact: support@botemia.com`;
             fileInput.type = 'file';
             fileInput.accept = 'image/*';
             fileInput.onchange = function(e) {
+                // CORRECTED LINE: Removed the erroneous ']'
                 const file = e.target.files[0];
                 if (!file) return;
                 
@@ -2357,81 +2358,58 @@ Contact: support@botemia.com`;
             fileInput.click();
         }
 
-              function createTestPage(config, screenshotData) {
-            // Note: We split the script tag string below to prevent the browser 
-            // from closing THIS dashboard script prematurely.
-            const widgetScriptTag = '<script type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"><\/script>';
+                      function createTestPage(config, screenshotData) {
+            // We build the string manually to avoid "garbage text" encoding issues 
+            // caused by nested template literals.
+            
+            let html = '';
+            
+            html += '<!DOCTYPE html>\n';
+            html += '<html lang="en">\n';
+            html += '<head>\n';
+            html += '    <meta charset="UTF-8">\n';
+            html += '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n';
+            html += '    <title>Test: ' + config.name + '</title>\n';
+            html += '    <style>\n';
+            html += '        body { margin: 0; padding: 0; min-height: 100vh; ';
+            html += 'background-image: url(\'' + screenshotData + '\'); ';
+            html += 'background-size: cover; background-position: center; font-family: sans-serif; }\n';
+            html += '        .test-banner { position: fixed; top: 0; left: 0; right: 0; ';
+            html += 'background: rgba(248,196,0,0.95); color: #000; padding: 12px; ';
+            html += 'text-align: center; z-index: 1000000; font-weight: 600; }\n';
+            html += '        .status-toast { position: fixed; bottom: 20px; right: 20px; ';
+            html += 'background: rgba(0,0,0,0.8); color: #f8c400; padding: 12px 20px; ';
+            html += 'border-radius: 30px; font-size: 14px; border: 1px solid #f8c400; z-index: 1000000; }\n';
+            html += '    </style>\n';
+            html += '</head>\n';
+            html += '<body>\n';
+            html += '    <div class="test-banner">🧪 TEST MODE: ' + config.name + '</div>\n';
+            
+            // We break the script tag string to prevent the browser from closing 
+            // THIS dashboard script prematurely.
+            html += '    <scr' + 'ipt type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"></scr' + 'ipt>\n';
+            html += '    <scr' + 'ipt src="bridge-' + config.id + '.js"></scr' + 'ipt>\n';
+            
+            html += '    <div class="status-toast">⚡ Bridge Loaded. Waiting for Tess...</div>\n';
+            html += '</body>\n';
+            html += '</html>';
 
-            const testHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test: ${config.name}</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background-image: url('${screenshotData}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        .test-banner {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(248,196,0,0.95);
-            color: #000;
-            padding: 12px;
-            text-align: center;
-            z-index: 1000000;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            backdrop-filter: blur(4px);
-        }
-        .test-banner i {
-            margin-right: 8px;
-        }
-        .test-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.2);
-            pointer-events: none;
-            z-index: 1;
-        }
-    </style>
-</head>
-<body>
-    <div class="test-banner">
-        <i class="fas fa-flask"></i> TEST MODE: ${config.name} — Bridge active below
-    </div>
-    <div class="test-overlay"></div>
-    
-    ${widgetScriptTag}
-    <script src="bridge-${config.id}.js"><\/script>
-    
-    <div style="position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #f8c400; padding: 8px 16px; border-radius: 30px; font-size: 12px; border: 1px solid #f8c400; z-index: 1000000;">
-        ⚡ Splash screen will appear...
-    </div>
-</body>
-</html>`;
-
-            const blob = new Blob([testHtml], { type: 'text/html' });
+            // Create the blob with explicit UTF-8 encoding
+            const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
+            
+            // Trigger download
             const a = document.createElement('a');
             a.href = url;
-            a.download = `test-${config.id}.html`;
+            a.download = 'test-' + config.id + '.html';
+            document.body.appendChild(a); // Required for Firefox
             a.click();
+            document.body.removeChild(a);
             
-            alert(`✅ Test page created!\n\nTo test:\n1. Upload both files to Netlify:\n   - test-${config.id}.html (rename to index.html)\n   - bridge-${config.id}.js\n2. Open the Netlify URL`);
+            // Clean up memory
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+            
+            alert('✅ Test page created!\n\nTo test:\n1. You should have two files:\n   - bridge-' + config.id + '.js\n   - test-' + config.id + '.html\n2. Upload both to a Netlify folder.\n3. Rename test HTML to index.html.');
             
             configManager.updateStatus('Test page generated', 'success');
         }
@@ -3022,6 +3000,127 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
         alert('Error exporting bridge: ' + error.message);
     }
 }
+
+// ===== THE MISSING ENGINE: Generates the actual JS code =====
+                // ===== THE MISSING ENGINE: Generates the actual JS code =====
+        function generateBridgeContent(config, safeStringify) {
+            // Note: We use regular string concatenation here to avoid "garbage text" encoding issues.
+            // Template literals can sometimes cause issues if not handled carefully in nested generation.
+            
+            const splashScreen = config.modules?.splashScreen || {};
+            
+            let code = '';
+            code += '// Botemia Bridge for ' + (config.name || 'Client') + '\n';
+            code += '// Generated: ' + new Date().toLocaleString() + '\n';
+            code += '// Client ID: ' + config.id + '\n';
+            code += '// Version: 5.0 - FULL SMART SCREEN WITH BACKDROP\n\n';
+            
+            code += '(function() {\n';
+            code += '    "use strict";\n\n';
+            
+            code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
+            code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
+            
+            // CSS Injection
+            code += '    // ===== ADD SPLASH SCREEN CSS =====\n';
+            code += '    const style = document.createElement(\'style\');\n';
+            // Use escaped backticks (\`) inside the string
+            code += '    style.textContent = \\`\n';
+            code += '        .splash-avatar-container {\n';
+            code += '            width: 260px; height: 380px; margin: 0 auto 25px;\n';
+            code += '            border-radius: 20px; overflow: hidden;\n';
+            code += '            background: #000;\n';
+            code += '            box-shadow: 0 20px 30px rgba(0,0,0,0.5);\n';
+            code += '            border: 2px solid rgba(255,255,255,0.1);\n';
+            code += '            display: flex; align-items: center; justify-content: center;\n';
+            code += '            position: relative;\n';
+            code += '        }\n';
+            code += '        .splash-avatar-container lemon-slice-widget {\n';
+            code += '            position: absolute; top: 50%; left: 50%;\n';
+            code += '            transform: translate(-50%, -50%);\n';
+            code += '            width: 280px !important; height: 400px !important;\n';
+            code += '        }\n';
+            code += '        .splash-card {\n';
+            code += '            background: radial-gradient(circle at center, ' + (splashScreen.gradientCenter || '#1e4a8a') + ' 0%, ' + (splashScreen.gradientOuter || '#0a1a2f') + ' 80%);\n';
+            code += '            border-radius: 48px; padding: 40px 30px;\n';
+            code += '            max-width: 600px; width: 90%; text-align: center;\n';
+            code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
+            code += '            animation: slideUp 0.4s ease;\n';
+            code += '        }\n';
+            code += '    \\`;\n'; // Escaped closing backtick
+            code += '    document.head.appendChild(style);\n\n';
+            
+            // Helper Functions
+            code += '    function createSplashWidget() {\n';
+            code += '        const w = document.createElement(\'lemon-slice-widget\');\n';
+            code += '        w.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
+            code += '        w.setAttribute(\'inline\', \'\');\n';
+            code += '        w.id = \'splash-widget\';\n';
+            code += '        return w;\n';
+            code += '    }\n\n';
+
+            code += '    function createMainWidget() {\n';
+            code += '        const w = document.createElement(\'lemon-slice-widget\');\n';
+            code += '        w.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
+            code += '        w.setAttribute(\'initial-state\', \'minimized\');\n';
+            code += '        w.id = \'main-widget\';\n';
+            code += '        w.style.display = \'none\';\n';
+            code += '        return w;\n';
+            code += '    }\n\n';
+
+            code += '    function showSplash() {\n';
+            code += '        const c = window.BotemiaConfig.modules?.splashScreen;\n';
+            code += '        if (!c || !c.enabled) return;\n\n';
+            code += '        const overlay = document.createElement(\'div\');\n';
+            code += '        overlay.id = \'splashOverlay\';\n';
+            code += '        overlay.style.cssText = \'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; z-index:99999;\';\n\n';
+            
+            code += '        const card = document.createElement(\'div\');\n';
+            code += '        card.className = \'splash-card\';\n';
+            // Use escaped backticks (\`) inside the string for the innerHTML template
+            code += '        card.innerHTML = \\`\n';
+            code += '            <h1>${c.title || \'Meet Tess\'}</h1>\n';
+            code += '            <h2>${c.subtitle || \'Your AI Guide\'}</h2>\n';
+            code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
+            code += '            <div style="display:flex; gap:10px; justify-content:center;">\n';
+            code += '                <button id="activateBtn" style="padding:12px 20px; border-radius:40px; background:linear-gradient(145deg, #f8c400, #d4a000); border:none; font-weight:600; cursor:pointer;">${c.primaryButton?.text || \'Get Started\'}</button>\n';
+            code += '                <button id="browseBtn" style="padding:12px 20px; border-radius:40px; background:#333; color:white; border:none; font-weight:600; cursor:pointer;">${c.secondaryButton?.text || \'Just Browsing\'}</button>\n';
+            code += '            </div>\n';
+            code += '        \\`;\n'; // Escaped closing backtick
+            
+            code += '        overlay.appendChild(card);\n';
+            code += '        document.body.appendChild(overlay);\n\n';
+            
+            code += '        document.getElementById(\'splashAvatarContainer\').appendChild(createSplashWidget());\n';
+            code += '        document.getElementById(\'activateBtn\').onclick = activateTess;\n';
+            code += '        document.getElementById(\'browseBtn\').onclick = justBrowsing;\n';
+            code += '    }\n\n';
+
+            code += '    function activateTess() {\n';
+            code += '        document.getElementById(\'splashOverlay\')?.remove();\n';
+            code += '        if (!window.mainWidget) { window.mainWidget = createMainWidget(); document.body.appendChild(window.mainWidget); }\n';
+            code += '        window.mainWidget.style.display = \'block\';\n';
+            code += '        setTimeout(() => window.mainWidget?.micOn?.(), 500);\n';
+            code += '    }\n\n';
+
+            code += '    function justBrowsing() {\n';
+            code += '        document.getElementById(\'splashOverlay\')?.remove();\n';
+            code += '        if (!window.mainWidget) { window.mainWidget = createMainWidget(); document.body.appendChild(window.mainWidget); }\n';
+            code += '        window.mainWidget.style.display = \'block\';\n';
+            code += '    }\n\n';
+
+            // Auto-Trigger System
+            code += '    // ===== AUTO-TRIGGER SYSTEM =====\n';
+            code += '    (function init() {\n';
+            code += '        if (document.readyState === \'loading\') document.addEventListener(\'DOMContentLoaded\', () => setTimeout(showSplash, 100));\n';
+            code += '        else setTimeout(showSplash, 100);\n';
+            code += '    })();\n\n';
+            
+            code += '    console.log(\'✅ Botemia Bridge v5.0 loaded for\', window.BotemiaConfig.name);\n';
+            code += '})();';
+            
+            return code;
+        }
 
 
         // ===== INITIALIZATION =====
