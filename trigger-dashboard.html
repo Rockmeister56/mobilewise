@@ -2352,7 +2352,11 @@ Contact: support@botemia.com`;
             fileInput.click();
         }
 
-        function createTestPage(config, screenshotData) {
+              function createTestPage(config, screenshotData) {
+            // Note: We split the script tag string below to prevent the browser 
+            // from closing THIS dashboard script prematurely.
+            const widgetScriptTag = '<script type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"><\/script>';
+
             const testHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2406,8 +2410,8 @@ Contact: support@botemia.com`;
     </div>
     <div class="test-overlay"></div>
     
-    <script type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"></script>
-    <script src="bridge-${config.id}.js"></script>
+    ${widgetScriptTag}
+    <script src="bridge-${config.id}.js"><\/script>
     
     <div style="position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.7); color: #f8c400; padding: 8px 16px; border-radius: 30px; font-size: 12px; border: 1px solid #f8c400; z-index: 1000000;">
         ⚡ Splash screen will appear...
@@ -2426,17 +2430,3 @@ Contact: support@botemia.com`;
             
             configManager.updateStatus('Test page generated', 'success');
         }
-
-        // ===== INITIALIZATION =====
-        document.addEventListener('DOMContentLoaded', () => {
-            window.configManager = configManager;
-            configManager.init();
-            
-            loadTestimonialGroups();
-            loadVideos();
-            loadSmartScreens();
-            
-            if (document.getElementById('splashTopText')) updateSplashPreview();
-            if (document.getElementById('splashBgStyle')) toggleGradientControls();
-            if (document.getElementById('persistentButtonPosition')) toggleCustomPosition();
-        });
