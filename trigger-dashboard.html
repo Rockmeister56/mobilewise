@@ -2357,9 +2357,7 @@ Contact: support@botemia.com`;
             fileInput.click();
         }
 
-                function createTestPage(config, screenshotData) {
-            // We build the HTML string manually to ensure it is clean and readable
-            
+                        function createTestPage(config, screenshotData) {
             let html = '';
             html += '<!DOCTYPE html>\n';
             html += '<html lang="en">\n';
@@ -2370,12 +2368,11 @@ Contact: support@botemia.com`;
             html += '    <style>\n';
             html += '        body { margin: 0; padding: 0; min-height: 100vh; ';
             
-            // --- THIS IS THE FIX: We insert the screenshot as the background image ---
-            // We check if screenshotData exists. If not, we use a fallback color.
+            // Insert Screenshot if available
             if (screenshotData) {
                 html += 'background-image: url(\'' + screenshotData + '\'); background-size: cover; background-position: center; ';
             } else {
-                html += 'background-color: #0a0f1e; '; // Fallback if no image
+                html += 'background-color: #0a0f1e; ';
             }
             
             html += 'font-family: sans-serif; }\n';
@@ -2390,15 +2387,16 @@ Contact: support@botemia.com`;
             html += '<body>\n';
             html += '    <div class="test-banner">🧪 TEST MODE: ' + config.name + '</div>\n';
             
-            // Break script tags to be safe
+            // === THESE ARE THE CRITICAL SCRIPT TAGS ===
+            // We break the word 'script' to prevent the browser from closing this script prematurely
             html += '    <scr' + 'ipt type="module" src="https://unpkg.com/@lemonsliceai/lemon-slice-widget"></scr' + 'ipt>\n';
             html += '    <scr' + 'ipt src="bridge-' + config.id + '.js"></scr' + 'ipt>\n';
+            // =======================================
             
             html += '    <div class="status-toast">⚡ Bridge Loaded. Splash should appear...</div>\n';
             html += '</body>\n';
             html += '</html>';
 
-            // Trigger download
             const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             
@@ -2409,7 +2407,6 @@ Contact: support@botemia.com`;
             a.click();
             document.body.removeChild(a);
             
-            // Clean up memory
             setTimeout(() => URL.revokeObjectURL(url), 100);
             
             alert('✅ Test Page Generated!\n\n1. You should have 2 files:\n   - bridge-' + config.id + '.js\n   - test-' + config.id + '.html\n2. Upload BOTH to Netlify.\n3. Rename the HTML file to index.html');
@@ -3006,15 +3003,13 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
 
         // ===== THE MISSING ENGINE: Generates the actual JS code =====
         function generateBridgeContent(config, safeStringify) {
-            // We use string concatenation to safely build the code without nesting issues
-            
             const splashScreen = config.modules?.splashScreen || {};
             
             let code = '';
             code += '// Botemia Bridge for ' + (config.name || 'Client') + '\n';
             code += '// Generated: ' + new Date().toLocaleString() + '\n';
             code += '// Client ID: ' + config.id + '\n';
-            code += '// Version: 5.1 - BATON PASS FIX\n\n';
+            code += '// Version: 5.2 - DEFINITIVE FIX\n\n';
             
             code += '(function() {\n';
             code += '    "use strict";\n\n';
@@ -3027,24 +3022,25 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '    const style = document.createElement(\'style\');\n';
             code += '    style.textContent = `\n';
             code += '        .splash-avatar-container {\n';
-            code += '            width: 260px; height: 380px; margin: 0 auto 25px;\n';
-            code += '            border-radius: 20px; overflow: hidden;\n';
+            code += '            width: 280px; height: 400px; margin: 0 auto 30px;\n';
+            code += '            border-radius: 24px; overflow: hidden;\n';
             code += '            background: #000;\n';
             code += '            box-shadow: 0 20px 30px rgba(0,0,0,0.5);\n';
             code += '            border: 2px solid rgba(255,255,255,0.1);\n';
             code += '            display: flex; align-items: center; justify-content: center;\n';
-            code += '            position: relative;\n';
             code += '        }\n';
-            code += '        .splash-avatar-container lemon-slice-widget {\n';
-            code += '            position: absolute; top: 50%; left: 50%;\n';
-            code += '            transform: translate(-50%, -50%);\n';
-            code += '            width: 280px !important; height: 400px !important;\n';
+            
+            // === CRITICAL: Target the ID specifically for the splash widget ===
+            code += '        #splash-widget {\n';
+            code += '            width: 100% !important;\n';
+            code += '            height: 100% !important;\n';
             code += '            display: block !important;\n';
             code += '        }\n';
+            
             code += '        .splash-card {\n';
             code += '            background: radial-gradient(circle at center, ' + (splashScreen.gradientCenter || '#1e4a8a') + ' 0%, ' + (splashScreen.gradientOuter || '#0a1a2f') + ' 80%);\n';
-            code += '            border-radius: 48px; padding: 40px 30px;\n';
-            code += '            max-width: 600px; width: 90%; text-align: center;\n';
+            code += '            border-radius: 48px; padding: 50px 40px;\n';
+            code += '            max-width: 650px; width: 90%; text-align: center;\n';
             code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
             code += '            animation: slideUp 0.4s ease;\n';
             code += '        }\n';
@@ -3085,7 +3081,6 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '        const card = document.createElement(\'div\');\n';
             code += '        card.className = \'splash-card\';\n';
             
-            // Use concatenation instead of template literals for safety
             code += '        card.innerHTML = \n';
             code += '            \'<h1>\' + h1Content + \'</h1>\' +\n';
             code += '            \'<h2>\' + h2Content + \'</h2>\' +\n';
@@ -3103,7 +3098,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '        document.getElementById(\'browseBtn\').onclick = justBrowsing;\n';
             code += '    }\n\n';
 
-            // === THE CRITICAL FIX: BATON PASS LOGIC ===
+            // === THE BATON PASS LOGIC ===
             code += '    function activateTess() {\n';
             code += '        document.getElementById(\'splashOverlay\')?.remove();\n';
             code += '        if (!window.mainWidget) { \n';
@@ -3125,7 +3120,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '            } else {\n';
             code += '                console.error("micOn function not found on widget");\n';
             code += '            }\n';
-            code += '        }, 750);\n'; // Increased wait time to 750ms for safety
+            code += '        }, 750);\n'; 
             code += '    }\n\n';
 
             code += '    function justBrowsing() {\n';
@@ -3141,7 +3136,7 @@ card.style.background = \`radial-gradient(circle at center, \${config.gradientCe
             code += '        else setTimeout(showSplash, 100);\n';
             code += '    })();\n\n';
             
-            code += '    console.log(\'✅ Botemia Bridge v5.1 (Baton Pass) loaded for\', window.BotemiaConfig.name);\n';
+            code += '    console.log(\'✅ Botemia Bridge v5.2 loaded for\', window.BotemiaConfig.name);\n';
             code += '})();';
             
             return code;
