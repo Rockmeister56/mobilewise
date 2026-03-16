@@ -2588,12 +2588,16 @@ Contact: support@botemia.com`;
                 code += '        return widget;\n';
                 code += '    }\n\n';
 
-                code += '    function createMainWidget() {\n';
+                 code += '    function createMainWidget() {\n';
                 code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
                 code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
+                code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
+                
+                // === FIX: Define size so it is visible ===
                 code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
                 code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
-                code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
+                // =======================================
+                
                 code += '        widget.id = \'main-widget\';\n';
                 code += '        widget.style.display = \'none\';\n';
                 code += '        return widget;\n';
