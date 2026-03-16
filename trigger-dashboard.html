@@ -2657,7 +2657,7 @@ function exportBridgeOnly() {
         code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
         code += '    }\n\n';
 
-        // Add this forceUnmute function to your bridge code
+       // === ACTIVATE TESS (AUDIO GESTURE FIX + SHADOW DOM UNMUTE) ===
 code += '    async function forceUnmute() {\n';
 code += '        if (window.mainWidget) {\n';
 code += '            // 1. API Calls\n';
@@ -2666,7 +2666,7 @@ code += '                await window.mainWidget.micOn?.();\n';
 code += '                await window.mainWidget.unmute?.();\n';
 code += '            } catch(e) {\n';
 code += '                console.warn("Force unmute API error", e);\n';
-code += '            }\n\n';
+code += '            }\n';
 code += '            // 2. Nuclear Shadow DOM Unmute\n';
 code += '            try {\n';
 code += '                const shadow = window.mainWidget.shadowRoot;\n';
@@ -2679,42 +2679,43 @@ code += '                }\n';
 code += '            } catch(e) {}\n';
 code += '        }\n';
 code += '    }\n\n';
-        
-        // === ACTIVATE TESS (THE BATON PASS FIX) ===
-        code += '    function activateTess() {\n';
-        
-        // 1. NUKE THE SPLASH WIDGET
-        code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
-        code += '        if (splashWidget) {\n';
-        code += '            splashWidget.innerHTML = \'\'; \n'; // Clear contents to kill iframe
-        code += '            if (splashWidget.parentNode) {\n';
-        code += '                splashWidget.parentNode.removeChild(splashWidget); \n';
-        code += '            }\n';
-        code += '        }\n\n';
-        
-        // 2. Remove the overlay
-        code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
-        code += '        if (overlay) {\n';
-        code += '            overlay.innerHTML = \'\';\n';
-        code += '            if (overlay.parentNode) {\n';
-        code += '                overlay.parentNode.removeChild(overlay);\n';
-        code += '            }\n';
-        code += '        }\n\n';
 
-        // 3. CREATE MAIN WIDGET (Baton Pass)
-        // We check if it exists. If not, we create it. 
-        code += '        if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
-        code += '            window.mainWidget = createMainWidget();\n';
-        code += '            document.body.appendChild(window.mainWidget);\n';
-        code += '        }\n';
-        
-        // 4. Ensure it is visible
-        code += '        window.mainWidget.style.display = \'block\';\n';
-        
-        // 5. Force it to Active State
-        code += '        window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
-        
-        // In your activateTess function, replace the micOn calls with:
+code += '    function activateTess() {\n';
+code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
+code += '        \n';
+code += '        // 1. Try to pre-warm audio\n';
+code += '        try {\n';
+code += '            if (window.mainWidget && typeof window.mainWidget.micOn === "function") {\n';
+code += '                window.mainWidget.micOn();\n';
+code += '            }\n';
+code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n\n';
+
+code += '        // 2. NUKE THE SPLASH WIDGET\n';
+code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
+code += '        if (splashWidget) {\n';
+code += '            splashWidget.innerHTML = \'\';\n';
+code += '            if (splashWidget.parentNode) {\n';
+code += '                splashWidget.parentNode.removeChild(splashWidget);\n';
+code += '            }\n';
+code += '        }\n\n';
+
+code += '        // 3. Remove the overlay\n';
+code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
+code += '        if (overlay) overlay.remove();\n\n';
+
+code += '        // 4. CREATE MAIN WIDGET (Fast Transition)\n';
+code += '        setTimeout(() => {\n';
+code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
+code += '                window.mainWidget = createMainWidget();\n';
+code += '                // CRITICAL: Set hide-ui to prevent text messages\n';
+code += '                window.mainWidget.setAttribute(\'hide-ui\', \'true\');\n';
+code += '                document.body.appendChild(window.mainWidget);\n';
+code += '            }\n';
+code += '            \n';
+code += '            window.mainWidget.style.display = \'block\';\n';
+code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
+code += '            \n';
+code += '            // 5. Turn on mic with proper async handling\n';
 code += '            setTimeout(async () => {\n';
 code += '                console.log("🎤 Finalizing audio state...");\n';
 code += '                try {\n';
@@ -2726,10 +2727,12 @@ code += '                        \n';
 code += '                        // Force unmute shadow DOM as backup\n';
 code += '                        await forceUnmute();\n';
 code += '                        \n';
-code += '                        // Send welcome message\n';
-code += '                        if (window.mainWidget.sendMessage) {\n';
-code += '                            window.mainWidget.sendMessage("Hi! I\'m Tess. How can I help you today?");\n';
-code += '                        }\n';
+code += '                        // Send welcome message (audio only due to hide-ui)\n';
+code += '                        setTimeout(() => {\n';
+code += '                            if (window.mainWidget && typeof window.mainWidget.sendMessage === \'function\') {\n';
+code += '                                window.mainWidget.sendMessage("Hi! I\'m Tess. How can I help you today?");\n';
+code += '                            }\n';
+code += '                        }, 1000);\n';
 code += '                    }\n';
 code += '                } catch (e) {\n';
 code += '                    console.error("❌ Mic activation failed:", e);\n';
@@ -2737,6 +2740,8 @@ code += '                    // Fallback to forceUnmute\n';
 code += '                    forceUnmute();\n';
 code += '                }\n';
 code += '            }, 800);\n';
+code += '        }, 100);\n';
+code += '    }\n\n';
 
         code += '    function justBrowsing() {\n';
         code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
