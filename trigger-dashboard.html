@@ -1349,27 +1349,23 @@ fetchFromSupabase(supabaseUrl, supabaseKey) {
     supabaseClient
         .from('clients')
         .select('*')
-        .not('client_id', 'is', null)  // Only get records with client_id
+        .not('client_id', 'is', null)
         .then(({ data, error }) => {
             if (data && data.length > 0) {
-                // Convert array to object keyed by client_id
                 const supabaseClients = {};
                 data.forEach(client => {
-                    // Use metadata if it exists, otherwise create basic config
-                    supabaseClients[client.client_id] = client.metadata || {
+                    // === THE FIX: Merge the top-level data WITH the metadata ===
+                    supabaseClients[client.client_id] = {
                         id: client.client_id,
                         name: client.name,
-                        industry: client.industry
+                        industry: client.industry,
+                        // Merge metadata fields (agentId, modules) to the top level
+                        ...(client.metadata || {}) 
                     };
                 });
                 
-                // Merge with existing clients (Supabase takes priority)
                 this.clients = {...this.clients, ...supabaseClients};
-                
-                // Update localStorage with merged data
                 localStorage.setItem('mobilewise_clients', JSON.stringify(this.clients));
-                
-                // Refresh the dropdown
                 this.populateClientSelect();
                 
                 console.log('✅ Loaded', data.length, 'clients from Supabase');
