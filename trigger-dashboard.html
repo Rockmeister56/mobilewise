@@ -2657,76 +2657,67 @@ function exportBridgeOnly() {
         code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
         code += '    }\n\n';
 
-        async function activateTess() {
-    try {
-        console.log("🖱️ Activating Tess...");
-        
-        // 1. ATTEMPT TO RESUME AUDIO CONTEXT
-        // This is crucial - it browser may have blocked audio
-        // if we don't explicitly resume it audio context
-        try {
-            if (window.mainWidget && window.mainWidget.dailyCall) {
-                await window.mainWidget.dailyCall.startAudio();
-            }
-        } catch (audioError) {
-            console.warn("⚠️ Audio context resume failed:", audioError);
-            // Continue anyway, widget might handle it
-        }
-
-        // 2. CREATE MAIN WIDGET FIRST if needed
-        if (!window.mainWidget || !document.body.contains(window.mainWidget)) {
-            window.mainWidget = createMainWidget();
-            document.body.appendChild(window.mainWidget);
-        }
-        
-        // 3. ENSURE IT'S VISIBLE
-        window.mainWidget.style.display = 'block';
-        
-        // 4. ACTIVATE
-        await window.mainWidget.setAttribute('controlled-widget-state', 'active');
-        
-        // 5. DESTROY SPLASH
-        // Now we can safely remove the splash
-        const splashWidget = document.getElementById('splash-widget');
-        if (splashWidget) {
-            splashWidget.innerHTML = '';
-            if (splashWidget.parentNode) {
-                splashWidget.parentNode.removeChild(splashWidget);
-            }
-        }
-        
-        const overlay = document.getElementById('splashOverlay');
-        if (overlay) {
-            overlay.innerHTML = '';
-            if (overlay.parentNode) {
-                overlay.parentNode.removeChild(overlay);
-            }
-        }
-
-        // 6. FINAL AUDIO ACTIVATION
-        try {
-            if (window.mainWidget && typeof window.mainWidget.micOn === 'function') {
-                await window.mainWidget.micOn();
-                console.log("✅ Audio activated successfully");
-            } else {
-                console.warn("⚠️ micOn not available, attempting manual activation");
-                // Manual activation as fallback
-                if (window.mainWidget && window.mainWidget.dailyCall) {
-                    await window.mainWidget.dailyCall.setLocalAudio(true);
-                    await window.mainWidget.dailyCall.startAudio();
-                    console.log("✅ Audio activated via Daily API");
-                }
-            }
-        } catch (err) {
-            console.error("❌ Audio activation failed:", err);
-        }
-        
-        console.log("✅ Tess activation completed");
-        
-    } catch (error) {
-        console.error("❌ Error in activateTess:", error);
-    }
-}
+        // === ACTIVATE TESS (AUDIO GESTURE FIX) ===
+code += '    function activateTess() {\n';
+code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
+code += '        \n';
+code += '        // 1. NUKE THE SPLASH WIDGET\n';
+code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
+code += '        if (splashWidget) {\n';
+code += '            splashWidget.innerHTML = \'\'; \n';
+code += '            if (splashWidget.parentNode) {\n';
+code += '                splashWidget.parentNode.removeChild(splashWidget); \n';
+code += '            }\n';
+code += '        }\n\n';
+code += '        // 2. Remove the overlay\n';
+code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
+code += '        if (overlay) overlay.remove();\n\n';
+code += '        // 3. CREATE MAIN WIDGET (Fast Transition)\n';
+code += '        setTimeout(() => {\n';
+code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
+code += '                window.mainWidget = createMainWidget();\n';
+code += '                document.body.appendChild(window.mainWidget);\n';
+code += '            }\n';
+code += '            \n';
+code += '            // First set widget to active state\n';
+code += '            window.mainWidget.style.display = \'block\';\n';
+code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
+code += '            \n';
+code += '            // Wait for widget to be fully ready before turning on mic\n';
+code += '            setTimeout(async () => {\n';
+code += '                console.log("🎤 Attempting to turn on microphone...");\n';
+code += '                try {\n';
+code += '                    if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
+code += '                        // micOn returns a promise, so await it\n';
+code += '                        await window.mainWidget.micOn();\n';
+code += '                        console.log("✅ Microphone activated successfully");\n';
+code += '                        \n';
+code += '                        // Send welcome message after mic is on\n';
+code += '                        setTimeout(() => {\n';
+code += '                            if (window.mainWidget && typeof window.mainWidget.sendMessage === \'function\') {\n';
+code += '                                window.mainWidget.sendMessage("Hi! I\'m Tess. How can I help you today?");\n';
+code += '                            }\n';
+code += '                        }, 1000);\n';
+code += '                    }\n';
+code += '                } catch (e) {\n';
+code += '                    console.error("❌ Failed to activate microphone:", e);\n';
+code += '                    \n';
+code += '                    // Fallback: Try one more time after a delay\n';
+code += '                    setTimeout(async () => {\n';
+code += '                        try {\n';
+code += '                            if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
+code += '                                await window.mainWidget.micOn();\n';
+code += '                                console.log("✅ Microphone activated on retry");\n';
+code += '                            }\n';
+code += '                        } catch (retryError) {\n';
+code += '                            console.warn("⚠️ Could not activate microphone automatically");\n';
+code += '                            // Show mic button so user can manually enable\n';
+code += '                        }\n';
+code += '                    }, 1000);\n';
+code += '                }\n';
+code += '            }, 800); // Increased delay to ensure widget is ready\n';
+code += '        }, 100);\n';
+code += '    }\n\n';
 
         code += '    function justBrowsing() {\n';
         code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
