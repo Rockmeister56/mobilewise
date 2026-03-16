@@ -2588,16 +2588,23 @@ function exportBridgeOnly() {
         code += '        return widget;\n';
         code += '    }\n\n';
 
-        code += '    function createMainWidget() {\n';
-        code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-        code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-        code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
-        code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
-        code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
-        code += '        widget.id = \'main-widget\';\n';
-        code += '        widget.style.display = \'none\';\n';
-        code += '        return widget;\n';
-        code += '    }\n\n';
+ code += '       function createMainWidget() {\n';
+code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
+code += '        widget.setAttribute(\'agent-id\', \'' + config.agentId + '\');\n';
+code += '        widget.setAttribute(\'id\', \'tess-widget\');\n';
+code += '        widget.setAttribute(\'hide-ui\', \'true\'); // THIS IS THE MAGIC FIX!\n';
+code += '        widget.setAttribute(\'suppress-initial-message\', \'true\');\n';
+code += '        widget.style.position = \'fixed\';\n';
+code += '        widget.style.bottom = \'20px\';\n';
+code += '        widget.style.right = \'20px\';\n';
+code += '        widget.style.width = \'400px\';\n';
+code += '        widget.style.height = \'600px\';\n';
+code += '        widget.style.zIndex = \'999999\';\n';
+code += '        widget.style.border = \'none\';\n';
+code += '        widget.style.borderRadius = \'15px\';\n';
+code += '        widget.style.boxShadow = \'0 10px 40px rgba(0,0,0,0.3)\';\n';
+code += '        return widget;\n';
+code += '    }\n\n';
 
         // Show Splash Function
         code += '    function showSplash() {\n';
@@ -2657,7 +2664,7 @@ function exportBridgeOnly() {
         code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
         code += '    }\n\n';
 
-        // === ACTIVATE TESS (AUDIO GESTURE FIX + NO TEXT) ===
+        // === ACTIVATE TESS (AUDIO GESTURE FIX + HIDE-UI) ===
 code += '    function activateTess() {\n';
 code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
 code += '        \n';
@@ -2685,8 +2692,8 @@ code += '        // 4. CREATE MAIN WIDGET (Fast Transition)\n';
 code += '        setTimeout(() => {\n';
 code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
 code += '                window.mainWidget = createMainWidget();\n';
-code += '                // CRITICAL: Set ui="false" to prevent text messages\n';
-code += '                window.mainWidget.setAttribute(\'ui\', \'false\');\n';
+code += '                // CRITICAL: Use hide-ui attribute to prevent text messages\n';
+code += '                window.mainWidget.setAttribute(\'hide-ui\', \'true\');\n';
 code += '                document.body.appendChild(window.mainWidget);\n';
 code += '            }\n';
 code += '            \n';
@@ -2701,7 +2708,7 @@ code += '                    if (window.mainWidget && typeof window.mainWidget.m
 code += '                        await window.mainWidget.micOn();\n';
 code += '                        console.log("✅ Microphone activated");\n';
 code += '                        \n';
-code += '                        // Send welcome message (audio only due to ui:false)\n';
+code += '                        // Send welcome message (audio only due to hide-ui)\n';
 code += '                        setTimeout(() => {\n';
 code += '                            if (window.mainWidget && typeof window.mainWidget.sendMessage === \'function\') {\n';
 code += '                                window.mainWidget.sendMessage("Hi! I\'m Tess. How can I help you today?");\n';
@@ -2710,6 +2717,13 @@ code += '                        }, 1000);\n';
 code += '                    }\n';
 code += '                } catch (e) {\n';
 code += '                    console.error("❌ Mic activation failed:", e);\n';
+code += '                    \n';
+code += '                    // Retry once with a simpler approach\n';
+code += '                    setTimeout(() => {\n';
+code += '                        if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
+code += '                            window.mainWidget.micOn().catch(console.warn);\n';
+code += '                        }\n';
+code += '                    }, 1000);\n';
 code += '                }\n';
 code += '            }, 800);\n';
 code += '        }, 100);\n';
