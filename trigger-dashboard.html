@@ -2502,448 +2502,272 @@ Contact: support@botemia.com`;
             alert('Diagnostics Complete! Check the Console (F12) for results.');
         }
 
-           // ===== EXPORT BRIDGE ONLY (COMPLETE VERSION 5.3) =====
-        // Includes: Single Widget Fix + Gradients + Branding + Full Styling
-        function exportBridgeOnly() {
-            console.log('🔧 Exporting bridge only...');
-            
-            try {
-                const config = configManager.getCurrentConfig();
-                if (!config.id || !config.name) {
-                    alert('Please enter a client name');
-                    return;
+           // ===== EXPORT BRIDGE ONLY (COMPLETE VERSION 5.4 - FIX) =====
+// Includes: Single Widget Fix + Gradients + Branding + Full Styling
+function exportBridgeOnly() {
+    console.log('🔧 Exporting bridge only...');
+    
+    try {
+        const config = configManager.getCurrentConfig();
+        if (!config.id || !config.name) {
+            alert('Please enter a client name');
+            return;
+        }
+        
+        // Safe Stringify to handle circular references
+        const safeStringify = (obj) => {
+            const cache = new Set();
+            return JSON.stringify(obj, (key, value) => {
+                if (typeof value === 'object' && value !== null) {
+                    if (cache.has(value)) return;
+                    cache.add(value);
                 }
-                
-                // Safe Stringify to handle circular references
-                const safeStringify = (obj) => {
-                    const cache = new Set();
-                    return JSON.stringify(obj, (key, value) => {
-                        if (typeof value === 'object' && value !== null) {
-                            if (cache.has(value)) return;
-                            cache.add(value);
-                        }
-                        return value;
-                    }, 4);
-                };
+                return value;
+            }, 4);
+        };
 
-                const splashScreen = config.modules?.splashScreen || {};
+        const splashScreen = config.modules?.splashScreen || {};
 
-                // ===== BUILD THE BRIDGE CODE =====
-                let code = '';
-                code += '// Botemia Bridge for ' + (config.name || 'Client') + '\n';
-                code += '// Generated: ' + new Date().toLocaleString() + '\n';
-                code += '// Client ID: ' + config.id + '\n';
-                code += '// Version: 5.3 - SINGLE WIDGET FIX (COMPLETE)\n\n';
-                
-                code += '(function() {\n';
-                code += '    "use strict";\n\n';
-                
-                code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
-                code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
-                
-                // CSS Injection
-                code += '    // ===== ADD SPLASH SCREEN CSS =====\n';
-                code += '    const style = document.createElement(\'style\');\n';
-                code += '    style.textContent = `\n';
-                code += '        .splash-avatar-container {\n';
-                code += '            width: 260px; height: 380px; margin: 0 auto 25px;\n';
-                code += '            border-radius: 20px; overflow: hidden;\n';
-                code += '            background: #000;\n';
-                code += '            box-shadow: 0 20px 30px rgba(0,0,0,0.5);\n';
-                code += '            border: 2px solid rgba(255,255,255,0.1);\n';
-                code += '            display: flex; align-items: center; justify-content: center;\n';
-                code += '            position: relative;\n';
-                code += '        }\n';
-                code += '        .splash-avatar-container lemon-slice-widget {\n';
-                code += '            position: absolute; top: 50%; left: 50%;\n';
-                code += '            transform: translate(-50%, -50%);\n';
-                code += '            width: 280px !important; height: 400px !important;\n';
-                code += '            max-width: none !important; max-height: none !important;\n';
-                code += '        }\n';
-                code += '        .splash-card {\n';
-                code += '            background: radial-gradient(circle at center, ' + (splashScreen.gradientCenter || '#1e4a8a') + ' 0%, ' + (splashScreen.gradientOuter || '#0a1a2f') + ' 80%);\n';
-                code += '            border-radius: 48px; padding: 40px 30px;\n';
-                code += '            max-width: 600px; width: 90%; text-align: center;\n';
-                code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
-                code += '            animation: slideUp 0.4s ease;\n';
-                code += '        }\n';
-                code += '        .splash-card h1 { color: white; font-size: 2.5rem; margin-bottom: 5px; font-weight: 700; }\n';
-                code += '        .splash-card h2 { color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-bottom: 20px; font-weight: 300; }\n';
-                code += '        .button-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }\n';
-                code += '        .primary-btn, .secondary-btn { padding: 12px 20px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer; flex: 1; max-width: 200px; border: none; transition: all 0.2s; }\n';
-                code += '        .primary-btn:hover, .secondary-btn:hover { transform: scale(1.02); }\n';
-                code += '    `;\n';
-                code += '    document.head.appendChild(style);\n\n';
-                
-                // Helper Functions
-                code += '    function createSplashWidget() {\n';
-                code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-                code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-                code += '        widget.setAttribute(\'inline\', \'\');\n';
-                code += '        widget.setAttribute(\'custom-minimized-width\', \'280\');\n';
-                code += '        widget.setAttribute(\'custom-minimized-height\', \'400\');\n';
-                code += '        widget.setAttribute(\'initial-state\', \'active\');\n';
-                code += '        widget.setAttribute(\'hide-ui\', \'\');\n';
-                code += '        widget.id = \'splash-widget\';\n';
-                code += '        return widget;\n';
-                code += '    }\n\n';
+        // ===== BUILD THE BRIDGE CODE =====
+        let code = '';
+        code += '// Botemia Bridge for ' + (config.name || 'Client') + '\n';
+        code += '// Generated: ' + new Date().toLocaleString() + '\n';
+        code += '// Client ID: ' + config.id + '\n';
+        code += '// Version: 5.4 - BATON PASS FIX\n\n';
+        
+        code += '(function() {\n';
+        code += '    "use strict";\n\n';
+        
+        code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
+        code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
+        
+        // CSS Injection
+        code += '    // ===== ADD SPLASH SCREEN CSS =====\n';
+        code += '    const style = document.createElement(\'style\');\n';
+        code += '    style.textContent = `\n';
+        code += '        .splash-avatar-container {\n';
+        code += '            width: 260px; height: 380px; margin: 0 auto 25px;\n';
+        code += '            border-radius: 20px; overflow: hidden;\n';
+        code += '            background: #000;\n';
+        code += '            box-shadow: 0 20px 30px rgba(0,0,0,0.5);\n';
+        code += '            border: 2px solid rgba(255,255,255,0.1);\n';
+        code += '            display: flex; align-items: center; justify-content: center;\n';
+        code += '            position: relative;\n';
+        code += '        }\n';
+        code += '        .splash-avatar-container lemon-slice-widget {\n';
+        code += '            position: absolute; top: 50%; left: 50%;\n';
+        code += '            transform: translate(-50%, -50%);\n';
+        code += '            width: 280px !important; height: 400px !important;\n';
+        code += '            max-width: none !important; max-height: none !important;\n';
+        code += '        }\n';
+        code += '        .splash-card {\n';
+        code += '            background: radial-gradient(circle at center, ' + (splashScreen.gradientCenter || '#1e4a8a') + ' 0%, ' + (splashScreen.gradientOuter || '#0a1a2f') + ' 80%);\n';
+        code += '            border-radius: 48px; padding: 40px 30px;\n';
+        code += '            max-width: 600px; width: 90%; text-align: center;\n';
+        code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
+        code += '            animation: slideUp 0.4s ease;\n';
+        code += '        }\n';
+        code += '        .splash-card h1 { color: white; font-size: 2.5rem; margin-bottom: 5px; font-weight: 700; }\n';
+        code += '        .splash-card h2 { color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-bottom: 20px; font-weight: 300; }\n';
+        code += '        .button-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }\n';
+        code += '        .primary-btn, .secondary-btn { padding: 12px 20px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer; flex: 1; max-width: 200px; border: none; transition: all 0.2s; }\n';
+        code += '        .primary-btn:hover, .secondary-btn:hover { transform: scale(1.02); }\n';
+        code += '    `;\n';
+        code += '    document.head.appendChild(style);\n\n';
+        
+        // Helper Functions
+        code += '    function createSplashWidget() {\n';
+        code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
+        code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
+        code += '        widget.setAttribute(\'inline\', \'\');\n';
+        code += '        widget.setAttribute(\'custom-minimized-width\', \'280\');\n';
+        code += '        widget.setAttribute(\'custom-minimized-height\', \'400\');\n';
+        code += '        widget.setAttribute(\'initial-state\', \'active\');\n';
+        code += '        widget.setAttribute(\'hide-ui\', \'\');\n';
+        code += '        widget.id = \'splash-widget\';\n';
+        code += '        return widget;\n';
+        code += '    }\n\n';
 
-                 code += '    function createMainWidget() {\n';
-                code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-                code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-                code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
-                
-                // === FIX: Define size so it is visible ===
-                code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
-                code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
-                // =======================================
-                
-                code += '        widget.id = \'main-widget\';\n';
-                code += '        widget.style.display = \'none\';\n';
-                code += '        return widget;\n';
-                code += '    }\n\n';
+        code += '    function createMainWidget() {\n';
+        code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
+        code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
+        code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
+        code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
+        code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
+        code += '        widget.id = \'main-widget\';\n';
+        code += '        widget.style.display = \'none\';\n';
+        code += '        return widget;\n';
+        code += '    }\n\n';
 
-                // Show Splash Function (With Gradients & Branding)
-                code += '    function showSplash() {\n';
-                code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n';
-                code += '        if (!config || !config.enabled) return;\n\n';
+        // Show Splash Function
+        code += '    function showSplash() {\n';
+        code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n'; // FIXED: Scoped correctly
+        code += '        if (!config || !config.enabled) return;\n\n';
 
-                code += '        const overlay = document.createElement(\'div\');\n';
-                code += '        overlay.className = \'splash-overlay\';\n';
-                code += '        overlay.id = \'splashOverlay\';\n';
-                code += '        overlay.style.cssText = `\n';
-                code += '            position: fixed; top: 0; left: 0; width: 100%; height: 100%;\n';
-                code += '            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);\n';
-                code += '            display: flex; align-items: center; justify-content: center; z-index: 99999;\n';
-                code += '        `;\n\n';
+        code += '        const overlay = document.createElement(\'div\');\n';
+        code += '        overlay.className = \'splash-overlay\';\n';
+        code += '        overlay.id = \'splashOverlay\';\n';
+        code += '        overlay.style.cssText = `\n';
+        code += '            position: fixed; top: 0; left: 0; width: 100%; height: 100%;\n';
+        code += '            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);\n';
+        code += '            display: flex; align-items: center; justify-content: center; z-index: 99999;\n';
+        code += '        `;\n\n';
 
-                code += '        const card = document.createElement(\'div\');\n';
-                code += '        card.className = \'splash-card\';\n';
-                code += '        card.style.background = `radial-gradient(circle at center, ${config.gradientCenter || \'#1e4a8a\'} 0%, ${config.gradientOuter || \'#0a1a2f\'} 80%)`;\n\n';
-                
-                code += '        // Build HTML with proper escaping\n';
-                code += '        let cardHTML = `\n';
-                code += '            <h1>${config.title || \'Meet Tess\'}</h1>\n';
-                code += '            <h2>${config.subtitle || \'Your Personal AI Smart Guide\'}</h2>\n';
-                code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
-                code += '            <div class="button-group">\n';
-                code += '                <button class="primary-btn" id="activateTessBtn" style="background: linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'}); color: ${config.primaryButton?.textColor || \'#0a0f1e\'};">${config.primaryButton?.text || \'Get AI help with Tess\'}</button>\n';
-                code += '                <button class="secondary-btn" id="justBrowsingBtn" style="background: linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'}); color: ${config.secondaryButton?.textColor || \'#ffffff\'};">${config.secondaryButton?.text || \'Just Browsing\'}</button>\n';
-                code += '            </div>\n';
-                code += '        `;\n\n';
-                
-                code += '        // Add branding footer if exists\n';
-                code += '        if (config.branding?.name || config.branding?.logo) {\n';
-                code += '            cardHTML += `\n';
-                code += '                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 6px; color: rgba(255,255,255,0.4); font-size: 0.75rem;">\n';
-                code += '                    ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" style="height: 18px; opacity: 0.6;">\' : \'\'}\n';
-                code += '                    ${config.branding?.name ? \'<span>\' + config.branding.name + \'</span>\' : \'\'}\n';
-                code += '                </div>\n';
-                code += '            `;\n';
-                code += '        }\n\n';
-                
-                code += '        card.innerHTML = cardHTML;\n\n';
+        code += '        const card = document.createElement(\'div\');\n';
+        code += '        card.className = \'splash-card\';\n';
+        code += '        card.style.background = `radial-gradient(circle at center, ${config.gradientCenter || \'#1e4a8a\'} 0%, ${config.gradientOuter || \'#0a1a2f\'} 80%)`;\n\n';
+        
+        code += '        let cardHTML = `\n';
+        code += '            <h1>${config.title || \'Meet Tess\'}</h1>\n';
+        code += '            <h2>${config.subtitle || \'Your Personal AI Smart Guide\'}</h2>\n';
+        code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
+        code += '            <div class="button-group">\n';
+        code += '                <button class="primary-btn" id="activateTessBtn" style="background: linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'}); color: ${config.primaryButton?.textColor || \'#0a0f1e\'};">${config.primaryButton?.text || \'Get AI help with Tess\'}</button>\n';
+        code += '                <button class="secondary-btn" id="justBrowsingBtn" style="background: linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'}); color: ${config.secondaryButton?.textColor || \'#ffffff\'};">${config.secondaryButton?.text || \'Just Browsing\'}</button>\n';
+        code += '            </div>\n';
+        code += '        `;\n\n';
+        
+        code += '        if (config.branding?.name || config.branding?.logo) {\n';
+        code += '            cardHTML += `\n';
+        code += '                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 6px; color: rgba(255,255,255,0.4); font-size: 0.75rem;">\n';
+        code += '                    ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" style="height: 18px; opacity: 0.6;">\' : \'\'}\n';
+        code += '                    ${config.branding?.name ? \'<span>\' + config.branding.name + \'</span>\' : \'\'}\n';
+        code += '                </div>\n';
+        code += '            `;\n';
+        code += '        }\n\n';
+        
+        code += '        card.innerHTML = cardHTML;\n\n';
 
-                code += '        overlay.appendChild(card);\n';
-                code += '        document.body.appendChild(overlay);\n\n';
+        code += '        overlay.appendChild(card);\n';
+        code += '        document.body.appendChild(overlay);\n\n';
 
-                code += '        const container = document.getElementById(\'splashAvatarContainer\');\n';
-                code += '        const splashWidget = createSplashWidget();\n';
-                code += '        container.appendChild(splashWidget);\n\n';
+        code += '        const container = document.getElementById(\'splashAvatarContainer\');\n';
+        code += '        const splashWidget = createSplashWidget();\n';
+        code += '        container.appendChild(splashWidget);\n\n';
 
-                code += '        document.getElementById(\'activateTessBtn\').addEventListener(\'click\', activateTess);\n';
-                code += '        document.getElementById(\'justBrowsingBtn\').addEventListener(\'click\', justBrowsing);\n\n';
+        code += '        document.getElementById(\'activateTessBtn\').addEventListener(\'click\', activateTess);\n';
+        code += '        document.getElementById(\'justBrowsingBtn\').addEventListener(\'click\', justBrowsing);\n\n';
+        
+        // Hover Effects (Condensed for brevity, logic remains same)
+        code += '        const primaryBtn = document.getElementById(\'activateTessBtn\');\n';
+        code += '        primaryBtn.onmouseover = () => { primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.hoverTop || \'#ffd700\'}, ${config.primaryButton?.hoverBottom || \'#e0b000\'})`; primaryBtn.style.transform = \'scale(1.02)\'; };\n';
+        code += '        primaryBtn.onmouseout = () => { primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'})`; primaryBtn.style.transform = \'scale(1)\'; };\n';
+        code += '        const secondaryBtn = document.getElementById(\'justBrowsingBtn\');\n';
+        code += '        secondaryBtn.onmouseover = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.hoverTop || \'#4a5060\'}, ${config.secondaryButton?.hoverBottom || \'#3a4050\'})`; secondaryBtn.style.transform = \'scale(1.02)\'; };\n';
+        code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
+        code += '    }\n\n';
 
-                // Hover Effects
-                code += '        const primaryBtn = document.getElementById(\'activateTessBtn\');\n';
-                code += '        primaryBtn.onmouseover = () => {\n';
-                code += '            primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.hoverTop || \'#ffd700\'}, ${config.primaryButton?.hoverBottom || \'#e0b000\'})`;\n';
-                code += '            primaryBtn.style.transform = \'scale(1.02)\';\n';
-                code += '        };\n';
-                code += '        primaryBtn.onmouseout = () => {\n';
-                code += '            primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'})`;\n';
-                code += '            primaryBtn.style.transform = \'scale(1)\';\n';
-                code += '        };\n\n';
+        // === ACTIVATE TESS (THE BATON PASS FIX) ===
+        code += '    function activateTess() {\n';
+        
+        // 1. NUKE THE SPLASH WIDGET
+        code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
+        code += '        if (splashWidget) {\n';
+        code += '            splashWidget.innerHTML = \'\'; \n'; // Clear contents to kill iframe
+        code += '            if (splashWidget.parentNode) {\n';
+        code += '                splashWidget.parentNode.removeChild(splashWidget); \n';
+        code += '            }\n';
+        code += '        }\n\n';
+        
+        // 2. Remove the overlay
+        code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
+        code += '        if (overlay) {\n';
+        code += '            overlay.innerHTML = \'\';\n';
+        code += '            if (overlay.parentNode) {\n';
+        code += '                overlay.parentNode.removeChild(overlay);\n';
+        code += '            }\n';
+        code += '        }\n\n';
 
-                code += '        const secondaryBtn = document.getElementById(\'justBrowsingBtn\');\n';
-                code += '        secondaryBtn.onmouseover = () => {\n';
-                code += '            secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.hoverTop || \'#4a5060\'}, ${config.secondaryButton?.hoverBottom || \'#3a4050\'})`;\n';
-                code += '            secondaryBtn.style.transform = \'scale(1.02)\';\n';
-                code += '        };\n';
-                code += '        secondaryBtn.onmouseout = () => {\n';
-                code += '            secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`;\n';
-                code += '            secondaryBtn.style.transform = \'scale(1)\';\n';
-                code += '        };\n';
-                code += '    }\n\n';
+        // 3. CREATE MAIN WIDGET (Baton Pass)
+        // We check if it exists. If not, we create it. 
+        code += '        if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
+        code += '            window.mainWidget = createMainWidget();\n';
+        code += '            document.body.appendChild(window.mainWidget);\n';
+        code += '        }\n';
+        
+        // 4. Ensure it is visible
+        code += '        window.mainWidget.style.display = \'block\';\n';
+        
+        // 5. Force it to Active State
+        code += '        window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
+        
+        // 6. Mic On (Safety Check)
+        code += '        setTimeout(() => {\n';
+        code += '            console.log("🎤 Attempting to turn on microphone...");\n';
+        code += '            try {\n';
+        code += '                if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
+        code += '                    window.mainWidget.micOn();\n';
+        code += '                    console.log("✅ Microphone turned on.");\n';
+        code += '                } else {\n';
+        code += '                    console.warn("⚠️ Widget ready, but micOn not available yet. Widget is active.");\n';
+        code += '                }\n';
+        code += '            } catch (e) {\n';
+        code += '                console.error("❌ Mic error:", e);\n';
+        code += '            }\n';
+        code += '        }, 1000);\n'; 
+        code += '    }\n\n';
 
-                                // === ACTIVATE TESS (THE NUCLEAR FIX) ===
-                code += '    function activateTess() {\n';
-                
-                // 1. NUKE THE SPLASH WIDGET
-                // We use two methods to ensure it DIES.
-                code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
-                code += '        if (splashWidget) {\n';
-                code += '            splashWidget.innerHTML = \'\'; // Clear contents\n';
-                code += '            if (splashWidget.parentNode) {\n';
-                code += '                splashWidget.parentNode.removeChild(splashWidget); // Nuclear remove\n';
-                code += '            }\n';
-                code += '        }\n\n';
-                
-                // 2. Remove the overlay
-                code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
-                code += '        if (overlay) {\n';
-                code += '            overlay.innerHTML = \'\';\n';
-                code += '            if (overlay.parentNode) {\n';
-                code += '                overlay.parentNode.removeChild(overlay);\n';
-                code += '            }\n';
-                code += '        }\n\n';
+        code += '    function justBrowsing() {\n';
+        code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
+        code += '        if (overlay) overlay.remove();\n\n';
+        
+        code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
+        code += '        if (splashWidget) splashWidget.remove();\n\n';
+        
+        code += '        if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
+        code += '            window.mainWidget = createMainWidget();\n';
+        code += '            document.body.appendChild(window.mainWidget);\n';
+        code += '        }\n';
+        code += '        window.mainWidget.style.display = \'block\';\n';
+        code += '    }\n\n';
 
-                // 3. Create the Main Widget fresh
-                code += '        if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
-                code += '            window.mainWidget = createMainWidget();\n';
-                code += '            document.body.appendChild(window.mainWidget);\n';
-                code += '        }\n';
-                
-                // 4. Ensure it is visible
-                code += '        window.mainWidget.style.display = \'block\';\n';
-                
-                // 5. Force it to Active State
-                code += '        window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
-                
-                // 6. Wait for initialization, then Mic On (with safety check)
-                code += '        setTimeout(() => {\n';
-                code += '            console.log("🎤 Attempting to turn on microphone...");\n';
-                code += '            try {\n';
-                code += '                if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
-                code += '                    window.mainWidget.micOn();\n';
-                code += '                    console.log("✅ Microphone turned on.");\n';
-                code += '                } else {\n';
-                code += '                    console.warn("⚠️ Widget ready, but micOn not available yet. Widget is active.");\n';
-                code += '                }\n';
-                code += '            } catch (e) {\n';
-                code += '                console.error("❌ Mic error:", e);\n';
-                code += '            }\n';
-                code += '        }, 1000);\n'; // Increased wait time to 1s
-                code += '    }\n\n';
+        // Auto-Trigger System
+        code += '    window.disableBridgeTriggers = false;\n';
+        code += '    window.addEventListener(\'message\', function(event) {\n';
+        code += '        if (event.data.type === \'DASHBOARD_COMMAND\') {\n';
+        code += '            if (event.data.command === \'toggleOverlays\') { window.disableBridgeTriggers = event.data.disabled; }\n';
+        code += '            return;\n';
+        code += '        }\n';
+        code += '        if (event.data.type === \'MODULE_TRIGGERED\' && !window.disableBridgeTriggers) { window.showModule(event.data.module, event.data.triggerPhrase); }\n';
+        code += '    });\n\n';
 
-                code += '    function justBrowsing() {\n';
-                code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
-                code += '        if (overlay) overlay.remove();\n\n';
-                
-                // Destroy splash widget here too
-                code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
-                code += '        if (splashWidget) splashWidget.remove();\n\n';
-                
-                code += '        if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
-                code += '            window.mainWidget = createMainWidget();\n';
-                code += '            document.body.appendChild(window.mainWidget);\n';
-                code += '        }\n';
-                code += '        window.mainWidget.style.display = \'block\';\n';
-                code += '    }\n\n';
+        code += '    // ===== LOAD WIDGET =====\n';
+        code += '    function initWidget() {\n';
+        code += '        if (document.querySelector(\'lemon-slice-widget\')) { console.log(\'✅ Widget already exists\'); return; }\n';
+        code += '        setTimeout(() => { showSplash(); }, 100);\n';
+        code += '        const script = document.createElement(\'script\');\n';
+        code += '        script.src = \'https://unpkg.com/@lemonsliceai/lemon-slice-widget\';\n';
+        code += '        script.type = \'module\';\n';
+        code += '        script.onload = () => { console.log(\'✅ Widget script loaded\'); };\n';
+        code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
+        code += '        document.head.appendChild(script);\n';
+        code += '    }\n\n';
 
-                // Auto-Trigger System (Abbreviated for space, but functional)
-                code += '    window.disableBridgeTriggers = false;\n';
-                code += '    window.addEventListener(\'message\', function(event) {\n';
-                code += '        if (event.data.type === \'DASHBOARD_COMMAND\') {\n';
-                code += '            if (event.data.command === \'toggleOverlays\') { window.disableBridgeTriggers = event.data.disabled; }\n';
-                code += '            return;\n';
-                code += '        }\n';
-                code += '        if (event.data.type === \'MODULE_TRIGGERED\' && !window.disableBridgeTriggers) { window.showModule(event.data.module, event.data.triggerPhrase); }\n';
-                code += '    });\n\n';
-
-                code += '    // ===== LOAD WIDGET =====\n';
-                code += '    function initWidget() {\n';
-                code += '        if (document.querySelector(\'lemon-slice-widget\')) { console.log(\'✅ Widget already exists\'); return; }\n';
-                code += '        setTimeout(() => { showSplash(); }, 100);\n';
-                code += '        const script = document.createElement(\'script\');\n';
-                code += '        script.src = \'https://unpkg.com/@lemonsliceai/lemon-slice-widget\';\n';
-                code += '        script.type = \'module\';\n';
-                code += '        script.onload = () => { console.log(\'✅ Widget script loaded\'); };\n';
-                code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
-                code += '        document.head.appendChild(script);\n';
-                code += '    }\n\n';
-
-                code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
-                code += '    else { initWidget(); }\n\n';
-                
-                code += '    console.log(\'✅ Botemia Bridge v5.3 loaded for\', window.BotemiaConfig.name);\n';
-                code += '})();';
-                
-                // ===== DOWNLOAD THE FILE =====
-                const bridgeBlob = new Blob([code], { type: 'application/javascript' });
-                const bridgeLink = document.createElement('a');
-                bridgeLink.href = URL.createObjectURL(bridgeBlob);
-                bridgeLink.download = 'bridge-' + config.id + '.js';
-                bridgeLink.click();
-                URL.revokeObjectURL(bridgeLink.href);
-                
-                // Show Toast
-                showSaveToast('Bridge Exported', 'v5.3');
-                
-                configManager.updateStatus('✅ Bridge file exported for ' + config.name, 'success');
-                console.log('✅ Bridge only export completed');
-                
-            } catch (error) {
-                console.error('❌ Bridge export error:', error);
-                alert('Error exporting bridge: ' + error.message);
-            }
-        }
-
-                // ===== THE MISSING ENGINE: Generates the actual JS code =====
-        function generateBridgeContent(config, safeStringify) {
-            const splashScreen = config.modules?.splashScreen || {};
-            
-            let code = '';
-            code += '// Botemia Bridge for ' + (config.name || 'Client') + '\n';
-            code += '// Generated: ' + new Date().toLocaleString() + '\n';
-            code += '// Client ID: ' + config.id + '\n';
-            code += '// Version: 5.3 - SINGLE WIDGET FIX\n\n';
-            
-            code += '(function() {\n';
-            code += '    "use strict";\n\n';
-            
-            code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
-            code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
-            
-            // CSS Injection
-            code += '    // ===== ADD SPLASH SCREEN CSS =====\n';
-            code += '    const style = document.createElement(\'style\');\n';
-            code += '    style.textContent = `\n';
-            code += '        .splash-avatar-container {\n';
-            code += '            width: 280px; height: 400px; margin: 0 auto 30px;\n';
-            code += '            border-radius: 24px; overflow: hidden;\n';
-            code += '            background: #000;\n';
-            code += '            box-shadow: 0 20px 30px rgba(0,0,0,0.5);\n';
-            code += '            border: 2px solid rgba(255,255,255,0.1);\n';
-            code += '            display: flex; align-items: center; justify-content: center;\n';
-            code += '        }\n';
-            
-            // Target the ID specifically for the splash widget
-            code += '        #splash-widget {\n';
-            code += '            width: 100% !important;\n';
-            code += '            height: 100% !important;\n';
-            code += '            display: block !important;\n';
-            code += '        }\n';
-            
-            code += '        .splash-card {\n';
-            code += '            background: radial-gradient(circle at center, ' + (splashScreen.gradientCenter || '#1e4a8a') + ' 0%, ' + (splashScreen.gradientOuter || '#0a1a2f') + ' 80%);\n';
-            code += '            border-radius: 48px; padding: 50px 40px;\n';
-            code += '            max-width: 650px; width: 90%; text-align: center;\n';
-            code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
-            code += '            animation: slideUp 0.4s ease;\n';
-            code += '        }\n';
-            code += '    `;\n';
-            code += '    document.head.appendChild(style);\n\n';
-            
-            // Helper Functions
-            code += '    function createSplashWidget() {\n';
-            code += '        const w = document.createElement(\'lemon-slice-widget\');\n';
-            code += '        w.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-            code += '        w.setAttribute(\'inline\', \'\');\n';
-            code += '        w.id = \'splash-widget\';\n';
-            code += '        return w;\n';
-            code += '    }\n\n';
-
-            code += '    function createMainWidget() {\n';
-            code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-            code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-            code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
-            // === FIX: Define size so it is visible ===
-            code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
-            code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
-            // =======================================
-            code += '        widget.id = \'main-widget\';\n';
-            code += '        widget.style.display = \'none\';\n';
-            code += '        return widget;\n';
-            code += '    }\n\n';
-
-            // === BUILD THE HTML STRINGS SAFELY ===
-            code += '    const h1Content = c.title || "Meet Tess";\n';
-            code += '    const h2Content = c.subtitle || "Your AI Guide";\n';
-            code += '    const btn1Text = c.primaryButton?.text || "Get Started";\n';
-            code += '    const btn2Text = c.secondaryButton?.text || "Just Browsing";\n\n';
-
-            code += '    function showSplash() {\n';
-            code += '        const c = window.BotemiaConfig.modules?.splashScreen;\n';
-            code += '        if (!c || !c.enabled) return;\n\n';
-            code += '        const overlay = document.createElement(\'div\');\n';
-            code += '        overlay.id = \'splashOverlay\';\n';
-            code += '        overlay.style.cssText = \'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; z-index:99999;\';\n\n';
-            
-            code += '        const card = document.createElement(\'div\');\n';
-            code += '        card.className = \'splash-card\';\n';
-            
-            code += '        card.innerHTML = \n';
-            code += '            \'<h1>\' + h1Content + \'</h1>\' +\n';
-            code += '            \'<h2>\' + h2Content + \'</h2>\' +\n';
-            code += '            \'<div class="splash-avatar-container" id="splashAvatarContainer"></div>\' +\n';
-            code += '            \'<div style="display:flex; gap:10px; justify-content:center;">\' +\n';
-            code += '                \'<button id="activateBtn" style="padding:12px 20px; border-radius:40px; background:linear-gradient(145deg, #f8c400, #d4a000); border:none; font-weight:600; cursor:pointer;">\' + btn1Text + \'</button>\' +\n';
-            code += '                \'<button id="browseBtn" style="padding:12px 20px; border-radius:40px; background:#333; color:white; border:none; font-weight:600; cursor:pointer;">\' + btn2Text + \'</button>\' +\n';
-            code += '            \'</div>\';\n';
-            
-            code += '        overlay.appendChild(card);\n';
-            code += '        document.body.appendChild(overlay);\n\n';
-            
-            code += '        document.getElementById(\'splashAvatarContainer\').appendChild(createSplashWidget());\n';
-            code += '        document.getElementById(\'activateBtn\').onclick = activateTess;\n';
-            code += '        document.getElementById(\'browseBtn\').onclick = justBrowsing;\n';
-            code += '    }\n\n';
-
-            // === THE BATON PASS LOGIC (CORRECTED) ===
-            code += '    function activateTess() {\n';
-            
-            // 1. Destroy the Splash Widget to free up the "Single Instance"
-            code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
-            code += '        if (splashWidget) splashWidget.remove();\n\n';
-            
-            code += '        document.getElementById(\'splashOverlay\')?.remove();\n';
-            
-            // 2. Create the Main Widget fresh
-            code += '        if (!window.mainWidget) { \n';
-            code += '            window.mainWidget = createMainWidget(); \n';
-            code += '            document.body.appendChild(window.mainWidget); \n';
-            code += '        }\n';
-            
-            // 3. Ensure it is visible
-            code += '        window.mainWidget.style.display = \'block\';\n';
-            
-            // 4. Force it to Active State (Expands it)
-            code += '        window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
-            
-            // 5. Wait for initialization, then Mic On
-            code += '        setTimeout(() => {\n';
-            code += '            console.log("🎤 Turning on microphone...");\n';
-            code += '            if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
-            code += '                window.mainWidget.micOn();\n';
-            code += '            }\n';
-            code += '        }, 750);\n'; 
-            code += '    }\n\n';
-
-            code += '    function justBrowsing() {\n';
-            code += '        document.getElementById(\'splashOverlay\')?.remove();\n';
-            
-            // Destroy splash widget here too
-            code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
-            code += '        if (splashWidget) splashWidget.remove();\n\n';
-            
-            code += '        if (!window.mainWidget) { window.mainWidget = createMainWidget(); document.body.appendChild(window.mainWidget); }\n';
-            code += '        window.mainWidget.style.display = \'block\';\n';
-            code += '    }\n\n';
-
-            // Auto-Trigger System
-            code += '    // ===== AUTO-TRIGGER SYSTEM =====\n';
-            code += '    (function init() {\n';
-            code += '        if (document.readyState === \'loading\') document.addEventListener(\'DOMContentLoaded\', () => setTimeout(showSplash, 100));\n';
-            code += '        else setTimeout(showSplash, 100);\n';
-            code += '    })();\n\n';
-            
-            code += '    console.log(\'✅ Botemia Bridge v5.3 (Single Widget Fix) loaded for\', window.BotemiaConfig.name);\n';
-            code += '})();';
-            
-            return code;
-        }
-
+        code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
+        code += '    else { initWidget(); }\n\n';
+        
+        code += '    console.log(\'✅ Botemia Bridge v5.4 loaded for\', window.BotemiaConfig.name);\n';
+        code += '})();';
+        
+        // ===== DOWNLOAD THE FILE =====
+        const bridgeBlob = new Blob([code], { type: 'application/javascript' });
+        const bridgeLink = document.createElement('a');
+        bridgeLink.href = URL.createObjectURL(bridgeBlob);
+        bridgeLink.download = 'bridge-' + config.id + '.js';
+        bridgeLink.click();
+        URL.revokeObjectURL(bridgeLink.href);
+        
+        // Show Toast
+        showSaveToast('Bridge Exported', 'v5.4');
+        
+        configManager.updateStatus('✅ Bridge file exported for ' + config.name, 'success');
+        console.log('✅ Bridge only export completed');
+        
+    } catch (error) {
+        console.error('❌ Bridge export error:', error);
+        alert('Error exporting bridge: ' + error.message);
+    }
+}
 
         // ===== INITIALIZATION =====
         document.addEventListener('DOMContentLoaded', () => {
