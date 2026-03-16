@@ -2676,32 +2676,54 @@ Contact: support@botemia.com`;
                 code += '        };\n';
                 code += '    }\n\n';
 
-                // === ACTIVATE TESS (THE CRITICAL FIX) ===
+                                // === ACTIVATE TESS (THE NUCLEAR FIX) ===
                 code += '    function activateTess() {\n';
-                // 1. Destroy the Splash Widget to free up the "Single Instance"
-                code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
-                code += '        if (splashWidget) splashWidget.remove();\n\n';
                 
+                // 1. NUKE THE SPLASH WIDGET
+                // We use two methods to ensure it DIES.
+                code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
+                code += '        if (splashWidget) {\n';
+                code += '            splashWidget.innerHTML = \'\'; // Clear contents\n';
+                code += '            if (splashWidget.parentNode) {\n';
+                code += '                splashWidget.parentNode.removeChild(splashWidget); // Nuclear remove\n';
+                code += '            }\n';
+                code += '        }\n\n';
+                
+                // 2. Remove the overlay
                 code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
-                code += '        if (overlay) overlay.remove();\n\n';
+                code += '        if (overlay) {\n';
+                code += '            overlay.innerHTML = \'\';\n';
+                code += '            if (overlay.parentNode) {\n';
+                code += '                overlay.parentNode.removeChild(overlay);\n';
+                code += '            }\n';
+                code += '        }\n\n';
 
-                // 2. Create the Main Widget fresh
+                // 3. Create the Main Widget fresh
                 code += '        if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
                 code += '            window.mainWidget = createMainWidget();\n';
                 code += '            document.body.appendChild(window.mainWidget);\n';
                 code += '        }\n';
                 
-                // 3. Ensure it is visible
+                // 4. Ensure it is visible
                 code += '        window.mainWidget.style.display = \'block\';\n';
                 
-                // 4. Force it to Active State (Expands it)
+                // 5. Force it to Active State
                 code += '        window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
                 
-                // 5. Wait for initialization, then Mic On
+                // 6. Wait for initialization, then Mic On (with safety check)
                 code += '        setTimeout(() => {\n';
-                code += '            console.log("🎤 Turning on microphone...");\n';
-                code += '            if (window.mainWidget) window.mainWidget.micOn();\n';
-                code += '        }, 500);\n';
+                code += '            console.log("🎤 Attempting to turn on microphone...");\n';
+                code += '            try {\n';
+                code += '                if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
+                code += '                    window.mainWidget.micOn();\n';
+                code += '                    console.log("✅ Microphone turned on.");\n';
+                code += '                } else {\n';
+                code += '                    console.warn("⚠️ Widget ready, but micOn not available yet. Widget is active.");\n';
+                code += '                }\n';
+                code += '            } catch (e) {\n';
+                code += '                console.error("❌ Mic error:", e);\n';
+                code += '            }\n';
+                code += '        }, 1000);\n'; // Increased wait time to 1s
                 code += '    }\n\n';
 
                 code += '    function justBrowsing() {\n';
