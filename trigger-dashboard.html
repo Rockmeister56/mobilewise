@@ -2661,6 +2661,9 @@ function exportBridgeOnly() {
 code += '    function activateTess() {\n';
 code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
 code += '        \n';
+code += '        // Generate userId for this session\n';
+code += '        const userId = \'user-\' + Date.now() + \'-\' + Math.random().toString(36).substr(2, 9);\n';
+code += '        \n';
 code += '        // 1. NUKE THE SPLASH WIDGET\n';
 code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
 code += '        if (splashWidget) {\n';
@@ -2680,7 +2683,7 @@ code += '            if (!window.mainWidget || !document.body.contains(window.ma
 code += '                // CRITICAL: Create widget with ui: false to prevent text messages\n';
 code += '                window.mainWidget = document.createElement(\'lemon-slice-widget\');\n';
 code += '                window.mainWidget.setAttribute(\'agent-id\', \'' + config.agentId + '\');\n';
-code += '                window.mainWidget.setAttribute(\'user-id\', \'' + userId + '\');\n';
+code += '                window.mainWidget.setAttribute(\'user-id\', userId);\n';
 code += '                window.mainWidget.setAttribute(\'user-name\', \'' + (config.name || 'User') + '\');\n';
 code += '                window.mainWidget.setAttribute(\'ui\', \'false\'); // THIS PREVENTS TEXT!\n';
 code += '                window.mainWidget.style.position = \'fixed\';\n';
