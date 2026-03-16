@@ -2657,51 +2657,54 @@ function exportBridgeOnly() {
         code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
         code += '    }\n\n';
 
-                        // === ACTIVATE TESS (THE WAIT FIX) ===
+                        // === ACTIVATE TESS (AUDIO GESTURE FIX) ===
                 code += '    function activateTess() {\n';
                 
-                // 1. NUKE THE SPLASH WIDGET
+                // 1. AUDIO FIX: Request audio IMMEDIATELY on click (Preserves User Gesture)
+                // We create a temporary temporary widget just to capture the audio context, 
+                // or we try to unmute the main widget if it exists.
+                code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
+                code += '        try {\n';
+                code += '            if (window.mainWidget && typeof window.mainWidget.micOn === "function") {\n';
+                code += '                window.mainWidget.micOn(); \n';
+                code += '            }\n';
+                code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n\n';
+
+                // 2. NUKE THE SPLASH WIDGET
                 code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
                 code += '        if (splashWidget) {\n';
-                code += '            splashWidget.innerHTML = \'\'; \n'; // Clear contents
+                code += '            splashWidget.innerHTML = \'\'; \n';
                 code += '            if (splashWidget.parentNode) {\n';
                 code += '                splashWidget.parentNode.removeChild(splashWidget); \n';
                 code += '            }\n';
                 code += '        }\n\n';
                 
-                // 2. Remove the overlay
+                // 3. Remove the overlay
                 code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
-                code += '        if (overlay) {\n';
-                code += '            overlay.innerHTML = \'\';\n';
-                code += '            if (overlay.parentNode) {\n';
-                code += '                overlay.parentNode.removeChild(overlay);\n';
-                code += '            }\n';
-                code += '        }\n\n';
+                code += '        if (overlay) overlay.remove();\n\n';
 
-                // 3. WAIT before creating Main Widget
-                // This gives the DailyIframe time to destroy the old instance.
+                // 4. CREATE MAIN WIDGET (Fast Transition)
                 code += '        setTimeout(() => {\n';
+                
                 code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
                 code += '                window.mainWidget = createMainWidget();\n';
                 code += '                document.body.appendChild(window.mainWidget);\n';
                 code += '            }\n';
+                
                 code += '            window.mainWidget.style.display = \'block\';\n';
                 code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
                 
-                // Mic logic inside the timeout
+                // 5. DOUBLE TAP: Unmute again now that it's fully active
                 code += '            setTimeout(() => {\n';
-                code += '                console.log("🎤 Attempting to turn on microphone...");\n';
+                code += '                console.log("🎤 Finalizing audio state...");\n';
                 code += '                try {\n';
                 code += '                    if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
                 code += '                        window.mainWidget.micOn();\n';
-                code += '                        console.log("✅ Microphone turned on.");\n';
-                code += '                    } else {\n';
-                code += '                        console.warn("⚠️ Widget ready, but micOn not available yet.");\n';
                 code += '                    }\n';
-                code += '                } catch (e) { console.error("❌ Mic error:", e); }\n';
-                code += '            }, 500);\n'; // Inner wait for mic
+                code += '                } catch (e) {}\n';
+                code += '            }, 500); \n'; 
                 
-                code += '        }, 500);\n'; // Outer wait (500ms) to let old widget die
+                code += '        }, 100); \n'; 
                 code += '    }\n\n';
 
         code += '    function justBrowsing() {\n';
