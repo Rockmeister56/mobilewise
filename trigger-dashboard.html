@@ -2657,55 +2657,52 @@ function exportBridgeOnly() {
         code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
         code += '    }\n\n';
 
-        // === ACTIVATE TESS (THE BATON PASS FIX) ===
-        code += '    function activateTess() {\n';
-        
-        // 1. NUKE THE SPLASH WIDGET
-        code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
-        code += '        if (splashWidget) {\n';
-        code += '            splashWidget.innerHTML = \'\'; \n'; // Clear contents to kill iframe
-        code += '            if (splashWidget.parentNode) {\n';
-        code += '                splashWidget.parentNode.removeChild(splashWidget); \n';
-        code += '            }\n';
-        code += '        }\n\n';
-        
-        // 2. Remove the overlay
-        code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
-        code += '        if (overlay) {\n';
-        code += '            overlay.innerHTML = \'\';\n';
-        code += '            if (overlay.parentNode) {\n';
-        code += '                overlay.parentNode.removeChild(overlay);\n';
-        code += '            }\n';
-        code += '        }\n\n';
+                        // === ACTIVATE TESS (THE WAIT FIX) ===
+                code += '    function activateTess() {\n';
+                
+                // 1. NUKE THE SPLASH WIDGET
+                code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
+                code += '        if (splashWidget) {\n';
+                code += '            splashWidget.innerHTML = \'\'; \n'; // Clear contents
+                code += '            if (splashWidget.parentNode) {\n';
+                code += '                splashWidget.parentNode.removeChild(splashWidget); \n';
+                code += '            }\n';
+                code += '        }\n\n';
+                
+                // 2. Remove the overlay
+                code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
+                code += '        if (overlay) {\n';
+                code += '            overlay.innerHTML = \'\';\n';
+                code += '            if (overlay.parentNode) {\n';
+                code += '                overlay.parentNode.removeChild(overlay);\n';
+                code += '            }\n';
+                code += '        }\n\n';
 
-        // 3. CREATE MAIN WIDGET (Baton Pass)
-        // We check if it exists. If not, we create it. 
-        code += '        if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
-        code += '            window.mainWidget = createMainWidget();\n';
-        code += '            document.body.appendChild(window.mainWidget);\n';
-        code += '        }\n';
-        
-        // 4. Ensure it is visible
-        code += '        window.mainWidget.style.display = \'block\';\n';
-        
-        // 5. Force it to Active State
-        code += '        window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
-        
-        // 6. Mic On (Safety Check)
-        code += '        setTimeout(() => {\n';
-        code += '            console.log("🎤 Attempting to turn on microphone...");\n';
-        code += '            try {\n';
-        code += '                if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
-        code += '                    window.mainWidget.micOn();\n';
-        code += '                    console.log("✅ Microphone turned on.");\n';
-        code += '                } else {\n';
-        code += '                    console.warn("⚠️ Widget ready, but micOn not available yet. Widget is active.");\n';
-        code += '                }\n';
-        code += '            } catch (e) {\n';
-        code += '                console.error("❌ Mic error:", e);\n';
-        code += '            }\n';
-        code += '        }, 1000);\n'; 
-        code += '    }\n\n';
+                // 3. WAIT before creating Main Widget
+                // This gives the DailyIframe time to destroy the old instance.
+                code += '        setTimeout(() => {\n';
+                code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
+                code += '                window.mainWidget = createMainWidget();\n';
+                code += '                document.body.appendChild(window.mainWidget);\n';
+                code += '            }\n';
+                code += '            window.mainWidget.style.display = \'block\';\n';
+                code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
+                
+                // Mic logic inside the timeout
+                code += '            setTimeout(() => {\n';
+                code += '                console.log("🎤 Attempting to turn on microphone...");\n';
+                code += '                try {\n';
+                code += '                    if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
+                code += '                        window.mainWidget.micOn();\n';
+                code += '                        console.log("✅ Microphone turned on.");\n';
+                code += '                    } else {\n';
+                code += '                        console.warn("⚠️ Widget ready, but micOn not available yet.");\n';
+                code += '                    }\n';
+                code += '                } catch (e) { console.error("❌ Mic error:", e); }\n';
+                code += '            }, 500);\n'; // Inner wait for mic
+                
+                code += '        }, 500);\n'; // Outer wait (500ms) to let old widget die
+                code += '    }\n\n';
 
         code += '    function justBrowsing() {\n';
         code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
