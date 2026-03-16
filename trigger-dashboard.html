@@ -2823,12 +2823,16 @@ Contact: support@botemia.com`;
             code += '    }\n\n';
 
             code += '    function createMainWidget() {\n';
-            code += '        const w = document.createElement(\'lemon-slice-widget\');\n';
-            code += '        w.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-            code += '        w.setAttribute(\'initial-state\', \'minimized\');\n';
-            code += '        w.id = \'main-widget\';\n';
-            code += '        w.style.display = \'none\';\n';
-            code += '        return w;\n';
+            code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
+            code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
+            code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
+            // === FIX: Define size so it is visible ===
+            code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
+            code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
+            // =======================================
+            code += '        widget.id = \'main-widget\';\n';
+            code += '        widget.style.display = \'none\';\n';
+            code += '        return widget;\n';
             code += '    }\n\n';
 
             // === BUILD THE HTML STRINGS SAFELY ===
