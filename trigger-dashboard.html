@@ -2957,34 +2957,34 @@ function setupVideoPreview() {
 }
 
         // ===== INITIALIZATION =====
-        document.addEventListener('DOMContentLoaded', () => {
-            window.configManager = configManager;
-            configManager.init();
-            
-            loadTestimonialGroups();
-            loadVideos();
-            loadSmartScreens();
-            
-            if (document.getElementById('splashTopText')) updateSplashPreview();
-            if (document.getElementById('splashBgStyle')) toggleGradientControls();
-            if (document.getElementById('persistentButtonPosition')) toggleCustomPosition();
-
-             // ADD THESE TWO LINES 👇
-        setupVideoPreview();
+document.addEventListener('DOMContentLoaded', () => {
+    window.configManager = configManager;
+    configManager.init();
+    
+    loadTestimonialGroups();
+    loadVideos();
+    loadSmartScreens();
+    
+    if (document.getElementById('splashTopText')) updateSplashPreview();
+    if (document.getElementById('splashBgStyle')) toggleGradientControls();
+    if (document.getElementById('persistentButtonPosition')) toggleCustomPosition();
+    
+    // ADD THESE TWO LINES 👇
+    setupVideoPreview();
     
     // Trigger preview for existing URL
     const videoInput = document.getElementById('splashTessVideoUrl');
     if (videoInput) videoInput.dispatchEvent(new Event('input'));
-            
-            // Inject Diagnostic Button
-            const apiCard = document.querySelector('.module-card .module-options');
-            if (apiCard) {
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-purple';
-                btn.style.marginTop = '20px';
-                btn.innerHTML = '<i class="fas fa-stethoscope"></i> Run Diagnostics';
-                btn.onclick = runDiagnostics;
-                apiCard.appendChild(btn);
-            }
-        });
+    
+    // Inject Diagnostic Button
+    const apiCard = document.querySelector('.module-card .module-options');
+    if (apiCard) {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-purple';
+        btn.style.marginTop = '20px';
+        btn.innerHTML = '<i class="fas fa-stethoscope"></i> Run Diagnostics';
+        btn.onclick = runDiagnostics;
+        apiCard.appendChild(btn);
+    }
+});
     </script>
