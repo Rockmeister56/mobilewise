@@ -627,19 +627,19 @@
             </label>
         </div>
 
-        <!-- Simple Preview -->
-        <div style="background: linear-gradient(145deg, #0f1a2f, #1e3a5a); border-radius: 20px; padding: 30px; margin-bottom: 25px; border: 2px solid #f8c400; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-            <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 5px; letter-spacing: 1px;">LIVE PREVIEW</div>
-            <div style="color: white; font-size: 1.8rem; font-weight: 600; margin-bottom: 5px;" id="previewTopText">Meet Tess</div>
-            <div style="color: #f8c400; font-size: 1.2rem; margin-bottom: 20px;" id="previewSubText">Your Personal AI Smart Guide</div>
-            <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; border: 3px solid #f8c400;">
-                <i class="fas fa-user-circle" style="font-size: 60px; color: #f8c400;"></i>
-            </div>
-            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 15px;">
-                <div style="background: #f8c400; color: #0a0f1e; padding: 12px 24px; border-radius: 40px; font-weight: bold;" id="previewPrimary">Get AI help with Tess</div>
-                <div style="background: #444; color: white; padding: 12px 24px; border-radius: 40px; font-weight: bold;" id="previewSecondary">Just Browsing</div>
-            </div>
-        </div>
+       <!-- Simple Preview -->
+<div style="background: linear-gradient(145deg, #0f1a2f, #1e3a5a); border-radius: 20px; padding: 30px; margin-bottom: 25px; border: 2px solid #f8c400; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+    <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 5px; letter-spacing: 1px;">LIVE PREVIEW</div>
+    <div style="color: white; font-size: 1.8rem; font-weight: 600; margin-bottom: 5px;" id="previewTopText">✨ Meet Tess 🤗</div>
+    <div style="color: #f8c400; font-size: 1.2rem; margin-bottom: 20px;" id="previewSubText">Your Personal AI Smart Guide</div>
+    <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; border: 3px solid #f8c400;">
+        <i class="fas fa-user-circle" style="font-size: 60px; color: #f8c400;"></i>
+    </div>
+    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 15px;">
+        <div style="background: #f8c400; color: #0a0f1e; padding: 12px 24px; border-radius: 40px; font-weight: bold;" id="previewPrimary">Get AI help with Tess</div>
+        <div style="background: #444; color: white; padding: 12px 24px; border-radius: 40px; font-weight: bold;" id="previewSecondary">Just Browsing</div>
+    </div>
+</div>
 
         <!-- AGENT ID SECTION (follows client selection) -->
 <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #f8c400;">
@@ -744,6 +744,22 @@
             <label>Outer Color (dark)</label>
             <input type="color" id="splashGradientOuter" value="#0a1a2f">
         </div>
+    </div>
+</div>
+
+<!-- Ticker Tape Keywords for SPLASH SCREEN - EDITABLE FIELD -->
+<div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <i class="fas fa-tag" style="color: #f8c400;"></i>
+        <h4 style="color: white; margin:0;">Splash Screen Ticker</h4>
+    </div>
+    
+    <div class="field">
+        <label><i class="fas fa-list"></i> Keywords (comma separated)</label>
+        <input type="text" id="splashTickerKeywords" value="" placeholder="e.g., Mortgage Rates, Pre-Qualification, First-Time Buyer, Refinance" style="width: 100%; padding: 12px;">
+        <p style="color: #aaa; font-size:0.8rem; margin-top:5px;">
+            <i class="fas fa-info-circle"></i> Type your own keywords for each client. They will scroll at the bottom of Tess's video.
+        </p>
     </div>
 </div>
 
@@ -2751,7 +2767,7 @@ code += '        }\n';
         code += '        card.style.background = `radial-gradient(circle at center, ${config.gradientCenter || \'#1e4a8a\'} 0%, ${config.gradientOuter || \'#0a1a2f\'} 80%)`;\n\n';
         
         code += '        let cardHTML = `\n';
-        code += '            <h1>${config.title || \'Meet Tess\'}</h1>\n';
+        code += '            <h1>✨ ${config.title || \'Meet Tess\'} 🤗</h1>\n';
         code += '            <h2>${config.subtitle || \'Your Personal AI Smart Guide\'}</h2>\n';
         code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
         code += '            <div class="button-group">\n';
