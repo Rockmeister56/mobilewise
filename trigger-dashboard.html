@@ -2531,21 +2531,12 @@ Contact: support@botemia.com`;
         }
 
            // ===== EXPORT BRIDGE ONLY (COMPLETE VERSION 5.4 - FIX) =====
-// Includes: Single Widget Fix + Gradients + Branding + Full Styling
+// ===== EXPORT BRIDGE ONLY =====
 function exportBridgeOnly() {
     console.log('🔧 Exporting bridge only...');
     
-    // CRITICAL FIX: Get configManager from window if needed
-    const manager = window.configManager || configManager;
-    
-    if (!manager || typeof manager.getCurrentConfig !== 'function') {
-        console.error('❌ configManager not available');
-        alert('Error: Configuration manager not initialized. Please refresh the page.');
-        return;
-    }
-    
     try {
-        const config = manager.getCurrentConfig();
+        const config = window.configManager.getCurrentConfig();
         if (!config.id || !config.name) {
             alert('Please enter a client name');
             return;
@@ -3007,7 +2998,9 @@ function setupVideoPreview() {
 
         // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', () => {
+    // Make configManager globally available
     window.configManager = configManager;
+    
     configManager.init();
     
     loadTestimonialGroups();
