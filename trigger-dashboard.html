@@ -701,15 +701,19 @@
     </div>
     
     <!-- Larger Preview Area with Button -->
-    <div style="display: flex; gap: 30px; align-items: center; margin-top: 20px; flex-wrap: wrap;">
-        <div style="width: 180px; height: 180px; background: rgba(0,0,0,0.3); border-radius: 50%; border: 4px solid #f8c400; display: flex; align-items: center; justify-content: center; overflow: hidden;" id="simpleVideoPreview">
-            <i class="fas fa-video" style="color: #f8c400; font-size: 60px;"></i>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px;">
+    <div style="width: 180px; height: 180px; background: rgba(0,0,0,0.3); border-radius: 50%; border: 4px solid #f8c400; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; position: relative;" id="simpleVideoPreview">
+        <i class="fas fa-video" style="color: #f8c400; font-size: 60px; margin-bottom: 20px;"></i>
+        <!-- This shows where text would be in preview -->
+        <div style="position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.6); color: #f8c400; padding: 4px; font-size: 14px; font-weight: bold;">
+            Ask Tess 👆
         </div>
-        
-        <!-- Preview Button -->
-        <button onclick="previewVideoUrl()" style="background: #f8c400; color: #0a0f1e; border: none; padding: 12px 24px; border-radius: 40px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 16px;">
-            <i class="fas fa-eye"></i> Preview Video
-        </button>
+    </div>
+    
+    <!-- Preview Button -->
+    <button onclick="previewVideoUrl()" style="background: #f8c400; color: #0a0f1e; border: none; padding: 12px 24px; border-radius: 40px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 16px;">
+        <i class="fas fa-eye"></i> Preview Video
+    </button>
     </div>
 </div>
 
@@ -2842,10 +2846,10 @@ code += '            display: flex;\n';
 code += '            align-items: center;\n';
 code += '            justify-content: center;\n';
 code += '            overflow: hidden;\n';
+code += '            position: relative;\n';
 code += '            transition: transform 0.3s ease;\n';
 code += '        `;\n';
 code += '        \n';
-code += '        // ===== REPLACE THIS SECTION =====\n';
 code += '        // Check for video URL first\n';
 code += '        const tessVideoUrl = config?.tessVideoUrl;\n';
 code += '        \n';
@@ -2860,14 +2864,36 @@ code += '            video.playsInline = true;\n';
 code += '            // Get video fit setting from config\n';
 code += '            const videoFit = config?.tessVideoFit || \'cover\';\n';
 code += '            video.style.cssText = `\n';
-code += '                width: 170px;\n';
-code += '                height: 170px;\n';
-code += '                border-radius: 50%;\n';
+code += '                width: 180px;\n';
+code += '                height: 180px;\n';
 code += '                object-fit: ${videoFit};\n';
-code += '                border: 3px solid white;\n';
+code += '                border: none;\n';
 code += '                pointer-events: none;\n';
 code += '            `;\n';
 code += '            avatarBtn.appendChild(video);\n';
+code += '            \n';
+code += '            // Add "Ask Tess 👆" text overlay at bottom\n';
+code += '            const textOverlay = document.createElement(\'div\');\n';
+code += '            textOverlay.style.cssText = `\n';
+code += '                position: absolute;\n';
+code += '                bottom: 0;\n';
+code += '                left: 0;\n';
+code += '                right: 0;\n';
+code += '                background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);\n';
+code += '                color: #f8c400;\n';
+code += '                text-align: center;\n';
+code += '                padding: 15px 5px 8px 5px;\n';
+code += '                font-size: 18px;\n';
+code += '                font-weight: bold;\n';
+code += '                display: flex;\n';
+code += '                align-items: center;\n';
+code += '                justify-content: center;\n';
+code += '                gap: 4px;\n';
+code += '                pointer-events: none;\n';
+code += '            `;\n';
+code += '            textOverlay.innerHTML = `Ask Tess <span style="font-size: 20px;">👆</span>`;\n';
+code += '            avatarBtn.appendChild(textOverlay);\n';
+code += '            \n';
 code += '        } else {\n';
 code += '            // Fallback to image if no video\n';
 code += '            const tessImage = config?.tessImage;\n';
