@@ -2968,6 +2968,13 @@ function setupVideoPreview() {
             if (document.getElementById('splashTopText')) updateSplashPreview();
             if (document.getElementById('splashBgStyle')) toggleGradientControls();
             if (document.getElementById('persistentButtonPosition')) toggleCustomPosition();
+
+             // ADD THESE TWO LINES 👇
+        setupVideoPreview();
+    
+    // Trigger preview for existing URL
+    const videoInput = document.getElementById('splashTessVideoUrl');
+    if (videoInput) videoInput.dispatchEvent(new Event('input'));
             
             // Inject Diagnostic Button
             const apiCard = document.querySelector('.module-card .module-options');
