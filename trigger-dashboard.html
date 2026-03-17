@@ -673,42 +673,76 @@
                 </div>
             </div>
 
-            <!-- Tess Image Upload (for fallback/persistent button) -->
-            <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; border: 1px dashed #f8c400;">
-                <label style="color: #f8c400; font-weight: 600; display: block; margin-bottom: 15px;">
-                    <i class="fas fa-cloud-upload-alt"></i> Tess Image (for persistent button)
-                </label>
-                <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
-                    <div>
-                        <input type="file" id="splashTessImageUpload" accept="image/*" onchange="handleTessImageUpload(this)">
-                        <p style="color: #aaa; font-size:0.8rem; margin-top:8px;">Recommended: 170×170 PNG with transparency</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="width: 170px; height: 170px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 3px solid #f8c400; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;" id="previewPersistentIcon">
-                            <i class="fas fa-user-circle" style="font-size: 80px; color: #f8c400;"></i>
-                        </div>
-                        <span style="color: #aaa; font-size:0.8rem;">170×170 persistent button</span>
-                    </div>
-                     <!-- Tess Image Upload (for fallback/persistent button) -->
-            <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; border: 1px dashed #f8c400;">
-                <label style="color: #f8c400; font-weight: 600; display: block; margin-bottom: 15px;">
-                    <i class="fas fa-cloud-upload-alt"></i> Tess Image (for persistent button)
-                </label>
-                <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
-                    <div>
-                        <input type="file" id="splashTessImageUpload" accept="image/*" onchange="handleTessImageUpload(this)">
-                        <p style="color: #aaa; font-size:0.8rem; margin-top:8px;">Recommended: 170×170 PNG with transparency</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="width: 170px; height: 170px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 3px solid #f8c400; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;" id="previewPersistentIcon">
-                            <i class="fas fa-user-circle" style="font-size: 80px; color: #f8c400;"></i>
-                        </div>
-                        <span style="color: #aaa; font-size:0.8rem;">170×170 persistent button</span>
-                    </div>
+           <!-- Tess Media for Persistent Button (Image + Video) -->
+<div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; border: 1px dashed #f8c400;">
+    <label style="color: #f8c400; font-weight: 600; display: block; margin-bottom: 15px;">
+        <i class="fas fa-cloud-upload-alt"></i> Tess Media (for persistent button)
+    </label>
+    
+    <!-- Image Upload Section -->
+    <div style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <i class="fas fa-image" style="color: #f8c400;"></i>
+            <h4 style="color: white; margin:0;">Still Image Option</h4>
+        </div>
+        
+        <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
+            <div>
+                <input type="file" id="splashTessImageUpload" accept="image/*" onchange="handleTessImageUpload(this)">
+                <p style="color: #aaa; font-size:0.8rem; margin-top:8px;">Recommended: 180×180 PNG with transparency</p>
+            </div>
+            <div style="text-align: center;">
+                <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 3px solid #f8c400; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; overflow: hidden;" id="previewPersistentIcon">
+                    <i class="fas fa-user-circle" style="font-size: 50px; color: #f8c400;"></i>
                 </div>
-                <input type="hidden" id="splashTessImageData" value="">
+                <span style="color: #aaa; font-size:0.8rem;">Image preview</span>
             </div>
         </div>
+        <input type="hidden" id="splashTessImageData" value="">
+    </div>
+    
+    <!-- Video Upload Section -->
+    <div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <i class="fas fa-video" style="color: #f8c400;"></i>
+            <h4 style="color: white; margin:0;">Talking Video Option (Recommended)</h4>
+        </div>
+        
+        <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
+            <div>
+                <input type="file" id="splashTessVideoUpload" accept="video/mp4,video/webm,video/gif" onchange="handleTessVideoUpload(this)">
+                <p style="color: #aaa; font-size:0.8rem; margin-top:8px;">MP4 loop recommended: 180×180, muted, 3-5 seconds</p>
+            </div>
+            <div style="text-align: center;">
+                <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 3px solid #f8c400; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; overflow: hidden;" id="previewVideoContainer">
+                    <i class="fas fa-video" style="font-size: 40px; color: #f8c400;"></i>
+                </div>
+                <span style="color: #aaa; font-size:0.8rem;">Video preview</span>
+            </div>
+        </div>
+        <input type="hidden" id="splashTessVideoData" value="">
+    </div>
+    
+    <!-- Media Type Selector -->
+    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <label style="color: white; font-weight: 600; display: block; margin-bottom: 10px;">
+            <i class="fas fa-play-circle"></i> Choose what to display:
+        </label>
+        <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+            <label style="display: flex; align-items: center; gap: 8px; color: white; cursor: pointer;">
+                <input type="radio" name="tessButtonType" id="tessButtonTypeImage" value="image" checked onchange="toggleTessButtonType()">
+                <i class="fas fa-image"></i> Still Image
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; color: white; cursor: pointer;">
+                <input type="radio" name="tessButtonType" id="tessButtonTypeVideo" value="video" onchange="toggleTessButtonType()">
+                <i class="fas fa-video"></i> Talking Video (loops)
+            </label>
+        </div>
+        <p style="color: #f8c400; font-size:0.8rem; margin-top:10px;">
+            <i class="fas fa-info-circle"></i> Video will autoplay muted with a subtle pulsing effect
+        </p>
+    </div>
+</div>
 
             <!-- Add after Agent ID field -->
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
@@ -1293,6 +1327,30 @@
         </div>
     </div>
 </div>
+
+<script>
+function handleTessVideoUpload(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const videoData = e.target.result;
+            document.getElementById('splashTessVideoData').value = videoData;
+            
+            const previewContainer = document.getElementById('previewVideoContainer');
+            previewContainer.innerHTML = `<video src="${videoData}" style="width:100%; height:100%; object-fit:cover;" muted autoplay loop playsinline></video>`;
+            
+            // Auto-select video radio
+            document.getElementById('tessButtonTypeVideo').checked = true;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function toggleTessButtonType() {
+    const useVideo = document.getElementById('tessButtonTypeVideo').checked;
+    console.log('Tess button type:', useVideo ? 'video' : 'image');
+}
+</script>
 
     <script>
 
