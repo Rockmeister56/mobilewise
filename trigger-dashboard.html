@@ -2535,8 +2535,17 @@ Contact: support@botemia.com`;
 function exportBridgeOnly() {
     console.log('🔧 Exporting bridge only...');
     
+    // CRITICAL FIX: Get configManager from window if needed
+    const manager = window.configManager || configManager;
+    
+    if (!manager || typeof manager.getCurrentConfig !== 'function') {
+        console.error('❌ configManager not available');
+        alert('Error: Configuration manager not initialized. Please refresh the page.');
+        return;
+    }
+    
     try {
-        const config = configManager.getCurrentConfig();
+        const config = manager.getCurrentConfig();
         if (!config.id || !config.name) {
             alert('Please enter a client name');
             return;
