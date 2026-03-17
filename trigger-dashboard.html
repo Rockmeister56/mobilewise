@@ -2684,10 +2684,11 @@ code += '            position: relative;\n';
 code += '        }\n';
 code += '        .splash-avatar-container lemon-slice-widget {\n';
 code += '            position: absolute;\n';
-code += '            top: 0;\n';
-code += '            left: 0;\n';
-code += '            width: 100% !important;\n';
-code += '            height: 100% !important;\n';
+code += '            top: 50%;\n';
+code += '            left: 45%;  /* Changed from 50% to 45% to shift left */\n';
+code += '            transform: translate(-50%, -50%);\n';
+code += '            width: 280px !important;\n';
+code += '            height: 400px !important;\n';
 code += '            max-width: none !important;\n';
 code += '            max-height: none !important;\n';
 code += '            border-radius: 18px;\n';
@@ -2760,13 +2761,13 @@ code += '        }\n';
         code += '        `;\n\n';
         
         code += '        if (config.branding?.name || config.branding?.logo) {\n';
-        code += '            cardHTML += `\n';
-        code += '                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 6px; color: rgba(255,255,255,0.4); font-size: 0.75rem;">\n';
-        code += '                    ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" style="height: 18px; opacity: 0.6;">\' : \'\'}\n';
-        code += '                    ${config.branding?.name ? \'<span>\' + config.branding.name + \'</span>\' : \'\'}\n';
-        code += '                </div>\n';
-        code += '            `;\n';
-        code += '        }\n\n';
+code += '            cardHTML += `\n';
+code += '                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 12px; color: rgba(255,255,255,0.4); font-size: 1rem;">\n';
+code += '                    ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" style="height: 40px; width: auto; opacity: 0.8;">\' : \'\'}\n';
+code += '                    ${config.branding?.name ? \'<span style="font-size: 20px;">\' + config.branding.name + \'</span>\' : \'\'}\n';
+code += '                </div>\n';
+code += '            `;\n';
+code += '        }\n\n';
         
         code += '        card.innerHTML = cardHTML;\n\n';
 
