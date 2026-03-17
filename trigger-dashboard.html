@@ -1355,40 +1355,140 @@ function previewVideoUrl() {
             }, 3000);
         }
 
-        // ============================================
-        // MOBILEWISE TRIGGER DASHBOARD v3.0
-        // Complete · Industry Presets · Bridge Generator
-        // ============================================
+       // ============================================
+// MOBILEWISE TRIGGER DASHBOARD v3.0
+// Complete · Industry Presets · Bridge Generator
+// ============================================
 
-        let configManager = {
-            clients: {},
-            currentClientId: null,
-            imageRowCounter: 2,
+let configManager = {
+    clients: {},
+    currentClientId: null,
+    imageRowCounter: 2,
 
-            init() {
-                this.loadSavedClients();
-                this.setupEventListeners();
-                this.updateStatus('Dashboard ready', 'ready');
-                this.generateClientId();
-                this.loadIndustryPreset('mortgage');
-                this.updateBridgePreview();
-            },
+    init() {
+        this.loadSavedClients();
+        this.setupEventListeners();
+        this.updateStatus('Dashboard ready', 'ready');
+        this.generateClientId();
+        this.loadIndustryPreset('mortgage');
+        this.updateBridgePreview();
+    },
 
-            loadSavedClients() {
-    // First load from localStorage (fast)
-    try {
-        const saved = localStorage.getItem('mobilewise_clients');
-        if (saved) {
-            this.clients = JSON.parse(saved);
-            this.populateClientSelect();
+    loadSavedClients() {
+        // First load from localStorage (fast)
+        try {
+            const saved = localStorage.getItem('mobilewise_clients');
+            if (saved) {
+                this.clients = JSON.parse(saved);
+                this.populateClientSelect();
+            }
+        } catch(e) { 
+            console.error('Error loading clients from localStorage:', e); 
         }
-    } catch(e) { 
-        console.error('Error loading clients from localStorage:', e); 
-    }
-    
-    // Then load from Supabase (server) - this will override localStorage
-    this.loadFromSupabase();
-},
+        
+        // Then load from Supabase (server) - this will override localStorage
+        this.loadFromSupabase();
+    },
+
+    // ===== ADD THIS METHOD =====
+    getCurrentConfig() {
+        // Get testimonial groups from localStorage
+        const testimonialGroups = JSON.parse(localStorage.getItem('botemia_testimonialGroups') || '[]');
+        
+        // Get videos from localStorage
+        const videos = JSON.parse(localStorage.getItem('botemia_videos') || '[]');
+        
+        // Get smart screens from localStorage
+        const smartScreens = JSON.parse(localStorage.getItem('botemia_smartScreens') || '[]');
+        
+        const config = {
+            id: document.getElementById('clientId').value,
+            name: document.getElementById('clientName').value,
+            agentId: document.getElementById('agentId').value,
+            widgetId: document.getElementById('widgetId').value,
+            apiKey: document.getElementById('apiKey').value,
+            environment: document.getElementById('environment').value,
+            industry: document.getElementById('industryPreset').value,
+            modules: {
+                splashScreen: {
+                    enabled: document.getElementById('splashEnabled')?.checked || false,
+                    agentId: document.getElementById('splashAgentId')?.value || '',
+                    title: document.getElementById('splashTitle')?.value || 'Meet Tess',
+                    subtitle: document.getElementById('splashSubtitle')?.value || 'Your Personal AI Smart Guide',
+                    tessVideoUrl: document.getElementById('splashTessVideoUrl')?.value || '',
+                    tessVideoFit: document.getElementById('tessVideoFit')?.value || 'cover',
+                    gradientCenter: document.getElementById('splashGradientCenter')?.value || '#1e4a8a',
+                    gradientOuter: document.getElementById('splashGradientOuter')?.value || '#0a1a2f',
+                    primaryButton: {
+                        text: document.getElementById('splashPrimaryText')?.value || 'Get AI help with Tess',
+                        gradientTop: document.getElementById('splashPrimaryTop')?.value || '#f8c400',
+                        gradientBottom: document.getElementById('splashPrimaryBottom')?.value || '#d4a000',
+                        hoverTop: document.getElementById('splashPrimaryHoverTop')?.value || '#ffd700',
+                        hoverBottom: document.getElementById('splashPrimaryHoverBottom')?.value || '#e0b000',
+                        textColor: document.getElementById('splashPrimaryTextColor')?.value || '#0a0f1e'
+                    },
+                    secondaryButton: {
+                        text: document.getElementById('splashSecondaryText')?.value || 'Just Browsing',
+                        gradientTop: document.getElementById('splashSecondaryTop')?.value || '#3a4050',
+                        gradientBottom: document.getElementById('splashSecondaryBottom')?.value || '#2a2f3f',
+                        hoverTop: document.getElementById('splashSecondaryHoverTop')?.value || '#4a5060',
+                        hoverBottom: document.getElementById('splashSecondaryHoverBottom')?.value || '#3a4050',
+                        textColor: document.getElementById('splashSecondaryTextColor')?.value || '#ffffff'
+                    },
+                    persistentButton: {
+                        enabled: document.getElementById('persistentButtonEnabled')?.checked || true,
+                        position: document.getElementById('persistentButtonPosition')?.value || 'bottom-left',
+                        action: document.getElementById('persistentButtonAction')?.value || 'activate-tess',
+                        gradientTop: document.getElementById('persistentGradientTop')?.value || '#f8c400',
+                        gradientBottom: document.getElementById('persistentGradientBottom')?.value || '#d4a000'
+                    },
+                    branding: {
+                        name: document.getElementById('splashBrandName')?.value || '',
+                        logo: document.getElementById('splashBrandLogoData')?.value || ''
+                    }
+                },
+                testimonial: {
+                    groups: testimonialGroups.map(group => ({
+                        name: group.name,
+                        triggerPhrase: group.triggerPhrase,
+                        category: group.category || 'other',
+                        videos: group.videos || []
+                    }))
+                },
+                videoVault: {
+                    videos: videos.map(video => ({
+                        name: video.name,
+                        triggerPhrase: video.triggerPhrase,
+                        url: video.url,
+                        description: video.description || '',
+                        category: video.category || 'other'
+                    }))
+                },
+                smartScreen: {
+                    action: document.getElementById('smartScreenAction')?.value || 'showBestMatch',
+                    images: smartScreens.map(screen => ({
+                        name: screen.name,
+                        url: screen.imageUrl,
+                        caption: screen.caption || '',
+                        link: screen.link || '',
+                        triggerMatch: screen.triggerMatch || [],
+                        imageSize: screen.imageSize || '400px',
+                        bgColor: screen.bgColor || 'white',
+                        backdropOpacity: screen.backdropOpacity || 0.5,
+                        showTitle: screen.showTitle !== false,
+                        borderColor: screen.borderColor || '#f8c400'
+                    }))
+                },
+                websiteInfo: {
+                    triggers: [],
+                    infoType: document.getElementById('websiteInfoType')?.value || 'navigation',
+                    action: document.getElementById('websiteAction')?.value || 'showSmartNavigation'
+                }
+            },
+            updatedAt: new Date().toISOString()
+        };
+        return config;
+    },
 
 loadFromSupabase() {
     const supabaseUrl = 'https://fcgbusobfdwnpoqyuzoe.supabase.co';
@@ -2531,12 +2631,12 @@ Contact: support@botemia.com`;
         }
 
            // ===== EXPORT BRIDGE ONLY (COMPLETE VERSION 5.4 - FIX) =====
-// ===== EXPORT BRIDGE ONLY =====
+// Includes: Single Widget Fix + Gradients + Branding + Full Styling
 function exportBridgeOnly() {
     console.log('🔧 Exporting bridge only...');
     
     try {
-        const config = window.configManager.getCurrentConfig();
+        const config = configManager.getCurrentConfig();
         if (!config.id || !config.name) {
             alert('Please enter a client name');
             return;
@@ -2998,9 +3098,7 @@ function setupVideoPreview() {
 
         // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', () => {
-    // Make configManager globally available
     window.configManager = configManager;
-    
     configManager.init();
     
     loadTestimonialGroups();
