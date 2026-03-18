@@ -2813,7 +2813,6 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        let cardHTML = `\n';
         code += '            <h1>✨ ${config.title || \'Meet Tess\'} 🤗</h1>\n';
         code += '            <h2>${config.subtitle || \'Your Personal AI Smart Guide\'}</h2>\n';
-        code += '            <div style="color: #f8c400; font-size: 0.9rem; margin-top: -10px; margin-bottom: 10px; font-style: italic;">Your personal guide for...</div>\n';
         code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
         code += '            <div class="button-group">\n';
         code += '                <button class="primary-btn" id="activateTessBtn" style="background: linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'}); color: ${config.primaryButton?.textColor || \'#0a0f1e\'};">${config.primaryButton?.text || \'Get AI help with Tess\'}</button>\n';
