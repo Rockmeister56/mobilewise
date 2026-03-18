@@ -1508,7 +1508,7 @@ function loadKnowledgeBaseDropdown() {
 
 <script>
 // ============================================
-// HANDLE HTML SCRIPT UPLOAD (with proper UUID)
+// HANDLE HTML SCRIPT UPLOAD (with all required fields)
 // ============================================
 
 async function handleScriptUpload(input) {
@@ -1517,10 +1517,8 @@ async function handleScriptUpload(input) {
     const file = input.files[0];
     const industry = document.getElementById('kbIndustrySelect').value;
     
-    // Get the current client ID and convert to proper UUID format
-    // You need to look up the actual UUID for this client
-    // For now, use a default UUID for testing
-    const clientId = '00000000-0000-0000-0000-000000000001';  // This is a valid UUID format
+    // Use a valid UUID for testing
+    const clientId = '00000000-0000-0000-0000-000000000001';
     
     try {
         // Show uploading status
@@ -1564,6 +1562,9 @@ async function handleScriptUpload(input) {
             fields = fieldsEl.textContent.trim().split(',').map(f => f.trim());
         }
         
+        // Create a base question_key (required field)
+        const baseQuestionKey = `${industry}_script_${Date.now()}`;
+        
         // Create the answer_template JSON
         const answer_template = {
             name: file.name.replace('.html', ''),
@@ -1576,7 +1577,7 @@ async function handleScriptUpload(input) {
         // Update status
         status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading to Supabase...';
         
-        // Upload to Supabase
+        // Upload to Supabase - include ALL required fields
         const supabaseUrl = 'https://fcgbusobfdwnpoqyuzoe.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk';
         
@@ -1591,7 +1592,10 @@ async function handleScriptUpload(input) {
             body: JSON.stringify({
                 client_id: clientId,
                 category: industry,
+                question_key: baseQuestionKey,  // REQUIRED FIELD
                 answer_template: answer_template,
+                is_active: true,                 // REQUIRED FIELD (defaults to true)
+                created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             })
         });
