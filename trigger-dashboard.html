@@ -2712,7 +2712,7 @@ code += '            border-radius: 18px;\n';
 code += '        }\n';
 code += '        .splash-card {\n';
 code += '            background: radial-gradient(circle at center, ' + (splashScreen.gradientCenter || '#1e4a8a') + ' 0%, ' + (splashScreen.gradientOuter || '#0a1a2f') + ' 80%);\n';
-code += '            border-radius: 48px; padding: 40px 30px;\n';
+code += '            border-radius: 48px; padding: 20px 30px 40px 30px;\n';
 code += '            max-width: 475px; width: 90%; text-align: center;\n';
 code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
 code += '            animation: slideUp 0.4s ease;\n';
@@ -2822,7 +2822,7 @@ code += '    document.head.appendChild(style);\n\n';
         
         code += '        // Add white footer area with logo\n';
 code += '        cardHTML += `\n';
-code += '            <div style="margin-top: 25px; background: white; border-radius: 0 0 48px 48px; padding: 15px 20px; margin-left: -30px; margin-right: -30px; margin-bottom: -40px; width: calc(100% + 60px);">\n';
+code += '            <div style="margin-top: 25px; background: white; border-radius: 0 0 48px 48px; padding: 15px 20px; width: 100%; box-sizing: border-box;">\n';
 code += '                <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">\n';
 code += '                    ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" style="height: 36px; width: auto;">\' : \'\'}\n';
 code += '                    ${config.branding?.name ? \'<span style="color: #333; font-size: 18px; font-weight: 500;">\' + config.branding.name + \'</span>\' : \'\'}\n';
