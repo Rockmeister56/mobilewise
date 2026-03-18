@@ -1508,7 +1508,7 @@ function loadKnowledgeBaseDropdown() {
 
 <script>
 // ============================================
-// HANDLE HTML SCRIPT UPLOAD (with all required fields)
+// HANDLE HTML SCRIPT UPLOAD (with editable fields)
 // ============================================
 
 async function handleScriptUpload(input) {
@@ -1562,6 +1562,53 @@ async function handleScriptUpload(input) {
             fields = fieldsEl.textContent.trim().split(',').map(f => f.trim());
         }
         
+        // ===== POPULATE THE EDITABLE FIELDS =====
+        const container = document.getElementById('interviewQuestionsContainer');
+        if (container) {
+            // Clear existing questions
+            container.innerHTML = '';
+            
+            // Populate with parsed steps
+            steps.forEach((step, index) => {
+                if (step.speaker === 'tess' && step.field) {
+                    const questionData = {
+                        key: step.field,
+                        text: step.text,
+                        type: step.type || 'text',
+                        required: true
+                    };
+                    
+                    // Add options if they exist
+                    if (step.options) {
+                        questionData.options = step.options;
+                    }
+                    
+                    // Use your existing addInterviewQuestion function
+                    if (typeof addInterviewQuestion === 'function') {
+                        addInterviewQuestion(questionData, index);
+                    }
+                }
+            });
+        }
+        
+        // Store fields for later use
+        if (typeof window.knowledgeBaseStore === 'undefined') {
+            window.knowledgeBaseStore = {};
+        }
+        
+        // Store the extracted fields
+        fields.forEach(field => {
+            window.knowledgeBaseStore[field] = {
+                response_template: `User provided {{${field}}}`,
+                validation: { required: true }
+            };
+        });
+        
+        // Refresh the knowledge base editor if it exists
+        if (typeof renderKnowledgeBaseEditor === 'function') {
+            renderKnowledgeBaseEditor();
+        }
+        
         // Create a base question_key (required field)
         const baseQuestionKey = `${industry}_script_${Date.now()}`;
         
@@ -1592,9 +1639,9 @@ async function handleScriptUpload(input) {
             body: JSON.stringify({
                 client_id: clientId,
                 category: industry,
-                question_key: baseQuestionKey,  // REQUIRED FIELD
+                question_key: baseQuestionKey,
                 answer_template: answer_template,
-                is_active: true,                 // REQUIRED FIELD (defaults to true)
+                is_active: true,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             })
@@ -1609,20 +1656,22 @@ async function handleScriptUpload(input) {
         status.innerHTML = '<i class="fas fa-check-circle"></i> Script uploaded and parsed successfully!';
         status.style.background = '#4CAF50';
         
-        // Update UI
+        // Update UI with script info
         document.getElementById('currentScriptName').textContent = file.name;
         document.getElementById('scriptDate').textContent = `Uploaded: ${new Date().toLocaleString()}`;
         
-        // Display extracted fields
-        const container = document.getElementById('fieldsList');
-        if (fields.length > 0) {
-            container.innerHTML = fields.map(field => 
-                `<span style="background: rgba(248,196,0,0.1); border: 1px solid #f8c400; padding: 5px 15px; border-radius: 30px; color: white;">
-                    {{${field}}}
-                </span>`
-            ).join('');
-        } else {
-            container.innerHTML = '<span style="color: #aaa;">No fields detected in script</span>';
+        // Display extracted fields as bubbles
+        const container2 = document.getElementById('fieldsList');
+        if (container2) {
+            if (fields.length > 0) {
+                container2.innerHTML = fields.map(field => 
+                    `<span style="background: rgba(248,196,0,0.1); border: 1px solid #f8c400; padding: 5px 15px; border-radius: 30px; color: white;">
+                        {{${field}}}
+                    </span>`
+                ).join('');
+            } else {
+                container2.innerHTML = '<span style="color: #aaa;">No fields detected in script</span>';
+            }
         }
         
         // Hide status after 3 seconds
