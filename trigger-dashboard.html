@@ -1508,7 +1508,7 @@ function loadKnowledgeBaseDropdown() {
 
 <script>
 // ============================================
-// HANDLE SCRIPT UPLOAD
+// HANDLE SCRIPT UPLOAD (SIMPLIFIED)
 // ============================================
 
 async function handleScriptUpload(input) {
@@ -1527,28 +1527,46 @@ async function handleScriptUpload(input) {
         // Read file content
         const content = await readFileAsText(file);
         
-        // Parse the script to extract fields
-        const extractedFields = parseScriptForFields(content);
+        // Simple field extraction - look for common words
+        const fields = [];
+        const content_lower = content.toLowerCase();
         
-        // Get Supabase connection
-        const { createClient } = supabase;
-        const supabaseClient = createClient(
-            'https://fcgbusobfdwnpoqyuzoe.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
-        );
+        const commonFields = [
+            'name', 'email', 'phone', 'credit', 'income', 
+            'loan', 'property', 'down', 'employment', 'debt'
+        ];
         
-        // Upload to Supabase
-        const { error } = await supabaseClient
-            .from('knowledge_base')
-            .upsert({
+        commonFields.forEach(field => {
+            if (content_lower.includes(field)) {
+                fields.push(field);
+            }
+        });
+        
+        // Get Supabase connection (use existing client if available)
+        const supabaseUrl = 'https://fcgbusobfdwnpoqyuzoe.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk';
+        
+        // Simple fetch to Supabase
+        const response = await fetch(`${supabaseUrl}/rest/v1/knowledge_base`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Prefer': 'resolution=merge-duplicates'
+            },
+            body: JSON.stringify({
                 category: industry,
                 script_content: content,
                 script_name: file.name,
-                extracted_fields: extractedFields,
+                extracted_fields: fields,
                 updated_at: new Date().toISOString()
-            });
+            })
+        });
         
-        if (error) throw error;
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         
         // Show success
         status.innerHTML = '<i class="fas fa-check-circle"></i> File uploaded successfully!';
@@ -1559,7 +1577,12 @@ async function handleScriptUpload(input) {
         document.getElementById('scriptDate').textContent = `Uploaded: ${new Date().toLocaleString()}`;
         
         // Display extracted fields
-        displayExtractedFields(extractedFields);
+        const container = document.getElementById('fieldsList');
+        container.innerHTML = fields.map(field => 
+            `<span style="background: rgba(248,196,0,0.1); border: 1px solid #f8c400; padding: 5px 15px; border-radius: 30px; color: white;">
+                {{${field}}}
+            </span>`
+        ).join('');
         
         // Hide status after 3 seconds
         setTimeout(() => {
