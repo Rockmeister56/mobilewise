@@ -1508,7 +1508,7 @@ function loadKnowledgeBaseDropdown() {
 
 <script>
 // ============================================
-// HANDLE SCRIPT UPLOAD (SIMPLIFIED)
+// HANDLE HTML SCRIPT UPLOAD
 // ============================================
 
 async function handleScriptUpload(input) {
@@ -1521,68 +1521,102 @@ async function handleScriptUpload(input) {
         // Show uploading status
         const status = document.getElementById('uploadStatus');
         status.style.display = 'block';
-        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Parsing HTML script...';
         status.style.background = '#2196F3';
         
         // Read file content
-        const content = await readFileAsText(file);
+        const htmlContent = await readFileAsText(file);
         
-        // Simple field extraction - look for common words
-        const fields = [];
-        const content_lower = content.toLowerCase();
+        // Parse the HTML
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlContent, 'text/html');
         
-        const commonFields = [
-            'name', 'email', 'phone', 'credit', 'income', 
-            'loan', 'property', 'down', 'employment', 'debt'
-        ];
+        // Extract all steps
+        const steps = [];
+        const stepElements = doc.querySelectorAll('.step');
         
-        commonFields.forEach(field => {
-            if (content_lower.includes(field)) {
-                fields.push(field);
-            }
+        stepElements.forEach((step, index) => {
+            const speaker = step.dataset.speaker;
+            const text = step.querySelector('p')?.textContent || '';
+            const field = step.dataset.field;
+            const type = step.dataset.type;
+            const options = step.dataset.options;
+            
+            steps.push({
+                sequence: index + 1,
+                speaker: speaker,
+                text: text,
+                field: field,
+                type: type,
+                options: options ? options.split(',') : null
+            });
         });
         
-        // Get Supabase connection (use existing client if available)
+        // Extract fields list
+        let fields = [];
+        const fieldsEl = doc.getElementById('extracted-fields');
+        if (fieldsEl) {
+            fields = fieldsEl.textContent.trim().split(',').map(f => f.trim());
+        }
+        
+        // Create the answer_template JSON
+        const answer_template = {
+            name: file.name.replace('.html', ''),
+            industry: industry,
+            steps: steps,
+            extracted_fields: fields,
+            upload_date: new Date().toISOString()
+        };
+        
+        // Update status
+        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading to Supabase...';
+        
+        // Upload to Supabase
         const supabaseUrl = 'https://fcgbusobfdwnpoqyuzoe.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk';
         
-        // Simple fetch to Supabase
         const response = await fetch(`${supabaseUrl}/rest/v1/knowledge_base`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'apikey': supabaseKey,
                 'Authorization': `Bearer ${supabaseKey}`,
-                'Prefer': 'resolution=merge-duplicates'
+                'Prefer': 'return=representation'
             },
             body: JSON.stringify({
                 category: industry,
-                script_content: content,
-                script_name: file.name,
-                extracted_fields: fields,
+                answer_template: answer_template,
                 updated_at: new Date().toISOString()
             })
         });
         
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            throw new Error(`Upload failed: ${response.status} - ${errorText}`);
         }
         
         // Show success
-        status.innerHTML = '<i class="fas fa-check-circle"></i> File uploaded successfully!';
+        status.innerHTML = '<i class="fas fa-check-circle"></i> Script uploaded and parsed successfully!';
         status.style.background = '#4CAF50';
         
-        // Update UI
+        // Update UI with extracted fields
         document.getElementById('currentScriptName').textContent = file.name;
         document.getElementById('scriptDate').textContent = `Uploaded: ${new Date().toLocaleString()}`;
         
         // Display extracted fields
         const container = document.getElementById('fieldsList');
-        container.innerHTML = fields.map(field => 
-            `<span style="background: rgba(248,196,0,0.1); border: 1px solid #f8c400; padding: 5px 15px; border-radius: 30px; color: white;">
-                {{${field}}}
-            </span>`
-        ).join('');
+        if (fields.length > 0) {
+            container.innerHTML = fields.map(field => 
+                `<span style="background: rgba(248,196,0,0.1); border: 1px solid #f8c400; padding: 5px 15px; border-radius: 30px; color: white;">
+                    {{${field}}}
+                </span>`
+            ).join('');
+        } else {
+            container.innerHTML = '<span style="color: #aaa;">No fields detected in script</span>';
+        }
+        
+        // Also update the pre-qual module dropdown
+        await loadPreQualDropdown();
         
         // Hide status after 3 seconds
         setTimeout(() => {
@@ -1593,12 +1627,46 @@ async function handleScriptUpload(input) {
         console.error('Upload failed:', error);
         const status = document.getElementById('uploadStatus');
         status.style.display = 'block';
-        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Upload failed: ' + error.message;
+        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + error.message;
         status.style.background = '#f44336';
         
         setTimeout(() => {
             status.style.display = 'none';
         }, 3000);
+    }
+}
+
+// ============================================
+// LOAD PRE-QUAL DROPDOWN
+// ============================================
+
+async function loadPreQualDropdown() {
+    const select = document.getElementById('preQualKnowledgeBase');
+    if (!select) return;
+    
+    try {
+        const supabaseUrl = 'https://fcgbusobfdwnpoqyuzoe.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk';
+        
+        const response = await fetch(`${supabaseUrl}/rest/v1/knowledge_base?select=category,answer_template`, {
+            headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+            let options = '<option value="">— Select Script —</option>';
+            data.forEach(item => {
+                const name = item.answer_template?.name || item.category;
+                options += `<option value="${item.category}">${name}</option>`;
+            });
+            select.innerHTML = options;
+        }
+    } catch (error) {
+        console.error('Error loading scripts:', error);
     }
 }
 
