@@ -1508,7 +1508,7 @@ function loadKnowledgeBaseDropdown() {
 
 <script>
 // ============================================
-// HANDLE HTML SCRIPT UPLOAD
+// HANDLE HTML SCRIPT UPLOAD (with client_id)
 // ============================================
 
 async function handleScriptUpload(input) {
@@ -1516,6 +1516,9 @@ async function handleScriptUpload(input) {
     
     const file = input.files[0];
     const industry = document.getElementById('kbIndustrySelect').value;
+    
+    // Get the current client ID from your config
+    const clientId = document.getElementById('clientId')?.value || '00000000-0000-0000-0000-000000000001';
     
     try {
         // Show uploading status
@@ -1571,7 +1574,7 @@ async function handleScriptUpload(input) {
         // Update status
         status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading to Supabase...';
         
-        // Upload to Supabase
+        // Upload to Supabase - INCLUDING client_id
         const supabaseUrl = 'https://fcgbusobfdwnpoqyuzoe.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk';
         
@@ -1584,6 +1587,7 @@ async function handleScriptUpload(input) {
                 'Prefer': 'return=representation'
             },
             body: JSON.stringify({
+                client_id: clientId,  // ← THIS WAS MISSING!
                 category: industry,
                 answer_template: answer_template,
                 updated_at: new Date().toISOString()
@@ -1633,40 +1637,6 @@ async function handleScriptUpload(input) {
         setTimeout(() => {
             status.style.display = 'none';
         }, 3000);
-    }
-}
-
-// ============================================
-// LOAD PRE-QUAL DROPDOWN
-// ============================================
-
-async function loadPreQualDropdown() {
-    const select = document.getElementById('preQualKnowledgeBase');
-    if (!select) return;
-    
-    try {
-        const supabaseUrl = 'https://fcgbusobfdwnpoqyuzoe.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk';
-        
-        const response = await fetch(`${supabaseUrl}/rest/v1/knowledge_base?select=category,answer_template`, {
-            headers: {
-                'apikey': supabaseKey,
-                'Authorization': `Bearer ${supabaseKey}`
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (data && data.length > 0) {
-            let options = '<option value="">— Select Script —</option>';
-            data.forEach(item => {
-                const name = item.answer_template?.name || item.category;
-                options += `<option value="${item.category}">${name}</option>`;
-            });
-            select.innerHTML = options;
-        }
-    } catch (error) {
-        console.error('Error loading scripts:', error);
     }
 }
 
