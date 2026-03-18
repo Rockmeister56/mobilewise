@@ -631,7 +631,7 @@
 <div style="background: linear-gradient(145deg, #0f1a2f, #1e3a5a); border-radius: 20px; padding: 30px; margin-bottom: 25px; border: 2px solid #f8c400; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
     <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 5px; letter-spacing: 1px;">LIVE PREVIEW</div>
     <div style="color: white; font-size: 1.8rem; font-weight: 600; margin-bottom: 5px;" id="previewTopText">✨ Meet Tess 🤗</div>
-    <div style="color: #f8c400; font-size: 1.2rem; margin-bottom: 20px;" id="previewSubText">Your Personal AI Smart Guide</div>
+    <div style="color: #f8c400; font-size: 1.2rem; margin-bottom: 20px;" id="previewSubText">Your Personal AI Web Guide</div>
     <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; border: 3px solid #f8c400;">
         <i class="fas fa-user-circle" style="font-size: 60px; color: #f8c400;"></i>
     </div>
@@ -2691,7 +2691,7 @@ function exportBridgeOnly() {
 code += '    const style = document.createElement(\'style\');\n';
 code += '    style.textContent = `\n';
 code += '        .splash-avatar-container {\n';
-code += '            width: 235px; height: 384px; margin: 0 auto 25px;\n';
+code += '            width: 220px; height: 384px; margin: 0 auto 25px;\n';
 code += '            border-radius: 20px; overflow: hidden;\n';
 code += '            background: #000;\n';
 code += '            box-shadow: 0 20px 30px rgba(0,0,0,0.5);\n';
@@ -2713,7 +2713,7 @@ code += '        }\n';
 code += '        .splash-card {\n';
 code += '            background: radial-gradient(circle at center, ' + (splashScreen.gradientCenter || '#1e4a8a') + ' 0%, ' + (splashScreen.gradientOuter || '#0a1a2f') + ' 80%);\n';
 code += '            border-radius: 48px; padding: 40px 30px;\n';
-code += '            max-width: 600px; width: 90%; text-align: center;\n';
+code += '            max-width: 47500px; width: 90%; text-align: center;\n';
 code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
 code += '            animation: slideUp 0.4s ease;\n';
 code += '        }\n';
@@ -2820,14 +2820,15 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            </div>\n';
         code += '        `;\n\n';
         
-        code += '        if (config.branding?.name || config.branding?.logo) {\n';
-code += '            cardHTML += `\n';
-code += '                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 12px; color: rgba(255,255,255,0.4); font-size: 1rem;">\n';
-code += '                    ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" style="height: 46px; width: auto; opacity: 0.8;">\' : \'\'}\n';
-code += '                    ${config.branding?.name ? \'<span style="font-size: 20px;">\' + config.branding.name + \'</span>\' : \'\'}\n';
+        code += '        // Add white footer area with logo\n';
+code += '        cardHTML += `\n';
+code += '            <div style="margin-top: 25px; background: white; border-radius: 0 0 48px 48px; padding: 15px 20px; margin-left: -30px; margin-right: -30px; margin-bottom: -40px; width: calc(100% + 60px);">\n';
+code += '                <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">\n';
+code += '                    ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" style="height: 36px; width: auto;">\' : \'\'}\n';
+code += '                    ${config.branding?.name ? \'<span style="color: #333; font-size: 18px; font-weight: 500;">\' + config.branding.name + \'</span>\' : \'\'}\n';
 code += '                </div>\n';
-code += '            `;\n';
-code += '        }\n\n';
+code += '            </div>\n';
+code += '        `;\n';
         
         code += '        card.innerHTML = cardHTML;\n\n';
 
