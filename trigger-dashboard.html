@@ -1269,13 +1269,13 @@ Full Transcript:
         </div>
     </div>
 
-        <!-- ===== MODULE 7: KNOWLEDGE BASE MANAGER ===== -->
+        <!-- ===== MODULE 7: KNOWLEDGE BASE SCRIPTS ===== -->
 <div class="module-card">
     <div class="module-header">
         <div class="module-icon"><i class="fas fa-book-open"></i></div>
         <div class="module-title">
             <h2>📚 Knowledge Base Scripts</h2>
-            <p>Complete conversation flows for each industry</p>
+            <p>Upload and manage conversation scripts</p>
         </div>
     </div>
 
@@ -1288,25 +1288,44 @@ Full Transcript:
                 <option value="legal">⚖️ Personal Injury</option>
                 <option value="tax">📋 Tax Resolution</option>
                 <option value="dental">🦷 Dental</option>
-                <option value="custom">✨ Custom</option>
             </select>
         </div>
         <div style="display: flex; align-items: flex-end;">
-            <button class="btn-add" onclick="saveKnowledgeBaseScript()" style="width:100%;">
-                <i class="fas fa-save"></i> Save Script
+            <button class="btn-add" onclick="document.getElementById('scriptFileInput').click()" style="width:100%;">
+                <i class="fas fa-upload"></i> Upload Script
             </button>
         </div>
     </div>
 
-    <!-- Script Editor -->
-    <div id="knowledgeBaseScriptEditor" style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px;">
-        <!-- Script will be loaded here -->
+    <!-- Hidden File Input -->
+    <input type="file" id="scriptFileInput" accept=".txt,.pdf,.doc,.docx" style="display: none;" onchange="handleScriptUpload(this)">
+
+    <!-- Upload Status -->
+    <div id="uploadStatus" style="display: none; margin-bottom: 20px; padding: 15px; border-radius: 8px; background: #4CAF50; color: white; text-align: center;">
+        <i class="fas fa-check-circle"></i> File uploaded successfully!
     </div>
 
-    <p style="color: #aaa; font-size:0.8rem; margin-top:10px;">
-        <i class="fas fa-info-circle"></i> This script controls the entire conversation flow
-    </p>
-</div>
+    <!-- Current Script Info -->
+    <div id="scriptInfo" style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h4 style="color: #f8c400; margin:0;">Current Script</h4>
+                <p id="currentScriptName" style="color: white; margin:5px 0 0 0;">No script uploaded</p>
+            </div>
+            <span id="scriptDate" style="color: #aaa; font-size:0.85rem;"></span>
+        </div>
+    </div>
+
+    <!-- Parsed Fields Preview (Read-only) -->
+    <div id="parsedFieldsPreview" style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px;">
+        <h4 style="color: #f8c400; margin-top:0;">Extracted Fields</h4>
+        <div id="fieldsList" style="display: flex; flex-wrap: wrap; gap: 10px; min-height: 50px;">
+            <span style="color: #aaa;">Upload a script to see extracted fields</span>
+        </div>
+        <p style="color: #aaa; font-size:0.8rem; margin-top:15px;">
+            <i class="fas fa-info-circle"></i> These fields will be available for your email template
+        </p>
+    </div>
 </div>
 
 
@@ -1483,6 +1502,179 @@ function loadKnowledgeBaseDropdown() {
     ).join('');
     
     console.log('✅ Knowledge base dropdown loaded');
+}
+
+</script>
+
+<script>
+// ============================================
+// HANDLE SCRIPT UPLOAD
+// ============================================
+
+async function handleScriptUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    
+    const file = input.files[0];
+    const industry = document.getElementById('kbIndustrySelect').value;
+    
+    try {
+        // Show uploading status
+        const status = document.getElementById('uploadStatus');
+        status.style.display = 'block';
+        status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+        status.style.background = '#2196F3';
+        
+        // Read file content
+        const content = await readFileAsText(file);
+        
+        // Parse the script to extract fields
+        const extractedFields = parseScriptForFields(content);
+        
+        // Get Supabase connection
+        const { createClient } = supabase;
+        const supabaseClient = createClient(
+            'https://fcgbusobfdwnpoqyuzoe.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
+        );
+        
+        // Upload to Supabase
+        const { error } = await supabaseClient
+            .from('knowledge_base')
+            .upsert({
+                category: industry,
+                script_content: content,
+                script_name: file.name,
+                extracted_fields: extractedFields,
+                updated_at: new Date().toISOString()
+            });
+        
+        if (error) throw error;
+        
+        // Show success
+        status.innerHTML = '<i class="fas fa-check-circle"></i> File uploaded successfully!';
+        status.style.background = '#4CAF50';
+        
+        // Update UI
+        document.getElementById('currentScriptName').textContent = file.name;
+        document.getElementById('scriptDate').textContent = `Uploaded: ${new Date().toLocaleString()}`;
+        
+        // Display extracted fields
+        displayExtractedFields(extractedFields);
+        
+        // Hide status after 3 seconds
+        setTimeout(() => {
+            status.style.display = 'none';
+        }, 3000);
+        
+    } catch (error) {
+        console.error('Upload failed:', error);
+        const status = document.getElementById('uploadStatus');
+        status.style.display = 'block';
+        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Upload failed: ' + error.message;
+        status.style.background = '#f44336';
+        
+        setTimeout(() => {
+            status.style.display = 'none';
+        }, 3000);
+    }
+}
+
+// ============================================
+// READ FILE AS TEXT
+// ============================================
+
+function readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = (e) => reject(e.target.error);
+        reader.readAsText(file);
+    });
+}
+
+// ============================================
+// PARSE SCRIPT FOR FIELDS (Simple version)
+// ============================================
+
+function parseScriptForFields(content) {
+    // Look for common field patterns
+    const fields = [];
+    const patterns = [
+        /\bname\b/i,
+        /\bemail\b/i,
+        /\bphone\b/i,
+        /\bcredit\s*score\b/i,
+        /\bincome\b/i,
+        /\bloan\s*purpose\b/i,
+        /\bproperty\s*value\b/i,
+        /\bdown\s*payment\b/i,
+        /\bemployment\b/i,
+        /\bdebt\b/i
+    ];
+    
+    patterns.forEach(pattern => {
+        if (content.match(pattern)) {
+            const match = content.match(pattern)[0].toLowerCase().replace(/\s+/g, '_');
+            if (!fields.includes(match)) {
+                fields.push(match);
+            }
+        }
+    });
+    
+    return fields;
+}
+
+// ============================================
+// DISPLAY EXTRACTED FIELDS
+// ============================================
+
+function displayExtractedFields(fields) {
+    const container = document.getElementById('fieldsList');
+    
+    if (!fields || fields.length === 0) {
+        container.innerHTML = '<span style="color: #aaa;">No fields detected</span>';
+        return;
+    }
+    
+    container.innerHTML = fields.map(field => 
+        `<span style="background: rgba(248,196,0,0.1); border: 1px solid #f8c400; padding: 5px 15px; border-radius: 30px; color: white;">
+            {{${field}}}
+        </span>`
+    ).join('');
+}
+
+// ============================================
+// LOAD KNOWLEDGE BASE SCRIPT
+// ============================================
+
+async function loadKnowledgeBaseScript() {
+    const industry = document.getElementById('kbIndustrySelect').value;
+    
+    try {
+        const { createClient } = supabase;
+        const supabaseClient = createClient(
+            'https://fcgbusobfdwnpoqyuzoe.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
+        );
+        
+        const { data } = await supabaseClient
+            .from('knowledge_base')
+            .select('script_name, script_content, extracted_fields, updated_at')
+            .eq('category', industry)
+            .maybeSingle();
+        
+        if (data) {
+            document.getElementById('currentScriptName').textContent = data.script_name || 'Unnamed script';
+            document.getElementById('scriptDate').textContent = `Uploaded: ${new Date(data.updated_at).toLocaleString()}`;
+            displayExtractedFields(data.extracted_fields);
+        } else {
+            document.getElementById('currentScriptName').textContent = 'No script uploaded';
+            document.getElementById('scriptDate').textContent = '';
+            document.getElementById('fieldsList').innerHTML = '<span style="color: #aaa;">Upload a script to see extracted fields</span>';
+        }
+    } catch (error) {
+        console.error('Error loading script:', error);
+    }
 }
 
 </script>
