@@ -1433,6 +1433,7 @@ let configManager = {
                     subtitle: document.getElementById('splashSubtitle')?.value || 'Your Personal AI Smart Guide',
                     tessVideoUrl: document.getElementById('splashTessVideoUrl')?.value || '',
                     tessVideoFit: document.getElementById('tessVideoFit')?.value || 'cover',
+                    tickerKeywords: document.getElementById('splashTickerKeywords')?.value || '',
                     gradientCenter: document.getElementById('splashGradientCenter')?.value || '#1e4a8a',
                     gradientOuter: document.getElementById('splashGradientOuter')?.value || '#0a1a2f',
                     primaryButton: {
@@ -1646,6 +1647,7 @@ populateClientSelect() {
     document.getElementById('splashSubtitle').value = splash.subtitle || 'Your Personal AI Smart Guide';
     document.getElementById('splashTessVideoUrl').value = splash.tessVideoUrl || '';
     document.getElementById('tessVideoFit').value = splash.tessVideoFit || 'cover';
+    document.getElementById('splashTickerKeywords').value = splash.tickerKeywords || '';
     document.getElementById('splashGradientCenter').value = splash.gradientCenter || '#1e4a8a';
     document.getElementById('splashGradientOuter').value = splash.gradientOuter || '#0a1a2f';
     
