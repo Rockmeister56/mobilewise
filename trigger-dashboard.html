@@ -1461,6 +1461,33 @@ function previewVideoUrl() {
 </script>
 
 <script>
+
+// ============================================
+// LOAD KNOWLEDGE BASE DROPDOWN
+// ============================================
+
+function loadKnowledgeBaseDropdown() {
+    const select = document.getElementById('preQualKnowledgeBase');
+    if (!select) return;
+    
+    // Populate with industry options
+    const options = [
+        { value: 'mortgage', label: '🏠 Mortgage Script' },
+        { value: 'legal', label: '⚖️ Personal Injury Script' },
+        { value: 'tax', label: '📋 Tax Resolution Script' },
+        { value: 'dental', label: '🦷 Dental Script' }
+    ];
+    
+    select.innerHTML = options.map(opt => 
+        `<option value="${opt.value}">${opt.label}</option>`
+    ).join('');
+    
+    console.log('✅ Knowledge base dropdown loaded');
+}
+
+</script>
+
+<script>
 // ============================================
 // KNOWLEDGE BASE SCRIPTS
 // ============================================
