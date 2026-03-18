@@ -1298,7 +1298,7 @@ Full Transcript:
     </div>
 
     <!-- Hidden File Input -->
-    <input type="file" id="scriptFileInput" accept=".txt,.pdf,.doc,.docx" style="display: none;" onchange="handleScriptUpload(this)">
+    <input type="file" id="scriptFileInput" accept=".html,.htm" style="display: none;" onchange="handleScriptUpload(this)">
 
     <!-- Upload Status -->
     <div id="uploadStatus" style="display: none; margin-bottom: 20px; padding: 15px; border-radius: 8px; background: #4CAF50; color: white; text-align: center;">
@@ -1508,7 +1508,7 @@ function loadKnowledgeBaseDropdown() {
 
 <script>
 // ============================================
-// HANDLE HTML SCRIPT UPLOAD (with client_id)
+// HANDLE HTML SCRIPT UPLOAD (with proper UUID)
 // ============================================
 
 async function handleScriptUpload(input) {
@@ -1517,8 +1517,10 @@ async function handleScriptUpload(input) {
     const file = input.files[0];
     const industry = document.getElementById('kbIndustrySelect').value;
     
-    // Get the current client ID from your config
-    const clientId = document.getElementById('clientId')?.value || '00000000-0000-0000-0000-000000000001';
+    // Get the current client ID and convert to proper UUID format
+    // You need to look up the actual UUID for this client
+    // For now, use a default UUID for testing
+    const clientId = '00000000-0000-0000-0000-000000000001';  // This is a valid UUID format
     
     try {
         // Show uploading status
@@ -1574,7 +1576,7 @@ async function handleScriptUpload(input) {
         // Update status
         status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading to Supabase...';
         
-        // Upload to Supabase - INCLUDING client_id
+        // Upload to Supabase
         const supabaseUrl = 'https://fcgbusobfdwnpoqyuzoe.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk';
         
@@ -1587,7 +1589,7 @@ async function handleScriptUpload(input) {
                 'Prefer': 'return=representation'
             },
             body: JSON.stringify({
-                client_id: clientId,  // ← THIS WAS MISSING!
+                client_id: clientId,
                 category: industry,
                 answer_template: answer_template,
                 updated_at: new Date().toISOString()
@@ -1603,7 +1605,7 @@ async function handleScriptUpload(input) {
         status.innerHTML = '<i class="fas fa-check-circle"></i> Script uploaded and parsed successfully!';
         status.style.background = '#4CAF50';
         
-        // Update UI with extracted fields
+        // Update UI
         document.getElementById('currentScriptName').textContent = file.name;
         document.getElementById('scriptDate').textContent = `Uploaded: ${new Date().toLocaleString()}`;
         
@@ -1618,9 +1620,6 @@ async function handleScriptUpload(input) {
         } else {
             container.innerHTML = '<span style="color: #aaa;">No fields detected in script</span>';
         }
-        
-        // Also update the pre-qual module dropdown
-        await loadPreQualDropdown();
         
         // Hide status after 3 seconds
         setTimeout(() => {
