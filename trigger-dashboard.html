@@ -672,7 +672,7 @@
                 </div>
                 <div class="field">
                     <label><i class="fas fa-subscript"></i> Sub Headline</label>
-                    <input type="text" id="splashSubText" value="Your Personal AI Smart Guide" placeholder="e.g., Your Personal AI Smart Guide" oninput="updateSplashPreview()">
+                    <input type="text" id="splashSubText" value="Your Personal AI Web Guide" placeholder="e.g., Your Personal AI Web Guide" oninput="updateSplashPreview()">
                 </div>
             </div>
 
@@ -728,7 +728,7 @@
     </div>
     <div class="field">
         <label><i class="fas fa-subscript"></i> Subtitle Text</label>
-        <input type="text" id="splashSubtitle" value="Your Personal AI Smart Guide" placeholder="e.g., Your Personal AI Smart Guide">
+        <input type="text" id="splashSubtitle" value="Your Personal AI Web Guide" placeholder="e.g., Your Personal AI Web Guide">
     </div>
 </div>
 
@@ -1430,7 +1430,7 @@ let configManager = {
                     enabled: document.getElementById('splashEnabled')?.checked || false,
                     agentId: document.getElementById('splashAgentId')?.value || '',
                     title: document.getElementById('splashTitle')?.value || 'Meet Tess',
-                    subtitle: document.getElementById('splashSubtitle')?.value || 'Your Personal AI Smart Guide',
+                    subtitle: document.getElementById('splashSubtitle')?.value || 'Your Personal AI Web Guide',
                     tessVideoUrl: document.getElementById('splashTessVideoUrl')?.value || '',
                     tessVideoFit: document.getElementById('tessVideoFit')?.value || 'cover',
                     tickerKeywords: document.getElementById('splashTickerKeywords')?.value || '',
@@ -1644,7 +1644,7 @@ populateClientSelect() {
     document.getElementById('splashEnabled').checked = splash.enabled !== false;
     document.getElementById('splashAgentId').value = splash.agentId || client.agentId || '';
     document.getElementById('splashTitle').value = splash.title || 'Meet Tess';
-    document.getElementById('splashSubtitle').value = splash.subtitle || 'Your Personal AI Smart Guide';
+    document.getElementById('splashSubtitle').value = splash.subtitle || 'Your Personal AI Web Guide';
     document.getElementById('splashTessVideoUrl').value = splash.tessVideoUrl || '';
     document.getElementById('tessVideoFit').value = splash.tessVideoFit || 'cover';
     document.getElementById('splashTickerKeywords').value = splash.tickerKeywords || '';
@@ -2429,7 +2429,7 @@ Contact: support@botemia.com`;
         // ===== SPLASH SCREEN PREVIEW FUNCTIONS =====
         function updateSplashPreview() {
             const topText = document.getElementById('splashTopText')?.value || 'Meet Tess';
-            const subText = document.getElementById('splashSubText')?.value || 'Your Personal AI Smart Guide';
+            const subText = document.getElementById('splashSubText')?.value || 'Your Personal AI Web Guide';
             const primaryText = document.getElementById('splashPrimaryText')?.value || 'Get AI help with Tess';
             const secondaryText = document.getElementById('splashSecondaryText')?.value || 'Just Browsing';
             const primaryColor = document.getElementById('splashPrimaryColor')?.value || '#f8c400';
@@ -2713,7 +2713,7 @@ code += '        }\n';
 code += '        .splash-card {\n';
 code += '            background: radial-gradient(circle at center, ' + (splashScreen.gradientCenter || '#1e4a8a') + ' 0%, ' + (splashScreen.gradientOuter || '#0a1a2f') + ' 80%);\n';
 code += '            border-radius: 48px; padding: 40px 30px;\n';
-code += '            max-width: 47500px; width: 90%; text-align: center;\n';
+code += '            max-width: 475px; width: 90%; text-align: center;\n';
 code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
 code += '            animation: slideUp 0.4s ease;\n';
 code += '        }\n';
@@ -2812,7 +2812,7 @@ code += '    document.head.appendChild(style);\n\n';
         
         code += '        let cardHTML = `\n';
         code += '            <h1>✨ ${config.title || \'Meet Tess!\'} ✨</h1>\n';
-        code += '            <h2>${config.subtitle || \'Your Personal AI Smart Guide\'}</h2>\n';
+        code += '            <h2>${config.subtitle || \'Your Personal AI Web Guide\'}</h2>\n';
         code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
         code += '            <div class="button-group">\n';
         code += '                <button class="primary-btn" id="activateTessBtn" style="background: linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'}); color: ${config.primaryButton?.textColor || \'#0a0f1e\'};">${config.primaryButton?.text || \'Get AI help with Tess\'}</button>\n';
