@@ -1623,27 +1623,68 @@ const defaultMortgageScript = {
 let currentKnowledgeBaseScript = null;
 
 // ============================================
-// LOAD KNOWLEDGE BASE SCRIPT
+// LOAD KNOWLEDGE BASE SCRIPT FROM SUPABASE
 // ============================================
 
 async function loadKnowledgeBaseScript() {
     const industry = document.getElementById('kbIndustrySelect').value;
     
-    // In production, this would load from Supabase
-    // For now, use default mortgage script
-    if (industry === 'mortgage') {
-        currentKnowledgeBaseScript = defaultMortgageScript;
+    try {
+        // Get Supabase connection
+        const { createClient } = supabase;
+        const supabaseClient = createClient(
+            'https://fcgbusobfdwnpoqyuzoe.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
+        );
+        
+        // Try to load from Supabase first
+        const { data, error } = await supabaseClient
+            .from('knowledge_base')
+            .select('answer_template')
+            .eq('category', industry)
+            .maybeSingle();
+        
+        if (data) {
+            // Found existing script
+            currentKnowledgeBaseScript = data.answer_template;
+            console.log('✅ Loaded script from Supabase');
+        } else {
+            // No script found, create default mortgage template
+            currentKnowledgeBaseScript = {
+                "name": "Mortgage Pre-Qualification",
+                "industry": "mortgage",
+                "conversation_flow": [
+                    {
+                        "sequence": 1,
+                        "speaker": "tess",
+                        "text": "Great! Let's get you pre-qualified. First, what's your full name?",
+                        "key_data": "name",
+                        "validation": "text"
+                    },
+                    {
+                        "sequence": 2,
+                        "speaker": "user",
+                        "expected_type": "text",
+                        "next_sequence": 3
+                    },
+                    {
+                        "sequence": 3,
+                        "speaker": "tess",
+                        "text": "Thanks {{name}}! What's your email address?",
+                        "key_data": "email",
+                        "validation": "email"
+                    }
+                ],
+                "data_extraction": ["name", "email"]
+            };
+        }
+        
+        // Render the editor
         renderScriptEditor();
-    } else {
-        // Placeholder for other industries
-        currentKnowledgeBaseScript = {
-            "industry": industry,
-            "name": `${industry} Script`,
-            "conversation_flow": [],
-            "data_extraction": []
-        };
-        renderScriptEditor();
-        showNotification(`Load ${industry} script from Supabase`, 'info');
+        
+    } catch (error) {
+        console.error('Load failed:', error);
+        alert('Error loading script: ' + error.message);
     }
 }
 
@@ -1817,7 +1858,7 @@ function removeExtractionField(index) {
 }
 
 // ============================================
-// SAVE KNOWLEDGE BASE SCRIPT
+// SAVE KNOWLEDGE BASE SCRIPT TO SUPABASE
 // ============================================
 
 async function saveKnowledgeBaseScript() {
@@ -1826,17 +1867,50 @@ async function saveKnowledgeBaseScript() {
         return;
     }
     
-    // In production, save to Supabase knowledge_base table
-    console.log('Saving script:', currentKnowledgeBaseScript);
-    
-    // Update timestamp
-    currentKnowledgeBaseScript.updated_at = new Date().toISOString();
-    
-    // Show success
-    showSaveToast('Knowledge Base Script Saved', 'v1.0');
+    try {
+        // Show saving status
+        const saveBtn = document.querySelector('button[onclick="saveKnowledgeBaseScript()"]');
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        
+        // Get Supabase connection
+        const { createClient } = supabase;
+        const supabaseClient = createClient(
+            'https://fcgbusobfdwnpoqyuzoe.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
+        );
+        
+        // Update timestamp
+        currentKnowledgeBaseScript.updated_at = new Date().toISOString();
+        
+        // Save to Supabase
+        const { error } = await supabaseClient
+            .from('knowledge_base')
+            .upsert({
+                category: currentKnowledgeBaseScript.industry || document.getElementById('kbIndustrySelect').value,
+                answer_template: currentKnowledgeBaseScript,
+                updated_at: new Date().toISOString()
+            });
+        
+        // Restore button
+        saveBtn.innerHTML = originalText;
+        
+        if (error) {
+            console.error('Save error:', error);
+            alert('Error saving: ' + error.message);
+        } else {
+            alert('✅ Knowledge base script saved successfully!');
+        }
+        
+    } catch (error) {
+        console.error('Save failed:', error);
+        alert('Error saving script: ' + error.message);
+    }
 }
 
 </script>
+
+
 
     <script>
 
