@@ -2691,7 +2691,7 @@ function exportBridgeOnly() {
 code += '    const style = document.createElement(\'style\');\n';
 code += '    style.textContent = `\n';
 code += '        .splash-avatar-container {\n';
-code += '            width: 250px; height: 384px; margin: 0 auto 25px;\n';
+code += '            width: 235px; height: 384px; margin: 0 auto 25px;\n';
 code += '            border-radius: 20px; overflow: hidden;\n';
 code += '            background: #000;\n';
 code += '            box-shadow: 0 20px 30px rgba(0,0,0,0.5);\n';
@@ -2811,7 +2811,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        card.style.background = `radial-gradient(circle at center, ${config.gradientCenter || \'#1e4a8a\'} 0%, ${config.gradientOuter || \'#0a1a2f\'} 80%)`;\n\n';
         
         code += '        let cardHTML = `\n';
-        code += '            <h1>✨ ${config.title || \'Meet Tess\'} 🤗</h1>\n';
+        code += '            <h1>✨ ${config.title || \'Meet Tess!\'} ✨</h1>\n';
         code += '            <h2>${config.subtitle || \'Your Personal AI Smart Guide\'}</h2>\n';
         code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
         code += '            <div class="button-group">\n';
