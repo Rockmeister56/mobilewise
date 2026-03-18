@@ -1206,6 +1206,92 @@
             </div>
         </div>
 
+        <!-- ===== MODULE 6: PRE-QUALIFICATION INTERVIEW ===== -->
+<div class="module-card">
+    <div class="module-header">
+        <div class="module-icon"><i class="fas fa-clipboard-list"></i></div>
+        <div class="module-title">
+            <h2>📋 Pre-Qualification Interview</h2>
+            <p>Configure questions Botemia asks to qualify leads</p>
+        </div>
+    </div>
+
+    <!-- Enable/Disable Toggle -->
+    <div style="margin-bottom: 20px; background: rgba(248,196,0,0.1); padding: 15px; border-radius: 12px;">
+        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+            <input type="checkbox" id="preQualEnabled" checked style="width: 18px; height: 18px;">
+            <span style="color:#f8c400; font-weight:600;">✓ Enable Pre-Qualification Interview</span>
+        </label>
+    </div>
+
+    <!-- Industry Preset & Settings -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <div class="field">
+            <label><i class="fas fa-industry"></i> Industry Preset</label>
+            <select id="preQualIndustryPreset" onchange="loadInterviewPreset(this.value)">
+                <option value="mortgage">🏠 Mortgage</option>
+                <option value="legal">⚖️ Personal Injury</option>
+                <option value="tax">📋 Tax Resolution</option>
+                <option value="dental">🦷 Dental</option>
+                <option value="custom">✨ Custom</option>
+            </select>
+        </div>
+        <div class="field">
+            <label><i class="fas fa-tag"></i> Trigger Phrase</label>
+            <input type="text" id="preQualTriggerPhrase" value="I want to get pre-qualified" placeholder="Phrase that starts interview">
+        </div>
+    </div>
+
+    <!-- Questions Builder -->
+    <div style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+            <h4 style="color: #f8c400; margin:0;"><i class="fas fa-list"></i> Interview Questions</h4>
+            <button class="btn-add" onclick="addInterviewQuestion()" style="padding: 8px 16px;">
+                <i class="fas fa-plus"></i> Add Question
+            </button>
+        </div>
+        
+        <div id="interviewQuestionsContainer" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+            <!-- Questions will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Email Template -->
+    <div style="border-top: 2px solid rgba(248,196,0,0.2); padding-top: 20px;">
+        <h4 style="color: #f8c400; margin-bottom: 15px;"><i class="fas fa-envelope"></i> Email Notification</h4>
+        
+        <div class="field" style="margin-bottom: 15px;">
+            <label>Subject Line</label>
+            <input type="text" id="emailSubject" value="New Pre-Qualified Lead: {{name}}" placeholder="e.g., New Lead: {{name}}">
+        </div>
+        
+        <div class="field">
+            <label>Email Template</label>
+            <textarea id="emailTemplate" rows="8" style="width:100%; background:rgba(0,0,0,0.3); color:white; padding:12px; font-family: monospace; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">New Pre-Qualified Lead
+----------------------
+Name: {{name}}
+Email: {{email}}
+Phone: {{phone}}
+
+Loan Details:
+- Type: {{loanType}}
+- Property: ${{propertyValue}}
+- Down Payment: ${{downPayment}}
+- Credit: {{creditScore}}
+- Employment: {{employment}}
+
+Full Transcript:
+{{transcript}}
+
+View in CRM: https://crm.yoursite.com/lead/{{sessionId}}</textarea>
+        </div>
+        
+        <p style="color: #aaa; font-size:0.8rem; margin-top:5px;">
+            <i class="fas fa-info-circle"></i> Use {{variable}} placeholders from question keys
+        </p>
+    </div>
+</div>
+
       <!-- ===== DEPLOYMENT PACKAGE SECTION ===== -->
 <div style="margin-top: 40px; width: 100%;">
     <div style="background: rgba(12, 25, 45, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 28px; width: 100%;">
@@ -1356,6 +1442,150 @@ function previewVideoUrl() {
 
 </script>
 
+<script>
+// ============================================
+// INTERVIEW CONFIGURATION FUNCTIONS
+// ============================================
+
+// Question bank presets by industry
+const interviewPresets = {
+    mortgage: {
+        triggerPhrase: "I want to get pre-qualified",
+        questions: [
+            { key: 'name', text: "What's your full name?", type: 'text', required: true },
+            { key: 'email', text: "What's your email address?", type: 'email', required: true },
+            { key: 'phone', text: "What's your phone number?", type: 'phone', required: true },
+            { key: 'loanType', text: "Are you looking to purchase or refinance?", type: 'choice', options: ['Purchase', 'Refinance'], required: true },
+            { key: 'propertyValue', text: "What's the estimated property value?", type: 'currency', required: true },
+            { key: 'downPayment', text: "How much are you planning for a down payment?", type: 'currency', required: true },
+            { key: 'creditScore', text: "What's your credit score range?", type: 'choice', options: ['Excellent (720+)', 'Good (680-719)', 'Fair (640-679)', 'Poor (<640)'], required: true },
+            { key: 'employment', text: "Are you currently employed?", type: 'choice', options: ['Employed', 'Self-Employed', 'Retired', 'Unemployed'], required: true }
+        ],
+        emailSubject: "New Mortgage Lead: {{name}}"
+    },
+    legal: {
+        triggerPhrase: "I need help with my case",
+        questions: [
+            { key: 'name', text: "What's your full name?", type: 'text', required: true },
+            { key: 'email', text: "What's your email address?", type: 'email', required: true },
+            { key: 'phone', text: "What's your phone number?", type: 'phone', required: true },
+            { key: 'accidentType', text: "What type of accident were you involved in?", type: 'choice', options: ['Car Accident', 'Truck Accident', 'Motorcycle', 'Slip & Fall', 'Workplace'], required: true },
+            { key: 'injuryDate', text: "When did the accident occur?", type: 'date', required: true },
+            { key: 'medicalCare', text: "Have you sought medical care?", type: 'boolean', required: true },
+            { key: 'insurance', text: "Have you spoken with any insurance companies?", type: 'boolean', required: true }
+        ],
+        emailSubject: "New Personal Injury Lead: {{name}}"
+    },
+    tax: {
+        triggerPhrase: "I need help with my taxes",
+        questions: [
+            { key: 'name', text: "What's your full name?", type: 'text', required: true },
+            { key: 'email', text: "What's your email address?", type: 'email', required: true },
+            { key: 'phone', text: "What's your phone number?", type: 'phone', required: true },
+            { key: 'taxYear', text: "Which tax year do you need help with?", type: 'text', required: true },
+            { key: 'irsNotice', text: "Have you received any IRS notices?", type: 'boolean', required: true },
+            { key: 'filingStatus', text: "What's your filing status?", type: 'choice', options: ['Single', 'Married Joint', 'Married Separate', 'Head of Household'], required: true },
+            { key: 'income', text: "Approximate annual income?", type: 'currency', required: true }
+        ],
+        emailSubject: "New Tax Resolution Lead: {{name}}"
+    }
+};
+
+// Load preset questions
+function loadInterviewPreset(industry) {
+    if (industry === 'custom') return;
+    
+    const preset = interviewPresets[industry];
+    if (!preset) return;
+    
+    // Set trigger phrase
+    document.getElementById('preQualTriggerPhrase').value = preset.triggerPhrase;
+    
+    // Set email subject
+    document.getElementById('emailSubject').value = preset.emailSubject;
+    
+    // Clear and rebuild questions
+    const container = document.getElementById('interviewQuestionsContainer');
+    container.innerHTML = '';
+    
+    preset.questions.forEach((q, index) => {
+        addInterviewQuestion(q, index);
+    });
+}
+
+// Add a question to the builder
+function addInterviewQuestion(questionData = null, index = null) {
+    const container = document.getElementById('interviewQuestionsContainer');
+    const questionId = index !== null ? index : Date.now();
+    
+    const q = questionData || { key: '', text: '', type: 'text', required: true };
+    
+    const questionHtml = `
+        <div class="question-row" id="question-${questionId}" style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="color: #f8c400; font-weight: bold;">Question ${container.children.length + 1}</span>
+                <button onclick="removeQuestion('question-${questionId}')" style="background: none; border: none; color: #f44336; cursor: pointer;">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 3fr; gap: 10px; margin-bottom: 10px;">
+                <input type="text" placeholder="Key (e.g., name)" value="${q.key}" class="question-key" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; color: white;">
+                <input type="text" placeholder="Question text" value="${q.text}" class="question-text" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; color: white;">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <select class="question-type" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; color: white;">
+                    <option value="text" ${q.type === 'text' ? 'selected' : ''}>Text</option>
+                    <option value="email" ${q.type === 'email' ? 'selected' : ''}>Email</option>
+                    <option value="phone" ${q.type === 'phone' ? 'selected' : ''}>Phone</option>
+                    <option value="number" ${q.type === 'number' ? 'selected' : ''}>Number</option>
+                    <option value="currency" ${q.type === 'currency' ? 'selected' : ''}>Currency</option>
+                    <option value="choice" ${q.type === 'choice' ? 'selected' : ''}>Multiple Choice</option>
+                    <option value="boolean" ${q.type === 'boolean' ? 'selected' : ''}>Yes/No</option>
+                    <option value="date" ${q.type === 'date' ? 'selected' : ''}>Date</option>
+                </select>
+                <input type="text" placeholder="Options (comma for choice)" value="${q.options ? q.options.join(', ') : ''}" class="question-options" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; color: white;">
+                <label style="display: flex; align-items: center; gap: 5px; color: white;">
+                    <input type="checkbox" ${q.required ? 'checked' : ''} class="question-required"> Required
+                </label>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', questionHtml);
+}
+
+// Remove a question
+function removeQuestion(questionId) {
+    const element = document.getElementById(questionId);
+    if (element) element.remove();
+}
+
+// Collect questions for saving
+function collectInterviewQuestions() {
+    const questions = [];
+    const rows = document.querySelectorAll('#interviewQuestionsContainer .question-row');
+    
+    rows.forEach(row => {
+        const key = row.querySelector('.question-key')?.value;
+        const text = row.querySelector('.question-text')?.value;
+        const type = row.querySelector('.question-type')?.value;
+        const optionsInput = row.querySelector('.question-options')?.value;
+        const required = row.querySelector('.question-required')?.checked;
+        
+        if (key && text) {
+            const question = { key, text, type, required };
+            if (optionsInput && type === 'choice') {
+                question.options = optionsInput.split(',').map(opt => opt.trim());
+            }
+            questions.push(question);
+        }
+    });
+    
+    return questions;
+}
+
+</script>
+
     <script>
 
                 function showSaveToast(message, version) {
@@ -1496,13 +1726,20 @@ let configManager = {
                         borderColor: screen.borderColor || '#f8c400'
                     }))
                 },
-                websiteInfo: {
-                    triggers: [],
-                    infoType: document.getElementById('websiteInfoType')?.value || 'navigation',
-                    action: document.getElementById('websiteAction')?.value || 'showSmartNavigation'
-                }
-            },
-            updatedAt: new Date().toISOString()
+              websiteInfo: {
+        triggers: [],
+        infoType: document.getElementById('websiteInfoType')?.value || 'navigation',
+        action: document.getElementById('websiteAction')?.value || 'showSmartNavigation'
+    },
+    preQualification: {  // ← ADDED HERE
+        enabled: document.getElementById('preQualEnabled')?.checked || false,
+        triggerPhrase: document.getElementById('preQualTriggerPhrase')?.value || 'I want to get pre-qualified',
+        questions: collectInterviewQuestions(),
+        emailSubject: document.getElementById('emailSubject')?.value || 'New Lead: {{name}}',
+        emailTemplate: document.getElementById('emailTemplate')?.value || ''
+    }
+},
+updatedAt: new Date().toISOString()
         };
         return config;
     },
@@ -1696,6 +1933,30 @@ populateClientSelect() {
     // ===== LOAD WEBSITE INFO =====
     document.getElementById('websiteInfoType').value = client.modules?.websiteInfo?.infoType || 'navigation';
     document.getElementById('websiteAction').value = client.modules?.websiteInfo?.action || 'showSmartNavigation';
+
+    // ===== LOAD PRE-QUALIFICATION SETTINGS =====
+const preQual = client.modules?.preQualification || {};
+document.getElementById('preQualEnabled').checked = preQual.enabled !== false;
+document.getElementById('preQualTriggerPhrase').value = preQual.triggerPhrase || 'I want to get pre-qualified';
+document.getElementById('emailSubject').value = preQual.emailSubject || 'New Lead: {{name}}';
+document.getElementById('emailTemplate').value = preQual.emailTemplate || '';
+
+// Load questions if they exist
+if (preQual.questions && preQual.questions.length > 0) {
+    const container = document.getElementById('interviewQuestionsContainer');
+    container.innerHTML = ''; // Clear existing
+    preQual.questions.forEach((q, index) => {
+        // Use your addInterviewQuestion function
+        if (typeof addInterviewQuestion === 'function') {
+            addInterviewQuestion(q, index);
+        }
+    });
+} else {
+    // Default to mortgage preset if no questions saved
+    if (typeof loadInterviewPreset === 'function') {
+        loadInterviewPreset('mortgage');
+    }
+}
     
     // Update previews
     updateSplashPreview();
