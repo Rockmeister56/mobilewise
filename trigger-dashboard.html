@@ -2366,7 +2366,7 @@ let configManager = {
         const config = {
             id: document.getElementById('clientId').value,
             name: document.getElementById('clientName').value,
-            websiteUrl: document.getElementById('clientWebsiteUrl').value,
+            websiteUrl: document.getElementById('clientWebsiteUrl')?.value || '',
             agentId: document.getElementById('agentId').value,
             widgetId: document.getElementById('widgetId').value,
             apiKey: document.getElementById('apiKey').value,
@@ -2626,6 +2626,15 @@ populateClientSelect() {
     // Branding
     document.getElementById('splashBrandName').value = splash.branding?.name || '';
     document.getElementById('splashBrandLogoData').value = splash.branding?.logo || '';
+
+    // Force logo preview to update
+if (splash.branding?.logo) {
+    const preview = document.getElementById('brandLogoPreview');
+    if (preview) {
+        preview.innerHTML = `<img src="${splash.branding.logo}" style="height: 40px; width: auto; border-radius: 4px;"> 
+                             <span style="color: white; font-size: 24px;">${splash.branding.name || ''}</span>`;
+    }
+}
     
     // ===== LOAD TESTIMONIAL GROUPS =====
     if (client.modules?.testimonial?.groups) {
