@@ -1399,14 +1399,10 @@ sendToClientWebsite(moduleName, triggerPhrase) {
         }
 
         function triggerPreQual() {
-    const clientId = document.getElementById('clientList').value;
-    if (!clientId) {
-        alert('Please select a client first');
-        return;
+    const success = clientManager.sendToSelectedClient('START_PRE_QUAL');
+    if (success) {
+        addToTranscriptFeed('🚀 Triggered pre-qualification interview');
     }
-    
-    clientManager.sendToClient(clientId, 'START_PRE_QUAL', {});
-    addToTranscriptFeed('🚀 Triggered pre-qualification interview');
 }
 
         // Initialize

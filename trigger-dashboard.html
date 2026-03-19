@@ -4246,8 +4246,7 @@ code += '            });\n';
 code += '        }\n';
 code += '    }\n';
 code += '\n';
-code += '    window.preQualController = new PreQualificationController();\n';
-code += '\n';
+code += '    // ===== CLIENT ANNOUNCEMENT FUNCTION =====\n';
 code += '    function announceToTCS() {\n';
 code += '        // Try opener first\n';
 code += '        if (window.opener) {\n';
@@ -4271,6 +4270,9 @@ code += '    }\n';
 code += '\n';
 code += '    // Call it when bridge loads\n';
 code += '    setTimeout(announceToTCS, 2000);\n';
+code += '\n';
+code += '    window.preQualController = new PreQualificationController();\n';
+code += '\n';
 code += '})();';
         
         // ===== DOWNLOAD THE FILE =====
