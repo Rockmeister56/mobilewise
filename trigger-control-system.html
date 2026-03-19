@@ -498,6 +498,22 @@
     </div>
 
     <script>
+     // At the top of your TCS JavaScript, right after the opening <script> tag
+const urlParams = new URLSearchParams(window.location.search);
+const clientWebsiteUrl = urlParams.get('websiteUrl');
+const clientId = urlParams.get('clientId');
+const agentId = urlParams.get('agentId');
+
+console.log('TCS opened for client:', clientId);
+console.log('Website URL:', clientWebsiteUrl);
+console.log('Agent ID:', agentId);
+
+// You can use these to help with discovery or auto-connect
+if (clientWebsiteUrl) {
+    console.log('🔍 Will look for client at:', clientWebsiteUrl);
+    // You could even try to ping this URL or open a connection hint
+}
+
         // ============================================
         // BOTEMIA TRIGGER CONTROL SYSTEM v1.0 - COMPLETE WORKING VERSION
         // Listen · Detect · Launch · Close

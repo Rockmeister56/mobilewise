@@ -565,6 +565,13 @@
             </div>
         </div>
 
+        <!-- Add this after the Client ID field or in the client config bar -->
+<div class="field">
+    <label><i class="fas fa-globe"></i> Client Website URL</label>
+    <input type="url" id="clientWebsiteUrl" placeholder="https://client-website.com" value="https://client-tester.netlify.app/mortgage-assist/">
+    <p style="color: #aaa; font-size:0.75rem; margin-top:3px;">The URL where this client's bridge is installed</p>
+</div>
+
         <!-- ===== MODULE 1: LEMONSLICE API CONFIG ===== -->
         <div class="module-grid">
             <div class="module-card" style="max-height: 700px; overflow-y: auto;">
@@ -2359,6 +2366,7 @@ let configManager = {
         const config = {
             id: document.getElementById('clientId').value,
             name: document.getElementById('clientName').value,
+            websiteUrl: document.getElementById('clientWebsiteUrl').value,
             agentId: document.getElementById('agentId').value,
             widgetId: document.getElementById('widgetId').value,
             apiKey: document.getElementById('apiKey').value,
@@ -2575,6 +2583,7 @@ populateClientSelect() {
     document.getElementById('clientName').value = client.name || '';
     document.getElementById('clientId').value = id;
     document.getElementById('agentId').value = client.agentId || '';
+    document.getElementById('clientWebsiteUrl').value = client.websiteUrl || '';
     document.getElementById('widgetId').value = client.widgetId || '';
     document.getElementById('apiKey').value = client.apiKey || '';
     document.getElementById('environment').value = client.environment || 'production';
@@ -3323,48 +3332,58 @@ Contact: support@botemia.com`;
         let tcsWindow = null;
 
         function controlTCS(action, value) {
-            const config = configManager.getCurrentConfig();
-            if (!config.id || !config.name) {
-                alert('Please select a client first');
+    const config = configManager.getCurrentConfig();
+    if (!config.id || !config.name) {
+        alert('Please select a client first');
+        return;
+    }
+
+    switch(action) {
+        case 'openTCS':
+            // Get the website URL from your new field
+            const websiteUrl = document.getElementById('clientWebsiteUrl')?.value || '';
+            
+            if (!websiteUrl) {
+                alert('Please enter the client website URL in the configuration');
                 return;
             }
-
-            switch(action) {
-                case 'openTCS':
-                    const configString = JSON.stringify(config);
-                    const encodedConfig = btoa(unescape(encodeURIComponent(configString)));
-                    
-                    window.open(
-                        'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig + '&clientId=' + config.id,
-                        'BotemiaTCS',
-                        'width=1400,height=900,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes'
-                    );
-                    break;
-                    
-                case 'enableAuto':
-                case 'disableAuto':
-                case 'toggleOverlays':
-                    const message = {
-                        type: 'DASHBOARD_COMMAND',
-                        command: action === 'enableAuto' ? 'setAutoTrigger' : 
-                                action === 'disableAuto' ? 'setAutoTrigger' : 'toggleOverlays',
-                        value: action === 'enableAuto' ? false : 
-                               action === 'disableAuto' ? true : value
-                    };
-                    
-                    if (window.tcsWindow && !window.tcsWindow.closed) {
-                        window.tcsWindow.postMessage(message, '*');
-                    }
-                    break;
-                    
-                case 'closeTCS':
-                    if (window.tcsWindow && !window.tcsWindow.closed) {
-                        window.tcsWindow.close();
-                        window.tcsWindow = null;
-                    }
-                    break;
+            
+            // Keep the existing config encoding
+            const configString = JSON.stringify(config);
+            const encodedConfig = btoa(unescape(encodeURIComponent(configString)));
+            
+            // Add websiteUrl to the URL parameters
+            window.open(
+                'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig + '&clientId=' + config.id + '&websiteUrl=' + encodeURIComponent(websiteUrl),
+                'BotemiaTCS',
+                'width=1400,height=900,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes'
+            );
+            break;
+            
+        case 'enableAuto':
+        case 'disableAuto':
+        case 'toggleOverlays':
+            const message = {
+                type: 'DASHBOARD_COMMAND',
+                command: action === 'enableAuto' ? 'setAutoTrigger' : 
+                        action === 'disableAuto' ? 'setAutoTrigger' : 'toggleOverlays',
+                value: action === 'enableAuto' ? false : 
+                       action === 'disableAuto' ? true : value
+            };
+            
+            if (window.tcsWindow && !window.tcsWindow.closed) {
+                window.tcsWindow.postMessage(message, '*');
             }
-        }
+            break;
+            
+        case 'closeTCS':
+            if (window.tcsWindow && !window.tcsWindow.closed) {
+                window.tcsWindow.close();
+                window.tcsWindow = null;
+            }
+            break;
+    }
+}
 
         function loadDefaultTriggers() {
             const industry = document.getElementById('industryPreset').value;
