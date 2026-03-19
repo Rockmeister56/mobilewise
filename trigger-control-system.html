@@ -1464,22 +1464,35 @@ class ClientConnectionManager {
         this.scanInterval = null;
     }
 
-    setupListener() {
-        window.addEventListener('message', (event) => {
-            if (event.data.type === 'BRIDGE_ACTIVE') {
-                this.addClient(event.data.clientId, event.source, event.data.url);
-            }
-        });
+    // In the setupListener method, make sure this is working:
+setupListener() {
+    // Listen for direct messages (via opener)
+    window.addEventListener('message', (event) => {
+        if (event.data.type === 'BRIDGE_ACTIVE') {
+            this.addClient(event.data.clientId, event.source, event.data.url);
+        }
+    });
 
-        // Listen for broadcast channel
-        const channel = new BroadcastChannel('botemia-discovery');
-        channel.onmessage = (event) => {
-            if (event.data === 'WHO_HAS_BRIDGE') {
-                // This TCS is asking for clients
-                this.broadcastPresence();
-            }
-        };
-    }
+    // Listen for broadcast channel
+    const channel = new BroadcastChannel('botemia-discovery');
+    channel.onmessage = (event) => {
+        console.log('📢 Broadcast received:', event.data);
+        
+        if (event.data === 'BRIDGE_HERE') {
+            // A client is announcing itself
+            // We need the client to send more info - let's ask for it
+            channel.postMessage('WHO_ARE_YOU');
+        }
+        
+        if (event.data.type === 'CLIENT_INFO') {
+            this.addClient(
+                event.data.clientId, 
+                null, // Can't store window reference via broadcast
+                event.data.url
+            );
+        }
+    };
+}
 
     addClient(clientId, windowRef, url) {
         if (!this.clientWindows.has(clientId)) {
