@@ -1716,6 +1716,61 @@ async function handleScriptUpload(input) {
 }
 
 // ============================================
+// ADD INTERVIEW QUESTION (for editable fields)
+// ============================================
+
+function addInterviewQuestion(questionData = null, index = null) {
+    const container = document.getElementById('interviewQuestionsContainer');
+    if (!container) return;
+    
+    const questionId = index !== null ? `question-${index}` : `question-${Date.now()}`;
+    
+    const q = questionData || { key: '', text: '', type: 'text', required: true };
+    
+    const questionHtml = `
+        <div class="question-row" id="${questionId}" style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #f8c400;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="color: #f8c400; font-weight: bold;">Question ${container.children.length + 1}</span>
+                <button onclick="removeQuestion('${questionId}')" style="background: none; border: none; color: #f44336; cursor: pointer;">
+                    <i class="fas fa-trash"></i> Remove
+                </button>
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 3fr; gap: 10px; margin-bottom: 10px;">
+                <input type="text" placeholder="Key (e.g., name)" value="${q.key || ''}" class="question-key" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; color: white;">
+                <input type="text" placeholder="Question text" value="${q.text || ''}" class="question-text" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; color: white;">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <select class="question-type" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; color: white;">
+                    <option value="text" ${q.type === 'text' ? 'selected' : ''}>Text</option>
+                    <option value="email" ${q.type === 'email' ? 'selected' : ''}>Email</option>
+                    <option value="phone" ${q.type === 'phone' ? 'selected' : ''}>Phone</option>
+                    <option value="number" ${q.type === 'number' ? 'selected' : ''}>Number</option>
+                    <option value="currency" ${q.type === 'currency' ? 'selected' : ''}>Currency</option>
+                    <option value="choice" ${q.type === 'choice' ? 'selected' : ''}>Multiple Choice</option>
+                    <option value="boolean" ${q.type === 'boolean' ? 'selected' : ''}>Yes/No</option>
+                    <option value="date" ${q.type === 'date' ? 'selected' : ''}>Date</option>
+                </select>
+                <input type="text" placeholder="Options (comma for choice)" value="${q.options ? q.options.join(', ') : ''}" class="question-options" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px; color: white;">
+                <label style="display: flex; align-items: center; gap: 5px; color: white;">
+                    <input type="checkbox" ${q.required ? 'checked' : ''} class="question-required"> Required
+                </label>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', questionHtml);
+}
+
+// ============================================
+// REMOVE QUESTION
+// ============================================
+
+function removeQuestion(questionId) {
+    const element = document.getElementById(questionId);
+    if (element) element.remove();
+}
+
+// ============================================
 // READ FILE AS TEXT
 // ============================================
 
