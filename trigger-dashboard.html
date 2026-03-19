@@ -3348,26 +3348,30 @@ Contact: support@botemia.com`;
     }
 
     switch(action) {
-        case 'openTCS':
-            // Get the website URL from your new field
-            const websiteUrl = document.getElementById('clientWebsiteUrl')?.value || '';
-            
-            if (!websiteUrl) {
-                alert('Please enter the client website URL in the configuration');
-                return;
-            }
-            
-            // Keep the existing config encoding
-            const configString = JSON.stringify(config);
-            const encodedConfig = btoa(unescape(encodeURIComponent(configString)));
-            
-            // Add websiteUrl to the URL parameters
-            window.open(
-                'https://mobilewise.netlify.app/trigger-control-system?config=' + encodedConfig + '&clientId=' + config.id + '&websiteUrl=' + encodeURIComponent(websiteUrl),
-                'BotemiaTCS',
-                'width=1400,height=900,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes'
-            );
-            break;
+       case 'openTCS':
+    const websiteUrl = document.getElementById('clientWebsiteUrl')?.value || '';
+    
+    if (!websiteUrl) {
+        alert('Please enter the client website URL in the configuration');
+        return;
+    }
+    
+    // INSTEAD of encoding the entire config, create a minimal version
+    const minimalConfig = {
+        id: config.id,
+        name: config.name,
+        agentId: config.agentId,
+        industry: config.industry
+        // Add ONLY what TCS absolutely needs - no modules, no base64 images, no videos
+    };
+    
+    // Open WITHOUT the massive config parameter
+    window.open(
+        'https://mobilewise.netlify.app/trigger-control-system?clientId=' + config.id + '&websiteUrl=' + encodeURIComponent(websiteUrl) + '&agentId=' + (config.agentId || ''),
+        'BotemiaTCS',
+        'width=1400,height=900,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes'
+    );
+    break;
             
         case 'enableAuto':
         case 'disableAuto':
@@ -4271,6 +4275,71 @@ code += '\n';
 code += '    // Call it when bridge loads\n';
 code += '    setTimeout(announceToTCS, 2000);\n';
 code += '\n';
+code += '    // ===== TCS MESSAGE HANDLER =====\n';
+code += '    window.addEventListener(\'message\', function(event) {\n';
+code += '        // Log for debugging\n';
+code += '        console.log(\'📨 Client received message:\', event.data?.type);\n';
+code += '        \n';
+code += '        // 1. HANDSHAKE: TCS says "I\'m Ready"\n';
+code += '        if (event.data?.type === \'TCS_READY\') {\n';
+code += '            console.log(\'✅ TCS Ready signal received! Responding...\');\n';
+code += '            \n';
+code += '            // Respond back so TCS knows we are here\n';
+code += '            if (event.source) {\n';
+code += '                event.source.postMessage({\n';
+code += '                    type: \'CLIENT_INFO\',\n';
+code += '                    clientId: window.BotemiaConfig.id,\n';
+code += '                    name: window.BotemiaConfig.name,\n';
+code += '                    url: window.location.href,\n';
+code += '                    timestamp: Date.now(),\n';
+code += '                    status: \'ready\'\n';
+code += '                }, \'*\');\n';
+code += '                \n';
+code += '                console.log(\'📤 Sent CLIENT_INFO to TCS\');\n';
+code += '            }\n';
+code += '        }\n';
+code += '        \n';
+code += '        // 2. COMMANDS: Handle triggers from TCS\n';
+code += '        if (event.data?.type === \'TCS_COMMAND\') {\n';
+code += '            console.log(\'🎯 Command received:\', event.data.command);\n';
+code += '            \n';
+code += '            switch(event.data.command) {\n';
+code += '                case \'START_PRE_QUAL\':\n';
+code += '                    if (window.preQualController) {\n';
+code += '                        window.preQualController.loadAndStartInterview();\n';
+code += '                    }\n';
+code += '                    break;\n';
+code += '                    \n';
+code += '                case \'SHOW_TESTIMONIAL\':\n';
+code += '                    console.log(\'Show testimonial:\', event.data.data);\n';
+code += '                    // Add your testimonial display logic here\n';
+code += '                    break;\n';
+code += '                    \n';
+code += '                case \'SHOW_VIDEO\':\n';
+code += '                    console.log(\'Show video:\', event.data.data);\n';
+code += '                    // Add your video display logic here\n';
+code += '                    break;\n';
+code += '                    \n';
+code += '                case \'SHOW_SMART_SCREEN\':\n';
+code += '                    console.log(\'Show smart screen:\', event.data.data);\n';
+code += '                    // Add your smart screen logic here\n';
+code += '                    break;\n';
+code += '            }\n';
+code += '        }\n';
+code += '        \n';
+code += '        // 3. PING: Health check from TCS\n';
+code += '        if (event.data?.type === \'PING\') {\n';
+code += '            if (event.source) {\n';
+code += '                event.source.postMessage({\n';
+code += '                    type: \'PONG\',\n';
+code += '                    clientId: window.BotemiaConfig.id,\n';
+code += '                    timestamp: Date.now()\n';
+code += '                }, \'*\');\n';
+code += '            }\n';
+code += '        }\n';
+code += '    });\n';
+code += '\n';
+code += '    console.log(\'✅ TCS message listener installed\');\n';
 code += '    window.preQualController = new PreQualificationController();\n';
 code += '\n';
 code += '})();';

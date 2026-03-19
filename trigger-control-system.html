@@ -389,9 +389,12 @@
                 <option value="">-- Select client --</option>
             </select>
         </div>
-        <div style="flex: 1;">
-            <button class="btn btn-primary" onclick="scanForClients()" style="width: 100%;">
+        <div style="flex: 1; display: flex; gap: 10px;">
+            <button class="btn btn-primary" onclick="scanForClients()" style="flex: 1;">
                 <i class="fas fa-sync"></i> Scan
+            </button>
+            <button class="btn btn-primary" onclick="openClientManually()" style="flex: 1; background: linear-gradient(145deg, #00c853, #00a844);">
+                <i class="fas fa-external-link-alt"></i> Open Client
             </button>
         </div>
     </div>
@@ -1449,70 +1452,224 @@ sendToClientWebsite(moduleName, triggerPhrase) {
         }
 
 // ============================================
-// CLIENT CONNECTION MANAGER
+// CLIENT CONNECTION MANAGER - ENHANCED VERSION
 // ============================================
-
 class ClientConnectionManager {
     constructor() {
         this.clientWindows = new Map();
         this.clientInfo = new Map();
         this.setupListener();
         this.scanInterval = null;
+        
+        // NEW: Auto-open client if URL params exist
+        this.autoOpenFromUrl();
     }
 
-    // In the setupListener method, make sure this is working:
-setupListener() {
-    // Listen for direct messages (via opener)
-    window.addEventListener('message', (event) => {
-        console.log('📨 Message received:', event.data);
-        if (event.data.type === 'BRIDGE_ACTIVE') {
-            this.addClient(event.data.clientId, event.source, event.data.url);
+    // NEW METHOD: Auto-detect URL params
+    autoOpenFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientId = urlParams.get('clientId');
+        const websiteUrl = urlParams.get('websiteUrl');
+        
+        if (clientId && websiteUrl) {
+            console.log('🔍 Found client in URL params, auto-opening...');
+            setTimeout(() => {
+                this.openClientWindow(clientId, websiteUrl);
+            }, 1000);
         }
-    });
+    }
 
-    // Listen for broadcast channel
-    const channel = new BroadcastChannel('botemia-discovery');
-    channel.onmessage = (event) => {
-        console.log('📢 Broadcast received:', event.data);
+    // NEW METHOD: Open and track client window
+    openClientWindow(clientId, websiteUrl) {
+        console.log('🚀 Opening client window:', clientId, websiteUrl);
         
-        // If it's a client announcing itself
-        if (event.data.type === 'CLIENT_INFO') {
-            this.addClient(
-                event.data.clientId,
-                null, // Can't store window reference via broadcast
-                event.data.url
-            );
+        // Check if already connected
+        if (this.clientWindows.has(clientId)) {
+            const existingWindow = this.clientWindows.get(clientId);
+            if (existingWindow && !existingWindow.closed) {
+                console.log('ℹ️ Client already connected, focusing existing window');
+                existingWindow.focus();
+                this.showNotification(`ℹ️ Client ${clientId} already connected`);
+                return true;
+            }
         }
         
-        // If it's a simple "BRIDGE_HERE" message, respond asking for info
-        if (event.data === 'BRIDGE_HERE') {
-            // Ask the client to send full info
-            channel.postMessage({ type: 'REQUEST_CLIENT_INFO' });
+        // Clean URL - remove any existing params and add ONLY clientId
+        const baseUrl = websiteUrl.split('?')[0];
+        const cleanClientUrl = `${baseUrl}?clientId=${clientId}`;
+        
+        console.log('📎 Opening clean URL:', cleanClientUrl);
+        
+        // OPEN THE CLIENT WINDOW - this creates the opener relationship!
+        const clientWindow = window.open(cleanClientUrl, 'botemia_client_' + clientId);
+        
+        if (!clientWindow) {
+            console.warn('⚠️ Popup blocked! Please allow popups for this site.');
+            this.showNotification('⚠️ Popup blocked - please allow popups and try again');
+            return false;
         }
-    };
-}
+        
+        console.log('✅ Client window opened successfully');
+        this.showNotification(`✅ Client window opened: ${clientId}`);
+        
+        // Store the window reference
+        this.clientWindows.set(clientId, clientWindow);
+        this.clientInfo.set(clientId, { 
+            url: websiteUrl, 
+            lastSeen: new Date(),
+            status: 'opened',
+            clientId: clientId
+        });
+        
+        // Set up dedicated message handler for THIS client window
+        const messageHandler = (event) => {
+            // Only handle messages from THIS specific window
+            if (event.source === clientWindow) {
+                console.log('📨 Direct message from client:', event.data?.type || event.data);
+                
+                if (event.data?.type === 'CLIENT_INFO' || event.data?.type === 'CLIENT_READY') {
+                    this.handleClientInfo(event.data, clientId);
+                }
+                
+                if (event.data?.type === 'BRIDGE_ACTIVE') {
+                    this.handleClientInfo({
+                        clientId: event.data.clientId,
+                        url: event.data.url,
+                        status: 'active'
+                    }, clientId);
+                }
+            }
+        };
+        
+        window.addEventListener('message', messageHandler);
+        
+        // Send TCS_READY handshake after client loads
+        setTimeout(() => {
+            this.sendToClient(clientId, {
+                type: 'TCS_READY',
+                clientId: clientId,
+                timestamp: Date.now(),
+                message: 'TCS is ready to receive triggers'
+            });
+        }, 3000);
+        
+        this.updateClientList();
+        return true;
+    }
+
+    // NEW METHOD: Send message to specific client
+    sendToClient(clientId, message) {
+        const clientWindow = this.clientWindows.get(clientId);
+        
+        if (!clientWindow || clientWindow.closed) {
+            console.log('❌ Client window not available:', clientId);
+            this.removeClient(clientId);
+            return false;
+        }
+        
+        try {
+            clientWindow.postMessage(message, '*');
+            console.log('📤 Sent to client:', message.type);
+            return true;
+        } catch (e) {
+            console.error('Failed to send message:', e);
+            return false;
+        }
+    }
+
+    // NEW METHOD: Handle client info
+    handleClientInfo(data, clientId) {
+        console.log('✅ Received client info:', data);
+        
+        // Update stored info
+        this.clientInfo.set(clientId, {
+            ...this.clientInfo.get(clientId),
+            ...data,
+            lastSeen: new Date(),
+            status: 'connected'
+        });
+        
+        this.updateClientList();
+        this.showNotification(`✅ Client connected: ${clientId}`);
+        
+        // Update status bar if this is the current client
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('clientId') === clientId) {
+            document.getElementById('clientNameDisplay').innerHTML = 
+                this.clientInfo.get(clientId)?.name || clientId;
+        }
+        
+        // Notify trigger system
+        if (window.triggerSystem) {
+            window.triggerSystem.addToTranscriptFeed(`🎯 Client ready: ${clientId}`);
+        }
+    }
+
+    // UPDATED: Setup listeners with better handling
+    setupListener() {
+        // Listen for direct messages (via opener)
+        window.addEventListener('message', (event) => {
+            // Log all messages for debugging
+            if (event.data?.type) {
+                console.log('📨 Message received:', event.data.type);
+            }
+            
+            // Handle string messages (backward compatibility)
+            if (typeof event.data === 'string' && event.data === 'BRIDGE_HERE') {
+                console.log('🔍 Bridge discovery request');
+                return;
+            }
+            
+            // Handle client announcements
+            if (event.data?.type === 'BRIDGE_ACTIVE') {
+                this.addClient(event.data.clientId, event.source, event.data.url);
+            }
+            
+            if (event.data?.type === 'CLIENT_INFO' || event.data?.type === 'CLIENT_READY') {
+                this.addClient(event.data.clientId, event.source, event.data.url);
+            }
+        });
+
+        // Listen for broadcast channel
+        try {
+            const channel = new BroadcastChannel('botemia-discovery');
+            channel.onmessage = (event) => {
+                console.log('📢 Broadcast received:', event.data?.type || event.data);
+                
+                if (event.data?.type === 'CLIENT_INFO') {
+                    this.addClient(event.data.clientId, null, event.data.url);
+                }
+                
+                if (event.data === 'BRIDGE_HERE') {
+                    channel.postMessage({ type: 'TCS_HERE' });
+                }
+            };
+        } catch (e) {
+            console.warn('BroadcastChannel not supported:', e);
+        }
+    }
 
     addClient(clientId, windowRef, url) {
-    console.log('➕ Adding client:', clientId, url);
-    if (!this.clientWindows.has(clientId)) {
-        this.clientWindows.set(clientId, windowRef);
-        this.clientInfo.set(clientId, { url: url, lastSeen: new Date() });
-        this.updateClientList();
-        // Optional notification
-        const feed = document.getElementById('transcriptFeed');
-        if (feed) {
-            const entry = document.createElement('div');
-            entry.className = 'transcript-entry';
-            entry.innerHTML = `<span class="transcript-time">${new Date().toLocaleTimeString()}</span> <span style="color: #4CAF50;">✅ Client connected: ${clientId}</span>`;
-            feed.appendChild(entry);
+        console.log('➕ Adding client:', clientId, url);
+        if (!this.clientWindows.has(clientId) && windowRef) {
+            this.clientWindows.set(clientId, windowRef);
         }
+        
+        this.clientInfo.set(clientId, { 
+            url: url, 
+            lastSeen: new Date(),
+            ...(windowRef ? { hasWindow: true } : { hasWindow: false })
+        });
+        
+        this.updateClientList();
+        this.showNotification(`✅ Client detected: ${clientId}`);
     }
-}
 
     removeClient(clientId) {
         this.clientWindows.delete(clientId);
         this.clientInfo.delete(clientId);
         this.updateClientList();
+        this.showNotification(`❌ Client disconnected: ${clientId}`);
     }
 
     updateClientList() {
@@ -1521,25 +1678,38 @@ setupListener() {
         
         if (!select) return;
 
-        if (this.clientWindows.size === 0) {
+        if (this.clientInfo.size === 0) {
             select.innerHTML = '<option value="">-- No clients found --</option>';
             status.innerHTML = '⚡ No client connected';
             return;
         }
 
         let options = '<option value="">-- Select client --</option>';
+        let connectedCount = 0;
+        
         this.clientInfo.forEach((info, clientId) => {
-            options += `<option value="${clientId}">${clientId} (${info.url})</option>`;
+            const hasWindow = this.clientWindows.has(clientId) && 
+                             !this.clientWindows.get(clientId)?.closed;
+            if (hasWindow) connectedCount++;
+            
+            const icon = hasWindow ? '✅' : '📡';
+            options += `<option value="${clientId}">${icon} ${clientId} (${info.url || 'unknown'})</option>`;
         });
 
         select.innerHTML = options;
-        status.innerHTML = `✅ Connected to ${this.clientWindows.size} client(s)`;
+        status.innerHTML = `✅ Connected: ${connectedCount} active, ${this.clientInfo.size} total`;
     }
 
     broadcastPresence() {
-        // Ask any open tabs with our bridge to identify themselves
-        const channel = new BroadcastChannel('botemia-discovery');
-        channel.postMessage('BRIDGE_HERE');
+        try {
+            const channel = new BroadcastChannel('botemia-discovery');
+            channel.postMessage({ 
+                type: 'TCS_HERE',
+                timestamp: Date.now()
+            });
+        } catch (e) {
+            // Ignore
+        }
     }
 
     startScanning() {
@@ -1557,19 +1727,12 @@ setupListener() {
         }
 
         const clientId = select.value;
-        const clientWin = this.clientWindows.get(clientId);
-
-        if (clientWin) {
-            clientWin.postMessage({
-                type: 'TCS_COMMAND',
-                command: command,
-                data: data
-            }, '*');
-            return true;
-        } else {
-            this.removeClient(clientId);
-            return false;
-        }
+        return this.sendToClient(clientId, {
+            type: 'TCS_COMMAND',
+            command: command,
+            data: data,
+            timestamp: Date.now()
+        });
     }
 
     showNotification(message) {
@@ -1578,12 +1741,18 @@ setupListener() {
 
         const entry = document.createElement('div');
         entry.className = 'transcript-entry';
+        const time = new Date().toLocaleTimeString();
         entry.innerHTML = `
-            <span class="transcript-time">${new Date().toLocaleTimeString()}</span>
+            <span class="transcript-time">${time}</span>
             <span style="color: #4CAF50;">${message}</span>
         `;
         feed.appendChild(entry);
         feed.scrollTop = feed.scrollHeight;
+        
+        // Keep last 20 messages
+        while (feed.children.length > 20) {
+            feed.removeChild(feed.children[0]);
+        }
     }
 }
 
@@ -1617,6 +1786,58 @@ function triggerPreQual() {
 // ADD TO TRANSCRIPT FEED (helper)
 // ============================================
 
+function addToTranscriptFeed(text) {
+    const feed = document.getElementById('transcriptFeed');
+    if (!feed) return;
+
+    const entry = document.createElement('div');
+    entry.className = 'transcript-entry';
+    const time = new Date().toLocaleTimeString();
+    entry.innerHTML = `
+        <span class="transcript-time">${time}</span>
+        <span style="color: white;">${text}</span>
+    `;
+    feed.appendChild(entry);
+    feed.scrollTop = feed.scrollHeight;
+}
+// ============================================
+// GLOBAL HELPER FUNCTIONS
+// ============================================
+
+// Scan for clients
+function scanForClients() {
+    clientManager.broadcastPresence();
+    addToTranscriptFeed('🔍 Scanning for clients...');
+}
+
+// Manual client opener
+function openClientManually() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let clientId = urlParams.get('clientId');
+    let websiteUrl = urlParams.get('websiteUrl');
+    
+    // If not in URL, prompt user
+    if (!clientId || !websiteUrl) {
+        clientId = prompt("Enter Client ID:", clientId || "mortgage-assist-demo");
+        websiteUrl = prompt("Enter Client Website URL:", websiteUrl || "https://client-tester.netlify.app/mortgage-assist/");
+    }
+    
+    if (clientId && websiteUrl) {
+        clientManager.openClientWindow(clientId, websiteUrl);
+    } else {
+        alert('Client ID and Website URL are required');
+    }
+}
+
+// Trigger pre-qualification on selected client
+function triggerPreQual() {
+    const success = clientManager.sendToSelectedClient('START_PRE_QUAL');
+    if (success) {
+        addToTranscriptFeed('🚀 Triggered pre-qualification interview');
+    }
+}
+
+// Add to transcript feed (global version)
 function addToTranscriptFeed(text) {
     const feed = document.getElementById('transcriptFeed');
     if (!feed) return;
