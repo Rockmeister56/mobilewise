@@ -1468,6 +1468,7 @@ class ClientConnectionManager {
 setupListener() {
     // Listen for direct messages (via opener)
     window.addEventListener('message', (event) => {
+        console.log('📨 Message received:', event.data);
         if (event.data.type === 'BRIDGE_ACTIVE') {
             this.addClient(event.data.clientId, event.source, event.data.url);
         }
@@ -1478,30 +1479,39 @@ setupListener() {
     channel.onmessage = (event) => {
         console.log('📢 Broadcast received:', event.data);
         
-        if (event.data === 'BRIDGE_HERE') {
-            // A client is announcing itself
-            // We need the client to send more info - let's ask for it
-            channel.postMessage('WHO_ARE_YOU');
-        }
-        
+        // If it's a client announcing itself
         if (event.data.type === 'CLIENT_INFO') {
             this.addClient(
-                event.data.clientId, 
+                event.data.clientId,
                 null, // Can't store window reference via broadcast
                 event.data.url
             );
+        }
+        
+        // If it's a simple "BRIDGE_HERE" message, respond asking for info
+        if (event.data === 'BRIDGE_HERE') {
+            // Ask the client to send full info
+            channel.postMessage({ type: 'REQUEST_CLIENT_INFO' });
         }
     };
 }
 
     addClient(clientId, windowRef, url) {
-        if (!this.clientWindows.has(clientId)) {
-            this.clientWindows.set(clientId, windowRef);
-            this.clientInfo.set(clientId, { url: url, lastSeen: new Date() });
-            this.updateClientList();
-            this.showNotification(`✅ Client connected: ${clientId}`);
+    console.log('➕ Adding client:', clientId, url);
+    if (!this.clientWindows.has(clientId)) {
+        this.clientWindows.set(clientId, windowRef);
+        this.clientInfo.set(clientId, { url: url, lastSeen: new Date() });
+        this.updateClientList();
+        // Optional notification
+        const feed = document.getElementById('transcriptFeed');
+        if (feed) {
+            const entry = document.createElement('div');
+            entry.className = 'transcript-entry';
+            entry.innerHTML = `<span class="transcript-time">${new Date().toLocaleTimeString()}</span> <span style="color: #4CAF50;">✅ Client connected: ${clientId}</span>`;
+            feed.appendChild(entry);
         }
     }
+}
 
     removeClient(clientId) {
         this.clientWindows.delete(clientId);
