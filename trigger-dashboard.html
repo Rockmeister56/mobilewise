@@ -1508,7 +1508,7 @@ function loadKnowledgeBaseDropdown() {
 
 <script>
 // ============================================
-// HANDLE HTML SCRIPT UPLOAD (with editable fields)
+// HANDLE HTML SCRIPT UPLOAD (with debugging)
 // ============================================
 
 async function handleScriptUpload(input) {
@@ -1529,14 +1529,17 @@ async function handleScriptUpload(input) {
         
         // Read file content
         const htmlContent = await readFileAsText(file);
+        console.log('✅ File read, length:', htmlContent.length);
         
         // Parse the HTML
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlContent, 'text/html');
+        console.log('✅ HTML parsed');
         
         // Extract all steps
         const steps = [];
         const stepElements = doc.querySelectorAll('.step');
+        console.log('Found step elements:', stepElements.length);
         
         stepElements.forEach((step, index) => {
             const speaker = step.dataset.speaker;
@@ -1544,6 +1547,8 @@ async function handleScriptUpload(input) {
             const field = step.dataset.field;
             const type = step.dataset.type;
             const options = step.dataset.options;
+            
+            console.log(`Step ${index + 1}:`, { speaker, text, field, type });
             
             steps.push({
                 sequence: index + 1,
@@ -1560,33 +1565,43 @@ async function handleScriptUpload(input) {
         const fieldsEl = doc.getElementById('extracted-fields');
         if (fieldsEl) {
             fields = fieldsEl.textContent.trim().split(',').map(f => f.trim());
+            console.log('Extracted fields:', fields);
         }
         
         // ===== POPULATE THE EDITABLE FIELDS =====
         const container = document.getElementById('interviewQuestionsContainer');
+        console.log('Questions container found:', !!container);
+        
         if (container) {
             // Clear existing questions
             container.innerHTML = '';
+            console.log('Container cleared');
+            
+            // Filter for Tess steps with fields
+            const tessSteps = steps.filter(step => step.speaker === 'tess' && step.field);
+            console.log('Tess steps with fields:', tessSteps.length);
             
             // Populate with parsed steps
-            steps.forEach((step, index) => {
-                if (step.speaker === 'tess' && step.field) {
-                    const questionData = {
-                        key: step.field,
-                        text: step.text,
-                        type: step.type || 'text',
-                        required: true
-                    };
-                    
-                    // Add options if they exist
-                    if (step.options) {
-                        questionData.options = step.options;
-                    }
-                    
-                    // Use your existing addInterviewQuestion function
-                    if (typeof addInterviewQuestion === 'function') {
-                        addInterviewQuestion(questionData, index);
-                    }
+            tessSteps.forEach((step, index) => {
+                console.log(`Adding question ${index + 1}:`, step.field);
+                
+                const questionData = {
+                    key: step.field,
+                    text: step.text,
+                    type: step.type || 'text',
+                    required: true
+                };
+                
+                // Add options if they exist
+                if (step.options && step.options.length > 0) {
+                    questionData.options = step.options;
+                }
+                
+                // Use your existing addInterviewQuestion function
+                if (typeof addInterviewQuestion === 'function') {
+                    addInterviewQuestion(questionData, index);
+                } else {
+                    console.error('addInterviewQuestion function not found!');
                 }
             });
         }
