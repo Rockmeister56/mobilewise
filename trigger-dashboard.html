@@ -4120,97 +4120,76 @@ code += '    }\n\n';
         code += '    else { initWidget(); }\n\n';
         
         code += '    console.log(\'✅ Botemia Bridge v5.4 loaded for\', window.BotemiaConfig.name);\n';
+        // ===== PRE-QUALIFICATION CONTROLLER =====
+code += '    // ===== PRE-QUALIFICATION CONTROLLER =====\n';
+code += '    class PreQualificationController {\n';
+code += '        constructor() {\n';
+code += '            this.isActive = false;\n';
+code += '            this.currentStep = 0;\n';
+code += '            this.script = null;\n';
+code += '            this.answers = {};\n';
+code += '            this.setupMessageListener();\n';
+code += '        }\n';
+code += '\n';
+code += '        setupMessageListener() {\n';
+code += '            window.addEventListener(\'message\', (event) => {\n';
+code += '                if (event.data.type === \'START_PRE_QUAL\') {\n';
+code += '                    console.log(\'🎯 Starting pre-qualification interview\');\n';
+code += '                    this.loadAndStartInterview();\n';
+code += '                }\n';
+code += '                if (event.data.type === \'TRIGGER_DETECTED\' && event.data.phrase === \'I want to get pre-qualified\') {\n';
+code += '                    this.loadAndStartInterview();\n';
+code += '                }\n';
+code += '            });\n';
+code += '        }\n';
+code += '\n';
+code += '        async loadAndStartInterview() {\n';
+code += '            try {\n';
+code += '                const response = await fetch(\n';
+code += '                    \'https://fcgbusobfdwnpoqyuzoe.supabase.co/rest/v1/knowledge_base?select=answer_template&category=eq.mortgage\',\n';
+code += '                    {\n';
+code += '                        headers: {\n';
+code += '                            \'apikey\': \'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk\'\n';
+code += '                        }\n';
+code += '                    }\n';
+code += '                );\n';
+code += '                const data = await response.json();\n';
+code += '                if (data && data[0]) {\n';
+code += '                    this.script = data[0].answer_template;\n';
+code += '                    this.startInterview();\n';
+code += '                }\n';
+code += '            } catch (error) {\n';
+code += '                console.error(\'Failed to load script:\', error);\n';
+code += '            }\n';
+code += '        }\n';
+code += '\n';
+code += '        async startInterview() {\n';
+code += '            if (!this.script || !this.script.steps) return;\n';
+code += '            this.isActive = true;\n';
+code += '            this.currentStep = 0;\n';
+code += '            const tessSteps = this.script.steps.filter(step => step.speaker === \'tess\');\n';
+code += '            for (let step of tessSteps) {\n';
+code += '                if (!this.isActive) break;\n';
+code += '                if (window.mainWidget && typeof window.mainWidget.sendMessage === \'function\') {\n';
+code += '                    await window.mainWidget.sendMessage(step.text);\n';
+code += '                }\n';
+code += '                await this.waitForResponse(step);\n';
+code += '            }\n';
+code += '            this.isActive = false;\n';
+code += '        }\n';
+code += '\n';
+code += '        waitForResponse(step) {\n';
+code += '            return new Promise((resolve) => {\n';
+code += '                setTimeout(() => {\n';
+code += '                    console.log(\'Response received for:\', step.field);\n';
+code += '                    resolve();\n';
+code += '                }, 3000);\n';
+code += '            });\n';
+code += '        }\n';
+code += '    }\n';
+code += '\n';
+code += '    window.preQualController = new PreQualificationController();\n';
         code += '})();';
-
-        // ============================================
-// PRE-QUALIFICATION INTERVIEW CONTROLLER
-// ============================================
-
-class PreQualificationController {
-    constructor() {
-        this.isActive = false;
-        this.currentStep = 0;
-        this.script = null;
-        this.answers = {};
-        this.setupMessageListener();
-    }
-
-    setupMessageListener() {
-        window.addEventListener('message', (event) => {
-            // Listen for TCS commands
-            if (event.data.type === 'START_PRE_QUAL') {
-                console.log('🎯 Starting pre-qualification interview');
-                this.loadAndStartInterview();
-            }
-            
-            // Listen for trigger phrases from TCS
-            if (event.data.type === 'TRIGGER_DETECTED' && 
-                event.data.phrase === 'I want to get pre-qualified') {
-                this.loadAndStartInterview();
-            }
-        });
-    }
-
-    async loadAndStartInterview() {
-        try {
-            // Load the knowledge base script from Supabase
-            const response = await fetch(
-                'https://fcgbusobfdwnpoqyuzoe.supabase.co/rest/v1/knowledge_base?select=answer_template&category=eq.mortgage',
-                {
-                    headers: {
-                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
-                    }
-                }
-            );
-            
-            const data = await response.json();
-            if (data && data[0]) {
-                this.script = data[0].answer_template;
-                this.startInterview();
-            }
-        } catch (error) {
-            console.error('Failed to load script:', error);
-        }
-    }
-
-    async startInterview() {
-        if (!this.script || !this.script.steps) return;
-        
-        this.isActive = true;
-        this.currentStep = 0;
-        
-        // Filter for Tess steps
-        const tessSteps = this.script.steps.filter(step => step.speaker === 'tess');
-        
-        for (let step of tessSteps) {
-            if (!this.isActive) break;
-            
-            // Send to LemonSlice widget
-            if (window.mainWidget && typeof window.mainWidget.sendMessage === 'function') {
-                await window.mainWidget.sendMessage(step.text);
-            }
-            
-            // Wait for response (you'll need to implement response handling)
-            await this.waitForResponse(step);
-        }
-        
-        this.isActive = false;
-    }
-
-    waitForResponse(step) {
-        return new Promise((resolve) => {
-            // This would connect to LemonSlice's speech recognition
-            // For now, we'll use a timeout
-            setTimeout(() => {
-                console.log('Response received for:', step.field);
-                resolve();
-            }, 3000);
-        });
-    }
-}
-
-// Initialize when bridge loads
-window.preQualController = new PreQualificationController();
         
         // ===== DOWNLOAD THE FILE =====
         const bridgeBlob = new Blob([code], { type: 'application/javascript' });
