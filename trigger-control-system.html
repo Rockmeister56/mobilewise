@@ -378,6 +378,28 @@
             </div>
         </div>
 
+        <!-- Client Connection Panel -->
+<div style="background: rgba(18, 28, 46, 0.8); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+        <div style="flex: 2;">
+            <label style="color: #f8c400; display: block; margin-bottom: 8px;">
+                <i class="fas fa-globe"></i> Connected Client
+            </label>
+            <select id="clientList" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); color: white; border: 1px solid #f8c400; border-radius: 8px;">
+                <option value="">-- Select client --</option>
+            </select>
+        </div>
+        <div style="flex: 1;">
+            <button class="btn btn-primary" onclick="scanForClients()" style="width: 100%;">
+                <i class="fas fa-sync"></i> Scan
+            </button>
+        </div>
+    </div>
+    <div id="connectionStatus" style="margin-top: 10px; color: #aaa; font-size: 0.9rem;">
+        ⚡ No client connected
+    </div>
+</div>
+
         <button class="btn btn-primary" onclick="window.triggerSystem?.runDiagnosticTest()">
     🔍 Run Diagnostic Test
 </button>
@@ -465,6 +487,10 @@
                 </button>
             </div>
         </div>
+
+        <button class="btn btn-primary" onclick="triggerPreQual()" style="background: linear-gradient(145deg, #00c853, #00a844);">
+    🎯 Test Pre-Qualification
+</button>
 
         <div class="footer">
             <p>🎯 Listening for trigger phrases · Auto-launching modules · Botemia Core v1.0</p>
@@ -1356,6 +1382,17 @@ sendToClientWebsite(moduleName, triggerPhrase) {
             }
         }
 
+        function triggerPreQual() {
+    const clientId = document.getElementById('clientList').value;
+    if (!clientId) {
+        alert('Please select a client first');
+        return;
+    }
+    
+    clientManager.sendToClient(clientId, 'START_PRE_QUAL', {});
+    addToTranscriptFeed('🚀 Triggered pre-qualification interview');
+}
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             window.triggerSystem = new TriggerControlSystem();
@@ -1398,6 +1435,167 @@ sendToClientWebsite(moduleName, triggerPhrase) {
                 alert('System not initialized');
             }
         }
+
+// ============================================
+// CLIENT CONNECTION MANAGER
+// ============================================
+
+class ClientConnectionManager {
+    constructor() {
+        this.clientWindows = new Map();
+        this.clientInfo = new Map();
+        this.setupListener();
+        this.scanInterval = null;
+    }
+
+    setupListener() {
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'BRIDGE_ACTIVE') {
+                this.addClient(event.data.clientId, event.source, event.data.url);
+            }
+        });
+
+        // Listen for broadcast channel
+        const channel = new BroadcastChannel('botemia-discovery');
+        channel.onmessage = (event) => {
+            if (event.data === 'WHO_HAS_BRIDGE') {
+                // This TCS is asking for clients
+                this.broadcastPresence();
+            }
+        };
+    }
+
+    addClient(clientId, windowRef, url) {
+        if (!this.clientWindows.has(clientId)) {
+            this.clientWindows.set(clientId, windowRef);
+            this.clientInfo.set(clientId, { url: url, lastSeen: new Date() });
+            this.updateClientList();
+            this.showNotification(`✅ Client connected: ${clientId}`);
+        }
+    }
+
+    removeClient(clientId) {
+        this.clientWindows.delete(clientId);
+        this.clientInfo.delete(clientId);
+        this.updateClientList();
+    }
+
+    updateClientList() {
+        const select = document.getElementById('clientList');
+        const status = document.getElementById('connectionStatus');
+        
+        if (!select) return;
+
+        if (this.clientWindows.size === 0) {
+            select.innerHTML = '<option value="">-- No clients found --</option>';
+            status.innerHTML = '⚡ No client connected';
+            return;
+        }
+
+        let options = '<option value="">-- Select client --</option>';
+        this.clientInfo.forEach((info, clientId) => {
+            options += `<option value="${clientId}">${clientId} (${info.url})</option>`;
+        });
+
+        select.innerHTML = options;
+        status.innerHTML = `✅ Connected to ${this.clientWindows.size} client(s)`;
+    }
+
+    broadcastPresence() {
+        // Ask any open tabs with our bridge to identify themselves
+        const channel = new BroadcastChannel('botemia-discovery');
+        channel.postMessage('BRIDGE_HERE');
+    }
+
+    startScanning() {
+        if (this.scanInterval) clearInterval(this.scanInterval);
+        this.scanInterval = setInterval(() => {
+            this.broadcastPresence();
+        }, 5000);
+    }
+
+    sendToSelectedClient(command, data = {}) {
+        const select = document.getElementById('clientList');
+        if (!select || !select.value) {
+            alert('Please select a client first');
+            return false;
+        }
+
+        const clientId = select.value;
+        const clientWin = this.clientWindows.get(clientId);
+
+        if (clientWin) {
+            clientWin.postMessage({
+                type: 'TCS_COMMAND',
+                command: command,
+                data: data
+            }, '*');
+            return true;
+        } else {
+            this.removeClient(clientId);
+            return false;
+        }
+    }
+
+    showNotification(message) {
+        const feed = document.getElementById('transcriptFeed');
+        if (!feed) return;
+
+        const entry = document.createElement('div');
+        entry.className = 'transcript-entry';
+        entry.innerHTML = `
+            <span class="transcript-time">${new Date().toLocaleTimeString()}</span>
+            <span style="color: #4CAF50;">${message}</span>
+        `;
+        feed.appendChild(entry);
+        feed.scrollTop = feed.scrollHeight;
+    }
+}
+
+// Initialize client manager
+const clientManager = new ClientConnectionManager();
+
+// Start scanning for clients
+clientManager.startScanning();
+
+// ============================================
+// SCAN FOR CLIENTS FUNCTION
+// ============================================
+
+function scanForClients() {
+    clientManager.broadcastPresence();
+    addToTranscriptFeed('🔍 Scanning for client websites...');
+}
+
+// ============================================
+// TRIGGER PRE-QUALIFICATION
+// ============================================
+
+function triggerPreQual() {
+    const success = clientManager.sendToSelectedClient('START_PRE_QUAL');
+    if (success) {
+        addToTranscriptFeed('🚀 Triggered pre-qualification interview');
+    }
+}
+
+// ============================================
+// ADD TO TRANSCRIPT FEED (helper)
+// ============================================
+
+function addToTranscriptFeed(text) {
+    const feed = document.getElementById('transcriptFeed');
+    if (!feed) return;
+
+    const entry = document.createElement('div');
+    entry.className = 'transcript-entry';
+    const time = new Date().toLocaleTimeString();
+    entry.innerHTML = `
+        <span class="transcript-time">${time}</span>
+        <span style="color: white;">${text}</span>
+    `;
+    feed.appendChild(entry);
+    feed.scrollTop = feed.scrollHeight;
+}
     </script>
 </body>
 </html>
