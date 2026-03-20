@@ -565,6 +565,31 @@
             </div>
         </div>
 
+        <!-- EMAIL CONFIGURATION - Add this to your client settings panel -->
+<div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px;">
+    <h3 style="color: #f8c400; margin-bottom: 15px;">📧 Pre-Qual Email Settings</h3>
+    
+    <div style="display: grid; gap: 15px;">
+        <div>
+            <label style="color: white; display: block; margin-bottom: 5px;">Loan Officer Email *</label>
+            <input type="email" id="loanOfficerEmail" value="loans@assetmortgage.com" 
+                   style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
+        </div>
+        
+        <div>
+            <label style="color: white; display: block; margin-bottom: 5px;">CC Email (optional)</label>
+            <input type="email" id="ccEmail" value="team@mortgageassist.com" 
+                   style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
+        </div>
+        
+        <div>
+            <label style="color: white; display: block; margin-bottom: 5px;">Email Subject</label>
+            <input type="text" id="emailSubject" value="New Pre-Qual Lead: {{firstName}} {{lastName}}" 
+                   style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
+        </div>
+    </div>
+</div>
+
         <!-- Add this after the Client ID field or in the client config bar -->
 <div class="field">
     <label><i class="fas fa-globe"></i> Client Website URL</label>
@@ -4152,13 +4177,16 @@ code += '    }\n\n';
         code += '    else { initWidget(); }\n\n';
         
         code += '    console.log(\'✅ Botemia Bridge v5.4 loaded for\', window.BotemiaConfig.name);\n';
-        // ===== PRE-QUALIFICATION CONTROLLER =====
+       // ===== PRE-QUALIFICATION CONTROLLER =====
 code += '    // ===== PRE-QUALIFICATION CONTROLLER =====\n';
+code += '    // Script will be embedded here during bridge generation\n';
+code += '    const PRE_QUAL_SCRIPT = {}; // This gets filled by dashboard\n\n';
+
 code += '    class PreQualificationController {\n';
 code += '        constructor() {\n';
 code += '            this.isActive = false;\n';
 code += '            this.currentStep = 0;\n';
-code += '            this.script = null;\n';
+code += '            this.script = PRE_QUAL_SCRIPT; // Embedded directly!\n';
 code += '            this.answers = {};\n';
 code += '            this.setupMessageListener();\n';
 code += '        }\n';
@@ -4175,34 +4203,14 @@ code += '                }\n';
 code += '            });\n';
 code += '        }\n';
 code += '\n';
-
 code += '        async loadAndStartInterview() {\n';
-code += '            try {\n';
-code += '                const response = await fetch(\n';
-code += '                    \'https://fcgbusobfdwnpoqyuzoe.supabase.co/rest/v1/knowledge_base?select=answer_template&category=eq.mortgage\',\n';
-code += '                    {\n';
-code += '                        headers: {\n';
-code += '                            \'apikey\': \'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk\'\n';
-code += '                        }\n';
-code += '                    }\n';
-code += '                );\n';
-code += '                const data = await response.json();\n';
-code += '                if (data && data.length > 0) {\n';
-code += '                    const fullScriptEntry = data.find(entry => \n';
-code += '                        typeof entry.answer_template === \'string\' && \n';
-code += '                        entry.answer_template.trim().startsWith(\'{\')\n';
-code += '                    );\n';
-code += '                    if (fullScriptEntry) {\n';
-code += '                        this.script = JSON.parse(fullScriptEntry.answer_template);\n';
-code += '                        console.log(\'✅ Full script loaded with \', this.script.steps?.length, \' steps\');\n';
-code += '                        this.startInterview();\n';
-code += '                    } else {\n';
-code += '                        console.error(\'No full script found\');\n';
-code += '                    }\n';
-code += '                }\n';
-code += '            } catch (error) {\n';
-code += '                console.error(\'Failed to load script:\', error);\n';
-code += '            }\n';
+code += '            console.log(\'🎯 Starting pre-qualification with embedded script\');\n';
+code += '            \n';
+code += '            // Script is already embedded! No fetch needed.\n';
+code += '            this.script = PRE_QUAL_SCRIPT;\n';
+code += '            \n';
+code += '            console.log(`✅ Loaded ${this.script.steps?.length || 0} steps from embedded script`);\n';
+code += '            this.startInterview();\n';
 code += '        }\n';
 code += '\n';
 code += '        async startInterview() {\n';
@@ -4237,6 +4245,9 @@ code += '                \n';
 code += '                await this.waitForResponse(step);\n';
 code += '            }\n';
 code += '            \n';
+code += '            // Send email after interview completes\n';
+code += '            await this.sendEmail();\n';
+code += '            \n';
 code += '            this.isActive = false;\n';
 code += '        }\n';
 code += '\n';
@@ -4244,9 +4255,35 @@ code += '        waitForResponse(step) {\n';
 code += '            return new Promise((resolve) => {\n';
 code += '                setTimeout(() => {\n';
 code += '                    console.log(\'Response received for:\', step.field);\n';
+code += '                    // Store answer (you will need to capture actual response)\n';
+code += '                    if (step.field) {\n';
+code += '                        this.answers[step.field] = "User response"; // Replace with actual capture\n';
+code += '                    }\n';
 code += '                    resolve();\n';
 code += '                }, 3000);\n';
 code += '            });\n';
+code += '        }\n';
+code += '\n';
+code += '        async sendEmail() {\n';
+code += '            console.log("📧 Sending pre-qualification email...");\n';
+code += '            \n';
+code += '            try {\n';
+code += '                // EmailJS integration - replace with your actual credentials\n';
+code += '                await emailjs.send(\n';
+code += '                    "service_id", // Your EmailJS service ID\n';
+code += '                    "template_id", // Your EmailJS template ID\n';
+code += '                    {\n';
+code += '                        to_email: "loans@assetmortgage.com",\n';
+code += '                        cc_email: "team@mortgageassist.com",\n';
+code += '                        subject: `New Pre-Qual Lead: ${this.answers.firstName || "Client"} ${this.answers.lastName || ""}`,\n';
+code += '                        answers_json: JSON.stringify(this.answers, null, 2),\n';
+code += '                        client_name: window.BotemiaConfig?.name || "Mortgage Client"\n';
+code += '                    }\n';
+code += '                );\n';
+code += '                console.log("✅ Email sent successfully");\n';
+code += '            } catch (error) {\n';
+code += '                console.error("❌ Failed to send email:", error);\n';
+code += '            }\n';
 code += '        }\n';
 code += '    }\n';
 code += '\n';
