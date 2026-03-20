@@ -565,20 +565,20 @@
             </div>
         </div>
 
-        <!-- EMAIL CONFIGURATION - Add this to your client settings panel -->
+       <!-- Email Configuration Section -->
 <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px;">
     <h3 style="color: #f8c400; margin-bottom: 15px;">📧 Pre-Qual Email Settings</h3>
     
     <div style="display: grid; gap: 15px;">
         <div>
             <label style="color: white; display: block; margin-bottom: 5px;">Loan Officer Email *</label>
-            <input type="email" id="loanOfficerEmail" value="loans@assetmortgage.com" 
+            <input type="email" id="loanOfficerEmail" value="loans@clientcompany.com" 
                    style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
         </div>
         
         <div>
             <label style="color: white; display: block; margin-bottom: 5px;">CC Email (optional)</label>
-            <input type="email" id="ccEmail" value="team@mortgageassist.com" 
+            <input type="email" id="ccEmail" value="" 
                    style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
         </div>
         
@@ -2398,6 +2398,12 @@ let configManager = {
             environment: document.getElementById('environment').value,
             industry: document.getElementById('industryPreset').value,
             modules: {
+
+                 emailConfig: {
+        loanOfficerEmail: document.getElementById('loanOfficerEmail').value,
+        ccEmail: document.getElementById('ccEmail').value,
+        emailSubject: document.getElementById('emailSubject').value },
+                
                 splashScreen: {
                     enabled: document.getElementById('splashEnabled')?.checked || false,
                     agentId: document.getElementById('splashAgentId')?.value || '',
@@ -3684,6 +3690,13 @@ function exportBridgeOnly() {
             return;
         }
         
+        // ===== GET EMAIL CONFIG FROM CLIENT CONFIG (ADD THIS RIGHT HERE) =====
+        const emailConfig = config.emailConfig || {
+            loanOfficerEmail: 'loans@clientcompany.com',
+            ccEmail: '',
+            emailSubject: 'New Pre-Qual Lead: {{firstName}} {{lastName}}'
+        };
+        
         // Safe Stringify to handle circular references
         const safeStringify = (obj) => {
             const cache = new Set();
@@ -4273,16 +4286,13 @@ code += '                await emailjs.send(\n';
 code += '                    "service_b9bppgb",\n';
 code += '                    "template_uix9cyx", // Template with ALL details\n';
 code += '                    {\n';
-code += '                        to_email: "mobilewise.ai@gmail.com", // YOU\n';
+code += '                        to_email: "' + emailConfig.loanOfficerEmail + '",\n';
+code += '                        cc_email: "' + emailConfig.ccEmail + '",\n';
+code += '                        subject: `' + emailConfig.emailSubject.replace('{{firstName}}', '${this.answers.firstName || "Client"}').replace('{{lastName}}', '${this.answers.lastName || ""}') + '`,\n';
 code += '                        first_name: this.answers.firstName || "",\n';
 code += '                        last_name: this.answers.lastName || "",\n';
 code += '                        email: this.answers.email || "",\n';
 code += '                        phone: this.answers.phone || "",\n';
-code += '                        employment_status: this.answers.employmentStatus || "",\n';
-code += '                        annual_income: this.answers.annualIncome || "",\n';
-code += '                        credit_score: this.answers.creditScore || "",\n';
-code += '                        down_payment: this.answers.downPayment || "",\n';
-code += '                        loan_purpose: this.answers.loanPurpose || "",\n';
 code += '                        full_answers: JSON.stringify(this.answers, null, 2)\n';
 code += '                    }\n';
 code += '                );\n';
