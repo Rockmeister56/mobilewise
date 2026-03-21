@@ -3680,7 +3680,7 @@ Contact: support@botemia.com`;
 
            // ===== EXPORT BRIDGE ONLY (COMPLETE VERSION 5.4 - FIX) =====
 // Includes: Single Widget Fix + Gradients + Branding + Full Styling
-function exportBridgeOnly() {
+async function exportBridgeOnly() {
     console.log('🔧 Exporting bridge only...');
     
     try {
@@ -3690,12 +3690,41 @@ function exportBridgeOnly() {
             return;
         }
         
-        // ===== GET EMAIL CONFIG FROM CLIENT CONFIG (ADD THIS RIGHT HERE) =====
+        // ===== GET EMAIL CONFIG FROM CLIENT CONFIG =====
         const emailConfig = config.emailConfig || {
             loanOfficerEmail: 'loans@clientcompany.com',
             ccEmail: '',
             emailSubject: 'New Pre-Qual Lead: {{firstName}} {{lastName}}'
         };
+        
+        // 🔥 ===== FETCH PRE-QUAL SCRIPT FROM SUPABASE =====
+        let preQualScript = { steps: [] };
+        
+        try {
+            console.log('📡 Fetching pre-qual script from Supabase...');
+            const response = await fetch(
+                'https://fcgbusobfdwnpoqyuzoe.supabase.co/rest/v1/knowledge_base?select=answer_template&category=eq.mortgage&order=created_at.desc&limit=1',
+                {
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
+                    }
+                }
+            );
+            
+            const data = await response.json();
+            
+            if (data && data.length > 0 && data[0].answer_template) {
+                preQualScript = data[0].answer_template;
+                console.log('✅ Fetched pre-qual script with', preQualScript.steps?.length, 'steps');
+            } else {
+                console.warn('⚠️ No pre-qual script found in Supabase, using empty script');
+            }
+        } catch (error) {
+            console.error('Failed to fetch pre-qual script:', error);
+        }
+        
+        // ✅ KEEP THIS LINE - Used for splash screen gradients
+        const splashScreen = config.modules?.splashScreen || {};
         
         // Safe Stringify to handle circular references
         const safeStringify = (obj) => {
@@ -3709,8 +3738,6 @@ function exportBridgeOnly() {
             }, 4);
         };
 
-        const splashScreen = config.modules?.splashScreen || {};
-
         // ===== BUILD THE BRIDGE CODE =====
         let code = '';
         code += '// Botemia Bridge for ' + (config.name || 'Client') + '\n';
@@ -3723,6 +3750,15 @@ function exportBridgeOnly() {
         
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
         code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
+
+        code += '    // ===== EMBEDDED PRE-QUAL SCRIPT =====\n';
+        if (preQualScript.steps && preQualScript.steps.length > 0) {
+        code += '    const PRE_QUAL_SCRIPT = ' + JSON.stringify(preQualScript, null, 4) + ';\n';
+        code += '    console.log(\'✅ PRE_QUAL_SCRIPT embedded with\', PRE_QUAL_SCRIPT.steps?.length, \'steps\');\n\n';
+        } else {
+        code += '    const PRE_QUAL_SCRIPT = { steps: [] };\n';
+        code += '    console.warn(\'⚠️ No PRE_QUAL_SCRIPT found\');\n\n';
+}
         
         // ===== ADD SPLASH SCREEN CSS =====
 code += '    const style = document.createElement(\'style\');\n';
@@ -4228,6 +4264,16 @@ code += '        }\n';
 code += '\n';
 code += '        async startInterview() {\n';
 code += '            if (!this.script || !this.script.steps) return;\n';
+code += '            \n';
+code += '            // 🔥 DISABLE DEFAULT LEMONSLICE RESPONSES DURING PRE-QUAL\n';
+code += '            // This prevents Tess from talking over herself\n';
+code += '            if (window.mainWidget) {\n';
+code += '                window.mainWidget.setAttribute(\'hide-ui\', \'true\');\n';
+code += '                console.log(\'🔇 Disabled default responses during pre-qual\');\n';
+code += '            }\n';
+code += '            // Disable bridge triggers to prevent interruptions\n';
+code += '            window.disableBridgeTriggers = true;\n';
+code += '            \n';
 code += '            this.isActive = true;\n';
 code += '            this.currentStep = 0;\n';
 code += '            const tessSteps = this.script.steps.filter(step => step.speaker === \'tess\');\n';
@@ -4236,6 +4282,9 @@ code += '            // Get the widget\n';
 code += '            const widget = document.querySelector(\'lemon-slice-widget\');\n';
 code += '            if (!widget) {\n';
 code += '                console.error(\'No widget found\');\n';
+code += '                // Re-enable if error\n';
+code += '                window.disableBridgeTriggers = false;\n';
+code += '                if (window.mainWidget) window.mainWidget.setAttribute(\'hide-ui\', \'false\');\n';
 code += '                return;\n';
 code += '            }\n';
 code += '\n';
@@ -4260,6 +4309,13 @@ code += '            }\n';
 code += '            \n';
 code += '            // Send email after interview completes\n';
 code += '            await this.sendEmail();\n';
+code += '            \n';
+code += '            // 🔥 RE-ENABLE DEFAULT RESPONSES AFTER PRE-QUAL COMPLETES\n';
+code += '            if (window.mainWidget) {\n';
+code += '                window.mainWidget.setAttribute(\'hide-ui\', \'false\');\n';
+code += '                console.log(\'🔊 Re-enabled default responses\');\n';
+code += '            }\n';
+code += '            window.disableBridgeTriggers = false;\n';
 code += '            \n';
 code += '            this.isActive = false;\n';
 code += '        }\n';
