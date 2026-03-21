@@ -3861,15 +3861,55 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        return widget;\n';
         code += '    }\n\n';
 
-        code += '    function createMainWidget() {\n';
-        code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-        code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-        code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
-        code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
-        code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
-        code += '        widget.id = \'main-widget\';\n';
-        code += '        widget.style.display = \'none\';\n';
-        code += '        return widget;\n';
+            // ===== FORCE INTRO FUNCTION =====
+    code += '    function forceMortgageIntro(widget) {\n';
+    code += '        const message = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
+    code += '        console.log(\'[Bridge] Forcing Intro:\', message);\n';
+    code += '        try {\n';
+    code += '            if (typeof widget.sendMessage === \'function\') {\n';
+    code += '                widget.sendMessage(message);\n';
+    code += '            }\n';
+    code += '        } catch (e) {\n';
+    code += '            console.error(\'[Bridge] Intro error:\', e);\n';
+    code += '        }\n';
+    code += '    }\n\n';
+
+            // ===== WIDGET CREATION =====
+    code += '    function createMainWidget() {\n';
+    code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
+    code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
+    code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
+    code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
+    code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
+    code += '        widget.id = \'main-widget\';\n';
+    code += '        widget.style.display = \'none\';\n';
+    
+    // 🔥 THIS IS THE TRICK - Listen for 'ready' and fire the intro
+    code += '        widget.addEventListener(\'ready\', () => {\n';
+    code += '            console.log(\'[Bridge] Widget Ready. Initializing Intro...\');\n';
+    code += '            forceMortgageIntro(widget);\n';
+    code += '        });\n';
+    
+    code += '        return widget;\n';
+    code += '    }\n\n';
+
+                code += '    function forceMortgageIntro(widget) {\n';
+        code += '        // The exact intro you want her to say\n';
+        code += '        const introMessage = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
+        code += '        \n';
+        code += '        // Wait a split second for the widget to fully initialize\n';
+        code += '        setTimeout(() => {\n';
+        code += '            try {\n';
+        code += '                if (typeof widget.sendMessage === \'function\') {\n';
+        code += '                    console.log("🗣️ Sending intro message to widget...");\n';
+        code += '                    widget.sendMessage(introMessage);\n';
+        code += '                } else {\n';
+        code += '                    console.warn("Widget does not support sendMessage yet.");\n';
+        code += '                }\n';
+        code += '            } catch (e) {\n';
+        code += '                console.error("Error forcing intro:", e);\n';
+        code += '            }\n';
+        code += '        }, 500);\n'; // 500ms delay
         code += '    }\n\n';
 
         // Show Splash Function
