@@ -3701,27 +3701,33 @@ async function exportBridgeOnly() {
         let preQualScript = { steps: [] };
         
         try {
-            console.log('📡 Fetching pre-qual script from Supabase...');
-            const response = await fetch(
-                'https://fcgbusobfdwnpoqyuzoe.supabase.co/rest/v1/knowledge_base?select=answer_template&category=eq.mortgage&order=created_at.desc&limit=1',
-                {
-                    headers: {
-                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
-                    }
-                }
-            );
-            
-            const data = await response.json();
-            
-            if (data && data.length > 0 && data[0].answer_template) {
-                preQualScript = data[0].answer_template;
-                console.log('✅ Fetched pre-qual script with', preQualScript.steps?.length, 'steps');
-            } else {
-                console.warn('⚠️ No pre-qual script found in Supabase, using empty script');
+    console.log('📡 Fetching pre-qual script from Supabase...');
+    const response = await fetch(
+        'https://fcgbusobfdwnpoqyuzoe.supabase.co/rest/v1/knowledge_base?select=answer_template&category=eq.mortgage&order=created_at.desc&limit=1',
+        {
+            headers: {
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
             }
-        } catch (error) {
-            console.error('Failed to fetch pre-qual script:', error);
         }
+    );
+    
+    const data = await response.json();
+    
+    if (data && data.length > 0 && data[0].answer_template) {
+        try {
+            // 🔥 FIX: Parse the JSON string into an object
+            preQualScript = JSON.parse(data[0].answer_template);
+            console.log('✅ Fetched and parsed pre-qual script with', preQualScript.steps?.length, 'steps');
+        } catch (parseError) {
+            console.error('❌ Failed to parse script:', parseError);
+            preQualScript = { steps: [] };
+        }
+    } else {
+        console.warn('⚠️ No pre-qual script found in Supabase, using empty script');
+    }
+} catch (error) {
+    console.error('Failed to fetch pre-qual script:', error);
+}
         
         // ✅ KEEP THIS LINE - Used for splash screen gradients
         const splashScreen = config.modules?.splashScreen || {};
