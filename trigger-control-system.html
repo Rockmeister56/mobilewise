@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Botemia · Trigger Control System</title>
+    <title>Tess · Trigger Control System</title>
     <style>
         * {
             margin: 0;
@@ -360,7 +360,7 @@
                 <h1>Trigger Control System</h1>
             </div>
             <div class="badge">
-                <span>⚡ BOTEMIA CORE</span>
+                <span>⚡ Tess CORE</span>
                 <span style="margin-left: 8px;">v1.0</span>
             </div>
         </div>
@@ -421,7 +421,7 @@
                 
                 <div class="transcript-feed" id="transcriptFeed">
                     <div style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">
-                        🎤 Listening for Bohemia...
+                        🎤 Listening for Tess...
                     </div>
                 </div>
 
@@ -477,7 +477,7 @@
                     🎤 Reconnect Mic
                 </button>
                 <button class="btn" onclick="window.triggerSystem?.loadLemonSlice()">
-                    🔄 Load Bohemia
+                    🔄 Load Tess
                 </button>
                 <button class="btn btn-primary" onclick="window.triggerSystem?.runFullTest()">
                     🧪 TEST SYSTEM (Complete)
@@ -496,7 +496,7 @@
 </button>
 
         <div class="footer">
-            <p>🎯 Listening for trigger phrases · Auto-launching modules · Botemia Core v1.0</p>
+            <p>🎯 Listening for trigger phrases · Auto-launching modules · Tess Core v1.0</p>
         </div>
     </div>
 
@@ -590,7 +590,7 @@ if (clientWebsiteUrl) {
     
 });
     
-    this.updateStatus('Ready · Waiting for Bohemia', 'ready');
+    this.updateStatus('Ready · Waiting for Tess', 'ready');
 }
 
             loadLemonSlice() {
@@ -601,7 +601,7 @@ if (clientWebsiteUrl) {
 
                 // Check if already loaded
                 if (document.querySelector('lemon-slice-widget')) {
-                    this.addToTranscriptFeed('✅ Bohemia already loaded');
+                    this.addToTranscriptFeed('✅ Tess already loaded');
                     return;
                 }
 
@@ -616,8 +616,8 @@ if (clientWebsiteUrl) {
                     widget.setAttribute('agent-id', this.config.agentId);
                     document.body.appendChild(widget);
                     
-                    this.addToTranscriptFeed('✅ Bohemia widget connected');
-                    this.updateStatus('Bohemia ready', 'ready');
+                    this.addToTranscriptFeed('✅ Tess widget connected');
+                    this.updateStatus('Tess Ready', 'ready');
                     
                     // Start monitoring for audio
                     this.monitorBotiniaAudio();
@@ -625,7 +625,7 @@ if (clientWebsiteUrl) {
                 
                 moduleScript.onerror = (err) => {
                     console.error('LemonSlice load error:', err);
-                    this.addToTranscriptFeed('❌ Failed to load Bohemia widget');
+                    this.addToTranscriptFeed('❌ Failed to load Tess widget');
                     this.updateStatus('Load failed', 'error');
                 };
                 
@@ -760,7 +760,7 @@ if (clientWebsiteUrl) {
                 // Start the process
                 setupAudioListeners();
             }
-            // ===== MONITOR TESS'S MESSAGES =====
+            // ===== MONITOR Tess'S MESSAGES =====
 monitorTessMessages() {
     console.log('🎤 Setting up Tess message monitor...');
     this.addToTranscriptFeed('🎤 Monitoring Tess for trigger phrases...');
@@ -808,7 +808,7 @@ monitorTessMessages() {
         if (currentMessage) {
             const message = currentMessage.toLowerCase();
             
-            // 🔥 CHECK FOR TESS'S PROACTIVE TRIGGER PHRASES
+            // 🔥 CHECK FOR Tess'S PROACTIVE TRIGGER PHRASES
             const triggerPhrases = [
                 "let's get you pre-qualified",
                 "let's get you pre qualified", 
@@ -880,7 +880,7 @@ monitorTessMessages() {
                 console.log('1. Widget found:', widget ? '✅' : '❌');
                 
                 if (!widget) {
-                    this.addToTranscriptFeed('❌ Widget not found - click "Load Bohemia"');
+                    this.addToTranscriptFeed('❌ Widget not found - click "Load Tess"');
                     return;
                 }
                 
@@ -1429,7 +1429,7 @@ sendToClientWidget(moduleName, triggerPhrase) {
             }
 
             reloadLemonSlice() {
-                this.addToTranscriptFeed('🔄 Reloading Bohemia...');
+                this.addToTranscriptFeed('🔄 Reloading Tess...');
                 location.reload();
             }
 
