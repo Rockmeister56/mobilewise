@@ -4108,29 +4108,24 @@ code += '    });\n';
     code += '        return widget;\n';
     code += '    }\n\n';
 
-            // ===== FORCE INTRO FUNCTION (AUDIT-STYLE) =====
-    code += '    function forceMortgageIntro(widget) {\n';
-    code += '        console.log(\'[Bridge] Forcing Intro (Audit Style)...\');\n';
-    code += '        \n';
-    code += '        // 1. Ensure widget is active and unmuted\n';
-    code += '        widget.setAttribute(\'controlled-widget-state\', \'active\');\n';
-    code += '        try { widget.micOn?.(); widget.unmute?.(); } catch(e) {}\n';
-    code += '        \n';
-    code += '        // 2. Construct the message\n';
-    code += '        const message = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
-    code += '        \n';
-    code += '        // 3. Send to widget (Delay ensures stability)\n';
-    code += '        setTimeout(() => {\n';
-    code += '            try {\n';
-    code += '                if (typeof widget.sendMessage === \'function\') {\n';
-    code += '                    console.log(\'🗣️ Speaking intro...\');\n';
-    code += '                    widget.sendMessage(message);\n';
-    code += '                }\n';
-    code += '            } catch (e) {\n';
-    code += '                console.error(\'[Bridge] Intro error:\', e);\n';
-    code += '            }\n';
-    code += '        }, 1500);\n';
-    code += '    }\n\n';
+        code += '    function forceMortgageIntro(widget) {\n';
+        code += '        // The exact intro you want her to say\n';
+        code += '        const introMessage = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
+        code += '        \n';
+        code += '        // Wait a split second for the widget to fully initialize\n';
+        code += '        setTimeout(() => {\n';
+        code += '            try {\n';
+        code += '                if (typeof widget.sendMessage === \'function\') {\n';
+        code += '                    console.log("🗣️ Sending intro message to widget...");\n';
+        code += '                    widget.sendMessage(introMessage);\n';
+        code += '                } else {\n';
+        code += '                    console.warn("Widget does not support sendMessage yet.");\n';
+        code += '                }\n';
+        code += '            } catch (e) {\n';
+        code += '                console.error("Error forcing intro:", e);\n';
+        code += '            }\n';
+        code += '        }, 500);\n'; // 500ms delay
+        code += '    }\n\n';
 
         // Show Splash Function
         code += '    function showSplash() {\n';
@@ -4663,74 +4658,4 @@ setTimeout(() => {
         apiCard.appendChild(btn);
     }
 });
-// ===== DUPLICATE FINDER TEST =====
-function runDuplicateCheck() {
-    console.log('%c--- DUPLICATE FUNCTION CHECK ---', 'color: #f8c400; font-weight: bold; font-size: 14px;');
-    
-    // 1. We need to capture the generated code.
-    // We will temporarily hijack the export function to run the test.
-    const originalExport = window.exportBridgeOnly;
-    
-    window.exportBridgeOnly = async function() {
-        console.log('%c[TEST] Generating bridge code to scan...', 'color: #00c853');
-        
-        // We need to get the 'code' variable.
-        // Since 'code' is local to the function, we can't see it directly.
-        // Instead, we'll scan the generator code itself for the duplicate patterns.
-        
-        const generatorScript = document.currentScript ? document.currentScript.textContent : '';
-        
-        if (!generatorScript) {
-            console.warn('Could not read generator script for scan.');
-            originalExport(); // Fallback to normal export
-            return;
-        }
-
-        // --- TEST 1: Check for Duplicate Function Definitions ---
-        // This regex finds lines like: code += '    function myFunction() {
-        const funcDefRegex = /code \+= ' *function +(\w+)\s*\(/g;
-        const foundFunctions = {};
-        let match;
-
-        while ((match = funcDefRegex.exec(generatorScript)) !== null) {
-            const funcName = match[1];
-            if (foundFunctions[funcName]) {
-                console.error(`❌ DUPLICATE FUNCTION DETECTED: "${funcName}" is defined ${foundFunctions[funcName] + 1} times!`);
-                console.warn(`%cSearch your code for: function ${funcName}`, 'color: #f44336; font-weight: bold;');
-                foundFunctions[funcName]++;
-            } else {
-                foundFunctions[funcName] = 1;
-            }
-        }
-
-        // --- TEST 2: Check for Duplicate Event Listeners ---
-        // Checks for 'ready' listeners in createMainWidget
-        const readyListenerCount = (generatorScript.match(/widget\.addEventListener\('ready'/g) || []).length;
-        
-        if (readyListenerCount > 1) {
-            console.error(`❌ DUPLICATE LISTENER: You have ${readyListenerCount} 'ready' listeners in createMainWidget. Merge them!`);
-        } else {
-            console.log('✅ LISTENER CHECK: Single ready listener found.');
-        }
-
-        console.log('%c--- END CHECK ---', 'color: #f8c400; font-weight: bold;');
-        
-        // Restore original function and proceed
-        window.exportBridgeOnly = originalExport;
-        
-        // Ask user if they want to proceed
-        if (Object.values(foundFunctions).some(v => v > 1) || readyListenerCount > 1) {
-            const proceed = confirm('⚠️ DUPLICATES FOUND!\n\nCheck the console (F12) for details.\n\nDo you want to export anyway?');
-            if (!proceed) return;
-        }
-        
-        // Run the actual export
-        originalExport();
-    };
-    
-    alert('✅ Duplicate Test Installed!\n\nNow click the "Export Bridge Only" button to run the test.');
-}
-
-// RUN IT AUTOMATICALLY ON LOAD
-setTimeout(runDuplicateCheck, 2000);
     </script>
