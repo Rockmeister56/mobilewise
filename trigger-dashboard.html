@@ -3955,9 +3955,15 @@ code += '            this.speak(firstMessage);\n';
 code += '        }\n';
 code += '\n';
 code += '        handleUserInput(userText) {\n';
+// 🔥 SAFETY 1: Ignore input if interview isn't running
 code += '            if (!this.isActive) return;\n';
-// 🔥 SAFETY CHECK: Prevents crash if script is missing
+// 🔥 SAFETY 2: Ignore input if script isn't ready
 code += '            if (!this.script) { console.warn("⚠️ Script not ready."); return; }\n';
+// 🔥 SAFETY 3: IGNORE TESS'S OWN SPEECH (The Fix!)
+code += '            if (userText.includes("I\'m Tess") || userText.includes("pre-qualified")) {\n';
+code += '                console.log("🛑 Ignoring self-speech.");\n';
+code += '                return;\n';
+code += '            }\n';
 code += '            console.log(`👤 User said: ${userText}`);\n';
 code += '            const nextResponse = this.script.processResponse(userText);\n';
 code += '            if (nextResponse) { this.speak(nextResponse); }\n';
@@ -3968,7 +3974,6 @@ code += '                this.sendEmail();\n';
 code += '                this.isActive = false;\n';
 code += '            }\n';
 code += '        }\n';
-code += '\n';
 code += '        speak(text) {\n';
 code += '            console.log(`🤖 Tess says: ${text}`);\n';
 code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
