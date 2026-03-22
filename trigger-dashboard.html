@@ -4480,7 +4480,7 @@ code += '            window.disableBridgeTriggers = false;\n';
 code += '        }\n';
 code += '\n';
     // ===== GLOBAL TRIGGER LISTENER =====
-    code += '    function setupTriggerListener(widget) {\n';
+    code += '        function setupTriggerListener(widget) {\n';
     code += '        console.log(\'👂 Setting up external trigger listener...\');\n';
     code += '\n';
     code += '        // Method 1: Listen for the widget\'s \'response\' event\n';
@@ -4525,13 +4525,8 @@ code += '\n';
     code += '            window.preQualController.startInterview();\n';
     code += '        }\n';
     code += '    }\n';
-code += '        // Keep your existing email function (PRESERVED)\n';
-code += '        async sendEmail() {\n';
-code += '            console.log(\'📧 Sending email with data:\', this.answers);\n';
-code += '            // ... (Your existing sendEmail logic stays here) ...\n';
-code += '        }\n';
-code += '    }\n';
-code += '            async sendEmail() {\n';
+
+    code += '            async sendEmail() {\n';
 code += '            console.log("📧 Sending pre-qualification emails...");\n';
 code += '            \n';
 code += '            try {\n';
