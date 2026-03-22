@@ -4053,7 +4053,7 @@ code += '        }));\n';
 code += '        \n';
 code += '        // Direct call (most reliable)\n';
 code += '        if (window.preQualController) {\n';
-code += '            window.preQualController.startInterview();\n';
+code += '            window.preQualController.startInterview(); // ✅ FIXED: Changed from loadAndStartInterview\n';
 code += '        }\n';
 code += '    }\n\n';
 
@@ -4102,27 +4102,26 @@ code += '    });\n';
     code += '        return widget;\n';
     code += '    }\n\n';
 
-            // ===== FORCE INTRO FUNCTION (AUDIT-STYLE) =====
+               // ===== FORCE INTRO FUNCTION (SAFE VERSION) =====
     code += '    function forceMortgageIntro(widget) {\n';
-    code += '        console.log(\'[Bridge] Forcing Intro (Audit Style)...\');\n';
+    code += '        // SAFETY: Don\'t intro if we are already in an interview\n';
+    code += '        if (window.preQualController && window.preQualController.isActive) {\n';
+    code += '            console.log(\'[Bridge] Skipping intro - Interview already active.\');\n';
+    code += '            return;\n';
+    code += '        }\n';
     code += '        \n';
-    code += '        // 1. Ensure widget is active and unmuted\n';
+    code += '        console.log(\'[Bridge] Forcing Intro...\');\n';
     code += '        widget.setAttribute(\'controlled-widget-state\', \'active\');\n';
     code += '        try { widget.micOn?.(); widget.unmute?.(); } catch(e) {}\n';
     code += '        \n';
-    code += '        // 2. Construct the message\n';
-    code += '        const message = "Hi! I am Tess, your personal AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
+    code += '        const message = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
     code += '        \n';
-    code += '        // 3. Send to widget (Delay ensures stability)\n';
     code += '        setTimeout(() => {\n';
     code += '            try {\n';
     code += '                if (typeof widget.sendMessage === \'function\') {\n';
-    code += '                    console.log(\'🗣️ Speaking intro...\');\n';
     code += '                    widget.sendMessage(message);\n';
     code += '                }\n';
-    code += '            } catch (e) {\n';
-    code += '                console.error(\'[Bridge] Intro error:\', e);\n';
-    code += '            }\n';
+    code += '            } catch (e) { console.error(\'[Bridge] Intro error:\', e); }\n';
     code += '        }, 1500);\n';
     code += '    }\n\n';
 
