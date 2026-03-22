@@ -3756,15 +3756,6 @@ async function exportBridgeOnly() {
         
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
         code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
-
-        code += '    // ===== EMBEDDED PRE-QUAL SCRIPT =====\n';
-        if (preQualScript.steps && preQualScript.steps.length > 0) {
-        code += '    const PRE_QUAL_SCRIPT = ' + JSON.stringify(preQualScript, null, 4) + ';\n';
-        code += '    console.log(\'✅ PRE_QUAL_SCRIPT embedded with\', PRE_QUAL_SCRIPT.steps?.length, \'steps\');\n\n';
-        } else {
-        code += '    const PRE_QUAL_SCRIPT = { steps: [] };\n';
-        code += '    console.warn(\'⚠️ No PRE_QUAL_SCRIPT found\');\n\n';
-}
         
         // ===== ADD SPLASH SCREEN CSS =====
 code += '    const style = document.createElement(\'style\');\n';
@@ -4053,6 +4044,18 @@ code += '    }\n\n';
 // 4. INITIALIZE CONTROLLER (ONLY ONCE)
 code += '    // ===== INITIALIZE THE CONTROLLER =====\n';
 code += '    window.preQualController = new PreQualificationController();\n\n';
+
+// 5. ADD THE "EARS" (USER INPUT LISTENER) - CRITICAL FIX
+code += '    // Listen for User Speech to feed the Controller\n';
+code += '    window.addEventListener("message", (event) => {\n';
+code += '        if (event.data && event.data.type === "transcript" && window.preQualController.isActive) {\n';
+code += '            window.preQualController.handleUserInput(event.data.text);\n';
+code += '        }\n';
+code += '        // Fallback for other LemonSlice event structures\n';
+code += '        if (event.data && event.data.role === "user" && window.preQualController.isActive) {\n';
+code += '             window.preQualController.handleUserInput(event.data.content);\n';
+code += '        }\n';
+code += '    });\n\n';
 
 // 5. TRIGGER LISTENER
 code += '    // Listen for START_PRE_QUAL trigger\n';
@@ -4659,8 +4662,6 @@ code += '        }\n';
 code += '    });\n';
 code += '\n';
 code += '    console.log(\'✅ TCS message listener installed\');\n';
-code += '    window.preQualController = new PreQualificationController();\n';
-code += '\n';
 code += '})();';
         
         // ===== DOWNLOAD THE FILE =====
