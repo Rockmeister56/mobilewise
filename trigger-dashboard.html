@@ -3956,6 +3956,8 @@ code += '        }\n';
 code += '\n';
 code += '        handleUserInput(userText) {\n';
 code += '            if (!this.isActive) return;\n';
+// 🔥 SAFETY CHECK: Prevents crash if script is missing
+code += '            if (!this.script) { console.warn("⚠️ Script not ready."); return; }\n';
 code += '            console.log(`👤 User said: ${userText}`);\n';
 code += '            const nextResponse = this.script.processResponse(userText);\n';
 code += '            if (nextResponse) { this.speak(nextResponse); }\n';
