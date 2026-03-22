@@ -552,10 +552,10 @@ if (clientWebsiteUrl) {
     // 3. Load LemonSlice widget
     this.loadLemonSlice();
 
-    // 🔥 ADD THIS LINE - Start monitoring Tess's messages
-    setTimeout(() => {
-        this.monitorTessMessages();
-    }, 3000); // Wait 3 seconds for widget to fully load
+   // 🔥 DISABLE THIS - BRIDGE HANDLES TRIGGERS NOW
+// setTimeout(() => {
+//     this.monitorTessMessages();
+// }, 3000);
     
     // 4. Render UI
     this.renderModules();
@@ -769,46 +769,13 @@ monitorTessMessages() {
         const widget = document.querySelector('lemon-slice-widget');
         if (!widget) return;
         
-        // Try multiple ways to get the current message
-        let currentMessage = null;
-        
-        // Method 1: Check shadow DOM for message elements
-        if (widget.shadowRoot) {
-            // Look for common message container classes
-            const possibleSelectors = [
-                '.message-text', 
-                '.Message-text',
-                '[class*="message"]',
-                '[class*="Message"]',
-                '.agent-message',
-                '.bot-message'
-            ];
-            
-            for (const selector of possibleSelectors) {
-                const elements = widget.shadowRoot.querySelectorAll(selector);
-                if (elements.length > 0) {
-                    // Get the most recent message
-                    currentMessage = elements[elements.length - 1]?.textContent;
-                    if (currentMessage) break;
-                }
-            }
-        }
-        
-        // Method 2: Check if widget has any exposed message properties
-        if (!currentMessage) {
-            const possibleProps = ['currentMessage', 'lastMessage', 'latestMessage', 'message'];
-            for (const prop of possibleProps) {
-                if (widget[prop]) {
-                    currentMessage = widget[prop];
-                    break;
-                }
-            }
-        }
-        
+        // ... (code to get message) ...
+
         if (currentMessage) {
             const message = currentMessage.toLowerCase();
             
-            // 🔥 CHECK FOR Tess'S PROACTIVE TRIGGER PHRASES
+            // 🔥 DISABLE THIS BLOCK - LET BRIDGE HANDLE IT
+            /*
             const triggerPhrases = [
                 "let's get you pre-qualified",
                 "let's get you pre qualified", 
@@ -833,8 +800,9 @@ monitorTessMessages() {
                     break;
                 }
             }
+            */
         }
-    }, 1000); // Check every second
+    }, 1000);
 }
 
             // New helper methods
