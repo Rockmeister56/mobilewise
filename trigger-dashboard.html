@@ -3904,63 +3904,70 @@ code += '            getResults: function() { return this.responses; }\n';
 code += '        };\n';
 code += '    }\n\n';
 
-    // ===== PRE-QUALIFICATION CONTROLLER (CLEAN SLATE) =====
-    code += '    class PreQualificationController {\n';
-    code += '        constructor() {\n';
-    code += '            this.isActive = false;\n';
-    code += '            this.script = null;\n';
-    code += '            this.answers = {};\n';
-    code += '            // Do NOT turn on ears here. Controller starts deaf.\n';
-    code += '        }\n';
-    code += '\n';
-    
-    // THE START BUTTON
-    code += '        startInterview() {\n';
-    code += '            if (this.isActive) return; // Safety stop\n';
-    code += '            console.log("🎯 Starting pre-qualification interview");\n';
-    code += '            this.script = createSmartPreQualScript();\n';
-    code += '            this.isActive = true;\n';
-    code += '            const firstMessage = this.script.start();\n';
-    code += '            this.speak(firstMessage);\n';
-    code += '        }\n';
-    code += '\n';
-
-    // THE INPUT HANDLER (Controlled by Bridge, not internal listener)
-    code += '        handleUserInput(userText) {\n';
-    code += '            if (!this.isActive) return;\n';
-    code += '            if (!this.script) return;\n';
-    code += '            \n';
-    code += '            // Ignore her own voice\n';
-    code += '            if (userText.includes("I\'m Tess") || userText.includes("pre-qualified")) {\n';
-    code += '                console.log("🛑 Ignoring self-speech.");\n';
-    code += '                return;\n';
-    code += '            }\n';
-    code += '            \n';
-    code += '            console.log(`👤 User said: ${userText}`);\n';
-    code += '            const nextResponse = this.script.processResponse(userText);\n';
-    code += '            if (nextResponse) { this.speak(nextResponse); }\n';
-    code += '            if (!this.script.active) {\n';
-    code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
-    code += '                this.answers = this.script.getResults();\n';
-    code += '                this.sendEmail();\n';
-    code += '                this.isActive = false;\n';
-    code += '            }\n';
-    code += '        }\n';
-    code += '\n';
-
-    // THE SPEAK FUNCTION
-    code += '        speak(text) {\n';
-    code += '            console.log(`🤖 Tess says: ${text}`);\n';
-    code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
-    code += '                window.mainWidget.sendMessage(text);\n';
-    code += '            }\n';
-    code += '        }\n';
-    code += '\n';
-    
-    // THE EMAIL FUNCTION (Keep your existing sendEmail function here)
-    // ... (Your sendEmail code) ...
-    
-    code += '    }\n\n';
+// ===== PRE-QUALIFICATION CONTROLLER (THE FINAL VERSION) =====
+code += '    class PreQualificationController {\n';
+code += '        constructor() {\n';
+code += '            this.isActive = false;\n';
+code += '            this.script = null;\n';
+code += '            this.answers = {};\n';
+code += '            this.setupMessageListener(); // Turn on the Ears\n';
+code += '        }\n';
+code += '\n';
+code += '        // THE EARS: Listen for User Speech\n';
+code += '        setupMessageListener() {\n';
+code += '            window.addEventListener(\'message\', (event) => {\n';
+code += '                // Listen for the start signal\n';
+code += '                if (event.data.type === \'START_PRE_QUAL\') {\n';
+code += '                    console.log(\'🎯 Trigger received. Starting interview.\');\n';
+code += '                    this.startInterview();\n';
+code += '                }\n';
+code += '                \n';
+code += '                // Listen for User Speech to process answers\n';
+code += '                if (event.data.type === \'transcript\' && this.isActive) {\n';
+code += '                     this.handleUserInput(event.data.text);\n';
+code += '                }\n';
+code += '                // Fallback for other LemonSlice event names\n';
+code += '                if (event.data.role === \'user\' && this.isActive) {\n';
+code += '                     this.handleUserInput(event.data.content);\n';
+code += '                }\n';
+code += '            });\n';
+code += '        }\n';
+code += '\n';
+code += '        startInterview() {\n';
+code += '            console.log("🎯 Starting pre-qualification interview");\n';
+code += '            this.script = createSmartPreQualScript(); // Load SMART script\n';
+code += '            this.isActive = true;\n';
+code += '            const firstMessage = this.script.start();\n';
+code += '            this.speak(firstMessage);\n';
+code += '        }\n';
+code += '\n';
+code += '        handleUserInput(userText) {\n';
+// 🔥 SAFETY 1: Ignore input if interview isn't running
+code += '            if (!this.isActive) return;\n';
+// 🔥 SAFETY 2: Ignore input if script isn't ready
+code += '            if (!this.script) { console.warn("⚠️ Script not ready."); return; }\n';
+// 🔥 SAFETY 3: IGNORE TESS'S OWN SPEECH (The Fix!)
+code += '            if (userText.includes("I\'m Tess") || userText.includes("pre-qualified")) {\n';
+code += '                console.log("🛑 Ignoring self-speech.");\n';
+code += '                return;\n';
+code += '            }\n';
+code += '            console.log(`👤 User said: ${userText}`);\n';
+code += '            const nextResponse = this.script.processResponse(userText);\n';
+code += '            if (nextResponse) { this.speak(nextResponse); }\n';
+code += '            if (!this.script.active) {\n';
+code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
+code += '                this.answers = this.script.getResults();\n';
+code += '                this.sendEmail();\n';
+code += '                this.isActive = false;\n';
+code += '            }\n';
+code += '        }\n';
+code += '        speak(text) {\n';
+code += '            console.log(`🤖 Tess says: ${text}`);\n';
+code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
+code += '                window.mainWidget.sendMessage(text);\n';
+code += '            }\n';
+code += '        }\n';
+code += '\n';
 // (Your sendEmail method will go right after this, preserving it)
 code += '        async sendEmail() {\n';
 code += '            console.log("📧 Sending pre-qualification emails...");\n';
