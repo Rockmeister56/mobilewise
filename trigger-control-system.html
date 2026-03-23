@@ -529,7 +529,7 @@ if (clientWebsiteUrl) {
                 this.recognition = null;
                 this.transcriptHistory = [];
                 this.activeTriggers = [];
-                this.listeningToBotinia = false;
+                this.listeningToTess = false;
                 this.playerLaunched = false;
                 this.lastTriggerTime = null;
                 this.modules = [
@@ -620,7 +620,7 @@ if (clientWebsiteUrl) {
                     this.updateStatus('Tess Ready', 'ready');
                     
                     // Start monitoring for audio
-                    this.monitorBotiniaAudio();
+                    this.monitorTessAudio();
                 };
                 
                 moduleScript.onerror = (err) => {
@@ -676,7 +676,7 @@ if (clientWebsiteUrl) {
                 
                 const checkForAnyAudio = () => {
                     // Skip if already listening to prevent loops
-                    if (this.listeningToBotinia) {
+                    if (this.listeningToTess) {
                         setTimeout(checkForAnyAudio, 1000);
                         return;
                     }
@@ -701,9 +701,9 @@ if (clientWebsiteUrl) {
                         }
                     });
                     
-                    if (audioDetected && !this.listeningToBotinia) {
-                        this.addToTranscriptFeed('📢 Botinia audio detected!');
-                        this.startListeningToBotinia();
+                    if (audioDetected && !this.listeningToTess) {
+                        this.addToTranscriptFeed('📢 Tess audio detected!');
+                        this.startListeningToTess();
                     }
                     
                     setTimeout(checkForAnyAudio, 1000);
@@ -712,8 +712,8 @@ if (clientWebsiteUrl) {
                 checkForAnyAudio();
             }
 
-                                    monitorBotiniaAudio() {
-                this.addToTranscriptFeed('🎧 Monitoring for Botinia audio...');
+                                    monitorTessAudio() {
+                this.addToTranscriptFeed('🎧 Monitoring for Tess audio...');
                 
                 // Function to check audio and set up listeners
                 const setupAudioListeners = () => {
@@ -724,7 +724,7 @@ if (clientWebsiteUrl) {
                         return;
                     }
                     
-                    this.addToTranscriptFeed('✅ Found Botinia widget, setting up audio detection...');
+                    this.addToTranscriptFeed('✅ Found Tess widget, setting up audio detection...');
                     
                     // Check for audio elements every second
                     setInterval(() => {
@@ -732,26 +732,26 @@ if (clientWebsiteUrl) {
                         
                         audioElements.forEach((audio) => {
                             // Check if audio is playing right now
-                            if (!audio.paused && audio.currentTime > 0 && !this.listeningToBotinia) {
-                                this.addToTranscriptFeed('📢 Botinia is speaking!');
-                                this.startListeningToBotinia();
+                            if (!audio.paused && audio.currentTime > 0 && !this.listeningToTess) {
+                                this.addToTranscriptFeed('📢 Tess is speaking!');
+                                this.startListeningToTess();
                             }
                             
                             // Listen for when it starts playing
                             audio.addEventListener('play', () => {
-                                this.addToTranscriptFeed('🎬 Botinia STARTED speaking!');
-                                this.startListeningToBotinia();
+                                this.addToTranscriptFeed('🎬 Tess STARTED speaking!');
+                                this.startListeningToTess();
                             });
                             
                             // Listen for when it stops
                             audio.addEventListener('pause', () => {
-                                this.addToTranscriptFeed('⏸️ Botinia stopped speaking');
-                                this.stopListeningToBotinia();
+                                this.addToTranscriptFeed('⏸️ Tess stopped speaking');
+                                this.stopListeningToTess();
                             });
                             
                             audio.addEventListener('ended', () => {
-                                this.addToTranscriptFeed('⏹️ Botinia finished speaking');
-                                this.stopListeningToBotinia();
+                                this.addToTranscriptFeed('⏹️ Tess finished speaking');
+                                this.stopListeningToTess();
                             });
                         });
                     }, 1000);
@@ -806,29 +806,29 @@ monitorTessMessages() {
 }
 
             // New helper methods
-            handleBotiniaPlay() {
-                if (!this.listeningToBotinia) {
-                    this.addToTranscriptFeed('🎬 Botinia STARTED speaking - listening only for Botinia');
-                    this.startListeningToBotinia();
+            handleTessPlay() {
+                if (!this.listeningToTess) {
+                    this.addToTranscriptFeed('🎬 Tess STARTED speaking - listening only for Tess');
+                    this.startListeningToTess();
                 }
             }
 
-            handleBotiniaPause() {
-                if (this.listeningToBotinia) {
-                    this.addToTranscriptFeed('⏸️ Botinia stopped speaking - pausing recognition');
-                    this.stopListeningToBotinia();
+            handleTessPause() {
+                if (this.listeningToTess) {
+                    this.addToTranscriptFeed('⏸️ Tess stopped speaking - pausing recognition');
+                    this.stopListeningToTess();
                 }
             }
 
-            handleBotiniaEnd() {
-                if (this.listeningToBotinia) {
-                    this.addToTranscriptFeed('⏹️ Botinia finished speaking - stopping recognition');
-                    this.stopListeningToBotinia();
+            handleTessEnd() {
+                if (this.listeningToTess) {
+                    this.addToTranscriptFeed('⏹️ Tess finished speaking - stopping recognition');
+                    this.stopListeningToTess();
                 }
             }
 
-                        stopListeningToBotinia() {
-                if (this.recognition && this.listeningToBotinia) {
+                        stopListeningToTess() {
+                if (this.recognition && this.listeningToTess) {
                     try {
                         this.recognition.stop();
                         this.addToTranscriptFeed('🛑 Speech recognition stopped');
@@ -836,7 +836,7 @@ monitorTessMessages() {
                         console.error('Error stopping recognition:', e);
                     }
                 }
-                this.listeningToBotinia = false;
+                this.listeningToTess = false;
             }
 
                         // ========== DIAGNOSTIC TEST ==========
@@ -877,14 +877,14 @@ monitorTessMessages() {
                 console.log('4. Speech recognition:', this.recognition ? '✅' : '❌');
                 
                 // 6. Check listening state
-                console.log('5. Listening to Botinia:', this.listeningToBotinia ? '✅' : '❌');
+                console.log('5. Listening to Tess:', this.listeningToTess ? '✅' : '❌');
                 
                 // 7. Manually trigger detection
                 if (audioElements.length > 0) {
                     const anyPlaying = Array.from(audioElements).some(a => !a.paused && a.currentTime > 0);
-                    if (anyPlaying && !this.listeningToBotinia) {
+                    if (anyPlaying && !this.listeningToTess) {
                         this.addToTranscriptFeed('🔊 Audio playing but not listening - forcing start');
-                        this.startListeningToBotinia();
+                        this.startListeningToTess();
                     }
                 }
                 
@@ -905,7 +905,7 @@ monitorTessMessages() {
                 this.recognition.lang = 'en-US';
 
                 this.recognition.onstart = () => {
-                    this.updateStatus('🎤 Listening for Botinia...', 'ready');
+                    this.updateStatus('🎤 Listening for Tess...', 'ready');
                     document.getElementById('micStatus').innerHTML = 'LISTENING TO BOTINIA';
                 };
 
@@ -924,19 +924,19 @@ monitorTessMessages() {
                 // Don't start automatically - wait for audio detection
             }
 
-                                    startListeningToBotinia() {
-                if (this.listeningToBotinia) {
+                                    startListeningToTess() {
+                if (this.listeningToTess) {
                     return;
                 }
-                this.listeningToBotinia = true;
+                this.listeningToTess = true;
                 
-                this.addToTranscriptFeed('🎤 Listening for Botinia trigger phrases...');
+                this.addToTranscriptFeed('🎤 Listening for Tess trigger phrases...');
                 
                 try {
                     this.recognition.start();
                 } catch(e) {
                     console.error('Could not start recognition:', e);
-                    this.listeningToBotinia = false;
+                    this.listeningToTess = false;
                 }
             }
 
@@ -991,7 +991,7 @@ monitorTessMessages() {
                 console.log('2. Agent ID:', this.config?.agentId);
                 console.log('3. Speech recognition:', this.recognition ? '✅' : '❌');
                 console.log('4. Modules loaded:', Object.keys(this.config?.modules || {}));
-                console.log('5. Botinia widget:', document.querySelector('lemon-slice-widget') ? '✅' : '❌');
+                console.log('5. Tess widget:', document.querySelector('lemon-slice-widget') ? '✅' : '❌');
                 
                 this.addToTranscriptFeed('🔬 Running full system test...');
                 
