@@ -3904,70 +3904,63 @@ code += '            getResults: function() { return this.responses; }\n';
 code += '        };\n';
 code += '    }\n\n';
 
-// ===== PRE-QUALIFICATION CONTROLLER (THE FINAL VERSION) =====
-code += '    class PreQualificationController {\n';
-code += '        constructor() {\n';
-code += '            this.isActive = false;\n';
-code += '            this.script = null;\n';
-code += '            this.answers = {};\n';
-code += '            this.setupMessageListener(); // Turn on the Ears\n';
-code += '        }\n';
-code += '\n';
-code += '        // THE EARS: Listen for User Speech\n';
-code += '        setupMessageListener() {\n';
-code += '            window.addEventListener(\'message\', (event) => {\n';
-code += '                // Listen for the start signal\n';
-code += '                if (event.data.type === \'START_PRE_QUAL\') {\n';
-code += '                    console.log(\'🎯 Trigger received. Starting interview.\');\n';
-code += '                    this.startInterview();\n';
-code += '                }\n';
-code += '                \n';
-code += '                // Listen for User Speech to process answers\n';
-code += '                if (event.data.type === \'transcript\' && this.isActive) {\n';
-code += '                     this.handleUserInput(event.data.text);\n';
-code += '                }\n';
-code += '                // Fallback for other LemonSlice event names\n';
-code += '                if (event.data.role === \'user\' && this.isActive) {\n';
-code += '                     this.handleUserInput(event.data.content);\n';
-code += '                }\n';
-code += '            });\n';
-code += '        }\n';
-code += '\n';
-code += '        startInterview() {\n';
-code += '            console.log("🎯 Starting pre-qualification interview");\n';
-code += '            this.script = createSmartPreQualScript(); // Load SMART script\n';
-code += '            this.isActive = true;\n';
-code += '            const firstMessage = this.script.start();\n';
-code += '            this.speak(firstMessage);\n';
-code += '        }\n';
-code += '\n';
-code += '        handleUserInput(userText) {\n';
-// 🔥 SAFETY 1: Ignore input if interview isn't running
-code += '            if (!this.isActive) return;\n';
-// 🔥 SAFETY 2: Ignore input if script isn't ready
-code += '            if (!this.script) { console.warn("⚠️ Script not ready."); return; }\n';
-// 🔥 SAFETY 3: IGNORE TESS'S OWN SPEECH (The Fix!)
-code += '            if (userText.includes("I\'m Tess") || userText.includes("pre-qualified")) {\n';
-code += '                console.log("🛑 Ignoring self-speech.");\n';
-code += '                return;\n';
-code += '            }\n';
-code += '            console.log(`👤 User said: ${userText}`);\n';
-code += '            const nextResponse = this.script.processResponse(userText);\n';
-code += '            if (nextResponse) { this.speak(nextResponse); }\n';
-code += '            if (!this.script.active) {\n';
-code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
-code += '                this.answers = this.script.getResults();\n';
-code += '                this.sendEmail();\n';
-code += '                this.isActive = false;\n';
-code += '            }\n';
-code += '        }\n';
-code += '        speak(text) {\n';
-code += '            console.log(`🤖 Tess says: ${text}`);\n';
-code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
-code += '                window.mainWidget.sendMessage(text);\n';
-code += '            }\n';
-code += '        }\n';
-code += '\n';
+    // ===== PRE-QUALIFICATION CONTROLLER (CLEAN SLATE) =====
+    code += '    class PreQualificationController {\n';
+    code += '        constructor() {\n';
+    code += '            this.isActive = false;\n';
+    code += '            this.script = null;\n';
+    code += '            this.answers = {};\n';
+    code += '            // Do NOT turn on ears here. Controller starts deaf.\n';
+    code += '        }\n';
+    code += '\n';
+    
+    // THE START BUTTON
+    code += '        startInterview() {\n';
+    code += '            if (this.isActive) return; // Safety stop\n';
+    code += '            console.log("🎯 Starting pre-qualification interview");\n';
+    code += '            this.script = createSmartPreQualScript();\n';
+    code += '            this.isActive = true;\n';
+    code += '            const firstMessage = this.script.start();\n';
+    code += '            this.speak(firstMessage);\n';
+    code += '        }\n';
+    code += '\n';
+
+    // THE INPUT HANDLER (Controlled by Bridge, not internal listener)
+    code += '        handleUserInput(userText) {\n';
+    code += '            if (!this.isActive) return;\n';
+    code += '            if (!this.script) return;\n';
+    code += '            \n';
+    code += '            // Ignore her own voice\n';
+    code += '            if (userText.includes("I\'m Tess") || userText.includes("pre-qualified")) {\n';
+    code += '                console.log("🛑 Ignoring self-speech.");\n';
+    code += '                return;\n';
+    code += '            }\n';
+    code += '            \n';
+    code += '            console.log(`👤 User said: ${userText}`);\n';
+    code += '            const nextResponse = this.script.processResponse(userText);\n';
+    code += '            if (nextResponse) { this.speak(nextResponse); }\n';
+    code += '            if (!this.script.active) {\n';
+    code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
+    code += '                this.answers = this.script.getResults();\n';
+    code += '                this.sendEmail();\n';
+    code += '                this.isActive = false;\n';
+    code += '            }\n';
+    code += '        }\n';
+    code += '\n';
+
+    // THE SPEAK FUNCTION
+    code += '        speak(text) {\n';
+    code += '            console.log(`🤖 Tess says: ${text}`);\n';
+    code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
+    code += '                window.mainWidget.sendMessage(text);\n';
+    code += '            }\n';
+    code += '        }\n';
+    code += '\n';
+    
+    // THE EMAIL FUNCTION (Keep your existing sendEmail function here)
+    // ... (Your sendEmail code) ...
+    
+    code += '    }\n\n';
 // (Your sendEmail method will go right after this, preserving it)
 code += '        async sendEmail() {\n';
 code += '            console.log("📧 Sending pre-qualification emails...");\n';
@@ -4009,80 +4002,31 @@ code += '            }\n';
 code += '        }\n';
 code += '    }\n\n';
 
-// 3. TRIGGER FUNCTIONS (4 spaces indentation)
-code += '    // ===== GLOBAL TRIGGER LISTENER =====\n';
-code += '    function setupTriggerListener(widget) {\n';
-code += '        console.log(\'👂 Setting up external trigger listener...\');\n';
-code += '\n';
-code += '        // Method 1: Listen for the widget\'s \'response\' event\n';
-code += '        widget.addEventListener(\'response\', (event) => {\n';
-code += '            const aiText = event.detail?.text || event.detail || \'\';\n';
-code += '            checkForTrigger(aiText);\n';
-code += '        });\n';
-code += '\n';
-code += '        // Method 2: Listen for generic \'message\' events (backup)\n';
-code += '        window.addEventListener(\'message\', (event) => {\n';
-code += '            // LemonSlice often sends transcriptions this way\n';
-code += '            if (event.data && event.data.type === \'ai_response\') {\n';
-code += '                 checkForTrigger(event.data.text);\n';
-code += '            }\n';
-code += '            // Some versions send \'transcript\'\n';
-code += '            if (event.data && event.data.type === \'transcript\') {\n';
-code += '                 checkForTrigger(event.data.text);\n';
-code += '            }\n';
-code += '        });\n';
-code += '    }\n\n';
+    // ===== INITIALIZE THE CONTROLLER =====
+    code += '    window.preQualController = new PreQualificationController();\n\n';
 
-code += '    function checkForTrigger(text) {\n';
-code += '        if (!text) return;\n';
-code += '        // Look for the exact phrase Tess is supposed to say\n';
-code += '        if (text.includes("LET\'S GET YOU PRE-QUALIFIED") || text.includes("get you pre-qualified")) {\n';
-code += '            console.log("🎯 TRIGGER PHRASE DETECTED EXTERNALLY!");\n';
-code += '            firePreQualTrigger();\n';
-code += '        }\n';
-code += '    }\n\n';
+    // ===== GLOBAL LISTENERS (THE BRAIN) =====
+    
+    // 1. THE EARS: Listen for User Speech to feed the Deaf Controller
+    code += '    window.addEventListener("message", (event) => {\n';
+    code += '        if (event.data && event.data.type === "transcript" && window.preQualController.isActive) {\n';
+    code += '            window.preQualController.handleUserInput(event.data.text);\n';
+    code += '        }\n';
+    code += '        // Fallback for LemonSlice\'s other event names\n';
+    code += '        if (event.data && event.data.role === "user" && window.preQualController.isActive) {\n';
+    code += '             window.preQualController.handleUserInput(event.data.content);\n';
+    code += '        }\n';
+    code += '    });\n\n';
 
-code += '    function firePreQualTrigger() {\n';
-code += '        if (window.preQualFired) return; // Safety stop\n';
-code += '        window.preQualFired = true;\n';
-code += '        \n';
-code += '        console.log("🚀 Sending START_PRE_QUAL to Controller...");\n';
-code += '        window.dispatchEvent(new CustomEvent(\'message\', { \n';
-code += '            detail: { type: \'START_PRE_QUAL\' } \n';
-code += '        }));\n';
-code += '        \n';
-code += '        // Direct call (most reliable)\n';
-code += '        if (window.preQualController) {\n';
-code += '            window.preQualController.startInterview();\n';
-code += '        }\n';
-code += '    }\n\n';
-
-// 4. INITIALIZE CONTROLLER (ONLY ONCE)
-code += '    // ===== INITIALIZE THE CONTROLLER =====\n';
-code += '    window.preQualController = new PreQualificationController();\n\n';
-
-// 5. ADD THE "EARS" (USER INPUT LISTENER) - CRITICAL FIX
-code += '    // Listen for User Speech to feed the Controller\n';
-code += '    window.addEventListener("message", (event) => {\n';
-code += '        if (event.data && event.data.type === "transcript" && window.preQualController.isActive) {\n';
-code += '            window.preQualController.handleUserInput(event.data.text);\n';
-code += '        }\n';
-code += '        // Fallback for other LemonSlice event structures\n';
-code += '        if (event.data && event.data.role === "user" && window.preQualController.isActive) {\n';
-code += '             window.preQualController.handleUserInput(event.data.content);\n';
-code += '        }\n';
-code += '    });\n\n';
-
-// 5. TRIGGER LISTENER
-code += '    // Listen for START_PRE_QUAL trigger\n';
-code += '    window.addEventListener("message", (event) => {\n';
-code += '        if (event.data && event.data.type === "START_PRE_QUAL") {\n';
-code += '            console.log("🚀 Received START_PRE_QUAL from Trigger Dashboard");\n';
-code += '            if (window.preQualController) {\n';
-code += '                window.preQualController.startInterview();\n';
-code += '            }\n';
-code += '        }\n';
-code += '    });\n';
+    // 2. THE COMMANDS: Listen for Manual Triggers (from TCS Dashboard)
+    code += '    window.addEventListener("message", (event) => {\n';
+    code += '        if (event.data && event.data.type === "START_PRE_QUAL") {\n';
+    code += '            console.log("🚀 Received START_PRE_QUAL from Trigger Dashboard");\n';
+    code += '            if (window.preQualController) {\n';
+    code += '                window.preQualController.startInterview();\n';
+    code += '            }\n';
+    code += '        }\n';
+    code += '    });\n';
 
             // ===== WIDGET CREATION =====
     code += '    function createMainWidget() {\n';
@@ -4102,31 +4046,30 @@ code += '    });\n';
     code += '        return widget;\n';
     code += '    }\n\n';
 
-            // ===== FORCE INTRO FUNCTION (AUDIT-STYLE) =====
+            // ===== FORCE INTRO FUNCTION =====
     code += '    function forceMortgageIntro(widget) {\n';
-    code += '        diagLog("Intro Function Triggered");\n';
+    code += '        // SAFETY: Don\'t intro if already in interview\n';
+    code += '        if (window.preQualController && window.preQualController.isActive) {\n';
+    code += '            console.log(\'[Bridge] Skipping intro - Interview already active.\');\n';
+    code += '            return;\n';
+    code += '        }\n';
     code += '        \n';
+    code += '        // DISABLE TRIGGERS DURING INTRO\n';
+    code += '        window.preQualFired = true; \n';
+    code += '        \n';
+    code += '        console.log(\'[Bridge] Forcing Intro...\');\n';
     code += '        widget.setAttribute(\'controlled-widget-state\', \'active\');\n';
-    code += '        diagLog("Widget state set to active");\n';
-    code += '        \n';
     code += '        try { widget.micOn?.(); widget.unmute?.(); } catch(e) {}\n';
-    code += '        diagLog("Mic/Unmute attempted");\n';
     code += '        \n';
     code += '        const message = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
     code += '        \n';
     code += '        setTimeout(() => {\n';
-    code += '            diagLog("Timeout finished. Sending message...");\n';
     code += '            try {\n';
     code += '                if (typeof widget.sendMessage === \'function\') {\n';
     code += '                    widget.sendMessage(message);\n';
-    code += '                    diagLog("Message sent successfully");\n';
-    code += '                } else {\n';
-    code += '                    diagLog("ERROR: sendMessage missing");\n';
     code += '                }\n';
-    code += '            } catch (e) {\n';
-    code += '                diagLog("CRASH: " + e.message);\n';
-    code += '            }\n';
-    code += '        }, 3000);\n';
+    code += '            } catch (e) { console.error(\'[Bridge] Intro error:\', e); }\n';
+    code += '        }, 1500);\n';
     code += '    }\n\n';
 
         // Show Splash Function
