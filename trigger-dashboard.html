@@ -3904,53 +3904,32 @@ code += '            getResults: function() { return this.responses; }\n';
 code += '        };\n';
 code += '    }\n\n';
 
-// ===== PRE-QUALIFICATION CONTROLLER (THE FINAL VERSION) =====
+// ===== PRE-QUALIFICATION CONTROLLER (DEAF VERSION - FIXED) =====
 code += '    class PreQualificationController {\n';
 code += '        constructor() {\n';
 code += '            this.isActive = false;\n';
 code += '            this.script = null;\n';
 code += '            this.answers = {};\n';
-code += '            this.setupMessageListener(); // Turn on the Ears\n';
-code += '        }\n';
-code += '\n';
-code += '        // THE EARS: Listen for User Speech\n';
-code += '        setupMessageListener() {\n';
-code += '            window.addEventListener(\'message\', (event) => {\n';
-code += '                // Listen for the start signal\n';
-code += '                if (event.data.type === \'START_PRE_QUAL\') {\n';
-code += '                    console.log(\'🎯 Trigger received. Starting interview.\');\n';
-code += '                    this.startInterview();\n';
-code += '                }\n';
-code += '                \n';
-code += '                // Listen for User Speech to process answers\n';
-code += '                if (event.data.type === \'transcript\' && this.isActive) {\n';
-code += '                     this.handleUserInput(event.data.text);\n';
-code += '                }\n';
-code += '                // Fallback for other LemonSlice event names\n';
-code += '                if (event.data.role === \'user\' && this.isActive) {\n';
-code += '                     this.handleUserInput(event.data.content);\n';
-code += '                }\n';
-code += '            });\n';
 code += '        }\n';
 code += '\n';
 code += '        startInterview() {\n';
+code += '            if (this.isActive) return;\n';
 code += '            console.log("🎯 Starting pre-qualification interview");\n';
-code += '            this.script = createSmartPreQualScript(); // Load SMART script\n';
+code += '            this.script = createSmartPreQualScript();\n';
 code += '            this.isActive = true;\n';
 code += '            const firstMessage = this.script.start();\n';
 code += '            this.speak(firstMessage);\n';
 code += '        }\n';
 code += '\n';
 code += '        handleUserInput(userText) {\n';
-// 🔥 SAFETY 1: Ignore input if interview isn't running
-code += '            if (!this.isActive) return;\n';
-// 🔥 SAFETY 2: Ignore input if script isn't ready
-code += '            if (!this.script) { console.warn("⚠️ Script not ready."); return; }\n';
-// 🔥 SAFETY 3: IGNORE TESS'S OWN SPEECH (The Fix!)
+code += '            if (!this.isActive || !this.script) return;\n';
+code += '            \n';
+code += '            // Ignore her own voice\n';
 code += '            if (userText.includes("I\'m Tess") || userText.includes("pre-qualified")) {\n';
 code += '                console.log("🛑 Ignoring self-speech.");\n';
 code += '                return;\n';
 code += '            }\n';
+code += '            \n';
 code += '            console.log(`👤 User said: ${userText}`);\n';
 code += '            const nextResponse = this.script.processResponse(userText);\n';
 code += '            if (nextResponse) { this.speak(nextResponse); }\n';
@@ -3961,6 +3940,7 @@ code += '                this.sendEmail();\n';
 code += '                this.isActive = false;\n';
 code += '            }\n';
 code += '        }\n';
+code += '\n';
 code += '        speak(text) {\n';
 code += '            console.log(`🤖 Tess says: ${text}`);\n';
 code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
@@ -3968,7 +3948,8 @@ code += '                window.mainWidget.sendMessage(text);\n';
 code += '            }\n';
 code += '        }\n';
 code += '\n';
-// (Your sendEmail method will go right after this, preserving it)
+
+// ===== FULL SEND EMAIL FUNCTION (RESTORED) =====
 code += '        async sendEmail() {\n';
 code += '            console.log("📧 Sending pre-qualification emails...");\n';
 code += '            \n';
@@ -3978,9 +3959,9 @@ code += '                await emailjs.send(\n';
 code += '                    "service_b9bppgb",\n';
 code += '                    "template_uix9cyx",\n';
 code += '                    {\n';
-code += '                        to_email: "' + emailConfig.loanOfficerEmail + '",\n';
-code += '                        cc_email: "' + emailConfig.ccEmail + '",\n';
-code += '                        subject: "' + emailConfig.emailSubject + '".replace("{{firstName}}", this.answers.firstName || "Client").replace("{{lastName}}", this.answers.lastName || ""),\n';
+code += '                        to_email: "loans@clientcompany.com",\n';
+code += '                        cc_email: "",\n';
+code += '                        subject: "New Pre-Qual Lead: {{firstName}} {{lastName}}".replace("{{firstName}}", this.answers.firstName || "Client").replace("{{lastName}}", this.answers.lastName || ""),\n';
 code += '                        first_name: this.answers.firstName || "",\n';
 code += '                        last_name: this.answers.lastName || "",\n';
 code += '                        email: this.answers.email || "",\n';
@@ -4011,8 +3992,6 @@ code += '    }\n\n';
 
 // ===== INITIALIZE THE CONTROLLER =====
 code += '    window.preQualController = new PreQualificationController();\n\n';
-
-// ===== GLOBAL LISTENERS (THE BRAIN) =====
 
 // 1. THE EARS: Listen for User Speech to feed the Deaf Controller
 code += '    window.addEventListener("message", (event) => {\n';
