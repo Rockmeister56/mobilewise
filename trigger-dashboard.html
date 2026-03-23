@@ -4025,8 +4025,16 @@ code += '            }\n';
 code += '        }\n';
 code += '    });\n';
 
-       // ===== WIDGET CREATION =====
+           // ===== WIDGET CREATION =====
     code += '    function createMainWidget() {\n';
+    // 🔥 SAFETY: If splash widget exists, return that instead of creating duplicate
+    code += '        const existing = document.getElementById(\'splash-widget\');\n';
+    code += '        if (existing) {\n';
+    code += '            console.log("[Bridge] Found existing Splash Widget, re-using.");\n';
+    code += '            existing.id = \'main-widget\'; // Rename it\n';
+    code += '            return existing;\n';
+    code += '        }\n\n';
+
     code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
     code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
     code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
@@ -4037,6 +4045,7 @@ code += '    });\n';
     code += '        widget.addEventListener(\'ready\', () => {\n';
     code += '            console.log(\'[Bridge] Widget Ready. Initializing Listeners...\');\n';
     code += '            setupTriggerListener(widget);\n';
+    code += '            setTimeout(() => { forceMortgageIntro(widget); }, 500);\n';
     code += '        });\n';
     code += '        \n';
     code += '        return widget;\n';
@@ -4179,9 +4188,16 @@ code += '        }\n';
 code += '    }\n\n';
 
 code += '    function activateTess() {\n';
-code += '        console.log("🖱️ Click detected: Revealing Tess...");\n';
+code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
 code += '        \n';
-code += '        // 1. NUKE THE SPLASH WIDGET\n';
+code += '        // 1. Try to pre-warm audio\n';
+code += '        try {\n';
+code += '            if (window.mainWidget && typeof window.mainWidget.micOn === "function") {\n';
+code += '                window.mainWidget.micOn();\n';
+code += '            }\n';
+code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n\n';
+
+code += '        // 2. NUKE THE SPLASH WIDGET (Critical for stopping video conflict)\n';
 code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
 code += '        if (splashWidget) {\n';
 code += '            splashWidget.innerHTML = \'\';\n';
@@ -4190,33 +4206,41 @@ code += '                splashWidget.parentNode.removeChild(splashWidget);\n';
 code += '            }\n';
 code += '        }\n\n';
 
-code += '        // 2. Remove the overlay\n';
+code += '        // 3. Remove the overlay\n';
 code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
 code += '        if (overlay) overlay.remove();\n\n';
 
-code += '        // 3. REVEAL MAIN WIDGET\n';
-code += '        if (window.mainWidget) {\n';
+code += '        // 4. CREATE MAIN WIDGET (Fresh Start)\n';
+code += '        setTimeout(() => {\n';
+code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
+code += '                window.mainWidget = createMainWidget();\n';
+code += '                window.mainWidget.setAttribute(\'hide-ui\', \'true\');\n';
+code += '                document.body.appendChild(window.mainWidget);\n';
+code += '            }\n';
+code += '            \n';
 code += '            window.mainWidget.style.display = \'block\';\n';
 code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
 code += '            \n';
-code += '            // 4. Activate Audio\n';
+code += '            // 5. Turn on mic with proper async handling\n';
 code += '            setTimeout(async () => {\n';
+code += '                console.log("🎤 Finalizing audio state...");\n';
 code += '                try {\n';
-code += '                    await window.mainWidget.micOn?.();\n';
-code += '                    await window.mainWidget.unmute?.();\n';
-code += '                    await forceUnmute();\n';
-code += '                    console.log("✅ Microphone activated");\n';
+code += '                    if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
+code += '                        await window.mainWidget.micOn();\n';
+code += '                        await window.mainWidget.unmute?.();\n';
+code += '                        console.log("✅ Microphone activated");\n';
+code += '                        \n';
+code += '                        // Force unmute shadow DOM as backup\n';
+code += '                        await forceUnmute();\n';
+code += '                        \n';
+// Removed the redundant intro message here - createMainWidget handles it
+code += '                    }\n';
 code += '                } catch (e) {\n';
 code += '                    console.error("❌ Mic activation failed:", e);\n';
+code += '                    forceUnmute();\n';
 code += '                }\n';
-code += '            }, 100);\n'; // Short delay just for audio
-code += '        } else {\n';
-code += '            console.error("❌ Main Widget not found! Creating now...");\n';
-code += '            // Fallback if widget wasn\'t pre-created\n';
-code += '            window.mainWidget = createMainWidget();\n';
-code += '            window.mainWidget.style.display = \'block\';\n';
-code += '            document.body.appendChild(window.mainWidget);\n';
-code += '        }\n';
+code += '            }, 3000);\n'; // 3000ms delay to let video load safely
+code += '        }, 100);\n';
 code += '    }\n\n';
 
 code += '    function showPersistentAvatar() {\n';
@@ -4385,7 +4409,7 @@ code += '    }\n\n';
        // Auto-Trigger System
 code += '    window.disableBridgeTriggers = false;\n\n';
 
-        // ===== LOAD WIDGET =====
+                // ===== LOAD WIDGET =====
         code += '    function initWidget() {\n';
         code += '        if (document.querySelector(\'lemon-slice-widget\')) { console.log(\'✅ Widget already exists\'); return; }\n';
         
@@ -4397,19 +4421,8 @@ code += '    window.disableBridgeTriggers = false;\n\n';
         code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
         code += '        document.head.appendChild(script);\n';
         
-        // 2. Create Splash Widget
+        // 2. Create Splash Widget (This is now our ONLY widget)
         code += '        setTimeout(() => { showSplash(); }, 100);\n';
-        
-        // 3. PRE-CREATE MAIN WIDGET (Hidden) - Prevents "Mix Up" on first click
-        code += '        setTimeout(() => {\n';
-        code += '            if (!window.mainWidget) {\n';
-        code += '                console.log("[Bridge] Pre-creating Main Widget for stability...");\n';
-        code += '                window.mainWidget = createMainWidget();\n';
-        code += '                window.mainWidget.style.display = \'none\';\n';
-        code += '                window.mainWidget.setAttribute(\'hide-ui\', \'true\');\n';
-        code += '                document.body.appendChild(window.mainWidget);\n';
-        code += '            }\n';
-        code += '        }, 2000);\n';
         code += '    }\n\n';
 
         code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
