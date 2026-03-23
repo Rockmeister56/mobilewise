@@ -4544,8 +4544,7 @@ code += '            \n';
 code += '            switch(event.data.command) {\n';
 code += '                case \'START_PRE_QUAL\':\n';
 code += '                    if (window.preQualController) {\n';
-code += '                        console.log(\'🚀 TCS Trigger: Starting Interview\');\n';
-code += '                        window.preQualController.startInterview(); // ✅ FIXED FUNCTION NAME\n';
+code += '                        window.preQualController.loadAndStartInterview();\n';
 code += '                    }\n';
 code += '                    break;\n';
 code += '                    \n';
@@ -4577,6 +4576,7 @@ code += '                }, \'*\');\n';
 code += '            }\n';
 code += '        }\n';
 code += '    });\n';
+code += '\n';
 code += '    console.log(\'✅ TCS message listener installed\');\n';
 code += '})();';
         
