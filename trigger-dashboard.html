@@ -4002,6 +4002,54 @@ code += '            }\n';
 code += '        }\n';
 code += '    }\n\n';
 
+// 3. TRIGGER FUNCTIONS (4 spaces indentation)
+code += '    // ===== GLOBAL TRIGGER LISTENER =====\n';
+code += '    function setupTriggerListener(widget) {\n';
+code += '        console.log(\'👂 Setting up external trigger listener...\');\n';
+code += '\n';
+code += '        // Method 1: Listen for the widget\'s \'response\' event\n';
+code += '        widget.addEventListener(\'response\', (event) => {\n';
+code += '            const aiText = event.detail?.text || event.detail || \'\';\n';
+code += '            checkForTrigger(aiText);\n';
+code += '        });\n';
+code += '\n';
+code += '        // Method 2: Listen for generic \'message\' events (backup)\n';
+code += '        window.addEventListener(\'message\', (event) => {\n';
+code += '            // LemonSlice often sends transcriptions this way\n';
+code += '            if (event.data && event.data.type === \'ai_response\') {\n';
+code += '                 checkForTrigger(event.data.text);\n';
+code += '            }\n';
+code += '            // Some versions send \'transcript\'\n';
+code += '            if (event.data && event.data.type === \'transcript\') {\n';
+code += '                 checkForTrigger(event.data.text);\n';
+code += '            }\n';
+code += '        });\n';
+code += '    }\n\n';
+
+code += '    function checkForTrigger(text) {\n';
+code += '        if (!text) return;\n';
+code += '        // Look for the exact phrase Tess is supposed to say\n';
+code += '        if (text.includes("LET\'S GET YOU PRE-QUALIFIED") || text.includes("get you pre-qualified")) {\n';
+code += '            console.log("🎯 TRIGGER PHRASE DETECTED EXTERNALLY!");\n';
+code += '            firePreQualTrigger();\n';
+code += '        }\n';
+code += '    }\n\n';
+
+code += '    function firePreQualTrigger() {\n';
+code += '        if (window.preQualFired) return; // Safety stop\n';
+code += '        window.preQualFired = true;\n';
+code += '        \n';
+code += '        console.log("🚀 Sending START_PRE_QUAL to Controller...");\n';
+code += '        window.dispatchEvent(new CustomEvent(\'message\', { \n';
+code += '            detail: { type: \'START_PRE_QUAL\' } \n';
+code += '        }));\n';
+code += '        \n';
+code += '        // Direct call (most reliable)\n';
+code += '        if (window.preQualController) {\n';
+code += '            window.preQualController.startInterview();\n';
+code += '        }\n';
+code += '    }\n\n';
+
 // 4. INITIALIZE CONTROLLER (ONLY ONCE)
 code += '    // ===== INITIALIZE THE CONTROLLER =====\n';
 code += '    window.preQualController = new PreQualificationController();\n\n';
