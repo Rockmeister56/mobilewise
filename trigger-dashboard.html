@@ -4002,23 +4002,24 @@ code += '            }\n';
 code += '        }\n';
 code += '    }\n\n';
 
-// ===== INITIALIZE THE CONTROLLER =====
+// 4. INITIALIZE CONTROLLER (ONLY ONCE)
+code += '    // ===== INITIALIZE THE CONTROLLER =====\n';
 code += '    window.preQualController = new PreQualificationController();\n\n';
 
-// ===== GLOBAL LISTENERS (THE BRAIN) =====
-
-// 1. THE EARS: Listen for User Speech to feed the Deaf Controller
+// 5. ADD THE "EARS" (USER INPUT LISTENER) - CRITICAL FIX
+code += '    // Listen for User Speech to feed the Controller\n';
 code += '    window.addEventListener("message", (event) => {\n';
 code += '        if (event.data && event.data.type === "transcript" && window.preQualController.isActive) {\n';
 code += '            window.preQualController.handleUserInput(event.data.text);\n';
 code += '        }\n';
-code += '        // Fallback for LemonSlice\'s other event names\n';
+code += '        // Fallback for other LemonSlice event structures\n';
 code += '        if (event.data && event.data.role === "user" && window.preQualController.isActive) {\n';
 code += '             window.preQualController.handleUserInput(event.data.content);\n';
 code += '        }\n';
 code += '    });\n\n';
 
-// 2. THE COMMANDS: Listen for Manual Triggers (from TCS Dashboard)
+// 5. TRIGGER LISTENER
+code += '    // Listen for START_PRE_QUAL trigger\n';
 code += '    window.addEventListener("message", (event) => {\n';
 code += '        if (event.data && event.data.type === "START_PRE_QUAL") {\n';
 code += '            console.log("🚀 Received START_PRE_QUAL from Trigger Dashboard");\n';
