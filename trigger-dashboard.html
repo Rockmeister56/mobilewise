@@ -4025,7 +4025,7 @@ code += '            }\n';
 code += '        }\n';
 code += '    });\n';
 
-            // ===== WIDGET CREATION =====
+       // ===== WIDGET CREATION =====
     code += '    function createMainWidget() {\n';
     code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
     code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
@@ -4036,10 +4036,9 @@ code += '    });\n';
     code += '        widget.style.display = \'none\';\n';
     code += '        widget.addEventListener(\'ready\', () => {\n';
     code += '            console.log(\'[Bridge] Widget Ready. Initializing Listeners...\');\n';
-    code += '            setupTriggerListener(widget);\n'; // <--- ADD THIS LINE
-    code += '            forceMortgageIntro(widget);\n';
+    code += '            setupTriggerListener(widget);\n';
     code += '        });\n';
-    
+    code += '        \n';
     code += '        return widget;\n';
     code += '    }\n\n';
 
@@ -4238,7 +4237,7 @@ code += '                    console.error("❌ Mic activation failed:", e);\n';
 code += '                    // Fallback to forceUnmute\n';
 code += '                    forceUnmute();\n';
 code += '                }\n';
-code += '            }, 800);\n';
+code += '            }, 3000);\n'; // <--- CHANGED FROM 800 TO 3000
 code += '        }, 100);\n';
 code += '    }\n\n';
 
