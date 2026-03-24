@@ -4044,7 +4044,6 @@ code += '    });\n';
     code += '        widget.style.display = \'none\';\n';
     code += '        widget.addEventListener(\'ready\', () => {\n';
     code += '            console.log(\'[Bridge] Widget Ready. Initializing Listeners...\');\n';
-    code += '            setupTriggerListener(widget);\n';
     code += '            setTimeout(() => { forceMortgageIntro(widget); }, 500);\n';
     code += '        });\n';
     code += '        \n';
@@ -4197,7 +4196,7 @@ code += '                window.mainWidget.micOn();\n';
 code += '            }\n';
 code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n\n';
 
-code += '        // 2. NUKE THE SPLASH WIDGET (Critical for stopping video conflict)\n';
+code += '        // 2. NUKE THE SPLASH WIDGET\n';
 code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
 code += '        if (splashWidget) {\n';
 code += '            splashWidget.innerHTML = \'\';\n';
@@ -4210,7 +4209,7 @@ code += '        // 3. Remove the overlay\n';
 code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
 code += '        if (overlay) overlay.remove();\n\n';
 
-code += '        // 4. CREATE MAIN WIDGET (Fresh Start)\n';
+code += '        // 4. CREATE MAIN WIDGET\n';
 code += '        setTimeout(() => {\n';
 code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
 code += '                window.mainWidget = createMainWidget();\n';
@@ -4221,7 +4220,7 @@ code += '            \n';
 code += '            window.mainWidget.style.display = \'block\';\n';
 code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
 code += '            \n';
-code += '            // 5. Turn on mic with proper async handling\n';
+code += '            // 5. Activate Audio\n';
 code += '            setTimeout(async () => {\n';
 code += '                console.log("🎤 Finalizing audio state...");\n';
 code += '                try {\n';
@@ -4233,13 +4232,19 @@ code += '                        \n';
 code += '                        // Force unmute shadow DOM as backup\n';
 code += '                        await forceUnmute();\n';
 code += '                        \n';
-// Removed the redundant intro message here - createMainWidget handles it
+code += '                        // 🔥 NEW: WAKE UP THE CONTROLLER\n';
+code += '                        // Manually start the interview if we are in "Test Mode" or just say Hi.\n';
+code += '                        if (window.preQualController) {\n';
+code += '                            console.log("🚀 Manually triggering interview start...");\n';
+code += '                            window.preQualController.startInterview();\n';
+code += '                        }\n';
+code += '                        \n';
 code += '                    }\n';
 code += '                } catch (e) {\n';
 code += '                    console.error("❌ Mic activation failed:", e);\n';
 code += '                    forceUnmute();\n';
 code += '                }\n';
-code += '            }, 3000);\n'; // 3000ms delay to let video load safely
+code += '            }, 3000);\n';
 code += '        }, 100);\n';
 code += '    }\n\n';
 
