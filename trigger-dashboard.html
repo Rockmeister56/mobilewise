@@ -3904,128 +3904,117 @@ code += '            getResults: function() { return this.responses; }\n';
 code += '        };\n';
 code += '    }\n\n';
 
-// ===== PRE-QUALIFICATION CONTROLLER (DEAF VERSION - FIXED) =====
-code += '    class PreQualificationController {\n';
-code += '        constructor() {\n';
-code += '            this.isActive = false;\n';
-code += '            this.script = null;\n';
-code += '            this.answers = {};\n';
-code += '        }\n';
-code += '\n';
-code += '        startInterview() {\n';
-code += '            if (this.isActive) return;\n';
-code += '            console.log("🎯 Starting pre-qualification interview");\n';
-code += '            this.script = createSmartPreQualScript();\n';
-code += '            this.isActive = true;\n';
-code += '            const firstMessage = this.script.start();\n';
-code += '            this.speak(firstMessage);\n';
-code += '        }\n';
-code += '\n';
-code += '        handleUserInput(userText) {\n';
-code += '            if (!this.isActive || !this.script) return;\n';
-code += '            \n';
-code += '            // Ignore her own voice\n';
-code += '            if (userText.includes("I\'m Tess") || userText.includes("pre-qualified")) {\n';
-code += '                console.log("🛑 Ignoring self-speech.");\n';
-code += '                return;\n';
-code += '            }\n';
-code += '            \n';
-code += '            console.log(`👤 User said: ${userText}`);\n';
-code += '            const nextResponse = this.script.processResponse(userText);\n';
-code += '            if (nextResponse) { this.speak(nextResponse); }\n';
-code += '            if (!this.script.active) {\n';
-code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
-code += '                this.answers = this.script.getResults();\n';
-code += '                this.sendEmail();\n';
-code += '                this.isActive = false;\n';
-code += '            }\n';
-code += '        }\n';
-code += '\n';
-code += '        speak(text) {\n';
-code += '            console.log(`🤖 Tess says: ${text}`);\n';
-code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
-code += '                window.mainWidget.sendMessage(text);\n';
-code += '            }\n';
-code += '        }\n';
-code += '\n';
-
-// ===== FULL SEND EMAIL FUNCTION (RESTORED) =====
-code += '        async sendEmail() {\n';
-code += '            console.log("📧 Sending pre-qualification emails...");\n';
-code += '            \n';
-code += '            try {\n';
-code += '                // ===== EMAIL 1: TO LOAN OFFICER =====\n';
-code += '                await emailjs.send(\n';
-code += '                    "service_b9bppgb",\n';
-code += '                    "template_uix9cyx",\n';
-code += '                    {\n';
-code += '                        to_email: "loans@clientcompany.com",\n';
-code += '                        cc_email: "",\n';
-code += '                        subject: "New Pre-Qual Lead: {{firstName}} {{lastName}}".replace("{{firstName}}", this.answers.firstName || "Client").replace("{{lastName}}", this.answers.lastName || ""),\n';
-code += '                        first_name: this.answers.firstName || "",\n';
-code += '                        last_name: this.answers.lastName || "",\n';
-code += '                        email: this.answers.email || "",\n';
-code += '                        phone: this.answers.phone || "",\n';
-code += '                        full_answers: JSON.stringify(this.answers, null, 2)\n';
-code += '                    }\n';
-code += '                );\n';
-code += '                console.log("✅ Loan officer email sent");\n';
-code += '\n';
-code += '                // ===== EMAIL 2: TO CLIENT =====\n';
-code += '                if (this.answers.email) {\n';
-code += '                    await emailjs.send(\n';
-code += '                        "service_b9bppgb",\n';
-code += '                        "template_8kx812d",\n';
-code += '                        {\n';
-code += '                            to_email: this.answers.email,\n';
-code += '                            first_name: this.answers.firstName || "Valued Client",\n';
-code += '                            message: "Thank you for completing your pre-qualification! A loan officer will contact you within 15 minutes."\n';
-code += '                        }\n';
-code += '                    );\n';
-code += '                    console.log("✅ Client confirmation email sent");\n';
-code += '                }\n';
-code += '            } catch (error) {\n';
-code += '                console.error("❌ Failed to send emails:", error);\n';
-code += '            }\n';
-code += '        }\n';
-code += '    }\n\n';
-
-// ===== INITIALIZE THE CONTROLLER =====
-code += '    window.preQualController = new PreQualificationController();\n\n';
-
-// 1. THE EARS: Listen for User Speech to feed the Deaf Controller
-code += '    window.addEventListener("message", (event) => {\n';
-code += '        if (event.data && event.data.type === "transcript" && window.preQualController.isActive) {\n';
-code += '            window.preQualController.handleUserInput(event.data.text);\n';
-code += '        }\n';
-code += '        // Fallback for LemonSlice\'s other event names\n';
-code += '        if (event.data && event.data.role === "user" && window.preQualController.isActive) {\n';
-code += '             window.preQualController.handleUserInput(event.data.content);\n';
-code += '        }\n';
-code += '    });\n\n';
-
-// 2. THE COMMANDS: Listen for Manual Triggers (from TCS Dashboard)
-code += '    window.addEventListener("message", (event) => {\n';
-code += '        if (event.data && event.data.type === "START_PRE_QUAL") {\n';
-code += '            console.log("🚀 Received START_PRE_QUAL from Trigger Dashboard");\n';
-code += '            if (window.preQualController) {\n';
-code += '                window.preQualController.startInterview();\n';
-code += '            }\n';
-code += '        }\n';
-code += '    });\n';
-
-// 5. TRIGGER LISTENER
-code += '    // Listen for START_PRE_QUAL trigger\n';
-code += '    window.addEventListener("message", (event) => {\n';
-code += '        if (event.data && event.data.type === "START_PRE_QUAL") {\n';
-code += '            console.log("🚀 Received START_PRE_QUAL from Trigger Dashboard");\n';
-code += '            if (window.preQualController) {\n';
-code += '                window.preQualController.startInterview();\n';
-code += '            }\n';
-code += '        }\n';
-code += '    });\n';
-
-        // ===== WIDGET CREATION (FINAL) =====
+    // ===== PRE-QUALIFICATION CONTROLLER (DEAF VERSION - FIXED) =====
+    code += '    class PreQualificationController {\n';
+    code += '        constructor() {\n';
+    code += '            this.isActive = false;\n';
+    code += '            this.script = null;\n';
+    code += '            this.answers = {};\n';
+    code += '        }\n';
+    code += '\n';
+    code += '        startInterview() {\n';
+    code += '            if (this.isActive) return;\n';
+    code += '            console.log("🎯 Starting pre-qualification interview");\n';
+    code += '            this.script = createSmartPreQualScript();\n';
+    code += '            this.isActive = true;\n';
+    code += '            const firstMessage = this.script.start();\n';
+    code += '            this.speak(firstMessage);\n';
+    code += '        }\n';
+    code += '\n';
+    code += '        handleUserInput(userText) {\n';
+    code += '            if (!this.isActive || !this.script) return;\n';
+    code += '            \n';
+    code += '            // Ignore her own voice\n';
+    code += '            if (userText.includes("I\'m Tess") || userText.includes("pre-qualified")) {\n';
+    code += '                console.log("🛑 Ignoring self-speech.");\n';
+    code += '                return;\n';
+    code += '            }\n';
+    code += '            \n';
+    code += '            console.log(`👤 User said: ${userText}`);\n';
+    code += '            const nextResponse = this.script.processResponse(userText);\n';
+    code += '            if (nextResponse) { this.speak(nextResponse); }\n';
+    code += '            if (!this.script.active) {\n';
+    code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
+    code += '                this.answers = this.script.getResults();\n';
+    code += '                this.sendEmail();\n';
+    code += '                this.isActive = false;\n';
+    code += '            }\n';
+    code += '        }\n';
+    code += '\n';
+    code += '        speak(text) {\n';
+    code += '            console.log(`🤖 Tess says: ${text}`);\n';
+    code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
+    code += '                window.mainWidget.sendMessage(text);\n';
+    code += '            }\n';
+    code += '        }\n';
+    code += '\n';
+    
+    // ===== FULL SEND EMAIL FUNCTION (RESTORED) =====
+    code += '        async sendEmail() {\n';
+    code += '            console.log("📧 Sending pre-qualification emails...");\n';
+    code += '            \n';
+    code += '            try {\n';
+    code += '                // ===== EMAIL 1: TO LOAN OFFICER =====\n';
+    code += '                await emailjs.send(\n';
+    code += '                    "service_b9bppgb",\n';
+    code += '                    "template_uix9cyx",\n';
+    code += '                    {\n';
+    code += '                        to_email: "loans@clientcompany.com",\n';
+    code += '                        cc_email: "",\n';
+    code += '                        subject: "New Pre-Qual Lead: {{firstName}} {{lastName}}".replace("{{firstName}}", this.answers.firstName || "Client").replace("{{lastName}}", this.answers.lastName || ""),\n';
+    code += '                        first_name: this.answers.firstName || "",\n';
+    code += '                        last_name: this.answers.lastName || "",\n';
+    code += '                        email: this.answers.email || "",\n';
+    code += '                        phone: this.answers.phone || "",\n';
+    code += '                        full_answers: JSON.stringify(this.answers, null, 2)\n';
+    code += '                    }\n';
+    code += '                );\n';
+    code += '                console.log("✅ Loan officer email sent");\n';
+    code += '\n';
+    code += '                // ===== EMAIL 2: TO CLIENT =====\n';
+    code += '                if (this.answers.email) {\n';
+    code += '                    await emailjs.send(\n';
+    code += '                        "service_b9bppgb",\n';
+    code += '                        "template_8kx812d",\n';
+    code += '                        {\n';
+    code += '                            to_email: this.answers.email,\n';
+    code += '                            first_name: this.answers.firstName || "Valued Client",\n';
+    code += '                            message: "Thank you for completing your pre-qualification! A loan officer will contact you within 15 minutes."\n';
+    code += '                        }\n';
+    code += '                    );\n';
+    code += '                    console.log("✅ Client confirmation email sent");\n';
+    code += '                }\n';
+    code += '            } catch (error) {\n';
+    code += '                console.error("❌ Failed to send emails:", error);\n';
+    code += '            }\n';
+    code += '        }\n';
+    code += '    }\n\n';
+    
+    // ===== INITIALIZE THE CONTROLLER =====
+    code += '    window.preQualController = new PreQualificationController();\n\n';
+    
+    // 1. THE EARS: Listen for User Speech to feed the Deaf Controller
+    code += '    window.addEventListener("message", (event) => {\n';
+    code += '        if (event.data && event.data.type === "transcript" && window.preQualController.isActive) {\n';
+    code += '            window.preQualController.handleUserInput(event.data.text);\n';
+    code += '        }\n';
+    code += '        // Fallback for LemonSlice\'s other event names\n';
+    code += '        if (event.data && event.data.role === "user" && window.preQualController.isActive) {\n';
+    code += '             window.preQualController.handleUserInput(event.data.content);\n';
+    code += '        }\n';
+    code += '    });\n\n';
+    
+    // 2. THE COMMANDS: Listen for Manual Triggers (from TCS Dashboard)
+    code += '    window.addEventListener("message", (event) => {\n';
+    code += '        if (event.data && event.data.type === "START_PRE_QUAL") {\n';
+    code += '            console.log("🚀 Received START_PRE_QUAL from Trigger Dashboard");\n';
+    code += '            if (window.preQualController) {\n';
+    code += '                window.preQualController.startInterview();\n';
+    code += '            }\n';
+    code += '        }\n';
+    code += '    });\n\n';
+    
+    // ===== WIDGET CREATION (FINAL - WORKING VERSION) =====
     code += '    function createMainWidget() {\n';
     code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
     code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
@@ -4036,13 +4025,15 @@ code += '    });\n';
     code += '        widget.style.display = \'none\';\n';
     code += '        widget.addEventListener(\'ready\', () => {\n';
     code += '            console.log(\'[Bridge] Widget Ready. Initializing Listeners...\');\n';
+    // 🔥 CRITICAL: This was missing in the broken version. It turns on the ears.
     code += '            setupTriggerListener(widget);\n';
+    // 🔥 NOTE: We do NOT call forceMortgageIntro here. That was causing the skip.
     code += '        });\n';
     code += '        \n';
     code += '        return widget;\n';
     code += '    }\n\n';
-
-            // ===== FORCE INTRO FUNCTION (AUDIT-STYLE) =====
+    
+    // ===== FORCE INTRO FUNCTION (SAFE) =====
     code += '    function forceMortgageIntro(widget) {\n';
     code += '        diagLog("Intro Function Triggered");\n';
     code += '        \n';
@@ -4069,176 +4060,67 @@ code += '    });\n';
     code += '        }, 3000);\n';
     code += '    }\n\n';
 
-        // Show Splash Function
-        code += '    function showSplash() {\n';
-        code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n'; // FIXED: Scoped correctly
-        code += '        if (!config || !config.enabled) return;\n\n';
+    // ===== ACTIVATE TESS FUNCTION (WITH WAKE UP CALL) =====
+    code += '    function activateTess() {\n';
+    code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
+    code += '        \n';
+    code += '        // 1. Try to pre-warm audio\n';
+    code += '        try {\n';
+    code += '            if (window.mainWidget && typeof window.mainWidget.micOn === "function") {\n';
+    code += '                window.mainWidget.micOn();\n';
+    code += '            }\n';
+    code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n\n';
 
-        code += '        const overlay = document.createElement(\'div\');\n';
-        code += '        overlay.className = \'splash-overlay\';\n';
-        code += '        overlay.id = \'splashOverlay\';\n';
-        code += '        overlay.style.cssText = `\n';
-        code += '            position: fixed; top: 0; left: 0; width: 100%; height: 100%;\n';
-        code += '            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);\n';
-        code += '            display: flex; align-items: center; justify-content: center; z-index: 99999;\n';
-        code += '        `;\n\n';
+    code += '        // 2. NUKE THE SPLASH WIDGET\n';
+    code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
+    code += '        if (splashWidget) {\n';
+    code += '            splashWidget.innerHTML = \'\';\n';
+    code += '            if (splashWidget.parentNode) {\n';
+    code += '                splashWidget.parentNode.removeChild(splashWidget);\n';
+    code += '            }\n';
+    code += '        }\n\n';
 
-        code += '        const card = document.createElement(\'div\');\n';
-        code += '        card.className = \'splash-card\';\n';
-        code += '        card.style.background = `radial-gradient(circle at center, ${config.gradientCenter || \'#1e4a8a\'} 0%, ${config.gradientOuter || \'#0a1a2f\'} 80%)`;\n\n';
-        
-        code += '        let cardHTML = `\n';
-        code += '            <h1>✨ ${config.title || \'Meet Tess!\'} ✨</h1>\n';
-        code += '            <h2>${config.subtitle || \'Your Personal AI Web Guide\'}</h2>\n';
-        code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
-        code += '            <div class="button-group">\n';
-        code += '                <button class="primary-btn" id="activateTessBtn" style="background: linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'}); color: ${config.primaryButton?.textColor || \'#0a0f1e\'};">${config.primaryButton?.text || \'Get AI help with Tess\'}</button>\n';
-        code += '                <button class="secondary-btn" id="justBrowsingBtn" style="background: linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'}); color: ${config.secondaryButton?.textColor || \'#ffffff\'};">${config.secondaryButton?.text || \'Just Browsing\'}</button>\n';
-        code += '            </div>\n';
-        code += '        `;\n\n';
-        
-        code += '        // Add white footer area with logo - EXACT DIMENSIONS\n';
-code += '        cardHTML += `\n';
-code += '            <div style="position: relative; width: 475px; left: 50%; transform: translateX(-50%); margin-top: 25px; background: white; border-radius: 0 0 48px 48px; padding: 15px 0; margin-bottom: -40px;">\n';
-code += '                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 415px; margin: 0 auto;">\n';
-code += '                    ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" style="height: 36px; width: auto;">\' : \'\'}\n';
-code += '                    ${config.branding?.name ? \'<span style="color: #333; font-size: 18px; font-weight: 500;">\' + config.branding.name + \'</span>\' : \'\'}\n';
-code += '                </div>\n';
-code += '            </div>\n';
-code += '        `;\n';
-        
-        code += '        card.innerHTML = cardHTML;\n\n';
+    code += '        // 3. Remove the overlay\n';
+    code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
+    code += '        if (overlay) overlay.remove();\n\n';
 
-        code += '        overlay.appendChild(card);\n';
-        code += '        document.body.appendChild(overlay);\n\n';
-
-        code += '        const container = document.getElementById(\'splashAvatarContainer\');\n';
-        code += '        const splashWidget = createSplashWidget();\n';
-        code += '        container.appendChild(splashWidget);\n\n';
-
-        code += '        // Add ticker tape if keywords exist\n';
-code += '        const tickerKeywords = config.tickerKeywords;\n';
-code += '        if (tickerKeywords) {\n';
-code += '            const keywords = tickerKeywords.split(\',\').map(k => k.trim()).filter(k => k);\n';
-code += '            \n';
-code += '            if (keywords.length > 0) {\n';
-code += '                const tickerContainer = document.createElement(\'div\');\n';
-code += '                tickerContainer.className = \'ticker-container\';\n';
-code += '                \n';
-code += '                const tickerContent = document.createElement(\'div\');\n';
-code += '                tickerContent.className = \'ticker-content\';\n';
-code += '                \n';
-code += '                // Duplicate keywords for seamless looping\n';
-code += '                const allKeywords = [...keywords, ...keywords];\n';
-code += '                \n';
-code += '                allKeywords.forEach(keyword => {\n';
-code += '                    const span = document.createElement(\'span\');\n';
-code += '                    span.className = \'ticker-item\';\n';
-code += '                    span.innerHTML = `<i class="fas fa-star"></i> ${keyword}`;\n';
-code += '                    tickerContent.appendChild(span);\n';
-code += '                });\n';
-code += '                \n';
-code += '                tickerContainer.appendChild(tickerContent);\n';
-code += '                container.appendChild(tickerContainer);\n';
-code += '            }\n';
-code += '        }\n';
-
-        code += '        document.getElementById(\'activateTessBtn\').addEventListener(\'click\', activateTess);\n';
-        code += '        document.getElementById(\'justBrowsingBtn\').addEventListener(\'click\', justBrowsing);\n\n';
-        
-        // Hover Effects (Condensed for brevity, logic remains same)
-        code += '        const primaryBtn = document.getElementById(\'activateTessBtn\');\n';
-        code += '        primaryBtn.onmouseover = () => { primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.hoverTop || \'#ffd700\'}, ${config.primaryButton?.hoverBottom || \'#e0b000\'})`; primaryBtn.style.transform = \'scale(1.02)\'; };\n';
-        code += '        primaryBtn.onmouseout = () => { primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'})`; primaryBtn.style.transform = \'scale(1)\'; };\n';
-        code += '        const secondaryBtn = document.getElementById(\'justBrowsingBtn\');\n';
-        code += '        secondaryBtn.onmouseover = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.hoverTop || \'#4a5060\'}, ${config.secondaryButton?.hoverBottom || \'#3a4050\'})`; secondaryBtn.style.transform = \'scale(1.02)\'; };\n';
-        code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
-        code += '    }\n\n';
-
-       // === ACTIVATE TESS (AUDIO GESTURE FIX + SHADOW DOM UNMUTE) ===
-code += '    async function forceUnmute() {\n';
-code += '        if (window.mainWidget) {\n';
-code += '            // 1. API Calls\n';
-code += '            try {\n';
-code += '                await window.mainWidget.micOn?.();\n';
-code += '                await window.mainWidget.unmute?.();\n';
-code += '            } catch(e) {\n';
-code += '                console.warn("Force unmute API error", e);\n';
-code += '            }\n';
-code += '            // 2. Nuclear Shadow DOM Unmute\n';
-code += '            try {\n';
-code += '                const shadow = window.mainWidget.shadowRoot;\n';
-code += '                if (shadow) {\n';
-code += '                    const v = shadow.querySelector(\'video\');\n';
-code += '                    const a = shadow.querySelector(\'audio\');\n';
-code += '                    if (v) { v.muted = false; v.volume = 1.0; v.play(); }\n';
-code += '                    if (a) { a.muted = false; a.volume = 1.0; a.play(); }\n';
-code += '                }\n';
-code += '            } catch(e) {}\n';
-code += '        }\n';
-code += '    }\n\n';
-
-code += '    function activateTess() {\n';
-code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
-code += '        \n';
-code += '        // 1. Try to pre-warm audio\n';
-code += '        try {\n';
-code += '            if (window.mainWidget && typeof window.mainWidget.micOn === "function") {\n';
-code += '                window.mainWidget.micOn();\n';
-code += '            }\n';
-code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n\n';
-
-code += '        // 2. NUKE THE SPLASH WIDGET\n';
-code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
-code += '        if (splashWidget) {\n';
-code += '            splashWidget.innerHTML = \'\';\n';
-code += '            if (splashWidget.parentNode) {\n';
-code += '                splashWidget.parentNode.removeChild(splashWidget);\n';
-code += '            }\n';
-code += '        }\n\n';
-
-code += '        // 3. Remove the overlay\n';
-code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
-code += '        if (overlay) overlay.remove();\n\n';
-
-code += '        // 4. CREATE MAIN WIDGET\n';
-code += '        setTimeout(() => {\n';
-code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
-code += '                window.mainWidget = createMainWidget();\n';
-code += '                window.mainWidget.setAttribute(\'hide-ui\', \'true\');\n';
-code += '                document.body.appendChild(window.mainWidget);\n';
-code += '            }\n';
-code += '            \n';
-code += '            window.mainWidget.style.display = \'block\';\n';
-code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
-code += '            \n';
-code += '            // 5. Activate Audio\n';
-code += '            setTimeout(async () => {\n';
-code += '                console.log("🎤 Finalizing audio state...");\n';
-code += '                try {\n';
-code += '                    if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
-code += '                        await window.mainWidget.micOn();\n';
-code += '                        await window.mainWidget.unmute?.();\n';
-code += '                        console.log("✅ Microphone activated");\n';
-code += '                        \n';
-code += '                        // Force unmute shadow DOM as backup\n';
-code += '                        await forceUnmute();\n';
-code += '                        \n';
-code += '                        // 🔥 NEW: WAKE UP THE CONTROLLER\n';
-code += '                        // Manually start the interview if we are in "Test Mode" or just say Hi.\n';
-code += '                        if (window.preQualController) {\n';
-code += '                            console.log("🚀 Manually triggering interview start...");\n';
-code += '                            window.preQualController.startInterview();\n';
-code += '                        }\n';
-code += '                        \n';
-code += '                    }\n';
-code += '                } catch (e) {\n';
-code += '                    console.error("❌ Mic activation failed:", e);\n';
-code += '                    forceUnmute();\n';
-code += '                }\n';
-code += '            }, 3000);\n';
-code += '        }, 100);\n';
-code += '    }\n\n';
+    code += '        // 4. CREATE MAIN WIDGET\n';
+    code += '        setTimeout(() => {\n';
+    code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
+    code += '                window.mainWidget = createMainWidget();\n';
+    code += '                window.mainWidget.setAttribute(\'hide-ui\', \'true\');\n';
+    code += '                document.body.appendChild(window.mainWidget);\n';
+    code += '            }\n';
+    code += '            \n';
+    code += '            window.mainWidget.style.display = \'block\';\n';
+    code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
+    code += '            \n';
+    code += '            // 5. Activate Audio\n';
+    code += '            setTimeout(async () => {\n';
+    code += '                console.log("🎤 Finalizing audio state...");\n';
+    code += '                try {\n';
+    code += '                    if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
+    code += '                        await window.mainWidget.micOn();\n';
+    code += '                        await window.mainWidget.unmute?.();\n';
+    code += '                        console.log("✅ Microphone activated");\n';
+    code += '                        \n';
+    code += '                        // Force unmute shadow DOM as backup\n';
+    code += '                        await forceUnmute();\n';
+    code += '                        \n';
+    code += '                        // 🔥 WAKE UP CALL: This starts the interview\n';
+    code += '                        if (window.preQualController) {\n';
+    code += '                            console.log("🚀 Manually triggering interview start...");\n';
+    code += '                            window.preQualController.startInterview();\n';
+    code += '                        }\n';
+    code += '                        \n';
+    code += '                    }\n';
+    code += '                } catch (e) {\n';
+    code += '                    console.error("❌ Mic activation failed:", e);\n';
+    code += '                    forceUnmute();\n';
+    code += '                }\n';
+    code += '            }, 3000);\n';
+    code += '        }, 100);\n';
+    code += '    }\n\n';
 
 code += '    function showPersistentAvatar() {\n';
 code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n';
