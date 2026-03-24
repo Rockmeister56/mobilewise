@@ -4078,7 +4078,7 @@ code += '    }\n\n';
     code += '    }\n\n';
 
         // ===== ACTIVATE TESS FUNCTION =====
-    code += '    function activateTess() {\n';
+    code += '    window.activateTess = function() {\n';
     code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
     code += '        \n';
     code += '        // 1. Try to pre-warm audio\n';
