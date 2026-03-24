@@ -4406,16 +4406,20 @@ code += '    }\n\n';
        // Auto-Trigger System
 code += '    window.disableBridgeTriggers = false;\n\n';
 
-code += '    // ===== LOAD WIDGET =====\n';
+// ===== LOAD WIDGET =====
 code += '    function initWidget() {\n';
 code += '        if (document.querySelector(\'lemon-slice-widget\')) { console.log(\'✅ Widget already exists\'); return; }\n';
-code += '        setTimeout(() => { showSplash(); }, 100);\n';
+        
+// 1. Load the Script
 code += '        const script = document.createElement(\'script\');\n';
 code += '        script.src = \'https://unpkg.com/@lemonsliceai/lemon-slice-widget\';\n';
 code += '        script.type = \'module\';\n';
 code += '        script.onload = () => { console.log(\'✅ Widget script loaded\'); };\n';
 code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
 code += '        document.head.appendChild(script);\n';
+        
+// 2. Create Splash Widget
+code += '        setTimeout(() => { showSplash(); }, 100);\n';
 code += '    }\n\n';
 
 code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
