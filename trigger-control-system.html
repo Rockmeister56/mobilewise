@@ -778,24 +778,35 @@ monitorTessMessages() {
         // Try to get message from shadow DOM
         try {
             if (widget.shadowRoot) {
-                // Look for any elements that might contain Tess's speech
-                const allElements = widget.shadowRoot.querySelectorAll('*');
-                for (const el of allElements) {
+                // Look specifically for message elements, not all elements
+                const messageElements = widget.shadowRoot.querySelectorAll('[class*="message"], [class*="bubble"], [class*="response"], .ai-message, .assistant-message');
+                
+                for (const el of messageElements) {
                     const text = el.textContent || el.innerText || '';
-                    // Look for text that sounds like Tess's response (not user input)
-                    if (text.length > 20 && !text.toLowerCase().includes('user') && !text.toLowerCase().includes('you said')) {
+                    // Filter out CSS and short messages
+                    if (text.length > 10 && text.length < 500 && !text.includes('@layer') && !text.includes('{') && !text.includes('}')) {
                         currentMessage = text;
                         break;
+                    }
+                }
+                
+                // If no message found, try looking for any element with text that sounds like speech
+                if (!currentMessage) {
+                    const allElements = widget.shadowRoot.querySelectorAll('div, span, p');
+                    for (const el of allElements) {
+                        const text = el.textContent || el.innerText || '';
+                        // Look for natural language (contains words, not CSS)
+                        if (text.length > 20 && text.length < 500 && 
+                            !text.includes('@') && !text.includes('{') && 
+                            /[a-zA-Z]/.test(text) && text.includes(' ')) {
+                            currentMessage = text;
+                            break;
+                        }
                     }
                 }
             }
         } catch(e) {
             console.log('Error reading shadow DOM:', e);
-        }
-        
-        // If no message found, try looking at widget attributes or state
-        if (!currentMessage && widget.getAttribute) {
-            currentMessage = widget.getAttribute('last-message') || '';
         }
         
         // Only process if we have a new message
