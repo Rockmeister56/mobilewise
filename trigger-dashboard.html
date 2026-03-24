@@ -4077,6 +4077,69 @@ code += '    }\n\n';
     code += '        }, 3000);\n';
     code += '    }\n\n';
 
+        // ===== ACTIVATE TESS FUNCTION =====
+    code += '    function activateTess() {\n';
+    code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
+    code += '        \n';
+    code += '        // 1. Try to pre-warm audio\n';
+    code += '        try {\n';
+    code += '            if (window.mainWidget && typeof window.mainWidget.micOn === "function") {\n';
+    code += '                window.mainWidget.micOn();\n';
+    code += '            }\n';
+    code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n\n';
+
+    code += '        // 2. NUKE THE SPLASH WIDGET\n';
+    code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
+    code += '        if (splashWidget) {\n';
+    code += '            splashWidget.innerHTML = \'\';\n';
+    code += '            if (splashWidget.parentNode) {\n';
+    code += '                splashWidget.parentNode.removeChild(splashWidget);\n';
+    code += '            }\n';
+    code += '        }\n\n';
+
+    code += '        // 3. Remove the overlay\n';
+    code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
+    code += '        if (overlay) overlay.remove();\n\n';
+
+    code += '        // 4. CREATE MAIN WIDGET\n';
+    code += '        setTimeout(() => {\n';
+    code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
+    code += '                window.mainWidget = createMainWidget();\n';
+    code += '                window.mainWidget.setAttribute(\'hide-ui\', \'true\');\n';
+    code += '                document.body.appendChild(window.mainWidget);\n';
+    code += '            }\n';
+    code += '            \n';
+    code += '            window.mainWidget.style.display = \'block\';\n';
+    code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
+    code += '            \n';
+    code += '            // 5. Activate Audio\n';
+    code += '            setTimeout(async () => {\n';
+    code += '                console.log("🎤 Finalizing audio state...");\n';
+    code += '                try {\n';
+    code += '                    if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
+    code += '                        await window.mainWidget.micOn();\n';
+    code += '                        await window.mainWidget.unmute?.();\n';
+    code += '                        console.log("✅ Microphone activated");\n';
+    code += '                        \n';
+    code += '                        // Force unmute shadow DOM as backup\n';
+    code += '                        await forceUnmute();\n';
+    code += '                        \n';
+    code += '                        // 🔥 ADDED BACK: Wake Up Call for Interview\n';
+    code += '                        // We removed this before, but we need it now!\n';
+    code += '                        if (window.preQualController) {\n';
+    code += '                           console.log("🚀 Manually triggering interview start...");\n';
+    code += '                           window.preQualController.startInterview();\n';
+    code += '                        }\n';
+    code += '                        \n';
+    code += '                    }\n';
+    code += '                } catch (e) {\n';
+    code += '                    console.error("❌ Mic activation failed:", e);\n';
+    code += '                    forceUnmute();\n';
+    code += '                }\n';
+    code += '            }, 3000);\n';
+    code += '        }, 100);\n';
+    code += '    }\n\n';
+
         // Show Splash Function
         code += '    function showSplash() {\n';
         code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n'; // FIXED: Scoped correctly
@@ -4185,64 +4248,6 @@ code += '                }\n';
 code += '            } catch(e) {}\n';
 code += '        }\n';
 code += '    }\n\n';
-
-    function activateTess() {
-        console.log("🖱️ Click detected: Capturing user gesture for audio...");
-        
-        // 1. Try to pre-warm audio
-        try {
-            if (window.mainWidget && typeof window.mainWidget.micOn === "function") {
-                window.mainWidget.micOn();
-            }
-        } catch(e) { console.warn("Audio pre-check:", e); }
-
-        // 2. NUKE THE SPLASH WIDGET
-        const splashWidget = document.getElementById('splash-widget');
-        if (splashWidget) {
-            splashWidget.innerHTML = '';
-            if (splashWidget.parentNode) {
-                splashWidget.parentNode.removeChild(splashWidget);
-            }
-        }
-
-        // 3. Remove the overlay
-        const overlay = document.getElementById('splashOverlay');
-        if (overlay) overlay.remove();
-
-        // 4. CREATE MAIN WIDGET
-        setTimeout(() => {
-            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {
-                window.mainWidget = createMainWidget();
-                window.mainWidget.setAttribute('hide-ui', 'true');
-                document.body.appendChild(window.mainWidget);
-            }
-            
-            window.mainWidget.style.display = 'block';
-            window.mainWidget.setAttribute('controlled-widget-state', 'active');
-            
-            // 5. Activate Audio
-            setTimeout(async () => {
-                console.log("🎤 Finalizing audio state...");
-                try {
-                    if (window.mainWidget && typeof window.mainWidget.micOn === 'function') {
-                        await window.mainWidget.micOn();
-                        await window.mainWidget.unmute?.();
-                        console.log("✅ Microphone activated");
-                        
-                        // Force unmute shadow DOM as backup
-                        await forceUnmute();
-                        
-                        // 🔥 REMOVED THE MANUAL START INTERVIEW CALL
-                        // Let forceMortgageIntro handle the greeting.
-                        
-                    }
-                } catch (e) {
-                    console.error("❌ Mic activation failed:", e);
-                    forceUnmute();
-                }
-            }, 3000);
-        }, 100);
-    }
 
 code += '    function showPersistentAvatar() {\n';
 code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n';
