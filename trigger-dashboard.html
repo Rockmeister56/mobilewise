@@ -4019,49 +4019,107 @@ code += '            }\n';
 code += '        }\n';
 code += '    });\n\n';
 
-// ===== WIDGET CREATION (FINAL) =====
-code += '    function createMainWidget() {\n';
-code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
-code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
-code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
-code += '        widget.id = \'main-widget\';\n';
-code += '        widget.style.display = \'none\';\n';
-code += '        widget.addEventListener(\'ready\', () => {\n';
-code += '            console.log(\'[Bridge] Widget Ready. Sending intro...\');\n';
-code += '            forceMortgageIntro(widget);\n';  // 🔥 CALL THE INTRO HERE
-code += '        });\n';
-code += '        \n';
-code += '        return widget;\n';
-code += '    }\n\n';
+    // ===== WIDGET CREATION (FINAL - SAFE) =====
+    code += '    function createMainWidget() {\n';
+    code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
+    code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
+    code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
+    code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
+    code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
+    code += '        widget.id = \'main-widget\';\n';
+    code += '        widget.style.display = \'none\';\n';
+    code += '        widget.addEventListener(\'ready\', () => {\n';
+    code += '            console.log(\'[Bridge] Main Widget Ready.\');\n';
+    
+    // 🔥 ACTIVATE EARS: Listen for triggers
+    code += '            window.listenersActive = true;\n';
+    code += '            setupTriggerListener(widget);\n';
+    
+    // 🔥 START INTRO: Say hello
+    code += '            forceMortgageIntro(widget);\n';
+    
+    code += '        });\n';
+    code += '        \n';
+    code += '        return widget;\n';
+    code += '    }\n\n';
 
-// ===== FORCE INTRO FUNCTION (AUDIT-STYLE) =====
-code += '    function forceMortgageIntro(widget) {\n';
-code += '        console.log("🎯 Intro Function Triggered");\n';
-code += '        \n';
-code += '        widget.setAttribute(\'controlled-widget-state\', \'active\');\n';
-code += '        console.log("Widget state set to active");\n';
-code += '        \n';
-code += '        try { widget.micOn?.(); widget.unmute?.(); } catch(e) {}\n';
-code += '        console.log("Mic/Unmute attempted");\n';
-code += '        \n';
-code += '        const message = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
-code += '        \n';
-code += '        setTimeout(() => {\n';
-code += '            console.log("Timeout finished. Sending message...");\n';
-code += '            try {\n';
-code += '                if (typeof widget.sendMessage === \'function\') {\n';
-code += '                    widget.sendMessage(message);\n';
-code += '                    console.log("✅ Intro message sent successfully");\n';
-code += '                } else {\n';
-code += '                    console.error("ERROR: sendMessage missing");\n';
-code += '                }\n';
-code += '            } catch (e) {\n';
-code += '                console.error("CRASH: " + e.message);\n';
-code += '            }\n';
-code += '        }, 3000);\n';
-code += '    }\n\n';
+     // ===== GLOBAL TRIGGER LISTENER (THE EARS) =====
+    code += '    function setupTriggerListener(widget) {\n';
+    code += '        console.log(\'👂 Setting up external trigger listener...\');\n';
+    code += '\n';
+    code += '        // Method 1: Listen for the widget\'s \'response\' event\n';
+    code += '        widget.addEventListener(\'response\', (event) => {\n';
+    code += '            if (!window.listenersActive) return; // Safety Stop\n';
+    code += '            const aiText = event.detail?.text || event.detail || \'\';\n';
+    code += '            checkForTrigger(aiText);\n';
+    code += '        });\n';
+    code += '\n';
+    code += '        // Method 2: Listen for generic \'message\' events (backup)\n';
+    code += '        window.addEventListener(\'message\', (event) => {\n';
+    code += '            if (!window.listenersActive) return; // Safety Stop\n';
+    code += '            // LemonSlice often sends transcriptions this way\n';
+    code += '            if (event.data && event.data.type === \'ai_response\') {\n';
+    code += '                 checkForTrigger(event.data.text);\n';
+    code += '            }\n';
+    code += '            // Some versions send \'transcript\'\n';
+    code += '            if (event.data && event.data.type === \'transcript\') {\n';
+    code += '                 checkForTrigger(event.data.text);\n';
+    code += '            }\n';
+    code += '        });\n';
+    code += '    }\n\n';
+
+    code += '    function checkForTrigger(text) {\n';
+    code += '        if (!text) return;\n';
+    code += '        // Look for the exact phrase Tess is supposed to say\n';
+    code += '        if (text.includes("LET\'S GET YOU PRE-QUALIFIED") || text.includes("get you pre-qualified")) {\n';
+    code += '            console.log("🎯 TRIGGER PHRASE DETECTED EXTERNALLY!");\n';
+    code += '            firePreQualTrigger();\n';
+    code += '        }\n';
+    code += '    }\n\n';
+
+    code += '    function firePreQualTrigger() {\n';
+    code += '        if (window.preQualFired) return; // Safety stop\n';
+    code += '        window.preQualFired = true;\n';
+    code += '        \n';
+    code += '        console.log("🚀 Sending START_PRE_QUAL to Controller...");\n';
+    code += '        window.dispatchEvent(new CustomEvent(\'message\', { \n';
+    code += '            detail: { type: \'START_PRE_QUAL\' } \n';
+    code += '        }));\n';
+    code += '        \n';
+    code += '        // Direct call (most reliable)\n';
+    code += '        if (window.preQualController) {\n';
+    code += '            window.preQualController.startInterview();\n';
+    code += '        }\n';
+    code += '    }\n\n';
+    
+    // 🔥 SAFETY 1: Stop if interview is already running
+    code += '        if (window.preQualController && window.preQualController.isActive) {\n';
+    code += '            console.log(\'[Bridge] Skipping intro - Interview already active.\');\n';
+    code += '            return;\n';
+    code += '        }\n';
+    code += '        \n';
+    code += '        console.log("🎯 Intro Function Triggered");\n';
+    code += '        \n';
+    code += '        widget.setAttribute(\'controlled-widget-state\', \'active\');\n';
+    
+    // 🔥 SAFETY 2: Disable triggers during intro so she doesn't hear herself
+    code += '        window.preQualFired = true;\n';
+    code += '        \n';
+    code += '        try { widget.micOn?.(); widget.unmute?.(); } catch(e) {}\n';
+    code += '        \n';
+    code += '        const message = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
+    code += '        \n';
+    code += '        setTimeout(() => {\n';
+    code += '            try {\n';
+    code += '                if (typeof widget.sendMessage === \'function\') {\n';
+    code += '                    widget.sendMessage(message);\n';
+    code += '                    console.log("✅ Intro message sent successfully");\n';
+    code += '                }\n';
+    code += '            } catch (e) {\n';
+    code += '                console.error("CRASH: " + e.message);\n';
+    code += '            }\n';
+    code += '        }, 3000);\n';
+    code += '    }\n\n';
 
         // Show Splash Function
         code += '    function showSplash() {\n';
@@ -4172,67 +4230,63 @@ code += '            } catch(e) {}\n';
 code += '        }\n';
 code += '    }\n\n';
 
-code += '    function activateTess() {\n';
-code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
-code += '        \n';
-code += '        // 1. Try to pre-warm audio\n';
-code += '        try {\n';
-code += '            if (window.mainWidget && typeof window.mainWidget.micOn === "function") {\n';
-code += '                window.mainWidget.micOn();\n';
-code += '            }\n';
-code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n\n';
+    function activateTess() {
+        console.log("🖱️ Click detected: Capturing user gesture for audio...");
+        
+        // 1. Try to pre-warm audio
+        try {
+            if (window.mainWidget && typeof window.mainWidget.micOn === "function") {
+                window.mainWidget.micOn();
+            }
+        } catch(e) { console.warn("Audio pre-check:", e); }
 
-code += '        // 2. NUKE THE SPLASH WIDGET\n';
-code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
-code += '        if (splashWidget) {\n';
-code += '            splashWidget.innerHTML = \'\';\n';
-code += '            if (splashWidget.parentNode) {\n';
-code += '                splashWidget.parentNode.removeChild(splashWidget);\n';
-code += '            }\n';
-code += '        }\n\n';
+        // 2. NUKE THE SPLASH WIDGET
+        const splashWidget = document.getElementById('splash-widget');
+        if (splashWidget) {
+            splashWidget.innerHTML = '';
+            if (splashWidget.parentNode) {
+                splashWidget.parentNode.removeChild(splashWidget);
+            }
+        }
 
-code += '        // 3. Remove the overlay\n';
-code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
-code += '        if (overlay) overlay.remove();\n\n';
+        // 3. Remove the overlay
+        const overlay = document.getElementById('splashOverlay');
+        if (overlay) overlay.remove();
 
-code += '        // 4. CREATE MAIN WIDGET\n';
-code += '        setTimeout(() => {\n';
-code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
-code += '                window.mainWidget = createMainWidget();\n';
-code += '                window.mainWidget.setAttribute(\'hide-ui\', \'true\');\n';
-code += '                document.body.appendChild(window.mainWidget);\n';
-code += '            }\n';
-code += '            \n';
-code += '            window.mainWidget.style.display = \'block\';\n';
-code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
-code += '            \n';
-code += '            // 5. Activate Audio\n';
-code += '            setTimeout(async () => {\n';
-code += '                console.log("🎤 Finalizing audio state...");\n';
-code += '                try {\n';
-code += '                    if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
-code += '                        await window.mainWidget.micOn();\n';
-code += '                        await window.mainWidget.unmute?.();\n';
-code += '                        console.log("✅ Microphone activated");\n';
-code += '                        \n';
-code += '                        // Force unmute shadow DOM as backup\n';
-code += '                        await forceUnmute();\n';
-code += '                        \n';
-code += '                        // 🔥 NEW: WAKE UP THE CONTROLLER\n';
-code += '                        // Manually start the interview if we are in "Test Mode" or just say Hi.\n';
-code += '                        if (window.preQualController) {\n';
-code += '                            console.log("🚀 Manually triggering interview start...");\n';
-code += '                            window.preQualController.startInterview();\n';
-code += '                        }\n';
-code += '                        \n';
-code += '                    }\n';
-code += '                } catch (e) {\n';
-code += '                    console.error("❌ Mic activation failed:", e);\n';
-code += '                    forceUnmute();\n';
-code += '                }\n';
-code += '            }, 3000);\n';
-code += '        }, 100);\n';
-code += '    }\n\n';
+        // 4. CREATE MAIN WIDGET
+        setTimeout(() => {
+            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {
+                window.mainWidget = createMainWidget();
+                window.mainWidget.setAttribute('hide-ui', 'true');
+                document.body.appendChild(window.mainWidget);
+            }
+            
+            window.mainWidget.style.display = 'block';
+            window.mainWidget.setAttribute('controlled-widget-state', 'active');
+            
+            // 5. Activate Audio
+            setTimeout(async () => {
+                console.log("🎤 Finalizing audio state...");
+                try {
+                    if (window.mainWidget && typeof window.mainWidget.micOn === 'function') {
+                        await window.mainWidget.micOn();
+                        await window.mainWidget.unmute?.();
+                        console.log("✅ Microphone activated");
+                        
+                        // Force unmute shadow DOM as backup
+                        await forceUnmute();
+                        
+                        // 🔥 REMOVED THE MANUAL START INTERVIEW CALL
+                        // Let forceMortgageIntro handle the greeting.
+                        
+                    }
+                } catch (e) {
+                    console.error("❌ Mic activation failed:", e);
+                    forceUnmute();
+                }
+            }, 3000);
+        }, 100);
+    }
 
 code += '    function showPersistentAvatar() {\n';
 code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n';
