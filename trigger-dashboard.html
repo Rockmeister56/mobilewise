@@ -4060,6 +4060,92 @@ code += '    }\n\n';
     code += '        }, 3000);\n';
     code += '    }\n\n';
 
+          // Show Splash Function
+        code += '    function showSplash() {\n';
+        code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n'; // FIXED: Scoped correctly
+        code += '        if (!config || !config.enabled) return;\n\n';
+
+        code += '        const overlay = document.createElement(\'div\');\n';
+        code += '        overlay.className = \'splash-overlay\';\n';
+        code += '        overlay.id = \'splashOverlay\';\n';
+        code += '        overlay.style.cssText = `\n';
+        code += '            position: fixed; top: 0; left: 0; width: 100%; height: 100%;\n';
+        code += '            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);\n';
+        code += '            display: flex; align-items: center; justify-content: center; z-index: 99999;\n';
+        code += '        `;\n\n';
+
+        code += '        const card = document.createElement(\'div\');\n';
+        code += '        card.className = \'splash-card\';\n';
+        code += '        card.style.background = `radial-gradient(circle at center, ${config.gradientCenter || \'#1e4a8a\'} 0%, ${config.gradientOuter || \'#0a1a2f\'} 80%)`;\n\n';
+        
+        code += '        let cardHTML = `\n';
+        code += '            <h1>✨ ${config.title || \'Meet Tess!\'} ✨</h1>\n';
+        code += '            <h2>${config.subtitle || \'Your Personal AI Web Guide\'}</h2>\n';
+        code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
+        code += '            <div class="button-group">\n';
+        code += '                <button class="primary-btn" id="activateTessBtn" style="background: linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'}); color: ${config.primaryButton?.textColor || \'#0a0f1e\'};">${config.primaryButton?.text || \'Get AI help with Tess\'}</button>\n';
+        code += '                <button class="secondary-btn" id="justBrowsingBtn" style="background: linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'}); color: ${config.secondaryButton?.textColor || \'#ffffff\'};">${config.secondaryButton?.text || \'Just Browsing\'}</button>\n';
+        code += '            </div>\n';
+        code += '        `;\n\n';
+        
+        code += '        // Add white footer area with logo - EXACT DIMENSIONS\n';
+code += '        cardHTML += `\n';
+code += '            <div style="position: relative; width: 475px; left: 50%; transform: translateX(-50%); margin-top: 25px; background: white; border-radius: 0 0 48px 48px; padding: 15px 0; margin-bottom: -40px;">\n';
+code += '                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 415px; margin: 0 auto;">\n';
+code += '                    ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" style="height: 36px; width: auto;">\' : \'\'}\n';
+code += '                    ${config.branding?.name ? \'<span style="color: #333; font-size: 18px; font-weight: 500;">\' + config.branding.name + \'</span>\' : \'\'}\n';
+code += '                </div>\n';
+code += '            </div>\n';
+code += '        `;\n';
+        
+        code += '        card.innerHTML = cardHTML;\n\n';
+
+        code += '        overlay.appendChild(card);\n';
+        code += '        document.body.appendChild(overlay);\n\n';
+
+        code += '        const container = document.getElementById(\'splashAvatarContainer\');\n';
+        code += '        const splashWidget = createSplashWidget();\n';
+        code += '        container.appendChild(splashWidget);\n\n';
+
+        code += '        // Add ticker tape if keywords exist\n';
+code += '        const tickerKeywords = config.tickerKeywords;\n';
+code += '        if (tickerKeywords) {\n';
+code += '            const keywords = tickerKeywords.split(\',\').map(k => k.trim()).filter(k => k);\n';
+code += '            \n';
+code += '            if (keywords.length > 0) {\n';
+code += '                const tickerContainer = document.createElement(\'div\');\n';
+code += '                tickerContainer.className = \'ticker-container\';\n';
+code += '                \n';
+code += '                const tickerContent = document.createElement(\'div\');\n';
+code += '                tickerContent.className = \'ticker-content\';\n';
+code += '                \n';
+code += '                // Duplicate keywords for seamless looping\n';
+code += '                const allKeywords = [...keywords, ...keywords];\n';
+code += '                \n';
+code += '                allKeywords.forEach(keyword => {\n';
+code += '                    const span = document.createElement(\'span\');\n';
+code += '                    span.className = \'ticker-item\';\n';
+code += '                    span.innerHTML = `<i class="fas fa-star"></i> ${keyword}`;\n';
+code += '                    tickerContent.appendChild(span);\n';
+code += '                });\n';
+code += '                \n';
+code += '                tickerContainer.appendChild(tickerContent);\n';
+code += '                container.appendChild(tickerContainer);\n';
+code += '            }\n';
+code += '        }\n';
+
+        code += '        document.getElementById(\'activateTessBtn\').addEventListener(\'click\', activateTess);\n';
+        code += '        document.getElementById(\'justBrowsingBtn\').addEventListener(\'click\', justBrowsing);\n\n';
+        
+        // Hover Effects (Condensed for brevity, logic remains same)
+        code += '        const primaryBtn = document.getElementById(\'activateTessBtn\');\n';
+        code += '        primaryBtn.onmouseover = () => { primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.hoverTop || \'#ffd700\'}, ${config.primaryButton?.hoverBottom || \'#e0b000\'})`; primaryBtn.style.transform = \'scale(1.02)\'; };\n';
+        code += '        primaryBtn.onmouseout = () => { primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'})`; primaryBtn.style.transform = \'scale(1)\'; };\n';
+        code += '        const secondaryBtn = document.getElementById(\'justBrowsingBtn\');\n';
+        code += '        secondaryBtn.onmouseover = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.hoverTop || \'#4a5060\'}, ${config.secondaryButton?.hoverBottom || \'#3a4050\'})`; secondaryBtn.style.transform = \'scale(1.02)\'; };\n';
+        code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
+        code += '    }\n\n';
+
     // ===== ACTIVATE TESS FUNCTION (WITH WAKE UP CALL) =====
     code += '    function activateTess() {\n';
     code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
@@ -4288,111 +4374,115 @@ code += '    }\n\n';
        // Auto-Trigger System
 code += '    window.disableBridgeTriggers = false;\n\n';
 
-code += '    // ===== LOAD WIDGET =====\n';
-code += '    function initWidget() {\n';
-code += '        if (document.querySelector(\'lemon-slice-widget\')) { console.log(\'✅ Widget already exists\'); return; }\n';
-code += '        setTimeout(() => { showSplash(); }, 100);\n';
-code += '        const script = document.createElement(\'script\');\n';
-code += '        script.src = \'https://unpkg.com/@lemonsliceai/lemon-slice-widget\';\n';
-code += '        script.type = \'module\';\n';
-code += '        script.onload = () => { console.log(\'✅ Widget script loaded\'); };\n';
-code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
-code += '        document.head.appendChild(script);\n';
-code += '    }\n\n';
+                // ===== LOAD WIDGET =====
+        code += '    function initWidget() {\n';
+        code += '        if (document.querySelector(\'lemon-slice-widget\')) { console.log(\'✅ Widget already exists\'); return; }\n';
+        
+        // 1. Load the Script
+        code += '        const script = document.createElement(\'script\');\n';
+        code += '        script.src = \'https://unpkg.com/@lemonsliceai/lemon-slice-widget\';\n';
+        code += '        script.type = \'module\';\n';
+        code += '        script.onload = () => { console.log(\'✅ Widget script loaded\'); };\n';
+        code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
+        code += '        document.head.appendChild(script);\n';
+        
+        // 2. Create Splash Widget (This is now our ONLY widget)
+        code += '        setTimeout(() => { showSplash(); }, 100);\n';
+        code += '    }\n\n';
 
-code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
-code += '    else { initWidget(); }\n\n';
+        code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
+        code += '    else { initWidget(); }\n\n';
+        
+        code += '    console.log(\'✅ Botemia Bridge v5.4 loaded for\', window.BotemiaConfig.name);\n';
 
-code += '    console.log(\'✅ Botemia Bridge v5.4 loaded for\', window.BotemiaConfig.name);\n';
+        code += '    // ===== CLIENT ANNOUNCEMENT FUNCTION =====\n';
+        code += '    function announceToTCS() {\n';
+        code += '        if (window.opener) {\n';
+        code += '            window.opener.postMessage({\n';
+        code += '                type: \'BRIDGE_ACTIVE\',\n';
+        code += '                clientId: window.BotemiaConfig.id,\n';
+        code += '                url: window.location.href\n';
+        code += '            }, \'*\');\n';
+        code += '        }\n';
+        code += '        const channel = new BroadcastChannel(\'botemia-discovery\');\n';
+        code += '        channel.postMessage({\n';
+        code += '            type: \'CLIENT_INFO\',\n';
+        code += '            clientId: window.BotemiaConfig.id,\n';
+        code += '            url: window.location.href\n';
+        code += '        });\n';
+        code += '        console.log(\'📢 Announced to TCS via broadcast\');\n';
+        code += '    }\n';
+        code += '\n';
+        code += '    setTimeout(announceToTCS, 2000);\n\n';
 
-code += '    // ===== CLIENT ANNOUNCEMENT FUNCTION =====\n';
-code += '    function announceToTCS() {\n';
-code += '        if (window.opener) {\n';
-code += '            window.opener.postMessage({\n';
-code += '                type: \'BRIDGE_ACTIVE\',\n';
-code += '                clientId: window.BotemiaConfig.id,\n';
-code += '                url: window.location.href\n';
-code += '            }, \'*\');\n';
-code += '        }\n';
-code += '        const channel = new BroadcastChannel(\'botemia-discovery\');\n';
-code += '        channel.postMessage({\n';
-code += '            type: \'CLIENT_INFO\',\n';
-code += '            clientId: window.BotemiaConfig.id,\n';
-code += '            url: window.location.href\n';
-code += '        });\n';
-code += '        console.log(\'📢 Announced to TCS via broadcast\');\n';
-code += '    }\n';
-code += '\n';
-code += '    setTimeout(announceToTCS, 2000);\n\n';
-
-// ===== CONSOLIDATED MESSAGE HANDLER (NOISE CANCELING) =====
-code += '    window.addEventListener(\'message\', function(event) {\n';
-code += '        \n';
-code += '        // 🔥 CRITICAL FIX: Ignore empty/undefined messages immediately\n';
-code += '        if (!event.data || !event.data.type) return;\n';
-code += '        \n';
-code += '        console.log(\'📨 Client received message:\', event.data.type);\n';
-code += '        \n';
-code += '        // Handle Dashboard Commands\n';
-code += '        if (event.data.type === \'DASHBOARD_COMMAND\') {\n';
-code += '            if (event.data.command === \'toggleOverlays\') { window.disableBridgeTriggers = event.data.disabled; }\n';
-code += '            return;\n';
-code += '        }\n';
-code += '        \n';
-code += '        // Handle Module Triggers\n';
-code += '        if (event.data.type === \'MODULE_TRIGGERED\' && !window.disableBridgeTriggers) { window.showModule(event.data.module, event.data.triggerPhrase); }\n';
-code += '        \n';
-code += '        // 1. HANDSHAKE: TCS says "I\'m Ready"\n';
-code += '        if (event.data?.type === \'TCS_READY\') {\n';
-code += '            console.log(\'✅ TCS Ready signal received! Responding...\');\n';
-code += '            if (event.source) {\n';
-code += '                event.source.postMessage({\n';
-code += '                    type: \'CLIENT_INFO\',\n';
-code += '                    clientId: window.BotemiaConfig.id,\n';
-code += '                    name: window.BotemiaConfig.name,\n';
-code += '                    url: window.location.href,\n';
-code += '                    timestamp: Date.now(),\n';
-code += '                    status: \'ready\'\n';
-code += '                }, \'*\');\n';
-code += '                console.log(\'📤 Sent CLIENT_INFO to TCS\');\n';
-code += '            }\n';
-code += '        }\n';
-code += '        \n';
-code += '        // 2. COMMANDS: Handle triggers from TCS\n';
-code += '        if (event.data?.type === \'TCS_COMMAND\') {\n';
-code += '            console.log(\'🎯 Command received:\', event.data.command);\n';
-code += '            switch(event.data.command) {\n';
-code += '                case \'START_PRE_QUAL\':\n';
-code += '                    if (window.preQualController) {\n';
-code += '                        console.log(\'🚀 TCS Trigger: Starting Interview\');\n';
-code += '                        window.preQualController.startInterview();\n';
-code += '                    }\n';
-code += '                    break;\n';
-code += '                case \'SHOW_TESTIMONIAL\':\n';
-code += '                    console.log(\'Show testimonial:\', event.data.data);\n';
-code += '                    break;\n';
-code += '                case \'SHOW_VIDEO\':\n';
-code += '                    console.log(\'Show video:\', event.data.data);\n';
-code += '                    break;\n';
-code += '                case \'SHOW_SMART_SCREEN\':\n';
-code += '                    console.log(\'Show smart screen:\', event.data.data);\n';
-code += '                    break;\n';
-code += '            }\n';
-code += '        }\n';
-code += '        \n';
-code += '        // 3. PING: Health check from TCS\n';
-code += '        if (event.data?.type === \'PING\') {\n';
-code += '            if (event.source) {\n';
-code += '                event.source.postMessage({\n';
-code += '                    type: \'PONG\',\n';
-code += '                    clientId: window.BotemiaConfig.id,\n';
-code += '                    timestamp: Date.now()\n';
-code += '                }, \'*\');\n';
-code += '            }\n';
-code += '        }\n';
-code += '    });\n';
-code += '    console.log(\'✅ TCS message listener installed\');\n';
-code += '})();';
+        // ===== CONSOLIDATED MESSAGE HANDLER (NOISE CANCELING) =====
+        code += '    window.addEventListener(\'message\', function(event) {\n';
+        code += '        \n';
+        code += '        // 🔥 CRITICAL FIX: Ignore empty/undefined messages immediately\n';
+        code += '        if (!event.data || !event.data.type) return;\n';
+        code += '        \n';
+        code += '        console.log(\'📨 Client received message:\', event.data.type);\n';
+        code += '        \n';
+        code += '        // Handle Dashboard Commands\n';
+        code += '        if (event.data.type === \'DASHBOARD_COMMAND\') {\n';
+        code += '            if (event.data.command === \'toggleOverlays\') { window.disableBridgeTriggers = event.data.disabled; }\n';
+        code += '            return;\n';
+        code += '        }\n';
+        code += '        \n';
+        code += '        // Handle Module Triggers\n';
+        code += '        if (event.data.type === \'MODULE_TRIGGERED\' && !window.disableBridgeTriggers) { window.showModule(event.data.module, event.data.triggerPhrase); }\n';
+        code += '        \n';
+        code += '        // 1. HANDSHAKE: TCS says "I\'m Ready"\n';
+        code += '        if (event.data?.type === \'TCS_READY\') {\n';
+        code += '            console.log(\'✅ TCS Ready signal received! Responding...\');\n';
+        code += '            if (event.source) {\n';
+        code += '                event.source.postMessage({\n';
+        code += '                    type: \'CLIENT_INFO\',\n';
+        code += '                    clientId: window.BotemiaConfig.id,\n';
+        code += '                    name: window.BotemiaConfig.name,\n';
+        code += '                    url: window.location.href,\n';
+        code += '                    timestamp: Date.now(),\n';
+        code += '                    status: \'ready\'\n';
+        code += '                }, \'*\');\n';
+        code += '                console.log(\'📤 Sent CLIENT_INFO to TCS\');\n';
+        code += '            }\n';
+        code += '        }\n';
+        code += '        \n';
+        code += '        // 2. COMMANDS: Handle triggers from TCS\n';
+        code += '        if (event.data?.type === \'TCS_COMMAND\') {\n';
+        code += '            console.log(\'🎯 Command received:\', event.data.command);\n';
+        code += '            switch(event.data.command) {\n';
+        code += '                case \'START_PRE_QUAL\':\n';
+        code += '                    if (window.preQualController) {\n';
+        code += '                        console.log(\'🚀 TCS Trigger: Starting Interview\');\n';
+        code += '                        window.preQualController.startInterview();\n';
+        code += '                    }\n';
+        code += '                    break;\n';
+        code += '                case \'SHOW_TESTIMONIAL\':\n';
+        code += '                    console.log(\'Show testimonial:\', event.data.data);\n';
+        code += '                    break;\n';
+        code += '                case \'SHOW_VIDEO\':\n';
+        code += '                    console.log(\'Show video:\', event.data.data);\n';
+        code += '                    break;\n';
+        code += '                case \'SHOW_SMART_SCREEN\':\n';
+        code += '                    console.log(\'Show smart screen:\', event.data.data);\n';
+        code += '                    break;\n';
+        code += '            }\n';
+        code += '        }\n';
+        code += '        \n';
+        code += '        // 3. PING: Health check from TCS\n';
+        code += '        if (event.data?.type === \'PING\') {\n';
+        code += '            if (event.source) {\n';
+        code += '                event.source.postMessage({\n';
+        code += '                    type: \'PONG\',\n';
+        code += '                    clientId: window.BotemiaConfig.id,\n';
+        code += '                    timestamp: Date.now()\n';
+        code += '                }, \'*\');\n';
+        code += '            }\n';
+        code += '        }\n';
+        code += '    });\n';
+        code += '    console.log(\'✅ TCS message listener installed\');\n';
+        code += '})();';
         
         // ===== DOWNLOAD THE FILE =====
         const bridgeBlob = new Blob([code], { type: 'application/javascript' });
