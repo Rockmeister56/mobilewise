@@ -552,10 +552,10 @@ if (clientWebsiteUrl) {
     // 3. Load LemonSlice widget
     this.loadLemonSlice();
 
- // ===== START TESS MONITOR =====
-setTimeout(() => {
-    this.monitorTessMessages();
-}, 3000);
+  // Start monitoring Tess for trigger phrases - DISABLED (Bridge handles trigger detection)
+   // setTimeout(() => {
+   //     this.monitorTessMessages();
+   // }, 3000);
     
     // 4. Render UI
     this.renderModules();
@@ -760,89 +760,18 @@ setTimeout(() => {
                 // Start the process
                 setupAudioListeners();
             }
-// ===== MONITOR Tess'S MESSAGES =====
-monitorTessMessages() {
-    console.log('🎤 Setting up Tess message monitor...');
-    this.addToTranscriptFeed('🎤 Monitoring Tess for trigger phrases...');
-    
-    // Store last message to avoid repeats
-    let lastMessage = '';
-    
-    setInterval(() => {
-        const widget = document.querySelector('lemon-slice-widget');
-        if (!widget) return;
-        
-        // Get Tess's message from the widget
-        let currentMessage = '';
-        
-        // Try to get message from shadow DOM
-        try {
-            if (widget.shadowRoot) {
-                // Look specifically for message elements, not all elements
-                const messageElements = widget.shadowRoot.querySelectorAll('[class*="message"], [class*="bubble"], [class*="response"], .ai-message, .assistant-message');
-                
-                for (const el of messageElements) {
-                    const text = el.textContent || el.innerText || '';
-                    // Filter out CSS and short messages
-                    if (text.length > 10 && text.length < 500 && !text.includes('@layer') && !text.includes('{') && !text.includes('}')) {
-                        currentMessage = text;
-                        break;
-                    }
-                }
-                
-                // If no message found, try looking for any element with text that sounds like speech
-                if (!currentMessage) {
-                    const allElements = widget.shadowRoot.querySelectorAll('div, span, p');
-                    for (const el of allElements) {
-                        const text = el.textContent || el.innerText || '';
-                        // Look for natural language (contains words, not CSS)
-                        if (text.length > 20 && text.length < 500 && 
-                            !text.includes('@') && !text.includes('{') && 
-                            /[a-zA-Z]/.test(text) && text.includes(' ')) {
-                            currentMessage = text;
-                            break;
-                        }
-                    }
-                }
-            }
-        } catch(e) {
-            console.log('Error reading shadow DOM:', e);
-        }
-        
-        // Only process if we have a new message
-        if (currentMessage && currentMessage !== lastMessage) {
-            lastMessage = currentMessage;
-            const messageLower = currentMessage.toLowerCase();
-            console.log('🔍 TCS checking message:', messageLower.substring(0, 100));
-            
-            // Check for trigger phrases
-            const triggerPhrases = [
-                "let's get you pre-qualified",
-                "let's get you pre qualified", 
-                "get you pre-qualified",
-                "start the pre-qualification",
-                "begin your pre-qualification"
-            ];
-            
-            for (const phrase of triggerPhrases) {
-                if (messageLower.includes(phrase)) {
-                    console.log('🎯 TCS DETECTED trigger phrase:', phrase);
-                    this.addToTranscriptFeed(`🎯 Trigger detected: "${phrase}"`);
-                    
-                    // Send command to Bridge
-                    if (window.clientManager && window.clientManager.clientWindows.size > 0) {
-                        window.clientManager.sendToSelectedClient('START_PRE_QUAL');
-                        this.addToTranscriptFeed('🚀 START_PRE_QUAL sent to Bridge');
-                        console.log('✅ START_PRE_QUAL sent to Bridge');
-                    } else {
-                        console.log('❌ No client connected');
-                    }
-                    break;
-                }
-            }
-        }
-    }, 2000); // Check every 2 seconds
-}
+    // ===== MONITOR Tess'S MESSAGES - DISABLED (Bridge handles trigger detection) =====
+    // monitorTessMessages() {
+    //     console.log('🎤 Setting up Tess message monitor...');
+    //     this.addToTranscriptFeed('🎤 Monitoring Tess for trigger phrases...');
+    //     
+    //     setInterval(() => {
+    //         const widget = document.querySelector('lemon-slice-widget');
+    //         if (!widget) return;
+    //         
+    //         // ... rest of the function ...
+    //     }, 2000);
+    // }
 
             // New helper methods
             handleTessPlay() {
@@ -1554,20 +1483,18 @@ class ClientConnectionManager {
     }
 
     // NEW METHOD: Auto-detect URL params
-autoOpenFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const clientId = urlParams.get('clientId');
-    const websiteUrl = urlParams.get('websiteUrl');
-    
-    // Only auto-open once
-    if (clientId && websiteUrl && !this.hasAutoOpened) {
-        this.hasAutoOpened = true;
-        console.log('🔍 Found client in URL params, auto-opening...');
-        setTimeout(() => {
-            this.openClientWindow(clientId, websiteUrl);
-        }, 1000);
+    autoOpenFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientId = urlParams.get('clientId');
+        const websiteUrl = urlParams.get('websiteUrl');
+        
+        if (clientId && websiteUrl) {
+            console.log('🔍 Found client in URL params, auto-opening...');
+            setTimeout(() => {
+                this.openClientWindow(clientId, websiteUrl);
+            }, 1000);
+        }
     }
-}
 
     // NEW METHOD: Open and track client window
     openClientWindow(clientId, websiteUrl) {

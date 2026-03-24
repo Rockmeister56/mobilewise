@@ -4025,6 +4025,24 @@ code += '            }\n';
 code += '        }\n';
 code += '    });\n';
 
+code += '    function setupTessTriggerListener(widget) {\n';
+code += '        console.log("👂 Setting up Tess trigger listener...");\n';
+code += '        \n';
+code += '        widget.addEventListener("response", (event) => {\n';
+code += '            const tessMessage = event.detail?.text || event.detail || "";\n';
+code += '            if (tessMessage) {\n';
+code += '                console.log("🤖 Tess said:", tessMessage);\n';
+code += '                if (tessMessage.toLowerCase().includes("let\'s get you pre-qualified") ||\n';
+code += '                    tessMessage.toLowerCase().includes("get you pre-qualified")) {\n';
+code += '                    console.log("🎯 TRIGGER PHRASE DETECTED!");\n';
+code += '                    if (window.preQualController && !window.preQualController.isActive) {\n';
+code += '                        window.preQualController.startInterview();\n';
+code += '                    }\n';
+code += '                }\n';
+code += '            }\n';
+code += '        });\n';
+code += '    }\n\n';
+
            // ===== WIDGET CREATION =====
     code += '    function createMainWidget() {\n';
     // 🔥 SAFETY: If splash widget exists, return that instead of creating duplicate
@@ -4044,6 +4062,7 @@ code += '    });\n';
     code += '        widget.style.display = \'none\';\n';
     code += '        widget.addEventListener(\'ready\', () => {\n';
     code += '            console.log(\'[Bridge] Widget Ready. Initializing Listeners...\');\n';
+    code += '            setupTessTriggerListener(widget);\n';  // 🔥 ADD THIS LINE - Trigger listener
     code += '            setTimeout(() => { forceMortgageIntro(widget); }, 500);\n';
     code += '        });\n';
     code += '        \n';
