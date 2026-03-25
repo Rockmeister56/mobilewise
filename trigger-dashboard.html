@@ -3634,51 +3634,89 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        return widget;\n';
         code += '    }\n\n';
 
-    // ===== PRE-QUALIFICATION CONTROLLER (DEAF VERSION - FIXED) =====
-    code += '    class PreQualificationController {\n';
-    code += '        constructor() {\n';
-    code += '            this.isActive = false;\n';
-    code += '            this.script = null;\n';
-    code += '            this.answers = {};\n';
-    code += '        }\n';
-    code += '\n';
-    code += '        startInterview() {\n';
-    code += '            if (this.isActive) return;\n';
-    code += '            console.log("🎯 Starting pre-qualification interview");\n';
-    code += '            // Use the Imported Knowledge Base instead of generating a new one\n';
-    code += '            this.script = window.preQualScript;\n';
-    code += '            this.isActive = true;\n';
-    code += '            const firstMessage = this.script.start();\n';
-    code += '            this.speak(firstMessage);\n';
-    code += '        }\n';
-    code += '\n';
-    code += '        handleUserInput(userText) {\n';
-    code += '            if (!this.isActive || !this.script) return;\n';
-    code += '            \n';
-    code += '            // Ignore her own voice\n';
-    code += '            if (userText.includes("I\'m Tess") || userText.includes("pre-qualified")) {\n';
-    code += '                console.log("🛑 Ignoring self-speech.");\n';
-    code += '                return;\n';
-    code += '            }\n';
-    code += '            \n';
-    code += '            console.log(`👤 User said: ${userText}`);\n';
-    code += '            const nextResponse = this.script.processResponse(userText);\n';
-    code += '            if (nextResponse) { this.speak(nextResponse); }\n';
-    code += '            if (!this.script.active) {\n';
-    code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
-    code += '                this.answers = this.script.getResults();\n';
-    code += '                this.sendEmail();\n';
-    code += '                this.isActive = false;\n';
-    code += '            }\n';
-    code += '        }\n';
-    code += '\n';
-    code += '        speak(text) {\n';
-    code += '            console.log(`🤖 Tess says: ${text}`);\n';
-    code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
-    code += '                window.mainWidget.sendMessage(text);\n';
-    code += '            }\n';
-    code += '        }\n';
-    code += '\n';
+            // ===== PRE-QUALIFICATION CONTROLLER =====
+        code += '    class PreQualificationController {\n';
+        code += '        constructor() {\n';
+        code += '            this.isActive = false;\n';
+        code += '            this.script = window.preQualScript;\n';
+        code += '            this.answers = {};\n';
+        code += '        }\n';
+        code += '\n';
+        code += '        startInterview() {\n';
+        code += '            if (this.isActive) return;\n';
+        code += '            console.log("🎯 Starting pre-qualification interview");\n';
+        code += '            this.isActive = true;\n';
+        code += '            const firstMessage = this.script.start();\n';
+        code += '            this.speak(firstMessage);\n';
+        code += '        }\n';
+        code += '\n';
+        code += '        handleUserInput(userText) {\n';
+        code += '            if (!this.isActive || !this.script) return;\n';
+        code += '            console.log(`👤 User said: ${userText}`);\n';
+        code += '            const nextResponse = this.script.processResponse(userText);\n';
+        code += '            if (nextResponse) { this.speak(nextResponse); }\n';
+        code += '            if (!this.script.active) {\n';
+        code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
+        code += '                this.answers = this.script.getResults();\n';
+        code += '                this.isActive = false;\n';
+        code += '            }\n';
+        code += '        }\n';
+        code += '\n';
+        code += '        speak(text) {\n';
+        code += '            if (!text) return;\n';
+        code += '            console.log(`🤖 Tess says: ${text}`);\n';
+        code += '            const widget = document.querySelector(\'lemon-slice-widget\');\n';
+        code += '            if (widget && typeof widget.sendMessage === "function") {\n';
+        code += '                widget.sendMessage(text);\n';
+        code += '            }\n';
+        code += '        }\n';
+        code += '    }\n\n';
+        
+        // ===== CREATE CONTROLLER INSTANCE =====
+        code += '    window.preQualController = new PreQualificationController();\n';
+        code += '    console.log("✅ Controller created with", window.preQualScript?.steps?.length, "steps");\n\n';
+        
+        // ===== UNIVERSAL LISTENER =====
+        code += '    function setupUniversalListener() {\n';
+        code += '        console.log("👂 Universal Listener Activated.");\n';
+        code += '        \n';
+        code += '        window.addEventListener("message", (event) => {\n';
+        code += '            if (!event.data || !event.data.type) return;\n';
+        code += '            \n';
+        code += '            const msgType = event.data.type;\n';
+        code += '            const msgText = (event.data.text || event.data.content || "").toLowerCase();\n';
+        code += '            \n';
+        code += '            // Check for user transcript (speech)\n';
+        code += '            if (msgType === "transcript") {\n';
+        code += '                console.log(`📨 Heard: "${msgText}"`);\n';
+        code += '                \n';
+        code += '                // Check for pre-qual intent\n';
+        code += '                const preQualIntents = [\n';
+        code += '                    "get pre-qualified",\n';
+        code += '                    "pre qualify",\n';
+        code += '                    "let\\\'s get pre-qualified",\n';
+        code += '                    "start the pre-qualification"\n';
+        code += '                ];\n';
+        code += '                \n';
+        code += '                for (const intent of preQualIntents) {\n';
+        code += '                    if (msgText.includes(intent)) {\n';
+        code += '                        console.log("🎯 PRE-QUAL TRIGGER DETECTED!");\n';
+        code += '                        if (window.preQualController && !window.preQualController.isActive) {\n';
+        code += '                            window.preQualController.startInterview();\n';
+        code += '                        }\n';
+        code += '                        return;\n';
+        code += '                    }\n';
+        code += '                }\n';
+        code += '                \n';
+        code += '                // Feed to active interview\n';
+        code += '                if (window.preQualController && window.preQualController.isActive) {\n';
+        code += '                    window.preQualController.handleUserInput(event.data.text);\n';
+        code += '                }\n';
+        code += '            }\n';
+        code += '        });\n';
+        code += '    }\n\n';
+        
+        code += '    setupUniversalListener();\n\n';
     
     // ===== FULL SEND EMAIL FUNCTION (RESTORED) =====
     code += '        async sendEmail() {\n';
@@ -4497,6 +4535,7 @@ function generateDynamicScriptCode(knowledgeBase) {
 }
 
 // Helper: Build the actual JS code
+
 function buildScriptCode(steps) {
     let code = `
     // ===== DYNAMIC PRE-QUALIFICATION SCRIPT (From Supabase) =====
