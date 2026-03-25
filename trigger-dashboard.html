@@ -3990,7 +3990,7 @@ code += '    }\n\n';
     code += '        }\n';
     code += '    }\n\n';
     
-           // ===== UNIVERSAL TRIGGER LISTENER (THE BRAIN - WITH COOLDOWN) =====
+       // ===== UNIVERSAL TRIGGER LISTENER (THE BRAIN) =====
     code += '    let lastTriggerTime = 0;\n';
     code += '    const TRIGGER_COOLDOWN = 3000; // 3 seconds brake\n\n';
 
@@ -4073,6 +4073,16 @@ code += '    }\n\n';
     
     // ===== INITIALIZE LISTENER IMMEDIATELY =====
     code += '    setupUniversalListener();\n\n';
+
+      // ===== FALLBACK: Ensure Universal Listener Starts =====
+    code += '    setTimeout(() => {\n';
+    code += '        if (typeof setupUniversalListener === "function") {\n';
+    code += '            console.log("🎧 Fallback: Starting Universal Listener");\n';
+    code += '            setupUniversalListener();\n';
+    code += '        } else {\n';
+    code += '            console.error("❌ setupUniversalListener not found!");\n';
+    code += '        }\n';
+    code += '    }, 100);\n\n';
     
     // ===== WIDGET CREATION (FINAL) =====
     code += '    function createMainWidget() {\n';
