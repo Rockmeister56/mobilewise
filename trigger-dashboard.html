@@ -3942,25 +3942,6 @@ code += '    }\n\n';
     code += '        return widget;\n';
     code += '    }\n\n';
     
-    // ===== WIDGET CREATION (FINAL - WORKING VERSION) =====
-    code += '    function createMainWidget() {\n';
-    code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-    code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-    code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
-    code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
-    code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
-    code += '        widget.id = \'main-widget\';\n';
-    code += '        widget.style.display = \'none\';\n';
-    code += '        widget.addEventListener(\'ready\', () => {\n';
-    code += '            console.log(\'[Bridge] Widget Ready. Initializing Listeners...\');\n';
-    // 🔥 CRITICAL: This was missing in the broken version. It turns on the ears.
-    code += '            setupTriggerListener(widget);\n';
-    // 🔥 NOTE: We do NOT call forceMortgageIntro here. That was causing the skip.
-    code += '        });\n';
-    code += '        \n';
-    code += '        return widget;\n';
-    code += '    }\n\n';
-    
     // ===== FORCE INTRO FUNCTION (SAFE) =====
     code += '    function forceMortgageIntro(widget) {\n';
     code += '        diagLog("Intro Function Triggered");\n';
