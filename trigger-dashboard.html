@@ -4517,9 +4517,11 @@ setTimeout(() => {
 // ============================================
 async function fetchKnowledgeBaseForExport(industry) {
     try {
-        console.log(`📥 Fetching Knowledge Base for: ${industry}`);
+        console.log(`📥 Fetching Interview Script for: ${industry}`);
         
-        const response = await fetch(`https://fcgbusobfdwnpoqyuzoe.supabase.co/rest/v1/knowledge_base?select=answer_template&category=eq.${industry}&order=updated_at.desc&limit=1`, {
+        // STEP 1: Try to find a row that looks like an Interview Script (has conversation_flow)
+        // We order by updated_at to get the latest one
+        const response = await fetch(`https://fcgbusobfdwnpoqyuzoe.supabase.co/rest/v1/knowledge_base?select=answer_template&category=eq.${industry}&order=updated_at.desc`, {
             method: 'GET',
             headers: {
                 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk',
@@ -4529,15 +4531,32 @@ async function fetchKnowledgeBaseForExport(industry) {
 
         if (!response.ok) throw new Error('Failed to fetch KB');
         
-        const data = await response.json();
+        const rows = await response.json();
         
-        if (data && data.length > 0 && data[0].answer_template) {
-            console.log('✅ Valid Knowledge Base found in Supabase.');
-            return data[0].answer_template;
-        } else {
-            console.warn('⚠️ No Knowledge Base found. Using fallback.');
-            return null;
+        // STEP 2: Loop through rows to find the ACTUAL Interview Script
+        for (const row of rows) {
+            const template = row.answer_template;
+            
+            // Check if this row is an Interview Script (object with conversation_flow)
+            if (template && typeof template === 'object' && template.conversation_flow) {
+                console.log('✅ Found Valid Interview Script in Supabase:', template);
+                return template;
+            }
+            
+            // Handle case where answer_template might be a JSON string
+            if (template && typeof template === 'string') {
+                try {
+                    const parsed = JSON.parse(template);
+                    if (parsed.conversation_flow) {
+                        console.log('✅ Found Valid Interview Script (Parsed from String):', parsed);
+                        return parsed;
+                    }
+                } catch (e) { /* Not JSON, ignore */ }
+            }
         }
+
+        console.warn('⚠️ No valid Interview Script found with conversation_flow.');
+        return null;
 
     } catch (error) {
         console.error('❌ Error fetching KB:', error);
