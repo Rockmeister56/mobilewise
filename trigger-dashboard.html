@@ -4501,7 +4501,6 @@ function buildScriptCode(steps) {
     let code = `
     // ===== DYNAMIC PRE-QUALIFICATION SCRIPT (From Supabase) =====
     window.preQualScript = {
-        currentStep: 0,
         steps: [
 `;
 
@@ -4511,12 +4510,15 @@ function buildScriptCode(steps) {
             const safeText = (step.text || step.question || '').replace(/`/g, '\\`').replace(/"/g, '\\"');
             const field = step.field || step.key_data || '';
             const type = step.type || step.validation || 'text';
+            const stepType = step.type === 'message' ? 'message' : (step.question ? 'question' : 'message');
             
             code += `            { 
                 id: "${field || 'step_' + index}", 
-                question: "${safeText}", 
+                type: "${stepType}",
+                text: "${safeText}",
+                question: "${safeText}",
                 field: "${field}",
-                type: "${type}",
+                validation: "${type}",
                 options: ${step.options ? JSON.stringify(step.options) : 'null'}
             },\n`;
         }
@@ -4524,23 +4526,74 @@ function buildScriptCode(steps) {
 
     code += `        ],
         responses: {},
-        isActive: false
+        currentStepIndex: 0,
+        active: false,
+        
+        start: function() {
+            console.log("📋 Starting pre-qual script");
+            this.active = true;
+            this.currentStepIndex = 0;
+            this.responses = {};
+            return this.getCurrentQuestion();
+        },
+        
+        processResponse: function(userInput) {
+            if (!this.active) return null;
+            const currentStep = this.steps[this.currentStepIndex];
+            if (!currentStep) {
+                this.active = false;
+                return "Thank you! Your pre-qualification is complete.";
+            }
+            
+            // If it's a message step, just move to next
+            if (currentStep.type === "message") {
+                this.currentStepIndex++;
+                return this.getCurrentQuestion();
+            }
+            
+            // Store the response
+            if (currentStep.field) {
+                this.responses[currentStep.field] = userInput;
+                console.log(\`✅ Stored \${currentStep.field}: \`, userInput);
+            }
+            
+            // Move to next step
+            this.currentStepIndex++;
+            return this.getCurrentQuestion();
+        },
+        
+        getCurrentQuestion: function() {
+            const step = this.steps[this.currentStepIndex];
+            if (!step) {
+                this.active = false;
+                return null;
+            }
+            return step.question || step.text;
+        },
+        
+        getResults: function() {
+            return this.responses;
+        }
     };
 `;
     return code;
 }
 
-// Helper: Fallback Script
+// Helper: Fallback Script (Update this too)
 function generateFallbackScript() {
     console.warn('⚠️ Generating fallback script.');
     return `
     window.preQualScript = {
-        currentStep: 0,
         steps: [
-            { id: "fallback_name", question: "Hello! What is your name?", field: "name", type: "text" }
+            { id: "fallback_name", type: "question", question: "Hello! What is your name?", field: "name", validation: "text", options: null }
         ],
         responses: {},
-        isActive: false
+        currentStepIndex: 0,
+        active: false,
+        start: function() { this.active = true; this.currentStepIndex = 0; this.responses = {}; return this.getCurrentQuestion(); },
+        processResponse: function(userInput) { this.responses.name = userInput; this.active = false; return "Thank you!"; },
+        getCurrentQuestion: function() { return this.steps[0]?.question; },
+        getResults: function() { return this.responses; }
     };
 `;
 }
