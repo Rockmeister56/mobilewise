@@ -4519,8 +4519,6 @@ async function fetchKnowledgeBaseForExport(industry) {
     try {
         console.log(`📥 Fetching Interview Script for: ${industry}`);
         
-        // STEP 1: Try to find a row that looks like an Interview Script (has conversation_flow)
-        // We order by updated_at to get the latest one
         const response = await fetch(`https://fcgbusobfdwnpoqyuzoe.supabase.co/rest/v1/knowledge_base?select=answer_template&category=eq.${industry}&order=updated_at.desc`, {
             method: 'GET',
             headers: {
@@ -4533,29 +4531,36 @@ async function fetchKnowledgeBaseForExport(industry) {
         
         const rows = await response.json();
         
-        // STEP 2: Loop through rows to find the ACTUAL Interview Script
+        // Loop through rows to find the ACTUAL Interview Script
         for (const row of rows) {
             const template = row.answer_template;
-            
-            // Check if this row is an Interview Script (object with conversation_flow)
-            if (template && typeof template === 'object' && template.conversation_flow) {
-                console.log('✅ Found Valid Interview Script in Supabase:', template);
-                return template;
-            }
-            
-            // Handle case where answer_template might be a JSON string
+            let scriptData = null;
+
+            // 1. Handle JSON Strings (Your data is stringified)
             if (template && typeof template === 'string') {
                 try {
-                    const parsed = JSON.parse(template);
-                    if (parsed.conversation_flow) {
-                        console.log('✅ Found Valid Interview Script (Parsed from String):', parsed);
-                        return parsed;
-                    }
+                    scriptData = JSON.parse(template);
                 } catch (e) { /* Not JSON, ignore */ }
+            } else if (template && typeof template === 'object') {
+                scriptData = template;
+            }
+
+            // 2. Check for VALID script structures (BILINGUAL CHECK)
+            if (scriptData) {
+                // Check for NEW Format (steps)
+                if (scriptData.steps && Array.isArray(scriptData.steps) && scriptData.steps.length > 0) {
+                    console.log('✅ Found Valid Script (Steps Format):', scriptData);
+                    return scriptData;
+                }
+                // Check for OLD Format (conversation_flow)
+                if (scriptData.conversation_flow && Array.isArray(scriptData.conversation_flow)) {
+                    console.log('✅ Found Valid Script (Flow Format):', scriptData);
+                    return scriptData;
+                }
             }
         }
 
-        console.warn('⚠️ No valid Interview Script found with conversation_flow.');
+        console.warn('⚠️ No valid Interview Script found with steps or conversation_flow.');
         return null;
 
     } catch (error) {
@@ -4563,6 +4568,7 @@ async function fetchKnowledgeBaseForExport(industry) {
         return null;
     }
 }
+
 // ============================================
 // HELPER: GENERATE DYNAMIC SCRIPT CODE (GLOBAL SCOPE)
 // ============================================
