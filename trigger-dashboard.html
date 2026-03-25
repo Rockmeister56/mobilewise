@@ -4563,16 +4563,97 @@ async function fetchKnowledgeBaseForExport(industry) {
         return null;
     }
 }
-
 // ============================================
 // HELPER: GENERATE DYNAMIC SCRIPT CODE (GLOBAL SCOPE)
 // ============================================
 function generateDynamicScriptCode(knowledgeBase) {
-    // FALLBACK: If no data, return a minimal working script
-    if (!knowledgeBase || !knowledgeBase.conversation_flow) {
-        console.warn('⚠️ No KB Data, generating fallback script');
-        return `
-    const preQualScript = {
+    
+    // 1. Handle if knowledgeBase is a STRING (needs parsing)
+    let scriptData = knowledgeBase;
+    if (typeof knowledgeBase === 'string') {
+        try {
+            scriptData = JSON.parse(knowledgeBase);
+            console.log("✅ Parsed Knowledge Base string into object");
+        } catch (e) {
+            console.error("❌ Failed to parse Knowledge Base string", e);
+            scriptData = null;
+        }
+    }
+
+    // 2. 🚨 CRITICAL CHECK: Did we find a valid script?
+    if (!scriptData) {
+        console.warn('⚠️ No script data provided.');
+        return generateFallbackScript(); 
+    }
+
+    // 3. 🕵️ SMART DETECTION: Find the steps array wherever it is
+    let stepsArray = null;
+
+    // Check for "steps" (Used by your Uploader)
+    if (scriptData.steps && Array.isArray(scriptData.steps)) {
+        stepsArray = scriptData.steps;
+        console.log(`✅ Found ${stepsArray.length} steps in "steps" array (Uploader Format).`);
+    } 
+    // Check for "conversation_flow" (Used by old logic)
+    else if (scriptData.conversation_flow && Array.isArray(scriptData.conversation_flow)) {
+        stepsArray = scriptData.conversation_flow;
+        console.log(`✅ Found ${stepsArray.length} steps in "conversation_flow" array (Legacy Format).`);
+    }
+    // Check if scriptData IS the array itself
+    else if (Array.isArray(scriptData)) {
+        stepsArray = scriptData;
+        console.log(`✅ Found ${stepsArray.length} steps in root array.`);
+    }
+
+    // 4. If no steps found, use fallback
+    if (!stepsArray || stepsArray.length === 0) {
+        console.warn('⚠️ Valid script found, but no steps array detected.');
+        return generateFallbackScript();
+    }
+
+    // 5. Generate the code string
+    return buildScriptCode(stepsArray);
+}
+
+// Helper: Build the actual JS code
+function buildScriptCode(steps) {
+    let code = `
+    // ===== DYNAMIC PRE-QUALIFICATION SCRIPT (From Supabase) =====
+    window.preQualScript = {
+        currentStep: 0,
+        steps: [
+`;
+
+    steps.forEach((step, index) => {
+        // We check if speaker is tess OR if there is just a generic question
+        if (step.speaker === 'tess' || step.question) {
+            const safeText = (step.text || step.question || '').replace(/`/g, '\\`').replace(/"/g, '\\"');
+            const field = step.field || step.key_data || '';
+            const type = step.type || step.validation || 'text';
+            
+            code += `            { 
+                id: "${field || 'step_' + index}", 
+                question: "${safeText}", 
+                field: "${field}",
+                type: "${type}",
+                options: ${step.options ? JSON.stringify(step.options) : 'null'}
+            },\n`;
+        }
+    });
+
+    code += `        ],
+        responses: {},
+        isActive: false
+    };
+`;
+    return code;
+}
+
+// Helper: Fallback Script
+function generateFallbackScript() {
+    console.warn('⚠️ Generating fallback script.');
+    return `
+    window.preQualScript = {
         currentStep: 0,
         steps: [
             { id: "fallback_name", question: "Hello! What is your name?", field: "name", type: "text" }
@@ -4581,39 +4662,5 @@ function generateDynamicScriptCode(knowledgeBase) {
         isActive: false
     };
 `;
-    }
-
-    console.log('🔧 Generating Dynamic Script...');
-
-    // START CODE STRING
-    let code = `
-    // ===== DYNAMIC PRE-QUALIFICATION SCRIPT (From Supabase) =====
-    const preQualScript = {
-        currentStep: 0,
-        steps: [
-`;
-
-    // PARSE FLOW
-    knowledgeBase.conversation_flow.forEach((step, index) => {
-        if (step.speaker === 'tess') {
-            const safeText = (step.text || '').replace(/`/g, '\\`').replace(/"/g, '\\"');
-            code += `            { 
-                id: "${step.key_data || 'step_' + index}", 
-                question: "${safeText}", 
-                field: "${step.key_data || ''}",
-                type: "${step.validation || 'text'}",
-                options: ${step.options ? JSON.stringify(step.options) : 'null'}
-            },\n`;
-        }
-    });
-
-    // CLOSE OBJECT
-    code += `        ],
-        responses: {},
-        isActive: false
-    };
-`;
-    
-    return code;
 }
     </script>
