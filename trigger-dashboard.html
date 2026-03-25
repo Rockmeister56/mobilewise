@@ -4511,4 +4511,90 @@ setTimeout(() => {
         apiCard.appendChild(btn);
     }
 });
+
+// ============================================
+// HELPER: FETCH KNOWLEDGE BASE (GLOBAL SCOPE)
+// ============================================
+async function fetchKnowledgeBaseForExport(industry) {
+    try {
+        console.log(`📥 Fetching Knowledge Base for: ${industry}`);
+        
+        const response = await fetch(`https://fcgbusobfdwnpoqyuzoe.supabase.co/rest/v1/knowledge_base?select=answer_template&category=eq.${industry}&order=updated_at.desc&limit=1`, {
+            method: 'GET',
+            headers: {
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch KB');
+        
+        const data = await response.json();
+        
+        if (data && data.length > 0 && data[0].answer_template) {
+            console.log('✅ Valid Knowledge Base found in Supabase.');
+            return data[0].answer_template;
+        } else {
+            console.warn('⚠️ No Knowledge Base found. Using fallback.');
+            return null;
+        }
+
+    } catch (error) {
+        console.error('❌ Error fetching KB:', error);
+        return null;
+    }
+}
+
+// ============================================
+// HELPER: GENERATE DYNAMIC SCRIPT CODE (GLOBAL SCOPE)
+// ============================================
+function generateDynamicScriptCode(knowledgeBase) {
+    // FALLBACK: If no data, return a minimal working script
+    if (!knowledgeBase || !knowledgeBase.conversation_flow) {
+        console.warn('⚠️ No KB Data, generating fallback script');
+        return `
+    const preQualScript = {
+        currentStep: 0,
+        steps: [
+            { id: "fallback_name", question: "Hello! What is your name?", field: "name", type: "text" }
+        ],
+        responses: {},
+        isActive: false
+    };
+`;
+    }
+
+    console.log('🔧 Generating Dynamic Script...');
+
+    // START CODE STRING
+    let code = `
+    // ===== DYNAMIC PRE-QUALIFICATION SCRIPT (From Supabase) =====
+    const preQualScript = {
+        currentStep: 0,
+        steps: [
+`;
+
+    // PARSE FLOW
+    knowledgeBase.conversation_flow.forEach((step, index) => {
+        if (step.speaker === 'tess') {
+            const safeText = (step.text || '').replace(/`/g, '\\`').replace(/"/g, '\\"');
+            code += `            { 
+                id: "${step.key_data || 'step_' + index}", 
+                question: "${safeText}", 
+                field: "${step.key_data || ''}",
+                type: "${step.validation || 'text'}",
+                options: ${step.options ? JSON.stringify(step.options) : 'null'}
+            },\n`;
+        }
+    });
+
+    // CLOSE OBJECT
+    code += `        ],
+        responses: {},
+        isActive: false
+    };
+`;
+    
+    return code;
+}
     </script>
