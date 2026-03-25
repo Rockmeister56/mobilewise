@@ -1874,168 +1874,48 @@ async function loadKnowledgeBaseScript() {
     const industry = document.getElementById('kbIndustrySelect').value;
     
     try {
+        // Get Supabase connection
         const { createClient } = supabase;
         const supabaseClient = createClient(
             'https://fcgbusobfdwnpoqyuzoe.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
         );
         
-        const { data } = await supabaseClient
+        // Try to load from Supabase first
+        const { data, error } = await supabaseClient
             .from('knowledge_base')
-            .select('script_name, script_content, extracted_fields, updated_at')
+            .select('answer_template')
             .eq('category', industry)
             .maybeSingle();
         
         if (data) {
-            document.getElementById('currentScriptName').textContent = data.script_name || 'Unnamed script';
-            document.getElementById('scriptDate').textContent = `Uploaded: ${new Date(data.updated_at).toLocaleString()}`;
-            displayExtractedFields(data.extracted_fields);
+            // Found existing script in Supabase
+            currentKnowledgeBaseScript = data.answer_template;
+            console.log('✅ Loaded script from Supabase');
         } else {
-            document.getElementById('currentScriptName').textContent = 'No script uploaded';
-            document.getElementById('scriptDate').textContent = '';
-            document.getElementById('fieldsList').innerHTML = '<span style="color: #aaa;">Upload a script to see extracted fields</span>';
+            // ❌ REMOVED HARD-CODED DEFAULT
+            // Create a BLANK template if nothing exists
+            currentKnowledgeBaseScript = {
+                "name": "New Script",
+                "industry": industry,
+                "conversation_flow": [],
+                "data_extraction": []
+            };
+            console.log('⚠️ No script found. Created blank template.');
         }
+        
+        // Render the editor
+        renderScriptEditor();
+        
     } catch (error) {
-        console.error('Error loading script:', error);
+        console.error('Load failed:', error);
+        alert('Error loading script: ' + error.message);
     }
 }
 
 </script>
 
 <script>
-// ============================================
-// KNOWLEDGE BASE SCRIPTS
-// ============================================
-
-// Default mortgage script (the one I wrote earlier)
-const defaultMortgageScript = {
-  "name": "Mortgage Pre-Qualification",
-  "industry": "mortgage",
-  "trigger_phrase": "I want to get pre-qualified",
-  "conversation_flow": [
-    {
-      "sequence": 1,
-      "speaker": "tess",
-      "text": "Great! Let's get you pre-qualified. First, what's your full name?",
-      "key_data": "name",
-      "validation": "required"
-    },
-    {
-      "sequence": 2,
-      "speaker": "user",
-      "expected_type": "text",
-      "next_sequence": 3
-    },
-    {
-      "sequence": 3,
-      "speaker": "tess",
-      "text": "Thanks {{name}}! What's your email address?",
-      "key_data": "email",
-      "validation": "email"
-    },
-    {
-      "sequence": 4,
-      "speaker": "user",
-      "expected_type": "email",
-      "next_sequence": 5
-    },
-    {
-      "sequence": 5,
-      "speaker": "tess",
-      "text": "And your phone number?",
-      "key_data": "phone",
-      "validation": "phone"
-    },
-    {
-      "sequence": 6,
-      "speaker": "user",
-      "expected_type": "phone",
-      "next_sequence": 7
-    },
-    {
-      "sequence": 7,
-      "speaker": "tess",
-      "text": "Are you looking to purchase or refinance?",
-      "key_data": "loan_purpose",
-      "validation": "choice",
-      "options": ["purchase", "refinance"]
-    },
-    {
-      "sequence": 8,
-      "speaker": "user",
-      "expected_type": "choice",
-      "next_sequence": 9
-    },
-    {
-      "sequence": 9,
-      "speaker": "tess",
-      "text": "What's the estimated value of the home?",
-      "key_data": "property_value",
-      "validation": "currency"
-    },
-    {
-      "sequence": 10,
-      "speaker": "user",
-      "expected_type": "number",
-      "next_sequence": 11
-    },
-    {
-      "sequence": 11,
-      "speaker": "tess",
-      "text": "How much are you planning to put down?",
-      "key_data": "down_payment",
-      "validation": "currency"
-    },
-    {
-      "sequence": 12,
-      "speaker": "user",
-      "expected_type": "number",
-      "next_sequence": 13
-    },
-    {
-      "sequence": 13,
-      "speaker": "tess",
-      "text": "What's your credit score range?",
-      "key_data": "credit_score",
-      "validation": "choice",
-      "options": ["excellent (740+)", "good (680-739)", "fair (640-679)", "needs work (<640)"]
-    },
-    {
-      "sequence": 14,
-      "speaker": "user",
-      "expected_type": "choice",
-      "next_sequence": 15
-    },
-    {
-      "sequence": 15,
-      "speaker": "tess",
-      "text": "What's your annual household income?",
-      "key_data": "annual_income",
-      "validation": "currency"
-    },
-    {
-      "sequence": 16,
-      "speaker": "user",
-      "expected_type": "number",
-      "next_sequence": 17
-    },
-    {
-      "sequence": 17,
-      "speaker": "tess",
-      "text": "Perfect! I have all the information I need. I'll send this to our loan officer right away. They'll contact you soon. Is there anything else I can help with?",
-      "key_data": "closing_question"
-    }
-  ],
-  "data_extraction": [
-    "name", "email", "phone", "loan_purpose", 
-    "property_value", "down_payment", "credit_score", "annual_income"
-  ],
-  "created_at": new Date().toISOString(),
-  "updated_at": new Date().toISOString()
-};
-
-// Store for current session
-let currentKnowledgeBaseScript = null;
 
 // ============================================
 // LOAD KNOWLEDGE BASE SCRIPT FROM SUPABASE
@@ -2059,39 +1939,20 @@ async function loadKnowledgeBaseScript() {
             .eq('category', industry)
             .maybeSingle();
         
-        if (data) {
-            // Found existing script
+               if (data) {
+            // Found existing script in Supabase
             currentKnowledgeBaseScript = data.answer_template;
             console.log('✅ Loaded script from Supabase');
         } else {
-            // No script found, create default mortgage template
+            // ❌ REMOVED HARD-CODED DEFAULT
+            // Create a BLANK template if nothing exists
             currentKnowledgeBaseScript = {
-                "name": "Mortgage Pre-Qualification",
-                "industry": "mortgage",
-                "conversation_flow": [
-                    {
-                        "sequence": 1,
-                        "speaker": "tess",
-                        "text": "Great! Let's get you pre-qualified. First, what's your full name?",
-                        "key_data": "name",
-                        "validation": "text"
-                    },
-                    {
-                        "sequence": 2,
-                        "speaker": "user",
-                        "expected_type": "text",
-                        "next_sequence": 3
-                    },
-                    {
-                        "sequence": 3,
-                        "speaker": "tess",
-                        "text": "Thanks {{name}}! What's your email address?",
-                        "key_data": "email",
-                        "validation": "email"
-                    }
-                ],
-                "data_extraction": ["name", "email"]
+                "name": "New Script",
+                "industry": industry, // Uses the selected industry dropdown
+                "conversation_flow": [],
+                "data_extraction": []
             };
+            console.log('⚠️ No script found. Created blank template.');
         }
         
         // Render the editor
@@ -3697,37 +3558,13 @@ async function exportBridgeOnly() {
             emailSubject: 'New Pre-Qual Lead: {{firstName}} {{lastName}}'
         };
         
-        // 🔥 ===== FETCH PRE-QUAL SCRIPT FROM SUPABASE =====
-        let preQualScript = { steps: [] };
+                // ===== STEP 1: FETCH DYNAMIC KNOWLEDGE BASE =====
+        const industry = document.getElementById('kbIndustrySelect')?.value || 'mortgage';
+        const knowledgeBase = await fetchKnowledgeBaseForExport(industry);
         
-        try {
-    console.log('📡 Fetching pre-qual script from Supabase...');
-    const response = await fetch(
-        'https://fcgbusobfdwnpoqyuzoe.supabase.co/rest/v1/knowledge_base?select=answer_template&category=eq.mortgage&order=created_at.desc&limit=1',
-        {
-            headers: {
-                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk'
-            }
-        }
-    );
-    
-    const data = await response.json();
-    
-    if (data && data.length > 0 && data[0].answer_template) {
-        try {
-            // 🔥 FIX: Parse the JSON string into an object
-            preQualScript = JSON.parse(data[0].answer_template);
-            console.log('✅ Fetched and parsed pre-qual script with', preQualScript.steps?.length, 'steps');
-        } catch (parseError) {
-            console.error('❌ Failed to parse script:', parseError);
-            preQualScript = { steps: [] };
-        }
-    } else {
-        console.warn('⚠️ No pre-qual script found in Supabase, using empty script');
-    }
-} catch (error) {
-    console.error('Failed to fetch pre-qual script:', error);
-}
+        // ===== STEP 2: GENERATE DYNAMIC SCRIPT CODE =====
+        // This creates the actual JS code string to embed in the bridge
+        const preQualScriptCode = generateDynamicScriptCode(knowledgeBase);
         
         // ✅ KEEP THIS LINE - Used for splash screen gradients
         const splashScreen = config.modules?.splashScreen || {};
@@ -4071,6 +3908,9 @@ code += '    }\n\n';
     code += '        });\n';
     code += '    }\n\n';
     
+    // This injects the script fetched from Supabase
+    code += preQualScriptCode;
+
     // ===== INITIALIZE LISTENER IMMEDIATELY =====
     code += '    setupUniversalListener();\n\n';
 
