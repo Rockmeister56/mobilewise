@@ -4506,8 +4506,6 @@ function generateDynamicScriptCode(knowledgeBase) {
 }
 
 // Helper: Build the actual JS code
-
-// Helper: Build the actual JS code
 function buildScriptCode(steps) {
     let code = `
     // ===== DYNAMIC PRE-QUALIFICATION SCRIPT (From Supabase) =====
@@ -4521,7 +4519,8 @@ function buildScriptCode(steps) {
             const safeText = (step.text || step.question || '').replace(/`/g, '\\`').replace(/"/g, '\\"');
             const field = step.field || step.key_data || '';
             const type = step.type || step.validation || 'text';
-            const stepType = step.type === 'message' ? 'message' : (step.question ? 'question' : 'message');
+            // ✅ FIX: Directly map the type, default to 'text' to ensure data saves
+            const stepType = (step.type === 'message') ? 'message' : 'text';;
             
             code += `            { 
                 id: "${field || 'step_' + index}", 
