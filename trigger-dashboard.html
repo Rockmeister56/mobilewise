@@ -3634,7 +3634,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        return widget;\n';
         code += '    }\n\n';
 
-            // ===== PRE-QUALIFICATION CONTROLLER =====
+        // ===== PRE-QUALIFICATION CONTROLLER =====
         code += '    class PreQualificationController {\n';
         code += '        constructor() {\n';
         code += '            this.isActive = false;\n';
@@ -3658,6 +3658,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            if (!this.script.active) {\n';
         code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
         code += '                this.answers = this.script.getResults();\n';
+        code += '                this.sendEmail();\n';
         code += '                this.isActive = false;\n';
         code += '            }\n';
         code += '        }\n';
@@ -3670,9 +3671,15 @@ code += '    document.head.appendChild(style);\n\n';
         code += '                widget.sendMessage(text);\n';
         code += '            }\n';
         code += '        }\n';
+        code += '\n';
+        code += '        async sendEmail() {\n';
+        code += '            console.log("📧 Sending pre-qualification emails...");\n';
+        code += '            console.log("✅ Collected data:", this.answers);\n';
+        code += '            // Add your full email logic here later\n';
+        code += '        }\n';
         code += '    }\n\n';
         
-        // ===== CREATE CONTROLLER INSTANCE =====
+        // ===== CREATE CONTROLLER INSTANCE (ONCE) =====
         code += '    window.preQualController = new PreQualificationController();\n';
         code += '    console.log("✅ Controller created with", window.preQualScript?.steps?.length, "steps");\n\n';
         
@@ -4009,7 +4016,7 @@ code += '        }\n';
     code += '        }\n';
     code += '    }\n\n';    
 
-    // ===== ACTIVATE TESS FUNCTION (WITH WAKE UP CALL) =====
+     // ===== ACTIVATE TESS FUNCTION (WITH WAKE UP CALL) =====
     code += '    function activateTess() {\n';
     code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
     code += '        \n';
@@ -4019,7 +4026,7 @@ code += '        }\n';
     code += '                window.mainWidget.micOn();\n';
     code += '            }\n';
     code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n\n';
-
+    
     code += '        // 2. NUKE THE SPLASH WIDGET\n';
     code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
     code += '        if (splashWidget) {\n';
@@ -4028,11 +4035,11 @@ code += '        }\n';
     code += '                splashWidget.parentNode.removeChild(splashWidget);\n';
     code += '            }\n';
     code += '        }\n\n';
-
+    
     code += '        // 3. Remove the overlay\n';
     code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
     code += '        if (overlay) overlay.remove();\n\n';
-
+    
     code += '        // 4. CREATE MAIN WIDGET\n';
     code += '        setTimeout(() => {\n';
     code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
@@ -4056,11 +4063,8 @@ code += '        }\n';
     code += '                        // Force unmute shadow DOM as backup\n';
     code += '                        await forceUnmute();\n';
     code += '                        \n';
-    code += '                        // ===== INITIALIZE THE BRAIN =====\n';
-    code += '                        if (typeof PreQualificationController !== \'undefined\') {\n';
-    code += '                            window.preQualController = new PreQualificationController();\n';
-    code += '                            console.log("✅ Pre-Qual Controller Initialized and Ready.");\n';
-    code += '                        }\n';
+    code += '                        // 🔥 REMOVED: Controller already created earlier in the bridge\n';
+    code += '                        // No need to create another instance here\n';
     code += '                        \n';
     code += '                    }\n';
     code += '                } catch (e) {\n';
