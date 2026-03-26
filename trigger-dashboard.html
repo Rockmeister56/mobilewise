@@ -3634,7 +3634,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        return widget;\n';
         code += '    }\n\n';
 
-               // ===== PRE-QUALIFICATION CONTROLLER =====
+              // ===== PRE-QUALIFICATION CONTROLLER =====
         code += '    class PreQualificationController {\n';
         code += '        constructor() {\n';
         code += '            this.isActive = false;\n';
@@ -3659,7 +3659,6 @@ code += '    document.head.appendChild(style);\n\n';
         code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
         code += '                this.answers = this.script.getResults();\n';
         code += '                this.isActive = false;\n';
-        code += '                // Email functionality will be added separately\n';
         code += '            }\n';
         code += '        }\n';
         code += '\n';
@@ -3687,11 +3686,9 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            const msgType = event.data.type;\n';
         code += '            const msgText = (event.data.text || event.data.content || "").toLowerCase();\n';
         code += '            \n';
-        code += '            // Check for user transcript (speech)\n';
         code += '            if (msgType === "transcript") {\n';
         code += '                console.log(`📨 Heard: "${msgText}"`);\n';
         code += '                \n';
-        code += '                // Check for pre-qual intent\n';
         code += '                const preQualIntents = [\n';
         code += '                    "get pre-qualified",\n';
         code += '                    "pre qualify",\n';
@@ -3709,7 +3706,6 @@ code += '    document.head.appendChild(style);\n\n';
         code += '                    }\n';
         code += '                }\n';
         code += '                \n';
-        code += '                // Feed to active interview\n';
         code += '                if (window.preQualController && window.preQualController.isActive) {\n';
         code += '                    window.preQualController.handleUserInput(event.data.text);\n';
         code += '                }\n';
@@ -4534,6 +4530,7 @@ function generateDynamicScriptCode(knowledgeBase) {
 
 // Helper: Build the actual JS code
 
+// Helper: Build the actual JS code
 function buildScriptCode(steps) {
     let code = `
     // ===== DYNAMIC PRE-QUALIFICATION SCRIPT (From Supabase) =====
@@ -4582,19 +4579,16 @@ function buildScriptCode(steps) {
                 return "Thank you! Your pre-qualification is complete.";
             }
             
-            // If it's a message step, just move to next
             if (currentStep.type === "message") {
                 this.currentStepIndex++;
                 return this.getCurrentQuestion();
             }
             
-            // Store the response
             if (currentStep.field) {
                 this.responses[currentStep.field] = userInput;
                 console.log(\`✅ Stored \${currentStep.field}: \`, userInput);
             }
             
-            // Move to next step
             this.currentStepIndex++;
             return this.getCurrentQuestion();
         },
