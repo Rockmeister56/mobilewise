@@ -3634,7 +3634,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        return widget;\n';
         code += '    }\n\n';
 
-                    // ===== PRE-QUALIFICATION CONTROLLER =====
+            // ===== PRE-QUALIFICATION CONTROLLER =====
         code += '    class PreQualificationController {\n';
         code += '        constructor() {\n';
         code += '            this.isActive = false;\n';
@@ -3658,7 +3658,6 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            if (!this.script.active) {\n';
         code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
         code += '                this.answers = this.script.getResults();\n';
-        code += '                this.sendEmail();\n';
         code += '                this.isActive = false;\n';
         code += '            }\n';
         code += '        }\n';
@@ -3670,12 +3669,6 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            if (widget && typeof widget.sendMessage === "function") {\n';
         code += '                widget.sendMessage(text);\n';
         code += '            }\n';
-        code += '        }\n';
-        code += '\n';
-        code += '        async sendEmail() {\n';
-        code += '            console.log("📧 Sending pre-qualification emails...");\n';
-        code += '            console.log("✅ Collected data:", this.answers);\n';
-        code += '            // Add your email logic here\n';
         code += '        }\n';
         code += '    }\n\n';
         
