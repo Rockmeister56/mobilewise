@@ -3634,16 +3634,25 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        return widget;\n';
         code += '    }\n\n';
 
-                // ===== PRE-QUALIFICATION CONTROLLER =====
+// ===== PRE-QUALIFICATION CONTROLLER (UPDATED CONSTRUCTOR) =====
         code += '    class PreQualificationController {\n';
         code += '        constructor() {\n';
         code += '            this.isActive = false;\n';
-        code += '            this.script = window.preQualScript;\n';
+        code += '            // ❌ REMOVED: this.script = window.preQualScript;\n';
+        code += '            // We will grab the script dynamically in startInterview to ensure it exists\n';
         code += '            this.answers = {};\n';
         code += '        }\n';
         code += '\n';
         code += '        startInterview() {\n';
         code += '            if (this.isActive) return;\n';
+        code += '            \n';
+        code += '            // ✅ FIX: Grab the script here, at the moment we need it\n';
+        code += '            if (!window.preQualScript) {\n';
+        code += '                console.error("❌ CRITICAL: preQualScript not found on window!");\n';
+        code += '                return;\n';
+        code += '            }\n';
+        code += '            this.script = window.preQualScript;\n';
+        code += '            \n';
         code += '            console.log("🎯 Starting pre-qualification interview");\n';
         code += '            this.isActive = true;\n';
         code += '            const firstMessage = this.script.start();\n';
