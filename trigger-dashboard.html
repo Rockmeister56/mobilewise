@@ -2728,52 +2728,51 @@ Contact: support@botemia.com`;
     }
 },
 
-            updateBridgePreview() {
+    updateBridgePreview() {
     const clientId = document.getElementById('clientId').value || 'client-id';
-    const agentId = document.getElementById('agentId').value || 'agent_id';
+    const agentId = document.getElementById('agentId').value || 'agent-id';
     const preview = document.getElementById('bridgePreview');
     
     preview.innerHTML = `// Botemia Bridge for ${clientId}
 (function() {
-    "use strict";
+        "use strict";
 
-    const CLIENT_CONFIG = {
-        id: '${clientId}',
-        agentId: '${agentId}',
-        environment: '${document.getElementById('environment').value}'
-    };
+        const CLIENT_CONFIG = {
+            id: '${clientId}',
+            agentId: **' + document.getElementById('agentId').value + "', // ✅ FIXED: Use .value to get the actual value from the DOM
+            environment: '** + document.getElementById('environment').value + "', // ✅ FIXED: Use .value to get the actual value from the DOM
+            class BotemiaBridge { ... }
+            
+            constructor() {
+                this.clientId = CLIENT_CONFIG.id;
+                this.agentId = CLIENT_CONFIG.agentId;
+                console.log('Bridge initializing for ' + this.clientId);
+                this.init();
+            }
 
-    class BotemiaBridge {
-        constructor() {
-            this.clientId = CLIENT_CONFIG.id;
-            this.agentId = CLIENT_CONFIG.agentId;
-            console.log('Bridge initializing for ' + this.clientId);
-            this.init();
-        }
+            async init() {
+                // Load config from Supabase
+                const { data, error } = await supabase
+                    .from('clients')
+                    .select('*')
+                    .eq('client_id', this.clientId)
+                    .single();
 
-        async init() {
-            // Load config from Supabase
-            const { data, error } = await supabase
-                .from('clients')
-                .select('*')
-                .eq('client_id', this.clientId)
-                .single();
+                if (data) {
+                    window.botemiaConfig = data.config;
+                    this.loadWidget();
+                }
+            }
 
-            if (data) {
-                window.botemiaConfig = data.config;
-                this.loadWidget();
+            loadWidget() {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.botemia.com/widget.js';
+                script.async = true;
+                document.head.appendChild(script);
             }
         }
 
-        loadWidget() {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.botemia.com/widget.js';
-            script.async = true;
-            document.head.appendChild(script);
-        }
-    }
-
-    new BotemiaBridge();
+        new BotemiaBridge();
 })();`; 
             },
 
@@ -4520,27 +4519,31 @@ function generateDynamicScriptCode(knowledgeBase) {
 // Helper: Build the actual JS code
 function buildScriptCode(steps) {
     let code = `
+    
     // ===== DYNAMIC PRE-QUALIFICATION SCRIPT (From Supabase) =====
     window.preQualScript = {
         steps: [
 `;
 
     steps.forEach((step, index) => {
-        // We check if speaker is tess OR if there is just a generic question
+        // Only process if it's a Tess step or has a question
         if (step.speaker === 'tess' || step.question) {
             const safeText = (step.text || step.question || '').replace(/`/g, '\\`').replace(/"/g, '\\"');
             const field = step.field || step.key_data || '';
-            const type = step.type || step.validation || 'text';
-            // ✅ FIX: Directly map the type, default to 'text' to ensure data saves
-            const stepType = (step.type === 'message') ? 'message' : 'text';;
             
+            // Determine type: Explicit 'message' or default 'text'
+            const stepType = (step.type === 'message') ? 'message' : 'text';
+            
+            // ✅ FIX: Use index as backup ID if field is missing
+            const stepId = field || `step_${index}`;
+
             code += `            { 
-                id: "${field || 'step_' + index}", 
+                id: "${stepId}", 
                 type: "${stepType}",
                 text: "${safeText}",
                 question: "${safeText}",
                 field: "${field}",
-                validation: "${type}",
+                validation: "${step.validation || 'text'}",
                 options: ${step.options ? JSON.stringify(step.options) : 'null'}
             },\n`;
         }
@@ -4598,20 +4601,35 @@ function buildScriptCode(steps) {
     return code;
 }
 
-// Helper: Fallback Script (Update this too)
+// Helper: Fallback Script
 function generateFallbackScript() {
     console.warn('⚠️ Generating fallback script.');
     return `
     window.preQualScript = {
         steps: [
-            { id: "fallback_name", type: "question", question: "Hello! What is your name?", field: "name", validation: "text", options: null }
+            { id: "fallback_intro", type: "message", question: "Welcome! Let's get started.", field: "", validation: "text", options: null },
+            { id: "fallback_name", type: "text", question: "Hello! What is your name?", field: "name", validation: "text", options: null }
         ],
         responses: {},
         currentStepIndex: 0,
         active: false,
         start: function() { this.active = true; this.currentStepIndex = 0; this.responses = {}; return this.getCurrentQuestion(); },
-        processResponse: function(userInput) { this.responses.name = userInput; this.active = false; return "Thank you!"; },
-        getCurrentQuestion: function() { return this.steps[0]?.question; },
+        processResponse: function(userInput) { 
+            const currentStep = this.steps[this.currentStepIndex];
+            if (currentStep.field) {
+                this.responses[currentStep.field] = userInput;
+            }
+            this.currentStepIndex++; 
+            if (this.currentStepIndex >= this.steps.length) {
+                this.active = false;
+                return "Thank you!"; 
+            }
+            return this.getCurrentQuestion(); 
+        },
+        getCurrentQuestion: function() { 
+            const step = this.steps[this.currentStepIndex];
+            return step ? step.question : null;
+        },
         getResults: function() { return this.responses; }
     };
 `;
