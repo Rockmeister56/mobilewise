@@ -3747,10 +3747,6 @@ code += '    document.head.appendChild(style);\n\n';
         // ===== CREATE CONTROLLER INSTANCE =====
         code += '    window.preQualController = new PreQualificationController();\n';
         code += '    console.log("✅ Controller created with", window.preQualScript?.steps?.length, "steps");\n\n';
-        
-        // ===== UNIVERSAL TRIGGER LISTENER VARIABLES =====
-        code += '    let lastTriggerTime = 0;\n';
-        code += '    const TRIGGER_COOLDOWN = 3000; // 3 seconds brake\n\n';
 
                 // ===== UNIVERSAL LISTENER (THE BRAIN) =====
         code += '    let lastTriggerTime = 0;\n';
