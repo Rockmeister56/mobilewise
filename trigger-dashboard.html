@@ -3658,6 +3658,15 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            this.speak(firstMessage);\n';
         code += '        }\n';
         code += '\n';
+        code += '        // ===== THE MISSING PATCH (GET RESULTS) =====\n';
+        code += '        getResults() {\n';
+        code += '            const data = this.answers || {};\n';
+        code += '            if (!data.submittedAt) {\n';
+        code += '                data.submittedAt = new Date().toISOString();\n';
+        code += '            }\n';
+        code += '            return data;\n';
+        code += '        }\n';
+        code += '\n';
         code += '        handleUserInput(userText) {\n';
         code += '            if (!this.isActive || !this.script) return;\n';
         code += '            \n';
@@ -3704,7 +3713,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '\n';
         code += '        // ===== SEND EMAIL FUNCTION (FIXED & INSIDE CLASS) =====\n';
         code += '        async sendEmail() {\n';
-        code += '            console.log("📧 Sending pre-qualification emails...");\n';
+        code += '            console.log("📧 Sending pre-qualification emails...");\n';    
         code += '            \n';
         code += '            try {\n';
         code += '                // ===== EMAIL 1: TO LOAN OFFICER =====\n';
@@ -3742,70 +3751,6 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            }\n';
         code += '        }\n';
         code += '    }\n\n';
-
-        // 1. Define the Properties
-code += '    isActive = false;\n';
-code += '    script = null;\n';
-code += '    results = {};\n';
-code += '\n';
-
-// 2. The INIT Function
-code += '    init(scriptData) {\n';
-code += '        console.log("🍋 Lemon Slice AI Initializing...");\n';
-code += '        this.script = scriptData;\n';
-code += '        this.isActive = true;\n';
-code += '        this.results = {};\n';
-code += '        this.script.currentStepIndex = 1;\n';
-code += '        console.log("✅ Ready. Question 1 loaded.");\n';
-code += '    }\n';
-code += '\n';
-
-// 3. The CORE LOGIC Function
-code += '    processInput(userInput) {\n';
-code += '        if (!this.isActive) return "System is not active.";\n';
-code += '\n';
-code += '        const currentStepIndex = this.script.currentStepIndex;\n';
-code += '        const currentStep = this.script.steps[currentStepIndex];\n';
-code += '\n';
-code += '        if (currentStep.field) {\n';
-code += '            this.results[currentStep.field] = userInput;\n';
-code += '            console.log(`💾 Saved ${currentStep.field}: ${userInput}`);\n';
-code += '        }\n';
-code += '\n';
-code += '        this.script.currentStepIndex++;\n';
-code += '\n';
-code += '        if (this.script.currentStepIndex >= this.script.steps.length) {\n';
-code += '            this.isActive = false;\n';
-code += '            console.log("🏁 Interview Complete.");\n';
-code += '            this.sendDataToDashboard();\n';
-code += '            return "Thank you! We are generating your pre-qualification letter now.";\n';
-code += '        }\n';
-code += '\n';
-code += '        const nextStep = this.script.steps[this.script.currentStepIndex];\n';
-code += '        return nextStep.question;\n';
-code += '    }\n';
-code += '\n';
-
-// 4. The PATCHED FUNCTION
-code += '    getResults() {\n';
-code += '        this.results.submittedAt = new Date().toISOString();\n';
-code += '        return this.results;\n';
-code += '    }\n';
-code += '\n';
-
-// 5. The DASHBOARD BRIDGE Function
-code += '    sendDataToDashboard() {\n';
-code += '        const finalData = this.getResults();\n';
-code += '        console.log("🤝 Handoff to Dashboard:", finalData);\n';
-code += '    }\n';
-code += '\n';
-
-// 6. Close the Class
-code += '}\n';
-code += '\n';
-
-// 7. Attach to Window
-code += 'window.preQualController = new PreQualificationController();\n';
         
         // ===== CREATE CONTROLLER INSTANCE =====
         code += '    window.preQualController = new PreQualificationController();\n';
