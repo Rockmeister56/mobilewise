@@ -3655,7 +3655,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '    }\n\n';
 
  // ===== PRE-QUALIFICATION CONTROLLER (REVISED FOR NEW FORMAT) =====
-        code += '    class PreQualificationController {\n';
+                code += '    class PreQualificationController {\n';
         code += '        constructor() {\n';
         code += '            this.isActive = false;\n';
         code += '            this.script = null;\n';
@@ -3702,7 +3702,8 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            // ===== SAVE ANSWER =====\n';
         code += '            if (currentStep.field) {\n';
         code += '                this.answers[currentStep.field] = userText;\n';
-        code += '                console.log(`💾 Saved ${currentStep.field}: ${userText}`);\n';
+        // ✅ FIXED: Removed backticks, used standard concatenation
+        code += '                console.log("💾 Saved " + currentStep.field + ": " + userText);\n';
         code += '            }\n';
         code += '\n';
         code += '            // ===== MOVE TO NEXT STEP =====\n';
@@ -3736,7 +3737,8 @@ code += '    document.head.appendChild(style);\n\n';
         code += '\n';
         code += '        speak(text) {\n';
         code += '            if (!text) return;\n';
-        code += '            console.log(`🤖 Tess says: ${text}`);\n';
+        // ✅ FIXED: Removed backticks, used standard concatenation
+        code += '            console.log("🤖 Tess says: " + text);\n';
         code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
         code += '                window.mainWidget.sendMessage(text);\n';
         code += '            }\n';
