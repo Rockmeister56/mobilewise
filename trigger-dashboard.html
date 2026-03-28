@@ -3538,20 +3538,26 @@ async function exportBridgeOnly() {
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
         code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
 
-           // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
-code += '// =========================================\n';
-code += '// 🍋 AUTO-LOADER: EMAILJS LIBRARY\n';
-code += '// =========================================\n';
-code += 'var js = document.createElement("script");\n';
-code += 'js.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js";\n';
-code += 'js.onload = function() {\n';
-code += 'if (window.emailjs) {\n';
-code += 'window.emailjs.init(\'7-9oxa3UC3uKxtqGM\');\n';
-code += 'console.log("✅ EmailJS Ready");\n';
-code += '}\n';
-code += '};\n';
-code += 'document.head.appendChild(js);\n';
-code += '\n';
+        // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
+        const emailJsLoader = [
+            '    // =========================================',
+            '    // 🍋 AUTO-LOADER: EMAILJS LIBRARY',
+            '    // =========================================',
+            '    (function() {',
+            '        var js = document.createElement("script");',
+            '        js.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js";',
+            '        js.onload = function() {',
+            '            if (window.emailjs) {',
+            '                window.emailjs.init(\'7-9oxa3UC3uKxtqGM\');',
+            '                console.log("✅ EmailJS Ready");',
+            '            }',
+            '        };',
+            '        document.head.appendChild(js);',
+            '    })();',
+            ''
+        ].join('\n');
+        
+        code += emailJsLoader + '\n';
         
         // ===== ADD SPLASH SCREEN CSS =====
 code += '    const style = document.createElement(\'style\');\n';
