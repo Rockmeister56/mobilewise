@@ -3538,27 +3538,20 @@ async function exportBridgeOnly() {
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
         code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
 
-    // ==========================================
-    // 🍋 LEMON SLICE: AUTO-LOADER (EMAILJS)
-    // ==========================================
-    // This code loads the library and initializes it immediately
-    // so the Controller doesn't crash when it tries to send email.
-
-        code += '// =========================================\n';
-        code += '// 🍋 AUTO-LOADER: EMAILJS LIBRARY\n';
-        code += '// =========================================\n';
-        code += '(function() {\n';
+            // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
+        code += '    // =========================================\n';
+        code += '    // 🍋 AUTO-LOADER: EMAILJS LIBRARY\n';
+        code += '    // =========================================\n';
         code += '    var script = document.createElement("script");\n';
         code += '    script.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js";\n';
         code += '    script.onload = function() {\n';
         code += '        if (window.emailjs) {\n';
-        code += '            // ⚠️ ACTION REQUIRED: Paste your Public Key below\n';
+        code += '            // Public Key Loaded\n';
         code += '            window.emailjs.init("7-9oxa3UC3uKxtqGM"); \n';
         code += '            console.log("✅ EmailJS Ready");\n';
         code += '        }\n';
         code += '    };\n';
         code += '    document.head.appendChild(script);\n';
-        code += '})();\n';
         code += '\n';
         
         // ===== ADD SPLASH SCREEN CSS =====
