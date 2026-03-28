@@ -3552,7 +3552,7 @@ async function exportBridgeOnly() {
         code += '        }\n';
         code += '    };\n';
         code += '    document.head.appendChild(script);\n';
-        code += '\n';
+        code += '})();\n';
         
         // ===== ADD SPLASH SCREEN CSS =====
 code += '    const style = document.createElement(\'style\');\n';
