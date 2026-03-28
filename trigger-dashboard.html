@@ -3538,11 +3538,10 @@ async function exportBridgeOnly() {
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
         code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
 
-        // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
+           // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
 code += '// =========================================\n';
 code += '// 🍋 AUTO-LOADER: EMAILJS LIBRARY\n';
 code += '// =========================================\n';
-code += '(function() {\n';
 code += 'var js = document.createElement("script");\n';
 code += 'js.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js";\n';
 code += 'js.onload = function() {\n';
@@ -3552,7 +3551,6 @@ code += 'console.log("✅ EmailJS Ready");\n';
 code += '}\n';
 code += '};\n';
 code += 'document.head.appendChild(js);\n';
-code += '})();\n';
 code += '\n';
         
         // ===== ADD SPLASH SCREEN CSS =====
