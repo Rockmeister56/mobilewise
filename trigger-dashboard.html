@@ -3633,74 +3633,84 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        return widget;\n';
         code += '    }\n\n';
 
-// ===== PRE-QUALIFICATION CONTROLLER (UPDATED CONSTRUCTOR) =====
+ // ===== PRE-QUALIFICATION CONTROLLER (REVISED FOR NEW FORMAT) =====
         code += '    class PreQualificationController {\n';
         code += '        constructor() {\n';
         code += '            this.isActive = false;\n';
-        code += '            // ❌ REMOVED: this.script = window.preQualScript;\n';
-        code += '            // We will grab the script dynamically in startInterview to ensure it exists\n';
+        code += '            this.script = null;\n';
         code += '            this.answers = {};\n';
+        code += '            this.currentStepIndex = 0;\n';
         code += '        }\n';
         code += '\n';
         code += '        startInterview() {\n';
         code += '            if (this.isActive) return;\n';
         code += '            \n';
-        code += '            // ✅ FIX: Grab the script here, at the moment we need it\n';
+        code += '            // 1. Grab the script from Supabase/Window\n';
         code += '            if (!window.preQualScript) {\n';
-        code += '                console.error("❌ CRITICAL: preQualScript not found on window!");\n';
+        code += '                console.error("❌ CRITICAL: preQualScript not found!");\n';
         code += '                return;\n';
         code += '            }\n';
         code += '            this.script = window.preQualScript;\n';
         code += '            \n';
-        code += '            console.log("🎯 Starting pre-qualification interview");\n';
+        code += '            // 2. Initialize State\n';
         code += '            this.isActive = true;\n';
-        code += '            const firstMessage = this.script.start();\n';
-        code += '            this.speak(firstMessage);\n';
-        code += '        }\n';
-        code += '\n';
-        code += '        // ===== THE MISSING PATCH (GET RESULTS) =====\n';
-        code += '        getResults() {\n';
-        code += '            const data = this.answers || {};\n';
-        code += '            if (!data.submittedAt) {\n';
-        code += '                data.submittedAt = new Date().toISOString();\n';
-        code += '            }\n';
-        code += '            return data;\n';
+        code += '            this.currentStepIndex = 0; // Start at the Confirmation Gate (Step 0)\n';
+        code += '            this.answers = {};\n';
+        code += '            \n';
+        code += '            console.log("🎯 Starting Pre-Qual Interview (New Format)");\n';
+        code += '            \n';
+        code += '            // 3. Speak the first message (Confirmation Gate)\n';
+        code += '            this.speakCurrentStep();\n';
         code += '        }\n';
         code += '\n';
         code += '        handleUserInput(userText) {\n';
         code += '            if (!this.isActive || !this.script) return;\n';
-        code += '            \n';
-        code += '            // 🔥 FIX: Only ignore her NAME, ignore her COMMANDS.\n';
-        code += '            // "Pre-qualified" is a COMMAND to start the system, so we must NOT block it.\n';
+        code += '\n';
         code += '            const lowerText = userText.toLowerCase();\n';
-        code += '            \n';
-        code += '            // Only block strictly self-identifying phrases\n';
-        code += '            if (lowerText === "i\'m tess" || lowerText === "i am tess" || lowerText === "my name is tess") {\n';
-        code += '                console.log("🛑 Ignoring self-identification speech.");\n';
+        code += '\n';
+        code += '            // ===== EXIT LOGIC (For Confirmation Gate) =====\n';
+        code += '            // If we are on Step 0 (Confirmation) and user says NO\n';
+        code += '            const currentStep = this.script.steps[this.currentStepIndex];\n';
+        code += '            if (currentStep.id === "start_confirm" && (lowerText === "no" || lowerText === "no thank you")) {\n';
+        code += '                console.log("🚪 User declined. Returning to Lemon Slice.");\n';
+        code += '                this.isActive = false;\n';
+        code += '                this.speak("No problem. What else can I help you with?");\n';
         code += '                return;\n';
         code += '            }\n';
-        code += '            \n';
-        code += '            console.log(`👤 Input received: ${userText}`);\n';
-        code += '            \n';
-        code += '            // If the interview is NOT active yet, check if TESS triggered it\n';
-        code += '            if (!this.isActive) {\n';
-        code += '                // If Tess says the trigger phrase, START the interview\n';
-        code += '                if (lowerText.includes("let\'s get you pre-qualified") || lowerText.includes("let\'s get pre-qualified")) {\n';
-        code += '                    console.log("🎯 TESS TRIGGER DETECTED: Starting Pre-Qual Interview");\n';
-        code += '                    this.startInterview(); \n';
-        code += '                    return;\n';
-        code += '                }\n';
+        code += '\n';
+        code += '            // ===== SAVE ANSWER =====\n';
+        code += '            if (currentStep.field) {\n';
+        code += '                this.answers[currentStep.field] = userText;\n';
+        code += '                console.log(`💾 Saved ${currentStep.field}: ${userText}`);\n';
         code += '            }\n';
         code += '\n';
-        code += '            // If interview IS active, process the User\'s answer\n';
-        code += '            const nextResponse = this.script.processResponse(userText);\n';
-        code += '            if (nextResponse) { this.speak(nextResponse); }\n';
-        code += '            if (!this.script.active) {\n';
-        code += '                console.log("✅ Interview Complete!", this.script.getResults());\n';
-        code += '                this.answers = this.script.getResults();\n';
-        code += '                this.sendEmail();\n';
-        code += '                this.isActive = false;\n';
+        code += '            // ===== MOVE TO NEXT STEP =====\n';
+        code += '            this.currentStepIndex++;\n';
+        code += '\n';
+        code += '            // ===== CHECK IF FINISHED =====\n';
+        code += '            if (this.currentStepIndex >= this.script.steps.length) {\n';
+        code += '                this.finishInterview();\n';
+        code += '                return;\n';
         code += '            }\n';
+        code += '\n';
+        code += '            // ===== SPEAK NEXT QUESTION =====\n';
+        code += '            this.speakCurrentStep();\n';
+        code += '        }\n';
+        code += '\n';
+        code += '        speakCurrentStep() {\n';
+        code += '            const step = this.script.steps[this.currentStepIndex];\n';
+        code += '            if (step) {\n';
+        code += '                this.speak(step.question);\n';
+        code += '            } else {\n';
+        code += '                console.error("❌ Step not found at index:", this.currentStepIndex);\n';
+        code += '            }\n';
+        code += '        }\n';
+        code += '\n';
+        code += '        finishInterview() {\n';
+        code += '            this.isActive = false;\n';
+        code += '            console.log("✅ Interview Complete.");\n';
+        code += '            this.speak("That is everything! I am generating your pre-qualification letter now.");\n';
+        code += '            this.sendEmail();\n';
         code += '        }\n';
         code += '\n';
         code += '        speak(text) {\n';
@@ -4535,18 +4545,21 @@ function buildScriptCode(steps) {
 `;
 
     steps.forEach((step, index) => {
-        // Only process if it's a Tess step or has a question
-        if (step.speaker === 'tess' || step.question) {
-            const safeText = (step.text || step.question || '').replace(/`/g, '\\`').replace(/"/g, '\\"');
-            const field = step.field || step.key_data || '';
-            
-            // Determine type: Explicit 'message' or default 'text'
-            const stepType = (step.type === 'message') ? 'message' : 'text';
-            
-            // ✅ FIX: Use index as backup ID if field is missing
-            const stepId = field || `step_${index}`;
+        // 1. Parse the content safely
+        const safeText = (step.text || step.question || '').replace(/`/g, '\\`').replace(/"/g, '\\"');
+        
+        // 2. Determine the Field Name (Use 'key_data' if 'field' is missing)
+        const field = step.field || step.key_data || '';
+        
+        // 3. Determine the ID (Crucial for the Confirmation Gate logic)
+        // If the import has a specific ID (like "start_confirm"), use it. Otherwise, use the field or index.
+        const stepId = step.id || field || `step_${index}`;
+        
+        // 4. Determine the Type (Crucial: Must support 'choice' and 'text')
+        // Default to 'text', but explicitly use 'choice' if defined
+        const stepType = step.type || 'text';
 
-            code += `            { 
+        code += `            { 
                 id: "${stepId}", 
                 type: "${stepType}",
                 text: "${safeText}",
@@ -4555,56 +4568,9 @@ function buildScriptCode(steps) {
                 validation: "${step.validation || 'text'}",
                 options: ${step.options ? JSON.stringify(step.options) : 'null'}
             },\n`;
-        }
     });
 
-    code += `        ],
-        responses: {},
-        currentStepIndex: 0,
-        active: false,
-        
-        start: function() {
-            console.log("📋 Starting pre-qual script");
-            this.active = true;
-            this.currentStepIndex = 0;
-            this.responses = {};
-            return this.getCurrentQuestion();
-        },
-        
-        processResponse: function(userInput) {
-            if (!this.active) return null;
-            const currentStep = this.steps[this.currentStepIndex];
-            if (!currentStep) {
-                this.active = false;
-                return "Thank you! Your pre-qualification is complete.";
-            }
-            
-            if (currentStep.type === "message") {
-                this.currentStepIndex++;
-                return this.getCurrentQuestion();
-            }
-            
-            if (currentStep.field) {
-                this.responses[currentStep.field] = userInput;
-                console.log(\`✅ Stored \${currentStep.field}: \`, userInput);
-            }
-            
-            this.currentStepIndex++;
-            return this.getCurrentQuestion();
-        },
-        
-        getCurrentQuestion: function() {
-            const step = this.steps[this.currentStepIndex];
-            if (!step) {
-                this.active = false;
-                return null;
-            }
-            return step.question || step.text;
-        },
-        
-        getResults: function() {
-            return this.responses;
-        }
+    code += `        ]
     };
 `;
     return code;
