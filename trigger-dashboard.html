@@ -3540,14 +3540,15 @@ async function exportBridgeOnly() {
 
                 // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
         code += '    // =========================================\n';
-        code += '    // 🍋 AUTO-LOADER: EMAILJS LIBRARY (GLOBAL INJECTION)\n';
+        code += '    // 🍋 AUTO-LOADER: EMAILJS LIBRARY\n';
         code += '    // =========================================\n';
         code += '    (function() {\n';
         code += '        var js = document.createElement("script");\n';
         code += '        js.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js";\n';
         code += '        js.onload = function() {\n';
         code += '            if (window.emailjs) {\n';
-        code += '                window.emailjs.init("7-9oxa3UC3uKxtqGM"); \n';
+        // We use single quotes for the key to avoid conflict with the outer string
+        code += '                window.emailjs.init(\'7-9oxa3UC3uKxtqGM\'); \n';
         code += '                console.log("✅ EmailJS Ready");\n';
         code += '            }\n';
         code += '        };\n';
