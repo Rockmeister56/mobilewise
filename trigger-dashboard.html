@@ -4376,8 +4376,8 @@ code += '    window.disableBridgeTriggers = false;\n\n';
         code += '        }\n';
         code += '    });\n';
         code += '    console.log(\'✅ TCS message listener installed\');\n';
-                code += '\n';
-               code += '\n';
+        code += '    \n';
+        code += '    \n';
         code += '    // =========================================\n';
         code += '    // 🍋 SHADOW BREAKER (SAFE VERSION)\n';
         code += '    // =========================================\n';
@@ -4403,11 +4403,11 @@ code += '    window.disableBridgeTriggers = false;\n\n';
         code += '                        window.preQualController.startInterview();\n';
         code += '                    }\n';
         code += '                }\n';
-        code += '            });\n';
-        code += '        } catch (err) {\n';
+        code += '            });\n'; // <--- Closed addEventListener
+        code += '        } catch (err) {'; // <--- Closed try
         code += '            console.warn("⚠️ Could not access Shadow DOM:", err);\n';
-        code += '        }\n';
-        code += '    }, 3000);\n';
+        code += '        }\n'; // <--- Closed catch
+        code += '    }, 3000);\n'; // <--- Closed setTimeout
         code += '\n';
         
         // ===== DOWNLOAD THE FILE =====
