@@ -4275,46 +4275,54 @@ code += '    }\n\n';
        // Auto-Trigger System
 code += '    window.disableBridgeTriggers = false;\n\n';
 
-                // ===== LOAD WIDGET =====
-        code += '    function initWidget() {\n';
-        code += '        if (document.querySelector(\'lemon-slice-widget\')) { console.log(\'✅ Widget already exists\'); return; }\n';
-        
-        // 1. Load the Script
-        code += '        const script = document.createElement(\'script\');\n';
-        code += '        script.src = \'https://unpkg.com/@lemonsliceai/lemon-slice-widget\';\n';
-        code += '        script.type = \'module\';\n';
-        code += '        script.onload = () => { console.log(\'✅ Widget script loaded\'); };\n';
-        code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
-        code += '        document.head.appendChild(script);\n';
-        
-        // 2. Create Splash Widget (This is now our ONLY widget)
-        code += '        setTimeout(() => { showSplash(); }, 100);\n';
-        code += '    }\n\n';
-
-        code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
-        code += '    else { initWidget(); }\n\n';
-        
-        code += '    console.log(\'✅ Botemia Bridge v5.4 loaded for\', window.BotemiaConfig.name);\n';
-
-        code += '    // ===== CLIENT ANNOUNCEMENT FUNCTION =====\n';
-        code += '    function announceToTCS() {\n';
-        code += '        if (window.opener) {\n';
-        code += '            window.opener.postMessage({\n';
-        code += '                type: \'BRIDGE_ACTIVE\',\n';
-        code += '                clientId: window.BotemiaConfig.id,\n';
-        code += '                url: window.location.href\n';
-        code += '            }, \'*\');\n';
-        code += '        }\n';
-        code += '        const channel = new BroadcastChannel(\'botemia-discovery\');\n';
-        code += '        channel.postMessage({\n';
-        code += '            type: \'CLIENT_INFO\',\n';
-        code += '            clientId: window.BotemiaConfig.id,\n';
-        code += '            url: window.location.href\n';
-        code += '        });\n';
-        code += '        console.log(\'📢 Announced to TCS via broadcast\');\n';
-        code += '    }\n';
-        code += '\n';
-        code += '    setTimeout(announceToTCS, 2000);\n\n';
+                  // ===== LOAD WIDGET =====
+    code += '    function initWidget() {\n';
+    code += '        if (document.querySelector(\'lemon-slice-widget\')) { console.log(\'✅ Widget already exists\'); return; }\n';
+    code += '        \n';
+    code += '        // 1. Load the Script\n';
+    code += '        const script = document.createElement(\'script\');\n';
+    code += '        script.src = \'https://unpkg.com/@lemonsliceai/lemon-slice-widget\';\n';
+    code += '        script.type = \'module\';\n';
+    code += '        script.onload = () => { \n';
+    code += '            console.log(\'✅ Widget script loaded\'); \n';
+    code += '            \n';
+    code += '            // === NEW: AUTO-LAUNCH TCS REMOTE CONTROL ===\n';
+    code += '            // Delay to ensure page is stable before popping up the window\n';
+    code += '            setTimeout(() => {\n';
+    code += '                openTCS_ControlPanel();\n';
+    code += '            }, 2500);\n';
+    code += '        }; \n';
+    code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
+    code += '        document.head.appendChild(script);\n';
+    code += '        \n';
+    code += '        // 2. Create Splash Widget (This is now our ONLY widget)\n';
+    code += '        setTimeout(() => { showSplash(); }, 100);\n';
+    code += '    }\n\n';
+    
+    code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
+    code += '    else { initWidget(); }\n\n';
+    
+    code += '    console.log(\'✅ Botemia Bridge v5.4 loaded for\', window.BotemiaConfig.name);\n';
+    
+    code += '    // ===== CLIENT ANNOUNCEMENT FUNCTION =====\n';
+    code += '    function announceToTCS() {\n';
+    code += '        if (window.opener) {\n';
+    code += '            window.opener.postMessage({\n';
+    code += '                type: \'BRIDGE_ACTIVE\',\n';
+    code += '                clientId: window.BotemiaConfig.id,\n';
+    code += '                url: window.location.href\n';
+    code += '            }, \'*\');\n';
+    code += '        }\n';
+    code += '        const channel = new BroadcastChannel(\'botemia-discovery\');\n';
+    code += '        channel.postMessage({\n';
+    code += '            type: \'CLIENT_INFO\',\n';
+    code += '            clientId: window.BotemiaConfig.id,\n';
+    code += '            url: window.location.href\n';
+    code += '        });\n';
+    code += '        console.log(\'📢 Announced to TCS via broadcast\');\n';
+    code += '    }\n';
+    code += '\n';
+    code += '    setTimeout(announceToTCS, 2000);\n\n';
 
         // ===== CONSOLIDATED MESSAGE HANDLER (NOISE CANCELING) =====
         code += '    window.addEventListener(\'message\', function(event) {\n';
@@ -4384,38 +4392,41 @@ code += '    window.disableBridgeTriggers = false;\n\n';
         code += '    });\n';
         code += '    console.log(\'✅ TCS message listener installed\');\n';
         code += '\n';
-        code += '    // =========================================\n';
-        code += '    // 🍋 SHADOW BREAKER (IMMEDIATE)\n';
-        code += '    // =========================================\n';
-        code += '    (function() {\n';
-        code += '        const widget = document.querySelector("lemon-slice-widget");\n';
-        code += '        if (!widget) return;\n';
-        code += '\n';
-        code += '        // Safely access Shadow Root\n';
-        code += '        try {\n';
-        code += '            const shadow = widget.shadowRoot;\n';
-        code += '            if (!shadow) return;\n';
-        code += '\n';
-        code += '            console.log("🕵️‍♂️ SPY: Infiltrating Shadow DOM...");\n';
-        code += '\n';
-        code += '            // Listen for the NEW TRIGGER PHRASE\n';
-        code += '            shadow.addEventListener("transcript", function(e) {\n';
-        code += '                const text = (e.detail || "").toLowerCase();\n';
-        code += '                console.log("👂 Shadow Ear:", text);\n';
-        code += '                \n';
-        code += '                if (text.includes("pre qualification interview")) {\n';
-        code += '                    console.log("🔥 TRIGGER: Pre-Qual Interview Phrase Detected!");\n';
-        code += '                    if (window.preQualController) {\n';
-        code += '                        window.preQualController.startInterview();\n';
-        code += '                    }\n';
-        code += '                }\n';
-        code += '            });\n';
-        code += '        } catch (err) {\n';
-        code += '            console.warn("⚠️ Could not access Shadow DOM:", err);\n';
-        code += '        }\n';
-        code += '    })();\n';
-        code += '    console.log(\'✅ Shadow Spy Active.\');\n';
-        code += '})();\n';
+    
+    // =========================================
+    // 📡 TCS REMOTE CONTROL LINK
+    // =========================================
+    
+    code += '    // Configuration: UPDATE THIS TO YOUR ACTUAL DOMAIN\n';
+    code += '    const TCS_SERVER_URL = \'https://your-dashboard.com/tcs-control.html\'; \n';
+    code += '\n';
+    code += '    function openTCS_ControlPanel() {\n';
+    code += '        // 1. Check if TCS is already open (prevents duplicates)\n';
+    code += '        if (window.tcsWindow && !window.tcsWindow.closed) {\n';
+    code += '            console.log("🔗 TCS is already open. Focusing...");\n';
+    code += '            window.tcsWindow.focus();\n';
+    code += '            return;\n';
+    code += '        }\n';
+    code += '\n';
+    code += '        // 2. Get Client ID from Config\n';
+    code += '        const clientId = window.BotemiaConfig.id;\n';
+    code += '        \n';
+    code += '        // 3. Construct URL with Client ID so TCS knows who it\'s controlling\n';
+    code += '        const tcsUrl = `${TCS_SERVER_URL}?clientId=${clientId}&websiteUrl=${encodeURIComponent(window.location.href)}`;\n';
+    code += '        \n';
+    code += '        // 4. Open the Popup\n';
+    code += '        console.log("🔗 Opening TCS Control Panel from:", TCS_SERVER_URL);\n';
+    code += '        try {\n';
+    code += '            window.tcsWindow = window.open(\n';
+    code += '                tcsUrl, \n';
+    code += '                \'Botemia_TCS_Control\', \n';
+    code += '                \'width=1200,height=800,scrollbars=yes,resizable=yes\'\n';
+    code += '            );\n';
+    code += '        } catch (e) {\n';
+    code += '            console.error("❌ Failed to open TCS (Popup blocked?):", e);\n';
+    code += '        }\n';
+    code += '    }\n\n';
+    code += '})();\n';
         
         // ===== DOWNLOAD THE FILE =====
         const bridgeBlob = new Blob([code], { type: 'application/javascript' });
