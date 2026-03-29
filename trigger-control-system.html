@@ -1001,31 +1001,71 @@ monitorTessMessages() {
                 }, 2000);
             }
 
-            processTranscript(transcript) {
-                this.addToTranscriptFeed(transcript);
+               processTranscript(transcript) {
+        this.addToTranscriptFeed(transcript);
+        
+        const lowerTranscript = transcript.toLowerCase();
+        
+        // ========================================
+        // PRIORITY 1: PRE-QUALIFICATION INTERVIEW TRIGGER
+        // ========================================
+        // We check this FIRST because it overrides other modules
+        const preQualPhrases = [
+            "pre qualification interview",
+            "pre-qualification interview",
+            "get you pre-qualified",
+            "start the pre qualification",
+            "begin your pre qualification"
+        ];
+
+        for (const phrase of preQualPhrases) {
+            if (lowerTranscript.includes(phrase)) {
+                console.log('🎯 TCS: Pre-Qual Trigger Detected!');
+                this.addToTranscriptFeed(`🎯 Trigger: "${phrase}"`);
                 
-                const lowerTranscript = transcript.toLowerCase();
+                // Highlight module in UI (Optional)
+                // this.highlightModule('preQualification'); 
                 
-                // Check for exact trigger phrase from working test
-                if (lowerTranscript.includes("verified results gallery") && !this.playerLaunched) {
-                    this.playerLaunched = true;
-                    this.addToTranscriptFeed('🎉 TRIGGER PHRASE DETECTED!');
-                    this.triggerModule('visualProof', 'verified results gallery', transcript);
+                // SEND THE SPECIFIC COMMAND THE BRIDGE EXPECTS
+                this.sendToClientWebsite('START_PRE_QUAL', phrase);
+                
+                // Show alert in TCS
+                const alertEl = document.getElementById('triggerAlert');
+                if (alertEl) {
+                    alertEl.style.display = 'block';
+                    document.getElementById('triggerModuleTag').innerHTML = '🎯 PRE-QUAL';
+                    document.getElementById('triggerPhraseDisplay').innerHTML = `"${phrase}"`;
+                    document.getElementById('triggerActionDisplay').innerHTML = 'Sending command to Bridge...';
+                }
+                
+                return; // Stop processing, we found the winner
+            }
+        }
+
+        // ========================================
+        // PRIORITY 2: STANDARD MODULES (Testimonial, Video, etc.)
+        // ========================================
+        
+        // Check for exact trigger phrase from working test
+        if (lowerTranscript.includes("verified results gallery") && !this.playerLaunched) {
+            this.playerLaunched = true;
+            this.addToTranscriptFeed('🎉 TRIGGER PHRASE DETECTED!');
+            this.triggerModule('visualProof', 'verified results gallery', transcript);
+            return;
+        }
+        
+        // Check other modules
+        for (const [moduleName, moduleConfig] of Object.entries(this.config.modules)) {
+            if (!moduleConfig.triggers) continue;
+            
+            for (const trigger of moduleConfig.triggers) {
+                if (lowerTranscript.includes(trigger.toLowerCase())) {
+                    this.triggerModule(moduleName, trigger, transcript);
                     return;
                 }
-                
-                // Check other modules
-                for (const [moduleName, moduleConfig] of Object.entries(this.config.modules)) {
-                    if (!moduleConfig.triggers) continue;
-                    
-                    for (const trigger of moduleConfig.triggers) {
-                        if (lowerTranscript.includes(trigger.toLowerCase())) {
-                            this.triggerModule(moduleName, trigger, transcript);
-                            return;
-                        }
-                    }
-                }
             }
+        }
+    }
 
         triggerModule(moduleName, triggerPhrase, fullTranscript) {
     // Add cooldown to prevent multiple triggers
