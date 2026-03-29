@@ -4070,7 +4070,7 @@ code += '        }\n';
     code += '    }\n\n';    
 
      // ===== ACTIVATE TESS FUNCTION (WITH WAKE UP CALL) =====
-    code += '    function activateTess() {\n';
+       code += '    async function activateTess() {\n';
     code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
     code += '        \n';
     code += '        // 1. Try to pre-warm audio\n';
@@ -4078,8 +4078,8 @@ code += '        }\n';
     code += '            if (window.mainWidget && typeof window.mainWidget.micOn === "function") {\n';
     code += '                window.mainWidget.micOn();\n';
     code += '            }\n';
-    code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n\n';
-    
+    code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n';
+    code += '\n';
     code += '        // 2. NUKE THE SPLASH WIDGET\n';
     code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
     code += '        if (splashWidget) {\n';
@@ -4087,12 +4087,12 @@ code += '        }\n';
     code += '            if (splashWidget.parentNode) {\n';
     code += '                splashWidget.parentNode.removeChild(splashWidget);\n';
     code += '            }\n';
-    code += '        }\n\n';
-    
+    code += '        }\n';
+    code += '\n';
     code += '        // 3. Remove the overlay\n';
     code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
-    code += '        if (overlay) overlay.remove();\n\n';
-    
+    code += '        if (overlay) overlay.remove();\n';
+    code += '\n';
     code += '        // 4. CREATE MAIN WIDGET\n';
     code += '        setTimeout(() => {\n';
     code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
@@ -4101,6 +4101,7 @@ code += '        }\n';
     code += '                document.body.appendChild(window.mainWidget);\n';
     code += '            }\n';
     code += '            \n';
+    code += '            // === FIX: MAKE WIDGET VISIBLE ===\n';
     code += '            window.mainWidget.style.display = \'block\';\n';
     code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
     code += '            \n';
