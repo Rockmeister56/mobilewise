@@ -3860,24 +3860,12 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            \n';
         code += '        });\n';
         code += '    }\n\n';
-        
-        code += '    setupUniversalListener();\n\n';
     
     // This injects the script fetched from Supabase
     code += preQualScriptCode;
 
     // ===== INITIALIZE LISTENER IMMEDIATELY =====
     code += '    setupUniversalListener();\n\n';
-
-      // ===== FALLBACK: Ensure Universal Listener Starts =====
-    code += '    setTimeout(() => {\n';
-    code += '        if (typeof setupUniversalListener === "function") {\n';
-    code += '            console.log("🎧 Fallback: Starting Universal Listener");\n';
-    code += '            setupUniversalListener();\n';
-    code += '        } else {\n';
-    code += '            console.error("❌ setupUniversalListener not found!");\n';
-    code += '        }\n';
-    code += '    }, 100);\n\n';
     
     // ===== WIDGET CREATION (FINAL) =====
     code += '    function createMainWidget() {\n';
