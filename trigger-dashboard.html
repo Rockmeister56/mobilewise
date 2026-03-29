@@ -3538,9 +3538,7 @@ async function exportBridgeOnly() {
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
         code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
 
-                // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
-        // TEMPORARILY DISABLED TO DEBUG BRIDGE LOADING
-        /*
+        // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
         const emailJsLoader = [
             '    // =========================================',
             '    // 🍋 AUTO-LOADER: EMAILJS LIBRARY',
@@ -3560,7 +3558,6 @@ async function exportBridgeOnly() {
         ].join('\n');
         
         code += emailJsLoader + '\n';
-        */
         
         // ===== ADD SPLASH SCREEN CSS =====
 code += '    const style = document.createElement(\'style\');\n';
@@ -3657,8 +3654,8 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        return widget;\n';
         code += '    }\n\n';
 
- // ===== PRE-QUALIFICATION CONTROLLER (REVISED FOR NEW FORMAT) =====
-                code += '    class PreQualificationController {\n';
+         // ===== PRE-QUALIFICATION CONTROLLER (REVISED FOR NEW FORMAT) =====
+        code += '    class PreQualificationController {\n';
         code += '        constructor() {\n';
         code += '            this.isActive = false;\n';
         code += '            this.script = null;\n';
@@ -3669,21 +3666,17 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        startInterview() {\n';
         code += '            if (this.isActive) return;\n';
         code += '            \n';
-        code += '            // 1. Grab the script from Supabase/Window\n';
         code += '            if (!window.preQualScript) {\n';
         code += '                console.error("❌ CRITICAL: preQualScript not found!");\n';
         code += '                return;\n';
         code += '            }\n';
         code += '            this.script = window.preQualScript;\n';
         code += '            \n';
-        code += '            // 2. Initialize State\n';
         code += '            this.isActive = true;\n';
-        code += '            this.currentStepIndex = 0; // Start at the Confirmation Gate (Step 0)\n';
+        code += '            this.currentStepIndex = 0;\n';
         code += '            this.answers = {};\n';
         code += '            \n';
         code += '            console.log("🎯 Starting Pre-Qual Interview (New Format)");\n';
-        code += '            \n';
-        code += '            // 3. Speak the first message (Confirmation Gate)\n';
         code += '            this.speakCurrentStep();\n';
         code += '        }\n';
         code += '\n';
@@ -3691,11 +3684,8 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            if (!this.isActive || !this.script) return;\n';
         code += '\n';
         code += '            const lowerText = userText.toLowerCase();\n';
-        code += '\n';
-                    code += '            // ===== FIREWALL LOGIC =====\n';
         code += '            const currentStep = this.script.steps[this.currentStepIndex];\n';
         code += '            \n';
-        code += '            // 1. CHECK FOR EXIT (NO)\n';
         code += '            if (currentStep.id === "confirmation" && (lowerText === "no" || lowerText === "no thank you")) {\n';
         code += '                console.log("🚪 User declined. Returning to Lemon Slice.");\n';
         code += '                this.isActive = false;\n';
@@ -3703,7 +3693,6 @@ code += '    document.head.appendChild(style);\n\n';
         code += '                return;\n';
         code += '            }\n';
         code += '            \n';
-        code += '            // 2. CHECK FOR FIREWALL TRIGGER (YES)\n';
         code += '            if (currentStep.id === "confirmation" && lowerText === "yes") {\n';
         code += '                console.log("🔥 FIREWALL ACTIVATED: Seizing control from Lemon Slice.");\n';
         code += '                this.answers[currentStep.field] = userText;\n';
@@ -3712,27 +3701,25 @@ code += '    document.head.appendChild(style);\n\n';
         code += '                return; \n';
         code += '            }\n';
         code += '            \n';
-        code += '            // 3. NORMAL FLOW\n';
         code += '            if (currentStep.field) {\n';
         code += '                this.answers[currentStep.field] = userText;\n';
         code += '                console.log("💾 Saved " + currentStep.field + ": " + userText);\n';
         code += '            }\n';
         code += '            this.currentStepIndex++;\n';
         code += '\n';
-        code += '            // ===== CHECK IF FINISHED =====\n';
         code += '            if (this.currentStepIndex >= this.script.steps.length) {\n';
         code += '                this.finishInterview();\n';
         code += '                return;\n';
         code += '            }\n';
         code += '\n';
-        code += '            // ===== SPEAK NEXT QUESTION =====\n';
         code += '            this.speakCurrentStep();\n';
         code += '        }\n';
         code += '\n';
         code += '        speakCurrentStep() {\n';
         code += '            const step = this.script.steps[this.currentStepIndex];\n';
         code += '            if (step) {\n';
-        code += '                this.speak(step.question);\n';
+        code += '                const message = step.question || step.text;\n';
+        code += '                this.speak(message);\n';
         code += '            } else {\n';
         code += '                console.error("❌ Step not found at index:", this.currentStepIndex);\n';
         code += '            }\n';
@@ -3747,13 +3734,17 @@ code += '    document.head.appendChild(style);\n\n';
         code += '\n';
         code += '        speak(text) {\n';
         code += '            if (!text) return;\n';
-        // ✅ FIXED: Removed backticks, used standard concatenation
         code += '            console.log("🤖 Tess says: " + text);\n';
         code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
         code += '                window.mainWidget.sendMessage(text);\n';
         code += '            }\n';
         code += '        }\n';
         code += '\n';
+        code += '        async sendEmail() {\n';
+        code += '            console.log("📧 Sending pre-qualification emails...");\n';
+        code += '            console.log("✅ Collected data:", this.answers);\n';
+        code += '        }\n';
+        code += '    }\n\n';
         code += '        // ===== SEND EMAIL FUNCTION (FIXED & INSIDE CLASS) =====\n';
         code += '        async sendEmail() {\n';
         code += '            console.log("📧 Sending pre-qualification emails...");\n';    
