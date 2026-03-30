@@ -632,7 +632,7 @@ if (clientWebsiteUrl) {
                 document.head.appendChild(moduleScript);
             }
 
-            async loadConfig() {
+                        async loadConfig() {
     // TEMPORARY: Hardcoded config for testing
     this.config = {
         id: 'mortgage-assist-demo',
@@ -640,6 +640,18 @@ if (clientWebsiteUrl) {
         agentId: 'agent_7b0776ef6b855de5',
         industry: 'mortgage',
         modules: {
+            
+            // 🆕 PRE-QUALIFICATION MODULE ADDED
+            preQualification: {
+                triggers: [
+                    "pre qualification interview",
+                    "Secure pre-qualification interview", 
+                    "get you pre-qualified",
+                    "start the pre qualification",
+                    "begin your pre qualification"
+                ]
+            },
+
             testimonial: {
                 triggers: ["rates", "pre-approval", "credit score", "interest rate"]
             },
