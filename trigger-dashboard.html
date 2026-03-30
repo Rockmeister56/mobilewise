@@ -3847,6 +3847,7 @@ code += '    document.head.appendChild(style);\n\n';
     code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
     code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
     code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
+    code += '        widget.setAttribute(\'suppress-config-fetch\', \'true\');\n';        
     code += '        widget.id = \'main-widget\';\n';
     code += '        widget.style.display = \'none\';\n';
     code += '        widget.addEventListener(\'ready\', () => {\n';
