@@ -1108,10 +1108,52 @@ if (this.sendToClientWidget) {
 }
 }
 
-// ===== NEW FUNCTION - ADD THIS RIGHT AFTER triggerModule =====
+// ===== UPDATED FUNCTION - KEEPS YOUR LOGIC + ADDS PRE-QUAL FIX =====
 sendToClientWebsite(moduleName, triggerPhrase) {
-    console.log('📤 Sending to client:', moduleName, triggerPhrase);
+    console.log('📤 TCS: Sending command trigger:', moduleName, triggerPhrase);
 
+    // ========================================
+    // 1. SPECIAL HANDOFF FOR PRE-QUALIFICATION (Priority)
+    // ========================================
+    if (moduleName === 'preQualification') {
+        console.log('🚀 TCS: SPECIAL ROUTE - Sending START_PRE_QUAL command...');
+        
+        // Try opener (if TCS was opened from client site)
+        if (window.opener && !window.opener.closed) {
+            try {
+                window.opener.postMessage({
+                    type: 'START_PRE_QUAL', // <--- THE KEY COMMAND
+                    timestamp: new Date().toISOString()
+                }, '*');
+                console.log('✅ TCS: START_PRE_QUAL sent via opener');
+                return true;
+            } catch (e) {
+                console.log('⚠️ Opener failed:', e);
+            }
+        }
+
+        // Try parent (if iframe) - unlikely for TCS but good to keep
+        if (window.parent && window.parent !== window) {
+            try {
+                window.parent.postMessage({
+                    type: 'START_PRE_QUAL',
+                    timestamp: new Date().toISOString()
+                }, '*');
+                console.log('✅ TCS: START_PRE_QUAL sent via parent');
+                return true;
+            } catch (e) {
+                console.log('⚠️ Parent failed:', e);
+            }
+        }
+        
+        console.log('❌ TCS: Could not send START_PRE_QUAL — no target found');
+        return false;
+    }
+
+    // ========================================
+    // 2. GENERIC HANDOFF FOR OTHER MODULES (Your Original Logic)
+    // ========================================
+    
     // Try opener (if TCS was opened from client site)
     if (window.opener && !window.opener.closed) {
         try {
@@ -1144,25 +1186,6 @@ sendToClientWebsite(moduleName, triggerPhrase) {
 
     console.log('❌ Could not send — no target found');
     return false;
-}
-
-executeModule(moduleName, triggerPhrase, fullTranscript) {
-    switch(moduleName) {
-        case 'smartScreen':      // ← changed from visualProof
-            this.showSmartScreen(triggerPhrase);
-            break;
-        case 'testimonial':
-            this.launchTestimonial();
-            break;
-        case 'videoVault':
-            this.launchVideoVault();
-            break;
-        case 'websiteInfo':
-            this.launchWebsiteInfo();
-            break;
-        default:
-            this.addToTranscriptFeed(`⚡ Module ${moduleName} triggered (no visual)`);
-    }
 }
 
 showSmartScreen(triggerPhrase) {
