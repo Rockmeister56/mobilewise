@@ -3785,7 +3785,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '    window.preQualController = new PreQualificationController();\n';
         code += '    console.log("✅ Controller created with", window.preQualScript?.steps?.length, "steps");\n\n';
 
-               // ===== UNIVERSAL TRIGGER LISTENER VARIABLES =====
+                 // ===== UNIVERSAL TRIGGER LISTENER VARIABLES =====
         code += '    let lastTriggerTime = 0;\n';
         code += '    const TRIGGER_COOLDOWN = 3000; // 3 seconds brake\n\n';
 
@@ -3795,15 +3795,25 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        window.addEventListener("message", (event) => {\n';
         code += '            \n';
         code += '            // 🔍 DIAGNOSTIC: LOG EVERYTHING\n';
-        code += '            console.log("📩 [RAW MESSAGE] Type:", event.data?.type, "Data:", event.data);\n';
+        code += '            console.log("📩 [RAW MESSAGE] Type:", event.data?.type, "Command:", event.data?.command, "Data:", event.data);\n';
         code += '            \n';
         code += '            // ========================================\n';
         code += '            // 1. COMMAND LISTENER (Highest Priority)\n';
         code += '            // ========================================\n';
         code += '            \n';
-        code += '            if (event.data && event.data.type === "START_PRE_QUAL") {\n';
+        code += '            // Check for START_PRE_QUAL in either format\n';
+        code += '            if (event.data && (event.data.type === "START_PRE_QUAL" || event.data.command === "START_PRE_QUAL")) {\n';
         code += '                console.log("🎯🎯🎯 MATCH FOUND! START_PRE_QUAL RECEIVED! 🎯🎯🎯");\n';
         code += '                console.log("🎯🎯🎯 STARTING INTERVIEW NOW! 🎯🎯🎯");\n';
+        code += '                if (window.preQualController && !window.preQualController.isActive) {\n';
+        code += '                    window.preQualController.startInterview();\n';
+        code += '                }\n';
+        code += '                return;\n';
+        code += '            }\n';
+        code += '\n';
+        code += '            // Also handle TCS_COMMAND format\n';
+        code += '            if (event.data && event.data.type === "TCS_COMMAND" && event.data.command === "START_PRE_QUAL") {\n';
+        code += '                console.log("🎯🎯🎯 TCS COMMAND FORMAT DETECTED! 🎯🎯🎯");\n';
         code += '                if (window.preQualController && !window.preQualController.isActive) {\n';
         code += '                    window.preQualController.startInterview();\n';
         code += '                }\n';
@@ -3832,7 +3842,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            }\n';
         code += '            \n';
         code += '        });\n';
-        code += '    }\n';
+        code += '    }\n\n';
     
     // This injects the script fetched from Supabase
     code += preQualScriptCode;
