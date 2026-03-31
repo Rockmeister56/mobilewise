@@ -4428,40 +4428,46 @@ code += '    window.disableBridgeTriggers = false;\n\n';
         code += '    console.log(\'✅ TCS message listener installed\');\n';
         code += '\n';
     
-    // =========================================
-    // 📡 TCS REMOTE CONTROL LINK
-    // =========================================
-    
-    code += '    // Configuration: UPDATE THIS TO YOUR ACTUAL DOMAIN\n';
-    code += '    const TCS_SERVER_URL = \'https://mobilewise.netlify.app/trigger-control-system\'; \n';
-    code += '\n';
-    code += '    function openTCS_ControlPanel() {\n';
-    code += '        // 1. Check if TCS is already open (prevents duplicates)\n';
-    code += '        if (window.tcsWindow && !window.tcsWindow.closed) {\n';
-    code += '            console.log("🔗 TCS is already open. Focusing...");\n';
-    code += '            window.tcsWindow.focus();\n';
-    code += '            return;\n';
-    code += '        }\n';
-    code += '\n';
-    code += '        // 2. Get Client ID from Config\n';
-    code += '        const clientId = window.BotemiaConfig.id;\n';
-    code += '        \n';
-    code += '        // 3. Construct URL with Client ID so TCS knows who it\'s controlling\n';
-    code += '        const tcsUrl = `${TCS_SERVER_URL}?clientId=${clientId}&websiteUrl=${encodeURIComponent(window.location.href)}`;\n';
-    code += '        \n';
-    code += '        // 4. Open the Popup\n';
-    code += '        console.log("🔗 Opening TCS Control Panel from:", TCS_SERVER_URL);\n';
-    code += '        try {\n';
-    code += '            window.tcsWindow = window.open(\n';
-    code += '                tcsUrl, \n';
-    code += '                \'Botemia_TCS_Control\', \n';
-    code += '                \'width=1200,height=800,scrollbars=yes,resizable=yes\'\n';
-    code += '            );\n';
-    code += '        } catch (e) {\n';
-    code += '            console.error("❌ Failed to open TCS (Popup blocked?):", e);\n';
-    code += '        }\n';
-    code += '    }\n\n';
-    code += '})();\n';
+            // =========================================
+        // 📡 TCS REMOTE CONTROL LINK
+        // =========================================
+        
+        code += '    // Configuration: UPDATE THIS TO YOUR ACTUAL DOMAIN\n';
+        code += '    const TCS_SERVER_URL = \'https://mobilewise.netlify.app/trigger-control-system\'; \n';
+        code += '\n';
+        code += '    function openTCS_ControlPanel() {\n';
+        code += '        // 0. PREVENT LOOP: If we are currently INSIDE the TCS, do not open another one.\n';
+        code += '        if (window.location.href.includes("trigger-control-system")) {\n';
+        code += '            console.log("🚫 We are inside the TCS. Stopping loop.");\n';
+        code += '            return;\n';
+        code += '        }\n';
+        code += '\n';
+        code += '        // 1. Check if TCS is already open (prevents duplicates)\n';
+        code += '        if (window.tcsWindow && !window.tcsWindow.closed) {\n';
+        code += '            console.log("🔗 TCS is already open. Focusing...");\n';
+        code += '            window.tcsWindow.focus();\n';
+        code += '            return;\n';
+        code += '        }\n';
+        code += '\n';
+        code += '        // 2. Get Client ID from Config\n';
+        code += '        const clientId = window.BotemiaConfig.id;\n';
+        code += '        \n';
+        code += '        // 3. Construct URL with Client ID so TCS knows who it\'s controlling\n';
+        code += '        const tcsUrl = `${TCS_SERVER_URL}?clientId=${clientId}&websiteUrl=${encodeURIComponent(window.location.href)}`;\n';
+        code += '        \n';
+        code += '        // 4. Open the Popup\n';
+        code += '        console.log("🔗 Opening TCS Control Panel from:", TCS_SERVER_URL);\n';
+        code += '        try {\n';
+        code += '            window.tcsWindow = window.open(\n';
+        code += '                tcsUrl, \n';
+        code += '                \'Botemia_TCS_Control\', \n';
+        code += '                \'width=1200,height=800,scrollbars=yes,resizable=yes\'\n';
+        code += '            );\n';
+        code += '        } catch (e) {\n';
+        code += '            console.error("❌ Failed to open TCS (Popup blocked?):", e);\n';
+        code += '        }\n';
+        code += '    }\n\n';
+        code += '})();\n';
         
         // ===== DOWNLOAD THE FILE =====
         const bridgeBlob = new Blob([code], { type: 'application/javascript' });
