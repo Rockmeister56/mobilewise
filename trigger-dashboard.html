@@ -3791,6 +3791,32 @@ code += '    document.head.appendChild(style);\n\n';
         code += '    window.preQualController = new PreQualificationController();\n';
         code += '    console.log("✅ Controller created with", window.preQualScript?.steps?.length, "steps");\n\n';
 
+                // ===== BROADCAST CHANNEL LISTENER (Cross-Origin Fix) =====
+        code += '    // Listen for commands from TCS across different domains\n';
+        code += '    try {\n';
+        code += '        const channel = new BroadcastChannel("botemia-discovery");\n';
+        code += '        channel.onmessage = (event) => {\n';
+        code += '            const data = event.data;\n';
+        code += '            \n';
+        code += '            // Check for Pre-Qual Command\n';
+        code += '            if (data.command === "START_PRE_QUAL" || data.type === "START_PRE_QUAL") {\n';
+        code += '                console.log("📡 [BROADCAST] Received START_PRE_QUAL from TCS");\n';
+        code += '                if (window.preQualController && !window.preQualController.isActive) {\n';
+        code += '                    window.preQualController.startInterview();\n';
+        code += '                }\n';
+        code += '            }\n';
+        code += '            \n';
+        code += '            // Check for other triggers if needed\n';
+        code += '            if (data.type === "MODULE_TRIGGERED") {\n';
+        code += '                console.log("📡 [BROADCAST] Module Triggered:", data.module);\n';
+        code += '                // Handle other modules here if necessary\n';
+        code += '            }\n';
+        code += '        };\n';
+        code += '        console.log("📡 Broadcast Channel Listener Active.");\n';
+        code += '    } catch (e) {\n';
+        code += '        console.warn("BroadcastChannel not supported:", e);\n';
+        code += '    }\n\n';
+
                  // ===== UNIVERSAL TRIGGER LISTENER VARIABLES =====
         code += '    let lastTriggerTime = 0;\n';
         code += '    const TRIGGER_COOLDOWN = 3000; // 3 seconds brake\n\n';
@@ -3883,7 +3909,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            }\n';
         code += '        }\n';
         code += '    });\n\n';
-        
+
     // ===== INITIALIZE LISTENER IMMEDIATELY =====
     code += '    setupUniversalListener();\n\n';
     

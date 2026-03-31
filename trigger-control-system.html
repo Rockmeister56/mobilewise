@@ -500,7 +500,7 @@
         </div>
     </div>
 
-    <script>
+        <script>
      // At the top of your TCS JavaScript, right after the opening <script> tag
 const urlParams = new URLSearchParams(window.location.search);
 const clientWebsiteUrl = urlParams.get('websiteUrl');
@@ -518,8 +518,7 @@ if (clientWebsiteUrl) {
 }
 
         // ============================================
-        // BOTEMIA TRIGGER CONTROL SYSTEM v1.0 - COMPLETE WORKING VERSION
-        // Listen · Detect · Launch · Close
+        // TESS TRIGGER CONTROL SYSTEM v1.0 - CLEANED & FIXED
         // ============================================
 
         class TriggerControlSystem {
@@ -1092,9 +1091,6 @@ monitorTessMessages() {
                 console.log('🎯 TCS: Pre-Qual Trigger Detected!');
                 this.addToTranscriptFeed(`🎯 Trigger: "${phrase}"`);
                 
-                // Highlight module in UI (Optional)
-                // this.highlightModule('preQualification'); 
-                
                 // SEND THE SPECIFIC COMMAND THE BRIDGE EXPECTS
                 this.sendToClientWebsite('START_PRE_QUAL', phrase);
                 
@@ -1154,8 +1150,11 @@ monitorTessMessages() {
     alertEl.style.display = 'block';
     
     this.highlightModule(moduleName);
-this.executeModule(moduleName, triggerPhrase, fullTranscript);
-
+    // Execute module logic
+    if (moduleName === 'smartScreen') {
+        this.showSmartScreen(triggerPhrase);
+    }
+    
 // Send to client website (primary method)
 this.sendToClientWebsite(moduleName, triggerPhrase);
 
@@ -1165,83 +1164,62 @@ if (this.sendToClientWidget) {
 }
 }
 
-// ===== UPDATED FUNCTION - KEEPS YOUR LOGIC + ADDS PRE-QUAL FIX =====
+// ===== UPDATED FUNCTION - UNIVERSAL BROADCAST (ALL MODULES) =====
 sendToClientWebsite(moduleName, triggerPhrase) {
     console.log('📤 TCS: Sending command trigger:', moduleName, triggerPhrase);
 
-    // ========================================
-    // 1. SPECIAL HANDOFF FOR PRE-QUALIFICATION (Priority)
-    // ========================================
-    if (moduleName === 'preQualification') {
-        console.log('🚀 TCS: SPECIAL ROUTE - Sending START_PRE_QUAL command...');
-        
-        // Try opener (if TCS was opened from client site)
-        if (window.opener && !window.opener.closed) {
-            try {
-                window.opener.postMessage({
-                    type: 'START_PRE_QUAL', // <--- THE KEY COMMAND
-                    timestamp: new Date().toISOString()
-                }, '*');
-                console.log('✅ TCS: START_PRE_QUAL sent via opener');
-                return true;
-            } catch (e) {
-                console.log('⚠️ Opener failed:', e);
-            }
-        }
+    // 1. CONSTRUCT THE PAYLOAD
+    // We create one message object that works for everyone
+    let payload = {
+        timestamp: new Date().toISOString()
+    };
 
-        // Try parent (if iframe) - unlikely for TCS but good to keep
-        if (window.parent && window.parent !== window) {
-            try {
-                window.parent.postMessage({
-                    type: 'START_PRE_QUAL',
-                    timestamp: new Date().toISOString()
-                }, '*');
-                console.log('✅ TCS: START_PRE_QUAL sent via parent');
-                return true;
-            } catch (e) {
-                console.log('⚠️ Parent failed:', e);
-            }
-        }
-        
-        console.log('❌ TCS: Could not send START_PRE_QUAL — no target found');
-        return false;
+    // Customize payload based on whether it's Pre-Qual or a Standard Module
+    if (moduleName === 'preQualification' || moduleName === 'START_PRE_QUAL') {
+        payload.type = 'START_PRE_QUAL';
+        payload.command = 'START_PRE_QUAL';
+        console.log('🚀 TCS: Sending Pre-Qualification Command...');
+    } else {
+        // Standard Modules (Testimonial, Video, etc.)
+        payload.type = 'MODULE_TRIGGERED';
+        payload.module = moduleName;
+        payload.triggerPhrase = triggerPhrase;
     }
 
-    // ========================================
-    // 2. GENERIC HANDOFF FOR OTHER MODULES (Your Original Logic)
-    // ========================================
-    
-    // Try opener (if TCS was opened from client site)
+    // 2. PRIMARY: SEND VIA TESS-DISCOVERY BROADCAST (Cross-Origin Fix)
+    try {
+        const channel = new BroadcastChannel('tess-discovery');
+        channel.postMessage(payload);
+        console.log(`✅ TCS: Sent via tess-discovery BroadcastChannel`);
+        return true; // Success! We don't need to try opener if this works.
+    } catch (e) {
+        console.log('⚠️ BroadcastChannel failed, falling back to opener:', e);
+    }
+
+    // 3. FALLBACK: TRY OPENER (If TCS opened the client)
     if (window.opener && !window.opener.closed) {
         try {
-            window.opener.postMessage({
-                type: 'MODULE_TRIGGERED',
-                module: moduleName,
-                triggerPhrase: triggerPhrase
-            }, '*');
-            console.log('✅ Sent via opener');
+            window.opener.postMessage(payload, '*');
+            console.log('✅ TCS: Sent via window.opener');
             return true;
         } catch (e) {
-            console.log('Opener failed:', e);
+            console.log('⚠️ Opener failed:', e);
         }
     }
 
-    // Try parent (if iframe)
+    // 4. FALLBACK: TRY PARENT (If TCS is in an iframe)
     if (window.parent && window.parent !== window) {
         try {
-            window.parent.postMessage({
-                type: 'MODULE_TRIGGERED',
-                module: moduleName,
-                triggerPhrase: triggerPhrase
-            }, '*');
-            console.log('✅ Sent via parent');
+            window.parent.postMessage(payload, '*');
+            console.log('✅ TCS: Sent via window.parent');
             return true;
         } catch (e) {
-            console.log('Parent failed:', e);
+            console.log('⚠️ Parent failed:', e);
         }
     }
 
-    console.log('❌ Could not send — no target found');
+    // 5. FAILURE
+    console.log('❌ TCS: Could not send command — no target found');
     return false;
 }
 
@@ -1330,39 +1308,7 @@ sendToClientWidget(moduleName, triggerPhrase) {
         }, '*');
         console.log('📨 Sent trigger to parent window');
     }
-                
-                const section = document.getElementById('visualProofSection');
-                const grid = document.getElementById('imageGrid');
-                
-                if (matchedImage) {
-                    grid.innerHTML = `
-                        <div class="image-card">
-                            <div class="image-placeholder">🖼️</div>
-                            <div class="image-caption">
-                                <strong>${matchedImage.name}</strong><br>
-                                ${matchedImage.caption}
-                                <div class="image-trigger">
-                                    ⚡ Triggered by: "${triggerPhrase}"
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    document.getElementById('imageMatchCount').innerHTML = '🎯 Best Match Found';
-                    section.style.display = 'block';
-                } else {
-                    grid.innerHTML = images.map(img => `
-                        <div class="image-card">
-                            <div class="image-placeholder">🖼️</div>
-                            <div class="image-caption">
-                                <strong>${img.name}</strong><br>
-                                ${img.caption}
-                            </div>
-                        </div>
-                    `).join('');
-                    document.getElementById('imageMatchCount').innerHTML = `📸 ${images.length} Success Stories`;
-                    section.style.display = 'block';
-                }
-            }
+}
 
             launchCommunication(triggerPhrase, fullTranscript) {
                 const commConfig = this.config.modules.communication;
@@ -1454,7 +1400,7 @@ sendToClientWidget(moduleName, triggerPhrase) {
     const icons = {
         testimonial: '🎬',
         videoVault: '📹',
-        smartScreen: '📸',    // ← changed from visualProof
+        smartScreen: '📸',
         websiteInfo: '🌐'
     };
     return icons[moduleName] || '🎯';
@@ -1469,17 +1415,6 @@ sendToClientWidget(moduleName, triggerPhrase) {
     };
     return actions[moduleName] || 'Launching module...';
 }
-
-            sendToClientWidget(moduleName, triggerPhrase) {
-                if (window.opener) {
-                    window.opener.postMessage({
-                        type: 'MODULE_TRIGGERED',
-                        module: moduleName,
-                        triggerPhrase: triggerPhrase,
-                        timestamp: new Date().toISOString()
-                    }, '*');
-                }
-            }
 
             updateClientInfo() {
     if (!this.config) return;
@@ -1532,43 +1467,8 @@ sendToClientWidget(moduleName, triggerPhrase) {
                 this.addToTranscriptFeed('🔄 Reloading Tess...');
                 location.reload();
             }
+} // <--- THIS WAS MISSING! Closing brace for TriggerControlSystem
 
-            // ===== SEND TRIGGER TO CLIENT WEBSITE =====
-sendToClientWebsite(moduleName, triggerPhrase) {
-    console.log('📤 Sending to client:', moduleName, triggerPhrase);
-
-    if (window.opener && !window.opener.closed) {
-        try {
-            window.opener.postMessage({
-                type: 'MODULE_TRIGGERED',
-                module: moduleName,
-                triggerPhrase: triggerPhrase
-            }, '*');
-            console.log('✅ Sent via opener');
-            return true;
-        } catch (e) {
-            console.log('Opener failed:', e);
-        }
-    }
-
-    if (window.parent && window.parent !== window) {
-        try {
-            window.parent.postMessage({
-                type: 'MODULE_TRIGGERED',
-                module: moduleName,
-                triggerPhrase: triggerPhrase
-            }, '*');
-            console.log('✅ Sent via parent');
-            return true;
-        } catch (e) {
-            console.log('Parent failed:', e);
-        }
-    }
-
-    console.log('❌ Could not send — no target found');
-    return false;
-}
-}
         // Global instance
         let triggerSystem;
 
@@ -1813,7 +1713,7 @@ class ClientConnectionManager {
 
         // Listen for broadcast channel
         try {
-            const channel = new BroadcastChannel('botemia-discovery');
+            const channel = new BroadcastChannel('tess-discovery');
             channel.onmessage = (event) => {
                 console.log('📢 Broadcast received:', event.data?.type || event.data);
                 
@@ -1883,7 +1783,7 @@ class ClientConnectionManager {
 
     broadcastPresence() {
         try {
-            const channel = new BroadcastChannel('botemia-discovery');
+            const channel = new BroadcastChannel('tess-discovery');
             channel.postMessage({ 
                 type: 'TCS_HERE',
                 timestamp: Date.now()
