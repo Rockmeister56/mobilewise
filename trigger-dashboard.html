@@ -3794,7 +3794,7 @@ code += '    document.head.appendChild(style);\n\n';
                  // ===== BROADCAST CHANNEL LISTENER (Cross-Origin Fix) =====
         code += '    // Listen for commands from TCS across different domains\n';
         code += '    try {\n';
-        code += '        const channel = new BroadcastChannel("botemia-discovery");\n';
+        code += '        const channel = new BroadcastChannel("tess-discovery");\n';
         code += '        console.log("📡 Broadcast Channel Listener Active.");\n';
         code += '        \n';
         code += '        channel.onmessage = (event) => {\n';
