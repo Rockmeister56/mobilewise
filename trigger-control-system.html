@@ -771,47 +771,72 @@ if (clientWebsiteUrl) {
                 // Start the process
                 setupAudioListeners();
             }
-            // ===== MONITOR Tess'S MESSAGES =====
-monitorTessMessages() {
+           monitorTessMessages() {
     console.log('🎤 Setting up Tess message monitor...');
     this.addToTranscriptFeed('🎤 Monitoring Tess for trigger phrases...');
+    
+    // Store last message to avoid duplicates
+    let lastMessage = '';
     
     setInterval(() => {
         const widget = document.querySelector('lemon-slice-widget');
         if (!widget) return;
         
-        // ... (code to get message) ...
-
-        if (currentMessage) {
-            const message = currentMessage.toLowerCase();
+        // Get Tess's current message
+        let currentMessage = '';
+        
+        // Try to get message from shadow DOM
+        try {
+            if (widget.shadowRoot) {
+                // Look for any elements that might contain Tess's speech
+                const allElements = widget.shadowRoot.querySelectorAll('div, span, p');
+                for (const el of allElements) {
+                    const text = el.textContent || el.innerText || '';
+                    // Look for natural language (contains words, not CSS)
+                    if (text.length > 20 && text.length < 500 && 
+                        !text.includes('@') && !text.includes('{') && 
+                        /[a-zA-Z]/.test(text) && text.includes(' ')) {
+                        currentMessage = text;
+                        break;
+                    }
+                }
+            }
+        } catch(e) {
+            // Silently fail - widget not ready
+        }
+        
+        // Only process if we have a new message
+        if (currentMessage && currentMessage !== lastMessage) {
+            lastMessage = currentMessage;
+            const messageLower = currentMessage.toLowerCase();
             
-                       // 🔥 TRIGGER DETECTION - ACTIVE
+            // Check for trigger phrases
             const triggerPhrases = [
                 "let's get you pre-qualified",
                 "let's get you pre qualified", 
                 "get you pre-qualified",
                 "start the pre-qualification",
-                "begin your pre-qualification",
-                "shall we start your pre-qualification",
-                "ready to get pre-qualified",
-                "would you like to get pre-qualified"
+                "pre qualification interview"
             ];
             
             for (const phrase of triggerPhrases) {
-                if (message.includes(phrase)) {
-                    console.log('🎯 Tess triggered pre-qual with:', phrase);
-                    this.addToTranscriptFeed(`🎯 Tess: "${phrase}"`);
+                if (messageLower.includes(phrase)) {
+                    console.log('🎯 TCS: Pre-Qual Trigger Detected!');
+                    this.addToTranscriptFeed(`🎯 Trigger: "${phrase}"`);
                     
-                    // Send to client
+                    // Send to client using the working method
                     if (window.clientManager && window.clientManager.clientWindows.size > 0) {
                         window.clientManager.sendToSelectedClient('START_PRE_QUAL');
-                        this.addToTranscriptFeed('🚀 Starting pre-qualification interview...');
+                        this.addToTranscriptFeed('🚀 START_PRE_QUAL sent to Bridge');
+                        console.log('✅ START_PRE_QUAL sent to client');
+                    } else {
+                        console.log('⚠️ No client connected');
                     }
                     break;
                 }
             }
         }
-    }, 1000);
+    }, 2000);
 }
 
             // New helper methods
