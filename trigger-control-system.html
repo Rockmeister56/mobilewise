@@ -517,6 +517,28 @@ if (clientWebsiteUrl) {
     // You could even try to ping this URL or open a connection hint
 }
 
+// Listen for Tess transcripts from client
+const tessChannel = new BroadcastChannel("tess-discovery");
+tessChannel.onmessage = (event) => {
+    const data = event.data;
+    if (data.type === "TESS_TRANSCRIPT") {
+        console.log("🎤 TESS SAID (via broadcast):", data.text);
+        
+        // Check for trigger phrase
+        const text = data.text.toLowerCase();
+        if (text.includes("get you pre-qualified") || 
+            text.includes("pre qualification interview") ||
+            text.includes("let's get you pre-qualified")) {
+            console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
+            if (window.clientManager && window.clientManager.clientWindows.size > 0) {
+                window.clientManager.sendToSelectedClient('START_PRE_QUAL');
+                console.log("✅ START_PRE_QUAL sent to client");
+            }
+        }
+    }
+};
+console.log("🎧 TCS listening for Tess transcripts via BroadcastChannel");
+
         // ============================================
         // TESS TRIGGER CONTROL SYSTEM v1.0 - CLEANED & FIXED
         // ============================================

@@ -3791,7 +3791,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '    window.preQualController = new PreQualificationController();\n';
         code += '    console.log("✅ Controller created with", window.preQualScript?.steps?.length, "steps");\n\n';
 
-                 // ===== BROADCAST CHANNEL LISTENER (Cross-Origin Fix) =====
+                // ===== BROADCAST CHANNEL LISTENER (Cross-Origin Fix) =====
         code += '    // Listen for commands from TCS across different domains\n';
         code += '    try {\n';
         code += '        const channel = new BroadcastChannel("tess-discovery");\n';
@@ -3825,6 +3825,20 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        };\n';
         code += '    } catch (e) {\n';
         code += '        console.warn("BroadcastChannel not supported:", e);\n';
+        code += '    }\n\n';
+        
+        // ===== SEND TESS TRANSCRIPTS TO TCS VIA BROADCAST =====
+        code += '    // Function to broadcast Tess\'s speech to TCS\n';
+        code += '    function broadcastTessTranscript(text) {\n';
+        code += '        try {\n';
+        code += '            const channel = new BroadcastChannel("tess-discovery");\n';
+        code += '            channel.postMessage({\n';
+        code += '                type: "TESS_TRANSCRIPT",\n';
+        code += '                text: text,\n';
+        code += '                timestamp: Date.now()\n';
+        code += '            });\n';
+        code += '            console.log("📡 [BROADCAST] Sent Tess transcript:", text.substring(0, 50));\n';
+        code += '        } catch(e) {}\n';
         code += '    }\n\n';
 
                  // ===== UNIVERSAL TRIGGER LISTENER VARIABLES =====
@@ -3884,6 +3898,20 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            if (!isValidTrigger) return;\n';
         code += '            \n';
         code += '            console.log(`📨 Heard: "${msgText}"`);\n';
+        code += '            \n';
+        code += '            // ===== BROADCAST TESS TRANSCRIPT TO TCS =====\n';
+        code += '            // Send Tess\'s speech to TCS via BroadcastChannel (no screen sharing needed!)\n';
+        code += '            if (msgType === "ai_response" && msgText) {\n';
+        code += '                try {\n';
+        code += '                    const broadcastChannel = new BroadcastChannel("tess-discovery");\n';
+        code += '                    broadcastChannel.postMessage({\n';
+        code += '                        type: "TESS_TRANSCRIPT",\n';
+        code += '                        text: msgText,\n';
+        code += '                        timestamp: Date.now()\n';
+        code += '                    });\n';
+        code += '                    console.log("📡 [BROADCAST] Sent Tess transcript to TCS");\n';
+        code += '                } catch(e) {}\n';
+        code += '            }\n';
         code += '            \n';
         code += '            // ========================================\n';
         code += '            // 4. INTERVIEW EARS (Feeding answers)\n';
