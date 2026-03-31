@@ -551,10 +551,10 @@ if (clientWebsiteUrl) {
     // 3. Load LemonSlice widget
     this.loadLemonSlice();
 
-   // 🔥 DISABLE THIS - BRIDGE HANDLES TRIGGERS NOW
-// setTimeout(() => {
-//     this.monitorTessMessages();
-// }, 3000);
+    // 🔥 START TESS MONITOR - ACTIVE
+    setTimeout(() => {
+        this.monitorTessMessages();
+    }, 3000);
     
     // 4. Render UI
     this.renderModules();
@@ -785,8 +785,7 @@ monitorTessMessages() {
         if (currentMessage) {
             const message = currentMessage.toLowerCase();
             
-            // 🔥 DISABLE THIS BLOCK - LET BRIDGE HANDLE IT
-            /*
+                       // 🔥 TRIGGER DETECTION - ACTIVE
             const triggerPhrases = [
                 "let's get you pre-qualified",
                 "let's get you pre qualified", 
@@ -811,7 +810,6 @@ monitorTessMessages() {
                     break;
                 }
             }
-            */
         }
     }, 1000);
 }
