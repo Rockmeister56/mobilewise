@@ -3535,8 +3535,10 @@ async function exportBridgeOnly() {
         code += '(function() {\n';
         code += '    "use strict";\n\n';
 
-        // ===== SILENCE DAILY/IFRAME NOISE =====
-        code += '    // Suppress Daily/iframe debugging messages\n';
+                code += '    "use strict";\n\n';
+        
+        // ===== SILENCE LEMONSLICE/DAILY NOISE =====
+        code += '    // Suppress widget debugging noise\n';
         code += '    const originalLog = console.log;\n';
         code += '    console.log = function() {\n';
         code += '        const msg = arguments[0];\n';
@@ -3547,7 +3549,26 @@ async function exportBridgeOnly() {
         code += '            msg.includes("sfu") ||\n';
         code += '            msg.includes("signaling") ||\n';
         code += '            msg.includes("app-msg") ||\n';
-        code += '            msg.includes("app-message")\n';
+        code += '            msg.includes("app-message") ||\n';
+        code += '            msg.includes("get-network-topology") ||\n';
+        code += '            msg.includes("local-audio") ||\n';
+        code += '            msg.includes("join-meeting") ||\n';
+        code += '            msg.includes("call-machine") ||\n';
+        code += '            msg.includes("daily-main") ||\n';
+        code += '            msg.includes("transmit-log") ||\n';
+        code += '            msg.includes("access-state") ||\n';
+        code += '            msg.includes("receive-settings") ||\n';
+        code += '            msg.includes("send-settings") ||\n';
+        code += '            msg.includes("input-settings") ||\n';
+        code += '            msg.includes("lib-room-info") ||\n';
+        code += '            msg.includes("selected-devices") ||\n';
+        code += '            msg.includes("get-input-devices") ||\n';
+        code += '            msg.includes("started-camera") ||\n';
+        code += '            msg.includes("meeting-session") ||\n';
+        code += '            msg.includes("participant-counts") ||\n';
+        code += '            msg.includes("joined-meeting") ||\n';
+        code += '            msg.includes("active-speaker") ||\n';
+        code += '            msg.includes("cpu-load")\n';
         code += '        )) {\n';
         code += '            return;\n';
         code += '        }\n';
@@ -3672,6 +3693,9 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        widget.id = \'splash-widget\';\n';
         code += '        return widget;\n';
         code += '    }\n\n';
+
+        // This injects the script fetched from Supabase
+        code += preQualScriptCode;
 
          // ===== PRE-QUALIFICATION CONTROLLER (REVISED FOR NEW FORMAT) =====
         code += '    class PreQualificationController {\n';
@@ -3875,9 +3899,6 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            }\n';
         code += '        }\n';
         code += '    });\n\n';
-    
-    // This injects the script fetched from Supabase
-    code += preQualScriptCode;
 
     // ===== INITIALIZE LISTENER IMMEDIATELY =====
     code += '    setupUniversalListener();\n\n';
