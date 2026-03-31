@@ -3791,28 +3791,30 @@ code += '    document.head.appendChild(style);\n\n';
         code += '    window.preQualController = new PreQualificationController();\n';
         code += '    console.log("✅ Controller created with", window.preQualScript?.steps?.length, "steps");\n\n';
 
-                // ===== BROADCAST CHANNEL LISTENER (Cross-Origin Fix) =====
+                 // ===== BROADCAST CHANNEL LISTENER (Cross-Origin Fix) =====
         code += '    // Listen for commands from TCS across different domains\n';
         code += '    try {\n';
-        code += '        const channel = new BroadcastChannel("tess-discovery");\n';
+        code += '        const channel = new BroadcastChannel("botemia-discovery");\n';
+        code += '        console.log("📡 Broadcast Channel Listener Active.");\n';
+        code += '        \n';
         code += '        channel.onmessage = (event) => {\n';
         code += '            const data = event.data;\n';
+        code += '            console.log("📡 [BROADCAST] Received:", data);\n';
         code += '            \n';
-        
-        // 🆕 ADD THIS BLOCK FOR THE TEST BUTTON
         code += '            // TEST BUTTON: Auto-respond to pings\n';
         code += '            if (data.type === "TEST_PING") {\n';
         code += '                console.log("📡 [PING] Received, sending PONG back...");\n';
-        code += '                channel.postMessage({ type: "TEST_PONG", message: "Connection Active!" });\n';
+        code += '                channel.postMessage({ type: "TEST_PONG", message: "Connection Active!", timestamp: Date.now() });\n';
         code += '                return;\n';
         code += '            }\n';
-        
+        code += '            \n';
         code += '            // Check for Pre-Qual Command\n';
         code += '            if (data.command === "START_PRE_QUAL" || data.type === "START_PRE_QUAL") {\n';
-        code += '                console.log("📡 [BROADCAST] Received START_PRE_QUAL from TCS");\n';
+        code += '                console.log("🎯 [BROADCAST] START_PRE_QUAL received from TCS");\n';
         code += '                if (window.preQualController && !window.preQualController.isActive) {\n';
         code += '                    window.preQualController.startInterview();\n';
         code += '                }\n';
+        code += '                return;\n';
         code += '            }\n';
         code += '            \n';
         code += '            // Check for other triggers if needed\n';
@@ -3821,7 +3823,6 @@ code += '    document.head.appendChild(style);\n\n';
         code += '                // Handle other modules here if necessary\n';
         code += '            }\n';
         code += '        };\n';
-        code += '        console.log("📡 Broadcast Channel Listener Active.");\n';
         code += '    } catch (e) {\n';
         code += '        console.warn("BroadcastChannel not supported:", e);\n';
         code += '    }\n\n';
