@@ -3794,7 +3794,7 @@ code += '    document.head.appendChild(style);\n\n';
                 // ===== BROADCAST CHANNEL LISTENER (Cross-Origin Fix) =====
         code += '    // Listen for commands from TCS across different domains\n';
         code += '    try {\n';
-        code += '        const channel = new BroadcastChannel("botemia-discovery");\n';
+        code += '        const channel = new BroadcastChannel("tess-discovery");\n';
         code += '        channel.onmessage = (event) => {\n';
         code += '            const data = event.data;\n';
         code += '            \n';
@@ -4339,7 +4339,7 @@ code += '    window.disableBridgeTriggers = false;\n\n';
     code += '                url: window.location.href\n';
     code += '            }, \'*\');\n';
     code += '        }\n';
-    code += '        const channel = new BroadcastChannel(\'botemia-discovery\');\n';
+    code += '        const channel = new BroadcastChannel(\'tess-discovery\');\n';
     code += '        channel.postMessage({\n';
     code += '            type: \'CLIENT_INFO\',\n';
     code += '            clientId: window.BotemiaConfig.id,\n';
