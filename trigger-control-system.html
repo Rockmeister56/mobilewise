@@ -903,11 +903,11 @@ monitorTessMessages() {
                 console.log('=== TEST COMPLETE ===');
             }
 
-                        // ==========================================
+            // ==========================================
             // REPLACE EVERYTHING BELOW THIS LINE
             // ==========================================
             
-            setupSpeechRecognition() {
+                setupSpeechRecognition() {
                 if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
                     this.updateStatus('❌ Speech recognition not supported', 'error');
                     return;
@@ -950,15 +950,28 @@ monitorTessMessages() {
                         return; // Skip this update
                     }
 
-                    // 4. Update our "memory" of what was just said
+                    // 4. 🆕 ECHO FIX:
+                    // If the new text STARTS WITH the last text, it means we are just adding to the end of the sentence.
+                    // We only want to log the NEW part to avoid reprinting the whole conversation over and over.
+                    if (cleanTranscript.startsWith(lastTranscript) && cleanTranscript.length > lastTranscript.length) {
+                        const onlyNewText = cleanTranscript.substring(lastTranscript.length).trim();
+                        
+                        // Only update memory and log if there is actually new text
+                        if (onlyNewText) {
+                            lastTranscript = cleanTranscript;
+                            lastTranscriptTime = now;
+                            this.processTranscript(onlyNewText); // Only process the NEW part
+                        }
+                        return; 
+                    }
+
+                    // 5. Update our "memory" of what was just said
                     lastTranscript = cleanTranscript;
                     lastTranscriptTime = now;
 
-                    // 5. Pass the verified, unique text to processing
+                    // 6. Pass the verified, unique text to processing
                     this.processTranscript(cleanTranscript);
                 };
-
-                // Don't start automatically - wait for audio detection
             }
 
             // ==========================================

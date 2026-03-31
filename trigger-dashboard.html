@@ -3535,44 +3535,6 @@ async function exportBridgeOnly() {
         code += '(function() {\n';
         code += '    "use strict";\n\n';
         
-        // ===== SILENCE LEMONSLICE/DAILY NOISE =====
-        code += '    // Suppress widget debugging noise\n';
-        code += '    const originalLog = console.log;\n';
-        code += '    console.log = function() {\n';
-        code += '        const msg = arguments[0];\n';
-        code += '        if (typeof msg === "string" && (\n';
-        code += '            msg.includes("iframe-call-message") ||\n';
-        code += '            msg.includes("network-quality") ||\n';
-        code += '            msg.includes("participant-") ||\n';
-        code += '            msg.includes("sfu") ||\n';
-        code += '            msg.includes("signaling") ||\n';
-        code += '            msg.includes("app-msg") ||\n';
-        code += '            msg.includes("app-message") ||\n';
-        code += '            msg.includes("get-network-topology") ||\n';
-        code += '            msg.includes("local-audio") ||\n';
-        code += '            msg.includes("join-meeting") ||\n';
-        code += '            msg.includes("call-machine") ||\n';
-        code += '            msg.includes("daily-main") ||\n';
-        code += '            msg.includes("transmit-log") ||\n';
-        code += '            msg.includes("access-state") ||\n';
-        code += '            msg.includes("receive-settings") ||\n';
-        code += '            msg.includes("send-settings") ||\n';
-        code += '            msg.includes("input-settings") ||\n';
-        code += '            msg.includes("lib-room-info") ||\n';
-        code += '            msg.includes("selected-devices") ||\n';
-        code += '            msg.includes("get-input-devices") ||\n';
-        code += '            msg.includes("started-camera") ||\n';
-        code += '            msg.includes("meeting-session") ||\n';
-        code += '            msg.includes("participant-counts") ||\n';
-        code += '            msg.includes("joined-meeting") ||\n';
-        code += '            msg.includes("active-speaker") ||\n';
-        code += '            msg.includes("cpu-load")\n';
-        code += '        )) {\n';
-        code += '            return;\n';
-        code += '        }\n';
-        code += '        originalLog.apply(console, arguments);\n';
-        code += '    };\n\n';
-        
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
         code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
 
@@ -3833,13 +3795,25 @@ code += '    document.head.appendChild(style);\n\n';
         code += '    let lastTriggerTime = 0;\n';
         code += '    const TRIGGER_COOLDOWN = 3000; // 3 seconds brake\n\n';
 
-        code += '    function setupUniversalListener() {\n';
-        code += '        console.log("👂 Universal Listener Activated.");\n';
+                code += '    function setupUniversalListener() {\n';
+        code += '        console.log("👂 Universal Listener Activated (Silent Mode).\");\n';
         code += '        \n';
         code += '        window.addEventListener("message", (event) => {\n';
         code += '            \n';
-        code += '            // 🔍 DIAGNOSTIC: LOG EVERYTHING\n';
-        code += '            console.log("📩 [RAW MESSAGE] Type:", event.data?.type, "Command:", event.data?.command, "Data:", event.data);\n';
+        code += '            // ========================================\n';
+        code += '            // 🔇 NOISE FILTER (Must be first!)\n';
+        code += '            // ========================================\n';
+        code += '            // This stops the 3400+ lines of video widget logs\n';
+        code += '            if (event.data && event.data.what === "iframe-call-message") {\n';
+        code += '                return; \n';
+        code += '            }\n';
+        code += '\n';
+        
+        code += '            // ========================================\n';
+        code += '            // 🔍 DIAGNOSTIC: LOG ONLY CLEAN MESSAGES\n';
+        code += '            // ========================================\n';
+        code += '            // We only log here if the message passed the filter above\n';
+        code += '            console.log("📩 [INCOMING] Type:", event.data?.type, "Command:", event.data?.command);\n';
         code += '            \n';
         code += '            // ========================================\n';
         code += '            // 1. COMMAND LISTENER (Highest Priority)\n';
@@ -3891,10 +3865,16 @@ code += '    document.head.appendChild(style);\n\n';
         code += '    // Expose function to global scope for testing/debugging\n';
         code += '    window.setupUniversalListener = setupUniversalListener;\n\n';
 
-        // ===== CATCH ALL MESSAGES (INCLUDING OPENER) =====
+                // ===== CATCH ALL MESSAGES (INCLUDING OPENER) =====
         code += '    // Catch ALL messages for TCS commands\n';
         code += '    window.addEventListener("message", (event) => {\n';
-        code += '        console.log("🔍 ALL MESSAGE RECEIVED:", event.data);\n';
+        code += '        \n';
+        code += '        // 🔇 NOISE FILTER: Ignore video widget noise here too\n';
+        code += '        if (event.data && event.data.what === "iframe-call-message") {\n';
+        code += '            return;\n';
+        code += '        }\n';
+        code += '\n';
+        code += '        console.log("🔍 CHECKING MESSAGE:", event.data);\n';
         code += '        if (event.data && (event.data.command === "START_PRE_QUAL" || \n';
         code += '            (event.data.type === "TCS_COMMAND" && event.data.command === "START_PRE_QUAL"))) {\n';
         code += '            console.log("🎯🎯🎯 TCS COMMAND CAUGHT! 🎯🎯🎯");\n';
@@ -3903,7 +3883,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            }\n';
         code += '        }\n';
         code += '    });\n\n';
-
+        
     // ===== INITIALIZE LISTENER IMMEDIATELY =====
     code += '    setupUniversalListener();\n\n';
     
