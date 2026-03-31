@@ -3798,6 +3798,15 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        channel.onmessage = (event) => {\n';
         code += '            const data = event.data;\n';
         code += '            \n';
+        
+        // 🆕 ADD THIS BLOCK FOR THE TEST BUTTON
+        code += '            // TEST BUTTON: Auto-respond to pings\n';
+        code += '            if (data.type === "TEST_PING") {\n';
+        code += '                console.log("📡 [PING] Received, sending PONG back...");\n';
+        code += '                channel.postMessage({ type: "TEST_PONG", message: "Connection Active!" });\n';
+        code += '                return;\n';
+        code += '            }\n';
+        
         code += '            // Check for Pre-Qual Command\n';
         code += '            if (data.command === "START_PRE_QUAL" || data.type === "START_PRE_QUAL") {\n';
         code += '                console.log("📡 [BROADCAST] Received START_PRE_QUAL from TCS");\n';
@@ -3816,7 +3825,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '    } catch (e) {\n';
         code += '        console.warn("BroadcastChannel not supported:", e);\n';
         code += '    }\n\n';
-        
+
                  // ===== UNIVERSAL TRIGGER LISTENER VARIABLES =====
         code += '    let lastTriggerTime = 0;\n';
         code += '    const TRIGGER_COOLDOWN = 3000; // 3 seconds brake\n\n';

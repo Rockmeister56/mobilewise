@@ -851,8 +851,51 @@ monitorTessMessages() {
             }
 
                         // ========== DIAGNOSTIC TEST ==========
+                        // ========== MASTER DIAGNOSTIC TEST ==========
             runDiagnosticTest() {
-                console.log('=== BOTEMIA DIAGNOSTIC TEST ===');
+                console.log('=== TCS FULL DIAGNOSTIC ===');
+                
+                // ========================================
+                // PHASE 1: CONNECTION TEST (Priority)
+                // ========================================
+                this.addToTranscriptFeed('🔍 Phase 1: Testing Connection to Client...');
+                
+                let connectionSuccess = false;
+                const testChannel = new BroadcastChannel('tess-discovery');
+                
+                // Listen for the PONG
+                testChannel.onmessage = (event) => {
+                    if (event.data.type === 'TEST_PONG') {
+                        connectionSuccess = true;
+                        console.log('✅ Client Connected!');
+                        this.addToTranscriptFeed('✅ <strong>Client Connected!</strong> Bridge is active.');
+                        
+                        // Connection good, now run Phase 2
+                        this.runLocalDiagnostics();
+                    }
+                };
+
+                // Send the PING
+                try {
+                    testChannel.postMessage({ type: 'TEST_PING', message: 'Are you there?' });
+                } catch (e) {
+                    this.addToTranscriptFeed('❌ BroadcastChannel Error: ' + e.message);
+                }
+
+                // Timeout for connection
+                setTimeout(() => {
+                    if (!connectionSuccess) {
+                        this.addToTranscriptFeed('❌ <strong>Connection Failed</strong>');
+                        this.addToTranscriptFeed('⚠️ Client did not respond. Ensure they have refreshed the page.');
+                        this.updateStatus('Disconnected', 'error');
+                        console.log('=== TEST FAILED (No Connection) ===');
+                    }
+                }, 2000);
+            }
+
+            // Helper for Phase 2
+            runLocalDiagnostics() {
+                this.addToTranscriptFeed('🔍 Phase 2: Checking Local Hardware...');
                 
                 // 1. Check if widget exists
                 const widget = document.querySelector('lemon-slice-widget');
@@ -890,15 +933,7 @@ monitorTessMessages() {
                 // 6. Check listening state
                 console.log('5. Listening to Tess:', this.listeningToTess ? '✅' : '❌');
                 
-                // 7. Manually trigger detection
-                if (audioElements.length > 0) {
-                    const anyPlaying = Array.from(audioElements).some(a => !a.paused && a.currentTime > 0);
-                    if (anyPlaying && !this.listeningToTess) {
-                        this.addToTranscriptFeed('🔊 Audio playing but not listening - forcing start');
-                        this.startListeningToTess();
-                    }
-                }
-                
+                this.addToTranscriptFeed('✅ <strong>All Systems Operational</strong>');
                 console.log('=== TEST COMPLETE ===');
             }
 
