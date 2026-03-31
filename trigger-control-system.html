@@ -903,6 +903,10 @@ monitorTessMessages() {
                 console.log('=== TEST COMPLETE ===');
             }
 
+                        // ==========================================
+            // REPLACE EVERYTHING BELOW THIS LINE
+            // ==========================================
+            
             setupSpeechRecognition() {
                 if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
                     this.updateStatus('❌ Speech recognition not supported', 'error');
@@ -916,6 +920,10 @@ monitorTessMessages() {
                 this.recognition.interimResults = true;
                 this.recognition.lang = 'en-US';
 
+                // ⚠️ FIX: Variables to track the last spoken sentence to prevent duplicates
+                let lastTranscript = '';
+                let lastTranscriptTime = 0;
+
                 this.recognition.onstart = () => {
                     this.updateStatus('🎤 Listening for Tess...', 'ready');
                     document.getElementById('micStatus').innerHTML = 'LISTENING TO BOTINIA';
@@ -926,17 +934,39 @@ monitorTessMessages() {
                 };
 
                 this.recognition.onresult = (event) => {
-                    const transcript = Array.from(event.results)
+                    // 1. Get the text from the event
+                    const currentTranscript = Array.from(event.results)
                         .map(result => result[0].transcript)
                         .join('');
                     
-                    this.processTranscript(transcript);
+                    // 2. Clean it up (trim whitespace)
+                    const cleanTranscript = currentTranscript.trim();
+
+                    // 3. ⚠️ DUPLICATE CHECK:
+                    // If the text is the same as the last one AND less than 1.5 seconds have passed, IGNORE IT.
+                    // This stops the "stuttering" effect of interim results.
+                    const now = Date.now();
+                    if (cleanTranscript === lastTranscript && (now - lastTranscriptTime < 1500)) {
+                        return; // Skip this update
+                    }
+
+                    // 4. Update our "memory" of what was just said
+                    lastTranscript = cleanTranscript;
+                    lastTranscriptTime = now;
+
+                    // 5. Pass the verified, unique text to processing
+                    this.processTranscript(cleanTranscript);
                 };
 
                 // Don't start automatically - wait for audio detection
             }
 
-                                    startListeningToTess() {
+            // ==========================================
+            // KEEP YOUR EXISTING CODE BELOW HERE
+            // (startListeningToTess is safe and unchanged)
+            // ==========================================
+
+            startListeningToTess() {
                 if (this.listeningToTess) {
                     return;
                 }
