@@ -3821,6 +3821,9 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            }\n';
         code += '        }\n';
         code += '    }\n\n';
+
+        code += '    // Expose class to global scope for testing/debugging\n';
+        code += '    window.PreQualificationController = PreQualificationController;\n\n';
         
         // ===== CREATE CONTROLLER INSTANCE =====
         code += '    window.preQualController = new PreQualificationController();\n';
@@ -3884,6 +3887,9 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            \n';
         code += '        });\n';
         code += '    }\n\n';
+
+        code += '    // Expose function to global scope for testing/debugging\n';
+        code += '    window.setupUniversalListener = setupUniversalListener;\n\n';
 
         // ===== CATCH ALL MESSAGES (INCLUDING OPENER) =====
         code += '    // Catch ALL messages for TCS commands\n';
