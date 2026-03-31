@@ -1896,10 +1896,10 @@ class ClientConnectionManager {
 }
 
 // Initialize client manager
-const clientManager = new ClientConnectionManager();
+window.clientManager = new ClientConnectionManager();
 
 // Start scanning for clients
-clientManager.startScanning();
+window.clientManager.startScanning();
 
 // ============================================
 // SCAN FOR CLIENTS FUNCTION
