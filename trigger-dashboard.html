@@ -2735,7 +2735,7 @@ Contact: support@botemia.com`;
     
     preview.innerHTML = `// Botemia Bridge for ${clientId}
 (function() {
-        "use strict";
+        "use strict"; 
 
         const CLIENT_CONFIG = {
             id: '${clientId}',
@@ -3534,6 +3534,25 @@ async function exportBridgeOnly() {
         
         code += '(function() {\n';
         code += '    "use strict";\n\n';
+
+        // ===== SILENCE DAILY/IFRAME NOISE =====
+        code += '    // Suppress Daily/iframe debugging messages\n';
+        code += '    const originalLog = console.log;\n';
+        code += '    console.log = function() {\n';
+        code += '        const msg = arguments[0];\n';
+        code += '        if (typeof msg === "string" && (\n';
+        code += '            msg.includes("iframe-call-message") ||\n';
+        code += '            msg.includes("network-quality") ||\n';
+        code += '            msg.includes("participant-") ||\n';
+        code += '            msg.includes("sfu") ||\n';
+        code += '            msg.includes("signaling") ||\n';
+        code += '            msg.includes("app-msg") ||\n';
+        code += '            msg.includes("app-message")\n';
+        code += '        )) {\n';
+        code += '            return;\n';
+        code += '        }\n';
+        code += '        originalLog.apply(console, arguments);\n';
+        code += '    };\n\n';
         
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
         code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
@@ -3844,11 +3863,13 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        });\n';
         code += '    }\n\n';
 
-        // ===== DIRECT TCS LISTENER (CATCHES OPENER MESSAGES) =====
-        code += '    // Direct listener for TCS messages via opener\n';
+        // ===== CATCH ALL MESSAGES (INCLUDING OPENER) =====
+        code += '    // Catch ALL messages for TCS commands\n';
         code += '    window.addEventListener("message", (event) => {\n';
-        code += '        if (event.data && event.data.command === "START_PRE_QUAL") {\n';
-        code += '            console.log("🎯🎯🎯 DIRECT TCS MESSAGE RECEIVED! 🎯🎯🎯");\n';
+        code += '        console.log("🔍 ALL MESSAGE RECEIVED:", event.data);\n';
+        code += '        if (event.data && (event.data.command === "START_PRE_QUAL" || \n';
+        code += '            (event.data.type === "TCS_COMMAND" && event.data.command === "START_PRE_QUAL"))) {\n';
+        code += '            console.log("🎯🎯🎯 TCS COMMAND CAUGHT! 🎯🎯🎯");\n';
         code += '            if (window.preQualController && !window.preQualController.isActive) {\n';
         code += '                window.preQualController.startInterview();\n';
         code += '            }\n';
@@ -4287,45 +4308,6 @@ code += '    window.disableBridgeTriggers = false;\n\n';
     code += '    }\n';
     code += '\n';
     code += '    setTimeout(announceToTCS, 2000);\n\n';
-
-            // ===== SILENCE LEMONSLICE/DAILY CONSOLE NOISE =====
-        code += '    // Filter out Daily/iframe debugging messages\n';
-        code += '    const originalConsoleLog = console.log;\n';
-        code += '    console.log = function() {\n';
-        code += '        const firstArg = arguments[0];\n';
-        code += '        if (typeof firstArg === "string") {\n';
-        code += '            // Skip Daily/iframe noise\n';
-        code += '            if (firstArg.includes("iframe-call-message") ||\n';
-        code += '                firstArg.includes("network-quality") ||\n';
-        code += '                firstArg.includes("participant-") ||\n';
-        code += '                firstArg.includes("get-network-topology") ||\n';
-        code += '                firstArg.includes("local-audio") ||\n';
-        code += '                firstArg.includes("join-meeting") ||\n';
-        code += '                firstArg.includes("call-machine") ||\n';
-        code += '                firstArg.includes("daily-main") ||\n';
-        code += '                firstArg.includes("transmit-log") ||\n';
-        code += '                firstArg.includes("access-state") ||\n';
-        code += '                firstArg.includes("receive-settings") ||\n';
-        code += '                firstArg.includes("send-settings") ||\n';
-        code += '                firstArg.includes("input-settings") ||\n';
-        code += '                firstArg.includes("lib-room-info") ||\n';
-        code += '                firstArg.includes("selected-devices") ||\n';
-        code += '                firstArg.includes("get-input-devices") ||\n';
-        code += '                firstArg.includes("started-camera") ||\n';
-        code += '                firstArg.includes("meeting-session") ||\n';
-        code += '                firstArg.includes("participant-counts") ||\n';
-        code += '                firstArg.includes("joined-meeting") ||\n';
-        code += '                firstArg.includes("app-msg") ||\n';
-        code += '                firstArg.includes("app-message") ||\n';
-        code += '                firstArg.includes("active-speaker") ||\n';
-        code += '                firstArg.includes("cpu-load") ||\n';
-        code += '                firstArg.includes("sfu") ||\n';
-        code += '                firstArg.includes("signaling")) {\n';
-        code += '                return;\n';
-        code += '            }\n';
-        code += '        }\n';
-        code += '        originalConsoleLog.apply(console, arguments);\n';
-        code += '    };\n\n';
 
         // ===== CONSOLIDATED MESSAGE HANDLER (NOISE CANCELING) =====
         code += '    window.addEventListener(\'message\', function(event) {\n';
