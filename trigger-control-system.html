@@ -907,7 +907,7 @@ monitorTessMessages() {
             // REPLACE EVERYTHING BELOW THIS LINE
             // ==========================================
             
-                setupSpeechRecognition() {
+                           setupSpeechRecognition() {
                 if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
                     this.updateStatus('❌ Speech recognition not supported', 'error');
                     return;
@@ -934,6 +934,21 @@ monitorTessMessages() {
                 };
 
                 this.recognition.onresult = (event) => {
+                    // 🛑 NEW: HARD SILENCE DURING ECHO
+                    // If the widget audio element is currently playing, the mic is just hearing Tess.
+                    // We ignore the input to prevent the "Echo / Duplicate" effect.
+                    const widget = document.querySelector('lemon-slice-widget');
+                    if (widget && widget.shadowRoot) {
+                        const audios = widget.shadowRoot.querySelectorAll('audio');
+                        let isPlaying = false;
+                        audios.forEach(a => { if (!a.paused) isPlaying = true; });
+                        
+                        if (isPlaying) {
+                            console.log("🔇 Silencing mic: Tess is speaking");
+                            return; // Ignore transcript while she speaks
+                        }
+                    }
+
                     // 1. Get the text from the event
                     const currentTranscript = Array.from(event.results)
                         .map(result => result[0].transcript)
@@ -944,15 +959,14 @@ monitorTessMessages() {
 
                     // 3. ⚠️ DUPLICATE CHECK:
                     // If the text is the same as the last one AND less than 1.5 seconds have passed, IGNORE IT.
-                    // This stops the "stuttering" effect of interim results.
                     const now = Date.now();
                     if (cleanTranscript === lastTranscript && (now - lastTranscriptTime < 1500)) {
                         return; // Skip this update
                     }
 
-                    // 4. 🆕 ECHO FIX:
-                    // If the new text STARTS WITH the last text, it means we are just adding to the end of the sentence.
-                    // We only want to log the NEW part to avoid reprinting the whole conversation over and over.
+                    // 4. 🆕 ECHO FIX (Secondary Check):
+                    // If the new text STARTS WITH the last text, it means we are just adding to the end.
+                    // We only want to log the NEW part.
                     if (cleanTranscript.startsWith(lastTranscript) && cleanTranscript.length > lastTranscript.length) {
                         const onlyNewText = cleanTranscript.substring(lastTranscript.length).trim();
                         
