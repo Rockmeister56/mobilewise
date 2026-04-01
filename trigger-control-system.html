@@ -1850,13 +1850,6 @@ class ClientConnectionManager {
         }
     }
 
-    startScanning() {
-        if (this.scanInterval) clearInterval(this.scanInterval);
-        this.scanInterval = setInterval(() => {
-            this.broadcastPresence();
-        }, 5000);
-    }
-
     sendToSelectedClient(command, data = {}) {
         const select = document.getElementById('clientList');
         if (!select || !select.value) {
@@ -1898,7 +1891,7 @@ class ClientConnectionManager {
 window.clientManager = new ClientConnectionManager();
 
 // Start scanning for clients
-window.clientManager.startScanning();
+// clientManager.startScanning();
 
 // ============================================
 // SCAN FOR CLIENTS FUNCTION
