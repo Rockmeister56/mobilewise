@@ -2016,29 +2016,57 @@ console.log("🎧 TCS listening for Tess transcripts via BroadcastChannel");
 // ===== LISTEN FOR TESS TRANSCRIPTS FROM CLIENT =====
 console.log("🎧 Setting up TESS_TRANSCRIPT listener...");
 
+// In your TCS, update the transcript listener
 const transcriptChannel = new BroadcastChannel("tess-discovery");
 transcriptChannel.onmessage = (event) => {
     const data = event.data;
-    console.log("📡 TCS RECEIVED:", data);
-    
     if (data.type === "TESS_TRANSCRIPT") {
-        console.log("🎤 TESS SAID (via broadcast):", data.text);
+        const text = data.text;
+        console.log("🎤 TESS SAID (via broadcast):", text);
         
-        const text = data.text.toLowerCase();
+        // ADD TO THE VISUAL TRANSCRIPT FEED
+        if (typeof addToTranscriptFeed === 'function') {
+            addToTranscriptFeed(`🤖 Tess: "${text}"`);
+        }
+        
+        const lowerText = text.toLowerCase();
         
         // Check for trigger phrase
-        if (text.includes("get you pre-qualified") || 
-            text.includes("pre qualification interview") ||
-            text.includes("let's get you pre-qualified")) {
+        if (lowerText.includes("get you pre-qualified") || 
+            lowerText.includes("pre qualification interview") ||
+            lowerText.includes("let's get you pre-qualified")) {
             
             console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
+            
+            // ADD TRIGGER BANNER TO VISUAL FEED
+            if (typeof addToTranscriptFeed === 'function') {
+                addToTranscriptFeed(`🎯 TRIGGER: "${text}"`);
+            }
+            
+            // Show the trigger alert banner
+            const alertEl = document.getElementById('triggerAlert');
+            if (alertEl) {
+                document.getElementById('triggerModuleTag').innerHTML = '🎯 Pre-Qualification';
+                document.getElementById('triggerPhraseDisplay').innerHTML = `"${text}"`;
+                document.getElementById('triggerActionDisplay').innerHTML = 'Launching pre-qualification interview...';
+                alertEl.style.display = 'block';
+                setTimeout(() => {
+                    alertEl.style.display = 'none';
+                }, 5000);
+            }
             
             // Send command to client
             if (window.clientManager && window.clientManager.clientWindows.size > 0) {
                 window.clientManager.sendToSelectedClient('START_PRE_QUAL');
                 console.log("✅ START_PRE_QUAL sent to client");
+                if (typeof addToTranscriptFeed === 'function') {
+                    addToTranscriptFeed('🚀 START_PRE_QUAL sent to Bridge');
+                }
             } else {
                 console.log("⚠️ No client connected");
+                if (typeof addToTranscriptFeed === 'function') {
+                    addToTranscriptFeed('⚠️ No client connected - command not sent');
+                }
             }
         }
     }
