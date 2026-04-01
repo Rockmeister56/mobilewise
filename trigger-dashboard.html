@@ -4122,14 +4122,9 @@ code += '        }\n';
     code += '        }\n';
     code += '    }\n\n';    
 
-       // ===== ACTIVATE TESS FUNCTION =====
+     // ===== ACTIVATE TESS FUNCTION (WITH WAKE UP CALL) =====
     code += '    function activateTess() {\n';
     code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
-    code += '        \n';
-    code += '        // 🔥 CRITICAL: REMOVE ANY GHOST WIDGETS FIRST\n';
-    code += '        const existingWidgets = document.querySelectorAll("lemon-slice-widget");\n';
-    code += '        console.log(`🗑️ Removing ${existingWidgets.length} existing widget(s)`);\n';
-    code += '        existingWidgets.forEach(w => w.remove());\n';
     code += '        \n';
     code += '        // 1. Try to pre-warm audio\n';
     code += '        try {\n';
@@ -4170,7 +4165,13 @@ code += '        }\n';
     code += '                        await window.mainWidget.micOn();\n';
     code += '                        await window.mainWidget.unmute?.();\n';
     code += '                        console.log("✅ Microphone activated");\n';
+    code += '                        \n';
+    code += '                        // Force unmute shadow DOM as backup\n';
     code += '                        await forceUnmute();\n';
+    code += '                        \n';
+    code += '                        // 🔥 REMOVED: Controller already created earlier in the bridge\n';
+    code += '                        // No need to create another instance here\n';
+    code += '                        \n';
     code += '                    }\n';
     code += '                } catch (e) {\n';
     code += '                    console.error("❌ Mic activation failed:", e);\n';
