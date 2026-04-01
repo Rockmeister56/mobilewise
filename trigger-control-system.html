@@ -516,29 +516,6 @@ if (clientWebsiteUrl) {
     console.log('🔍 Will look for client at:', clientWebsiteUrl);
     // You could even try to ping this URL or open a connection hint
 }
-
-// Listen for Tess transcripts from client
-const tessChannel = new BroadcastChannel("tess-discovery");
-tessChannel.onmessage = (event) => {
-    const data = event.data;
-    if (data.type === "TESS_TRANSCRIPT") {
-        console.log("🎤 TESS SAID (via broadcast):", data.text);
-        
-        // Check for trigger phrase
-        const text = data.text.toLowerCase();
-        if (text.includes("get you pre-qualified") || 
-            text.includes("pre qualification interview") ||
-            text.includes("let's get you pre-qualified")) {
-            console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
-            if (window.clientManager && window.clientManager.clientWindows.size > 0) {
-                window.clientManager.sendToSelectedClient('START_PRE_QUAL');
-                console.log("✅ START_PRE_QUAL sent to client");
-            }
-        }
-    }
-};
-console.log("🎧 TCS listening for Tess transcripts via BroadcastChannel");
-
         // ============================================
         // TESS TRIGGER CONTROL SYSTEM v1.0 - CLEANED & FIXED
         // ============================================
@@ -1005,7 +982,7 @@ console.log("🎧 TCS listening for Tess transcripts via BroadcastChannel");
 
                 this.recognition.onstart = () => {
                     this.updateStatus('🎤 Listening for Tess...', 'ready');
-                    document.getElementById('micStatus').innerHTML = 'LISTENING TO BOTINIA';
+                    document.getElementById('micStatus').innerHTML = 'LISTENING TO TESS';
                 };
 
                 this.recognition.onerror = (event) => {
@@ -2013,6 +1990,61 @@ function addToTranscriptFeed(text) {
     feed.appendChild(entry);
     feed.scrollTop = feed.scrollHeight;
 }
+
+// Listen for Tess transcripts from client
+const tessChannel = new BroadcastChannel("tess-discovery");
+tessChannel.onmessage = (event) => {
+    const data = event.data;
+    if (data.type === "TESS_TRANSCRIPT") {
+        console.log("🎤 TESS SAID (via broadcast):", data.text);
+        
+        // Check for trigger phrase
+        const text = data.text.toLowerCase();
+        if (text.includes("get you pre-qualified") || 
+            text.includes("pre qualification interview") ||
+            text.includes("let's get you pre-qualified")) {
+            console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
+            if (window.clientManager && window.clientManager.clientWindows.size > 0) {
+                window.clientManager.sendToSelectedClient('START_PRE_QUAL');
+                console.log("✅ START_PRE_QUAL sent to client");
+            }
+        }
+    }
+};
+console.log("🎧 TCS listening for Tess transcripts via BroadcastChannel");
+
+// ===== LISTEN FOR TESS TRANSCRIPTS FROM CLIENT =====
+console.log("🎧 Setting up TESS_TRANSCRIPT listener...");
+
+const transcriptChannel = new BroadcastChannel("tess-discovery");
+transcriptChannel.onmessage = (event) => {
+    const data = event.data;
+    console.log("📡 TCS RECEIVED:", data);
+    
+    if (data.type === "TESS_TRANSCRIPT") {
+        console.log("🎤 TESS SAID (via broadcast):", data.text);
+        
+        const text = data.text.toLowerCase();
+        
+        // Check for trigger phrase
+        if (text.includes("get you pre-qualified") || 
+            text.includes("pre qualification interview") ||
+            text.includes("let's get you pre-qualified")) {
+            
+            console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
+            
+            // Send command to client
+            if (window.clientManager && window.clientManager.clientWindows.size > 0) {
+                window.clientManager.sendToSelectedClient('START_PRE_QUAL');
+                console.log("✅ START_PRE_QUAL sent to client");
+            } else {
+                console.log("⚠️ No client connected");
+            }
+        }
+    }
+};
+
+console.log("✅ TCS now listening for Tess transcripts via BroadcastChannel");
     </script>
 </body>
 </html>
