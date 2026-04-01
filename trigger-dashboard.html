@@ -3640,9 +3640,11 @@ code += '        }\n';
 code += '    `;\n';
 code += '    document.head.appendChild(style);\n\n';
         
-        // Helper Functions
+         // Helper Functions
         code += '    function createSplashWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
+        code += '        const clientId = window.BotemiaConfig.id || \'mortgage-assist-demo\';\n';
+        code += '        widget.setAttribute(\'client-id\', clientId);\n';
         code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
         code += '        widget.setAttribute(\'inline\', \'\');\n';
         code += '        widget.setAttribute(\'custom-minimized-width\', \'280\');\n';

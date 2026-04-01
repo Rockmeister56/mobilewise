@@ -2016,7 +2016,7 @@ console.log("🎧 TCS listening for Tess transcripts via BroadcastChannel");
 // ===== LISTEN FOR TESS TRANSCRIPTS FROM CLIENT =====
 console.log("🎧 Setting up TESS_TRANSCRIPT listener...");
 
-// In your TCS file, replace the transcript listener with this:
+// Update your transcript listener to add to the visual feed
 const transcriptChannel = new BroadcastChannel("tess-discovery");
 transcriptChannel.onmessage = (event) => {
     const data = event.data;
@@ -2026,8 +2026,10 @@ transcriptChannel.onmessage = (event) => {
         const text = data.text;
         const lowerText = text.toLowerCase();
         
-        // ADD TO VISUAL TRANSCRIPT FEED
-        addToTranscriptFeed(`🤖 Tess: "${text}"`);
+        // 🔥 ADD THIS LINE - Shows in the visual transcript feed
+        if (typeof addToTranscriptFeed === 'function') {
+            addToTranscriptFeed(`🤖 Tess: "${text}"`);
+        }
         
         console.log("🎤 TESS SAID (via broadcast):", text);
         
@@ -2038,8 +2040,10 @@ transcriptChannel.onmessage = (event) => {
             
             console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
             
-            // ADD TRIGGER BANNER TO VISUAL FEED
-            addToTranscriptFeed(`🎯 TRIGGER: "${text}"`);
+            // 🔥 ADD TRIGGER BANNER TO VISUAL FEED
+            if (typeof addToTranscriptFeed === 'function') {
+                addToTranscriptFeed(`🎯 TRIGGER: "${text}"`);
+            }
             
             // Show the trigger alert banner
             const alertEl = document.getElementById('triggerAlert');
@@ -2057,10 +2061,14 @@ transcriptChannel.onmessage = (event) => {
             if (window.clientManager && window.clientManager.clientWindows.size > 0) {
                 window.clientManager.sendToSelectedClient('START_PRE_QUAL');
                 console.log("✅ START_PRE_QUAL sent to client");
-                addToTranscriptFeed('🚀 START_PRE_QUAL sent to Bridge');
+                if (typeof addToTranscriptFeed === 'function') {
+                    addToTranscriptFeed('🚀 START_PRE_QUAL sent to Bridge');
+                }
             } else {
                 console.log("⚠️ No client connected");
-                addToTranscriptFeed('⚠️ No client connected - command not sent');
+                if (typeof addToTranscriptFeed === 'function') {
+                    addToTranscriptFeed('⚠️ No client connected - command not sent');
+                }
             }
         }
     }
