@@ -4347,32 +4347,40 @@ code += '    }\n\n';
        // Auto-Trigger System
 code += '    window.disableBridgeTriggers = false;\n\n';
 
-                  // ===== LOAD WIDGET =====
-    code += '    function initWidget() {\n';
-    code += '        if (document.querySelector(\'lemon-slice-widget\')) { console.log(\'✅ Widget already exists\'); return; }\n';
-    code += '        \n';
-    code += '        // 1. Load the Script\n';
-    code += '        const script = document.createElement(\'script\');\n';
-    code += '        script.src = \'https://unpkg.com/@lemonsliceai/lemon-slice-widget\';\n';
-    code += '        script.type = \'module\';\n';
-    code += '        script.onload = () => { \n';
-    code += '            console.log(\'✅ Widget script loaded\'); \n';
-    code += '            \n';
-    code += '            // === NEW: AUTO-LAUNCH TCS REMOTE CONTROL ===\n';
-    code += '            // Delay to ensure page is stable before popping up the window\n';
-    code += '            setTimeout(() => {\n';
-    code += '                openTCS_ControlPanel();\n';
-    code += '            }, 2500);\n';
-    code += '        }; \n';
-    code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
-    code += '        document.head.appendChild(script);\n';
-    code += '        \n';
-    code += '        // 2. Create Splash Widget (This is now our ONLY widget)\n';
-    code += '        setTimeout(() => { showSplash(); }, 100);\n';
-    code += '    }\n\n';
-    
-    code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
-    code += '    else { initWidget(); }\n\n';
+                         // ===== TESS TRIGGER CONTROL SYSTEM v1.0 - NUCLEAR OPTION (CLEAN SLATE)
+        // ==========================================
+        
+        code += '    function initWidget() {\n';
+        code += '        console.log("🎬 Initializing Tess Core System...");\n';
+        code += '        \n';
+        code += '        // 1. CHECK FOR EMBEDDED WIDGETS (The "Standard Tess" on the Client Website)\n';
+        code += '        const siteWidget = document.querySelector(\'lemon-slice-widget\');\n';
+        code += '        if (siteWidget) {\n';
+        code += '            console.log("⚠️ Standard Tess found on page. Removing to prevent conflict.");\n';
+        code += '            console.log("🗑️ Killing off the Standard Tess so we can load our Custom Tess.");\n';
+        code += '            siteWidget.remove();\n';
+        code += '            if (siteWidget.parentNode) siteWidget.parentNode.removeChild(siteWidget);\n';
+        code += '            console.log("✅ Standard Tess removed.");\n';
+        code += '            // Continue loading - do not return!\n';
+        code += '        }\n';
+        code += '        \n';
+        code += '        // 2. Check if our bridge widget already exists (skip if already loaded)\n';
+        code += '        if (document.getElementById(\'main-widget\') || document.getElementById(\'splash-widget\')) {\n';
+        code += '            console.log(\'✅ Bridge widget already exists, skipping initialization\');\n';
+        code += '            return;\n';
+        code += '        }\n';
+        code += '        \n';
+        code += '        // 3. Load the LemonSlice widget script\n';
+        code += '        const script = document.createElement(\'script\');\n';
+        code += '        script.src = \'https://unpkg.com/@lemonsliceai/lemon-slice-widget\';\n';
+        code += '        script.type = \'module\';\n';
+        code += '        script.onload = () => { console.log(\'✅ Widget script loaded\'); };\n';
+        code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
+        code += '        document.head.appendChild(script);\n';
+        code += '        \n';
+        code += '        // 4. Show the splash screen\n';
+        code += '        setTimeout(() => { showSplash(); }, 100);\n';
+        code += '    }\n\n';
     
     code += '    console.log(\'✅ Botemia Bridge v5.4 loaded for\', window.BotemiaConfig.name);\n';
     
