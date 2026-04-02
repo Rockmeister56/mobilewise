@@ -3641,13 +3641,15 @@ code += '    `;\n';
 code += '    document.head.appendChild(style);\n\n';
         
                 // Helper Functions
-        code += '    function createSplashWidget() {\n';
+                code += '    function createSplashWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
         code += '        const clientId = window.BotemiaConfig.id || \'mortgage-assist-demo\';\n';
         code += '        widget.setAttribute(\'client-id\', clientId);\n';
-        code += '        widget.clientId = clientId;\n';  // ← ONLY ADD THIS LINE
+        code += '        widget.clientId = clientId;\n';
+        code += '        widget.setAttribute(\'room-id\', clientId);\n';
+        code += '        widget.roomId = clientId;\n';
         code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-        code += '        widget.agentId = \'' + (splashScreen.agentId || config.agentId) + '\';\n';  // ← ONLY ADD THIS LINE
+        code += '        widget.agentId = \'' + (splashScreen.agentId || config.agentId) + '\';\n';
         code += '        widget.setAttribute(\'inline\', \'\');\n';
         code += '        widget.setAttribute(\'custom-minimized-width\', \'280\');\n';
         code += '        widget.setAttribute(\'custom-minimized-height\', \'400\');\n';
@@ -3955,7 +3957,7 @@ code += '    document.head.appendChild(style);\n\n';
     // ===== INITIALIZE LISTENER IMMEDIATELY =====
     code += '    setupUniversalListener();\n\n';
     
-            // ===== WIDGET CREATION (ROOT CAUSE FIX) =====
+               // ===== WIDGET CREATION (ROOT CAUSE FIX) =====
         code += '    function createMainWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
         code += '        \n';
@@ -3968,7 +3970,11 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        // 🔥 FIX: Set JavaScript property as well (what LemonSlice actually reads)\n';
         code += '        widget.clientId = clientId;\n';
         code += '        \n';
-        code += '        // 2. Set AGENT ID (Secondary - Keep for compatibility)\n';
+        code += '        // 2. Set ROOM ID (Prevents default "0")\n';
+        code += '        widget.setAttribute(\'room-id\', clientId);\n';
+        code += '        widget.roomId = clientId;\n';
+        code += '        \n';
+        code += '        // 3. Set AGENT ID (Secondary - Keep for compatibility)\n';
         code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
         code += '        // 🔥 FIX: Set JavaScript property as well\n';
         code += '        widget.agentId = \'' + (splashScreen.agentId || config.agentId) + '\';\n';
@@ -4347,46 +4353,32 @@ code += '    }\n\n';
        // Auto-Trigger System
 code += '    window.disableBridgeTriggers = false;\n\n';
 
-                         // ===== LOAD WIDGET =====
-        code += '    function initWidget() {\n';
-        code += '        console.log("🎬 Initializing Tess Core System...");\n';
-        code += '        \n';
-        code += '        // 1. CHECK FOR EMBEDDED WIDGETS (The "Standard Tess" on the Client Website)\n';
-        code += '        const siteWidget = document.querySelector(\'lemon-slice-widget\');\n';
-        code += '        if (siteWidget) {\n';
-        code += '            console.log("⚠️ Standard Tess found on page. Removing to prevent conflict.");\n';
-        code += '            siteWidget.remove();\n';
-        code += '            if (siteWidget.parentNode) siteWidget.parentNode.removeChild(siteWidget);\n';
-        code += '            console.log("✅ Standard Tess removed.");\n';
-        code += '        }\n';
-        code += '        \n';
-        code += '        // 2. Check if our bridge widget already exists\n';
-        code += '        if (document.getElementById(\'splash-widget\') || document.getElementById(\'main-widget\')) {\n';
-        code += '            console.log(\'✅ Bridge widget already exists\');\n';
-        code += '            return;\n';
-        code += '        }\n';
-        code += '        \n';
-        code += '        // 3. Load the Script\n';
-        code += '        const script = document.createElement(\'script\');\n';
-        code += '        script.src = \'https://unpkg.com/@lemonsliceai/lemon-slice-widget\';\n';
-        code += '        script.type = \'module\';\n';
-        code += '        script.onload = () => { \n';
-        code += '            console.log(\'✅ Widget script loaded\'); \n';
-        code += '            \n';
-        code += '            // Auto-launch TCS Remote Control\n';
-        code += '            setTimeout(() => {\n';
-        code += '                openTCS_ControlPanel();\n';
-        code += '            }, 2500);\n';
-        code += '        }; \n';
-        code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
-        code += '        document.head.appendChild(script);\n';
-        code += '        \n';
-        code += '        // 4. Create Splash Widget\n';
-        code += '        setTimeout(() => { showSplash(); }, 100);\n';
-        code += '    }\n\n';
-        
-        code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
-        code += '    else { initWidget(); }\n\n';
+                  // ===== LOAD WIDGET =====
+    code += '    function initWidget() {\n';
+    code += '        if (document.querySelector(\'lemon-slice-widget\')) { console.log(\'✅ Widget already exists\'); return; }\n';
+    code += '        \n';
+    code += '        // 1. Load the Script\n';
+    code += '        const script = document.createElement(\'script\');\n';
+    code += '        script.src = \'https://unpkg.com/@lemonsliceai/lemon-slice-widget\';\n';
+    code += '        script.type = \'module\';\n';
+    code += '        script.onload = () => { \n';
+    code += '            console.log(\'✅ Widget script loaded\'); \n';
+    code += '            \n';
+    code += '            // === NEW: AUTO-LAUNCH TCS REMOTE CONTROL ===\n';
+    code += '            // Delay to ensure page is stable before popping up the window\n';
+    code += '            setTimeout(() => {\n';
+    code += '                openTCS_ControlPanel();\n';
+    code += '            }, 2500);\n';
+    code += '        }; \n';
+    code += '        script.onerror = () => console.error(\'❌ Failed to load widget\');\n';
+    code += '        document.head.appendChild(script);\n';
+    code += '        \n';
+    code += '        // 2. Create Splash Widget (This is now our ONLY widget)\n';
+    code += '        setTimeout(() => { showSplash(); }, 100);\n';
+    code += '    }\n\n';
+    
+    code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
+    code += '    else { initWidget(); }\n\n';
     
     code += '    console.log(\'✅ Botemia Bridge v5.4 loaded for\', window.BotemiaConfig.name);\n';
     
