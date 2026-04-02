@@ -3641,15 +3641,13 @@ code += '    `;\n';
 code += '    document.head.appendChild(style);\n\n';
         
                 // Helper Functions
-                code += '    function createSplashWidget() {\n';
+        code += '    function createSplashWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
         code += '        const clientId = window.BotemiaConfig.id || \'mortgage-assist-demo\';\n';
         code += '        widget.setAttribute(\'client-id\', clientId);\n';
-        code += '        widget.clientId = clientId;\n';
-        code += '        widget.setAttribute(\'room-id\', clientId);\n';
-        code += '        widget.roomId = clientId;\n';
+        code += '        widget.clientId = clientId;\n';  // ← ONLY ADD THIS LINE
         code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-        code += '        widget.agentId = \'' + (splashScreen.agentId || config.agentId) + '\';\n';
+        code += '        widget.agentId = \'' + (splashScreen.agentId || config.agentId) + '\';\n';  // ← ONLY ADD THIS LINE
         code += '        widget.setAttribute(\'inline\', \'\');\n';
         code += '        widget.setAttribute(\'custom-minimized-width\', \'280\');\n';
         code += '        widget.setAttribute(\'custom-minimized-height\', \'400\');\n';
