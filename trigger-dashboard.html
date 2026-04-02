@@ -3956,28 +3956,26 @@ code += '    document.head.appendChild(style);\n\n';
 
     // ===== INITIALIZE LISTENER IMMEDIATELY =====
     code += '    setupUniversalListener();\n\n';
-    
-               // ===== WIDGET CREATION (ROOT CAUSE FIX) =====
+           
+                // ===== WIDGET CREATION (ROOT CAUSE FIX) =====
         code += '    function createMainWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
         code += '        \n';
-        code += '        // 🆕 ROOT CAUSE FIX: ID MAPPING\n';
-        code += '        // If we dont provide a valid ID, the widget defaults to "0", causing a 404.\n';
         code += '        const clientId = window.BotemiaConfig.id || \'mortgage-assist-demo\';\n';
         code += '        \n';
-        code += '        // 1. Set CLIENT ID (Primary)\n';
+        code += '        // Set ALL required IDs\n';
         code += '        widget.setAttribute(\'client-id\', clientId);\n';
-        code += '        // 🔥 FIX: Set JavaScript property as well (what LemonSlice actually reads)\n';
         code += '        widget.clientId = clientId;\n';
         code += '        \n';
-        code += '        // 2. Set ROOM ID (Prevents default "0")\n';
         code += '        widget.setAttribute(\'room-id\', clientId);\n';
         code += '        widget.roomId = clientId;\n';
         code += '        \n';
-        code += '        // 3. Set AGENT ID (Secondary - Keep for compatibility)\n';
         code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-        code += '        // 🔥 FIX: Set JavaScript property as well\n';
         code += '        widget.agentId = \'' + (splashScreen.agentId || config.agentId) + '\';\n';
+        code += '        \n';
+        code += '        // 🔥 CRITICAL: Set the correct server URL\n';
+        code += '        widget.setAttribute(\'server-url\', \'https://api.lemonslice.ai\');\n';
+        code += '        widget.serverUrl = \'https://api.lemonslice.ai\';\n';
         code += '        \n';
         code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
         code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
@@ -3986,7 +3984,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        widget.style.display = \'none\';\n';
         code += '        widget.addEventListener(\'ready\', () => {\n';
         code += '            console.log(\'[Bridge] Main Widget Ready.\');\n';
-        code += '            forceMortgageIntro(widget);\n'; 
+        code += '            forceMortgageIntro(widget);\n';
         code += '        });\n';
         code += '        \n';
         code += '        return widget;\n';
