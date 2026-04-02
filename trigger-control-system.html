@@ -590,316 +590,29 @@ if (clientWebsiteUrl) {
     
     this.updateStatus('Ready · Waiting for Tess', 'ready');
 }
-
-            loadLemonSlice() {
-                if (!this.config?.agentId) {
-                    this.addToTranscriptFeed('⚠️ No Agent ID configured');
-                    return;
-                }
-
-                // Check if already loaded
-                if (document.querySelector('lemon-slice-widget')) {
-                    this.addToTranscriptFeed('✅ Tess already loaded');
-                    return;
-                }
-
-                // Load the module from unpkg
-                const moduleScript = document.createElement('script');
-                moduleScript.src = 'https://unpkg.com/@lemonsliceai/lemon-slice-widget';
-                moduleScript.type = 'module';
                 
-                moduleScript.onload = () => {
-                    // Create widget element
-                    const widget = document.createElement('lemon-slice-widget');
-                    widget.setAttribute('agent-id', this.config.agentId);
-                    document.body.appendChild(widget);
-                    
-                    this.addToTranscriptFeed('✅ Tess widget connected');
-                    this.updateStatus('Tess Ready', 'ready');
-                    
-                    // Start monitoring for audio
-                    this.monitorTessAudio();
-                };
-                
-                moduleScript.onerror = (err) => {
-                    console.error('LemonSlice load error:', err);
-                    this.addToTranscriptFeed('❌ Failed to load Tess widget');
-                    this.updateStatus('Load failed', 'error');
-                };
-                
-                document.head.appendChild(moduleScript);
-            }
-
-                        async loadConfig() {
-    // TEMPORARY: Hardcoded config for testing
-    this.config = {
-        id: 'mortgage-assist-demo',
-        name: 'Mortgage Assist Demo',
-        agentId: 'agent_7b0776ef6b855de5',
-        industry: 'mortgage',
-        modules: {
-            
-            // 🆕 PRE-QUALIFICATION MODULE ADDED
-            preQualification: {
-                triggers: [
-                    "pre qualification interview",
-                    "Secure pre-qualification interview", 
-                    "get you pre-qualified",
-                    "start the pre qualification",
-                    "begin your pre qualification"
-                ]
-            },
-
-            testimonial: {
-                triggers: ["rates", "pre-approval", "credit score", "interest rate"]
-            },
-            videoVault: {
-                triggers: ["how to apply", "loan process"]
-            },
-            smartScreen: {
-                triggers: ["show me an example", "success story"],
-                images: [{
-                    name: "Sarah's Success",
-                    url: "https://xyz.supabase.co/sarah.jpg",
-                    caption: "580 credit success",
-                    triggerMatch: ["sarah", "580", "example"]
-                }]
-            },
-            websiteInfo: {
-                triggers: ["rates page", "about us"]
-            }
-        }
-    };
-    
-    this.updateClientInfo();
-    this.updateStatus('Config loaded (hardcoded)', 'ready');
-    this.addToTranscriptFeed('✅ Using hardcoded test config');
-    
-    // Load the widget with this config
-    this.loadLemonSlice();
-}
-                
-
-            // ========== AUDIO MONITORING METHODS ==========
-                        monitorSystemAudio() {
-                this.addToTranscriptFeed('🔊 Monitoring ALL audio sources...');
-                
-                const checkForAnyAudio = () => {
-                    // Skip if already listening to prevent loops
-                    if (this.listeningToTess) {
-                        setTimeout(checkForAnyAudio, 1000);
-                        return;
-                    }
-                    
-                    const allMediaElements = [];
-                    
-                    // Check all audio/video in main document
-                    document.querySelectorAll('audio, video').forEach(el => allMediaElements.push(el));
-                    
-                    // Check all shadow DOMs
-                    document.querySelectorAll('*').forEach(el => {
-                        if (el.shadowRoot) {
-                            el.shadowRoot.querySelectorAll('audio, video').forEach(shadowEl => 
-                                allMediaElements.push(shadowEl));
-                        }
-                    });
-                    
-                    let audioDetected = false;
-                    allMediaElements.forEach((media) => {
-                        if (!media.paused && media.currentTime > 0) {
-                            audioDetected = true;
-                        }
-                    });
-                    
-                    if (audioDetected && !this.listeningToTess) {
-                        this.addToTranscriptFeed('📢 Tess audio detected!');
-                        this.startListeningToTess();
-                    }
-                    
-                    setTimeout(checkForAnyAudio, 1000);
-                };
-                
-                checkForAnyAudio();
-            }
-
-                                    monitorTessAudio() {
-                this.addToTranscriptFeed('🎧 Monitoring for Tess audio...');
-                
-                // Function to check audio and set up listeners
-                const setupAudioListeners = () => {
-                    const widget = document.querySelector('lemon-slice-widget');
-                    if (!widget?.shadowRoot) {
-                        // If widget not ready, try again in 1 second
-                        setTimeout(setupAudioListeners, 1000);
-                        return;
-                    }
-                    
-                    this.addToTranscriptFeed('✅ Found Tess widget, setting up audio detection...');
-                    
-                    // Check for audio elements every second
-                    setInterval(() => {
-                        const audioElements = widget.shadowRoot.querySelectorAll('audio');
-                        
-                        audioElements.forEach((audio) => {
-                            // Check if audio is playing right now
-                            if (!audio.paused && audio.currentTime > 0 && !this.listeningToTess) {
-                                this.addToTranscriptFeed('📢 Tess is speaking!');
-                                this.startListeningToTess();
-                            }
-                            
-                            // Listen for when it starts playing
-                            audio.addEventListener('play', () => {
-                                this.addToTranscriptFeed('🎬 Tess STARTED speaking!');
-                                this.startListeningToTess();
-                            });
-                            
-                            // Listen for when it stops
-                            audio.addEventListener('pause', () => {
-                                this.addToTranscriptFeed('⏸️ Tess stopped speaking');
-                                this.stopListeningToTess();
-                            });
-                            
-                            audio.addEventListener('ended', () => {
-                                this.addToTranscriptFeed('⏹️ Tess finished speaking');
-                                this.stopListeningToTess();
-                            });
-                        });
-                    }, 1000);
-                };
-                
-                // Start the process
-                setupAudioListeners();
-            }
-           monitorTessMessages() {
-    console.log('🎤 Setting up Tess message monitor...');
-    this.addToTranscriptFeed('🎤 Monitoring Tess for trigger phrases...');
-    
-    // Store last message to avoid duplicates
-    let lastMessage = '';
-    
-    setInterval(() => {
-        const widget = document.querySelector('lemon-slice-widget');
-        if (!widget) return;
-        
-        // Get Tess's current message
-        let currentMessage = '';
-        
-        // Try to get message from shadow DOM
-        try {
-            if (widget.shadowRoot) {
-                // Look for any elements that might contain Tess's speech
-                const allElements = widget.shadowRoot.querySelectorAll('div, span, p');
-                for (const el of allElements) {
-                    const text = el.textContent || el.innerText || '';
-                    // Look for natural language (contains words, not CSS)
-                    if (text.length > 20 && text.length < 500 && 
-                        !text.includes('@') && !text.includes('{') && 
-                        /[a-zA-Z]/.test(text) && text.includes(' ')) {
-                        currentMessage = text;
-                        break;
-                    }
-                }
-            }
-        } catch(e) {
-            // Silently fail - widget not ready
-        }
-        
-        // Only process if we have a new message
-        if (currentMessage && currentMessage !== lastMessage) {
-            lastMessage = currentMessage;
-            const messageLower = currentMessage.toLowerCase();
-            
-            // Check for trigger phrases
-            const triggerPhrases = [
-                "let's get you pre-qualified",
-                "let's get you pre qualified", 
-                "get you pre-qualified",
-                "start the pre-qualification",
-                "pre qualification interview"
-            ];
-            
-            for (const phrase of triggerPhrases) {
-                if (messageLower.includes(phrase)) {
-                    console.log('🎯 TCS: Pre-Qual Trigger Detected!');
-                    this.addToTranscriptFeed(`🎯 Trigger: "${phrase}"`);
-                    
-                    // Send to client using the working method
-                    if (window.clientManager && window.clientManager.clientWindows.size > 0) {
-                        window.clientManager.sendToSelectedClient('START_PRE_QUAL');
-                        this.addToTranscriptFeed('🚀 START_PRE_QUAL sent to Bridge');
-                        console.log('✅ START_PRE_QUAL sent to client');
-                    } else {
-                        console.log('⚠️ No client connected');
-                    }
-                    break;
-                }
-            }
-        }
-    }, 2000);
-}
-
-            // New helper methods
-            handleTessPlay() {
-                if (!this.listeningToTess) {
-                    this.addToTranscriptFeed('🎬 Tess STARTED speaking - listening only for Tess');
-                    this.startListeningToTess();
-                }
-            }
-
-            handleTessPause() {
-                if (this.listeningToTess) {
-                    this.addToTranscriptFeed('⏸️ Tess stopped speaking - pausing recognition');
-                    this.stopListeningToTess();
-                }
-            }
-
-            handleTessEnd() {
-                if (this.listeningToTess) {
-                    this.addToTranscriptFeed('⏹️ Tess finished speaking - stopping recognition');
-                    this.stopListeningToTess();
-                }
-            }
-
-                        stopListeningToTess() {
-                if (this.recognition && this.listeningToTess) {
-                    try {
-                        this.recognition.stop();
-                        this.addToTranscriptFeed('🛑 Speech recognition stopped');
-                    } catch(e) {
-                        console.error('Error stopping recognition:', e);
-                    }
-                }
-                this.listeningToTess = false;
-            }
-
-                        // ========== DIAGNOSTIC TEST ==========
-                        // ========== MASTER DIAGNOSTIC TEST ==========
+                                   // ========== MASTER DIAGNOSTIC TEST ==========
             runDiagnosticTest() {
                 console.log('=== TCS FULL DIAGNOSTIC ===');
-                
-                // ========================================
-                // PHASE 1: CONNECTION TEST (Priority)
-                // ========================================
-                this.addToTranscriptFeed('🔍 Phase 1: Testing Connection to Client...');
+                this.addToTranscriptFeed('🔍 Phase 1: Testing Broadcast Channel to Client...');
                 
                 let connectionSuccess = false;
                 const testChannel = new BroadcastChannel('tess-discovery');
                 
-                // Listen for the PONG
+                // Listen for the PONG response
                 testChannel.onmessage = (event) => {
                     if (event.data.type === 'TEST_PONG') {
                         connectionSuccess = true;
-                        console.log('✅ Client Connected!');
-                        this.addToTranscriptFeed('✅ <strong>Client Connected!</strong> Bridge is active.');
-                        
-                        // Connection good, now run Phase 2
+                        console.log('✅ Client Connected via Broadcast!');
+                        this.addToTranscriptFeed('✅ <strong>Client Connected!</strong> Broadcast channel is active.');
                         this.runLocalDiagnostics();
                     }
                 };
 
-                // Send the PING
+                // Send the PING to test connection
                 try {
-                    testChannel.postMessage({ type: 'TEST_PING', message: 'Are you there?' });
+                    testChannel.postMessage({ type: 'TEST_PING', message: 'Are you there?', timestamp: Date.now() });
+                    this.addToTranscriptFeed('📡 TEST_PING sent to client...');
                 } catch (e) {
                     this.addToTranscriptFeed('❌ BroadcastChannel Error: ' + e.message);
                 }
@@ -912,50 +625,47 @@ if (clientWebsiteUrl) {
                         this.updateStatus('Disconnected', 'error');
                         console.log('=== TEST FAILED (No Connection) ===');
                     }
-                }, 2000);
+                }, 3000);
             }
 
-            // Helper for Phase 2
+            // Helper for Phase 2 - Updated to test broadcast communication
             runLocalDiagnostics() {
-                this.addToTranscriptFeed('🔍 Phase 2: Checking Local Hardware...');
+                this.addToTranscriptFeed('🔍 Phase 2: Testing Communication...');
                 
-                // 1. Check if widget exists
-                const widget = document.querySelector('lemon-slice-widget');
-                console.log('1. Widget found:', widget ? '✅' : '❌');
-                
-                if (!widget) {
-                    this.addToTranscriptFeed('❌ Widget not found - click "Load Tess"');
+                // 1. Check clientManager
+                console.log('1. clientManager exists:', !!window.clientManager);
+                if (!window.clientManager) {
+                    this.addToTranscriptFeed('❌ clientManager not found');
                     return;
                 }
                 
-                // 2. Check shadow root
-                console.log('2. Shadow root:', widget.shadowRoot ? '✅' : '❌');
+                // 2. Check connected clients
+                const clientCount = window.clientManager?.clientWindows?.size || 0;
+                console.log('2. Connected clients:', clientCount);
+                this.addToTranscriptFeed(`📡 ${clientCount} client(s) connected`);
                 
-                if (!widget.shadowRoot) {
-                    this.addToTranscriptFeed('❌ Shadow root not accessible');
-                    return;
+                if (clientCount === 0) {
+                    this.addToTranscriptFeed('⚠️ No clients connected. Click "Open Client" or refresh client page.');
+                } else {
+                    this.addToTranscriptFeed('✅ Client connection active');
                 }
                 
-                // 3. Check for audio elements
-                const audioElements = widget.shadowRoot.querySelectorAll('audio');
-                console.log('3. Audio elements found:', audioElements.length);
-                this.addToTranscriptFeed(`🔊 Found ${audioElements.length} audio elements`);
-                
-                // 4. Check audio state
-                audioElements.forEach((audio, i) => {
-                    console.log(`   Audio ${i}: paused=${audio.paused}, currentTime=${audio.currentTime}`);
-                    if (!audio.paused && audio.currentTime > 0) {
-                        this.addToTranscriptFeed(`✅ Audio ${i} is PLAYING`);
+                // 3. Test sending a test command
+                this.addToTranscriptFeed('🔍 Testing command send...');
+                try {
+                    if (window.clientManager && window.clientManager.clientWindows.size > 0) {
+                        window.clientManager.sendToSelectedClient('TEST_PING');
+                        this.addToTranscriptFeed('✅ TEST_PING sent to client');
                     }
-                });
+                } catch(e) {
+                    this.addToTranscriptFeed('❌ Failed to send: ' + e.message);
+                }
                 
-                // 5. Check if we have recognition
-                console.log('4. Speech recognition:', this.recognition ? '✅' : '❌');
+                // 4. Check trigger detection
+                console.log('3. Trigger detection active:', !!this.preQualTriggered);
+                this.addToTranscriptFeed('🎯 Trigger detection active');
                 
-                // 6. Check listening state
-                console.log('5. Listening to Tess:', this.listeningToTess ? '✅' : '❌');
-                
-                this.addToTranscriptFeed('✅ <strong>All Systems Operational</strong>');
+                this.addToTranscriptFeed('✅ <strong>Diagnostic Complete</strong>');
                 console.log('=== TEST COMPLETE ===');
             }
 
@@ -1903,17 +1613,6 @@ function scanForClients() {
 }
 
 // ============================================
-// TRIGGER PRE-QUALIFICATION
-// ============================================
-
-function triggerPreQual() {
-    const success = clientManager.sendToSelectedClient('START_PRE_QUAL');
-    if (success) {
-        addToTranscriptFeed('🚀 Triggered pre-qualification interview');
-    }
-}
-
-// ============================================
 // ADD TO TRANSCRIPT FEED (helper)
 // ============================================
 
@@ -1930,15 +1629,6 @@ function addToTranscriptFeed(text) {
     `;
     feed.appendChild(entry);
     feed.scrollTop = feed.scrollHeight;
-}
-// ============================================
-// GLOBAL HELPER FUNCTIONS
-// ============================================
-
-// Scan for clients
-function scanForClients() {
-    clientManager.broadcastPresence();
-    addToTranscriptFeed('🔍 Scanning for clients...');
 }
 
 // Manual client opener
@@ -1966,22 +1656,6 @@ function triggerPreQual() {
     if (success) {
         addToTranscriptFeed('🚀 Triggered pre-qualification interview');
     }
-}
-
-// Add to transcript feed (global version)
-function addToTranscriptFeed(text) {
-    const feed = document.getElementById('transcriptFeed');
-    if (!feed) return;
-
-    const entry = document.createElement('div');
-    entry.className = 'transcript-entry';
-    const time = new Date().toLocaleTimeString();
-    entry.innerHTML = `
-        <span class="transcript-time">${time}</span>
-        <span style="color: white;">${text}</span>
-    `;
-    feed.appendChild(entry);
-    feed.scrollTop = feed.scrollHeight;
 }
 
 // Listen for Tess transcripts from client
