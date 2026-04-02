@@ -3640,36 +3640,44 @@ code += '        }\n';
 code += '    `;\n';
 code += '    document.head.appendChild(style);\n\n';
         
-               // Helper Functions
+                  // Helper Functions
         code += '    function createSplashWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-        code += '        // 🔥 NUCLEAR OPTION: Force valid ID\n';
         code += '        let clientId = window.BotemiaConfig?.id;\n';
         code += '        if (!clientId || clientId === "0" || clientId === 0 || clientId === "null" || clientId === null) {\n';
-        code += '            console.warn("⚠️ Invalid Client ID detected, defaulting to mortgage-assist-demo");\n';
         code += '            clientId = "mortgage-assist-demo";\n';
         code += '        }\n';
         code += '        \n';
-        code += '        // 🔑 API KEY (AUTHENTICATION)\n';
+        code += '        // 🔥 FIX: Use a generated Session ID (UUID) for the Room\n';
+        code += '        const sessionId = \'session-\' + crypto.randomUUID();\n';
+        code += '        window.tessSessionId = sessionId; // <--- SAVES TO MEMORY FOR MAIN WIDGET\n';
+        code += '        \n';
+        code += '        // 🔑 API KEY\n';
         code += '        const apiKey = "sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP";\n';
         code += '        widget.setAttribute(\'api-key\', apiKey);\n';
         code += '        widget.apiKey = apiKey;\n';
-        
+        code += '        \n';
         code += '        // Set CLIENT ID\n';
         code += '        widget.setAttribute(\'client-id\', clientId);\n';
         code += '        widget.clientId = clientId;\n';
-        code += '        \n';
-        code += '        // 🔥 CRITICAL: Unique Splash Room ID (Prevents Jerking)\n';
-        code += '        const splashRoomId = clientId + "_splash_preview";\n';
-        code += '        widget.setAttribute(\'room-id\', splashRoomId);\n';
-        code += '        widget.roomId = splashRoomId;\n';
-        code += '        widget.setAttribute(\'data-room-id\', splashRoomId);\n';
+        
+        // 🔥 NEW: Force Configuration Object (The "Kick")
+        code += '        widget.config = {\n';
+        code += '            clientId: clientId,\n';
+        code += '            apiKey: apiKey\n';
+        code += '        };\n';
+        code += '        widget.setAttribute(\'config\', JSON.stringify({ clientId: clientId, apiKey: apiKey }));\n';
+        
+        code += '        // Set ROOM ID (Use the generated Session ID)\n';
+        code += '        widget.setAttribute(\'room-id\', sessionId);\n';
+        code += '        widget.roomId = sessionId;\n';
+        code += '        widget.setAttribute(\'data-room-id\', sessionId);\n';
         code += '        \n';
         code += '        // Set AGENT ID\n';
         code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
         code += '        widget.agentId = \'' + (splashScreen.agentId || config.agentId) + '\';\n';
         code += '        \n';
-        code += '        // 🔥 SUPPRESS AUDIO ON SPLASH SCREEN\n';
+        code += '        // Mute settings\n';
         code += '        widget.setAttribute(\'muted\', \'true\');\n';
         code += '        widget.muted = true;\n';
         code += '        widget.setAttribute(\'suppress-audio\', \'true\');\n';
@@ -3981,7 +3989,7 @@ code += '    document.head.appendChild(style);\n\n';
     // ===== INITIALIZE LISTENER IMMEDIATELY =====
     code += '    setupUniversalListener();\n\n';
     
-               // ===== WIDGET CREATION (ROOT CAUSE FIX) =====
+                     // ===== WIDGET CREATION (ROOT CAUSE FIX) =====
         code += '    function createMainWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
         code += '        \n';
@@ -3989,42 +3997,50 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        let clientId = window.BotemiaConfig?.id;\n';
         code += '        if (!clientId || clientId === "0" || clientId === 0 || clientId === "null" || clientId === null) {\n';
         code += '            console.warn("⚠️ Invalid Client ID detected:", clientId);\n';
-        code += '            console.warn("⚠️ Defaulting to mortgage-assist-demo");\n';
         code += '            clientId = "mortgage-assist-demo";\n';
         code += '        }\n';
         code += '        console.log("✅ Using Client ID:", clientId);\n';
         code += '        \n';
-        code += '        // 🔑 API KEY (AUTHENTICATION)\n';
+        code += '        // 🔑 API KEY\n';
         code += '        const apiKey = "sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP";\n';
         code += '        widget.setAttribute(\'api-key\', apiKey);\n';
         code += '        widget.apiKey = apiKey;\n';
         code += '        \n';
-        code += '        // 1. Set CLIENT ID\n';
+        code += '        // 1. Set CLIENT ID (Attributes)\n';
         code += '        widget.setAttribute(\'client-id\', clientId);\n';
         code += '        widget.clientId = clientId;\n';
-        code += '        \n';
-        code += '        // 2. Set ROOM ID (Unique to Main Widget)\n';
-        code += '        widget.setAttribute(\'room-id\', clientId);\n';
-        code += '        widget.roomId = clientId;\n';
-        code += '        widget.setAttribute(\'data-room-id\', clientId);\n';
+        
+        // 🔥 NEW: Force Configuration Object (The "Kick")
+        code += '        // Explicitly define the config object to prevent internal defaults\n';
+        code += '        widget.config = {\n';
+        code += '            clientId: clientId,\n';
+        code += '            apiKey: apiKey\n';
+        code += '        };\n';
+        code += '        widget.setAttribute(\'config\', JSON.stringify({ clientId: clientId, apiKey: apiKey }));\n';
+        
+        code += '        // 2. Set ROOM ID\n';
+        code += '        let sessionId = window.botemiaSessionId || \'session-\' + crypto.randomUUID();\n';
+        code += '        console.log("✅ Joining Room:", sessionId);\n';
+        code += '        widget.setAttribute(\'room-id\', sessionId);\n';
+        code += '        widget.roomId = sessionId;\n';
+        code += '        widget.setAttribute(\'data-room-id\', sessionId);\n';
         code += '        \n';
         code += '        // 3. Set AGENT ID\n';
         code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
         code += '        widget.agentId = \'' + (splashScreen.agentId || config.agentId) + '\';\n';
         code += '        \n';
-        code += '        // 4. Set Dimensions (REVERTED TO ORIGINAL FOR MINIMIZE LOGIC)\n';
         code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
-        code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n'; // REVERTED
-        code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n'; // REVERTED
+        code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
+        code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
         code += '        widget.id = \'main-widget\';\n';
         code += '        widget.style.display = \'none\';\n';
         code += '        \n';
-        code += '        // 5. Ready Listener\n';
         code += '        widget.addEventListener(\'ready\', () => {\n';
         code += '            console.log(\'[Bridge] Main Widget Ready.\');\n';
         code += '            console.log(\'✅ Final clientId:\', widget.clientId);\n';
         code += '            console.log(\'✅ Final roomId:\', widget.roomId);\n';
-        code += '            console.log(\'✅ API Key Set:\', !!widget.apiKey);\n';
+        code += '            // Double check internal config\n';
+        code += '            console.log(\'✅ Internal Config ID:\', widget.config?.clientId);\n';
         code += '        });\n';
         code += '        \n';
         code += '        return widget;\n';
