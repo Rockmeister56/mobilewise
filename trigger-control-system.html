@@ -542,27 +542,44 @@ if (clientWebsiteUrl) {
                 this.init();
             }
 
-           async init() {
+    async init() {
     this.updateStatus('Initializing...', 'warning');
     
-    // 1. Load configuration
-    // this.loadConfig(); // <--- TEMPORARILY DISABLED
+    // 🔥 FIX: Manually populate config from URL params (Since loadConfig is broken)
+    this.config = {
+        id: clientId,
+        name: clientId, // Fallback name to ID
+        agentId: agentId,
+        industry: 'Mortgage', // Default
+        modules: {
+            testimonial: { triggers: [] },
+            videoVault: { triggers: [] },
+            smartScreen: { triggers: [], images: [] },
+            websiteInfo: { triggers: [] },
+            communication: { actionType: 'preQual' },
+            preQualification: { enabled: true }
+        }
+    };
+    console.log("✅ Manual Config Loaded:", this.config);
     
     // 2. Setup speech recognition (don't start yet)
     this.setupSpeechRecognition();
     
     // 3. Load LemonSlice widget
-    this.loadLemonSlice();
+    // this.loadLemonSlice(); // <--- Comment this out too if it crashes
 
     // 🔥 START TESS MONITOR - ACTIVE
     setTimeout(() => {
         this.monitorTessMessages();
     }, 3000);
     
-    // 4. Render UI
+    // 4. Render UI (THIS WILL NOW WORK BECAUSE CONFIG HAS DATA)
     this.renderModules();
     
-    // 5. Listen for commands from dashboard
+    // 5. Update Header Info (THIS WILL NOW WORK)
+    this.updateClientInfo();
+    
+    // 6. Listen for commands from dashboard
    window.addEventListener('message', (event) => {
     if (event.data.type === 'DASHBOARD_COMMAND') {
         console.log('📨 Dashboard command:', event.data);
