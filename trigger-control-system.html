@@ -546,7 +546,7 @@ if (clientWebsiteUrl) {
     this.updateStatus('Initializing...', 'warning');
     
     // 1. Load configuration
-    await this.loadConfig();
+    // this.loadConfig(); // <--- TEMPORARILY DISABLED
     
     // 2. Setup speech recognition (don't start yet)
     this.setupSpeechRecognition();
