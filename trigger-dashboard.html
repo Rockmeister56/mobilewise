@@ -3872,7 +3872,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '    let lastTriggerTime = 0;\n';
         code += '    const TRIGGER_COOLDOWN = 3000; // 3 seconds brake\n\n';
 
-                code += '    function setupUniversalListener() {\n';
+        code += '    function setupUniversalListener() {\n';
         code += '        console.log("👂 Universal Listener Activated (Silent Mode).");\n';
         code += '        \n';
         code += '        window.addEventListener("message", (event) => {\n';
@@ -4009,51 +4009,49 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        return widget;\n';
         code += '    }\n\n';
     
-       // ===== FORCE INTRO FUNCTION (SECURE HANDSHAKE) =====
-    function forceMortgageIntro(widget) {
-        console.log("🚀 forceMortgageIntro Triggered");
-        
-        // 1. Ensure Widget is Active
-        widget.setAttribute('controlled-widget-state', 'active');
-        
-        // 2. Force the Widget to read its attributes (The Handshake)
-        // We explicitly tell the widget: "Read the API Key and Client ID we just set."
-        try {
-            if (typeof widget.initialize === 'function') {
-                // If the library has an init function, call it
-                widget.initialize();
-            } else {
-                // Fallback: Re-set attributes to trigger internal setters
-                const id = widget.getAttribute('client-id');
-                const key = widget.getAttribute('api-key');
-                widget.setAttribute('client-id', id); 
-                widget.setAttribute('api-key', key);
-            }
-            console.log("✅ Authentication Handshake Forced");
-        } catch (e) {
-            console.warn("⚠️ Handshake warning:", e);
-        }
-        
-        // 3. Ensure Mic is On
-        try { widget.micOn?.(); widget.unmute?.(); } catch(e) {}
-        
-        const message = "Hi! I'm Tess, your mortgage AI assistant. I'm here to help you with rates, qualification, and finding the right loan program. What's your first name?";
-        
-        // 4. Send Message with a delay
-        setTimeout(() => {
-            console.log("🗣️ Sending intro message...");
-            try {
-                if (typeof widget.sendMessage === 'function') {
-                    widget.sendMessage(message);
-                    console.log("✅ Message sent successfully");
-                } else {
-                    console.error("❌ ERROR: sendMessage missing");
-                }
-            } catch (e) {
-                console.error("❌ CRASH: " + e.message);
-            }
-        }, 1500); // Reduced to 1.5s
-    }
+             // ===== FORCE INTRO FUNCTION (SECURE HANDSHAKE) =====
+        code += '    function forceMortgageIntro(widget) {\n';
+        code += '        console.log("🚀 forceMortgageIntro Triggered");\n';
+        code += '        \n';
+        code += '        // 1. Ensure Widget is Active\n';
+        code += '        widget.setAttribute(\'controlled-widget-state\', \'active\');\n';
+        code += '        \n';
+        code += '        // 2. Force the Widget to read its attributes (The Handshake)\n';
+        code += '        try {\n';
+        code += '            if (typeof widget.initialize === \'function\') {\n';
+        code += '                widget.initialize();\n';
+        code += '            } else {\n';
+        code += '                // Fallback: Re-set attributes to trigger internal setters\n';
+        code += '                const id = widget.getAttribute(\'client-id\');\n';
+        code += '                const key = widget.getAttribute(\'api-key\');\n';
+        code += '                widget.setAttribute(\'client-id\', id); \n';
+        code += '                widget.setAttribute(\'api-key\', key);\n';
+        code += '            }\n';
+        code += '            console.log("✅ Authentication Handshake Forced");\n';
+        code += '        } catch (e) {\n';
+        code += '            console.warn("⚠️ Handshake warning:", e);\n';
+        code += '        }\n';
+        code += '        \n';
+        code += '        // 3. Ensure Mic is On\n';
+        code += '        try { widget.micOn?.(); widget.unmute?.(); } catch(e) {}\n';
+        code += '        \n';
+        code += '        const message = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
+        code += '        \n';
+        code += '        // 4. Send Message with a delay\n';
+        code += '        setTimeout(() => {\n';
+        code += '            console.log("🗣️ Sending intro message...");\n';
+        code += '            try {\n';
+        code += '                if (typeof widget.sendMessage === \'function\') {\n';
+        code += '                    widget.sendMessage(message);\n';
+        code += '                    console.log("✅ Message sent successfully");\n';
+        code += '                } else {\n';
+        code += '                    console.error("❌ ERROR: sendMessage missing");\n';
+        code += '                }\n';
+        code += '            } catch (e) {\n';
+        code += '                console.error("❌ CRASH: " + e.message);\n';
+        code += '            }\n';
+        code += '        }, 1500); // Reduced to 1.5s\n';
+        code += '    }\n\n';
 
           // Show Splash Function
         code += '    function showSplash() {\n';
@@ -4438,6 +4436,56 @@ code += '    window.disableBridgeTriggers = false;\n\n';
     code += '\n';
     code += '    setTimeout(announceToTCS, 2000);\n\n';
     code += '})();\n'; 
+
+    // =========================================
+// 📡 TCS REMOTE CONTROL LINK
+// DASHBOARD ONLY - DO NOT EXPORT TO BRIDGE
+// =========================================
+
+const TCS_SERVER_URL = 'https://mobilewise.netlify.app/trigger-control-system'; 
+
+function openTCS_ControlPanel() {  
+    // 0. PREVENT LOOP
+    if (window.location.href.includes("trigger-control-system")) {
+        console.log("🚫 We are inside the TCS. Stopping loop.");
+        return;
+    }
+
+    // 1. Check if already open
+    if (window.tcsWindow && !window.tcsWindow.closed) {
+        console.log("🔗 TCS is already open. Focusing...");
+        window.tcsWindow.focus();
+        return;
+    }
+
+    // 2. 🔥 SAFETY LOCK: Get Client ID
+    // We look for the ID from the Dashboard's input or state
+    // If you have an input field with id "clientIdInput", use that.
+    // Otherwise, we default to the demo ID.
+    let clientIdInput = document.getElementById('clientIdInput')?.value;
+    let clientId = clientIdInput || "mortgage-assist-demo";
+    
+    // Safety check just in case
+    if (!clientId || clientId === "0" || clientId === 0) {
+        console.warn("⚠️ TCS Client ID invalid. Forcing mortgage-assist-demo.");
+        clientId = "mortgage-assist-demo";
+    }
+    
+    // 3. Construct URL
+    const tcsUrl = TCS_SERVER_URL + "?clientId=" + clientId + "&websiteUrl=" + encodeURIComponent(window.location.href);
+    
+    // 4. Open the Popup
+    console.log("🔗 Opening TCS Control Panel with ID:", clientId);
+    try {
+        window.tcsWindow = window.open(
+            tcsUrl, 
+            'Botemia_TCS_Control', 
+            'width=1200,height=800,scrollbars=yes,resizable=yes'
+        );
+    } catch (e) {
+        console.error("❌ Failed to open TCS (Popup blocked?):", e);
+    }
+}  
         
         // ===== DOWNLOAD THE FILE =====
         const bridgeBlob = new Blob([code], { type: 'application/javascript' });
@@ -4571,56 +4619,6 @@ async function fetchKnowledgeBaseForExport(industry) {
     } catch (error) {
         console.error('❌ Error fetching KB:', error);
         return null;
-    }
-}
-
-// =========================================
-// 📡 TCS REMOTE CONTROL LINK
-// DASHBOARD ONLY - DO NOT EXPORT TO BRIDGE
-// =========================================
-
-const TCS_SERVER_URL = 'https://mobilewise.netlify.app/trigger-control-system'; 
-
-function openTCS_ControlPanel() {
-    // 0. PREVENT LOOP
-    if (window.location.href.includes("trigger-control-system")) {
-        console.log("🚫 We are inside the TCS. Stopping loop.");
-        return;
-    }
-
-    // 1. Check if already open
-    if (window.tcsWindow && !window.tcsWindow.closed) {
-        console.log("🔗 TCS is already open. Focusing...");
-        window.tcsWindow.focus();
-        return;
-    }
-
-    // 2. 🔥 SAFETY LOCK: Get Client ID
-    // We look for the ID from the Dashboard's input or state
-    // If you have an input field with id "clientIdInput", use that.
-    // Otherwise, we default to the demo ID.
-    let clientIdInput = document.getElementById('clientIdInput')?.value;
-    let clientId = clientIdInput || "mortgage-assist-demo";
-    
-    // Safety check just in case
-    if (!clientId || clientId === "0" || clientId === 0) {
-        console.warn("⚠️ TCS Client ID invalid. Forcing mortgage-assist-demo.");
-        clientId = "mortgage-assist-demo";
-    }
-    
-    // 3. Construct URL
-    const tcsUrl = TCS_SERVER_URL + "?clientId=" + clientId + "&websiteUrl=" + encodeURIComponent(window.location.href);
-    
-    // 4. Open the Popup
-    console.log("🔗 Opening TCS Control Panel with ID:", clientId);
-    try {
-        window.tcsWindow = window.open(
-            tcsUrl, 
-            'Botemia_TCS_Control', 
-            'width=1200,height=800,scrollbars=yes,resizable=yes'
-        );
-    } catch (e) {
-        console.error("❌ Failed to open TCS (Popup blocked?):", e);
     }
 }
 
