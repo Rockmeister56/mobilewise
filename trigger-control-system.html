@@ -1482,15 +1482,25 @@ class ClientConnectionManager {
             }
         });
 
-        // Listen for broadcast channel
+                // Listen for broadcast channel
         try {
-            const channel = new BroadcastChannel('tess-discovery');
+            // Use the global channel
+            const channel = tessBroadcastChannel; 
+            
             channel.onmessage = (event) => {
                 console.log('📢 Broadcast received:', event.data?.type || event.data);
                 
                 if (event.data?.type === 'CLIENT_INFO') {
                     this.addClient(event.data.clientId, null, event.data.url);
                 }
+                
+                // === DIAGNOSTIC SUCCESS LOGIC ===
+                if (event.data?.type === 'TEST_PONG') {
+                    console.log("✅ DIAGNOSTIC SUCCESS: Client responded!");
+                    // Optional: Add visual feedback here if you have a UI function
+                    // if (typeof setConnectionStatus === 'function') setConnectionStatus(true);
+                }
+                // ====================================
                 
                 if (event.data === 'BRIDGE_HERE') {
                     channel.postMessage({ type: 'TCS_HERE' });
