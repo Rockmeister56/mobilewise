@@ -942,60 +942,55 @@ if (clientWebsiteUrl) {
     if (moduleName === 'smartScreen') {
         this.showSmartScreen(triggerPhrase);
     }
-    
-// Send to client website (primary method)
-this.sendToClientWebsite(moduleName, triggerPhrase);
-
-// Optional: keep old method for backward compatibility
-if (this.sendToClientWidget) {
-    this.sendToClientWidget(moduleName, triggerPhrase);
-}
 }
 
-// ===== UPDATED FUNCTION - UNIVERSAL BROADCAST (ALL MODULES) =====
+// ===== UPDATED FUNCTION - OPENER FIRST STRATEGY =====
 sendToClientWebsite(moduleName, triggerPhrase) {
     console.log('📤 TCS: Sending command trigger:', moduleName, triggerPhrase);
 
-    // 1. CONSTRUCT THE PAYLOAD
-    // We create one message object that works for everyone
     let payload = {
         timestamp: new Date().toISOString()
     };
 
-    // Customize payload based on whether it's Pre-Qual or a Standard Module
+    // Customize payload
     if (moduleName === 'preQualification' || moduleName === 'START_PRE_QUAL') {
         payload.type = 'START_PRE_QUAL';
         payload.command = 'START_PRE_QUAL';
         console.log('🚀 TCS: Sending Pre-Qualification Command...');
     } else {
-        // Standard Modules (Testimonial, Video, etc.)
         payload.type = 'MODULE_TRIGGERED';
         payload.module = moduleName;
         payload.triggerPhrase = triggerPhrase;
     }
 
-    // 2. PRIMARY: SEND VIA TESS-DISCOVERY BROADCAST (Cross-Origin Fix)
-    try {
-        const channel = new BroadcastChannel('tess-discovery');
-        channel.postMessage(payload);
-        console.log(`✅ TCS: Sent via tess-discovery BroadcastChannel`);
-        return true; // Success! We don't need to try opener if this works.
-    } catch (e) {
-        console.log('⚠️ BroadcastChannel failed, falling back to opener:', e);
-    }
-
-    // 3. FALLBACK: TRY OPENER (If TCS opened the client)
+    // ==========================================
+    // 🔥 PRIORITY 1: OPENER (This works!)
+    // ==========================================
     if (window.opener && !window.opener.closed) {
         try {
             window.opener.postMessage(payload, '*');
-            console.log('✅ TCS: Sent via window.opener');
-            return true;
+            console.log('✅ TCS: Sent via window.opener (SUCCESS)');
+            return true; // Stop here. We used the working pipe.
         } catch (e) {
             console.log('⚠️ Opener failed:', e);
         }
     }
 
-    // 4. FALLBACK: TRY PARENT (If TCS is in an iframe)
+    // ==========================================
+    // PRIORITY 2: BROADCAST (Likely broken, but we try)
+    // ==========================================
+    try {
+        const channel = new BroadcastChannel("tess-discovery");
+        channel.postMessage(payload);
+        console.log(`✅ TCS: Sent via tess-discovery BroadcastChannel`);
+        return true;
+    } catch (e) {
+        console.log('⚠️ BroadcastChannel failed:', e);
+    }
+
+    // ==========================================
+    // PRIORITY 3: PARENT (Fallback)
+    // ==========================================
     if (window.parent && window.parent !== window) {
         try {
             window.parent.postMessage(payload, '*');
@@ -1006,7 +1001,6 @@ sendToClientWebsite(moduleName, triggerPhrase) {
         }
     }
 
-    // 5. FAILURE
     console.log('❌ TCS: Could not send command — no target found');
     return false;
 }
