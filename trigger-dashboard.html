@@ -3868,30 +3868,23 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        } catch(e) {}\n';
         code += '    }\n\n';
 
-                 // ===== UNIVERSAL TRIGGER LISTENER VARIABLES =====
+                        // ===== UNIVERSAL TRIGGER LISTENER VARIABLES =====
         code += '    let lastTriggerTime = 0;\n';
         code += '    const TRIGGER_COOLDOWN = 3000; // 3 seconds brake\n\n';
 
                 code += '    function setupUniversalListener() {\n';
-        code += '        console.log("👂 Universal Listener Activated (Silent Mode).\");\n';
+        code += '        console.log("👂 Universal Listener Activated (Silent Mode).");\n';
         code += '        \n';
         code += '        window.addEventListener("message", (event) => {\n';
         code += '            \n';
         code += '            // ========================================\n';
         code += '            // 🔇 NOISE FILTER (Must be first!)\n';
         code += '            // ========================================\n';
-        code += '            // This stops the 3400+ lines of video widget logs\n';
         code += '            if (event.data && event.data.what === "iframe-call-message") {\n';
         code += '                return; \n';
         code += '            }\n';
         code += '\n';
         
-        code += '            // ========================================\n';
-        code += '            // 🔍 DIAGNOSTIC: LOG ONLY CLEAN MESSAGES\n';
-        code += '            // ========================================\n';
-        code += '            // We only log here if the message passed the filter above\n';
-        code += '            console.log("📩 [INCOMING] Type:", event.data?.type, "Command:", event.data?.command);\n';
-        code += '            \n';
         code += '            // ========================================\n';
         code += '            // 1. COMMAND LISTENER (Highest Priority)\n';
         code += '            // ========================================\n';
@@ -3927,7 +3920,6 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            console.log(`📨 Heard: "${msgText}"`);\n';
         code += '            \n';
         code += '            // ===== BROADCAST TESS TRANSCRIPT TO TCS =====\n';
-        code += '            // Send Tess\'s speech to TCS via BroadcastChannel (no screen sharing needed!)\n';
         code += '            if (msgType === "ai_response" && msgText) {\n';
         code += '                try {\n';
         code += '                    const broadcastChannel = new BroadcastChannel("tess-discovery");\n';
@@ -3956,7 +3948,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '    // Expose function to global scope for testing/debugging\n';
         code += '    window.setupUniversalListener = setupUniversalListener;\n\n';
 
-                // ===== CATCH ALL MESSAGES (INCLUDING OPENER) =====
+                // ===== CATCH ALL MESSAGES (LEGACY TCS SUPPORT) =====
         code += '    // Catch ALL messages for TCS commands\n';
         code += '    window.addEventListener("message", (event) => {\n';
         code += '        \n';
@@ -3965,7 +3957,8 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            return;\n';
         code += '        }\n';
         code += '\n';
-        code += '        console.log("🔍 CHECKING MESSAGE:", event.data);\n';
+        code += '        // console.log("🔍 CHECKING MESSAGE:", event.data); // <--- COMMENTED OUT TO REDUCE NOISE\n';
+        code += '        \n';
         code += '        if (event.data && (event.data.command === "START_PRE_QUAL" || \n';
         code += '            (event.data.type === "TCS_COMMAND" && event.data.command === "START_PRE_QUAL"))) {\n';
         code += '            console.log("🎯🎯🎯 TCS COMMAND CAUGHT! 🎯🎯🎯");\n';
@@ -4444,119 +4437,7 @@ code += '    window.disableBridgeTriggers = false;\n\n';
     code += '    }\n';
     code += '\n';
     code += '    setTimeout(announceToTCS, 2000);\n\n';
-
-        // ===== CONSOLIDATED MESSAGE HANDLER (NOISE CANCELING) =====
-        code += '    window.addEventListener(\'message\', function(event) {\n';
-        code += '        \n';
-        code += '        // 🔥 CRITICAL FIX: Ignore empty/undefined messages immediately\n';
-        code += '        if (!event.data || !event.data.type) return;\n';
-        code += '        \n';
-        code += '        console.log(\'📨 Client received message:\', event.data.type);\n';
-        code += '        \n';
-        code += '        // Handle Dashboard Commands\n';
-        code += '        if (event.data.type === \'DASHBOARD_COMMAND\') {\n';
-        code += '            if (event.data.command === \'toggleOverlays\') { window.disableBridgeTriggers = event.data.disabled; }\n';
-        code += '            return;\n';
-        code += '        }\n';
-        code += '        \n';
-        code += '        // Handle Module Triggers\n';
-        code += '        if (event.data.type === \'MODULE_TRIGGERED\' && !window.disableBridgeTriggers) { window.showModule(event.data.module, event.data.triggerPhrase); }\n';
-        code += '        \n';
-        code += '        // 1. HANDSHAKE: TCS says "I\'m Ready"\n';
-        code += '        if (event.data?.type === \'TCS_READY\') {\n';
-        code += '            console.log(\'✅ TCS Ready signal received! Responding...\');\n';
-        code += '            if (event.source) {\n';
-        code += '                event.source.postMessage({\n';
-        code += '                    type: \'CLIENT_INFO\',\n';
-        code += '                    clientId: window.BotemiaConfig.id,\n';
-        code += '                    name: window.BotemiaConfig.name,\n';
-        code += '                    url: window.location.href,\n';
-        code += '                    timestamp: Date.now(),\n';
-        code += '                    status: \'ready\'\n';
-        code += '                }, \'*\');\n';
-        code += '                console.log(\'📤 Sent CLIENT_INFO to TCS\');\n';
-        code += '            }\n';
-        code += '        }\n';
-        code += '        \n';
-        code += '        // 2. COMMANDS: Handle triggers from TCS\n';
-        code += '        if (event.data?.type === \'TCS_COMMAND\') {\n';
-        code += '            console.log(\'🎯 Command received:\', event.data.command);\n';
-        code += '            switch(event.data.command) {\n';
-        code += '                case \'START_PRE_QUAL\':\n';
-        code += '                    if (window.preQualController) {\n';
-        code += '                        console.log(\'🚀 TCS Trigger: Starting Interview\');\n';
-        code += '                        window.preQualController.startInterview();\n';
-        code += '                    }\n';
-        code += '                    break;\n';
-        code += '                case \'SHOW_TESTIMONIAL\':\n';
-        code += '                    console.log(\'Show testimonial:\', event.data.data);\n';
-        code += '                    break;\n';
-        code += '                case \'SHOW_VIDEO\':\n';
-        code += '                    console.log(\'Show video:\', event.data.data);\n';
-        code += '                    break;\n';
-        code += '                case \'SHOW_SMART_SCREEN\':\n';
-        code += '                    console.log(\'Show smart screen:\', event.data.data);\n';
-        code += '                    break;\n';
-        code += '            }\n';
-        code += '        }\n';
-        code += '        \n';
-        code += '        // 3. PING: Health check from TCS\n';
-        code += '        if (event.data?.type === \'PING\') {\n';
-        code += '            if (event.source) {\n';
-        code += '                event.source.postMessage({\n';
-        code += '                    type: \'PONG\',\n';
-        code += '                    clientId: window.BotemiaConfig.id,\n';
-        code += '                    timestamp: Date.now()\n';
-        code += '                }, \'*\');\n';
-        code += '            }\n';
-        code += '        }\n';
-        code += '    });\n';
-        code += '    console.log(\'✅ TCS message listener installed\');\n';
-        code += '\n';
-           
-        // =========================================
-        // 📡 TCS REMOTE CONTROL LINK (FIXED)
-        // =========================================
-        
-        code += '    const TCS_SERVER_URL = \'https://mobilewise.netlify.app/trigger-control-system\'; \n';
-        code += '\n';
-        code += '    function openTCS_ControlPanel() {\n';
-        code += '        // 0. PREVENT LOOP\n';
-        code += '        if (window.location.href.includes("trigger-control-system")) {\n';
-        code += '            console.log("🚫 We are inside the TCS. Stopping loop.");\n';
-        code += '            return;\n';
-        code += '        }\n';
-        code += '\n';
-        code += '        // 1. Check if already open\n';
-        code += '        if (window.tcsWindow && !window.tcsWindow.closed) {\n';
-        code += '            console.log("🔗 TCS is already open. Focusing...");\n';
-        code += '            window.tcsWindow.focus();\n';
-        code += '            return;\n';
-        code += '        }\n';
-        code += '\n';
-        code += '        // 2. 🔥 SAFETY LOCK: Get Client ID\n';
-        code += '        let clientId = window.BotemiaConfig?.id;\n';
-        code += '        // CRITICAL: If ID is 0, force the correct ID\n';
-        code += '        if (!clientId || clientId === "0" || clientId === 0) {\n';
-        code += '            console.warn("⚠️ TCS Client ID invalid. Forcing mortgage-assist-demo.");\n';
-        code += '            clientId = "mortgage-assist-demo";\n';
-        code += '        }\n';
-        code += '        \n';
-        code += '        // 3. Construct URL\n';
-        code += '        const tcsUrl = `${TCS_SERVER_URL}?clientId=${clientId}&websiteUrl=${encodeURIComponent(window.location.href)}`;\n';
-        code += '        \n';
-        code += '        // 4. Open the Popup\n';
-        code += '        console.log("🔗 Opening TCS Control Panel with ID:", clientId);\n';
-        code += '        try {\n';
-        code += '            window.tcsWindow = window.open(\n';
-        code += '                tcsUrl, \n';
-        code += '                \'Botemia_TCS_Control\', \n';
-        code += '                \'width=1200,height=800,scrollbars=yes,resizable=yes\'\n';
-        code += '            );\n';
-        code += '        } catch (e) {\n';
-        code += '            console.error("❌ Failed to open TCS (Popup blocked?):", e);\n';
-        code += '        }\n';
-        code += '    }\n\n';
+    code += '})();\n'; 
         
         // ===== DOWNLOAD THE FILE =====
         const bridgeBlob = new Blob([code], { type: 'application/javascript' });
@@ -4690,6 +4571,56 @@ async function fetchKnowledgeBaseForExport(industry) {
     } catch (error) {
         console.error('❌ Error fetching KB:', error);
         return null;
+    }
+}
+
+// =========================================
+// 📡 TCS REMOTE CONTROL LINK
+// DASHBOARD ONLY - DO NOT EXPORT TO BRIDGE
+// =========================================
+
+const TCS_SERVER_URL = 'https://mobilewise.netlify.app/trigger-control-system'; 
+
+function openTCS_ControlPanel() {
+    // 0. PREVENT LOOP
+    if (window.location.href.includes("trigger-control-system")) {
+        console.log("🚫 We are inside the TCS. Stopping loop.");
+        return;
+    }
+
+    // 1. Check if already open
+    if (window.tcsWindow && !window.tcsWindow.closed) {
+        console.log("🔗 TCS is already open. Focusing...");
+        window.tcsWindow.focus();
+        return;
+    }
+
+    // 2. 🔥 SAFETY LOCK: Get Client ID
+    // We look for the ID from the Dashboard's input or state
+    // If you have an input field with id "clientIdInput", use that.
+    // Otherwise, we default to the demo ID.
+    let clientIdInput = document.getElementById('clientIdInput')?.value;
+    let clientId = clientIdInput || "mortgage-assist-demo";
+    
+    // Safety check just in case
+    if (!clientId || clientId === "0" || clientId === 0) {
+        console.warn("⚠️ TCS Client ID invalid. Forcing mortgage-assist-demo.");
+        clientId = "mortgage-assist-demo";
+    }
+    
+    // 3. Construct URL
+    const tcsUrl = TCS_SERVER_URL + "?clientId=" + clientId + "&websiteUrl=" + encodeURIComponent(window.location.href);
+    
+    // 4. Open the Popup
+    console.log("🔗 Opening TCS Control Panel with ID:", clientId);
+    try {
+        window.tcsWindow = window.open(
+            tcsUrl, 
+            'Botemia_TCS_Control', 
+            'width=1200,height=800,scrollbars=yes,resizable=yes'
+        );
+    } catch (e) {
+        console.error("❌ Failed to open TCS (Popup blocked?):", e);
     }
 }
 
