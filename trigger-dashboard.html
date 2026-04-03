@@ -4016,32 +4016,51 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        return widget;\n';
         code += '    }\n\n';
     
-    // ===== FORCE INTRO FUNCTION (SAFE) =====
-    code += '    function forceMortgageIntro(widget) {\n';
-    code += '        diagLog("Intro Function Triggered");\n';
-    code += '        \n';
-    code += '        widget.setAttribute(\'controlled-widget-state\', \'active\');\n';
-    code += '        diagLog("Widget state set to active");\n';
-    code += '        \n';
-    code += '        try { widget.micOn?.(); widget.unmute?.(); } catch(e) {}\n';
-    code += '        diagLog("Mic/Unmute attempted");\n';
-    code += '        \n';
-    code += '        const message = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
-    code += '        \n';
-    code += '        setTimeout(() => {\n';
-    code += '            diagLog("Timeout finished. Sending message...");\n';
-    code += '            try {\n';
-    code += '                if (typeof widget.sendMessage === \'function\') {\n';
-    code += '                    widget.sendMessage(message);\n';
-    code += '                    diagLog("Message sent successfully");\n';
-    code += '                } else {\n';
-    code += '                    diagLog("ERROR: sendMessage missing");\n';
-    code += '                }\n';
-    code += '            } catch (e) {\n';
-    code += '                diagLog("CRASH: " + e.message);\n';
-    code += '            }\n';
-    code += '        }, 3000);\n';
-    code += '    }\n\n';
+       // ===== FORCE INTRO FUNCTION (SECURE HANDSHAKE) =====
+    function forceMortgageIntro(widget) {
+        console.log("🚀 forceMortgageIntro Triggered");
+        
+        // 1. Ensure Widget is Active
+        widget.setAttribute('controlled-widget-state', 'active');
+        
+        // 2. Force the Widget to read its attributes (The Handshake)
+        // We explicitly tell the widget: "Read the API Key and Client ID we just set."
+        try {
+            if (typeof widget.initialize === 'function') {
+                // If the library has an init function, call it
+                widget.initialize();
+            } else {
+                // Fallback: Re-set attributes to trigger internal setters
+                const id = widget.getAttribute('client-id');
+                const key = widget.getAttribute('api-key');
+                widget.setAttribute('client-id', id); 
+                widget.setAttribute('api-key', key);
+            }
+            console.log("✅ Authentication Handshake Forced");
+        } catch (e) {
+            console.warn("⚠️ Handshake warning:", e);
+        }
+        
+        // 3. Ensure Mic is On
+        try { widget.micOn?.(); widget.unmute?.(); } catch(e) {}
+        
+        const message = "Hi! I'm Tess, your mortgage AI assistant. I'm here to help you with rates, qualification, and finding the right loan program. What's your first name?";
+        
+        // 4. Send Message with a delay
+        setTimeout(() => {
+            console.log("🗣️ Sending intro message...");
+            try {
+                if (typeof widget.sendMessage === 'function') {
+                    widget.sendMessage(message);
+                    console.log("✅ Message sent successfully");
+                } else {
+                    console.error("❌ ERROR: sendMessage missing");
+                }
+            } catch (e) {
+                console.error("❌ CRASH: " + e.message);
+            }
+        }, 1500); // Reduced to 1.5s
+    }
 
           // Show Splash Function
         code += '    function showSplash() {\n';
