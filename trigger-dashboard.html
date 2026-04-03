@@ -3640,44 +3640,33 @@ code += '        }\n';
 code += '    `;\n';
 code += '    document.head.appendChild(style);\n\n';
         
-        // Helper Functions
+                          // Helper Functions
         code += '    function createSplashWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-        code += '        let clientId = window.BotemiaConfig?.id;\n';
-        code += '        if (!clientId || clientId === "0" || clientId === 0 || clientId === "null" || clientId === null) {\n';
-        code += '            clientId = "mortgage-assist-demo";\n';
-        code += '        }\n';
         code += '        \n';
-        code += '        // 🔥 FIX: Use a generated Session ID (UUID) for the Room\n';
-        code += '        const sessionId = \'session-\' + crypto.randomUUID();\n';
-        code += '        window.tessSessionId = sessionId; // <--- SAVES TO MEMORY FOR MAIN WIDGET\n';
-        code += '        \n';
-        code += '        // 🔑 API KEY\n';
-        code += '        const apiKey = "sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP";\n';
-        code += '        widget.setAttribute(\'api-key\', apiKey);\n';
-        code += '        widget.apiKey = apiKey;\n';
-        code += '        \n';
-        code += '        // Set CLIENT ID\n';
+        code += '        // 1. Set CLIENT ID\n';
+        code += '        let clientId = window.BotemiaConfig?.id || "mortgage-assist-demo";\n';
         code += '        widget.setAttribute(\'client-id\', clientId);\n';
         code += '        widget.clientId = clientId;\n';
+        code += '        \n';
+        code += '        // 2. GENERATE & SAVE SESSION ID (Critical for Main Widget)\n';
+        code += '        const sessionId = \'session-\' + crypto.randomUUID();\n';
+        code += '        window.tessSessionId = sessionId;\n'; 
         
-        // 🔥 NEW: Force Configuration Object (The "Kick")
-        code += '        widget.config = {\n';
-        code += '            clientId: clientId,\n';
-        code += '            apiKey: apiKey\n';
-        code += '        };\n';
-        code += '        widget.setAttribute(\'config\', JSON.stringify({ clientId: clientId, apiKey: apiKey }));\n';
-        
-        code += '        // Set ROOM ID (Use the generated Session ID)\n';
+        code += '        // 3. Set ROOM ID\n';
         code += '        widget.setAttribute(\'room-id\', sessionId);\n';
         code += '        widget.roomId = sessionId;\n';
-        code += '        widget.setAttribute(\'data-room-id\', sessionId);\n';
-        code += '        \n';
-        code += '        // Set AGENT ID\n';
+        
+        code += '        // 4. Set AGENT ID\n';
         code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
         code += '        widget.agentId = \'' + (splashScreen.agentId || config.agentId) + '\';\n';
         code += '        \n';
-        code += '        // Mute settings\n';
+        code += '        // 5. Set API KEY\n';
+        code += '        const apiKey = "sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP";\n';
+        code += '        widget.setAttribute(\'api-key\', apiKey);\n';
+        code += '        widget.apiKey = apiKey;\n';
+        
+        code += '        // 6. Mute & State Settings\n';
         code += '        widget.setAttribute(\'muted\', \'true\');\n';
         code += '        widget.muted = true;\n';
         code += '        widget.setAttribute(\'suppress-audio\', \'true\');\n';
@@ -3989,66 +3978,70 @@ code += '    document.head.appendChild(style);\n\n';
     // ===== INITIALIZE LISTENER IMMEDIATELY =====
     code += '    setupUniversalListener();\n\n';
     
-                 // ===== WIDGET CREATION (ROOT CAUSE FIX) =====
+                             // ===== WIDGET CREATION (CLEAN HYBRID) =====
         code += '    function createMainWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
         code += '        \n';
-        code += '        // 🔥 NUCLEAR OPTION: Force valid ID\n';
-        code += '        let clientId = window.BotemiaConfig?.id;\n';
-        code += '        if (!clientId || clientId === "0" || clientId === 0 || clientId === "null" || clientId === null) {\n';
-        code += '            console.warn("⚠️ Invalid Client ID detected:", clientId);\n';
-        code += '            clientId = "mortgage-assist-demo";\n';
-        code += '        }\n';
-        code += '        console.log("✅ Using Client ID:", clientId);\n';
+        code += '        // 1. Set AGENT ID\n';
+        code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
         code += '        \n';
-        code += '        // 🔑 API KEY\n';
-        code += '        const apiKey = "sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP";\n';
-        code += '        widget.setAttribute(\'api-key\', apiKey);\n';
-        code += '        widget.apiKey = apiKey;\n';
-        code += '        \n';
-        code += '        // 1. Set CLIENT ID\n';
+        code += '        // 2. Set CLIENT ID (Explicitly, to prevent 0)\n';
+        code += '        let clientId = window.BotemiaConfig?.id || "mortgage-assist-demo";\n';
         code += '        widget.setAttribute(\'client-id\', clientId);\n';
         code += '        widget.clientId = clientId;\n';
         
-        // 🔥 NEW: Force Configuration Object (The "Kick")
-        code += '        widget.config = {\n';
-        code += '            clientId: clientId,\n';
-        code += '            apiKey: apiKey\n';
-        code += '        };\n';
-        code += '        widget.setAttribute(\'config\', JSON.stringify({ clientId: clientId, apiKey: apiKey }));\n';
+        code += '        // 3. Set API KEY (Required for Auth)\n';
+        code += '        const apiKey = "sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP";\n';
+        code += '        widget.setAttribute(\'api-key\', apiKey);\n';
+        code += '        widget.apiKey = apiKey;\n';
         
-        code += '        // 2. Set ROOM ID\n';
+        code += '        // 4. Set ROOM ID (Shared Session)\n';
         code += '        let sessionId = window.tessSessionId || \'session-\' + crypto.randomUUID();\n';
-        code += '        console.log("✅ Joining Room:", sessionId);\n';
         code += '        widget.setAttribute(\'room-id\', sessionId);\n';
         code += '        widget.roomId = sessionId;\n';
-        code += '        widget.setAttribute(\'data-room-id\', sessionId);\n';
-        code += '        \n';
-        code += '        // 3. Set AGENT ID\n';
-        code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
-        code += '        widget.agentId = \'' + (splashScreen.agentId || config.agentId) + '\';\n';
         
-        // 🔥🔥 NEW: OVERRIDE ENDPOINT (Stops it from posting to /0)\n';
-        // This forces the widget to use the Lemon Slice API for ALL calls,\n';
-        // preventing it from guessing a wrong local URL.\n';
-        code += '        widget.setAttribute(\'endpoint\', \'https://api.lemonslice.com\');\n';
-        code += '        widget.endpoint = \'https://api.lemonslice.com\';\n';
-        
+        code += '        // 5. Dimensions & State\n';
         code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
         code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
         code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
         code += '        widget.id = \'main-widget\';\n';
         code += '        widget.style.display = \'none\';\n';
         code += '        \n';
+        code += '        // 6. Listener\n';
         code += '        widget.addEventListener(\'ready\', () => {\n';
         code += '            console.log(\'[Bridge] Main Widget Ready.\');\n';
-        code += '            console.log(\'✅ Final clientId:\', widget.clientId);\n';
-        code += '            console.log(\'✅ Final roomId:\', widget.roomId);\n';
-        code += '            console.log(\'✅ Endpoint set to:\', widget.endpoint);\n';
+        code += '            forceMortgageIntro(widget);\n'; // Calls the function you added back\n';
         code += '        });\n';
         code += '        \n';
         code += '        return widget;\n';
         code += '    }\n\n';
+    
+    // ===== FORCE INTRO FUNCTION (SAFE) =====
+    code += '    function forceMortgageIntro(widget) {\n';
+    code += '        diagLog("Intro Function Triggered");\n';
+    code += '        \n';
+    code += '        widget.setAttribute(\'controlled-widget-state\', \'active\');\n';
+    code += '        diagLog("Widget state set to active");\n';
+    code += '        \n';
+    code += '        try { widget.micOn?.(); widget.unmute?.(); } catch(e) {}\n';
+    code += '        diagLog("Mic/Unmute attempted");\n';
+    code += '        \n';
+    code += '        const message = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
+    code += '        \n';
+    code += '        setTimeout(() => {\n';
+    code += '            diagLog("Timeout finished. Sending message...");\n';
+    code += '            try {\n';
+    code += '                if (typeof widget.sendMessage === \'function\') {\n';
+    code += '                    widget.sendMessage(message);\n';
+    code += '                    diagLog("Message sent successfully");\n';
+    code += '                } else {\n';
+    code += '                    diagLog("ERROR: sendMessage missing");\n';
+    code += '                }\n';
+    code += '            } catch (e) {\n';
+    code += '                diagLog("CRASH: " + e.message);\n';
+    code += '            }\n';
+    code += '        }, 3000);\n';
+    code += '    }\n\n';
 
           // Show Splash Function
         code += '    function showSplash() {\n';
