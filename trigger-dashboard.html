@@ -3989,7 +3989,7 @@ code += '    document.head.appendChild(style);\n\n';
     // ===== INITIALIZE LISTENER IMMEDIATELY =====
     code += '    setupUniversalListener();\n\n';
     
-                     // ===== WIDGET CREATION (ROOT CAUSE FIX) =====
+                 // ===== WIDGET CREATION (ROOT CAUSE FIX) =====
         code += '    function createMainWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
         code += '        \n';
@@ -4006,12 +4006,11 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        widget.setAttribute(\'api-key\', apiKey);\n';
         code += '        widget.apiKey = apiKey;\n';
         code += '        \n';
-        code += '        // 1. Set CLIENT ID (Attributes)\n';
+        code += '        // 1. Set CLIENT ID\n';
         code += '        widget.setAttribute(\'client-id\', clientId);\n';
         code += '        widget.clientId = clientId;\n';
         
         // 🔥 NEW: Force Configuration Object (The "Kick")
-        code += '        // Explicitly define the config object to prevent internal defaults\n';
         code += '        widget.config = {\n';
         code += '            clientId: clientId,\n';
         code += '            apiKey: apiKey\n';
@@ -4019,7 +4018,7 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        widget.setAttribute(\'config\', JSON.stringify({ clientId: clientId, apiKey: apiKey }));\n';
         
         code += '        // 2. Set ROOM ID\n';
-        code += '        let sessionId = window.botemiaSessionId || \'session-\' + crypto.randomUUID();\n';
+        code += '        let sessionId = window.tessSessionId || \'session-\' + crypto.randomUUID();\n';
         code += '        console.log("✅ Joining Room:", sessionId);\n';
         code += '        widget.setAttribute(\'room-id\', sessionId);\n';
         code += '        widget.roomId = sessionId;\n';
@@ -4028,7 +4027,13 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        // 3. Set AGENT ID\n';
         code += '        widget.setAttribute(\'agent-id\', \'' + (splashScreen.agentId || config.agentId) + '\');\n';
         code += '        widget.agentId = \'' + (splashScreen.agentId || config.agentId) + '\';\n';
-        code += '        \n';
+        
+        // 🔥🔥 NEW: OVERRIDE ENDPOINT (Stops it from posting to /0)\n';
+        // This forces the widget to use the Lemon Slice API for ALL calls,\n';
+        // preventing it from guessing a wrong local URL.\n';
+        code += '        widget.setAttribute(\'endpoint\', \'https://api.lemonslice.com\');\n';
+        code += '        widget.endpoint = \'https://api.lemonslice.com\';\n';
+        
         code += '        widget.setAttribute(\'initial-state\', \'minimized\');\n';
         code += '        widget.setAttribute(\'custom-minimized-width\', \'144\');\n';
         code += '        widget.setAttribute(\'custom-minimized-height\', \'216\');\n';
@@ -4039,39 +4044,11 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            console.log(\'[Bridge] Main Widget Ready.\');\n';
         code += '            console.log(\'✅ Final clientId:\', widget.clientId);\n';
         code += '            console.log(\'✅ Final roomId:\', widget.roomId);\n';
-        code += '            // Double check internal config\n';
-        code += '            console.log(\'✅ Internal Config ID:\', widget.config?.clientId);\n';
+        code += '            console.log(\'✅ Endpoint set to:\', widget.endpoint);\n';
         code += '        });\n';
         code += '        \n';
         code += '        return widget;\n';
         code += '    }\n\n';
-    
-    // ===== FORCE INTRO FUNCTION (SAFE) =====
-    code += '    function forceMortgageIntro(widget) {\n';
-    code += '        diagLog("Intro Function Triggered");\n';
-    code += '        \n';
-    code += '        widget.setAttribute(\'controlled-widget-state\', \'active\');\n';
-    code += '        diagLog("Widget state set to active");\n';
-    code += '        \n';
-    code += '        try { widget.micOn?.(); widget.unmute?.(); } catch(e) {}\n';
-    code += '        diagLog("Mic/Unmute attempted");\n';
-    code += '        \n';
-    code += '        const message = "Hi! I\'m Tess, your mortgage AI assistant. I\'m here to help you with rates, qualification, and finding the right loan program. What\'s your first name?";\n';
-    code += '        \n';
-    code += '        setTimeout(() => {\n';
-    code += '            diagLog("Timeout finished. Sending message...");\n';
-    code += '            try {\n';
-    code += '                if (typeof widget.sendMessage === \'function\') {\n';
-    code += '                    widget.sendMessage(message);\n';
-    code += '                    diagLog("Message sent successfully");\n';
-    code += '                } else {\n';
-    code += '                    diagLog("ERROR: sendMessage missing");\n';
-    code += '                }\n';
-    code += '            } catch (e) {\n';
-    code += '                diagLog("CRASH: " + e.message);\n';
-    code += '            }\n';
-    code += '        }, 3000);\n';
-    code += '    }\n\n';
 
           // Show Splash Function
         code += '    function showSplash() {\n';
