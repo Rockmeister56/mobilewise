@@ -501,7 +501,13 @@
     </div>
 
         <script>
-     // At the top of your TCS JavaScript, right after the opening <script> tag
+
+    // ===== GLOBAL BROADCAST CHANNEL =====
+// Define this ONCE so all listeners share the same connection
+const tessBroadcastChannel = new BroadcastChannel("tess-discovery");
+console.log("✅ Global Broadcast Channel Created");
+
+// ===== URL PARAMETERS =====
 const urlParams = new URLSearchParams(window.location.search);
 const clientWebsiteUrl = urlParams.get('websiteUrl');
 const clientId = urlParams.get('clientId');
@@ -511,10 +517,8 @@ console.log('TCS opened for client:', clientId);
 console.log('Website URL:', clientWebsiteUrl);
 console.log('Agent ID:', agentId);
 
-// You can use these to help with discovery or auto-connect
 if (clientWebsiteUrl) {
     console.log('🔍 Will look for client at:', clientWebsiteUrl);
-    // You could even try to ping this URL or open a connection hint
 }
         // ============================================
         // TESS TRIGGER CONTROL SYSTEM v1.0 - CLEANED & FIXED
@@ -1658,34 +1662,10 @@ function triggerPreQual() {
     }
 }
 
-// Listen for Tess transcripts from client
-const tessChannel = new BroadcastChannel("tess-discovery");
-tessChannel.onmessage = (event) => {
-    const data = event.data;
-    if (data.type === "TESS_TRANSCRIPT") {
-        console.log("🎤 TESS SAID (via broadcast):", data.text);
-        
-        // Check for trigger phrase
-        const text = data.text.toLowerCase();
-        if (text.includes("get you pre-qualified") || 
-            text.includes("pre qualification interview") ||
-            text.includes("let's get you pre-qualified")) {
-            console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
-            if (window.clientManager && window.clientManager.clientWindows.size > 0) {
-                window.clientManager.sendToSelectedClient('START_PRE_QUAL');
-                console.log("✅ START_PRE_QUAL sent to client");
-            }
-        }
-    }
-};
-console.log("🎧 TCS listening for Tess transcripts via BroadcastChannel");
-
 // ===== LISTEN FOR TESS TRANSCRIPTS FROM CLIENT =====
 console.log("🎧 Setting up TESS_TRANSCRIPT listener...");
 
-// Update your transcript listener to add to the visual feed
-const transcriptChannel = new BroadcastChannel("tess-discovery");
-transcriptChannel.onmessage = (event) => {
+tessBroadcastChannel.onmessage = (event) => {
     const data = event.data;
     console.log("📡 TCS RECEIVED:", data);
     
@@ -1693,26 +1673,26 @@ transcriptChannel.onmessage = (event) => {
         const text = data.text;
         const lowerText = text.toLowerCase();
         
-        // 🔥 ADD THIS LINE - Shows in the visual transcript feed
+        // 1. Add to Visual Feed
         if (typeof addToTranscriptFeed === 'function') {
             addToTranscriptFeed(`🤖 Tess: "${text}"`);
         }
         
         console.log("🎤 TESS SAID (via broadcast):", text);
         
-        // Check for trigger phrase
+        // 2. Check for Trigger Phrase
         if (lowerText.includes("get you pre-qualified") || 
             lowerText.includes("pre qualification interview") ||
             lowerText.includes("let's get you pre-qualified")) {
             
             console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
             
-            // 🔥 ADD TRIGGER BANNER TO VISUAL FEED
+            // Add Trigger to Visual Feed
             if (typeof addToTranscriptFeed === 'function') {
                 addToTranscriptFeed(`🎯 TRIGGER: "${text}"`);
             }
             
-            // Show the trigger alert banner
+            // Show Trigger Alert Banner
             const alertEl = document.getElementById('triggerAlert');
             if (alertEl) {
                 document.getElementById('triggerModuleTag').innerHTML = '🎯 Pre-Qualification';
@@ -1724,7 +1704,7 @@ transcriptChannel.onmessage = (event) => {
                 }, 5000);
             }
             
-            // Send command to client
+            // Send Command to Client
             if (window.clientManager && window.clientManager.clientWindows.size > 0) {
                 window.clientManager.sendToSelectedClient('START_PRE_QUAL');
                 console.log("✅ START_PRE_QUAL sent to client");
