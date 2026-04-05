@@ -502,6 +502,9 @@
 
         <script>
 
+window.clientIdFromUrl = clientId;
+window.agentIdFromUrl = agentId;
+
          // ============================================
 // SUPABASE REALTIME SETUP (TCS)
 // ============================================
@@ -611,19 +614,19 @@ function sendCommandViaSupabase(command, clientId = null) {
     
     // 🔥 FIX: Manually populate config from URL params (Since loadConfig is broken)
     this.config = {
-        id: clientId,
-        name: clientId, // Fallback name to ID
-        agentId: agentId,
-        industry: 'Mortgage', // Default
-        modules: {
-            testimonial: { triggers: [] },
-            videoVault: { triggers: [] },
-            smartScreen: { triggers: [], images: [] },
-            websiteInfo: { triggers: [] },
-            communication: { actionType: 'preQual' },
-            preQualification: { enabled: true }
-        }
-    };
+    id: window.clientIdFromUrl || 'mortgage-assist-demo',
+    name: window.clientIdFromUrl || 'mortgage-assist-demo',
+    agentId: window.agentIdFromUrl || 'agent_7b0776ef6b855de5',
+    industry: 'Mortgage',
+    modules: {
+        testimonial: { triggers: [] },
+        videoVault: { triggers: [] },
+        smartScreen: { triggers: [], images: [] },
+        websiteInfo: { triggers: [] },
+        communication: { actionType: 'preQual' },
+        preQualification: { enabled: true }
+    }
+};
     console.log("✅ Manual Config Loaded:", this.config);
     
     // 2. Setup speech recognition (don't start yet)
