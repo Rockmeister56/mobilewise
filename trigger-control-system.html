@@ -502,9 +502,6 @@
 
         <script>
 
-window.clientIdFromUrl = clientId;
-window.agentIdFromUrl = agentId;
-
          // ============================================
 // SUPABASE REALTIME SETUP (TCS)
 // ============================================
@@ -612,69 +609,56 @@ function sendCommandViaSupabase(command, clientId = null) {
     async init() {
     this.updateStatus('Initializing...', 'warning');
     
-    // 🔥 FIX: Manually populate config from URL params (Since loadConfig is broken)
+    // 🔥 FIX: Get URL params directly here
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlClientId = urlParams.get('clientId');
+    const urlAgentId = urlParams.get('agentId');
+    
+    // Use the URL params or fallback defaults
     this.config = {
-    id: window.clientIdFromUrl || 'mortgage-assist-demo',
-    name: window.clientIdFromUrl || 'mortgage-assist-demo',
-    agentId: window.agentIdFromUrl || 'agent_7b0776ef6b855de5',
-    industry: 'Mortgage',
-    modules: {
-        testimonial: { triggers: [] },
-        videoVault: { triggers: [] },
-        smartScreen: { triggers: [], images: [] },
-        websiteInfo: { triggers: [] },
-        communication: { actionType: 'preQual' },
-        preQualification: { enabled: true }
-    }
-};
+        id: urlClientId || 'mortgage-assist-demo',
+        name: urlClientId || 'mortgage-assist-demo',
+        agentId: urlAgentId || 'agent_7b0776ef6b855de5',
+        industry: 'Mortgage',
+        modules: {
+            testimonial: { triggers: [] },
+            videoVault: { triggers: [] },
+            smartScreen: { triggers: [], images: [] },
+            websiteInfo: { triggers: [] },
+            communication: { actionType: 'preQual' },
+            preQualification: { enabled: true }
+        }
+    };
     console.log("✅ Manual Config Loaded:", this.config);
     
     // 2. Setup speech recognition (don't start yet)
     this.setupSpeechRecognition();
     
-    // 3. Load LemonSlice widget
-    // this.loadLemonSlice(); // <--- Comment this out too if it crashes
-
-    // 🔥 START TESS MONITOR - DISABLED TEMPORARILY
-    // setTimeout(() => {
-    //     this.monitorTessMessages(); 
-    // }, 3000);
+    // 3. Load LemonSlice widget (commented out if it crashes)
+    // this.loadLemonSlice();
     
-    // 4. Render UI (THIS WILL NOW WORK BECAUSE CONFIG HAS DATA)
+    // 4. Render UI
     this.renderModules();
     
-    // 5. Update Header Info (THIS WILL NOW WORK)
+    // 5. Update Header Info
     this.updateClientInfo();
     
     // 6. Listen for commands from dashboard
-   window.addEventListener('message', (event) => {
-    if (event.data.type === 'DASHBOARD_COMMAND') {
-        console.log('📨 Dashboard command:', event.data);
-        
-        if (event.data.command === 'setAutoTrigger') {
-            // Forward to client website
-            if (window.opener && !window.opener.closed) {
-                window.opener.postMessage({
-                    type: 'SET_AUTO_TRIGGER',
-                    disabled: event.data.value
-                }, '*');
-                this.addToTranscriptFeed(`⚙️ Auto trigger ${event.data.value ? 'DISABLED' : 'ENABLED'}`);
+    window.addEventListener('message', (event) => {
+        if (event.data.type === 'DASHBOARD_COMMAND') {
+            console.log('📨 Dashboard command:', event.data);
+            
+            if (event.data.command === 'setAutoTrigger') {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage({
+                        type: 'SET_AUTO_TRIGGER',
+                        disabled: event.data.value
+                    }, '*');
+                    this.addToTranscriptFeed(`⚙️ Auto trigger ${event.data.value ? 'DISABLED' : 'ENABLED'}`);
+                }
             }
         }
-        
-        // ✅ ADD THIS NEW BLOCK HERE
-        if (event.data.command === 'toggleOverlays') {
-            if (window.opener && !window.opener.closed) {
-                window.opener.postMessage({
-                    type: 'SET_OVERLAYS',
-                    disabled: event.data.disabled
-                }, '*');
-                this.addToTranscriptFeed(`🎨 Overlays ${event.data.disabled ? 'DISABLED' : 'ENABLED'}`);
-            }
-        }
-    }
-    
-});
+    });
     
     this.updateStatus('Ready · Waiting for Tess', 'ready');
 }
