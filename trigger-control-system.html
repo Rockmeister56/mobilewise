@@ -502,24 +502,88 @@
 
         <script>
 
-    // ===== GLOBAL BROADCAST CHANNEL =====
-// Define this ONCE so all listeners share the same connection
-const tessBroadcastChannel = new BroadcastChannel("tess-discovery");
-console.log("✅ Global Broadcast Channel Created");
+         // ============================================
+// SUPABASE REALTIME SETUP (TCS)
+// ============================================
 
-// ===== URL PARAMETERS =====
-const urlParams = new URLSearchParams(window.location.search);
-const clientWebsiteUrl = urlParams.get('websiteUrl');
-const clientId = urlParams.get('clientId');
-const agentId = urlParams.get('agentId');
+(function() {
+    const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
+    
+    let supabaseClient = null;
+    let supabaseChannel = null;
+    
+    // Load Supabase client library
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+    script.onload = () => {
+        console.log("✅ Supabase client loaded for TCS");
+        
+        const { createClient } = supabase;
+        supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Create channel for commands
+        supabaseChannel = supabaseClient.channel("tess-commands");
+        
+        // Subscribe to channel
+        supabaseChannel.subscribe((status) => {
+            if (status === "SUBSCRIBED") {
+                console.log("✅ TCS connected to Supabase Realtime");
+                
+                // Listen for responses from bridge (if needed)
+                supabaseChannel.on('broadcast', { event: 'response' }, (payload) => {
+                    console.log("📡 Response from bridge:", payload);
+                });
+            }
+        });
+        
+        // Store globally for other functions to use
+        window.supabaseClient = supabaseClient;
+        window.supabaseChannel = supabaseChannel;
+    };
+    
+    script.onerror = (err) => {
+        console.error("❌ Failed to load Supabase client:", err);
+    };
+    
+    document.head.appendChild(script);
+})();
 
-console.log('TCS opened for client:', clientId);
-console.log('Website URL:', clientWebsiteUrl);
-console.log('Agent ID:', agentId);
+// ============================================
+// SEND COMMAND VIA SUPABASE (Replaces sendToClientWebsite)
+// ============================================
 
-if (clientWebsiteUrl) {
-    console.log('🔍 Will look for client at:', clientWebsiteUrl);
-}
+function sendCommandViaSupabase(command, clientId = null) {
+    if (!window.supabaseChannel) {
+        console.log("⏳ Supabase channel not ready, waiting...");
+        setTimeout(() => sendCommandViaSupabase(command, clientId), 500);
+        return false;
+    }
+    
+    try {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'command',
+            payload: {
+                command: command,
+                clientId: clientId,
+                timestamp: Date.now()
+            }
+        });
+        console.log(`🚀 Command sent via Supabase: ${command}`);
+        
+        // Add to transcript feed
+        if (typeof addToTranscriptFeed === 'function') {
+            addToTranscriptFeed(`🚀 Command sent: ${command}`);
+        }
+        
+        return true;
+    } catch (error) {
+        console.error("❌ Failed to send command via Supabase:", error);
+        return false;
+    }
+}   
+
         // ============================================
         // TESS TRIGGER CONTROL SYSTEM v1.0 - CLEANED & FIXED
         // ============================================
@@ -612,83 +676,144 @@ if (clientWebsiteUrl) {
     this.updateStatus('Ready · Waiting for Tess', 'ready');
 }
                 
-                                   // ========== MASTER DIAGNOSTIC TEST ==========
-            runDiagnosticTest() {
-                console.log('=== TCS FULL DIAGNOSTIC ===');
-                this.addToTranscriptFeed('🔍 Phase 1: Testing Broadcast Channel to Client...');
+         // ========== MASTER DIAGNOSTIC TEST ==========
+        runDiagnosticTest() {
+            console.log('=== TCS FULL DIAGNOSTIC ===');
+            this.addToTranscriptFeed('🔍 Phase 1: Testing Supabase Realtime Connection...');
+            
+            let connectionSuccess = false;
+            let timeoutId;
+            
+            // Create a temporary channel for testing
+            const testChannelId = 'test-' + Date.now();
+            
+            // Load Supabase if not already loaded
+            const setupTest = () => {
+                if (!window.supabaseClient) {
+                    this.addToTranscriptFeed('⚠️ Supabase not ready, initializing...');
+                    this.initSupabaseForTest();
+                    return;
+                }
                 
-                let connectionSuccess = false;
-                const testChannel = new BroadcastChannel('tess-discovery');
+                const testChannel = window.supabaseClient.channel(testChannelId);
                 
                 // Listen for the PONG response
-                testChannel.onmessage = (event) => {
-                    if (event.data.type === 'TEST_PONG') {
+                testChannel.on('broadcast', { event: 'pong' }, (payload) => {
+                    if (payload.payload && payload.payload.status === 'ok') {
                         connectionSuccess = true;
-                        console.log('✅ Client Connected via Broadcast!');
-                        this.addToTranscriptFeed('✅ <strong>Client Connected!</strong> Broadcast channel is active.');
+                        clearTimeout(timeoutId);
+                        console.log('✅ Client Connected via Supabase!');
+                        this.addToTranscriptFeed('✅ <strong>Client Connected!</strong> Supabase Realtime is active.');
+                        testChannel.unsubscribe();
                         this.runLocalDiagnostics();
                     }
-                };
-
-                // Send the PING to test connection
-                try {
-                    testChannel.postMessage({ type: 'TEST_PING', message: 'Are you there?', timestamp: Date.now() });
-                    this.addToTranscriptFeed('📡 TEST_PING sent to client...');
-                } catch (e) {
-                    this.addToTranscriptFeed('❌ BroadcastChannel Error: ' + e.message);
-                }
-
+                });
+                
+                // Subscribe to channel
+                testChannel.subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        // Send TEST_PING to client
+                        testChannel.send({
+                            type: 'broadcast',
+                            event: 'ping',
+                            payload: { type: 'TEST_PING', timestamp: Date.now() }
+                        });
+                        this.addToTranscriptFeed('📡 TEST_PING sent via Supabase...');
+                    }
+                });
+                
                 // Timeout for connection
-                setTimeout(() => {
+                timeoutId = setTimeout(() => {
                     if (!connectionSuccess) {
+                        testChannel.unsubscribe();
                         this.addToTranscriptFeed('❌ <strong>Connection Failed</strong>');
                         this.addToTranscriptFeed('⚠️ Client did not respond. Ensure they have refreshed the page.');
                         this.updateStatus('Disconnected', 'error');
                         console.log('=== TEST FAILED (No Connection) ===');
                     }
-                }, 3000);
-            }
-
-            // Helper for Phase 2 - Updated to test broadcast communication
-            runLocalDiagnostics() {
-                this.addToTranscriptFeed('🔍 Phase 2: Testing Communication...');
-                
-                // 1. Check clientManager
-                console.log('1. clientManager exists:', !!window.clientManager);
-                if (!window.clientManager) {
-                    this.addToTranscriptFeed('❌ clientManager not found');
-                    return;
-                }
-                
-                // 2. Check connected clients
-                const clientCount = window.clientManager?.clientWindows?.size || 0;
-                console.log('2. Connected clients:', clientCount);
-                this.addToTranscriptFeed(`📡 ${clientCount} client(s) connected`);
-                
-                if (clientCount === 0) {
-                    this.addToTranscriptFeed('⚠️ No clients connected. Click "Open Client" or refresh client page.');
-                } else {
-                    this.addToTranscriptFeed('✅ Client connection active');
-                }
-                
-                // 3. Test sending a test command
-                this.addToTranscriptFeed('🔍 Testing command send...');
-                try {
-                    if (window.clientManager && window.clientManager.clientWindows.size > 0) {
-                        window.clientManager.sendToSelectedClient('TEST_PING');
-                        this.addToTranscriptFeed('✅ TEST_PING sent to client');
+                }, 5000);
+            };
+            
+            // Check if Supabase is already loaded
+            if (window.supabaseChannel) {
+                setupTest();
+            } else {
+                this.addToTranscriptFeed('⏳ Waiting for Supabase connection...');
+                const checkInterval = setInterval(() => {
+                    if (window.supabaseChannel) {
+                        clearInterval(checkInterval);
+                        setupTest();
                     }
-                } catch(e) {
-                    this.addToTranscriptFeed('❌ Failed to send: ' + e.message);
-                }
-                
-                // 4. Check trigger detection
-                console.log('3. Trigger detection active:', !!this.preQualTriggered);
-                this.addToTranscriptFeed('🎯 Trigger detection active');
-                
-                this.addToTranscriptFeed('✅ <strong>Diagnostic Complete</strong>');
-                console.log('=== TEST COMPLETE ===');
+                }, 500);
+                setTimeout(() => {
+                    clearInterval(checkInterval);
+                    if (!window.supabaseChannel) {
+                        this.addToTranscriptFeed('❌ Supabase not connected. Check network.');
+                    }
+                }, 5000);
             }
+        }
+        
+        // Helper to initialize Supabase for testing
+        initSupabaseForTest() {
+            const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
+            
+            if (typeof supabase !== 'undefined' && supabase.createClient) {
+                window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                this.runDiagnosticTest();
+            } else {
+                this.addToTranscriptFeed('❌ Supabase library not loaded');
+            }
+        }
+
+        // Helper for Phase 2 - Updated to test Supabase communication
+        runLocalDiagnostics() {
+            this.addToTranscriptFeed('🔍 Phase 2: Testing Communication...');
+            
+            // 1. Check Supabase connection
+            console.log('1. Supabase channel exists:', !!window.supabaseChannel);
+            if (!window.supabaseChannel) {
+                this.addToTranscriptFeed('❌ Supabase channel not found');
+                return;
+            }
+            this.addToTranscriptFeed('✅ Supabase Realtime active');
+            
+            // 2. Check client connection status
+            const clientCount = window.clientManager?.clientWindows?.size || 0;
+            console.log('2. Connected clients:', clientCount);
+            this.addToTranscriptFeed(`📡 ${clientCount} client(s) connected via WebSocket`);
+            
+            if (clientCount === 0) {
+                this.addToTranscriptFeed('⚠️ No clients connected. Click "Open Client" or refresh client page.');
+            } else {
+                this.addToTranscriptFeed('✅ Client connection active');
+            }
+            
+            // 3. Test sending a test command via Supabase
+            this.addToTranscriptFeed('🔍 Testing command send via Supabase...');
+            try {
+                if (window.supabaseChannel) {
+                    window.supabaseChannel.send({
+                        type: 'broadcast',
+                        event: 'command',
+                        payload: { command: 'TEST_PING', test: true, timestamp: Date.now() }
+                    });
+                    this.addToTranscriptFeed('✅ TEST_PING sent via Supabase');
+                } else {
+                    this.addToTranscriptFeed('❌ Supabase channel not available');
+                }
+            } catch(e) {
+                this.addToTranscriptFeed('❌ Failed to send: ' + e.message);
+            }
+            
+            // 4. Check trigger detection
+            console.log('3. Trigger detection active:', !!this.preQualTriggered);
+            this.addToTranscriptFeed('🎯 Trigger detection active');
+            
+            this.addToTranscriptFeed('✅ <strong>Diagnostic Complete</strong>');
+            console.log('=== TEST COMPLETE ===');
+        }
 
             // ==========================================
             // REPLACE EVERYTHING BELOW THIS LINE
@@ -880,7 +1005,7 @@ if (clientWebsiteUrl) {
                 this.addToTranscriptFeed(`🎯 Trigger: "${phrase}"`);
                 
                 // SEND THE SPECIFIC COMMAND THE BRIDGE EXPECTS
-                this.sendToClientWebsite('START_PRE_QUAL', phrase);
+                sendCommandViaSupabase('START_PRE_QUAL');
                 
                 // Show alert in TCS
                 const alertEl = document.getElementById('triggerAlert');
@@ -974,18 +1099,6 @@ sendToClientWebsite(moduleName, triggerPhrase) {
         } catch (e) {
             console.log('⚠️ Opener failed:', e);
         }
-    }
-
-    // ==========================================
-    // PRIORITY 2: BROADCAST (Likely broken, but we try)
-    // ==========================================
-    try {
-        const channel = new BroadcastChannel("tess-discovery");
-        channel.postMessage(payload);
-        console.log(`✅ TCS: Sent via tess-discovery BroadcastChannel`);
-        return true;
-    } catch (e) {
-        console.log('⚠️ BroadcastChannel failed:', e);
     }
 
     // ==========================================
@@ -1468,7 +1581,7 @@ class ClientConnectionManager {
         }
     }
 
-    // UPDATED: Setup listeners with better handling
+       // UPDATED: Setup listeners with better handling
     setupListener() {
         // Listen for direct messages (via opener)
         window.addEventListener('message', (event) => {
@@ -1493,33 +1606,38 @@ class ClientConnectionManager {
             }
         });
 
-                // Listen for broadcast channel
-        try {
-            // Use the global channel
-            const channel = tessBroadcastChannel; 
-            
-            channel.onmessage = (event) => {
-                console.log('📢 Broadcast received:', event.data?.type || event.data);
+        // 🆕 Use Supabase Realtime instead of BroadcastChannel
+        this.setupSupabaseListener();
+    }
+    
+    // New: Supabase Realtime listener
+    setupSupabaseListener() {
+        // Wait for Supabase channel to be ready
+        const checkInterval = setInterval(() => {
+            if (window.supabaseChannel) {
+                clearInterval(checkInterval);
+                console.log('✅ Supabase channel ready, setting up listener');
                 
-                if (event.data?.type === 'CLIENT_INFO') {
-                    this.addClient(event.data.clientId, null, event.data.url);
-                }
+                // Listen for CLIENT_INFO messages
+                window.supabaseChannel.on('broadcast', { event: 'client_info' }, (payload) => {
+                    console.log('📢 Supabase broadcast received:', payload);
+                    const data = payload.payload;
+                    if (data.type === 'CLIENT_INFO') {
+                        this.addClient(data.clientId, null, data.url);
+                    }
+                });
                 
-                // === DIAGNOSTIC SUCCESS LOGIC ===
-                if (event.data?.type === 'TEST_PONG') {
+                // Listen for diagnostic PONG responses
+                window.supabaseChannel.on('broadcast', { event: 'pong' }, (payload) => {
                     console.log("✅ DIAGNOSTIC SUCCESS: Client responded!");
-                    // Optional: Add visual feedback here if you have a UI function
-                    // if (typeof setConnectionStatus === 'function') setConnectionStatus(true);
-                }
-                // ====================================
-                
-                if (event.data === 'BRIDGE_HERE') {
-                    channel.postMessage({ type: 'TCS_HERE' });
-                }
-            };
-        } catch (e) {
-            console.warn('BroadcastChannel not supported:', e);
-        }
+                });
+            }
+        }, 500);
+        
+        // Timeout after 10 seconds
+        setTimeout(() => {
+            clearInterval(checkInterval);
+        }, 10000);
     }
 
     addClient(clientId, windowRef, url) {
@@ -1536,6 +1654,26 @@ class ClientConnectionManager {
         
         this.updateClientList();
         this.showNotification(`✅ Client detected: ${clientId}`);
+        
+        // Broadcast client presence via Supabase
+        this.broadcastClientPresence(clientId, url);
+    }
+    
+    // New: Broadcast client presence via Supabase
+    broadcastClientPresence(clientId, url) {
+        if (window.supabaseChannel) {
+            window.supabaseChannel.send({
+                type: 'broadcast',
+                event: 'client_info',
+                payload: {
+                    type: 'CLIENT_INFO',
+                    clientId: clientId,
+                    url: url,
+                    timestamp: Date.now()
+                }
+            });
+            console.log('📢 Client presence broadcast via Supabase');
+        }
     }
 
     removeClient(clientId) {
@@ -1573,18 +1711,7 @@ class ClientConnectionManager {
         status.innerHTML = `✅ Connected: ${connectedCount} active, ${this.clientInfo.size} total`;
     }
 
-    broadcastPresence() {
-        try {
-            const channel = new BroadcastChannel('tess-discovery');
-            channel.postMessage({ 
-                type: 'TCS_HERE',
-                timestamp: Date.now()
-            });
-        } catch (e) {
-            // Ignore
-        }
-    }
-
+    // Updated: Send command via Supabase (replaces sendToSelectedClient)
     sendToSelectedClient(command, data = {}) {
         const select = document.getElementById('clientList');
         if (!select || !select.value) {
@@ -1593,12 +1720,26 @@ class ClientConnectionManager {
         }
 
         const clientId = select.value;
-        return this.sendToClient(clientId, {
-            type: 'TCS_COMMAND',
-            command: command,
-            data: data,
-            timestamp: Date.now()
-        });
+        
+        // Send via Supabase Realtime
+        if (window.supabaseChannel) {
+            window.supabaseChannel.send({
+                type: 'broadcast',
+                event: 'command',
+                payload: {
+                    command: command,
+                    clientId: clientId,
+                    data: data,
+                    timestamp: Date.now()
+                }
+            });
+            console.log(`🚀 Command sent via Supabase: ${command}`);
+            this.showNotification(`🚀 Command sent: ${command}`);
+            return true;
+        } else {
+            console.log('❌ Supabase channel not available');
+            return false;
+        }
     }
 
     showNotification(message) {
@@ -1625,7 +1766,7 @@ class ClientConnectionManager {
 // Initialize client manager
 window.clientManager = new ClientConnectionManager();
 
-// Start scanning for clients
+// Start scanning for clients is DISABLED (not needed)
 // clientManager.startScanning();
 
 // ============================================
@@ -1683,66 +1824,86 @@ function triggerPreQual() {
     }
 }
 
-// ===== LISTEN FOR TESS TRANSCRIPTS FROM CLIENT =====
-console.log("🎧 Setting up TESS_TRANSCRIPT listener...");
+// ===== LISTEN FOR TESS TRANSCRIPTS FROM CLIENT VIA SUPABASE =====
+console.log("🎧 Setting up Supabase TESS_TRANSCRIPT listener...");
 
-tessBroadcastChannel.onmessage = (event) => {
-    const data = event.data;
-    console.log("📡 TCS RECEIVED:", data);
-    
-    if (data.type === "TESS_TRANSCRIPT") {
-        const text = data.text;
-        const lowerText = text.toLowerCase();
+// Wait for Supabase channel to be ready
+const setupSupabaseTranscriptListener = () => {
+    if (window.supabaseChannel) {
+        console.log("✅ Supabase channel ready, setting up transcript listener");
         
-        // 1. Add to Visual Feed
-        if (typeof addToTranscriptFeed === 'function') {
-            addToTranscriptFeed(`🤖 Tess: "${text}"`);
-        }
-        
-        console.log("🎤 TESS SAID (via broadcast):", text);
-        
-        // 2. Check for Trigger Phrase
-        if (lowerText.includes("get you pre-qualified") || 
-            lowerText.includes("pre qualification interview") ||
-            lowerText.includes("let's get you pre-qualified")) {
+        // Listen for TESS_TRANSCRIPT broadcasts
+        window.supabaseChannel.on('broadcast', { event: 'tess_transcript' }, (payload) => {
+            const data = payload.payload;
+            console.log("📡 TCS RECEIVED:", data);
             
-            console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
-            
-            // Add Trigger to Visual Feed
-            if (typeof addToTranscriptFeed === 'function') {
-                addToTranscriptFeed(`🎯 TRIGGER: "${text}"`);
-            }
-            
-            // Show Trigger Alert Banner
-            const alertEl = document.getElementById('triggerAlert');
-            if (alertEl) {
-                document.getElementById('triggerModuleTag').innerHTML = '🎯 Pre-Qualification';
-                document.getElementById('triggerPhraseDisplay').innerHTML = `"${text}"`;
-                document.getElementById('triggerActionDisplay').innerHTML = 'Launching pre-qualification interview...';
-                alertEl.style.display = 'block';
-                setTimeout(() => {
-                    alertEl.style.display = 'none';
-                }, 5000);
-            }
-            
-            // Send Command to Client
-            if (window.clientManager && window.clientManager.clientWindows.size > 0) {
-                window.clientManager.sendToSelectedClient('START_PRE_QUAL');
-                console.log("✅ START_PRE_QUAL sent to client");
+            if (data.type === "TESS_TRANSCRIPT") {
+                const text = data.text;
+                const lowerText = text.toLowerCase();
+                
+                // 1. Add to Visual Feed
                 if (typeof addToTranscriptFeed === 'function') {
-                    addToTranscriptFeed('🚀 START_PRE_QUAL sent to Bridge');
+                    addToTranscriptFeed(`🤖 Tess: "${text}"`);
                 }
-            } else {
-                console.log("⚠️ No client connected");
-                if (typeof addToTranscriptFeed === 'function') {
-                    addToTranscriptFeed('⚠️ No client connected - command not sent');
+                
+                console.log("🎤 TESS SAID (via Supabase):", text);
+                
+                // 2. Check for Trigger Phrase
+                if (lowerText.includes("get you pre-qualified") || 
+                    lowerText.includes("pre qualification interview") ||
+                    lowerText.includes("let's get you pre-qualified")) {
+                    
+                    console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
+                    
+                    // Add Trigger to Visual Feed
+                    if (typeof addToTranscriptFeed === 'function') {
+                        addToTranscriptFeed(`🎯 TRIGGER: "${text}"`);
+                    }
+                    
+                    // Show Trigger Alert Banner
+                    const alertEl = document.getElementById('triggerAlert');
+                    if (alertEl) {
+                        document.getElementById('triggerModuleTag').innerHTML = '🎯 Pre-Qualification';
+                        document.getElementById('triggerPhraseDisplay').innerHTML = `"${text}"`;
+                        document.getElementById('triggerActionDisplay').innerHTML = 'Launching pre-qualification interview...';
+                        alertEl.style.display = 'block';
+                        setTimeout(() => {
+                            alertEl.style.display = 'none';
+                        }, 5000);
+                    }
+                    
+                    // Send Command to Client via Supabase
+                    if (window.supabaseChannel) {
+                        window.supabaseChannel.send({
+                            type: 'broadcast',
+                            event: 'command',
+                            payload: {
+                                command: 'START_PRE_QUAL',
+                                timestamp: Date.now()
+                            }
+                        });
+                        console.log("✅ START_PRE_QUAL sent via Supabase");
+                        if (typeof addToTranscriptFeed === 'function') {
+                            addToTranscriptFeed('🚀 START_PRE_QUAL sent to Bridge via Supabase');
+                        }
+                    } else {
+                        console.log("⚠️ Supabase channel not available");
+                        if (typeof addToTranscriptFeed === 'function') {
+                            addToTranscriptFeed('⚠️ Supabase not connected - command not sent');
+                        }
+                    }
                 }
             }
-        }
+        });
+    } else {
+        console.log("⏳ Waiting for Supabase channel...");
+        setTimeout(setupSupabaseTranscriptListener, 500);
     }
 };
 
-console.log("✅ TCS transcript listener updated with viewer integration");
+// Start the listener
+setupSupabaseTranscriptListener();
+console.log("✅ TCS transcript listener updated with Supabase Realtime");
 
     </script>
 </body>
