@@ -663,83 +663,69 @@ function sendCommandViaSupabase(command, clientId = null) {
     this.updateStatus('Ready · Waiting for Tess', 'ready');
 }
                 
-         // ========== MASTER DIAGNOSTIC TEST ==========
-        runDiagnosticTest() {
-            console.log('=== TCS FULL DIAGNOSTIC ===');
-            this.addToTranscriptFeed('🔍 Phase 1: Testing Supabase Realtime Connection...');
+        // ========== MASTER DIAGNOSTIC TEST ==========
+runDiagnosticTest() {
+    console.log('=== TCS FULL DIAGNOSTIC ===');
+    this.addToTranscriptFeed('🔍 Phase 1: Testing Supabase Realtime Connection...');
+    
+    let connectionSuccess = false;
+    let timeoutId;
+    
+    // First, check if Supabase channel exists
+    if (!window.supabaseChannel) {
+        this.addToTranscriptFeed('❌ Supabase channel not available');
+        this.addToTranscriptFeed('⚠️ Please refresh the page and try again');
+        return;
+    }
+    
+    // Set up one-time listener for PONG response
+    const pongHandler = (payload) => {
+        if (payload.payload && payload.payload.type === 'TEST_PONG') {
+            connectionSuccess = true;
+            clearTimeout(timeoutId);
+            console.log('✅ Client Connected via Supabase!');
+            this.addToTranscriptFeed('✅ <strong>Client Connected!</strong> Supabase Realtime is active.');
             
-            let connectionSuccess = false;
-            let timeoutId;
+            // Remove the listener after success
+            window.supabaseChannel.off('broadcast', { event: 'pong' });
             
-            // Create a temporary channel for testing
-            const testChannelId = 'test-' + Date.now();
-            
-            // Load Supabase if not already loaded
-            const setupTest = () => {
-                if (!window.supabaseClient) {
-                    this.addToTranscriptFeed('⚠️ Supabase not ready, initializing...');
-                    this.initSupabaseForTest();
-                    return;
-                }
-                
-                const testChannel = window.supabaseClient.channel(testChannelId);
-                
-                // Listen for the PONG response
-                testChannel.on('broadcast', { event: 'pong' }, (payload) => {
-                    if (payload.payload && payload.payload.status === 'ok') {
-                        connectionSuccess = true;
-                        clearTimeout(timeoutId);
-                        console.log('✅ Client Connected via Supabase!');
-                        this.addToTranscriptFeed('✅ <strong>Client Connected!</strong> Supabase Realtime is active.');
-                        testChannel.unsubscribe();
-                        this.runLocalDiagnostics();
-                    }
-                });
-                
-                // Subscribe to channel
-                testChannel.subscribe((status) => {
-                    if (status === 'SUBSCRIBED') {
-                        // Send TEST_PING to client
-                        testChannel.send({
-                            type: 'broadcast',
-                            event: 'ping',
-                            payload: { type: 'TEST_PING', timestamp: Date.now() }
-                        });
-                        this.addToTranscriptFeed('📡 TEST_PING sent via Supabase...');
-                    }
-                });
-                
-                // Timeout for connection
-                timeoutId = setTimeout(() => {
-                    if (!connectionSuccess) {
-                        testChannel.unsubscribe();
-                        this.addToTranscriptFeed('❌ <strong>Connection Failed</strong>');
-                        this.addToTranscriptFeed('⚠️ Client did not respond. Ensure they have refreshed the page.');
-                        this.updateStatus('Disconnected', 'error');
-                        console.log('=== TEST FAILED (No Connection) ===');
-                    }
-                }, 5000);
-            };
-            
-            // Check if Supabase is already loaded
-            if (window.supabaseChannel) {
-                setupTest();
-            } else {
-                this.addToTranscriptFeed('⏳ Waiting for Supabase connection...');
-                const checkInterval = setInterval(() => {
-                    if (window.supabaseChannel) {
-                        clearInterval(checkInterval);
-                        setupTest();
-                    }
-                }, 500);
-                setTimeout(() => {
-                    clearInterval(checkInterval);
-                    if (!window.supabaseChannel) {
-                        this.addToTranscriptFeed('❌ Supabase not connected. Check network.');
-                    }
-                }, 5000);
-            }
+            // Run phase 2
+            this.runLocalDiagnostics();
         }
+    };
+    
+    // Listen for PONG response
+    window.supabaseChannel.on('broadcast', { event: 'pong' }, pongHandler);
+    
+    // Send TEST_PING via Supabase
+    try {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'ping',
+            payload: {
+                type: 'TEST_PING',
+                message: 'Are you there?',
+                timestamp: Date.now()
+            }
+        });
+        this.addToTranscriptFeed('📡 TEST_PING sent via Supabase...');
+    } catch (e) {
+        this.addToTranscriptFeed('❌ Failed to send PING: ' + e.message);
+        window.supabaseChannel.off('broadcast', { event: 'pong' });
+        return;
+    }
+    
+    // Timeout for connection
+    timeoutId = setTimeout(() => {
+        if (!connectionSuccess) {
+            window.supabaseChannel.off('broadcast', { event: 'pong' });
+            this.addToTranscriptFeed('❌ <strong>Connection Failed</strong>');
+            this.addToTranscriptFeed('⚠️ Client did not respond. Ensure they have refreshed the page.');
+            this.updateStatus('Disconnected', 'error');
+            console.log('=== TEST FAILED (No Connection) ===');
+        }
+    }, 5000);
+}
         
         // Helper to initialize Supabase for testing
         initSupabaseForTest() {
