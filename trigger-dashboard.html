@@ -3534,18 +3534,6 @@ async function exportBridgeOnly() {
         
         code += '(function() {\n';
         code += '    "use strict";\n\n';
-
-        // ===== SUPPRESS LEMONSLICE 404 ERRORS =====
-        code += '    // Suppress the widget\'s internal 404 errors\n';
-        code += '    const originalFetch = window.fetch;\n';
-        code += '    window.fetch = function(...args) {\n';
-        code += '        const url = args[0];\n';
-        code += '        if (url && (url === 0 || url === "0" || (typeof url === "string" && (url.includes("/0") || url === "0")))) {\n';
-        code += '            console.log("🔇 Suppressed widget 404 request");\n';
-        code += '            return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({}) });\n';
-        code += '        }\n';
-        code += '        return originalFetch.apply(this, args);\n';
-        code += '    };\n\n';
         
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
         code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
