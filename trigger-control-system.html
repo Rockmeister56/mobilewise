@@ -502,16 +502,13 @@
 
         <script>
 
-         // ============================================
-// SUPABASE REALTIME SETUP (TCS)
+// ============================================
+// SUPABASE REALTIME SETUP (TCS - WORKING VERSION)
 // ============================================
 
 (function() {
     const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
-    
-    let supabaseClient = null;
-    let supabaseChannel = null;
     
     // Load Supabase client library
     const script = document.createElement("script");
@@ -520,26 +517,82 @@
         console.log("✅ Supabase client loaded for TCS");
         
         const { createClient } = supabase;
-        supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // Create channel for commands
-        supabaseChannel = supabaseClient.channel("tess-commands");
+        // Create a fresh channel
+        const freshChannel = supabaseClient.channel('tess-commands');
         
-        // Subscribe to channel
-        supabaseChannel.subscribe((status) => {
-            if (status === "SUBSCRIBED") {
-                console.log("✅ TCS connected to Supabase Realtime");
+        // Listen for ALL broadcasts (including tess_transcript)
+        freshChannel.on('broadcast', { event: '*' }, (payload) => {
+            console.log("📡 TCS BROADCAST RECEIVED:", payload.event, payload.payload);
+            
+            // Handle tess_transcript events
+            if (payload.event === 'tess_transcript') {
+                const text = payload.payload.text;
+                console.log("🎤 TESS SAID (via Supabase):", text);
                 
-                // Listen for responses from bridge (if needed)
-                supabaseChannel.on('broadcast', { event: 'response' }, (payload) => {
-                    console.log("📡 Response from bridge:", payload);
-                });
+                // Add to transcript feed
+                if (typeof addToTranscriptFeed === 'function') {
+                    addToTranscriptFeed(`🤖 Tess: "${text}"`);
+                }
+                
+                // Check for trigger phrase
+                const lowerText = text.toLowerCase();
+                if (lowerText.includes("get you pre-qualified") || 
+                    lowerText.includes("pre qualification interview") ||
+                    lowerText.includes("let's get you pre-qualified")) {
+                    
+                    console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
+                    
+                    if (typeof addToTranscriptFeed === 'function') {
+                        addToTranscriptFeed(`🎯 TRIGGER: "${text}"`);
+                    }
+                    
+                    // Show trigger alert
+                    const alertEl = document.getElementById('triggerAlert');
+                    if (alertEl) {
+                        document.getElementById('triggerModuleTag').innerHTML = '🎯 Pre-Qualification';
+                        document.getElementById('triggerPhraseDisplay').innerHTML = `"${text}"`;
+                        document.getElementById('triggerActionDisplay').innerHTML = 'Launching pre-qualification interview...';
+                        alertEl.style.display = 'block';
+                        setTimeout(() => {
+                            alertEl.style.display = 'none';
+                        }, 5000);
+                    }
+                    
+                    // Send command to client via Supabase
+                    freshChannel.send({
+                        type: 'broadcast',
+                        event: 'command',
+                        payload: {
+                            command: 'START_PRE_QUAL',
+                            timestamp: Date.now()
+                        }
+                    });
+                    console.log("🚀 START_PRE_QUAL sent to bridge");
+                    
+                    if (typeof addToTranscriptFeed === 'function') {
+                        addToTranscriptFeed('🚀 START_PRE_QUAL sent to Bridge');
+                    }
+                }
+            }
+            
+            // Handle command responses if needed
+            if (payload.event === 'command') {
+                console.log("📡 Command response:", payload.payload);
             }
         });
         
-        // Store globally for other functions to use
+        // Subscribe to the channel
+        freshChannel.subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                console.log("✅ TCS connected to Supabase Realtime");
+            }
+        });
+        
+        // Store globally
+        window.supabaseChannel = freshChannel;
         window.supabaseClient = supabaseClient;
-        window.supabaseChannel = supabaseChannel;
     };
     
     script.onerror = (err) => {
