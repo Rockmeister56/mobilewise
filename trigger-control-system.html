@@ -377,11 +377,7 @@
                 <span>Industry: <span id="industryDisplay">—</span></span>
             </div>
         </div>
-        
         <div style="flex: 1; display: flex; gap: 10px;">
-            <button class="btn btn-primary" onclick="scanForClients()" style="flex: 1;">
-                <i class="fas fa-sync"></i> Scan
-            </button>
             <button class="btn btn-primary" onclick="openClientManually()" style="flex: 1; background: linear-gradient(145deg, #00c853, #00a844);">
                 <i class="fas fa-external-link-alt"></i> Open Client
             </button>
@@ -1797,15 +1793,6 @@ window.clientManager = new ClientConnectionManager();
 
 // Start scanning for clients is DISABLED (not needed)
 // clientManager.startScanning();
-
-// ============================================
-// SCAN FOR CLIENTS FUNCTION
-// ============================================
-
-function scanForClients() {
-    clientManager.broadcastPresence();
-    addToTranscriptFeed('🔍 Scanning for client websites...');
-}
 
 // ============================================
 // ADD TO TRANSCRIPT FEED (helper)
