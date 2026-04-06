@@ -3877,6 +3877,29 @@ code += '    document.head.appendChild(style);\n\n';
         code += '        document.head.appendChild(script);\n';
         code += '    })();\n\n';
 
+                // ===== SEND TESS TRANSCRIPTS TO TCS VIA SUPABASE =====
+        code += '    // Function to broadcast Tess\'s speech to TCS via Supabase\n';
+        code += '    window.broadcastTessTranscript = function(text) {\n';
+        code += '        try {\n';
+        code += '            if (window.supabaseChannel) {\n';
+        code += '                window.supabaseChannel.send({\n';
+        code += '                    type: "broadcast",\n';
+        code += '                    event: "tess_transcript",\n';
+        code += '                    payload: {\n';
+        code += '                        type: "TESS_TRANSCRIPT",\n';
+        code += '                        text: text,\n';
+        code += '                        timestamp: Date.now()\n';
+        code += '                    }\n';
+        code += '                });\n';
+        code += '                console.log("📡 [SUPABASE] Sent Tess transcript:", text.substring(0, 50));\n';
+        code += '            } else {\n';
+        code += '                console.log("⚠️ Supabase channel not ready");\n';
+        code += '            }\n';
+        code += '        } catch(e) {\n';
+        code += '            console.error("❌ Failed to send via Supabase:", e);\n';
+        code += '        }\n';
+        code += '    };\n\n';
+
         code += '    function setupUniversalListener() {\n';
         code += '        console.log("👂 Universal Listener Activated (Universal Mode).");\n';
         code += '        \n';
