@@ -523,12 +523,15 @@
         const freshChannel = supabaseClient.channel('tess-commands');
         
         // Listen for ALL broadcasts (including tess_transcript)
+                // Listen for ALL broadcasts
         freshChannel.on('broadcast', { event: '*' }, (payload) => {
             console.log("📡 TCS BROADCAST RECEIVED:", payload.event, payload.payload);
             
-            // Handle tess_transcript events
+            // Handle tess_transcript events (Tess speaking)
             if (payload.event === 'tess_transcript') {
                 const text = payload.payload.text;
+                const lowerText = text.toLowerCase();
+                
                 console.log("🎤 TESS SAID (via Supabase):", text);
                 
                 // Add to transcript feed
@@ -537,18 +540,18 @@
                 }
                 
                 // Check for trigger phrase
-                const lowerText = text.toLowerCase();
                 if (lowerText.includes("get you pre-qualified") || 
                     lowerText.includes("pre qualification interview") ||
                     lowerText.includes("let's get you pre-qualified")) {
                     
                     console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
                     
+                    // Add trigger to visual feed
                     if (typeof addToTranscriptFeed === 'function') {
                         addToTranscriptFeed(`🎯 TRIGGER: "${text}"`);
                     }
                     
-                    // Show trigger alert
+                    // Show trigger alert banner
                     const alertEl = document.getElementById('triggerAlert');
                     if (alertEl) {
                         document.getElementById('triggerModuleTag').innerHTML = '🎯 Pre-Qualification';
@@ -569,7 +572,7 @@
                             timestamp: Date.now()
                         }
                     });
-                    console.log("🚀 START_PRE_QUAL sent to bridge");
+                    console.log("🚀 START_PRE_QUAL sent to bridge via Supabase");
                     
                     if (typeof addToTranscriptFeed === 'function') {
                         addToTranscriptFeed('🚀 START_PRE_QUAL sent to Bridge');
