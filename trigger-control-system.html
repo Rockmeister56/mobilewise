@@ -1736,36 +1736,58 @@ class ClientConnectionManager {
         status.innerHTML = `✅ Connected: ${connectedCount} active, ${this.clientInfo.size} total`;
     }
 
-    // Updated: Send command via Supabase (replaces sendToSelectedClient)
     sendToSelectedClient(command, data = {}) {
-        const select = document.getElementById('clientList');
-        if (!select || !select.value) {
-            alert('Please select a client first');
-            return false;
-        }
-
-        const clientId = select.value;
-        
-        // Send via Supabase Realtime
-        if (window.supabaseChannel) {
-            window.supabaseChannel.send({
-                type: 'broadcast',
-                event: 'command',
-                payload: {
-                    command: command,
-                    clientId: clientId,
-                    data: data,
-                    timestamp: Date.now()
-                }
-            });
-            console.log(`🚀 Command sent via Supabase: ${command}`);
-            this.showNotification(`🚀 Command sent: ${command}`);
-            return true;
-        } else {
-            console.log('❌ Supabase channel not available');
-            return false;
-        }
+    // Get client ID from URL params (since we removed the dropdown)
+    const urlParams = new URLSearchParams(window.location.search);
+    let clientId = urlParams.get('clientId');
+    
+    // Fallback to the first client in the map if URL param not found
+    if (!clientId && this.clientWindows.size > 0) {
+        clientId = Array.from(this.clientWindows.keys())[0];
     }
+    
+    if (!clientId) {
+        console.error('❌ No client ID found');
+        if (typeof addToTranscriptFeed === 'function') {
+            addToTranscriptFeed('❌ No client selected. Please refresh and try again.');
+        }
+        return false;
+    }
+    
+    console.log(`📤 Sending ${command} to client: ${clientId}`);
+    
+    // Send via Supabase Realtime (preferred)
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'command',
+            payload: {
+                command: command,
+                clientId: clientId,
+                data: data,
+                timestamp: Date.now()
+            }
+        });
+        if (typeof addToTranscriptFeed === 'function') {
+            addToTranscriptFeed(`🚀 Command sent: ${command}`);
+        }
+        return true;
+    }
+    
+    // Fallback to direct window message
+    const clientWindow = this.clientWindows.get(clientId);
+    if (clientWindow && !clientWindow.closed) {
+        clientWindow.postMessage({
+            type: 'TCS_COMMAND',
+            command: command,
+            data: data,
+            timestamp: Date.now()
+        }, '*');
+        return true;
+    }
+    
+    return false;
+}
 
     showNotification(message) {
         const feed = document.getElementById('transcriptFeed');
@@ -1832,11 +1854,39 @@ function openClientManually() {
     }
 }
 
-// Trigger pre-qualification on selected client
 function triggerPreQual() {
-    const success = clientManager.sendToSelectedClient('START_PRE_QUAL');
-    if (success) {
-        addToTranscriptFeed('🚀 Triggered pre-qualification interview');
+    // Get client ID from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    let clientId = urlParams.get('clientId');
+    
+    if (!clientId && window.clientManager && window.clientManager.clientWindows.size > 0) {
+        clientId = Array.from(window.clientManager.clientWindows.keys())[0];
+    }
+    
+    if (!clientId) {
+        console.error('❌ No client ID found');
+        addToTranscriptFeed('❌ No client connected. Please refresh the client page.');
+        return;
+    }
+    
+    // Send via Supabase
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'command',
+            payload: {
+                command: 'START_PRE_QUAL',
+                clientId: clientId,
+                timestamp: Date.now()
+            }
+        });
+        addToTranscriptFeed('🚀 Triggered pre-qualification interview via Supabase');
+    } else {
+        // Fallback to clientManager
+        const success = clientManager.sendToSelectedClient('START_PRE_QUAL');
+        if (success) {
+            addToTranscriptFeed('🚀 Triggered pre-qualification interview');
+        }
     }
 }
 
