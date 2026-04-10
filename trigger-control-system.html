@@ -488,7 +488,7 @@
         <script>
 
 // ============================================
-// SUPABASE REALTIME SETUP (TCS - WORKING VERSION)
+// SUPABASE REALTIME SETUP (TCS - FIXED VERSION)
 // ============================================
 
 (function() {
@@ -514,6 +514,8 @@
             // Handle tess_transcript events
             if (payload.event === 'tess_transcript') {
                 const text = payload.payload.text;
+                if (!text) return;
+
                 console.log("🎤 TESS SAID (via Supabase):", text);
                 
                 // Add to transcript feed
@@ -840,11 +842,8 @@ runDiagnosticTest() {
             console.log('=== TEST COMPLETE ===');
         }
 
-            // ==========================================
-            // REPLACE EVERYTHING BELOW THIS LINE
-            // ==========================================
-            
-                           setupSpeechRecognition() {
+                        setupSpeechRecognition() {
+                // 1. CHECK BROWSER SUPPORT
                 if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
                     this.updateStatus('❌ Speech recognition not supported', 'error');
                     return;
@@ -853,76 +852,44 @@ runDiagnosticTest() {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 this.recognition = new SpeechRecognition();
                 
+                // 2. CONFIGURE RECOGNITION
+                // We keep these settings so the object is initialized correctly,
+                // but we will NOT use the 'onresult' to process data.
                 this.recognition.continuous = true;
                 this.recognition.interimResults = true;
                 this.recognition.lang = 'en-US';
 
-                // ⚠️ FIX: Variables to track the last spoken sentence to prevent duplicates
-                let lastTranscript = '';
-                let lastTranscriptTime = 0;
-
+                // 3. HANDLE START
                 this.recognition.onstart = () => {
-                    this.updateStatus('🎤 Listening for Tess...', 'ready');
-                    document.getElementById('micStatus').innerHTML = 'LISTENING TO TESS';
-                };
-
-                this.recognition.onerror = (event) => {
-                    console.error('Speech error:', event.error);
-                };
-
-                this.recognition.onresult = (event) => {
-                    // 🛑 NEW: HARD SILENCE DURING ECHO
-                    // If the widget audio element is currently playing, the mic is just hearing Tess.
-                    // We ignore the input to prevent the "Echo / Duplicate" effect.
-                    const widget = document.querySelector('lemon-slice-widget');
-                    if (widget && widget.shadowRoot) {
-                        const audios = widget.shadowRoot.querySelectorAll('audio');
-                        let isPlaying = false;
-                        audios.forEach(a => { if (!a.paused) isPlaying = true; });
-                        
-                        if (isPlaying) {
-                            console.log("🔇 Silencing mic: Tess is speaking");
-                            return; // Ignore transcript while she speaks
-                        }
-                    }
-
-                    // 1. Get the text from the event
-                    const currentTranscript = Array.from(event.results)
-                        .map(result => result[0].transcript)
-                        .join('');
+                    // 🔥 FIX: Updated status to reflect that we are waiting for REMOTE data, not local mic
+                    this.updateStatus('📡 System Active (Waiting for Bridge Data)', 'ready');
                     
-                    // 2. Clean it up (trim whitespace)
-                    const cleanTranscript = currentTranscript.trim();
-
-                    // 3. ⚠️ DUPLICATE CHECK:
-                    // If the text is the same as the last one AND less than 1.5 seconds have passed, IGNORE IT.
-                    const now = Date.now();
-                    if (cleanTranscript === lastTranscript && (now - lastTranscriptTime < 1500)) {
-                        return; // Skip this update
+                    const micStatusEl = document.getElementById('micStatus');
+                    if (micStatusEl) {
+                        micStatusEl.innerHTML = 'REMOTE LISTENING MODE';
+                        micStatusEl.style.color = '#00c853'; // Green to show it's active but different
                     }
-
-                    // 4. 🆕 ECHO FIX (Secondary Check):
-                    // If the new text STARTS WITH the last text, it means we are just adding to the end.
-                    // We only want to log the NEW part.
-                    if (cleanTranscript.startsWith(lastTranscript) && cleanTranscript.length > lastTranscript.length) {
-                        const onlyNewText = cleanTranscript.substring(lastTranscript.length).trim();
-                        
-                        // Only update memory and log if there is actually new text
-                        if (onlyNewText) {
-                            lastTranscript = cleanTranscript;
-                            lastTranscriptTime = now;
-                            this.processTranscript(onlyNewText); // Only process the NEW part
-                        }
-                        return; 
-                    }
-
-                    // 5. Update our "memory" of what was just said
-                    lastTranscript = cleanTranscript;
-                    lastTranscriptTime = now;
-
-                    // 6. Pass the verified, unique text to processing
-                    this.processTranscript(cleanTranscript);
                 };
+
+                // 4. HANDLE ERRORS
+                this.recognition.onerror = (event) => {
+                    // We log errors but don't alert the user, because we are relying on Supabase
+                    // for the real data stream. Local mic errors are irrelevant now.
+                    console.warn('Speech recognition system warning:', event.error);
+                };
+
+                // 5. 🔥 CRITICAL FIX: DISABLE LOCAL PROCESSING
+                // The original code below (lines 50-100 in your snippet) was trying to process
+                // YOUR voice through the microphone. We must disable this to prevent the bug.
+                // The TCS now receives data purely via the Supabase listener (added in previous step).
+                
+                // REMOVED: The 'onresult' handler that was capturing local audio.
+                // REMOVED: The echo prevention logic (checking if widget is playing).
+                // REMOVED: The duplicate checks.
+                // REMOVED: The 'processTranscript' call.
+                
+                // The 'onresult' event will fire, but we do nothing with it.
+                // This effectively silences the TCS microphone.
             }
 
             // ==========================================
@@ -1889,87 +1856,6 @@ function triggerPreQual() {
         }
     }
 }
-
-// ===== LISTEN FOR TESS TRANSCRIPTS FROM CLIENT VIA SUPABASE =====
-console.log("🎧 Setting up Supabase TESS_TRANSCRIPT listener...");
-
-// Wait for Supabase channel to be ready
-const setupSupabaseTranscriptListener = () => {
-    if (window.supabaseChannel) {
-        console.log("✅ Supabase channel ready, setting up transcript listener");
-        
-        // Listen for TESS_TRANSCRIPT broadcasts
-        window.supabaseChannel.on('broadcast', { event: 'tess_transcript' }, (payload) => {
-            const data = payload.payload;
-            console.log("📡 TCS RECEIVED:", data);
-            
-            if (data.type === "TESS_TRANSCRIPT") {
-                const text = data.text;
-                const lowerText = text.toLowerCase();
-                
-                // 1. Add to Visual Feed
-                if (typeof addToTranscriptFeed === 'function') {
-                    addToTranscriptFeed(`🤖 Tess: "${text}"`);
-                }
-                
-                console.log("🎤 TESS SAID (via Supabase):", text);
-                
-                // 2. Check for Trigger Phrase
-                if (lowerText.includes("get you pre-qualified") || 
-                    lowerText.includes("pre qualification interview") ||
-                    lowerText.includes("let's get you pre-qualified")) {
-                    
-                    console.log("🎯 TRIGGER DETECTED! Sending START_PRE_QUAL...");
-                    
-                    // Add Trigger to Visual Feed
-                    if (typeof addToTranscriptFeed === 'function') {
-                        addToTranscriptFeed(`🎯 TRIGGER: "${text}"`);
-                    }
-                    
-                    // Show Trigger Alert Banner
-                    const alertEl = document.getElementById('triggerAlert');
-                    if (alertEl) {
-                        document.getElementById('triggerModuleTag').innerHTML = '🎯 Pre-Qualification';
-                        document.getElementById('triggerPhraseDisplay').innerHTML = `"${text}"`;
-                        document.getElementById('triggerActionDisplay').innerHTML = 'Launching pre-qualification interview...';
-                        alertEl.style.display = 'block';
-                        setTimeout(() => {
-                            alertEl.style.display = 'none';
-                        }, 5000);
-                    }
-                    
-                    // Send Command to Client via Supabase
-                    if (window.supabaseChannel) {
-                        window.supabaseChannel.send({
-                            type: 'broadcast',
-                            event: 'command',
-                            payload: {
-                                command: 'START_PRE_QUAL',
-                                timestamp: Date.now()
-                            }
-                        });
-                        console.log("✅ START_PRE_QUAL sent via Supabase");
-                        if (typeof addToTranscriptFeed === 'function') {
-                            addToTranscriptFeed('🚀 START_PRE_QUAL sent to Bridge via Supabase');
-                        }
-                    } else {
-                        console.log("⚠️ Supabase channel not available");
-                        if (typeof addToTranscriptFeed === 'function') {
-                            addToTranscriptFeed('⚠️ Supabase not connected - command not sent');
-                        }
-                    }
-                }
-            }
-        });
-    } else {
-        console.log("⏳ Waiting for Supabase channel...");
-        setTimeout(setupSupabaseTranscriptListener, 500);
-    }
-};
-
-// Start the listener
-setupSupabaseTranscriptListener();
-console.log("✅ TCS transcript listener updated with Supabase Realtime");
 
     </script>
 </body>
