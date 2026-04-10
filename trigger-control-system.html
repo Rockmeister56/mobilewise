@@ -646,66 +646,76 @@ function sendCommandViaSupabase(command, clientId = null) {
                 this.init();
             }
 
-       async init() {
-        this.updateStatus('Initializing...', 'warning');
-        
-        // 🔥 FIX: Get URL params directly here
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlClientId = urlParams.get('clientId');
-        const urlAgentId = urlParams.get('agentId');
-        
-        // Use the URL params or fallback defaults
-        this.config = {
-            id: urlClientId || 'mortgage-assist-demo',
-            name: urlClientId || 'mortgage-assist-demo',
-            agentId: urlAgentId || 'agent_7b0776ef6b855de5',
-            industry: 'Mortgage',
-            modules: {
-                testimonial: { triggers: [] },
-                videoVault: { triggers: [] },
-                smartScreen: { triggers: [], images: [] },
-                websiteInfo: { triggers: [] },
-                communication: { actionType: 'preQual' },
-                preQualification: { enabled: true }
+    async init() {
+    this.updateStatus('Initializing...', 'warning');
+    
+    // 🔥 FIX: Get URL params directly here
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlClientId = urlParams.get('clientId');
+    const urlAgentId = urlParams.get('agentId');
+    
+    // Use the URL params or fallback defaults
+    this.config = {
+        id: urlClientId || 'mortgage-assist-demo',
+        name: urlClientId || 'mortgage-assist-demo',
+        agentId: urlAgentId || 'agent_7b0776ef6b855de5',
+        industry: 'Mortgage',
+        modules: {
+            testimonial: { triggers: [] },
+            videoVault: { triggers: [] },
+            smartScreen: { triggers: [], images: [] },
+            websiteInfo: { triggers: [] },
+            communication: { actionType: 'preQual' },
+            preQualification: { enabled: true }
+        }
+    };
+    console.log("✅ Manual Config Loaded:", this.config);
+    
+    // 2. Setup speech recognition (don't start yet)
+    this.setupSpeechRecognition();
+
+    // 🔥 ADD THIS - Auto-start speech recognition after 2 seconds
+    setTimeout(() => {
+        if (this.recognition && !this.listeningToTess) {
+            try {
+                this.recognition.start();
+                this.listeningToTess = true;
+                console.log("🎤 Speech recognition auto-started");
+                this.addToTranscriptFeed('🎤 Auto-listening for Tess...');
+            } catch(e) {
+                console.log("Could not auto-start recognition:", e);
             }
-        };
-        console.log("✅ Manual Config Loaded:", this.config);
-        
-        // 2. Setup speech recognition (Initialize only, do not start mic)
-        this.setupSpeechRecognition();
-
-        // ✅ REMOVED: Auto-start speech recognition block.
-        // We now rely entirely on the Supabase Realtime feed.
-        // The mic stays OFF to prevent recording the user.
-
-        // 3. Load LemonSlice widget (commented out if it crashes)
-        // this.loadLemonSlice();
-        
-        // 4. Render UI
-        this.renderModules();
-        
-        // 5. Update Header Info
-        this.updateClientInfo();
-        
-        // 6. Listen for commands from dashboard
-        window.addEventListener('message', (event) => {
-            if (event.data.type === 'DASHBOARD_COMMAND') {
-                console.log('📨 Dashboard command:', event.data);
-                
-                if (event.data.command === 'setAutoTrigger') {
-                    if (window.opener && !window.opener.closed) {
-                        window.opener.postMessage({
-                            type: 'SET_AUTO_TRIGGER',
-                            disabled: event.data.value
-                        }, '*');
-                        this.addToTranscriptFeed(`⚙️ Auto trigger ${event.data.value ? 'DISABLED' : 'ENABLED'}`);
-                    }
+        }
+    }, 2000);
+    
+    // 3. Load LemonSlice widget (commented out if it crashes)
+    // this.loadLemonSlice();
+    
+    // 4. Render UI
+    this.renderModules();
+    
+    // 5. Update Header Info
+    this.updateClientInfo();
+    
+    // 6. Listen for commands from dashboard
+    window.addEventListener('message', (event) => {
+        if (event.data.type === 'DASHBOARD_COMMAND') {
+            console.log('📨 Dashboard command:', event.data);
+            
+            if (event.data.command === 'setAutoTrigger') {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage({
+                        type: 'SET_AUTO_TRIGGER',
+                        disabled: event.data.value
+                    }, '*');
+                    this.addToTranscriptFeed(`⚙️ Auto trigger ${event.data.value ? 'DISABLED' : 'ENABLED'}`);
                 }
             }
-        });
-        
-        this.updateStatus('Ready · Waiting for Bridge Data', 'ready');
-    }
+        }
+    });
+    
+    this.updateStatus('Ready · Waiting for Tess', 'ready');
+}
                 
         // ========== MASTER DIAGNOSTIC TEST ==========
 runDiagnosticTest() {
@@ -850,14 +860,14 @@ runDiagnosticTest() {
                 this.recognition.lang = 'en-US';
 
                 // 3. HANDLE START
-                this.recognition.onstart = () => {
-                    // 🔥 FIX: Updated status to reflect that we are waiting for REMOTE data, not local mic
-                    this.updateStatus('📡 System Active (Waiting for Bridge Data)', 'ready');
+                 this.recognition.onstart = () => {
+                    // 🔥 FIX: Keep the original status so the operator knows the system is running
+                    this.updateStatus('🎤 Listening for Tess...', 'ready');
                     
                     const micStatusEl = document.getElementById('micStatus');
                     if (micStatusEl) {
-                        micStatusEl.innerHTML = 'REMOTE LISTENING MODE';
-                        micStatusEl.style.color = '#00c853'; // Green to show it's active but different
+                        micStatusEl.innerHTML = 'LISTENING TO TESS';
+                        micStatusEl.style.color = '#00c853'; // Green
                     }
                 };
 
@@ -1423,17 +1433,16 @@ class ClientConnectionManager {
         this.autoOpenFromUrl();
     }
 
-    // NEW METHOD: Auto-detect URL params
+        // NEW METHOD: Auto-detect URL params
     autoOpenFromUrl() {
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('clientId');
         const websiteUrl = urlParams.get('websiteUrl');
         
+        // 🔥 FIX: Do NOT auto-open. It causes popup blockers.
+        // We will wait for the user to click "Open Client".
         if (clientId && websiteUrl) {
-            console.log('🔍 Found client in URL params, auto-opening...');
-            setTimeout(() => {
-                this.openClientWindow(clientId, websiteUrl);
-            }, 1000);
+            console.log('🔍 Found client in URL params. Waiting for user to click "Open Client" button to avoid popup blocker...');
         }
     }
 
