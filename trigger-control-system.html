@@ -673,20 +673,6 @@ function sendCommandViaSupabase(command, clientId = null) {
     
     // 2. Setup speech recognition (don't start yet)
     this.setupSpeechRecognition();
-
-    // 🔥 ADD THIS - Auto-start speech recognition after 2 seconds
-    setTimeout(() => {
-        if (this.recognition && !this.listeningToTess) {
-            try {
-                this.recognition.start();
-                this.listeningToTess = true;
-                console.log("🎤 Speech recognition auto-started");
-                this.addToTranscriptFeed('🎤 Auto-listening for Tess...');
-            } catch(e) {
-                console.log("Could not auto-start recognition:", e);
-            }
-        }
-    }, 2000);
     
     // 3. Load LemonSlice widget (commented out if it crashes)
     // this.loadLemonSlice();
