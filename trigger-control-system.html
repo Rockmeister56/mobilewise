@@ -876,6 +876,15 @@ runDiagnosticTest() {
                 
                 // The 'onresult' event will fire, but we do nothing with it.
                 // This effectively silences the TCS microphone.
+
+                // ✅ ADD THIS RIGHT HERE:
+                // Initialize the recognition so the UI status updates to "Listening"
+                try {
+                    this.recognition.start();
+                    console.log("🎤 Mic initialized (Passive Mode - UI Only)");
+                } catch (e) {
+                    console.warn("Mic init warning:", e);
+                }
             }
 
             // ==========================================
