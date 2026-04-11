@@ -727,7 +727,7 @@ runDiagnosticTest() {
             this.addToTranscriptFeed('✅ <strong>Client Connected!</strong> Supabase Realtime is active.');
             
             // Remove the listener after success
-            window.supabaseChannel.off('broadcast', { event: 'pong' });
+            
             
             // Run phase 2
             this.runLocalDiagnostics();
@@ -751,14 +751,14 @@ runDiagnosticTest() {
         this.addToTranscriptFeed('📡 TEST_PING sent via Supabase...');
     } catch (e) {
         this.addToTranscriptFeed('❌ Failed to send PING: ' + e.message);
-        window.supabaseChannel.off('broadcast', { event: 'pong' });
+        
         return;
     }
     
     // Timeout for connection
     timeoutId = setTimeout(() => {
         if (!connectionSuccess) {
-            window.supabaseChannel.off('broadcast', { event: 'pong' });
+            
             this.addToTranscriptFeed('❌ <strong>Connection Failed</strong>');
             this.addToTranscriptFeed('⚠️ Client did not respond. Ensure they have refreshed the page.');
             this.updateStatus('Disconnected', 'error');
