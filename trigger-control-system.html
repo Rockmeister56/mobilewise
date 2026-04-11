@@ -487,6 +487,8 @@
 
         <script>
 
+ let tessIsPlayingAudio = false; // Global flag for Smart Filter
+
 // ============================================
 // SUPABASE REALTIME SETUP (TCS - FIXED VERSION)
 // ============================================
@@ -515,6 +517,12 @@
             if (payload.event === 'tess_transcript') {
                 const text = payload.payload.text;
                 if (!text) return;
+
+            // 🔥 NEW: Listen for Audio Heartbeat
+            if (payload.event === 'audio_status') {
+                tessIsPlayingAudio = payload.payload.isPlaying;
+                console.log(`🔊 Heartbeat: Tess is ${tessIsPlayingAudio ? 'SPEAKING' : 'SILENT'}`);
+            }
 
                 console.log("🎤 TESS SAID (via Supabase):", text);
                 
@@ -827,87 +835,74 @@ runDiagnosticTest() {
             console.log('=== TEST COMPLETE ===');
         }
 
-          setupSpeechRecognition() {
-    // 1. CHECK BROWSER SUPPORT
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        this.updateStatus('❌ Speech recognition not supported', 'error');
-        return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    this.recognition = new SpeechRecognition();
-    
-    // 2. CONFIGURE RECOGNITION
-    this.recognition.continuous = true;
-    this.recognition.interimResults = true;
-    this.recognition.lang = 'en-US';
-
-    // 3. HANDLE START
-    this.recognition.onstart = () => {
-        this.updateStatus('🎤 Listening for Tess...', 'ready');
-        const micStatusEl = document.getElementById('micStatus');
-        if (micStatusEl) {
-            micStatusEl.innerHTML = 'LISTENING TO TESS';
-            micStatusEl.style.color = '#00c853';
-        }
-    };
-
-    // 4. HANDLE ERRORS
-    this.recognition.onerror = (event) => {
-        console.warn('Speech recognition warning:', event.error);
-        // Don't alert the user, just log it
-    };
-
-    // 5. 🔥 THE FIX: SMART FILTERING
-    this.recognition.onresult = (event) => {
-        // Get the latest spoken text
-        const results = event.results;
-        const latestResult = results[results.length - 1];
-        const transcript = latestResult[0].transcript;
-        
-        if (!transcript) return;
-
-        // CHECK: Is the Widget (Tess) currently making noise?
-        // We look for the audio element inside the widget
-        const widget = document.querySelector('lemon-slice-widget') || 
-                       document.querySelector('botemia-widget'); // Try both names
-        
-        let tessIsPlaying = false;
-        
-        if (widget && widget.shadowRoot) {
-            const audioElements = widget.shadowRoot.querySelectorAll('audio');
-            audioElements.forEach(audio => {
-                if (!audio.paused && !audio.ended && audio.currentTime > 0) {
-                    tessIsPlaying = true;
-                }
-            });
-        }
-
-        // LOGIC:
-        // If Tess is playing -> It's likely her voice we are hearing. Show it.
-        // If Tess is NOT playing -> It's likely you (the Agent). Ignore it.
-        
-        if (tessIsPlaying) {
-            console.log(`🤖 TESS (Audio): "${transcript}"`);
-            
-            // Only update the feed if it's a "final" result to avoid jittery text
-            if (latestResult.isFinal) {
-                this.processTranscript(transcript); // This runs your trigger logic
+                 setupSpeechRecognition() {
+            // 1. CHECK BROWSER SUPPORT
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                this.updateStatus('❌ Speech recognition not supported', 'error');
+                return;
             }
-        } else {
-            // Optional: Log to console so you know it's working but ignoring you
-            console.log(`🙊 AGENT (Ignored): "${transcript}"`);
-        }
-    };
 
-    // 6. START IT UP
-    try {
-        this.recognition.start();
-        console.log("🎤 Mic initialized (Smart Filter Active)");
-    } catch (e) {
-        console.warn("Mic init warning:", e);
-    }
-}
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            this.recognition = new SpeechRecognition();
+            
+            // 2. CONFIGURE RECOGNITION
+            this.recognition.continuous = true;
+            this.recognition.interimResults = true;
+            this.recognition.lang = 'en-US';
+
+            // 3. HANDLE START
+            this.recognition.onstart = () => {
+                this.updateStatus('🎤 Listening for Tess...', 'ready');
+                const micStatusEl = document.getElementById('micStatus');
+                if (micStatusEl) {
+                    micStatusEl.innerHTML = 'LISTENING TO TESS';
+                    micStatusEl.style.color = '#00c853';
+                }
+            };
+
+            // 4. HANDLE ERRORS
+            this.recognition.onerror = (event) => {
+                console.warn('Speech recognition warning:', event.error);
+            };
+
+            // 5. 🔥 THE FIX: SMART FILTERING (Remote Heartbeat Version)
+            this.recognition.onresult = (event) => {
+                // Get the latest spoken text
+                const results = event.results;
+                const latestResult = results[results.length - 1];
+                const transcript = latestResult[0].transcript;
+                
+                if (!transcript) return;
+
+                // CHECK: Use the GLOBAL FLAG updated by the Supabase Heartbeat
+                // This flag is set by the 'audio_status' event listener
+                const tessIsPlaying = (window.tessIsPlayingAudio === true);
+
+                // LOGIC:
+                // If Tess is playing -> It's likely her voice we are hearing. Show it.
+                // If Tess is NOT playing -> It's likely you (the Agent). Ignore it.
+                
+                if (tessIsPlaying) {
+                    console.log(`🤖 TESS (Audio): "${transcript}"`);
+                    
+                    // Only update the feed if it's a "final" result to avoid jittery text
+                    if (latestResult.isFinal) {
+                        this.processTranscript(transcript); // This runs your trigger logic
+                    }
+                } else {
+                    // Optional: Log to console so you know it's working but ignoring you
+                    console.log(`🙊 AGENT (Ignored): "${transcript}"`);
+                }
+            };
+
+            // 6. START IT UP
+            try {
+                this.recognition.start();
+                console.log("🎤 Mic initialized (Smart Filter Active - Remote Heartbeat)");
+            } catch (e) {
+                console.warn("Mic init warning:", e);
+            }
+        }
 
             // ==========================================
             // KEEP YOUR EXISTING CODE BELOW HERE
