@@ -391,6 +391,9 @@
         <button class="btn btn-primary" onclick="window.triggerSystem?.runDiagnosticTest()">
     🔍 Run Diagnostic Test
 </button>
+<button class="btn btn-primary" onclick="forceSystemAudio()">
+    🔊 FORCE SYSTEM AUDIO
+</button>
 
         <!-- Main Grid -->
         <div class="main-grid">
@@ -1957,6 +1960,54 @@ function triggerPreQual() {
         if (success) {
             addToTranscriptFeed('🚀 Triggered pre-qualification interview');
         }
+    }
+}
+
+async function forceSystemAudio() {
+    console.log("🔊 Attempting to capture System Audio...");
+    addToTranscriptFeed('🔊 Switching to System Audio (Internal)...');
+    
+    try {
+        // Try to get the screen (which usually includes audio)
+        const captureStream = await navigator.mediaDevices.getDisplayMedia({
+            video: true,
+            audio: true // CRITICAL: Ask for audio
+        });
+        
+        console.log("✅ System Audio stream captured!");
+        addToTranscriptFeed('✅ System Audio connected! Listening now...');
+        
+        // Stop the old recognition
+        if (window.triggerSystem && window.triggerSystem.recognition) {
+            window.triggerSystem.recognition.stop();
+        }
+        
+        // Create a new recognition instance for this stream
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const newRecognition = new SpeechRecognition();
+        newRecognition.continuous = true;
+        newRecognition.interimResults = true;
+        
+        newRecognition.onresult = (event) => {
+            const transcript = event.results[event.results.length - 1][0].transcript;
+            console.log("🎤 System Audio Heard:", transcript);
+            
+            // Update the flag
+            window.tessIsPlayingAudio = true; 
+            
+            if (event.results[event.results.length - 1].isFinal) {
+                window.triggerSystem.processTranscript(transcript);
+            }
+        };
+        
+        newRecognition.start();
+        
+        // Save the new recognition
+        window.triggerSystem.recognition = newRecognition;
+        
+    } catch (err) {
+        console.error("❌ Failed to capture System Audio:", err);
+        addToTranscriptFeed('❌ Failed. Did you select a tab/window to share?');
     }
 }
 
