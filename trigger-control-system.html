@@ -827,64 +827,87 @@ runDiagnosticTest() {
             console.log('=== TEST COMPLETE ===');
         }
 
-                        setupSpeechRecognition() {
-                // 1. CHECK BROWSER SUPPORT
-                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                    this.updateStatus('❌ Speech recognition not supported', 'error');
-                    return;
+          setupSpeechRecognition() {
+    // 1. CHECK BROWSER SUPPORT
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        this.updateStatus('❌ Speech recognition not supported', 'error');
+        return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    this.recognition = new SpeechRecognition();
+    
+    // 2. CONFIGURE RECOGNITION
+    this.recognition.continuous = true;
+    this.recognition.interimResults = true;
+    this.recognition.lang = 'en-US';
+
+    // 3. HANDLE START
+    this.recognition.onstart = () => {
+        this.updateStatus('🎤 Listening for Tess...', 'ready');
+        const micStatusEl = document.getElementById('micStatus');
+        if (micStatusEl) {
+            micStatusEl.innerHTML = 'LISTENING TO TESS';
+            micStatusEl.style.color = '#00c853';
+        }
+    };
+
+    // 4. HANDLE ERRORS
+    this.recognition.onerror = (event) => {
+        console.warn('Speech recognition warning:', event.error);
+        // Don't alert the user, just log it
+    };
+
+    // 5. 🔥 THE FIX: SMART FILTERING
+    this.recognition.onresult = (event) => {
+        // Get the latest spoken text
+        const results = event.results;
+        const latestResult = results[results.length - 1];
+        const transcript = latestResult[0].transcript;
+        
+        if (!transcript) return;
+
+        // CHECK: Is the Widget (Tess) currently making noise?
+        // We look for the audio element inside the widget
+        const widget = document.querySelector('lemon-slice-widget') || 
+                       document.querySelector('botemia-widget'); // Try both names
+        
+        let tessIsPlaying = false;
+        
+        if (widget && widget.shadowRoot) {
+            const audioElements = widget.shadowRoot.querySelectorAll('audio');
+            audioElements.forEach(audio => {
+                if (!audio.paused && !audio.ended && audio.currentTime > 0) {
+                    tessIsPlaying = true;
                 }
+            });
+        }
 
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                this.recognition = new SpeechRecognition();
-                
-                // 2. CONFIGURE RECOGNITION
-                // We keep these settings so the object is initialized correctly,
-                // but we will NOT use the 'onresult' to process data.
-                this.recognition.continuous = true;
-                this.recognition.interimResults = true;
-                this.recognition.lang = 'en-US';
-
-                // 3. HANDLE START
-                 this.recognition.onstart = () => {
-                    // 🔥 FIX: Keep the original status so the operator knows the system is running
-                    this.updateStatus('🎤 Listening for Tess...', 'ready');
-                    
-                    const micStatusEl = document.getElementById('micStatus');
-                    if (micStatusEl) {
-                        micStatusEl.innerHTML = 'LISTENING TO TESS';
-                        micStatusEl.style.color = '#00c853'; // Green
-                    }
-                };
-
-                // 4. HANDLE ERRORS
-                this.recognition.onerror = (event) => {
-                    // We log errors but don't alert the user, because we are relying on Supabase
-                    // for the real data stream. Local mic errors are irrelevant now.
-                    console.warn('Speech recognition system warning:', event.error);
-                };
-
-                // 5. 🔥 CRITICAL FIX: DISABLE LOCAL PROCESSING
-                // The original code below (lines 50-100 in your snippet) was trying to process
-                // YOUR voice through the microphone. We must disable this to prevent the bug.
-                // The TCS now receives data purely via the Supabase listener (added in previous step).
-                
-                // REMOVED: The 'onresult' handler that was capturing local audio.
-                // REMOVED: The echo prevention logic (checking if widget is playing).
-                // REMOVED: The duplicate checks.
-                // REMOVED: The 'processTranscript' call.
-                
-                // The 'onresult' event will fire, but we do nothing with it.
-                // This effectively silences the TCS microphone.
-
-                // ✅ ADD THIS RIGHT HERE:
-                // Initialize the recognition so the UI status updates to "Listening"
-                try {
-                    this.recognition.start();
-                    console.log("🎤 Mic initialized (Passive Mode - UI Only)");
-                } catch (e) {
-                    console.warn("Mic init warning:", e);
-                }
+        // LOGIC:
+        // If Tess is playing -> It's likely her voice we are hearing. Show it.
+        // If Tess is NOT playing -> It's likely you (the Agent). Ignore it.
+        
+        if (tessIsPlaying) {
+            console.log(`🤖 TESS (Audio): "${transcript}"`);
+            
+            // Only update the feed if it's a "final" result to avoid jittery text
+            if (latestResult.isFinal) {
+                this.processTranscript(transcript); // This runs your trigger logic
             }
+        } else {
+            // Optional: Log to console so you know it's working but ignoring you
+            console.log(`🙊 AGENT (Ignored): "${transcript}"`);
+        }
+    };
+
+    // 6. START IT UP
+    try {
+        this.recognition.start();
+        console.log("🎤 Mic initialized (Smart Filter Active)");
+    } catch (e) {
+        console.warn("Mic init warning:", e);
+    }
+}
 
             // ==========================================
             // KEEP YOUR EXISTING CODE BELOW HERE
@@ -953,7 +976,7 @@ runDiagnosticTest() {
             }
 
             runFullTest() {
-                console.log('=== BOTEMIA SYSTEM TEST ===');
+                console.log('=== TESS SYSTEM TEST ===');
                 console.log('1. Checking configuration:', this.config);
                 console.log('2. Agent ID:', this.config?.agentId);
                 console.log('3. Speech recognition:', this.recognition ? '✅' : '❌');
@@ -991,7 +1014,7 @@ runDiagnosticTest() {
                 this.addToTranscriptFeed(`🎯 Trigger: "${phrase}"`);
                 
                 // SEND THE SPECIFIC COMMAND THE BRIDGE EXPECTS
-                sendCommandViaSupabase('START_PRE_QUAL');
+                this.sendCommandViaSupabase('START_PRE_QUAL');
                 
                 // Show alert in TCS
                 const alertEl = document.getElementById('triggerAlert');
@@ -1377,9 +1400,62 @@ sendToClientWidget(moduleName, triggerPhrase) {
         }
 
         function triggerPreQual() {
-    const success = clientManager.sendToSelectedClient('START_PRE_QUAL');
-    if (success) {
-        addToTranscriptFeed('🚀 Triggered pre-qualification interview');
+    // 1. Get Client ID
+    const urlParams = new URLSearchParams(window.location.search);
+    let clientId = urlParams.get('clientId');
+    
+    // Fallback if missing
+    if (!clientId && window.clientManager && window.clientManager.clientWindows.size > 0) {
+        clientId = Array.from(window.clientManager.clientWindows.keys())[0];
+    }
+    
+    if (!clientId) {
+        console.error('❌ No client ID found');
+        addToTranscriptFeed('❌ No client connected. Please refresh the client page.');
+        return;
+    }
+
+    // 2. Log the attempt
+    console.log(`🚀 TCS: Attempting to trigger Pre-Qual for ${clientId}...`);
+    addToTranscriptFeed('🚀 Triggering Pre-Qualification Interview...');
+
+    // 3. SHOTGUN BLAST: Try every possible way to send the command
+
+    // METHOD A: Supabase (Event: 'command')
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'command',
+            payload: {
+                type: 'START_PRE_QUAL', 
+                command: 'START_PRE_QUAL',
+                clientId: clientId,
+                timestamp: Date.now()
+            }
+        });
+        console.log("📡 Sent via Supabase (event: command)");
+    }
+
+    // METHOD B: Direct PostMessage
+    if (window.clientManager && window.clientManager.clientWindows.has(clientId)) {
+        const clientWin = window.clientManager.clientWindows.get(clientId);
+        if (clientWin && !clientWin.closed) {
+            clientWin.postMessage({
+                type: 'START_PRE_QUAL',
+                command: 'START_PRE_QUAL'
+            }, '*');
+            console.log("📨 Sent via Window PostMessage");
+        }
+    }
+    
+    // METHOD C: Supabase (Event: 'START_PRE_QUAL')
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'START_PRE_QUAL', 
+            payload: { timestamp: Date.now() }
+        });
+        console.log("📡 Sent via Supabase (event: START_PRE_QUAL)");
     }
 }
 
