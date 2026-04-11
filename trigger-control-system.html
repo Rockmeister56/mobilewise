@@ -520,8 +520,8 @@
 
             // 🔥 NEW: Listen for Audio Heartbeat
             if (payload.event === 'audio_status') {
-                tessIsPlayingAudio = payload.payload.isPlaying;
-                console.log(`🔊 Heartbeat: Tess is ${tessIsPlayingAudio ? 'SPEAKING' : 'SILENT'}`);
+            window.tessIsPlayingAudio = payload.payload.isPlaying; // <--- ADDED window.
+            console.log(`🔊 Heartbeat: Tess is ${window.tessIsPlayingAudio ? 'SPEAKING' : 'SILENT'}`);
             }
 
                 console.log("🎤 TESS SAID (via Supabase):", text);
