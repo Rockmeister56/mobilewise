@@ -751,7 +751,6 @@ runDiagnosticTest() {
         this.addToTranscriptFeed('📡 TEST_PING sent via Supabase...');
     } catch (e) {
         this.addToTranscriptFeed('❌ Failed to send PING: ' + e.message);
-        
         return;
     }
     
@@ -1441,11 +1440,11 @@ class ClientConnectionManager {
         this.autoOpenFromUrl();
     }
 
-    // NEW METHOD: Auto-detect URL params
+        // NEW METHOD: Auto-detect URL params
     autoOpenFromUrl() {
         const urlParams = new URLSearchParams(window.location.search);
         const clientId = urlParams.get('clientId');
-        const websiteUrl = urlParams.get('websiteUrl'); // <--- FIXED TYPO HERE
+        const websiteUrl = urlParams.get('websiteUrl');
         
         // 🔥 FIX: Do NOT auto-open. It causes popup blockers.
         // We will wait for the user to click "Open Client".
@@ -1469,9 +1468,9 @@ class ClientConnectionManager {
             }
         }
         
-        // 🔥 FIX: Add roomId to the URL so the Bridge joins the TCS's room
+        // Clean URL - remove any existing params and add ONLY clientId
         const baseUrl = websiteUrl.split('?')[0];
-        const cleanClientUrl = `${baseUrl}?clientId=${clientId}&roomId=${clientId}`;
+        const cleanClientUrl = `${baseUrl}?clientId=${clientId}`;
         
         console.log('📎 Opening clean URL:', cleanClientUrl);
         
