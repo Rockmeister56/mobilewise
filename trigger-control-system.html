@@ -1298,13 +1298,26 @@ sendToClientWidget(moduleName, triggerPhrase) {
     return actions[moduleName] || 'Launching module...';
 }
 
-            updateClientInfo() {
+     updateClientInfo() {
     if (!this.config) return;
     
+    // 1. Update the Header Info (Standard)
     document.getElementById('clientNameDisplay').innerHTML = this.config.name || '—';
     document.getElementById('agentIdDisplay').innerHTML = this.config.agentId ? 
         this.config.agentId.substring(0, 15) + '...' : 'Not configured';
     document.getElementById('industryDisplay').innerHTML = this.config.industry || '—';
+    
+    // 2. 🔥 FIX: Force the "Connection Status" to recognize the client from URL
+    const statusEl = document.getElementById('connectionStatus');
+    if (statusEl) {
+        if (this.config.id) {
+            // If we have a Client ID from the URL, we consider ourselves connected to it.
+            statusEl.innerHTML = `✅ Connected: ${this.config.id}`;
+            statusEl.style.color = '#00c853'; // Green
+        } else {
+            statusEl.innerHTML = '⚡ No client connected';
+        }
+    }
 }
 
             updateStatus(message, type) {
@@ -1349,7 +1362,7 @@ sendToClientWidget(moduleName, triggerPhrase) {
                 this.addToTranscriptFeed('🔄 Reloading Tess...');
                 location.reload();
             }
-} // <--- THIS WAS MISSING! Closing brace for TriggerControlSystem
+} // <--- Closing brace for TriggerControlSystem
 
         // Global instance
         let triggerSystem;
