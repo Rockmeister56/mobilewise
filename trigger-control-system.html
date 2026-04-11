@@ -835,7 +835,7 @@ runDiagnosticTest() {
             console.log('=== TEST COMPLETE ===');
         }
 
-                 setupSpeechRecognition() {
+                   setupSpeechRecognition() {
             // 1. CHECK BROWSER SUPPORT
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
                 this.updateStatus('❌ Speech recognition not supported', 'error');
@@ -852,11 +852,11 @@ runDiagnosticTest() {
 
             // 3. HANDLE START
             this.recognition.onstart = () => {
-                this.updateStatus('🎤 Listening for Tess...', 'ready');
+                this.updateStatus('🎤 Listening for Tess (Visual Mode)...', 'ready');
                 const micStatusEl = document.getElementById('micStatus');
                 if (micStatusEl) {
-                    micStatusEl.innerHTML = 'LISTENING TO TESS';
-                    micStatusEl.style.color = '#00c853';
+                    micStatusEl.innerHTML = 'VISUAL SPY ACTIVE';
+                    micStatusEl.style.color = '#f8c400';
                 }
             };
 
@@ -865,32 +865,58 @@ runDiagnosticTest() {
                 console.warn('Speech recognition warning:', event.error);
             };
 
-            // 5. 🔥 THE FIX: SMART FILTERING (Remote Heartbeat Version)
+            // 5. 🔥 THE FIX: VISUAL SPY LOGIC
             this.recognition.onresult = (event) => {
-                // Get the latest spoken text
                 const results = event.results;
                 const latestResult = results[results.length - 1];
                 const transcript = latestResult[0].transcript;
                 
                 if (!transcript) return;
 
-                // CHECK: Use the GLOBAL FLAG updated by the Supabase Heartbeat
-                // This flag is set by the 'audio_status' event listener
-                const tessIsPlaying = (window.tessIsPlayingAudio === true);
-
-                // LOGIC:
-                // If Tess is playing -> It's likely her voice we are hearing. Show it.
-                // If Tess is NOT playing -> It's likely you (the Agent). Ignore it.
+                // CHECK: Use Visual Spy Detection
+                // We look at the CLIENT WINDOW to see if the visualizer is moving
+                let tessIsActive = false;
                 
-                if (tessIsPlaying) {
-                    console.log(`🤖 TESS (Audio): "${transcript}"`);
+                if (window.clientManager && window.clientManager.clientWindows.size > 0) {
+                    // Get the client window reference
+                    const clientId = Array.from(window.clientManager.clientWindows.keys())[0];
+                    const clientWindow = window.clientManager.clientWindows.get(clientId);
                     
-                    // Only update the feed if it's a "final" result to avoid jittery text
+                    if (clientWindow && !clientWindow.closed) {
+                        try {
+                            // Try to find the widget in the client window
+                            const clientWidget = clientWindow.document.querySelector('lemon-slice-widget') || clientWindow.document.querySelector('botemia-widget');
+                            
+                            if (clientWidget && clientWidget.shadowRoot) {
+                                // VISUAL CHECK: Are there canvas elements (usually visualizers)?
+                                const visualizers = clientWidget.shadowRoot.querySelectorAll('canvas');
+                                if (visualizers.length > 0) {
+                                    tessIsActive = true; // If visualizers exist, assume active
+                                }
+                                
+                                // FALLBACK CHECK: Is audio playing?
+                                const audios = clientWidget.shadowRoot.querySelectorAll('audio');
+                                audios.forEach(audio => {
+                                    if (!audio.paused && audio.currentTime > 0) {
+                                        tessIsActive = true;
+                                    }
+                                });
+                            }
+                        } catch (e) {
+                            // Cross-origin restriction fallback
+                            // If we can't see inside, we assume if mic is active, it's Tess
+                            console.log("🕵️ Visual Spy blocked by CORS, using Audio Fallback.");
+                            tessIsActive = true; 
+                        }
+                    }
+                }
+
+                if (tessIsActive) {
+                    console.log(`🤖 TESS (Visual Spy): "${transcript}"`);
                     if (latestResult.isFinal) {
-                        this.processTranscript(transcript); // This runs your trigger logic
+                        this.processTranscript(transcript);
                     }
                 } else {
-                    // Optional: Log to console so you know it's working but ignoring you
                     console.log(`🙊 AGENT (Ignored): "${transcript}"`);
                 }
             };
@@ -898,7 +924,7 @@ runDiagnosticTest() {
             // 6. START IT UP
             try {
                 this.recognition.start();
-                console.log("🎤 Mic initialized (Smart Filter Active - Remote Heartbeat)");
+                console.log("🎤 Mic initialized (Visual Spy Mode)");
             } catch (e) {
                 console.warn("Mic init warning:", e);
             }
