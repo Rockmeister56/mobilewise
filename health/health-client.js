@@ -23,7 +23,7 @@
     const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_whfuQ3XwtHhjwC-VLG2Z6A_L8vv_EFX";
     
-    let supabase;
+    let supabaseClient = null;  // FIXED: renamed variable
     let lastPingTime = 0;
     
     // Load Supabase SDK first
@@ -36,7 +36,6 @@
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
             script.onload = () => {
-                // Wait for it to be available
                 const checkInterval = setInterval(() => {
                     if (window.supabase && window.supabase.createClient) {
                         clearInterval(checkInterval);
@@ -52,8 +51,8 @@
     async function init() {
         await loadSupabaseSDK();
         
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const channel = supabase.channel('health-monitor');
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);  // FIXED
+        const channel = supabaseClient.channel('health-monitor');  // FIXED
         
         channel.on('broadcast', { event: 'ping_all' }, () => {
             sendHeartbeat();
@@ -79,9 +78,9 @@
     }
     
     function sendHeartbeat() {
-        if (!supabase) return;
+        if (!supabaseClient) return;  // FIXED
         const start = performance.now();
-        supabase.channel('health-monitor').send({
+        supabaseClient.channel('health-monitor').send({  // FIXED
             type: 'broadcast',
             event: 'heartbeat',
             payload: {
