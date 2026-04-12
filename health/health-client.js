@@ -1,6 +1,4 @@
-// MobileWise AI Health Client - Add to any client site with:
-// <script src="https://mobilewise.netlify.app/health/health-client.js?clientId=YOUR_CLIENT_ID"></script>
-
+// MobileWise AI Health Client - Fixed Version
 (function() {
     const urlParams = new URLSearchParams(window.location.search);
     let clientId = urlParams.get('clientId');
@@ -18,7 +16,7 @@
     }
     
     if (!clientId) {
-        console.warn('⚠️ Health Client: No clientId provided. Add ?clientId=YOUR_ID to script src');
+        console.warn('⚠️ Health Client: No clientId provided');
         return;
     }
     
@@ -28,22 +26,36 @@
     let supabase;
     let lastPingTime = 0;
     
+    // Load Supabase SDK first
+    function loadSupabaseSDK() {
+        return new Promise((resolve, reject) => {
+            if (window.supabase && window.supabase.createClient) {
+                resolve();
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+            script.onload = () => {
+                // Wait for it to be available
+                const checkInterval = setInterval(() => {
+                    if (window.supabase && window.supabase.createClient) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 100);
+            };
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+    
     async function init() {
-        const { createClient } = window.supabase;
-        if (!createClient) {
-            await new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
-        }
+        await loadSupabaseSDK();
         
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const channel = supabase.channel('health-monitor');
         
-        channel.on('broadcast', { event: 'ping_all' }, (payload) => {
+        channel.on('broadcast', { event: 'ping_all' }, () => {
             sendHeartbeat();
         });
         
