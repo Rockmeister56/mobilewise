@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MobileWise AI - Communication Monitor</title>
+    <style>
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #0f172a; margin: 0; padding: 20px; color: #e2e8f0; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+        .sub { color: #94a3b8; margin-bottom: 2rem; }
+        
+        .client-card {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #334155;
+        }
+        
+        .client-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .client-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-online { background: #22c55e20; color: #22c55e; border: 1px solid #22c55e40; }
+        .status-offline { background: #ef444420; color: #ef4444; border: 1px solid #ef444440; }
+        .status-warning { background: #eab30820; color: #eab308; border: 1px solid #eab30840; }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 15px;
+            border-left: 3px solid #334155;
+        }
+        
+        .metric-card.healthy { border-left-color: #22c55e; }
+        .metric-card.unhealthy { border-left-color: #ef4444; }
+        .metric-card.warning { border-left-color: #eab308; }
+        
+        .metric-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .metric-time {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 8px;
+        }
+        
+        button {
+            background: #3b82f6;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        
+        button:hover { background: #2563eb; }
+        button.danger { background: #ef4444; }
+        button.danger:hover { background: #dc2626; }
+        
+        .test-results {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .log-success { color: #22c55e; }
+        .log-error { color: #ef4444; }
+        .log-info { color: #94a3b8; }
+        
+        .no-clients {
+            text-align: center;
+            padding: 60px;
+            color: #64748b;
+            background: #1e293b;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🔗 MobileWise AI Communication Monitor</h1>
+    <div class="sub">Real-time status of client ↔ TCS communication through Supabase</div>
+
+    <div style="margin-bottom: 20px;">
+        <button id="refreshBtn">🔄 Refresh All</button>
+        <button id="testAllBtn">📡 Test All Clients</button>
+    </div>
+
+    <div id="clientsContainer">
+        <div class="no-clients">✨ Waiting for client data...</div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_whfuQ3XwtHhjwC-VLG2Z6A_L8vv_EFX";
+    
+    let dashboardSupabase = null;
+    let clients = new Map();
+    let testResults = new Map();
+    
+    async function initSupabase() {
+        dashboardSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        const channel = dashboardSupabase.channel('health-monitor');
+        
+        // Listen for heartbeats
+        channel.on('broadcast', { event: 'heartbeat' }, (payload) => {
+            const { clientId, timestamp, latency } = payload.payload;
+            updateClientHeartbeat(clientId, timestamp, latency);
+        });
+        
+        // Listen for client registration
+        channel.on('broadcast', { event: 'client_register' }, (payload) => {
+            const { clientId, userAgent, url } = payload.payload;
+            registerClient(clientId, userAgent, url);
+        });
+        
+        // Listen for test pongs
+        channel.on('broadcast', { event: 'test_pong' }, (payload) => {
+            const { clientId, timestamp, echoTimestamp } = payload.payload;
+            const roundtrip = Date.now() - echoTimestamp;
+            updateTestResult(clientId, 'pong_received', true, roundtrip);
+            addLog(clientId, `✅ Test PASSED - Roundtrip: ${roundtrip}ms`, 'success');
+        });
+        
+        await channel.subscribe();
+        console.log("📡 Communication Monitor active");
+        
+        // Clean up stale clients
+        setInterval(() => {
+            const now = Date.now();
+            for (let [id, data] of clients.entries()) {
+                if (now - data.lastHeartbeat > 60000) {
+                    data.status = 'offline';
+                    data.supabaseConnected = false;
+                    renderClients();
+                }
+            }
+        }, 15000);
+    }
+    
+    function registerClient(clientId, userAgent, url) {
+        if (!clients.has(clientId)) {
+            clients.set(clientId, {
+                status: 'online',
+                lastHeartbeat: Date.now(),
+                supabaseConnected: true,
+                bridgeActive: false,
+                tcsHandshake: false,
+                dailyActive: false,
+                userAgent: userAgent,
+                url: url,
+                testStatus: 'pending'
+            });
+            addLog(clientId, `🆕 Client registered`, 'info');
+        } else {
+            const client = clients.get(clientId);
+            client.status = 'online';
+            client.lastHeartbeat = Date.now();
+            client.supabaseConnected = true;
+            if (userAgent) client.userAgent = userAgent;
+            if (url) client.url = url;
+        }
+        renderClients();
+    }
+    
+    function updateClientHeartbeat(clientId, timestamp, latency) {
+        if (!clients.has(clientId)) {
+            registerClient(clientId, null, null);
+        }
+        const client = clients.get(clientId);
+        client.lastHeartbeat = Date.now();
+        client.status = 'online';
+        client.supabaseConnected = true;
+        client.latency = latency;
+        renderClients();
+    }
+    
+    function updateTestResult(clientId, test, passed, data = null) {
+        if (!clients.has(clientId)) return;
+        const client = clients.get(clientId);
+        client.testStatus = passed ? 'passed' : 'failed';
+        if (passed && data) {
+            client.lastRoundtrip = data;
+        }
+        renderClients();
+    }
+    
+    function addLog(clientId, message, type = 'info') {
+        if (!testResults.has(clientId)) {
+            testResults.set(clientId, []);
+        }
+        const logs = testResults.get(clientId);
+        logs.unshift({ message, type, timestamp: Date.now() });
+        if (logs.length > 10) logs.pop();
+        renderLogs(clientId);
+    }
+    
+    async function testClient(clientId) {
+        addLog(clientId, "🔍 Starting communication test...", 'info');
+        
+        // Send test ping via Supabase
+        const echoTimestamp = Date.now();
+        dashboardSupabase.channel('health-monitor').send({
+            type: 'broadcast',
+            event: 'test_ping',
+            payload: {
+                clientId: clientId,
+                timestamp: echoTimestamp,
+                source: 'monitor'
+            }
+        });
+        
+        addLog(clientId, `📡 Test ping sent at ${new Date(echoTimestamp).toLocaleTimeString()}`, 'info');
+        
+        // Timeout after 5 seconds
+        setTimeout(() => {
+            const client = clients.get(clientId);
+            if (!client || client.testStatus !== 'passed') {
+                addLog(clientId, "❌ Test FAILED - No response from Bridge", 'error');
+                updateTestResult(clientId, 'full_test', false);
+            }
+        }, 5000);
+    }
+    
+    async function testAllClients() {
+        for (let [clientId] of clients.entries()) {
+            await testClient(clientId);
+            await new Promise(r => setTimeout(r, 1000));
+        }
+    }
+    
+    function renderClients() {
+        const container = document.getElementById('clientsContainer');
+        const clientArray = Array.from(clients.entries());
+        
+        if (clientArray.length === 0) {
+            container.innerHTML = '<div class="no-clients">✨ No clients yet. Add the health-client.js script to a client site and it will appear here.</div>';
+            return;
+        }
+        
+        container.innerHTML = clientArray.map(([id, data]) => {
+            const lastSeenAgo = Math.floor((Date.now() - data.lastHeartbeat) / 1000);
+            const statusClass = data.status === 'online' ? 'status-online' : 'status-offline';
+            
+            return `
+                <div class="client-card">
+                    <div class="client-header">
+                        <span class="client-name">${escapeHtml(id)}</span>
+                        <span class="status-badge ${statusClass}">${data.status === 'online' ? '🟢 ONLINE' : '🔴 OFFLINE'}</span>
+                    </div>
+                    
+                    <div class="metric-grid">
+                        <div class="metric-card ${data.supabaseConnected ? 'healthy' : 'unhealthy'}">
+                            <div class="metric-title">🔌 SUPABASE REALTIME</div>
+                            <div class="metric-value">${data.supabaseConnected ? '✅ CONNECTED' : '❌ DISCONNECTED'}</div>
+                            <div class="metric-time">Last heartbeat: ${lastSeenAgo}s ago</div>
+                        </div>
+                        
+                        <div class="metric-card ${data.bridgeActive ? 'healthy' : 'warning'}">
+                            <div class="metric-title">🌉 BRIDGE ACTIVE</div>
+                            <div class="metric-value">${data.bridgeActive ? '✅ ACTIVE' : '⏳ AWAITING SIGNAL'}</div>
+                            <div class="metric-time">Latency: ${data.latency || '—'}ms</div>
+                        </div>
+                        
+                        <div class="metric-card ${data.testStatus === 'passed' ? 'healthy' : (data.testStatus === 'failed' ? 'unhealthy' : 'warning')}">
+                            <div class="metric-title">🔄 TCS ↔ BRIDGE TEST</div>
+                            <div class="metric-value">${data.testStatus === 'passed' ? '✅ PASSED' : (data.testStatus === 'failed' ? '❌ FAILED' : '⏳ NOT TESTED')}</div>
+                            <div class="metric-time">Roundtrip: ${data.lastRoundtrip || '—'}ms</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button onclick="testClient('${escapeHtml(id)}')">🔍 Test Communication</button>
+                    </div>
+                    
+                    <div id="logs-${escapeHtml(id)}" class="test-results">
+                        <div class="log-entry log-info">Click "Test Communication" to run diagnostics...</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Re-render logs for each client
+        for (let [id] of clients.entries()) {
+            renderLogs(id);
+        }
+    }
+    
+    function renderLogs(clientId) {
+        const logContainer = document.getElementById(`logs-${escapeHtml(clientId)}`);
+        if (!logContainer) return;
+        
+        const logs = testResults.get(clientId) || [];
+        if (logs.length === 0) {
+            logContainer.innerHTML = '<div class="log-entry log-info">Click "Test Communication" to run diagnostics...</div>';
+            return;
+        }
+        
+        logContainer.innerHTML = logs.map(log => {
+            const time = new Date(log.timestamp).toLocaleTimeString();
+            const logClass = log.type === 'success' ? 'log-success' : (log.type === 'error' ? 'log-error' : 'log-info');
+            return `<div class="log-entry ${logClass}">[${time}] ${escapeHtml(log.message)}</div>`;
+        }).join('');
+    }
+    
+    function escapeHtml(str) { 
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m){
+            if(m==='&') return '&amp;';
+            if(m==='<') return '&lt;';
+            if(m==='>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // Make functions global for button callbacks
+    window.testClient = testClient;
+    window.testAllClients = testAllClients;
+    
+    document.getElementById('refreshBtn').onclick = () => renderClients();
+    document.getElementById('testAllBtn').onclick = () => testAllClients();
+    
+    initSupabase();
+</script>
+</body>
+</html>
