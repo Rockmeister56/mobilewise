@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,7 +32,6 @@
         .last-seen { font-size: 0.75rem; color: #64748b; margin-top: 12px; }
         button { background: #3b82f6; border: none; padding: 8px 16px; border-radius: 10px; color: white; font-weight: 500; cursor: pointer; transition: all 0.2s; }
         button:hover { background: #2563eb; transform: scale(0.98); }
-        .refresh-btn { background: #334155; margin-bottom: 20px; }
         .empty-state { text-align: center; padding: 60px; color: #64748b; background: #1e293b; border-radius: 20px; }
         code { background: #0f172a; padding: 2px 6px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; }
         hr { border-color: #334155; margin: 20px 0; }
@@ -73,9 +71,8 @@
     const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_whfuQ3XwtHhjwC-VLG2Z6A_L8vv_EFX";
 
-    let supabase;
+    let dashboardSupabase = null;  // FIXED: Unique variable name
     let clients = new Map();
-    let heartbeatInterval;
 
     const clientGrid = document.getElementById('clientGrid');
     const clientCountSpan = document.getElementById('clientCount');
@@ -88,7 +85,7 @@
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 5000);
-            const response = await fetch(`${SUPABASE_URL}/functions/v1/create-daily-room`, {
+            await fetch(`${SUPABASE_URL}/functions/v1/create-daily-room`, {
                 method: 'OPTIONS',
                 signal: controller.signal
             });
@@ -97,29 +94,28 @@
             edgeStatus.textContent = 'Online (reachable)';
         } catch (error) {
             edgeLed.className = 'status-led yellow';
-            edgeStatus.textContent = 'Unreachable or CORS (may still work from client)';
+            edgeStatus.textContent = 'Unreachable or CORS';
         }
     }
 
     async function initSupabase() {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        dashboardSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        const channel = supabase.channel('health-monitor');
+        const channel = dashboardSupabase.channel('health-monitor');
         channel.on('broadcast', { event: 'heartbeat' }, (payload) => {
             const { clientId, timestamp, latency } = payload.payload;
             const now = Date.now();
-            const clientLatency = latency || (now - timestamp);
             
             if (clients.has(clientId)) {
                 const existing = clients.get(clientId);
                 existing.lastSeen = now;
-                existing.latency = clientLatency;
+                existing.latency = latency || (now - timestamp);
                 existing.status = 'online';
             } else {
                 clients.set(clientId, {
                     status: 'online',
                     lastSeen: now,
-                    latency: clientLatency,
+                    latency: latency || (now - timestamp),
                     firstSeen: now
                 });
             }
@@ -171,8 +167,8 @@
     }
 
     function pingAllClients() {
-        if (!supabase) return;
-        supabase.channel('health-monitor').send({
+        if (!dashboardSupabase) return;
+        dashboardSupabase.channel('health-monitor').send({
             type: 'broadcast',
             event: 'ping_all',
             payload: { timestamp: Date.now(), source: 'dashboard' }
@@ -208,7 +204,7 @@
                     </div>
                     <div class="last-seen">
                         ${data.url ? `📍 ${escapeHtml(data.url)}<br>` : ''}
-                        ${data.userAgent ? `🖥️ ${escapeHtml(data.userAgent.substring(0, 60))}${data.userAgent.length > 60 ? '…' : ''}` : ''}
+                        ${data.userAgent ? `🖥️ ${escapeHtml(data.userAgent.substring(0, 60))}` : ''}
                     </div>
                 </div>
             `;
