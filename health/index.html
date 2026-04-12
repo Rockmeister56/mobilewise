@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MobileWise AI - Client Health Monitor</title>
+    <style>
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: #0f172a; margin: 0; padding: 20px; color: #e2e8f0; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+        .sub { color: #94a3b8; margin-bottom: 2rem; }
+        .status-bar { background: #1e293b; border-radius: 16px; padding: 16px 24px; margin-bottom: 24px; display: flex; gap: 32px; flex-wrap: wrap; align-items: center; }
+        .status-item { display: flex; align-items: center; gap: 10px; }
+        .status-led { width: 12px; height: 12px; border-radius: 50%; }
+        .status-led.green { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .status-led.red { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        .status-led.yellow { background: #eab308; box-shadow: 0 0 8px #eab308; }
+        .client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
+        .client-card { background: #1e293b; border-radius: 20px; padding: 20px; border: 1px solid #334155; transition: all 0.2s; }
+        .client-card.online { border-left: 4px solid #22c55e; }
+        .client-card.offline { border-left: 4px solid #ef4444; opacity: 0.7; }
+        .client-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .client-id { font-weight: 700; font-size: 1.1rem; color: white; word-break: break-all; }
+        .client-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; background: #334155; }
+        .client-badge.online { background: #22c55e20; color: #22c55e; border: 1px solid #22c55e40; }
+        .client-badge.offline { background: #ef444420; color: #ef4444; border: 1px solid #ef444440; }
+        .metric-row { display: flex; gap: 20px; margin: 16px 0; font-size: 0.85rem; }
+        .metric { background: #0f172a; padding: 8px 12px; border-radius: 12px; flex: 1; }
+        .metric-label { color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-value { font-size: 1.2rem; font-weight: 600; color: white; }
+        .last-seen { font-size: 0.75rem; color: #64748b; margin-top: 12px; }
+        button { background: #3b82f6; border: none; padding: 8px 16px; border-radius: 10px; color: white; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        button:hover { background: #2563eb; transform: scale(0.98); }
+        .refresh-btn { background: #334155; margin-bottom: 20px; }
+        .empty-state { text-align: center; padding: 60px; color: #64748b; background: #1e293b; border-radius: 20px; }
+        code { background: #0f172a; padding: 2px 6px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; }
+        hr { border-color: #334155; margin: 20px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🩺 MobileWise AI Health Monitor</h1>
+    <div class="sub">Real-time client connection status · Supabase Realtime</div>
+
+    <div class="status-bar">
+        <div class="status-item"><div class="status-led" id="supabaseLed"></div><span>Supabase</span><span id="supabaseStatus">Connecting...</span></div>
+        <div class="status-item"><div class="status-led" id="edgeLed"></div><span>Edge Function</span><span id="edgeStatus">Checking...</span></div>
+        <div class="status-item"><button id="forceRefreshBtn">🔄 Refresh All</button></div>
+        <div class="status-item"><button id="testAllBtn">📡 Ping All Clients</button></div>
+    </div>
+
+    <details style="margin-bottom: 20px; cursor: pointer;">
+        <summary style="color: #94a3b8; font-size: 0.85rem;">📋 How to add this monitor to a new client</summary>
+        <div style="background: #0f172a; padding: 16px; border-radius: 12px; margin-top: 12px;">
+            <p style="margin: 0 0 8px 0;">Add this single line to your client's website (anywhere before &lt;/body&gt;):</p>
+            <code style="display: block; background: #000; padding: 12px; border-radius: 8px; overflow-x: auto;">&lt;script src="https://mobilewise.netlify.app/health/health-client.js?clientId=YOUR_CLIENT_ID"&gt;&lt;/script&gt;</code>
+            <p style="margin-top: 12px; font-size: 0.8rem;">Replace <code>YOUR_CLIENT_ID</code> with a unique name (e.g., <code>mortgage-assist-demo</code>).</p>
+        </div>
+    </details>
+
+    <hr>
+
+    <h3>📡 Active Clients <span id="clientCount">(0)</span></h3>
+    <div id="clientGrid" class="client-grid">
+        <div class="empty-state">✨ No clients yet. Add the health-client.js script to a client site and it will appear here.</div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_whfuQ3XwtHhjwC-VLG2Z6A_L8vv_EFX";
+
+    let supabase;
+    let clients = new Map();
+    let heartbeatInterval;
+
+    const clientGrid = document.getElementById('clientGrid');
+    const clientCountSpan = document.getElementById('clientCount');
+    const supabaseLed = document.getElementById('supabaseLed');
+    const supabaseStatus = document.getElementById('supabaseStatus');
+    const edgeLed = document.getElementById('edgeLed');
+    const edgeStatus = document.getElementById('edgeStatus');
+
+    async function checkEdgeFunction() {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            const response = await fetch(`${SUPABASE_URL}/functions/v1/create-daily-room`, {
+                method: 'OPTIONS',
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            edgeLed.className = 'status-led green';
+            edgeStatus.textContent = 'Online (reachable)';
+        } catch (error) {
+            edgeLed.className = 'status-led yellow';
+            edgeStatus.textContent = 'Unreachable or CORS (may still work from client)';
+        }
+    }
+
+    async function initSupabase() {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        const channel = supabase.channel('health-monitor');
+        channel.on('broadcast', { event: 'heartbeat' }, (payload) => {
+            const { clientId, timestamp, latency } = payload.payload;
+            const now = Date.now();
+            const clientLatency = latency || (now - timestamp);
+            
+            if (clients.has(clientId)) {
+                const existing = clients.get(clientId);
+                existing.lastSeen = now;
+                existing.latency = clientLatency;
+                existing.status = 'online';
+            } else {
+                clients.set(clientId, {
+                    status: 'online',
+                    lastSeen: now,
+                    latency: clientLatency,
+                    firstSeen: now
+                });
+            }
+            renderClients();
+        });
+
+        channel.on('broadcast', { event: 'client_register' }, (payload) => {
+            const { clientId, userAgent, url } = payload.payload;
+            if (!clients.has(clientId)) {
+                clients.set(clientId, {
+                    status: 'online',
+                    lastSeen: Date.now(),
+                    latency: null,
+                    firstSeen: Date.now(),
+                    userAgent,
+                    url
+                });
+            } else {
+                const existing = clients.get(clientId);
+                existing.lastSeen = Date.now();
+                existing.status = 'online';
+                if (userAgent) existing.userAgent = userAgent;
+                if (url) existing.url = url;
+            }
+            renderClients();
+        });
+
+        channel.subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                supabaseLed.className = 'status-led green';
+                supabaseStatus.textContent = 'Connected';
+            } else {
+                supabaseLed.className = 'status-led red';
+                supabaseStatus.textContent = 'Disconnected';
+            }
+        });
+
+        setInterval(() => {
+            const now = Date.now();
+            let changed = false;
+            for (let [id, data] of clients.entries()) {
+                if (data.status === 'online' && (now - data.lastSeen) > 60000) {
+                    data.status = 'offline';
+                    changed = true;
+                }
+            }
+            if (changed) renderClients();
+        }, 15000);
+    }
+
+    function pingAllClients() {
+        if (!supabase) return;
+        supabase.channel('health-monitor').send({
+            type: 'broadcast',
+            event: 'ping_all',
+            payload: { timestamp: Date.now(), source: 'dashboard' }
+        });
+        const toast = document.createElement('div');
+        toast.textContent = '📡 Ping sent to all clients';
+        toast.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#22c55e; color:black; padding:10px 20px; border-radius:40px; z-index:9999;';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    function renderClients() {
+        const clientArray = Array.from(clients.entries()).sort((a,b) => b[1].lastSeen - a[1].lastSeen);
+        clientCountSpan.textContent = `(${clientArray.length})`;
+        
+        if (clientArray.length === 0) {
+            clientGrid.innerHTML = '<div class="empty-state">✨ No clients yet. Add the health-client.js script to a client site and it will appear here.</div>';
+            return;
+        }
+        
+        clientGrid.innerHTML = clientArray.map(([id, data]) => {
+            const lastSeenAgo = Math.floor((Date.now() - data.lastSeen) / 1000);
+            const lastSeenText = lastSeenAgo < 60 ? `${lastSeenAgo}s ago` : `${Math.floor(lastSeenAgo/60)}m ago`;
+            return `
+                <div class="client-card ${data.status}">
+                    <div class="client-header">
+                        <span class="client-id">${escapeHtml(id)}</span>
+                        <span class="client-badge ${data.status}">${data.status === 'online' ? '🟢 ONLINE' : '🔴 OFFLINE'}</span>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric"><div class="metric-label">LATENCY</div><div class="metric-value">${data.latency ? data.latency + 'ms' : '—'}</div></div>
+                        <div class="metric"><div class="metric-label">LAST SEEN</div><div class="metric-value">${lastSeenText}</div></div>
+                    </div>
+                    <div class="last-seen">
+                        ${data.url ? `📍 ${escapeHtml(data.url)}<br>` : ''}
+                        ${data.userAgent ? `🖥️ ${escapeHtml(data.userAgent.substring(0, 60))}${data.userAgent.length > 60 ? '…' : ''}` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    document.getElementById('forceRefreshBtn').onclick = () => renderClients();
+    document.getElementById('testAllBtn').onclick = () => pingAllClients();
+
+    initSupabase();
+    checkEdgeFunction();
+    setInterval(checkEdgeFunction, 60000);
+</script>
+</body>
+</html>
