@@ -1,0 +1,2 @@
+[functions.create-daily-room]
+verify_jwt = false
