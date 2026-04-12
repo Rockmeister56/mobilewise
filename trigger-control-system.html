@@ -1706,14 +1706,13 @@ class ClientConnectionManager {
             if (event.data && event.data.type === 'GET_DAILY_ROOM') {
                 console.log("🔑 Received request for Daily Room from Client...");
                 
-                // 🔴 PASTE YOUR API KEY HERE
-                const LEMON_SLICE_API_KEY = "sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP"; 
+                const LEMON_SLICE_API_KEY = config.lemonSliceApiKey; 
                 
-                fetch("https://lemonslice.com/api/liveai/rooms", {
+                // CALL YOUR LOCAL SERVER INSTEAD OF LEMON SLICE DIRECTLY
+                fetch("http://localhost:3000/api/get-daily-room", {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
-                        "X-API-Key": LEMON_SLICE_API_KEY
+                        "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
                         agent_id: event.data.agentId
@@ -1721,9 +1720,8 @@ class ClientConnectionManager {
                 })
                 .then(res => res.json())
                 .then(data => {
-                    console.log("✅ Room obtained. Sending to Client.");
+                    console.log("✅ Room obtained via Proxy. Sending to Client.");
                     
-                    // Send back to the specific client window
                     event.source.postMessage({
                         type: "DAILY_ROOM_CREDENTIALS",
                         url: data.url,
