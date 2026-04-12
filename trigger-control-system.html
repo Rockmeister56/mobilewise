@@ -1676,7 +1676,7 @@ class ClientConnectionManager {
         }
     }
 
-       // UPDATED: Setup listeners with better handling
+          // UPDATED: Setup listeners with better handling
     setupListener() {
         // Listen for direct messages (via opener)
         window.addEventListener('message', (event) => {
@@ -1698,6 +1698,42 @@ class ClientConnectionManager {
             
             if (event.data?.type === 'CLIENT_INFO' || event.data?.type === 'CLIENT_READY') {
                 this.addClient(event.data.clientId, event.source, event.data.url);
+            }
+
+            // ==========================================
+            // 🆕 DAILY PROXY: Handle Room Requests
+            // ==========================================
+            if (event.data && event.data.type === 'GET_DAILY_ROOM') {
+                console.log("🔑 Received request for Daily Room from Client...");
+                
+                // 🔴 PASTE YOUR API KEY HERE
+                const LEMON_SLICE_API_KEY = "YOUR_LEMON_SLICE_API_KEY"; 
+                
+                fetch("https://lemonslice.com/api/liveai/rooms", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-API-Key": LEMON_SLICE_API_KEY
+                    },
+                    body: JSON.stringify({
+                        agent_id: event.data.agentId
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log("✅ Room obtained. Sending to Client.");
+                    
+                    // Send back to the specific client window
+                    event.source.postMessage({
+                        type: "DAILY_ROOM_CREDENTIALS",
+                        url: data.url,
+                        token: data.token
+                    }, "*");
+                })
+                .catch(err => {
+                    console.error("❌ Proxy Error:", err);
+                });
+                return;
             }
         });
 
