@@ -151,45 +151,52 @@
     let testResults = new Map();
     
     async function initSupabase() {
-        dashboardSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    dashboardSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    const channel = dashboardSupabase.channel('health-monitor');
+    
+    // Listen for heartbeats
+    channel.on('broadcast', { event: 'heartbeat' }, (payload) => {
+        const { clientId, timestamp, latency } = payload.payload;
+        updateClientHeartbeat(clientId, timestamp, latency);
+    });
+    
+    // Listen for client registration
+    channel.on('broadcast', { event: 'client_register' }, (payload) => {
+        const { clientId, userAgent, url } = payload.payload;
+        registerClient(clientId, userAgent, url);
+    });
+    
+    // Listen for test_pong from Bridge
+    channel.on('broadcast', { event: 'test_pong' }, (payload) => {
+        const { clientId, timestamp, echoTimestamp } = payload.payload;
+        const roundtrip = Date.now() - echoTimestamp;
+        console.log(`✅ Received test_pong from ${clientId} - Roundtrip: ${roundtrip}ms`);
         
-        const channel = dashboardSupabase.channel('health-monitor');
-        
-        // Listen for heartbeats
-        channel.on('broadcast', { event: 'heartbeat' }, (payload) => {
-            const { clientId, timestamp, latency } = payload.payload;
-            updateClientHeartbeat(clientId, timestamp, latency);
-        });
-        
-        // Listen for client registration
-        channel.on('broadcast', { event: 'client_register' }, (payload) => {
-            const { clientId, userAgent, url } = payload.payload;
-            registerClient(clientId, userAgent, url);
-        });
-        
-        // Listen for test pongs
-        channel.on('broadcast', { event: 'test_pong' }, (payload) => {
-            const { clientId, timestamp, echoTimestamp } = payload.payload;
-            const roundtrip = Date.now() - echoTimestamp;
-            updateTestResult(clientId, 'pong_received', true, roundtrip);
+        if (clients.has(clientId)) {
+            const client = clients.get(clientId);
+            client.testStatus = 'passed';
+            client.lastRoundtrip = roundtrip;
             addLog(clientId, `✅ Test PASSED - Roundtrip: ${roundtrip}ms`, 'success');
-        });
-        
-        await channel.subscribe();
-        console.log("📡 Communication Monitor active");
-        
-        // Clean up stale clients
-        setInterval(() => {
-            const now = Date.now();
-            for (let [id, data] of clients.entries()) {
-                if (now - data.lastHeartbeat > 60000) {
-                    data.status = 'offline';
-                    data.supabaseConnected = false;
-                    renderClients();
-                }
+            renderClients();
+        }
+    });
+    
+    await channel.subscribe();
+    console.log("📡 Communication Monitor active");
+    
+    // Clean up stale clients
+    setInterval(() => {
+        const now = Date.now();
+        for (let [id, data] of clients.entries()) {
+            if (now - data.lastHeartbeat > 60000) {
+                data.status = 'offline';
+                data.supabaseConnected = false;
+                renderClients();
             }
-        }, 15000);
-    }
+        }
+    }, 15000);
+}
     
     function registerClient(clientId, userAgent, url) {
         if (!clients.has(clientId)) {
