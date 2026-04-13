@@ -3945,7 +3945,7 @@ code += '                });\n';
 code += '                const data = await response.json();\n';
 code += '                if (data.room_url && data.token) {\n';
 code += '                    if (typeof DailyIframe !== "undefined") {\n';
-code += '                        dailyCallObject = DailyIframe.createCallObject(document.getElementById("daily-container") || undefined, { lang: "en-us" });\n';
+code += '                        dailyCallObject = DailyIframe.createCallObject(document.getElementById("daily-container") || undefined);\n';
 code += '                        await dailyCallObject.join({ url: data.room_url, token: data.token });\n';
 code += '                        console.log("✅ Joined Daily room");\n';
 code += '                        \n';
