@@ -4281,7 +4281,8 @@ code += '        }\n';
     code += '        \n';
     code += '        // 🔥 NEW: ALSO START DAILY SESSION IN BACKGROUND\n';
     code += '        // This runs alongside the widget for transcription events\n';
-    code += '        startTessSession();\n';
+    code += '        // startTessSession(); // REMOVED - Using initDaily instead\n';
+    code += '        if (typeof initDaily === "function") { initDaily(); }\n';
     code += '    }\n\n';
 
 code += '    function showPersistentAvatar() {\n';
