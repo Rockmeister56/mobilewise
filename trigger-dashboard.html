@@ -3771,46 +3771,49 @@ code += '    document.head.appendChild(style);\n\n';
         code += '            }\n';
         code += '        }\n';
         code += '\n';
-        code += '        // ===== SEND EMAIL FUNCTION (FIXED & INSIDE CLASS) =====\n';
-        code += '        async sendEmail() {\n';
-        code += '            console.log("📧 Sending pre-qualification emails...");\n';    
-        code += '            \n';
-        code += '            try {\n';
-        code += '                // ===== EMAIL 1: TO LOAN OFFICER =====\n';
-        code += '                await emailjs.send(\n';
-        code += '                    "service_b9bppgb",\n';
-        code += '                    "template_uix9cyx",\n';
-        code += '                    {\n';
-        code += '                        to_email: "loans@clientcompany.com",\n';
-        code += '                        cc_email: "",\n';
-        code += '                        subject: "New Pre-Qual Lead: {{firstName}} {{lastName}}".replace("{{firstName}}", this.answers.firstName || "Client").replace("{{lastName}}", this.answers.lastName || ""),\n';
-        code += '                        first_name: this.answers.firstName || "",\n';
-        code += '                        last_name: this.answers.lastName || "",\n';
-        code += '                        email: this.answers.email || "",\n';
-        code += '                        phone: this.answers.phone || "",\n';
-        code += '                        full_answers: JSON.stringify(this.answers, null, 2)\n';
-        code += '                    }\n';
-        code += '                );\n';
-        code += '                console.log("✅ Loan officer email sent");\n';
-        code += '\n';
-        code += '                // ===== EMAIL 2: TO CLIENT =====\n';
-        code += '                if (this.answers.email) {\n';
-        code += '                    await emailjs.send(\n';
-        code += '                        "service_b9bppgb",\n';
-        code += '                        "template_8kx812d",\n';
-        code += '                        {\n';
-        code += '                            to_email: this.answers.email,\n';
-        code += '                            first_name: this.answers.firstName || "Valued Client",\n';
-        code += '                            message: "Thank you for completing your pre-qualification! A loan officer will contact you within 15 minutes."\n';
-        code += '                        }\n';
-        code += '                    );\n';
-        code += '                    console.log("✅ Client confirmation email sent");\n';
-        code += '                }\n';
-        code += '            } catch (error) {\n';
-        code += '                console.error("❌ Failed to send emails:", error);\n';
-        code += '            }\n';
-        code += '        }\n';
-        code += '    }\n\n';
+code += '        sendEmail: async function() {\n';
+code += '            console.log("📧 Sending dynamic email with collected responses...");\n';
+code += '            \n';
+code += '            const data = this.responses;\n';
+code += '            \n';
+code += '            // Convert all responses to a formatted string for email\n';
+code += '            let formattedAnswers = "";\n';
+code += '            for (const [key, value] of Object.entries(data)) {\n';
+code += '                formattedAnswers += `${key}: ${value}\\n`;\n';
+code += '            }\n';
+code += '            \n';
+code += '            // ===== EMAIL 1: TO PROSPECTIVE CLIENT (Business Owner) =====\n';
+code += '            const prospectiveClientParams = {\n';
+code += '                full_name: data.fullName || data.name || "Not provided",\n';
+code += '                email: data.email || "Not provided",\n';
+code += '                phone: data.phone || data.phoneNumber || "Not provided",\n';
+code += '                scheduled_datetime: data.scheduledDateTime || data.dateTime || "Not provided",\n';
+code += '                all_answers: formattedAnswers,\n';
+code += '                full_json: JSON.stringify(data, null, 2),\n';
+code += '                submitted_at: new Date().toLocaleString()\n';
+code += '            };\n';
+code += '            \n';
+code += '            // ===== EMAIL 2: TO WEB PROSPECT (Visitor) =====\n';
+code += '            const webProspectParams = {\n';
+code += '                full_name: data.fullName || data.name || "Valued Client",\n';
+code += '                email: data.email || "Not provided",\n';
+code += '                phone: data.phone || data.phoneNumber || "Not provided",\n';
+code += '                scheduled_datetime: data.scheduledDateTime || data.dateTime || "Not provided",\n';
+code += '                message: "Thank you for completing the pre-qualification! A loan officer will reach out to you shortly."\n';
+code += '            };\n';
+code += '            \n';
+code += '            try {\n';
+code += '                await emailjs.send("service_b9bppgb", "template_uix9cyx", prospectiveClientParams);\n';
+code += '                console.log("✅ Dynamic email sent to prospective client");\n';
+code += '                \n';
+code += '                if (data.email) {\n';
+code += '                    await emailjs.send("service_b9bppgb", "template_8kx812d", webProspectParams);\n';
+code += '                    console.log("✅ Visitor confirmation email sent to web prospect");\n';
+code += '                }\n';
+code += '            } catch (error) {\n';
+code += '                console.error("❌ Email error:", error);\n';
+code += '            }\n';
+code += '        },\n';
 
         code += '    // Expose class to global scope for testing/debugging\n';
         code += '    window.PreQualificationController = PreQualificationController;\n\n';
@@ -4823,37 +4826,39 @@ function buildScriptCode(steps) {
             return this.getCurrentQuestion();
         },
         
-        processResponse: function(userInput) {
-            if (!this.active) return null;
-            const currentStep = this.steps[this.currentStepIndex];
-            if (!currentStep) {
-                this.active = false;
-                return "Thank you! Your pre-qualification is complete.";
-            }
-            
-            // If it's a message step, just move to next
-            if (currentStep.type === "message") {
-                this.currentStepIndex++;
-                return this.getCurrentQuestion();
-            }
-            
-            // Store the response if it has a field
-            if (currentStep.field) {
-                this.responses[currentStep.field] = userInput;
-                console.log("✅ Stored " + currentStep.field + ": " + userInput);
-            }
-            
-            // Move to next step
-            this.currentStepIndex++;
-            
-            // Check if interview is complete
-            if (this.currentStepIndex >= this.steps.length) {
-                this.active = false;
-                return "Thank you! Your pre-qualification is complete.";
-            }
-            
-            return this.getCurrentQuestion();
-        },
+   processResponse: async function(userInput) {
+    if (!this.active) return null;
+    const currentStep = this.steps[this.currentStepIndex];
+    if (!currentStep) {
+        await this.sendEmail();
+        this.active = false;
+        return "Thank you! Your pre-qualification is complete.";
+    }
+    
+    // If it's a message step, just move to next
+    if (currentStep.type === "message") {
+        this.currentStepIndex++;
+        return this.getCurrentQuestion();
+    }
+    
+    // Store the response if it has a field
+    if (currentStep.field) {
+        this.responses[currentStep.field] = userInput;
+        console.log("✅ Stored " + currentStep.field + ": " + userInput);
+    }
+    
+    // Move to next step
+    this.currentStepIndex++;
+    
+    // Check if interview is complete
+    if (this.currentStepIndex >= this.steps.length) {
+        await this.sendEmail();
+        this.active = false;
+        return "Thank you! Your pre-qualification is complete.";
+    }
+    
+    return this.getCurrentQuestion();
+},
         
         getCurrentQuestion: function() {
             const step = this.steps[this.currentStepIndex];
