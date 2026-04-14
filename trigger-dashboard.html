@@ -3814,19 +3814,10 @@ code += '            } catch (error) {\n';
 code += '                console.error("❌ Email error:", error);\n';
 code += '            }\n';
 code += '        },\n';
+code += '    // Expose class to global scope for testing/debugging\n';
+code += '    window.PreQualificationController = PreQualificationController;\n\n';
 
-        code += '    // Expose class to global scope for testing/debugging\n';
-        code += '    window.PreQualificationController = PreQualificationController;\n\n';
-        
-        // ===== CREATE CONTROLLER INSTANCE =====
-        code += '    window.preQualController = new PreQualificationController();\n';
-        code += '    console.log("✅ Controller created with", window.preQualScript?.steps?.length, "steps");\n\n';
-
-                        // ===== UNIVERSAL TRIGGER LISTENER VARIABLES =====
-        code += '    let lastTriggerTime = 0;\n';
-        code += '    const TRIGGER_COOLDOWN = 3000; // 3 seconds brake\n\n';
-
-       code += '    // =========================================\n';
+code += '    // =========================================\n';
 code += '    // 🍋 SUPABASE REALTIME SETUP\n';
 code += '    // =========================================\n';
 code += '    (function() {\n';
