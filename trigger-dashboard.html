@@ -4532,6 +4532,14 @@ code += '    window.disableBridgeTriggers = false;\n\n';
     code += '    }\n';
     code += '\n';
     code += '    setTimeout(announceToTCS, 2000);\n\n';
+    code += '    // Create controller instance\n';
+code += '    window.preQualController = new PreQualificationController();\n';
+code += '    if (window.preQualScript) {\n';
+code += '        window.preQualController.script = window.preQualScript;\n';
+code += '        console.log("✅ Controller created with", window.preQualScript.steps?.length, "steps");\n';
+code += '    } else {\n';
+code += '        console.error("❌ No preQualScript found!");\n';
+code += '    }\n';
     code += '})();\n';
 
     // =========================================
