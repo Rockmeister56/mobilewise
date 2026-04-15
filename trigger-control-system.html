@@ -349,6 +349,57 @@
             padding-top: 30px;
             border-top: 1px solid rgba(255,255,255,0.05);
         }
+        /* Module Control Styles */
+.module-control-card {
+    transition: all 0.3s ease;
+}
+.module-control-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+}
+.status-badge-active {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid #4caf50;
+}
+.status-badge-inactive {
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid #f44336;
+}
+.test-result {
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    text-align: center;
+}
+.test-result.success {
+    background: rgba(76, 175, 80, 0.2);
+    border-left: 3px solid #4caf50;
+    color: #a5d6a7;
+}
+.test-result.error {
+    background: rgba(244, 67, 54, 0.2);
+    border-left: 3px solid #f44336;
+    color: #ef9a9a;
+}
+.test-result.testing {
+    background: rgba(33, 150, 243, 0.2);
+    border-left: 3px solid #2196f3;
+    color: #90caf9;
+}
+.module-test-btn:hover, .module-toggle-btn:hover {
+    opacity: 0.85;
+    transform: scale(0.98);
+}
     </style>
 </head>
 <body>
@@ -417,24 +468,152 @@
                 </div>
             </div>
 
-            <!-- Right: Active Modules -->
-            <div class="module-panel">
-                <div class="panel-header">
-                    <span style="font-size: 1.8rem;">🎯</span>
-                    <h2>Active Modules</h2>
+           <!-- ===== MODULE CONTROL PANEL ===== -->
+<div class="module-control-panel" style="margin-bottom: 30px;">
+    <h2 style="color: #f8c400; margin-bottom: 20px;"><i class="fas fa-sliders-h"></i> Active Modules Control</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+        
+        <!-- MODULE 1: PRE-QUALIFICATION -->
+        <div class="module-control-card" id="module-preQual" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-clipboard-list" style="font-size: 24px; color: #f8c400;"></i>
+                        <h3 style="margin: 0; color: white;">Pre-Qualification Interview</h3>
+                    </div>
+                    <div id="preQualStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
                 </div>
-
-                <div class="module-grid" id="moduleGrid">
-                    <!-- Dynamically populated -->
+                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                    <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
+                        <i class="fas fa-bullhorn"></i> TRIGGER PHRASE
+                    </div>
+                    <code id="preQualTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400;">Loading...</code>
                 </div>
-
-                <div style="margin-top: 24px;">
-                    <button class="btn btn-primary" style="width: 100%;" onclick="launchTestTrigger()">
-                        🧪 Test Trigger System
+                <div style="display: flex; gap: 12px;">
+                    <button id="preQualTestBtn" class="module-test-btn" onclick="testModule('pre_qual')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-vial"></i> Test Trigger
+                    </button>
+                    <button id="preQualToggleBtn" class="module-toggle-btn" onclick="toggleModule('pre_qual')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-power-off"></i> Disable
                     </button>
                 </div>
+                <div id="preQualTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
             </div>
         </div>
+
+        <!-- MODULE 2: SMART SCREEN -->
+        <div class="module-control-card" id="module-smartScreen" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-images" style="font-size: 24px; color: #f8c400;"></i>
+                        <h3 style="margin: 0; color: white;">Smart Screen</h3>
+                    </div>
+                    <div id="smartScreenStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                    <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
+                        <i class="fas fa-bullhorn"></i> TRIGGER PHRASES
+                    </div>
+                    <code id="smartScreenTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button id="smartScreenTestBtn" class="module-test-btn" onclick="testModule('smart_screen')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-vial"></i> Test Trigger
+                    </button>
+                    <button id="smartScreenToggleBtn" class="module-toggle-btn" onclick="toggleModule('smart_screen')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-power-off"></i> Disable
+                    </button>
+                </div>
+                <div id="smartScreenTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
+            </div>
+        </div>
+
+        <!-- MODULE 3: TESTIMONIALS -->
+        <div class="module-control-card" id="module-testimonials" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-users" style="font-size: 24px; color: #f8c400;"></i>
+                        <h3 style="margin: 0; color: white;">Testimonials</h3>
+                    </div>
+                    <div id="testimonialsStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                    <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
+                        <i class="fas fa-bullhorn"></i> TRIGGER PHRASES (by group)
+                    </div>
+                    <code id="testimonialsTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button id="testimonialsTestBtn" class="module-test-btn" onclick="testModule('testimonials')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-vial"></i> Test Trigger
+                    </button>
+                    <button id="testimonialsToggleBtn" class="module-toggle-btn" onclick="toggleModule('testimonials')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-power-off"></i> Disable
+                    </button>
+                </div>
+                <div id="testimonialsTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
+            </div>
+        </div>
+
+        <!-- MODULE 4: VIDEO VAULT -->
+        <div class="module-control-card" id="module-videoVault" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-film" style="font-size: 24px; color: #f8c400;"></i>
+                        <h3 style="margin: 0; color: white;">Video Vault</h3>
+                    </div>
+                    <div id="videoVaultStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                    <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
+                        <i class="fas fa-bullhorn"></i> TRIGGER PHRASES (by video)
+                    </div>
+                    <code id="videoVaultTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button id="videoVaultTestBtn" class="module-test-btn" onclick="testModule('video_vault')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-vial"></i> Test Trigger
+                    </button>
+                    <button id="videoVaultToggleBtn" class="module-toggle-btn" onclick="toggleModule('video_vault')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-power-off"></i> Disable
+                    </button>
+                </div>
+                <div id="videoVaultTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
+            </div>
+        </div>
+
+        <!-- MODULE 5: WEBSITE INFO -->
+        <div class="module-control-card" id="module-websiteInfo" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-globe" style="font-size: 24px; color: #f8c400;"></i>
+                        <h3 style="margin: 0; color: white;">Website Info</h3>
+                    </div>
+                    <div id="websiteInfoStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                    <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
+                        <i class="fas fa-bullhorn"></i> TRIGGER PHRASES
+                    </div>
+                    <code id="websiteInfoTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button id="websiteInfoTestBtn" class="module-test-btn" onclick="testModule('website_info')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-vial"></i> Test Trigger
+                    </button>
+                    <button id="websiteInfoToggleBtn" class="module-toggle-btn" onclick="toggleModule('website_info')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-power-off"></i> Disable
+                    </button>
+                </div>
+                <div id="websiteInfoTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- Visual Proof Vault -->
         <div class="visual-proof" id="visualProofSection" style="display: none;">
@@ -596,6 +775,224 @@
     
     document.head.appendChild(script);
 })();
+
+// ===== MODULE CONTROL SYSTEM =====
+let moduleStates = {
+    pre_qual: true,
+    smart_screen: true,
+    testimonials: true,
+    video_vault: true,
+    website_info: true
+};
+
+// Module display names mapping
+const moduleNames = {
+    pre_qual: 'Pre-Qualification',
+    smart_screen: 'Smart Screen',
+    testimonials: 'Testimonials',
+    video_vault: 'Video Vault',
+    website_info: 'Website Info'
+};
+
+// Module trigger phrases (populated from config)
+let moduleTriggers = {
+    pre_qual: 'Loading...',
+    smart_screen: 'Loading...',
+    testimonials: 'Loading...',
+    video_vault: 'Loading...',
+    website_info: 'Loading...'
+};
+
+// Toggle module on/off
+async function toggleModule(module) {
+    const newState = !moduleStates[module];
+    moduleStates[module] = newState;
+    
+    // Update UI
+    const toggleBtn = document.getElementById(`${module}ToggleBtn`);
+    const statusBadge = document.getElementById(`${module}StatusBadge`);
+    
+    if (newState) {
+        toggleBtn.innerHTML = '<i class="fas fa-power-off"></i> Disable';
+        toggleBtn.style.background = '#f44336';
+        statusBadge.className = 'status-badge-active';
+        statusBadge.innerHTML = '🟢 ACTIVE';
+    } else {
+        toggleBtn.innerHTML = '<i class="fas fa-play"></i> Enable';
+        toggleBtn.style.background = '#4caf50';
+        statusBadge.className = 'status-badge-inactive';
+        statusBadge.innerHTML = '🔴 INACTIVE';
+    }
+    
+    // Send command to Bridge via Supabase
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'module_command',
+            payload: {
+                module: module,
+                command: 'set_enabled',
+                value: newState,
+                timestamp: Date.now()
+            }
+        });
+        console.log(`📡 Sent ${newState ? 'ENABLE' : 'DISABLE'} command for ${module}`);
+        addToTranscriptFeed(`🎮 Module ${moduleNames[module]} ${newState ? 'enabled' : 'disabled'}`);
+    } else {
+        console.warn('⚠️ Supabase channel not ready');
+    }
+}
+
+// Test trigger for a module
+async function testModule(module) {
+    const resultDiv = document.getElementById(`${module}TestResult`);
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing trigger...';
+    resultDiv.className = 'test-result testing';
+    
+    // Send test command to Bridge via Supabase
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'module_command',
+            payload: {
+                module: module,
+                command: 'test_trigger',
+                trigger_phrase: moduleTriggers[module],
+                timestamp: Date.now()
+            }
+        });
+        console.log(`📡 Sent TEST_TRIGGER command for ${module}`);
+        
+        // Wait for response (Bridge will send back result via module_status or trigger_test_result)
+        const timeout = setTimeout(() => {
+            resultDiv.innerHTML = '❌ No response from Bridge (timeout)';
+            resultDiv.className = 'test-result error';
+        }, 8000);
+        
+        // Listen for test result
+        const resultHandler = (payload) => {
+            if (payload.event === 'trigger_test_result' && payload.payload.module === module) {
+                clearTimeout(timeout);
+                if (payload.payload.success) {
+                    resultDiv.innerHTML = `✅ Trigger detected! Bridge responded: "${payload.payload.message || 'Success'}"`;
+                    resultDiv.className = 'test-result success';
+                    addToTranscriptFeed(`✅ ${moduleNames[module]} trigger test PASSED`);
+                } else {
+                    resultDiv.innerHTML = `❌ Trigger test failed: ${payload.payload.message || 'Unknown error'}`;
+                    resultDiv.className = 'test-result error';
+                    addToTranscriptFeed(`❌ ${moduleNames[module]} trigger test FAILED`);
+                }
+            }
+        };
+        
+        // Add one-time listener
+        if (window.supabaseChannel) {
+            window.supabaseChannel.on('broadcast', { event: 'trigger_test_result' }, resultHandler);
+            // Auto-remove after 10 seconds to prevent memory leak
+            setTimeout(() => {
+                window.supabaseChannel.off('broadcast', { event: 'trigger_test_result' }, resultHandler);
+            }, 10000);
+        }
+    } else {
+        resultDiv.innerHTML = '❌ Supabase channel not connected';
+        resultDiv.className = 'test-result error';
+    }
+}
+
+// Update module triggers from config
+function updateModuleTriggersFromConfig(config) {
+    // Pre-Qualification
+    if (config.modules?.preQualification?.triggerPhrase) {
+        moduleTriggers.pre_qual = config.modules.preQualification.triggerPhrase;
+        document.getElementById('preQualTriggerDisplay').innerHTML = `"${moduleTriggers.pre_qual}"`;
+    }
+    
+    // Smart Screen - collect all trigger phrases from all screens
+    if (config.modules?.smartScreen?.images && config.modules.smartScreen.images.length > 0) {
+        const allTriggers = [];
+        config.modules.smartScreen.images.forEach(img => {
+            if (img.triggerMatch && img.triggerMatch.length) {
+                allTriggers.push(...img.triggerMatch);
+            }
+        });
+        moduleTriggers.smart_screen = allTriggers.join(', ');
+        document.getElementById('smartScreenTriggerDisplay').innerHTML = moduleTriggers.smart_screen || 'No triggers configured';
+    } else {
+        document.getElementById('smartScreenTriggerDisplay').innerHTML = 'No smart screens configured';
+    }
+    
+    // Testimonials - collect trigger phrases from all groups
+    if (config.modules?.testimonial?.groups && config.modules.testimonial.groups.length > 0) {
+        const groupTriggers = config.modules.testimonial.groups.map(g => `"${g.triggerPhrase}"`).join(', ');
+        moduleTriggers.testimonials = groupTriggers;
+        document.getElementById('testimonialsTriggerDisplay').innerHTML = moduleTriggers.testimonials || 'No groups configured';
+    } else {
+        document.getElementById('testimonialsTriggerDisplay').innerHTML = 'No testimonial groups configured';
+    }
+    
+    // Video Vault - collect trigger phrases from all videos
+    if (config.modules?.videoVault?.videos && config.modules.videoVault.videos.length > 0) {
+        const videoTriggers = config.modules.videoVault.videos.map(v => `"${v.triggerPhrase}"`).join(', ');
+        moduleTriggers.video_vault = videoTriggers;
+        document.getElementById('videoVaultTriggerDisplay').innerHTML = moduleTriggers.video_vault || 'No videos configured';
+    } else {
+        document.getElementById('videoVaultTriggerDisplay').innerHTML = 'No videos configured';
+    }
+    
+    // Website Info
+    if (config.modules?.websiteInfo?.triggers && config.modules.websiteInfo.triggers.length > 0) {
+        moduleTriggers.website_info = config.modules.websiteInfo.triggers.join(', ');
+        document.getElementById('websiteInfoTriggerDisplay').innerHTML = moduleTriggers.website_info;
+    } else {
+        document.getElementById('websiteInfoTriggerDisplay').innerHTML = 'No triggers configured';
+    }
+    
+    console.log('✅ Module triggers updated from config');
+}
+
+// Listen for module status updates from Bridge
+function setupModuleStatusListener() {
+    if (!window.supabaseChannel) return;
+    
+    window.supabaseChannel.on('broadcast', { event: 'module_status' }, (payload) => {
+        const { module, active, trigger_phrase } = payload.payload;
+        console.log(`📡 Module status update: ${module} = ${active ? 'ACTIVE' : 'INACTIVE'}`);
+        
+        moduleStates[module] = active;
+        
+        // Update UI
+        const toggleBtn = document.getElementById(`${module}ToggleBtn`);
+        const statusBadge = document.getElementById(`${module}StatusBadge`);
+        
+        if (active) {
+            toggleBtn.innerHTML = '<i class="fas fa-power-off"></i> Disable';
+            toggleBtn.style.background = '#f44336';
+            statusBadge.className = 'status-badge-active';
+            statusBadge.innerHTML = '🟢 ACTIVE';
+        } else {
+            toggleBtn.innerHTML = '<i class="fas fa-play"></i> Enable';
+            toggleBtn.style.background = '#4caf50';
+            statusBadge.className = 'status-badge-inactive';
+            statusBadge.innerHTML = '🔴 INACTIVE';
+        }
+        
+        if (trigger_phrase) {
+            moduleTriggers[module] = trigger_phrase;
+            const displayEl = document.getElementById(`${module}TriggerDisplay`);
+            if (displayEl) displayEl.innerHTML = trigger_phrase;
+        }
+    });
+}
+
+// Initialize module controls when client config loads
+function initModuleControls(clientConfig) {
+    if (clientConfig) {
+        updateModuleTriggersFromConfig(clientConfig);
+    }
+    setupModuleStatusListener();
+    console.log('🎮 Module Control System initialized');
+}
 
 // ============================================
 // SEND COMMAND VIA SUPABASE (Replaces sendToClientWebsite)
@@ -1886,6 +2283,30 @@ window.clientManager = new ClientConnectionManager();
 
 // Start scanning for clients is DISABLED (not needed)
 // clientManager.startScanning();
+
+// Add to your freshChannel setup (after other listeners)
+freshChannel.on('broadcast', { event: 'module_command' }, (payload) => {
+    console.log("📡 MODULE COMMAND received:", payload);
+    // Forward to UI or handle directly
+    const { module, command, value } = payload.payload;
+    if (command === 'set_enabled') {
+        moduleStates[module] = value;
+        // Update UI
+        const toggleBtn = document.getElementById(`${module}ToggleBtn`);
+        const statusBadge = document.getElementById(`${module}StatusBadge`);
+        if (value) {
+            toggleBtn.innerHTML = '<i class="fas fa-power-off"></i> Disable';
+            toggleBtn.style.background = '#f44336';
+            statusBadge.className = 'status-badge-active';
+            statusBadge.innerHTML = '🟢 ACTIVE';
+        } else {
+            toggleBtn.innerHTML = '<i class="fas fa-play"></i> Enable';
+            toggleBtn.style.background = '#4caf50';
+            statusBadge.className = 'status-badge-inactive';
+            statusBadge.innerHTML = '🔴 INACTIVE';
+        }
+    }
+});
 
 // ============================================
 // ADD TO TRANSCRIPT FEED (helper)

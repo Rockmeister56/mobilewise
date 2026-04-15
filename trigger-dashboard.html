@@ -3538,6 +3538,9 @@ async function exportBridgeOnly() {
         
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
         code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
+        code += '    // ===== TRIGGER PHRASE (from dashboard) =====\n';
+code += '    const TRIGGER_PHRASE = "' + (preQualConfig.triggerPhrase || 'secured pre qualification interview') + '";\n';
+code += '    console.log("🎯 Bridge using trigger phrase:", TRIGGER_PHRASE);\n\n';
 
         // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
         const emailJsLoader = [
@@ -4001,65 +4004,15 @@ code += '                                        console.log("📤 test_pong sen
 code += '                                    });\n';
 code += '                                }\n';
 code += '                                \n';
-code += '                                if (tessText.toLowerCase().includes("pre-qualified")) {\n';
-code += '                                    console.log("🎯 TRIGGER DETECTED! Starting pre-qualification...");\n';
+code += '                                // DYNAMIC TRIGGER PHRASE (from config)\n';
+code += '                                if (tessText.toLowerCase().includes(TRIGGER_PHRASE.toLowerCase())) {\n';
+code += '                                    console.log("🎯 EXACT TRIGGER MATCHED:", TRIGGER_PHRASE);\n';
 code += '                                    if (window.preQualController && !window.preQualController.isActive) {\n';
 code += '                                        window.preQualController.startInterview();\n';
 code += '                                    }\n';
 code += '                                }\n';
 code += '                            }\n';
 code += '                        });\n';
-code += '                    }\n';
-code += '                }\n';
-code += '            } catch(e) { console.error("Daily init error:", e); }\n';
-code += '        }\n';
-code += '        \n';
-code += '        if (document.readyState === "loading") {\n';
-code += '            document.addEventListener("DOMContentLoaded", initDaily);\n';
-code += '        } else { initDaily(); }\n';
-code += '        \n';
-code += '        // ========== SINGLE POSTMESSAGE LISTENER ==========\n';
-code += '        window.addEventListener("message", (event) => {\n';
-code += '            if (event.data && event.data.what === "iframe-call-message") return;\n';
-code += '            if (!event.data || !event.data.type) return;\n';
-code += '            console.log("📩 [INCOMING] Type:", event.data?.type, "Command:", event.data?.command);\n';
-code += '            \n';
-code += '            // Handle TEST_PING from Communication Monitor\n';
-code += '            if (event.data.type === "TEST_PING") {\n';
-code += '                console.log("📡 TEST_PING received, sending PONG...");\n';
-code += '                if (window.supabaseChannel) {\n';
-code += '                    window.supabaseChannel.send({\n';
-code += '                        type: "broadcast",\n';
-code += '                        event: "test_pong",\n';
-code += '                        payload: {\n';
-code += '                            clientId: window.BotemiaConfig?.id || "unknown",\n';
-code += '                            timestamp: Date.now(),\n';
-code += '                            echoTimestamp: event.data.timestamp\n';
-code += '                        }\n';
-code += '                    });\n';
-code += '                }\n';
-code += '                return;\n';
-code += '            }\n';
-code += '            \n';
-code += '            // Handle START_PRE_QUAL\n';
-code += '            if (event.data.type === "START_PRE_QUAL" || event.data.command === "START_PRE_QUAL") {\n';
-code += '                console.log("🎯 START_PRE_QUAL received!");\n';
-code += '                if (window.preQualController && !window.preQualController.isActive) {\n';
-code += '                    window.preQualController.startInterview();\n';
-code += '                }\n';
-code += '                return;\n';
-code += '            }\n';
-code += '            \n';
-code += '            // Handle transcript for interview answers\n';
-code += '            if ((event.data.type === "transcript" || event.data.type === "ai_response") && event.data.text) {\n';
-code += '                if (window.preQualController && window.preQualController.isActive) {\n';
-code += '                    window.preQualController.handleUserInput(event.data.text);\n';
-code += '                }\n';
-code += '            }\n';
-code += '        });\n';
-code += '    }\n';
-code += '\n';
-code += '    setupUniversalListener();\n';
     
                              // ===== WIDGET CREATION (CLEAN HYBRID) =====
         code += '    function createMainWidget() {\n';
