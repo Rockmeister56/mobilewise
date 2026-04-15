@@ -4012,11 +4012,12 @@ code += '                                    }\n';
 code += '                                }\n';
 code += '                            }\n';
 code += '                        });\n';
-code += '                    }\n';  // ← ADD THIS
-code += '                }\n';      // ← ADD THIS
-code += '            });\n';        // ← ADD THIS
-code += '        }\n';              // ← ADD THIS
-code += '    }\n';                  // ← ADD THIS
+code += '                    }\n';
+code += '                }\n';
+code += '            } catch(e) { console.error("Daily init error:", e); }\n';
+code += '        }\n';
+code += '\n';
+code += '    }\n';
     
                              // ===== WIDGET CREATION (CLEAN HYBRID) =====
         code += '    function createMainWidget() {\n';
