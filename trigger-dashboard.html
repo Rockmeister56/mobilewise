@@ -4274,6 +4274,7 @@ code += '        }\n';
     code += '            setTimeout(async () => {\n';
     code += '                console.log("🎤 Finalizing audio state...");\n';
     code += '                try {\n';
+    code += '                    if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
     code += '                        await window.mainWidget.micOn();\n';
     code += '                        await window.mainWidget.unmute?.();\n';
     code += '                        console.log("✅ Microphone activated");\n';
