@@ -4229,7 +4229,7 @@ code += '        }\n';
         code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
         code += '    }\n\n';
 
-     code += '    async function forceUnmute() {\n';
+    code += '    async function forceUnmute() {\n';
 code += '        if (window.mainWidget) {\n';
 code += '            // 1. API Calls\n';
 code += '            try {\n';
@@ -4550,6 +4550,7 @@ code += '        }\n';
 code += '    }\n';
 code += '\n';
 code += '    setTimeout(announceToTCS, 2000);\n';
+code += '})();\n';
 
     // =========================================
 // 📡 TCS REMOTE CONTROL LINK
