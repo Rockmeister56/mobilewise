@@ -3953,7 +3953,8 @@ code += '    }\n';
         code += '        } catch(e) {\n';
         code += '            console.error("❌ Failed to send via Supabase:", e);\n';
         code += '        }\n';
-        code += '    };\n\n';
+        code += '    }\n';  // ← This closes the function, NO semicolon
+        code += '\n';
 
 // ========== SINGLE UNIVERSAL LISTENER (Cleaned) ==========
 code += '    function setupUniversalListener() {\n';
