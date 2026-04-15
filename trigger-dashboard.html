@@ -3989,7 +3989,6 @@ code += '                                        event: "tess_transcript",\n';
 code += '                                        payload: { text: tessText, timestamp: Date.now() }\n';
 code += '                                    });\n';
 code += '                                    \n';
-code += '                                    // Listen for test_ping from Communication Monitor\n';
 code += '                                    window.supabaseChannel.on("broadcast", { event: "test_ping" }, (payload) => {\n';
 code += '                                        console.log("📡 TEST_PING received via Supabase, sending PONG...");\n';
 code += '                                        window.supabaseChannel.send({\n';
@@ -4005,7 +4004,6 @@ code += '                                        console.log("📤 test_pong sen
 code += '                                    });\n';
 code += '                                }\n';
 code += '                                \n';
-code += '                                // DYNAMIC TRIGGER PHRASE (from config)\n';
 code += '                                if (tessText.toLowerCase().includes(TRIGGER_PHRASE.toLowerCase())) {\n';
 code += '                                    console.log("🎯 EXACT TRIGGER MATCHED:", TRIGGER_PHRASE);\n';
 code += '                                    if (window.preQualController && !window.preQualController.isActive) {\n';
@@ -4014,6 +4012,11 @@ code += '                                    }\n';
 code += '                                }\n';
 code += '                            }\n';
 code += '                        });\n';
+code += '                    }\n';  // ← ADD THIS
+code += '                }\n';      // ← ADD THIS
+code += '            });\n';        // ← ADD THIS
+code += '        }\n';              // ← ADD THIS
+code += '    }\n';                  // ← ADD THIS
     
                              // ===== WIDGET CREATION (CLEAN HYBRID) =====
         code += '    function createMainWidget() {\n';
