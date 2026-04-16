@@ -2289,7 +2289,7 @@ let configManager = {
 preQualification: {
     enabled: document.getElementById('preQualEnabled')?.checked || false,
     knowledgeBaseScript: document.getElementById('preQualKnowledgeBase')?.value || 'mortgage',
-    triggerPhrase: document.getElementById('preQualTriggerPhrase')?.value || 'I want to get pre-qualified',
+    triggerPhrase: document.getElementById('preQualTriggerPhrase')?.value || '',
     emailSubject: document.getElementById('emailSubject')?.value || 'New Lead: {{name}}',
     emailTemplate: document.getElementById('emailTemplate')?.value || ''
 }
@@ -3526,7 +3526,7 @@ async function exportBridgeOnly() {
             }, 4);
         };
 
-               // ===== BUILD THE BRIDGE CODE =====
+                // ===== BUILD THE BRIDGE CODE =====
         let code = '';
         code += '// Botemia Bridge for ' + (config.name || 'Client') + '\n';
         code += '// Generated: ' + new Date().toLocaleString() + '\n';
@@ -3536,13 +3536,26 @@ async function exportBridgeOnly() {
         code += '(function() {\n';
         code += '    "use strict";\n\n';
         
-        // Get trigger phrase directly from UI field (NO fallback needed at runtime)
-        const triggerPhraseInput = document.getElementById('preQualTriggerPhrase');
-        const triggerPhrase = triggerPhraseInput ? triggerPhraseInput.value : "secured pre-qualification interview";
+        code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
+        code += '    window.BotemiaConfig = {\n';
+        code += '        "id": "' + (config.id || '') + '",\n';
+        code += '        "name": "' + (config.name || '') + '",\n';
+        code += '        "websiteUrl": "' + (config.websiteUrl || '') + '",\n';
+        code += '        "agentId": "' + (config.agentId || '') + '",\n';
+        code += '        "modules": {\n';
+        code += '            "preQualification": {\n';
+        code += '                "triggerPhrase": "' + (config.modules?.preQualification?.triggerPhrase || '') + '"\n';
+        code += '            }\n';
+        code += '        }\n';
+        code += '    };\n\n';
         
-        code += '    // ===== TRIGGER PHRASE (from dashboard) =====\n';
-        code += '    const TRIGGER_PHRASE = "' + triggerPhrase.replace(/"/g, '\\"') + '";\n';
-        code += '    console.log("🎯 Bridge using trigger phrase:", TRIGGER_PHRASE);\n\n';
+       code += '    // ===== TRIGGER PHRASE (from dashboard) =====\n';
+       code += '    window.TRIGGER_PHRASE = window.BotemiaConfig.modules?.preQualification?.triggerPhrase;\n';
+       code += '    if (!window.TRIGGER_PHRASE) {\n';
+       code += '        console.error("❌ CRITICAL: No trigger phrase configured in dashboard!");\n';
+       code += '    } else {\n';
+       code += '        console.log("🎯 Bridge using trigger phrase:", window.TRIGGER_PHRASE);\n';
+       code += '    }\n\n';
 
         // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
         const emailJsLoader = [
