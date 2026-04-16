@@ -766,17 +766,8 @@
         
         // Store globally
         window.supabaseChannel = freshChannel;
-        window.supabaseClient = supabaseClient;
-    };
-    
-    script.onerror = (err) => {
-        console.error("❌ Failed to load Supabase client:", err);
-    };
-    
-    document.head.appendChild(script);
-})();
 
-// ===== LOAD CLIENT CONFIGURATION =====
+    // ===== LOAD CLIENT CONFIGURATION =====
 async function loadClientConfig(clientId) {
     console.log("📥 Loading client config for:", clientId);
     
@@ -839,6 +830,17 @@ const clientId = new URLSearchParams(window.location.search).get('clientId');
 if (clientId) {
     loadClientConfig(clientId);
 }
+
+        window.supabaseClient = supabaseClient;
+    };
+    
+    script.onerror = (err) => {
+        console.error("❌ Failed to load Supabase client:", err);
+    };
+    
+    document.head.appendChild(script);
+})();
+
 
 // ===== MODULE CONTROL SYSTEM =====
 let moduleStates = {
