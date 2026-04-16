@@ -3536,12 +3536,9 @@ async function exportBridgeOnly() {
         code += '(function() {\n';
         code += '    "use strict";\n\n';
         
-  code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
-code += '    window.BotemiaConfig = ' + safeStringify(config) + ';\n\n';
 code += '    // ===== TRIGGER PHRASE (from dashboard) =====\n';
-code += '    // const TRIGGER_PHRASE = window.BotemiaConfig.modules?.preQualification?.triggerPhrase || "secured pre qualification interview";\n';
-code += '    // console.log("🎯 Bridge using trigger phrase:", TRIGGER_PHRASE);\n\n';
-code += '    const TRIGGER_PHRASE = "secured pre qualification interview";\n\n';
+code += '    const TRIGGER_PHRASE = window.BotemiaConfig.modules?.preQualification?.triggerPhrase || "secured pre qualification interview";\n';
+code += '    console.log("🎯 Bridge using trigger phrase:", TRIGGER_PHRASE);\n\n';
 
         // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
         const emailJsLoader = [
@@ -3933,7 +3930,7 @@ code += '        console.error("❌ No preQualScript found!");\n';
 code += '    }\n';
 code += '\n';
 code += '    // ===== TRIGGER PHRASE (Global Scope Fix) =====\n';
-code += '    window.TRIGGER_PHRASE = window.BotemiaConfig.modules?.preQualification?.triggerPhrase || "secured pre qualification interview";\n';
+code += '    window.TRIGGER_PHRASE = window.BotemiaConfig.modules?.preQualification?.triggerPhrase || "secured pre-qualification interview";\n';
 code += '    console.log("🎯 Global TRIGGER_PHRASE set to:", window.TRIGGER_PHRASE);\n';
 code += '\n';
 code += '    // Function to broadcast Tess\'s speech to TCS via Supabase\n';
