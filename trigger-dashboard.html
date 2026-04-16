@@ -3536,18 +3536,19 @@ async function exportBridgeOnly() {
         code += '(function() {\n';
         code += '    "use strict";\n\n';
         
-        code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
-        code += '    window.BotemiaConfig = {\n';
-        code += '        "id": "' + (config.id || '') + '",\n';
-        code += '        "name": "' + (config.name || '') + '",\n';
-        code += '        "websiteUrl": "' + (config.websiteUrl || '') + '",\n';
-        code += '        "agentId": "' + (config.agentId || '') + '",\n';
-        code += '        "modules": {\n';
-        code += '            "preQualification": {\n';
-        code += '                "triggerPhrase": "' + (config.modules?.preQualification?.triggerPhrase || '') + '"\n';
-        code += '            }\n';
-        code += '        }\n';
-        code += '    };\n\n';
+code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
+code += '    window.BotemiaConfig = {\n';
+code += '        "id": "' + (config.id || '') + '",\n';
+code += '        "name": "' + (config.name || '') + '",\n';
+code += '        "websiteUrl": "' + (config.websiteUrl || '') + '",\n';
+code += '        "agentId": "' + (config.agentId || '') + '",\n';
+code += '        "modules": {\n';
+code += '        "preQualification": {\n';
+code += '        "triggerPhrase": "' + (config.modules?.preQualification?.triggerPhrase || '') + '"\n';
+code += '        },\n';
+code += '        "splashScreen": ' + JSON.stringify(config.modules?.splashScreen || {}) + '\n';
+code += '        }\n';
+code += '    };\n\n';
         
        code += '    // ===== TRIGGER PHRASE (from dashboard) =====\n';
        code += '    window.TRIGGER_PHRASE = window.BotemiaConfig.modules?.preQualification?.triggerPhrase;\n';
