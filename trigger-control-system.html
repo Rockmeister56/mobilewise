@@ -776,6 +776,70 @@
     document.head.appendChild(script);
 })();
 
+// ===== LOAD CLIENT CONFIGURATION =====
+async function loadClientConfig(clientId) {
+    console.log("📥 Loading client config for:", clientId);
+    
+    try {
+        const { data, error } = await supabaseClient
+            .from('clients')
+            .select('metadata')
+            .eq('client_id', clientId)
+            .single();
+        
+        if (error) throw error;
+        
+        if (data && data.metadata) {
+            window.BotemiaConfig = data.metadata;
+            console.log("✅ Client config loaded:", window.BotemiaConfig.name);
+            
+            // Update UI with trigger phrases
+            updateModuleDisplays();
+            return window.BotemiaConfig;
+        } else {
+            console.warn("⚠️ No config found for client:", clientId);
+        }
+    } catch (error) {
+        console.error("❌ Failed to load client config:", error);
+    }
+    return null;
+}
+
+// ===== UPDATE MODULE DISPLAYS =====
+function updateModuleDisplays() {
+    // Pre-Qualification Trigger
+    const preQualTrigger = window.BotemiaConfig?.modules?.preQualification?.triggerPhrase || "Not configured";
+    const preQualDisplay = document.getElementById('preQualTriggerDisplay');
+    if (preQualDisplay) {
+        preQualDisplay.innerHTML = preQualTrigger;
+        console.log("✅ Updated pre-qual trigger display:", preQualTrigger);
+    }
+    
+    // Smart Screen Triggers
+    const smartScreens = window.BotemiaConfig?.modules?.smartScreen?.images || [];
+    const smartTriggers = smartScreens.map(s => s.triggerMatch).flat().join(', ') || "No triggers configured";
+    const smartDisplay = document.getElementById('smartScreenTriggerDisplay');
+    if (smartDisplay) smartDisplay.innerHTML = smartTriggers;
+    
+    // Testimonials Triggers
+    const testimonialGroups = window.BotemiaConfig?.modules?.testimonial?.groups || [];
+    const testimonialTriggers = testimonialGroups.map(g => g.triggerPhrase).join(', ') || "No groups configured";
+    const testimonialDisplay = document.getElementById('testimonialsTriggerDisplay');
+    if (testimonialDisplay) testimonialDisplay.innerHTML = testimonialTriggers;
+    
+    // Video Vault Triggers
+    const videos = window.BotemiaConfig?.modules?.videoVault?.videos || [];
+    const videoTriggers = videos.map(v => v.triggerPhrase).join(', ') || "No videos configured";
+    const videoDisplay = document.getElementById('videoVaultTriggerDisplay');
+    if (videoDisplay) videoDisplay.innerHTML = videoTriggers;
+}
+
+// Call this after Supabase is initialized and you have the client ID
+const clientId = new URLSearchParams(window.location.search).get('clientId');
+if (clientId) {
+    loadClientConfig(clientId);
+}
+
 // ===== MODULE CONTROL SYSTEM =====
 let moduleStates = {
     pre_qual: true,
