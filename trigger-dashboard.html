@@ -3723,7 +3723,7 @@ code += '    document.head.appendChild(style);\n';
         code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
         code += '                try { window.mainWidget.sendMessage(text); } catch(e) { console.error("❌ sendMessage error:", e); }\n';
         code += '            }\n';
-        code += '        },\n'; 
+        code += '        }\n'; 
         code += '        sendEmail() {\n';
         code += '            console.log("📧 Sending dynamic email...");\n';
         code += '            const data = this.answers;\n';
