@@ -3959,8 +3959,8 @@ code += '            document.head.appendChild(script);\n';
 code += '        });\n';
 code += '    }\n';
 code += '\n';
-             // ==========================================
-        // 🍋 EXTRACTED: DAILY INITIALIZATION (CONFORMED)
+                  // ==========================================
+        // 🍋 EXTRACTED: DAILY INITIALIZATION (CONFORMED + DELAY)
         // ==========================================
         code += '    async function initDaily() {\n';
         code += '        console.log("📞 initDaily: Starting process...");\n';
@@ -4007,9 +4007,9 @@ code += '\n';
         code += '                }\n';
         code += '                \n';
         code += '                await dailyCallObject.join({ url: data.room_url, token: data.token });\n';
-        code += '                console.log("✅ Joined Daily room (Server Connection Active");\n';
+        code += '                console.log("✅ Joined Daily room (Server Connection Active)");\n';
         code += '                \n';
-        code += '                // ===== 🎧 CLEAN AUDIO LISTENER =====\n';
+        code += '                // ===== 🎧 CLEAN AUDIO LISTENER (WITH DELAY) =====\n';
         code += '                dailyCallObject.on("app-message", (ev) => {\n';
         code += '                    \n';
         code += '                    // 1. SILENCE LOGIC\n';
@@ -4032,20 +4032,27 @@ code += '\n';
         code += '                            });\n';
         code += '                        }\n';
         code += '                        \n';
-        code += '                        // ===== 🔥 FUZZY TRIGGER LOGIC =====\n';
+        code += '                        // ===== 🔥 SMART TRIGGER (WITH DELAY) =====\n';
         code += '                        const fuzzyTriggers = [\n';
         code += '                            "are you ready for your first question", \n';
         code += '                            "first question", \n';
-        code += '                            "YES_INITIATE_PREQUAL" // Fixed Typo\n';
+        code += '                            "YES_INITIATE_PREQUAL"\n';
         code += '                        ];\n';
         code += '                        \n';
         code += '                        const lowerText = tessText.toLowerCase();\n';
         code += '                        const hasTrigger = fuzzyTriggers.some(trigger => lowerText.includes(trigger));\n';
         code += '                        \n';
         code += '                        if (hasTrigger) {\n';
-        code += '                            console.log("🎯 TRIGGER DETECTED (Fuzzy Match)! Starting pre-qualification...");\n';
-        code += '                            console.log("🔥 Triggered by:", tessText);\n';
-        code += '                            forcePreQualification();\n';
+        code += '                            console.log("🎯 Trigger heard! Waiting 1.5s for silence...");\n';
+        code += '                            \n';
+        code += '                            // ⏱️ CLEAR PREVIOUS TIMEOUTS (Debounce)\n';
+        code += '                            if (window.triggerTimeout) clearTimeout(window.triggerTimeout);\n';
+        code += '                            \n';
+        code += '                            // ⏱️ SET NEW TIMEOUT (The "Polite" Delay)\n';
+        code += '                            window.triggerTimeout = setTimeout(() => {\n';
+        code += '                                console.log("⏱️ Silence detected. Starting Interview.");\n';
+        code += '                                forcePreQualification();\n';
+        code += '                            }, 1500); // Waits 1.5 seconds\n';
         code += '                        }\n';
         code += '                    }\n';
         code += '                });\n';
