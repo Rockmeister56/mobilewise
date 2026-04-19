@@ -3539,6 +3539,7 @@ async function exportBridgeOnly() {
         code += '    let isPreQualificationActive = false;\n';
         code += '    window.preQualController = null;\n';
         code += '    let dailyCallObject = null;\n';
+        code += '    let dailyRoomData = null;\n';
         code += '\n';
         
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
@@ -3880,7 +3881,8 @@ code += '    document.head.appendChild(style);\n';
     code += '        } catch(e) {\n';
     code += '            console.error("❌ Daily init error:", e);\n';
     code += '        }\n';
-        // Universal Listener
+    code += '    }\n';  // ← CLOSES initDaily FUNCTION
+    code += '\n';
         code += '    function setupUniversalListener() {\n';
         code += '        console.log("👂 Universal Listener Activated.");\n';
         code += '        window.addEventListener("message", (event) => {\n';
@@ -4030,8 +4032,8 @@ code += '    document.head.appendChild(style);\n';
         code += '        }, 100);\n';
         code += '        if (typeof initDaily === "function") { initDaily(); }\n';
         code += '        window.activateTess = activateTess;\n';
-        code += '    }\n';
-        code += '    }\n';
+        code += '    }\n';  // ← Should be ONE closing brace, not two
+        code += '\n';
 
         // Show Persistent Avatar
         code += '    function showPersistentAvatar() {\n';
