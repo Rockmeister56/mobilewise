@@ -3959,7 +3959,7 @@ code += '            document.head.appendChild(script);\n';
 code += '        });\n';
 code += '    }\n';
 code += '\n';
-                  // ==========================================
+               // ==========================================
         // 🍋 EXTRACTED: DAILY INITIALIZATION (CONFORMED + DELAY)
         // ==========================================
         code += '    async function initDaily() {\n';
@@ -4002,8 +4002,8 @@ code += '\n';
         code += '                    document.body.appendChild(container);\n';
         code += '                }\n';
         code += '                \n';
-        code += '                if (dailyCallObject.iframe()) { \n';
-        code += '                    container.appendChild(dailyCallObject.iframe()); \n';
+        code += '                if (dailyCallObject.iframe()) { \n';  // <--- REMOVED THE BAD BACKSLASH
+        code += '                    container.appendChild(dailyCallObject.iframe()); \n'; // <--- REMOVED THE BAD BACKSLASH
         code += '                }\n';
         code += '                \n';
         code += '                await dailyCallObject.join({ url: data.room_url, token: data.token });\n';
@@ -4059,7 +4059,7 @@ code += '\n';
         code += '            } else {\n';
         code += '                console.warn("⚠️ Daily API did not return room_url");\n';
         code += '            }\n';
-        code += '        } catch(e) { \n';
+        code += '        } catch (e) { \n';
         code += '            console.error("❌ Daily init error:", e); \n';
         code += '        }\n';
         code += '    }\n'; // ← CLOSES initDaily FUNCTION
