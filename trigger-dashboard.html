@@ -4066,6 +4066,14 @@ code += '\n';
     code += '                            }, 1500);\n';
     code += '                        }\n';
     code += '                    }\n';
+    code += '                });\n';
+    code += '            } else {\n';
+    code += '                console.warn("⚠️ Daily API did not return room_url");\n';
+    code += '            }\n';
+    code += '        } catch (e) { \n';
+    code += '            console.error("❌ Daily init error:", e); \n';
+    code += '        }\n';
+    code += '    }\n';
 
      // ===== THIS IS THE OLD CODE YOU KEPT =====
     code += '                });\n';
