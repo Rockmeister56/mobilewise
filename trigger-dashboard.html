@@ -4127,7 +4127,7 @@ code += '\n';
         code += '    }\n';
         code += '\n';
 
-                code += '    // ===== FORCE PRE-QUALIFICATION FUNCTION =====\n';
+        code += '    // ===== FORCE PRE-QUALIFICATION FUNCTION =====\n';
         code += '    function forcePreQualification() {\n';
         code += '        console.log("🚀 forcePreQualification - Starting pre-qualification interview");\n';
         code += '        \n';
@@ -4152,8 +4152,9 @@ code += '\n';
         code += '        window.preQualController.script = window.preQualScript;\n';
         code += '        window.preQualController.startInterview();\n';
         code += '        isPreQualificationActive = true;\n';
-        code += '        console.log("✅ Pre-qualification interview started");\n';
+         code += '        console.log("✅ Pre-qualification interview started");\n';
         code += '    }\n';
+        code += '    window.forcePreQualification = forcePreQualification; // ← ADD THIS LINE\n';
         code += '\n';
 
                // Show Splash Function
