@@ -4021,7 +4021,7 @@ code += '\n';
     code += '                    \n';
     code += '                    // ===== 🔥 FIX: MISSING IF STATEMENT HERE =====\n';
     code += '                    if (ev && ev.data) {\n';
-    code += '                        const tessText = ev.data.text || "";\n';
+    code += '                        const tessText = ev.data.transcription || "";\n';
     code += '\n';
     code += '                        const triggerPhrase = window.TRIGGER_PHRASE || "are you ready for your first question";\n';
     code += '                        const lowerText = tessText.toLowerCase();\n';
