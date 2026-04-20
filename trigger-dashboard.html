@@ -4032,7 +4032,9 @@ code += '\n';
         code += '                            });\n';
         code += '                        }\n';
         code += '                        \n';
-        code += '                        // ===== 🔥 SMART TRIGGER (WITH DELAY) =====\n';
+        code += '                        // ===== 🔥 SMART TRIGGER (WITH DELAY) - DISABLED =====\n';
+        code += '                        // 🔥 COMMENTED OUT - Using Supabase Realtime trigger instead\n';
+        code += '                        /*\n';
         code += '                        const fuzzyTriggers = [\n';
         code += '                            "are you ready for your first question", \n';
         code += '                            "first question", \n';
@@ -4054,6 +4056,8 @@ code += '\n';
         code += '                                forcePreQualification();\n';
         code += '                            }, 1500); // Waits 1.5 seconds\n';
         code += '                        }\n';
+        code += '                        */\n';
+        code += '                        // 🔥 END DISABLED FUZZY TRIGGER\n';
         code += '                    }\n';
         code += '                });\n';
         code += '            } else {\n';
@@ -4768,39 +4772,39 @@ function buildScriptCode(steps) {
             return this.getCurrentQuestion();
         },
         
-   processResponse: async function(userInput) {
-    if (!this.active) return null;
-    const currentStep = this.steps[this.currentStepIndex];
-    if (!currentStep) {
-        await this.sendEmail();
-        this.active = false;
-        return "Thank you! Your pre-qualification is complete.";
-    }
-    
-    // If it's a message step, just move to next
-    if (currentStep.type === "message") {
-        this.currentStepIndex++;
-        return this.getCurrentQuestion();
-    }
-    
-    // Store the response if it has a field
-    if (currentStep.field) {
-        this.responses[currentStep.field] = userInput;
-        console.log("✅ Stored " + currentStep.field + ": " + userInput);
-    }
-    
-    // Move to next step
-    this.currentStepIndex++;
-    
-    // Check if interview is complete
-    if (this.currentStepIndex >= this.steps.length) {
-        await this.sendEmail();
-        this.active = false;
-        return "Thank you! Your pre-qualification is complete.";
-    }
-    
-    return this.getCurrentQuestion();
-},
+        processResponse: async function(userInput) {
+            if (!this.active) return null;
+            const currentStep = this.steps[this.currentStepIndex];
+            if (!currentStep) {
+                await this.sendEmail();
+                this.active = false;
+                return "Thank you! Your pre-qualification is complete.";
+            }
+            
+            // If it's a message step, just move to next
+            if (currentStep.type === "message") {
+                this.currentStepIndex++;
+                return this.getCurrentQuestion();
+            }
+            
+            // Store the response if it has a field
+            if (currentStep.field) {
+                this.responses[currentStep.field] = userInput;
+                console.log("✅ Stored " + currentStep.field + ": " + userInput);
+            }
+            
+            // Move to next step
+            this.currentStepIndex++;
+            
+            // Check if interview is complete
+            if (this.currentStepIndex >= this.steps.length) {
+                await this.sendEmail();
+                this.active = false;
+                return "Thank you! Your pre-qualification is complete.";
+            }
+            
+            return this.getCurrentQuestion();
+        },
         
         getCurrentQuestion: function() {
             const step = this.steps[this.currentStepIndex];
