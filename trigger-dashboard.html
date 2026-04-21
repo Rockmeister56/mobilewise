@@ -2505,7 +2505,7 @@ const preQual = client.modules?.preQualification || {};
 // Basic settings
 document.getElementById('preQualEnabled').checked = preQual.enabled !== false;
 document.getElementById('preQualKnowledgeBase').value = preQual.knowledgeBaseScript || 'mortgage';
-document.getElementById('preQualTriggerPhrase').value = preQual.triggerPhrase || 'I want to get pre-qualified';
+document.getElementById('preQualTriggerPhrase').value = preQual.triggerPhrase || '';
 document.getElementById('emailSubject').value = preQual.emailSubject || 'New Lead: {{name}}';
 document.getElementById('emailTemplate').value = preQual.emailTemplate || '';
 
