@@ -4059,6 +4059,7 @@ code += '\n';
     code += '                        }\n';
     code += '                        \n';
     code += '                        if (cleanText.includes(cleanTrigger)) {\n';
+    code += '                            console.log("🔍 [SOURCE] Trigger detected via LOCAL Daily Listener");\n';
     code += '                            console.log("🎯 EXACT TRIGGER DETECTED! Starting pre-qualification...");\n';
     code += '                            console.log("🔥 Triggered by:", tessText);\n';
     code += '\n';
@@ -4157,8 +4158,12 @@ code += '\n';
         code += '    }\n';
         code += '\n';
 
-        // ===== FORCE PRE-QUALIFICATION FUNCTION (CLEAN - NO AUDIO STOP) =====
+        // ===== FORCE PRE-QUALIFICATION FUNCTION (DEBUG VERSION) =====
     code += '    function forcePreQualification() {\n';
+    code += '        \n';
+    code += '        // 🔍 DIAGNOSTIC: Who called this function?\n';
+    code += '        console.trace("🔍 [TRACE] forcePreQualification was called from:");\n';
+    code += '        \n';
     code += '        console.log("🚀 forcePreQualification - Starting pre-qualification interview");\n';
     code += '        \n';
     code += '        // Prevent duplicate starts\n';
