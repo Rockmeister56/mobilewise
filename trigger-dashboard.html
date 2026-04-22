@@ -4122,7 +4122,7 @@ async function exportBridgeOnly() {
         code += '                            });\n';
         code += '                        }\n';
         code += '                        \n';
-               code += '                        // ===== 🔥 DYNAMIC TRIGGER LOGIC =====\n';
+        code += '                        // ===== 🔥 DYNAMIC TRIGGER LOGIC =====\n';
         code += '                        const triggerPhrase = window.TRIGGER_PHRASE;\n';
         code += '                        if (!triggerPhrase) {\n';
         code += '                            console.warn("⚠️ No trigger phrase configured");\n';
@@ -4148,16 +4148,6 @@ async function exportBridgeOnly() {
         code += '                                forcePreQualification();\n';
         code += '                            }, 3500);\n';
         code += '                        }\n';
-        code += '                        \n';
-        code += '                        // ===== 🔥 EMAIL TRIGGER =====\n';
-        code += '                        if (tessText.includes("EMAIL_SENT_NOW")) {\n';
-        code += '                            console.log("📧 Email trigger detected!");\n';
-        code += '                            if (window.preQualController && window.preQualController.isActive) {\n';
-        code += '                                window.preQualController.sendEmail();\n';
-        code += '                                window.preQualController.isActive = false;\n';
-        code += '                                console.log("✅ Interview complete - email sent");\n';
-        code += '                            }\n';
-        code += '                        }\n';
         code += '                    }\n';
         code += '                });\n';
         code += '            } else {\n';
@@ -4167,6 +4157,7 @@ async function exportBridgeOnly() {
         code += '            console.error("❌ Daily init error:", e); \n';
         code += '        }\n';
         code += '    }\n\n';
+
                 code += '    // ==========================================\n';
         code += '    // 🍋 UNIVERSAL LISTENER (For PostMessages)\n';
         code += '    // ==========================================\n';
