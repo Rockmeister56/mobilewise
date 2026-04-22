@@ -3731,12 +3731,6 @@ async function exportBridgeOnly() {
         code += '        startInterview() {\n';
         code += '            if (this.isActive) return;\n';
         code += '            \n';
-        code += '            if (!window.preQualScript) {\n';
-        code += '                console.error("❌ CRITICAL: preQualScript not found!");\n';
-        code += '                return;\n';
-        code += '            }\n';
-        code += '            this.script = window.preQualScript;\n';
-        code += '            \n';
         code += '            this.isActive = true;\n';
         code += '            this.currentStepIndex = 0;\n';
         code += '            this.answers = {};\n';
@@ -3749,8 +3743,7 @@ async function exportBridgeOnly() {
         code += '                console.log("🔇 LemonSlice AI forcefully muted");\n';
         code += '            }\n';
         code += '            \n';
-        code += '            console.log("🎯 Starting Pre-Qual Interview (Conformed Version)");\n';
-        code += '            this.speakCurrentStep();\n';
+        code += '            console.log("🎧 Listener Mode Activated - Waiting for LemonSlice questions");\n';
         code += '        }\n';
         code += '\n';
         code += '        handleUserInput(userText) {\n';
@@ -3955,13 +3948,8 @@ async function exportBridgeOnly() {
         code += '    })();\n\n';
 
         code += '    window.preQualController = new PreQualificationController();\n';
-        code += '    if (window.preQualScript) {\n';
-        code += '        window.preQualController.script = window.preQualScript;\n';
-        code += '        console.log("✅ Controller created with", window.preQualScript.steps?.length, "steps");\n';
-        code += '    } else {\n';
-        code += '        console.error("❌ No preQualScript found!");\n';
-        code += '    }\n';
-        code += '\n';
+        code += '    console.log("✅ Controller created (Listener Mode)");\n';
+    
         code += '    window.broadcastTessTranscript = function(text) {\n';
         code += '        if (window.supabaseChannel) {\n';
         code += '            window.supabaseChannel.send({ type: \'broadcast\', event: \'tess_transcript\', payload: { type: \'TESS_TRANSCRIPT\', text: text, timestamp: Date.now() } });\n';
@@ -4179,33 +4167,33 @@ async function exportBridgeOnly() {
         code += '    }\n';
         code += '\n';
 
-              // ===== FORCE PRE-QUALIFICATION FUNCTION =====
+                // ===== FORCE PRE-QUALIFICATION FUNCTION =====
         code += '    function forcePreQualification() {\n';
         code += '        console.trace("🔍 [TRACE] forcePreQualification called from:");\n';
-        code += '        console.log("🚀 forcePreQualification - Starting pre-qualification interview");\n';
+        code += '        console.log("🚀 forcePreQualification - Activating Listener Mode");\n';
         code += '        \n';
-        code += '        // Prevent duplicate starts\n';
         code += '        if (isPreQualificationActive) {\n';
         code += '            console.log("⚠️ Pre-qualification already active, skipping");\n';
         code += '            return;\n';
         code += '        }\n';
         code += '        \n';
-        code += '        // Check if controller and script are ready\n';
         code += '        if (!window.preQualController) {\n';
         code += '            console.error("❌ preQualController not found");\n';
         code += '            return;\n';
         code += '        }\n';
         code += '        \n';
-        code += '        if (!window.preQualScript) {\n';
-        code += '            console.error("❌ preQualScript not found");\n';
-        code += '            return;\n';
+        code += '        // Activate listener mode\n';
+        code += '        window.preQualController.isActive = true;\n';
+        code += '        window.preQualController.answers = {};\n';
+        code += '        \n';
+        code += '        // Send trigger to LemonSlice\n';
+        code += '        if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
+        code += '            window.mainWidget.sendMessage("START_INTERVIEW_NOW");\n';
+        code += '            console.log("📤 Sent START_INTERVIEW_NOW to LemonSlice");\n';
         code += '        }\n';
         code += '        \n';
-        code += '        // Set the script and start\n';
-        code += '        window.preQualController.script = window.preQualScript;\n';
-        code += '        window.preQualController.startInterview();\n';
         code += '        isPreQualificationActive = true;\n';
-        code += '        console.log("✅ Pre-qualification interview started");\n';
+        code += '        console.log("✅ Listener Mode activated");\n';
         code += '    }\n';
         code += '    window.forcePreQualification = forcePreQualification;\n';
         code += '\n';
@@ -4453,6 +4441,18 @@ async function exportBridgeOnly() {
         code += '    }\n';
         code += '\n';
         code += '    setTimeout(announceToTCS, 4000);\n';
+        code += '    // ===== HEALTH CHECK FOR TCS DASHBOARD =====\n';
+        code += '    window.bridgeHealthCheck = function() {\n';
+        code += '        return {\n';
+        code += '            status: "active",\n';
+        code += '            mode: "listener",\n';
+        code += '            clientId: window.BotemiaConfig?.id,\n';
+        code += '            readyForHandoff: !!window.mainWidget,\n';
+        code += '            dailyConnected: !!window.dailyCallObject,\n';
+        code += '            timestamp: Date.now()\n';
+        code += '        };\n';
+        code += '    };\n';
+        code += '    console.log("🩺 Bridge health check available: window.bridgeHealthCheck()");\n';
         code += '})();\n';
 
     // =========================================
