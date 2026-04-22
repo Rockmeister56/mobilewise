@@ -3526,12 +3526,12 @@ async function exportBridgeOnly() {
             }, 4);
         };
 
-// ===== BUILD THE BRIDGE CODE =====
+        // ===== BUILD THE BRIDGE CODE =====
         let code = '';
         code += '// Botemia Bridge for ' + (config.name || 'Client') + '\n';
         code += '// Generated: ' + new Date().toLocaleString() + '\n';
         code += '// Client ID: ' + config.id + '\n';
-        code += '// Version: 5.7 - DYNAMIC STEPS & FUZZY FIX\n\n';
+        code += '// Version: 5.8 - LISTENER MODE (FINAL)\n\n';
         
         code += '(function() {\n';
         code += '    "use strict";\n\n';
@@ -3539,7 +3539,6 @@ async function exportBridgeOnly() {
         code += '    let isPreQualificationActive = false;\n';
         code += '    window.preQualController = null;\n';
         code += '    let dailyCallObject = null;\n';
-        code += '    let dailyRoomData = null;\n';
         code += '\n';
         
         code += '    // ===== EMBEDDED CLIENT CONFIGURATION =====\n';
@@ -3550,19 +3549,20 @@ async function exportBridgeOnly() {
         code += '        "agentId": "' + (config.agentId || '') + '",\n';
         code += '        "modules": {\n';
         code += '            "preQualification": {\n';
-        code += '                "triggerPhrase": "' + (config.modules?.preQualification?.triggerPhrase || '') + '"\n';
+        code += '                "triggerPhrase": "' + (config.modules?.preQualification?.triggerPhrase || 'YES_INITIATE_PREQUAL') + '",\n';
+        code += '                "triggerPhraseLegacy": "' + (config.modules?.preQualification?.triggerPhraseLegacy || "let's get started") + '"\n';
         code += '            },\n';
         code += '            "splashScreen": ' + JSON.stringify(config.modules?.splashScreen || {}) + '\n';
         code += '        }\n';
         code += '    };\n\n';
         
-       code += '    // ===== TRIGGER PHRASE (from dashboard) =====\n';
-       code += '    window.TRIGGER_PHRASE = window.BotemiaConfig.modules?.preQualification?.triggerPhrase;\n';
-       code += '    if (!window.TRIGGER_PHRASE) {\n';
-       code += '        console.error("❌ CRITICAL: No trigger phrase configured in dashboard!");\n';
-       code += '    } else {\n';
-       code += '        console.log("🎯 Bridge using trigger phrase:", window.TRIGGER_PHRASE);\n';
-       code += '    }\n\n';
+        code += '    // ===== TRIGGER PHRASE (from dashboard) =====\n';
+        code += '    window.TRIGGER_PHRASE = window.BotemiaConfig.modules?.preQualification?.triggerPhrase;\n';
+        code += '    if (!window.TRIGGER_PHRASE) {\n';
+        code += '        console.error("❌ CRITICAL: No trigger phrase configured in dashboard!");\n';
+        code += '    } else {\n';
+        code += '        console.log("🎯 Bridge using trigger phrase:", window.TRIGGER_PHRASE);\n';
+        code += '    }\n\n';
 
         // ===== LEMON SLICE: AUTO-LOADER (EMAILJS) =====
         const emailJsLoader = [
@@ -3585,56 +3585,56 @@ async function exportBridgeOnly() {
         
         code += emailJsLoader + '\n';
         
-        // ===== ADD SPLASH SCREEN CSS =====
-code += '    const style = document.createElement(\'style\');\n';
-code += '    style.textContent = `\n';
-code += '        .splash-avatar-container {\n';
-code += '            width: 220px; height: 384px; margin: 0 auto 25px;\n';
-code += '            border-radius: 20px; overflow: hidden;\n';
-code += '            background: #000;\n';
-code += '            box-shadow: 0 20px 30px rgba(0,0,0,0.5);\n';
-code += '            border: 2px solid rgba(255,255,255,0.1);\n';
-code += '            display: flex; align-items: center; justify-content: center;\n';
-code += '            position: relative;\n';
-code += '        }\n';
-code += '        .splash-avatar-container lemon-slice-widget {\n';
-code += '            position: absolute;\n';
-code += '            top: 50%; left: 45%;\n';
-code += '            transform: translate(-50%, -50%);\n';
-code += '            width: 280px !important;\n';
-code += '            height: 400px !important;\n';
-code += '            max-width: none !important;\n';
-code += '            max-height: none !important;\n';
-code += '            border-radius: 18px;\n';
-code += '        }\n';
-code += '        .splash-card {\n';
-code += '            background: radial-gradient(circle at center, var(--grad-center, #1e4a8a) 0%, var(--grad-outer, #0a1a2f) 80%);\n';
-code += '            border-radius: 48px; padding: 20px 30px 40px 30px;\n';
-code += '            max-width: 475px; width: 90%; text-align: center;\n';
-code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
-code += '            animation: slideUp 0.4s ease;\n';
-code += '        }\n';
-code += '        .splash-card h1 { color: white; font-size: 2.5rem; margin-bottom: 5px; font-weight: 700; }\n';
-code += '        .splash-card h2 { color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-bottom: 20px; font-weight: 300; }\n';
-code += '        .button-group { display: flex; gap: 10px; justifyjustify-content: center; margin-top: 15px; }\n';
-code += '        .primary-btn, .secondary-btn { padding: 12px 20px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer; flex: 1; max-width: 200px; border: none; transition: all 0.2s; }\n';
-code += '        .primary-btn:hover, .secondary-btn:hover { transform: scale(1.02); }\n';
-code += '        .ticker-container {\n';
-code += '            position: absolute; bottom: 0; left: 0; right: 0;\n';
-code += '            background: linear-gradient(90deg, rgba(0,0,0,0.9), rgba(248,196,0,0.2), rgba(0,0,0,0.9));\n';
-code += '            backdrop-filter: blur(2px); color: #f8c400; padding: 6px 0;\n';
-code += '            overflow: hidden; white-space: nowrap; font-size: 13px; font-weight: 600;\n';
-code += '            text-shadow: 0 1px 2px rgba(0,0,0,0.8); z-index: 10; pointer-events: none;\n';
-code += '            border-top: 2px solid #f8c400; border-bottom: none; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);\n';
-code += '        }\n';
-code += '        .ticker-content { display: inline-block; animation: ticker 25s linear infinite; padding-left: 100%; }\n';
-code += '        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }\n';
-code += '        .ticker-item { display: inline-block; padding: 0 25px; color: white; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; }\n';
-code += '        .ticker-item i { margin-right: 8px; color: #f8c400; font-size: 12px; filter: drop-shadow(0 0 3px rgba(248,196,0,0.5)); }\n';
-code += '    `;\n';
-code += '    document.head.appendChild(style);\n';
+             // ===== ADD SPLASH SCREEN CSS =====
+        code += '    const style = document.createElement(\'style\');\n';
+        code += '    style.textContent = `\n';
+        code += '        .splash-avatar-container {\n';
+        code += '            width: 220px; height: 384px; margin: 0 auto 25px;\n';
+        code += '            border-radius: 20px; overflow: hidden;\n';
+        code += '            background: #000;\n';
+        code += '            box-shadow: 0 20px 30px rgba(0,0,0,0.5);\n';
+        code += '            border: 2px solid rgba(255,255,255,0.1);\n';
+        code += '            display: flex; align-items: center; justify-content: center;\n';
+        code += '            position: relative;\n';
+        code += '        }\n';
+        code += '        .splash-avatar-container lemon-slice-widget {\n';
+        code += '            position: absolute;\n';
+        code += '            top: 50%; left: 45%;\n';
+        code += '            transform: translate(-50%, -50%);\n';
+        code += '            width: 280px !important;\n';
+        code += '            height: 400px !important;\n';
+        code += '            max-width: none !important;\n';
+        code += '            max-height: none !important;\n';
+        code += '            border-radius: 18px;\n';
+        code += '        }\n';
+        code += '        .splash-card {\n';
+        code += '            background: radial-gradient(circle at center, var(--grad-center, #1e4a8a) 0%, var(--grad-outer, #0a1a2f) 80%);\n';
+        code += '            border-radius: 48px; padding: 20px 30px 40px 30px;\n';
+        code += '            max-width: 475px; width: 90%; text-align: center;\n';
+        code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
+        code += '            animation: slideUp 0.4s ease;\n';
+        code += '        }\n';
+        code += '        .splash-card h1 { color: white; font-size: 2.5rem; margin-bottom: 5px; font-weight: 700; }\n';
+        code += '        .splash-card h2 { color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-bottom: 20px; font-weight: 300; }\n';
+        code += '        .button-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }\n';
+        code += '        .primary-btn, .secondary-btn { padding: 12px 20px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer; flex: 1; max-width: 200px; border: none; transition: all 0.2s; }\n';
+        code += '        .primary-btn:hover, .secondary-btn:hover { transform: scale(1.02); }\n';
+        code += '        .ticker-container {\n';
+        code += '            position: absolute; bottom: 0; left: 0; right: 0;\n';
+        code += '            background: linear-gradient(90deg, rgba(0,0,0,0.9), rgba(248,196,0,0.2), rgba(0,0,0,0.9));\n';
+        code += '            backdrop-filter: blur(2px); color: #f8c400; padding: 6px 0;\n';
+        code += '            overflow: hidden; white-space: nowrap; font-size: 13px; font-weight: 600;\n';
+        code += '            text-shadow: 0 1px 2px rgba(0,0,0,0.8); z-index: 10; pointer-events: none;\n';
+        code += '            border-top: 2px solid #f8c400; border-bottom: none; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);\n';
+        code += '        }\n';
+        code += '        .ticker-content { display: inline-block; animation: ticker 25s linear infinite; padding-left: 100%; }\n';
+        code += '        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }\n';
+        code += '        .ticker-item { display: inline-block; padding: 0 25px; color: white; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; }\n';
+        code += '        .ticker-item i { margin-right: 8px; color: #f8c400; font-size: 12px; filter: drop-shadow(0 0 3px rgba(248,196,0,0.5)); }\n';
+        code += '    `;\n';
+        code += '    document.head.appendChild(style);\n\n';
         
-                // Helper Functions
+                       // Helper Functions
         code += '    function createSplashWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
         code += '        let clientId = window.BotemiaConfig?.id || "mortgage-assist-demo";\n';
@@ -3644,7 +3644,6 @@ code += '    document.head.appendChild(style);\n';
         code += '        window.tessSessionId = sessionId;\n';
         code += '        widget.setAttribute(\'room-id\', sessionId);\n';
         code += '        widget.roomId = sessionId;\n';
-        code += '        // 🔥 FIX: Safe path to Agent ID to prevent crashes if config loads late\n';
         code += '        widget.setAttribute(\'agent-id\', \'' + (config.modules?.splashScreen?.agentId || config.agentId) + '\');\n';
         code += '        widget.agentId = \'' + (config.modules?.splashScreen?.agentId || config.agentId) + '\';\n';
         code += '        const apiKey = "sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP";\n';
@@ -3663,11 +3662,64 @@ code += '    document.head.appendChild(style);\n';
         code += '        return widget;\n';
         code += '    }\n\n';
 
-        // ===== DYNAMIC PRE-QUALIFICATION SCRIPT INJECTION =====
-        // This pulls the script steps from your Dashboard/Supabase configuration
-        code += preQualScriptCode + '\n';
+                // ===== INTERVIEW LISTENER MODE =====
+        // Questions are now handled by LemonSlice Knowledge Base
+        code += '    // ===== INTERVIEW LISTENER (QUESTIONS FROM LEMONSLICE) =====\n';
+        code += '    window.interviewListener = {\n';
+        code += '        isActive: false,\n';
+        code += '        answers: {},\n';
+        code += '        currentField: null,\n';
+        code += '        \n';
+        code += '        start: function() {\n';
+        code += '            this.isActive = true;\n';
+        code += '            this.answers = {};\n';
+        code += '            console.log("🎧 Interview listener activated");\n';
+        code += '        },\n';
+        code += '        \n';
+        code += '        // Called when Tess speaks - detects which question is being asked\n';
+        code += '        detectQuestion: function(tessText) {\n';
+        code += '            const patterns = {\n';
+        code += '                "loanType": ["type of loan", "FHA", "VA", "Conventional"],\n';
+        code += '                "monthlyIncome": ["monthly income", "gross monthly"],\n';
+        code += '                "downPayment": ["putting down", "down payment"],\n';
+        code += '                "creditScore": ["credit score"],\n';
+        code += '                "fullName": ["full name"],\n';
+        code += '                "email": ["email address"],\n';
+        code += '                "phone": ["phone number"],\n';
+        code += '                "scheduledDateTime": ["date and time", "Zoom meeting"],\n';
+        code += '                "specialRequests": ["special requests"]\n';
+        code += '            };\n';
+        code += '            \n';
+        code += '            for (const [field, keywords] of Object.entries(patterns)) {\n';
+        code += '                if (keywords.some(kw => tessText.toLowerCase().includes(kw))) {\n';
+        code += '                    this.currentField = field;\n';
+        code += '                    console.log("📋 Expecting answer for:", field);\n';
+        code += '                    return field;\n';
+        code += '                }\n';
+        code += '            }\n';
+        code += '            return null;\n';
+        code += '        },\n';
+        code += '        \n';
+        code += '        // Called when user speaks - stores the answer\n';
+        code += '        captureAnswer: function(userText) {\n';
+        code += '            if (this.currentField && this.isActive) {\n';
+        code += '                this.answers[this.currentField] = userText;\n';
+        code += '                console.log("💾 Stored " + this.currentField + ":", userText);\n';
+        code += '                this.currentField = null;\n';
+        code += '                return true;\n';
+        code += '            }\n';
+        code += '            return false;\n';
+        code += '        },\n';
+        code += '        \n';
+        code += '        // Called when interview completes\n';
+        code += '        finish: function() {\n';
+        code += '            this.isActive = false;\n';
+        code += '            console.log("✅ Interview complete. Answers:", this.answers);\n';
+        code += '            return this.answers;\n';
+        code += '        }\n';
+        code += '    };\n\n';
 
-        // ===== PRE-QUALIFICATION CONTROLLER (CONFORMED) =====
+                // ===== PRE-QUALIFICATION CONTROLLER (CONFORMED WITH NUCLEAR MUTE) =====
         code += '    class PreQualificationController {\n';
         code += '        constructor() {\n';
         code += '            this.isActive = false;\n';
@@ -3688,6 +3740,14 @@ code += '    document.head.appendChild(style);\n';
         code += '            this.isActive = true;\n';
         code += '            this.currentStepIndex = 0;\n';
         code += '            this.answers = {};\n';
+        code += '            \n';
+        code += '            // 🔥 NUCLEAR OPTION: Completely mute LemonSlice AI\n';
+        code += '            if (window.mainWidget) {\n';
+        code += '                window.mainWidget.setAttribute(\'muted\', \'true\');\n';
+        code += '                window.mainWidget.setAttribute(\'suppress-audio\', \'true\');\n';
+        code += '                window.mainWidget.setAttribute(\'suppress-ai\', \'true\');\n';
+        code += '                console.log("🔇 LemonSlice AI forcefully muted");\n';
+        code += '            }\n';
         code += '            \n';
         code += '            console.log("🎯 Starting Pre-Qual Interview (Conformed Version)");\n';
         code += '            this.speakCurrentStep();\n';
@@ -3741,6 +3801,16 @@ code += '    document.head.appendChild(style);\n';
         code += '        finishInterview() {\n';
         code += '            this.isActive = false;\n';
         code += '            console.log("✅ Interview Complete.");\n';
+        code += '            \n';
+        code += '            // 🔥 RESTORE LEMONSLICE AI\n';
+        code += '            if (window.mainWidget) {\n';
+        code += '                window.mainWidget.removeAttribute(\'muted\');\n';
+        code += '                window.mainWidget.removeAttribute(\'suppress-audio\');\n';
+        code += '                window.mainWidget.removeAttribute(\'suppress-ai\');\n';
+        code += '                window.mainWidget.setAttribute(\'controlled-widget-state\', \'inactive\');\n';
+        code += '                console.log("🔊 LemonSlice AI restored");\n';
+        code += '            }\n';
+        code += '            \n';
         code += '            this.speak("That is everything! I am generating your pre-qualification letter now.");\n';
         code += '            this.sendEmail();\n';
         code += '        }\n';
@@ -3748,6 +3818,12 @@ code += '    document.head.appendChild(style);\n';
         code += '        speak(text) {\n';
         code += '            if (!text) return;\n';
         code += '            console.log("🤖 Tess says: " + text);\n';
+        code += '            \n';
+        code += '            // 🔥 FORCE DISABLE LEMONSLICE AI DURING INTERVIEW\n';
+        code += '            if (this.isActive && window.mainWidget) {\n';
+        code += '                window.mainWidget.setAttribute(\'suppress-ai\', \'true\');\n';
+        code += '                window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
+        code += '            }\n';
         code += '            \n';
         code += '            if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
         code += '                try {\n';
@@ -3765,7 +3841,6 @@ code += '    document.head.appendChild(style);\n';
         code += '            console.log("📧 Sending dynamic email with collected responses...");\n';
         code += '            const data = this.answers;\n';
         code += '            \n';
-        code += '            // Convert all responses to a formatted string for email\n';
         code += '            let formattedAnswers = "";\n';
         code += '            for (var key in data) {\n';
         code += '                if (data.hasOwnProperty(key)) {\n';
@@ -3773,31 +3848,26 @@ code += '    document.head.appendChild(style);\n';
         code += '                }\n';
         code += '            }\n';
         code += '            \n';
-        code += '            // ===== EMAIL 1: TO PROSPECTIVE CLIENT (YOU) =====\n';
         code += '            var prospectiveClientParams = {\n';
         code += '                full_name: data.fullName || data.name || "Not provided",\n';
         code += '                email: data.email || "Not provided",\n';
         code += '                phone: data.phone || data.phoneNumber || "Not provided",\n';
         code += '                scheduled_datetime: data.scheduledDateTime || data.dateTime || "Not provided",\n';
-        // 🔥 ADDED: Zoom Interest capture for the new script flow
         code += '                zoom_interest: data.zoomInterest || "Not provided",\n';
         code += '                all_answers: formattedAnswers,\n';
         code += '                full_json: JSON.stringify(data, null, 2),\n';
         code += '                submitted_at: new Date().toLocaleString()\n';
         code += '            };\n';
         code += '            \n';
-        code += '            // ===== EMAIL 2: TO WEB PROSPECT (Confirmation) =====\n';
         code += '            var webProspectParams = {\n';
         code += '                full_name: data.fullName || data.name || "Valued Client",\n';
         code += '                email: data.email || "Not provided",\n';
         code += '                phone: data.phone || data.phoneNumber || "Not provided",\n';
         code += '                scheduled_datetime: data.scheduledDateTime || data.dateTime || "Not provided",\n';
-        // 🔥 ADDED: Zoom Interest for the prospect confirmation too
         code += '                zoom_interest: data.zoomInterest || "Not provided",\n';
         code += '                message: "Thank you for completing pre-qualification! A loan officer will reach out to you shortly."\n';
         code += '            };\n';
         code += '            \n';
-        code += '            // Send Email 1\n';
         code += '            emailjs.send("service_b9bppgb", "template_uix9cyx", prospectiveClientParams)\n';
         code += '                .then(function() {\n';
         code += '                    console.log("✅ Dynamic email sent to prospective client");\n';
@@ -3806,7 +3876,6 @@ code += '    document.head.appendChild(style);\n';
         code += '                    console.error("❌ Email error (prospective):", error);\n';
         code += '                });\n';
         code += '            \n';
-        code += '            // Send Email 2 (Only if we have their email)\n';
         code += '            if (data.email) {\n';
         code += '                emailjs.send("service_b9bppgb", "template_8kx812d", webProspectParams)\n';
         code += '                    .then(function() {\n';
@@ -3817,78 +3886,53 @@ code += '    document.head.appendChild(style);\n';
         code += '                    });\n';
         code += '            }\n';
         code += '        }\n';
-        // End of Class
-        code += '    }\n'; 
-        
-        code += '    window.PreQualificationController = PreQualificationController;\n';
+        code += '    }\n';
+        code += '    window.PreQualificationController = PreQualificationController;\n\n';
 
-        // Supabase Realtime
+                // Supabase Realtime
         code += '    // =========================================\n';
-        code += '    // 🍋 SUPABASE REALTIME SETUP (Conformed)\n';
+        code += '    // 🍋 SUPABASE REALTIME SETUP (ASYNC SAFE)\n';
         code += '    // =========================================\n';
         code += '    (function() {\n';
         code += '        const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";\n';
         code += '        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";\n';
-        code += '        \n';
-        code += '        // Load Supabase Library dynamically\n';
         code += '        const script = document.createElement("script");\n';
         code += '        script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";\n';
+        code += '        \n';
+        code += '        // ✅ FIX: We only run Supabase code AFTER library is fully loaded\n';
         code += '        script.onload = function() {\n';
         code += '            const { createClient } = supabase;\n';
         code += '            const sbClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {\n';
-        code += '                realtime: {\n';
-        code += '                    params: {\n';
-        code += '                        eventsPerSecond: 10\n';
-        code += '                    }\n';
-        code += '                }\n';
+        code += '                realtime: { params: { eventsPerSecond: 10 } }\n';
         code += '            });\n';
         code += '            \n';
         code += '            const tcsChannel = sbClient.channel("tess-commands");\n';
         code += '            \n';
-        code += '            // Listen for commands\n';
         code += '            tcsChannel.on("broadcast", { event: "command" }, function(payload) {\n';
         code += '                console.log("📡 [REALTIME] Command received:", payload);\n';
-        code += '                const command = payload.payload.command;\n';
         code += '                \n';
-        code += '                // 🔥 RE-ENABLED: Accept all START_PRE_QUAL commands\n';
-        code += '                if (command === "START_PRE_QUAL") {\n';
-        code += '                    console.log("🎯 [REALTIME] START_PRE_QUAL received!");\n';
-        code += '                    forcePreQualification();\n';
-        code += '                }\n';
+        code += '                // 🔥 COMPLETELY DISABLED - THIS WAS THE SKIP TRIGGER\n';
+        code += '                // if (payload.payload.command === "START_PRE_QUAL") {\n';
+        code += '                //     if (typeof window.dailyCallObject === "undefined" || !window.dailyCallObject) {\n';
+        code += '                //         console.warn("⚠️ Dashboard ignored: Daily not ready yet.");\n';
+        code += '                //         return;\n';
+        code += '                //     }\n';
+        code += '                //     forcePreQualification();\n';
+        code += '                // }\n';
         code += '            });\n';
         code += '            \n';
-        code += '            // Listen for ping and respond with pong (Debug/Health Check)\n';
-        code += '            tcsChannel.on("broadcast", { event: "ping" }, function(payload) {\n';
-        code += '                console.log("📡 PING received, sending PONG...");\n';
-        code += '                tcsChannel.send({\n';
-        code += '                    type: "broadcast",\n';
-        code += '                    event: "pong",\n';
-        code += '                    payload: {\n';
-        code += '                        type: "TEST_PONG",\n';
-        code += '                        message: "Connection Active!",\n';
-        code += '                        timestamp: Date.now()\n';
-        code += '                    }\n';
-        code += '                });\n';
-        code += '                console.log("📤 PONG sent to TCS");\n';
+        code += '            tcsChannel.subscribe(function(status) { \n';
+        code += '                if (status === "SUBSCRIBED") console.log("✅ [REALTIME] Connected to Supabase"); \n';
         code += '            });\n';
-        code += '            \n';
-        code += '            // Subscribe to channel\n';
-        code += '            tcsChannel.subscribe(function(status) {\n';
-        code += '                if (status === "SUBSCRIBED") {\n';
-        code += '                    console.log("✅ [REALTIME] Connected to Supabase channel");\n';
-        code += '                }\n';
-        code += '            });\n';
-        code += '            \n';
         code += '            window.supabaseChannel = tcsChannel;\n';
         code += '            \n';
-        code += '            // Create health monitor channel (Prevents 404 errors)\n';
+        code += '            // Create health monitor channel (For Communication Monitor)\n';
         code += '            const healthChannel = sbClient.channel("health-monitor");\n';
         code += '            healthChannel.subscribe(function(status) {\n';
         code += '                if (status === "SUBSCRIBED") {\n';
         code += '                    console.log("🩺 Health monitor channel connected");\n';
         code += '                }\n';
         code += '            });\n';
-        code += '            \n';
         code += '            window.healthChannel = healthChannel;\n';
         code += '            \n';
         code += '            // Listen for test_ping\n';
@@ -3906,10 +3950,10 @@ code += '    document.head.appendChild(style);\n';
         code += '                console.log("📤 test_pong sent");\n';
         code += '            });\n';
         code += '        };\n';
+        code += '        \n';
         code += '        document.head.appendChild(script);\n';
         code += '    })();\n\n';
 
-        code += '    // Create controller instance\n';
         code += '    window.preQualController = new PreQualificationController();\n';
         code += '    if (window.preQualScript) {\n';
         code += '        window.preQualController.script = window.preQualScript;\n';
@@ -3918,169 +3962,146 @@ code += '    document.head.appendChild(style);\n';
         code += '        console.error("❌ No preQualScript found!");\n';
         code += '    }\n';
         code += '\n';
-        code += '    // Function to broadcast Tess\'s speech to TCS via Supabase\n';
         code += '    window.broadcastTessTranscript = function(text) {\n';
-        code += '        try {\n';
-        code += '            if (window.supabaseChannel) {\n';
-        code += '                window.supabaseChannel.send({\n';
-        code += '                    type: "broadcast",\n';
-        code += '                    event: "tess_transcript",\n';
-        code += '                    payload: {\n';
-        code += '                        type: "TESS_TRANSCRIPT",\n';
-        code += '                        text: text,\n';
-        code += '                        timestamp: Date.now()\n';
-        code += '                    }\n';
-        code += '                });\n';
-        code += '                console.log("📡 [SUPABASE] Sent Tess transcript:", text.substring(0, 50));\n';
-        code += '            } else {\n';
-        code += '                console.log("⚠️ Supabase channel not ready");\n';
-        code += '            }\n';
-        code += '        } catch(e) {\n';
-        code += '            console.error("❌ Failed to send via Supabase:", e);\n';
+        code += '        if (window.supabaseChannel) {\n';
+        code += '            window.supabaseChannel.send({ type: \'broadcast\', event: \'tess_transcript\', payload: { type: \'TESS_TRANSCRIPT\', text: text, timestamp: Date.now() } });\n';
         code += '        }\n';
-        code += '    };\n';
-        code += '\n';
-
-code += '    // ==========================================\n';
-code += '    // 🍋 DAILY SDK LOADER (Explicit Definition)\n';
-code += '    // ==========================================\n';
-code += '    function loadDailySDK() {\n';
-code += '        return new Promise((resolve, reject) => {\n';
-code += '            if (typeof DailyIframe !== "undefined") {\n';
-code += '                console.log("✅ Daily SDK already loaded");\n';
-code += '                resolve();\n';
-code += '                return;\n';
-code += '            }\n';
-code += '            const script = document.createElement("script");\n';
-code += '            script.src = "https://unpkg.com/@daily-co/daily-js";\n';
-code += '            script.onload = resolve;\n';
-code += '            script.onerror = reject;\n';
-code += '            document.head.appendChild(script);\n';
-code += '        });\n';
-code += '    }\n';
-code += '\n';
-          // ==========================================
-    // 🍋 EXTRACTED: DAILY INITIALIZATION (FIXED V5.9 FINAL)
-    // ==========================================
-    code += '    async function initDaily() {\n';
-    code += '        console.log("📞 initDaily: Starting process...");\n';
-    code += '        \n';
-    code += '        // 1. AGGRESSIVE WAIT: Ensure SDK is loaded\n';
-    code += '        if (typeof DailyIframe === "undefined") {\n';
-    code += '            console.log("⏳ Daily SDK missing. Loading & Waiting...");\n';
-    code += '            try {\n';
-    code += '                await loadDailySDK();\n';
-    code += '                if (typeof DailyIframe === "undefined") {\n';
-    code += '                    console.error("❌ Failed to load Daily SDK after waiting.");\n';
-    code += '                    return;\n';
-    code += '                }\n';
-    code += '            } catch (e) {\n';
-    code += '                console.error("❌ Error loading Daily SDK:", e);\n';
-    code += '                return;\n';
-    code += '            }\n';
-    code += '        }\n';
-    code += '\n';
-    code += '        console.log("✅ Daily SDK loaded. Creating room...");\n';
-    code += '        try {\n';
-    code += '            const response = await fetch("https://fcgbusobfdwnpoqyuzoe.supabase.co/functions/v1/create-daily-room", {\n';
-    code += '                method: "POST",\n';
-    code += '                headers: { "Content-Type": "application/json" },\n';
-    code += '                body: JSON.stringify({})\n';
-    code += '            });\n';
-    code += '            const data = await response.json();\n';
-    code += '            \n';
-    code += '            if (data.room_url && data.token) {\n';
-    code += '                dailyCallObject = DailyIframe.createCallObject({ lang: "en-us" });\n';
-    code += '                window.dailyCallObject = dailyCallObject;\n';
-    code += '                \n';
-    code += '                // Create hidden container if not exists\n';
-    code += '                let container = document.getElementById("daily-container");\n';
-    code += '                if (!container) {\n';
-    code += '                    container = document.createElement("div");\n';
-    code += '                    container.id = "daily-container";\n';
-    code += '                    container.style.display = "none";\n';
-    code += '                    document.body.appendChild(container);\n';
-    code += '                }\n';
-    code += '                \n';
-    code += '                if (dailyCallObject.iframe()) { \n';
-    code += '                    container.appendChild(dailyCallObject.iframe()); \n';
-    code += '                }\n';
-    code += '                \n';
-    code += '                await dailyCallObject.join({ url: data.room_url, token: data.token });\n';
-    code += '                console.log("✅ Joined Daily room (Server Connection Active)");\n';
-    code += '                \n';
-    code += '                // ===== 🎧 CLEAN AUDIO LISTENER (FIXED V5.9) =====\n';
-    code += '                dailyCallObject.on("app-message", (ev) => {\n';
-    code += '                    \n';
-    code += '                    // ✅ FIX 1: Interview Mode - Silence Default AI\n';
-    code += '                    if (window.preQualController && window.preQualController.isActive) {\n';
-    code += '                        if (ev?.data?.type === "agent_transcription") {\n';
-    code += '                            console.log("🚫 Silencing default AI - interview is active");\n';
-    code += '                            return;\n';
-    code += '                        }\n';
-    code += '                        \n';
-    code += '                        // ✅ FIX 2: USER INPUT HANDLER\n';
-    code += '                        if (ev?.data?.type === "user_transcription") {\n';
-    code += '                            const userText = ev.data.transcription || ev.data.text || "";\n';
-    code += '                            console.log("👤 [DAILY] User said:", userText);\n';
-    code += '                            window.preQualController.handleUserInput(userText);\n';
-    code += '                            return;\n';
-    code += '                        }\n';
-    code += '                    }\n'; // <--- THIS WAS THE MISSING BRACKET\n';
-    code += '                    \n';
-    code += '                    // ✅ FIX 3: TRIGGER LOGIC (Cleaned Up)\n';
-    code += '                    if (ev && ev.data) {\n';
-    code += '                        const tessText = ev.data.text || ev.data.transcription || "";\n';
-    code += '                        console.log("🤖 [DAILY] Tess said:", tessText);\n';
-    code += '                        \n';
-    code += '                        // Broadcast to Supabase\n';
-    code += '                        if (window.supabaseChannel) {\n';
-    code += '                            window.supabaseChannel.send({\n';
-    code += '                                type: "broadcast",\n';
-    code += '                                event: "tess_transcript",\n';
-    code += '                                payload: { text: tessText, timestamp: Date.now() }\n';
-    code += '                            });\n';
-    code += '                        }\n';
-    code += '                        \n';
-    code += '                        const triggerPhrase = window.TRIGGER_PHRASE;\n';
-    code += '                        if (!triggerPhrase) {\n';
-    code += '                            console.warn("⚠️ No trigger phrase configured");\n';
-    code += '                            return;\n';
-    code += '                        }\n';
-    code += '                        \n';
-    code += '                        const lowerText = tessText.toLowerCase();\n';
-    code += '                        const cleanTrigger = triggerPhrase.toLowerCase().replace(/[^\\w\\s]/g, "");\n';
-    code += '                        const cleanText = lowerText.replace(/[^\\w\\s]/g, "");\n';
-    code += '                        \n';
-    code += '                        // ✅ FIX 4: Ignore trigger if Dashboard started it\n';
-    code += '                        if (window.hasTriggeredPreQual) {\n';
-    code += '                            console.log("⚠️ Dashboard trigger active. Ignoring local trigger phrase.");\n';
-    code += '                            return;\n';
-    code += '                        }\n';
-    code += '                        \n';
-    code += '                        if (cleanText.includes(cleanTrigger)) {\n';
-    code += '                            console.log("🔍 [SOURCE] Trigger detected via LOCAL Daily Listener");\n';
-    code += '                            console.log("🎯 EXACT TRIGGER DETECTED! Starting pre-qualification...");\n';
-    code += '                            console.log("🔥 Triggered by:", tessText);\n';
-    code += '\n';
-    code += '                            window.hasTriggeredPreQual = true;\n';
-    code += '\n';
-    code += '                            // Delay to let Tess finish speaking naturally\n';
-    code += '                            setTimeout(function() {\n';
-    code += '                                forcePreQualification();\n';
-    code += '                            }, 3500);\n';
-    code += '                        }\n';
-    code += '                    }\n';
-    code += '                });\n';
-    code += '            } else {\n';
-    code += '                console.warn("⚠️ Daily API did not return room_url");\n';
-    code += '            }\n';
-    code += '        } catch (e) { \n';
-    code += '            console.error("❌ Daily init error:", e); \n';
-    code += '        }\n';
-    code += '    }\n';
+        code += '    };\n\n';
 
         code += '    // ==========================================\n';
+        code += '    // 🍋 DAILY SDK LOADER\n';
+        code += '    // ==========================================\n';
+        code += '    function loadDailySDK() {\n';
+        code += '        return new Promise((resolve, reject) => {\n';
+        code += '            if (typeof DailyIframe !== "undefined") {\n';
+        code += '                resolve();\n';
+        code += '                return;\n';
+        code += '            }\n';
+        code += '            const script = document.createElement("script");\n';
+        code += '            script.src = "https://unpkg.com/@daily-co/daily-js";\n';
+        code += '            script.onload = resolve;\n';
+        code += '            script.onerror = reject;\n';
+        code += '            document.head.appendChild(script);\n';
+        code += '        });\n';
+        code += '    }\n';
+        code += '\n';
+             // ==========================================
+        // 🍋 EXTRACTED: DAILY INITIALIZATION (FIXED)
+        // ==========================================
+        code += '    async function initDaily() {\n';
+        code += '        console.log("📞 initDaily: Starting process...");\n';
+        code += '        \n';
+        code += '        // 1. AGGRESSIVE WAIT: Ensure SDK is loaded\n';
+        code += '        if (typeof DailyIframe === "undefined") {\n';
+        code += '            console.log("⏳ Daily SDK missing. Loading & Waiting...");\n';
+        code += '            try {\n';
+        code += '                await loadDailySDK();\n';
+        code += '                if (typeof DailyIframe === "undefined") {\n';
+        code += '                    console.error("❌ Failed to load Daily SDK after waiting.");\n';
+        code += '                    return;\n';
+        code += '                }\n';
+        code += '            } catch (e) {\n';
+        code += '                console.error("❌ Error loading Daily SDK:", e);\n';
+        code += '                return;\n';
+        code += '            }\n';
+        code += '        }\n';
+        code += '\n';
+        code += '        console.log("✅ Daily SDK loaded. Creating room...");\n';
+        code += '        try {\n';
+        code += '            const response = await fetch("https://fcgbusobfdwnpoqyuzoe.supabase.co/functions/v1/create-daily-room", {\n';
+        code += '                method: "POST",\n';
+        code += '                headers: { "Content-Type": "application/json" },\n';
+        code += '                body: JSON.stringify({})\n';
+        code += '            });\n';
+        code += '            const data = await response.json();\n';
+        code += '            \n';
+        code += '            if (data.room_url && data.token) {\n';
+        code += '                dailyCallObject = DailyIframe.createCallObject({ lang: "en-us" });\n';
+        code += '                window.dailyCallObject = dailyCallObject;\n';
+        code += '                \n';
+        code += '                // Create hidden container if not exists\n';
+        code += '                let container = document.getElementById("daily-container");\n';
+        code += '                if (!container) {\n';
+        code += '                    container = document.createElement("div");\n';
+        code += '                    container.id = "daily-container";\n';
+        code += '                    container.style.display = "none";\n';
+        code += '                    document.body.appendChild(container);\n';
+        code += '                }\n';
+        code += '                \n';
+        code += '                if (dailyCallObject.iframe()) { \n';
+        code += '                    container.appendChild(dailyCallObject.iframe()); \n';
+        code += '                }\n';
+        code += '                \n';
+        code += '                await dailyCallObject.join({ url: data.room_url, token: data.token });\n';
+        code += '                console.log("✅ Joined Daily room (Server Connection Active)");\n';
+        code += '                \n';
+        code += '                // ===== 🎧 CLEAN AUDIO LISTENER =====\n';
+        code += '                dailyCallObject.on("app-message", (ev) => {\n';
+        code += '                    \n';
+        code += '                    // 🔥 SILENCE DEFAULT AI WHEN CONTROLLER IS ACTIVE\n';
+        code += '                    if (window.preQualController && window.preQualController.isActive && ev?.data?.type === "agent_transcription") {\n';
+        code += '                        console.log("🚫 Silencing default AI - controller is active");\n';
+        code += '                        return;\n';
+        code += '                    }\n';
+        code += '                    \n';
+        code += '                    // 🔥 NEW: Handle USER transcriptions during interview\n';
+        code += '                    if (window.preQualController && window.preQualController.isActive && ev?.data?.type === "user_transcription") {\n';
+        code += '                        const userText = ev.data.transcription || ev.data.text || "";\n';
+        code += '                        console.log("👤 [DAILY] User said:", userText);\n';
+        code += '                        window.preQualController.handleUserInput(userText);\n';
+        code += '                        return;\n';
+        code += '                    }\n';
+        code += '                    \n';
+        code += '                    if (ev?.data?.type === "agent_transcription") {\n';
+        code += '                        const tessText = ev.data.transcription;\n';
+        code += '                        console.log("🤖 [DAILY] Tess said:", tessText);\n';
+        code += '                        \n';
+        code += '                        // Broadcast to Supabase\n';
+        code += '                        if (window.supabaseChannel) {\n';
+        code += '                            window.supabaseChannel.send({\n';
+        code += '                                type: "broadcast",\n';
+        code += '                                event: "tess_transcript",\n';
+        code += '                                payload: { text: tessText, timestamp: Date.now() }\n';
+        code += '                            });\n';
+        code += '                        }\n';
+        code += '                        \n';
+        code += '                        // ===== 🔥 DYNAMIC TRIGGER LOGIC =====\n';
+        code += '                        const triggerPhrase = window.TRIGGER_PHRASE;\n';
+        code += '                        if (!triggerPhrase) {\n';
+        code += '                            console.warn("⚠️ No trigger phrase configured");\n';
+        code += '                            return;\n';
+        code += '                        }\n';
+        code += '                        \n';
+        code += '                        // Build fuzzy triggers dynamically\n';
+        code += '                        const fuzzyTriggers = [\n';
+        code += '                            triggerPhrase,\n';
+        code += '                            triggerPhrase.toLowerCase(),\n';
+        code += '                            "YES_INITIATE_PREQUAL"  // Legacy backup\n';
+        code += '                        ].filter(t => t);\n';
+        code += '                        \n';
+        code += '                        const lowerText = tessText.toLowerCase();\n';
+        code += '                        const hasTrigger = fuzzyTriggers.some(trigger => lowerText.includes(trigger.toLowerCase()));\n';
+        code += '                        \n';
+        code += '                        if (hasTrigger) {\n';
+        code += '                            console.log("🎯 TRIGGER DETECTED! Starting pre-qualification...");\n';
+        code += '                            const foundTrigger = fuzzyTriggers.find(trigger => lowerText.includes(trigger.toLowerCase()));\n';
+        code += '                            console.log("🔥 Triggered by:", foundTrigger);\n';
+        code += '                            \n';
+        code += '                            setTimeout(function() {\n';
+        code += '                                forcePreQualification();\n';
+        code += '                            }, 3500);\n';
+        code += '                        }\n';
+        code += '                    }\n';
+        code += '                });\n';
+        code += '            } else {\n';
+        code += '                console.warn("⚠️ Daily API did not return room_url");\n';
+        code += '            }\n';
+        code += '        } catch(e) { \n';
+        code += '            console.error("❌ Daily init error:", e); \n';
+        code += '        }\n';
+        code += '    }\n\n';
+
+                code += '    // ==========================================\n';
         code += '    // 🍋 UNIVERSAL LISTENER (For PostMessages)\n';
         code += '    // ==========================================\n';
         code += '    function setupUniversalListener() {\n';
@@ -4112,7 +4133,7 @@ code += '\n';
         code += '            if (event.data.type === "START_PRE_QUAL" || event.data.command === "START_PRE_QUAL") {\n';
         code += '                console.log("🎯 START_PRE_QUAL received!");\n';
         code += '                if (window.preQualController && !window.preQualController.isActive) {\n';
-        code += '                    window.preQualController.startInterview();\n';
+        code += '                    forcePreQualification();\n';
         code += '                }\n';
         code += '                return;\n';
         code += '            }\n';
@@ -4158,39 +4179,36 @@ code += '\n';
         code += '    }\n';
         code += '\n';
 
-        // ===== FORCE PRE-QUALIFICATION FUNCTION (DEBUG VERSION) =====
-    code += '    function forcePreQualification() {\n';
-    code += '        \n';
-    code += '        // 🔍 DIAGNOSTIC: Who called this function?\n';
-    code += '        console.trace("🔍 [TRACE] forcePreQualification was called from:");\n';
-    code += '        \n';
-    code += '        console.log("🚀 forcePreQualification - Starting pre-qualification interview");\n';
-    code += '        \n';
-    code += '        // Prevent duplicate starts\n';
-    code += '        if (isPreQualificationActive) {\n';
-    code += '            console.log("⚠️ Pre-qualification already active, skipping");\n';
-    code += '            return;\n';
-    code += '        }\n';
-    code += '        \n';
-    code += '        // Check if controller and script are ready\n';
-    code += '        if (!window.preQualController) {\n';
-    code += '            console.error("❌ preQualController not found");\n';
-    code += '            return;\n';
-    code += '        }\n';
-    code += '        \n';
-    code += '        if (!window.preQualScript) {\n';
-    code += '            console.error("❌ preQualScript not found");\n';
-    code += '            return;\n';
-    code += '        }\n';
-    code += '        \n';
-    code += '        // Set the script and start\n';
-    code += '        window.preQualController.script = window.preQualScript;\n';
-    code += '        window.preQualController.startInterview();\n';
-    code += '        isPreQualificationActive = true;\n';
-    code += '        console.log("✅ Pre-qualification interview started");\n';
-    code += '    }\n';
-    code += '    window.forcePreQualification = forcePreQualification; \n';
-    code += '\n';
+              // ===== FORCE PRE-QUALIFICATION FUNCTION =====
+        code += '    function forcePreQualification() {\n';
+        code += '        console.trace("🔍 [TRACE] forcePreQualification called from:");\n';
+        code += '        console.log("🚀 forcePreQualification - Starting pre-qualification interview");\n';
+        code += '        \n';
+        code += '        // Prevent duplicate starts\n';
+        code += '        if (isPreQualificationActive) {\n';
+        code += '            console.log("⚠️ Pre-qualification already active, skipping");\n';
+        code += '            return;\n';
+        code += '        }\n';
+        code += '        \n';
+        code += '        // Check if controller and script are ready\n';
+        code += '        if (!window.preQualController) {\n';
+        code += '            console.error("❌ preQualController not found");\n';
+        code += '            return;\n';
+        code += '        }\n';
+        code += '        \n';
+        code += '        if (!window.preQualScript) {\n';
+        code += '            console.error("❌ preQualScript not found");\n';
+        code += '            return;\n';
+        code += '        }\n';
+        code += '        \n';
+        code += '        // Set the script and start\n';
+        code += '        window.preQualController.script = window.preQualScript;\n';
+        code += '        window.preQualController.startInterview();\n';
+        code += '        isPreQualificationActive = true;\n';
+        code += '        console.log("✅ Pre-qualification interview started");\n';
+        code += '    }\n';
+        code += '    window.forcePreQualification = forcePreQualification;\n';
+        code += '\n';
 
                // Show Splash Function
         code += '    function showSplash() {\n';
@@ -4279,88 +4297,44 @@ code += '\n';
         code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
         code += '    }\n\n';
 
-        code += '    async function forceUnmute() {\n';
-        code += '        if (window.mainWidget) {\n';
-        code += '            // 1. API Calls\n';
-        code += '            try {\n';
-        code += '                await window.mainWidget.micOn?.();\n';
-        code += '                await window.mainWidget.unmute?.();\n';
-        code += '            } catch(e) {\n';
-        code += '                console.warn("Force unmute API error", e);\n';
-        code += '            }\n';
-        code += '            // 2. Nuclear Shadow DOM Unmute\n';
-        code += '            try {\n';
-        code += '                const shadow = window.mainWidget.shadowRoot;\n';
-        code += '                if (shadow) {\n';
-        code += '                    const v = shadow.querySelector(\'video\');\n';
-        code += '                    const a = shadow.querySelector(\'audio\');\n';
-        code += '                    if (v) { v.muted = false; v.volume =1.0; v.play(); }\n';
-        code += '                    if (a) { a.muted = false; a.volume =1.0; a.play(); }\n';
-        code += '                }\n';
-        code += '            } catch(e) {}\n';
-        code += '        }\n';
-        code += '    }\n';
-        code += '\n';
-
-                code += '    // ===== ACTIVATE TESS FUNCTION (WITH DAILY INTEGRATION ADDED) =====\n';
+               code += '    // ===== ACTIVATE TESS FUNCTION =====\n';
         code += '    async function activateTess() {\n';
         code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
         code += '        \n';
-        code += '        // 1. Try to pre-warm audio\n';
-        code += '        try {\n';
-        code += '            if (window.mainWidget && typeof window.mainWidget.micOn === "function") {\n';
-        code += '                window.mainWidget.micOn();\n';
-        code += '            }\n';
-        code += '        } catch(e) { console.warn("Audio pre-check:", e); }\n';
-        code += '\n';
-        code += '        \n';
-        code += '        // 2. NUKE THE SPLASH WIDGET\n';
+        code += '        // Remove splash widget\n';
         code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
         code += '        if (splashWidget) {\n';
         code += '            splashWidget.innerHTML = \'\';\n';
-        code += '            if (splashWidget.parentNode) {\n';
-        code += '                splashWidget.parentNode.removeChild(splashWidget);\n';
-        code += '            }\n';
+        code += '            if (splashWidget.parentNode) splashWidget.parentNode.removeChild(splashWidget);\n';
         code += '        }\n';
-        code += '\n';
-        code += '        // 3. Remove the overlay\n';
+        code += '        \n';
+        code += '        // Remove overlay\n';
         code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
         code += '        if (overlay) overlay.remove();\n';
         code += '\n';
-        code += '        // 4. CREATE MAIN WIDGET (KEEP EXISTING)\n';
         code += '        setTimeout(() => {\n';
         code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) {\n';
         code += '                window.mainWidget = createMainWidget();\n';
         code += '                window.mainWidget.setAttribute(\'hide-ui\', \'true\');\n';
         code += '                document.body.appendChild(window.mainWidget);\n';
         code += '            }\n';
-        code += '            \n';
         code += '            window.mainWidget.style.display = \'block\';\n';
         code += '            window.mainWidget.setAttribute(\'controlled-widget-state\', \'active\');\n';
         code += '            \n';
-        code += '            // 5. Activate Audio (KEEP EXISTING)\n';
         code += '            setTimeout(async () => {\n';
         code += '                console.log("🎤 Finalizing audio state...");\n';
         code += '                try {\n';
         code += '                    if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
         code += '                        await window.mainWidget.micOn();\n';
-        code += '                        await window.mainWidget.unmute?.();      \n';
-        code += '                        console.log("✅ Microphone activated");\n';
-        code += '                        await forceUnmute();\n';
+        code += '                        await window.mainWidget.unmute?.();\n';
         code += '                    }\n';
-        code += '                } catch (e) {\n';
+        code += '                } catch(e) {\n';
         code += '                    console.error("❌ Mic activation failed:", e);\n';
-        code += '                    forceUnmute();\n';
         code += '                }\n';
         code += '            }, 3000);\n';
         code += '        }, 100);\n';
         code += '        \n';
-        code += '        // 🔥 NEW: ALSO START DAILY SESSION IN BACKGROUND\n';
-        code += '        // This runs alongside the widget for transcription events\n';
-        code += '        // startTessSession(); // REMOVED - Using initDaily instead\n';
         code += '        if (typeof initDaily === "function") { initDaily(); }\n';
-        code += '        \n';
-        code += '        // Expose activateTess globally for button clicks (MOVED TO BOTTOM)\n';
         code += '        window.activateTess = activateTess;\n';
         code += '    }\n';
         code += '\n';
@@ -4443,54 +4417,42 @@ code += '\n';
         code += '    }\n';
         code += '    if (document.readyState === \'loading\') { document.addEventListener(\'DOMContentLoaded\', initWidget); }\n';
         code += '    else { initWidget(); }\n';
-        code += '    console.log(\'✅ Botemia Bridge v5.6 loaded for\', window.BotemiaConfig.name);\n';
+        code += '    console.log(\'✅ Botemia Bridge v5.8 loaded for\', window.BotemiaConfig.name);\n';
         code += '\n';
 
-        code += '    // Load Daily SDK\n';
-        code += '    function loadDailySDK() {\n';
-        code += '        return new Promise((resolve, reject) => {\n';
-        code += '            if (typeof DailyIframe !== "undefined") {\n';
-        code += '                resolve();\n';
-        code += '                return;\n';
-        code += '            }\n';
-        code += '            const script = document.createElement("script");\n';
-        code += '            script.src = "https://unpkg.com/@daily-co/daily-js";\n';
-        code += '            script.onload = resolve;\n';
-        code += '            script.onerror = reject;\n';
-        code += '            document.head.appendChild(script);\n';
-        code += '        });\n';
-        code += '    }\n';
-        code += '\n';
-        code += '    // ===== CLIENT ANNOUNCEMENT FUNCTION =====\n';
+              code += '    // ===== CLIENT ANNOUNCEMENT FUNCTION =====\n';
         code += '    function announceToTCS() {\n';
-        code += '        // Send via opener (direct window communication)\n';
-        code += '        if (window.opener) {\n';
-        code += '            window.opener.postMessage({\n';
-        code += '                type: \'BRIDGE_ACTIVE\',\n';
-        code += '                clientId: window.BotemiaConfig.id,\n';
-        code += '                url: window.location.href\n';
-        code += '            }, \'*\');\n';
-        code += '        }\n';
+        code += '        const sendAnnouncement = function() {\n';
+        code += '            if (window.supabaseChannel) {\n';
+        code += '                window.supabaseChannel.send({\n';
+        code += '                    type: \'broadcast\',\n';
+        code += '                    event: \'client_info\',\n';
+        code += '                    payload: {\n';
+        code += '                        type: \'CLIENT_INFO\',\n';
+        code += '                        clientId: window.BotemiaConfig.id,\n';
+        code += '                        url: window.location.href,\n';
+        code += '                        timestamp: Date.now()\n';
+        code += '                    }\n';
+        code += '                });\n';
+        code += '                console.log(\'📢 Announced to TCS via Supabase Realtime\');\n';
+        code += '                return true;\n';
+        code += '            }\n';
+        code += '            return false;\n';
+        code += '        };\n';
+        code += '\n';
+        code += '        if (sendAnnouncement()) return;\n';
         code += '        \n';
-        code += '        // Send via Supabase Realtime (cross-domain)\n';
-        code += '        if (window.supabaseChannel) {\n';
-        code += '            window.supabaseChannel.send({\n';
-        code += '                type: \'broadcast\',\n';
-        code += '                event: \'client_info\',\n';
-        code += '                payload: {\n';
-        code += '                    type: \'CLIENT_INFO\',\n';
-        code += '                    clientId: window.BotemiaConfig.id,\n';
-        code += '                    url: window.location.href,\n';
-        code += '                    timestamp: Date.now()\n';
-        code += '                }\n';
-        code += '            });\n';
-        code += '            console.log(\'📢 Announced to TCS via Supabase Realtime\');\n';
-        code += '        } else {\n';
-        code += '            console.log(\'⚠️ Supabase channel not ready yet\');\n';
-        code += '        }\n';
+        code += '        console.log(\'⏳ Supabase channel not ready, retrying...\');\n';
+        code += '        let attempts = 0;\n';
+        code += '        const interval = setInterval(function() {\n';
+        code += '            attempts++;\n';
+        code += '            if (sendAnnouncement() || attempts >= 6) {\n';
+        code += '                clearInterval(interval);\n';
+        code += '            }\n';
+        code += '        }, 500);\n';
         code += '    }\n';
         code += '\n';
-        code += '    setTimeout(announceToTCS, 2000);\n';
+        code += '    setTimeout(announceToTCS, 4000);\n';
         code += '})();\n';
 
     // =========================================
@@ -4775,111 +4737,5 @@ function buildScriptCode(steps) {
                 options: ${options}
             },\n`;
     });
-
-    code += `        ],
-        responses: {},
-        currentStepIndex: 0,
-        active: false,
-        
-        start: function() {
-            console.log("📋 Starting pre-qual script");
-            this.active = true;
-            this.currentStepIndex = 0;
-            this.responses = {};
-            return this.getCurrentQuestion();
-        },
-        
-        processResponse: async function(userInput) {
-            if (!this.active) return null;
-            const currentStep = this.steps[this.currentStepIndex];
-            if (!currentStep) {
-                await this.sendEmail();
-                this.active = false;
-                return "Thank you! Your pre-qualification is complete.";
-            }
-            
-            // If it's a message step, just move to next
-            if (currentStep.type === "message") {
-                this.currentStepIndex++;
-                return this.getCurrentQuestion();
-            }
-            
-            // Store the response if it has a field
-            if (currentStep.field) {
-                this.responses[currentStep.field] = userInput;
-                console.log("✅ Stored " + currentStep.field + ": " + userInput);
-            }
-            
-            // Move to next step
-            this.currentStepIndex++;
-            
-            // Check if interview is complete
-            if (this.currentStepIndex >= this.steps.length) {
-                await this.sendEmail();
-                this.active = false;
-                return "Thank you! Your pre-qualification is complete.";
-            }
-            
-            return this.getCurrentQuestion();
-        },
-        
-        getCurrentQuestion: function() {
-            const step = this.steps[this.currentStepIndex];
-            if (!step) {
-                this.active = false;
-                return null;
-            }
-            return step.question || step.text;
-        },
-        
-        getResults: function() {
-            return this.responses;
-        }
-    };
-`;
-    return code;
-}
-
-// Helper: Fallback Script (SIMPLE - ONLY USED WHEN NO DATA EXISTS)
-function generateFallbackScript() {
-    console.warn('⚠️ Generating fallback script.');
-    return `
-    window.preQualScript = {
-        steps: [
-            { id: "confirmation", type: "choice", question: "I can help with that. Shall we get started?", field: "confirmation", options: ["Yes","No"] },
-            { id: "fallback_name", type: "text", question: "What is your name?", field: "fullName", options: null },
-            { id: "fallback_email", type: "email", question: "What is your email address?", field: "email", options: null },
-            { id: "fallback_phone", type: "phone", question: "What is your phone number?", field: "phone", options: null }
-        ],
-        responses: {},
-        currentStepIndex: 0,
-        active: false,
-        start: function() { 
-            this.active = true; 
-            this.currentStepIndex = 0; 
-            this.responses = {}; 
-            return this.getCurrentQuestion(); 
-        },
-        processResponse: function(userInput) { 
-            const currentStep = this.steps[this.currentStepIndex];
-            if (currentStep.field) {
-                this.responses[currentStep.field] = userInput;
-            }
-            this.currentStepIndex++; 
-            if (this.currentStepIndex >= this.steps.length) {
-                this.active = false;
-                return "Thank you! Your pre-qualification is complete."; 
-            }
-            return this.getCurrentQuestion(); 
-        },
-        getCurrentQuestion: function() { 
-            const step = this.steps[this.currentStepIndex];
-            return step ? step.question : null;
-        },
-        getResults: function() { 
-            return this.responses; 
-        }
-    };
-`;
 }
     </script>
