@@ -3802,6 +3802,8 @@ async function exportBridgeOnly() {
         code += '            \n';
         code += '            if (lowerText.includes("full name") || lowerText.includes("start with your")) {\n';
         code += '                this.currentField = "fullName";\n';
+        code += '            } else if (lowerText.includes("business name") || lowerText.includes("website")) {\n';
+        code += '                this.currentField = "businessName";\n';
         code += '            } else if (lowerText.includes("email")) {\n';
         code += '                this.currentField = "email";\n';
         code += '            } else if (lowerText.includes("phone")) {\n';
@@ -3818,6 +3820,9 @@ async function exportBridgeOnly() {
         code += '                this.currentField = "creditScore";\n';
         code += '            } else if (lowerText.includes("special requests")) {\n';
         code += '                this.currentField = "specialRequests";\n';
+        code += '            } else if (lowerText.includes("anything else")) {\n';
+        code += '                this.expectingClosingResponse = true;\n';
+        code += '                console.log("🎯 Expecting closing response (Yes/No)");\n';
         code += '            }\n';
         code += '            \n';
         code += '            if (this.currentField) {\n';
@@ -3887,6 +3892,7 @@ async function exportBridgeOnly() {
         code += '                },\n';
         code += '                "Contact Information": {\n';
         code += '                    "Full Name": data.fullName || "Not provided",\n';
+        code += '                    "Business/Website": data.businessName || "Not provided",\n';
         code += '                    "Email": data.email || "Not provided",\n';
         code += '                    "Phone": data.phone || "Not provided",\n';
         code += '                    "Scheduled Date/Time": data.scheduledDateTime || "Not provided"\n';
@@ -3919,6 +3925,7 @@ async function exportBridgeOnly() {
         code += '            var clientParams = {\n';
         code += '                to_email: "mobilewise.ai@gmail.com",\n';
         code += '                full_name: data.fullName || "Not provided",\n';
+        code += '                business_name: data.businessName || "Not provided",\n';
         code += '                email: data.email || "Not provided",\n';
         code += '                phone: data.phone || "Not provided",\n';
         code += '                scheduled_datetime: data.scheduledDateTime || "Not provided",\n';
@@ -4141,6 +4148,16 @@ async function exportBridgeOnly() {
         code += '                                forcePreQualification();\n';
         code += '                            }, 3500);\n';
         code += '                        }\n';
+        code += '                        \n';
+        code += '                        // ===== 🔥 EMAIL TRIGGER =====\n';
+        code += '                        if (tessText.includes("EMAIL_SENT_NOW")) {\n';
+        code += '                            console.log("📧 Email trigger detected!");\n';
+        code += '                            if (window.preQualController && window.preQualController.isActive) {\n';
+        code += '                                window.preQualController.sendEmail();\n';
+        code += '                                window.preQualController.isActive = false;\n';
+        code += '                                console.log("✅ Interview complete - email sent");\n';
+        code += '                            }\n';
+        code += '                        }\n';
         code += '                    }\n';
         code += '                });\n';
         code += '            } else {\n';
@@ -4150,8 +4167,7 @@ async function exportBridgeOnly() {
         code += '            console.error("❌ Daily init error:", e); \n';
         code += '        }\n';
         code += '    }\n\n';
-
-                code += '    // ==========================================\n';
+        code += '    // ==========================================\n';
         code += '    // 🍋 UNIVERSAL LISTENER (For PostMessages)\n';
         code += '    // ==========================================\n';
         code += '    function setupUniversalListener() {\n';
