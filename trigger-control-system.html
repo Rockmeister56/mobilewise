@@ -501,6 +501,62 @@
             </div>
         </div>
 
+                <!-- MODULE 6: EMAIL TRIGGER -->
+        <div class="module-control-card" id="module-emailTrigger" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-envelope" style="font-size: 24px; color: #f8c400;"></i>
+                        <h3 style="margin: 0; color: white;">Email Confirmation</h3>
+                    </div>
+                    <div id="emailTriggerStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                    <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
+                        <i class="fas fa-bullhorn"></i> TRIGGER PHRASES
+                    </div>
+                    <code id="emailTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">"send the confirmation", "email me", "send that over"</code>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button id="emailTriggerTestBtn" class="module-test-btn" onclick="testModule('email_trigger')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-vial"></i> Test Trigger
+                    </button>
+                    <button id="emailTriggerToggleBtn" class="module-toggle-btn" onclick="toggleModule('email_trigger')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-power-off"></i> Disable
+                    </button>
+                </div>
+                <div id="emailTriggerTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
+            </div>
+        </div>
+
+        <!-- MODULE 7: PHONE CONNECT -->
+        <div class="module-control-card" id="module-phoneConnect" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-phone-alt" style="font-size: 24px; color: #f8c400;"></i>
+                        <h3 style="margin: 0; color: white;">Phone Connect</h3>
+                    </div>
+                    <div id="phoneConnectStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                    <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
+                        <i class="fas fa-bullhorn"></i> TRIGGER PHRASES
+                    </div>
+                    <code id="phoneConnectTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">"call me", "speak to someone", "phone call"</code>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button id="phoneConnectTestBtn" class="module-test-btn" onclick="testModule('phone_connect')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-vial"></i> Test Trigger
+                    </button>
+                    <button id="phoneConnectToggleBtn" class="module-toggle-btn" onclick="toggleModule('phone_connect')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-power-off"></i> Disable
+                    </button>
+                </div>
+                <div id="phoneConnectTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
+            </div>
+        </div>
+
         <!-- MODULE 2: SMART SCREEN -->
         <div class="module-control-card" id="module-smartScreen" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
             <div style="padding: 20px;">
@@ -848,16 +904,19 @@ let moduleStates = {
     smart_screen: true,
     testimonials: true,
     video_vault: true,
-    website_info: true
+    website_info: true,
+    email_trigger: true,
+    phone_connect: true
 };
 
-// Module display names mapping
 const moduleNames = {
     pre_qual: 'Pre-Qualification',
     smart_screen: 'Smart Screen',
     testimonials: 'Testimonials',
     video_vault: 'Video Vault',
-    website_info: 'Website Info'
+    website_info: 'Website Info',
+    email_trigger: 'Email Confirmation',
+    phone_connect: 'Phone Connect'
 };
 
 // Module trigger phrases (populated from config)
@@ -1479,6 +1538,46 @@ runDiagnosticTest() {
         this.addToTranscriptFeed(transcript);
         
         const lowerTranscript = transcript.toLowerCase();
+
+        // ========================================
+        // PRIORITY 0: EMAIL TRIGGER
+        // ========================================
+        const emailPhrases = [
+            "send the confirmation",
+            "email me",
+            "send that over",
+            "email it to me",
+            "send the email"
+        ];
+
+        for (const phrase of emailPhrases) {
+            if (lowerTranscript.includes(phrase) && moduleStates.email_trigger) {
+                console.log('📧 TCS: Email Trigger Detected!');
+                this.addToTranscriptFeed(`📧 Email Trigger: "${phrase}"`);
+                this.sendCommandViaSupabase('SEND_EMAIL');
+                return;
+            }
+        }
+        
+        // ========================================
+        // PRIORITY 0.5: PHONE CONNECT TRIGGER
+        // ========================================
+        const phonePhrases = [
+            "call me",
+            "speak to someone",
+            "phone call",
+            "talk to a person",
+            "speak with a human"
+        ];
+
+        for (const phrase of phonePhrases) {
+            if (lowerTranscript.includes(phrase) && moduleStates.phone_connect) {
+                console.log('📞 TCS: Phone Connect Trigger Detected!');
+                this.addToTranscriptFeed(`📞 Phone Trigger: "${phrase}"`);
+                this.sendCommandViaSupabase('PHONE_CONNECT');
+                return;
+            }
+        }
         
         // ========================================
         // PRIORITY 1: PRE-QUALIFICATION INTERVIEW TRIGGER
