@@ -3921,12 +3921,9 @@ async function exportBridgeOnly() {
         code += '                console.warn("⚠️ No prospect email provided, skipping prospect email");\n';
         code += '            }\n';
         code += '            \n';
-        code += '            // ===== EMAIL 2: TO AGENCY/CLIENT (template_8kx812d) =====\n';
-        code += '            // 🔥 DYNAMIC: Pulls from BotemiaConfig contactInfo\n';
-        code += '            const clientEmail = window.BotemiaConfig?.modules?.contactInfo?.clientEmail || "mobilewise.ai@gmail.com";\n';
-        code += '            \n';
+        code += '            // ===== EMAIL 2: TO YOU (template_8kx812d) =====\n';
         code += '            var clientParams = {\n';
-        code += '                to_email: clientEmail,\n';
+        code += '                to_email: "mobilewise.ai@gmail.com",\n';
         code += '                full_name: data.fullName || "Not provided",\n';
         code += '                business_name: data.businessName || "Not provided",\n';
         code += '                email: data.email || "Not provided",\n';
@@ -3943,7 +3940,7 @@ async function exportBridgeOnly() {
         code += '            };\n';
         code += '            \n';
         code += '            emailjs.send("service_b9bppgb", "template_8kx812d", clientParams)\n';
-        code += '                .then(() => console.log("✅ Client notification sent to:", clientEmail))\n';
+        code += '                .then(() => console.log("✅ Client notification sent to mobilewise.ai@gmail.com"))\n';
         code += '                .catch(e => console.error("❌ Client email error:", e));\n';
         code += '        }\n';
         code += '    }\n';
