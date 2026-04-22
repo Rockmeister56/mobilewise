@@ -3712,7 +3712,10 @@ async function exportBridgeOnly() {
         code += '                "triggerPhrase": "' + (config.modules?.preQualification?.triggerPhrase || 'YES_INITIATE_PREQUAL') + '",\n';
         code += '                "triggerPhraseLegacy": "' + (config.modules?.preQualification?.triggerPhraseLegacy || "let\'s get started") + '"\n';
         code += '            },\n';
-        code += '            "emailConfig": ' + JSON.stringify(config.modules?.emailConfig || {}) + ',\n';
+        code += '            "contactInfo": {\n';
+        code += '                "clientEmail": "' + (config.modules?.contactInfo?.clientEmail || 'mobilewise.ai@gmail.com') + '",\n';
+        code += '                "supportPhone": "' + (config.modules?.contactInfo?.supportPhone || '949-228-5263') + '"\n';
+        code += '            },\n';
         code += '            "splashScreen": ' + JSON.stringify(config.modules?.splashScreen || {}) + ',\n';
         code += '            "smartScreen": ' + JSON.stringify(config.modules?.smartScreen || { images: [] }) + '\n';
         code += '        }\n';
