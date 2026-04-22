@@ -1636,78 +1636,6 @@ function loadKnowledgeBaseDropdown() {
 </script>
 
 <script>
-
-// ===== COMMUNICATION CENTER FUNCTIONS =====
-
-// Load Communication Center settings from config
-function loadCommunicationCenter() {
-    const comms = config.modules?.communicationCenter || {};
-    
-    document.getElementById('commsEnabled').checked = comms.enabled !== false;
-    document.getElementById('clientEmail').value = comms.clientEmail || 'mobilewise.ai@gmail.com';
-    document.getElementById('supportPhone').value = comms.supportPhone || '949-228-5263';
-    document.getElementById('emailTriggers').value = (comms.emailTriggers || [
-        'send the confirmation', 'email me', 'send that over', 'email it to me', 'send the email'
-    ]).join(', ');
-    document.getElementById('phoneTriggers').value = (comms.phoneTriggers || [
-        'call me', 'speak to someone', 'phone call', 'talk to a person', 'speak with a human'
-    ]).join(', ');
-    
-    updateTriggersPreview();
-}
-
-// Save Communication Center settings to config
-function saveCommunicationCenter() {
-    if (!config.modules) config.modules = {};
-    
-    config.modules.communicationCenter = {
-        enabled: document.getElementById('commsEnabled').checked,
-        clientEmail: document.getElementById('clientEmail').value.trim(),
-        supportPhone: document.getElementById('supportPhone').value.trim(),
-        emailTriggers: document.getElementById('emailTriggers').value.split(',').map(s => s.trim()).filter(s => s),
-        phoneTriggers: document.getElementById('phoneTriggers').value.split(',').map(s => s.trim()).filter(s => s)
-    };
-    
-    console.log('✅ Communication Center settings saved');
-}
-
-// Update the preview badges
-function updateTriggersPreview() {
-    const emailTriggers = document.getElementById('emailTriggers').value.split(',').map(s => s.trim()).filter(s => s);
-    const phoneTriggers = document.getElementById('phoneTriggers').value.split(',').map(s => s.trim()).filter(s => s);
-    
-    const emailPreview = document.getElementById('emailTriggersPreview');
-    const phonePreview = document.getElementById('phoneTriggersPreview');
-    
-    if (emailPreview) {
-        const display = emailTriggers.slice(0, 3).map(t => `"${t}"`).join(', ');
-        emailPreview.innerHTML = display + (emailTriggers.length > 3 ? '...' : '');
-    }
-    
-    if (phonePreview) {
-        const display = phoneTriggers.slice(0, 3).map(t => `"${t}"`).join(', ');
-        phonePreview.innerHTML = display + (phoneTriggers.length > 3 ? '...' : '');
-    }
-}
-
-// Add event listeners for real-time preview
-function initCommunicationCenter() {
-    const emailField = document.getElementById('emailTriggers');
-    const phoneField = document.getElementById('phoneTriggers');
-    
-    if (emailField) emailField.addEventListener('input', updateTriggersPreview);
-    if (phoneField) phoneField.addEventListener('input', updateTriggersPreview);
-}
-
-// Call this in your DOMContentLoaded or initialization function
-document.addEventListener('DOMContentLoaded', function() {
-    initCommunicationCenter();
-    // loadCommunicationCenter() should be called when loading saved config
-});
-
-</script>
-
-<script>
 // ============================================
 // HANDLE HTML SCRIPT UPLOAD (with debugging)
 // ============================================
@@ -4087,8 +4015,8 @@ async function exportBridgeOnly() {
         code += '            }\n';
         code += '            \n';
         code += '            // ===== EMAIL 2: TO AGENCY/CLIENT (template_8kx812d) =====\n';
-        code += '            // 🔥 DYNAMIC: Pulls from BotemiaConfig emailConfig\n';
-        code += '            const clientEmail = window.BotemiaConfig?.modules?.emailConfig?.clientEmail || "mobilewise.ai@gmail.com";\n';
+        code += '            // 🔥 DYNAMIC: Pulls from BotemiaConfig contactInfo\n';
+        code += '            const clientEmail = window.BotemiaConfig?.modules?.contactInfo?.clientEmail || "mobilewise.ai@gmail.com";\n';
         code += '            \n';
         code += '            var clientParams = {\n';
         code += '                to_email: clientEmail,\n';
