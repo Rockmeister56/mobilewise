@@ -1239,94 +1239,6 @@
             </div>
         </div>
 
-        <!-- ===== COMMUNICATION CENTER MODULE ===== -->
-<div class="module-section" id="module-communicationCenter" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); padding: 24px; margin-bottom: 24px;">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 28px;">📬</span>
-            <h2 style="margin: 0; color: #f8c400; font-size: 1.4rem;">Communication Center</h2>
-        </div>
-        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <span style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">Enable</span>
-            <input type="checkbox" id="commsEnabled" checked style="width: 20px; height: 20px; cursor: pointer;">
-        </label>
-    </div>
-    
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-        
-        <!-- Left Column: Contact Info -->
-        <div>
-            <h3 style="color: white; font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
-                <i class="fas fa-address-card" style="margin-right: 8px; color: #f8c400;"></i>
-                Agency Contact Info
-            </h3>
-            
-            <div style="margin-bottom: 18px;">
-                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
-                    <i class="fas fa-envelope" style="margin-right: 6px;"></i>Client Email (where leads go)
-                </label>
-                <input type="email" id="clientEmail" value="mobilewise.ai@gmail.com" 
-                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;"
-                       placeholder="agency@example.com">
-                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Lead notifications will be sent here</span>
-            </div>
-            
-            <div style="margin-bottom: 18px;">
-                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
-                    <i class="fas fa-phone-alt" style="margin-right: 6px;"></i>Support Phone
-                </label>
-                <input type="tel" id="supportPhone" value="949-228-5263" 
-                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;"
-                       placeholder="800-555-1234">
-                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Used for "call me" triggers</span>
-            </div>
-        </div>
-        
-        <!-- Right Column: Trigger Phrases -->
-        <div>
-            <h3 style="color: white; font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
-                <i class="fas fa-bullhorn" style="margin-right: 8px; color: #f8c400;"></i>
-                Trigger Phrases
-            </h3>
-            
-            <div style="margin-bottom: 18px;">
-                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
-                    <i class="fas fa-tag" style="margin-right: 6px;"></i>Email Triggers
-                </label>
-                <textarea id="emailTriggers" rows="3"
-                          style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.9rem; resize: vertical;"
-                          placeholder="Enter phrases separated by commas">send the confirmation, email me, send that over, email it to me, send the email</textarea>
-                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">When Tess hears these, email is sent</span>
-            </div>
-            
-            <div style="margin-bottom: 18px;">
-                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
-                    <i class="fas fa-tag" style="margin-right: 6px;"></i>Phone Connect Triggers
-                </label>
-                <textarea id="phoneTriggers" rows="3"
-                          style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.9rem; resize: vertical;"
-                          placeholder="Enter phrases separated by commas">call me, speak to someone, phone call, talk to a person, speak with a human</textarea>
-                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">When Tess hears these, phone dialer opens</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Preview Badge -->
-    <div style="margin-top: 20px; padding: 12px 16px; background: rgba(248,196,0,0.08); border-radius: 10px; border-left: 3px solid #f8c400;">
-        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-            <span style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">
-                <i class="fas fa-info-circle" style="margin-right: 6px;"></i>Active Triggers Preview:
-            </span>
-            <span style="background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; color: #a0c8ff; font-size: 0.8rem;" id="emailTriggersPreview">
-                "send the confirmation", "email me"...
-            </span>
-            <span style="background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; color: #a0c8ff; font-size: 0.8rem;" id="phoneTriggersPreview">
-                "call me", "speak to someone"...
-            </span>
-        </div>
-    </div>
-</div>
-
          <!-- ===== MODULE 6: PRE-QUALIFICATION INTERVIEW ===== -->
 <div class="module-card">
     <div class="module-header">
@@ -3638,14 +3550,9 @@ async function exportBridgeOnly() {
         code += '        "modules": {\n';
         code += '            "preQualification": {\n';
         code += '                "triggerPhrase": "' + (config.modules?.preQualification?.triggerPhrase || 'YES_INITIATE_PREQUAL') + '",\n';
-        code += '                "triggerPhraseLegacy": "' + (config.modules?.preQualification?.triggerPhraseLegacy || "let\'s get started") + '"\n';
+        code += '                "triggerPhraseLegacy": "' + (config.modules?.preQualification?.triggerPhraseLegacy || "let's get started") + '"\n';
         code += '            },\n';
-        code += '            "contactInfo": {\n';
-        code += '                "clientEmail": "' + (config.modules?.contactInfo?.clientEmail || 'mobilewise.ai@gmail.com') + '",\n';
-        code += '                "supportPhone": "' + (config.modules?.contactInfo?.supportPhone || '949-228-5263') + '"\n';
-        code += '            },\n';
-        code += '            "splashScreen": ' + JSON.stringify(config.modules?.splashScreen || {}) + ',\n';
-        code += '            "smartScreen": ' + JSON.stringify(config.modules?.smartScreen || { images: [] }) + '\n';
+        code += '            "splashScreen": ' + JSON.stringify(config.modules?.splashScreen || {}) + '\n';
         code += '        }\n';
         code += '    };\n\n';
         
