@@ -1239,6 +1239,94 @@
             </div>
         </div>
 
+        <!-- ===== COMMUNICATION CENTER MODULE ===== -->
+<div class="module-section" id="module-communicationCenter" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); padding: 24px; margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">📬</span>
+            <h2 style="margin: 0; color: #f8c400; font-size: 1.4rem;">Communication Center</h2>
+        </div>
+        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <span style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">Enable</span>
+            <input type="checkbox" id="commsEnabled" checked style="width: 20px; height: 20px; cursor: pointer;">
+        </label>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        
+        <!-- Left Column: Contact Info -->
+        <div>
+            <h3 style="color: white; font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <i class="fas fa-address-card" style="margin-right: 8px; color: #f8c400;"></i>
+                Agency Contact Info
+            </h3>
+            
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-envelope" style="margin-right: 6px;"></i>Client Email (where leads go)
+                </label>
+                <input type="email" id="clientEmail" value="mobilewise.ai@gmail.com" 
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;"
+                       placeholder="agency@example.com">
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Lead notifications will be sent here</span>
+            </div>
+            
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-phone-alt" style="margin-right: 6px;"></i>Support Phone
+                </label>
+                <input type="tel" id="supportPhone" value="949-228-5263" 
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;"
+                       placeholder="800-555-1234">
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Used for "call me" triggers</span>
+            </div>
+        </div>
+        
+        <!-- Right Column: Trigger Phrases -->
+        <div>
+            <h3 style="color: white; font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <i class="fas fa-bullhorn" style="margin-right: 8px; color: #f8c400;"></i>
+                Trigger Phrases
+            </h3>
+            
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-tag" style="margin-right: 6px;"></i>Email Triggers
+                </label>
+                <textarea id="emailTriggers" rows="3"
+                          style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.9rem; resize: vertical;"
+                          placeholder="Enter phrases separated by commas">send the confirmation, email me, send that over, email it to me, send the email</textarea>
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">When Tess hears these, email is sent</span>
+            </div>
+            
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-tag" style="margin-right: 6px;"></i>Phone Connect Triggers
+                </label>
+                <textarea id="phoneTriggers" rows="3"
+                          style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.9rem; resize: vertical;"
+                          placeholder="Enter phrases separated by commas">call me, speak to someone, phone call, talk to a person, speak with a human</textarea>
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">When Tess hears these, phone dialer opens</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Preview Badge -->
+    <div style="margin-top: 20px; padding: 12px 16px; background: rgba(248,196,0,0.08); border-radius: 10px; border-left: 3px solid #f8c400;">
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+            <span style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+                <i class="fas fa-info-circle" style="margin-right: 6px;"></i>Active Triggers Preview:
+            </span>
+            <span style="background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; color: #a0c8ff; font-size: 0.8rem;" id="emailTriggersPreview">
+                "send the confirmation", "email me"...
+            </span>
+            <span style="background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; color: #a0c8ff; font-size: 0.8rem;" id="phoneTriggersPreview">
+                "call me", "speak to someone"...
+            </span>
+        </div>
+    </div>
+</div>
+
          <!-- ===== MODULE 6: PRE-QUALIFICATION INTERVIEW ===== -->
 <div class="module-card">
     <div class="module-header">
@@ -1544,6 +1632,78 @@ function loadKnowledgeBaseDropdown() {
     
     console.log('✅ Knowledge base dropdown loaded');
 }
+
+</script>
+
+<script>
+
+// ===== COMMUNICATION CENTER FUNCTIONS =====
+
+// Load Communication Center settings from config
+function loadCommunicationCenter() {
+    const comms = config.modules?.communicationCenter || {};
+    
+    document.getElementById('commsEnabled').checked = comms.enabled !== false;
+    document.getElementById('clientEmail').value = comms.clientEmail || 'mobilewise.ai@gmail.com';
+    document.getElementById('supportPhone').value = comms.supportPhone || '949-228-5263';
+    document.getElementById('emailTriggers').value = (comms.emailTriggers || [
+        'send the confirmation', 'email me', 'send that over', 'email it to me', 'send the email'
+    ]).join(', ');
+    document.getElementById('phoneTriggers').value = (comms.phoneTriggers || [
+        'call me', 'speak to someone', 'phone call', 'talk to a person', 'speak with a human'
+    ]).join(', ');
+    
+    updateTriggersPreview();
+}
+
+// Save Communication Center settings to config
+function saveCommunicationCenter() {
+    if (!config.modules) config.modules = {};
+    
+    config.modules.communicationCenter = {
+        enabled: document.getElementById('commsEnabled').checked,
+        clientEmail: document.getElementById('clientEmail').value.trim(),
+        supportPhone: document.getElementById('supportPhone').value.trim(),
+        emailTriggers: document.getElementById('emailTriggers').value.split(',').map(s => s.trim()).filter(s => s),
+        phoneTriggers: document.getElementById('phoneTriggers').value.split(',').map(s => s.trim()).filter(s => s)
+    };
+    
+    console.log('✅ Communication Center settings saved');
+}
+
+// Update the preview badges
+function updateTriggersPreview() {
+    const emailTriggers = document.getElementById('emailTriggers').value.split(',').map(s => s.trim()).filter(s => s);
+    const phoneTriggers = document.getElementById('phoneTriggers').value.split(',').map(s => s.trim()).filter(s => s);
+    
+    const emailPreview = document.getElementById('emailTriggersPreview');
+    const phonePreview = document.getElementById('phoneTriggersPreview');
+    
+    if (emailPreview) {
+        const display = emailTriggers.slice(0, 3).map(t => `"${t}"`).join(', ');
+        emailPreview.innerHTML = display + (emailTriggers.length > 3 ? '...' : '');
+    }
+    
+    if (phonePreview) {
+        const display = phoneTriggers.slice(0, 3).map(t => `"${t}"`).join(', ');
+        phonePreview.innerHTML = display + (phoneTriggers.length > 3 ? '...' : '');
+    }
+}
+
+// Add event listeners for real-time preview
+function initCommunicationCenter() {
+    const emailField = document.getElementById('emailTriggers');
+    const phoneField = document.getElementById('phoneTriggers');
+    
+    if (emailField) emailField.addEventListener('input', updateTriggersPreview);
+    if (phoneField) phoneField.addEventListener('input', updateTriggersPreview);
+}
+
+// Call this in your DOMContentLoaded or initialization function
+document.addEventListener('DOMContentLoaded', function() {
+    initCommunicationCenter();
+    // loadCommunicationCenter() should be called when loading saved config
+});
 
 </script>
 
@@ -3550,9 +3710,11 @@ async function exportBridgeOnly() {
         code += '        "modules": {\n';
         code += '            "preQualification": {\n';
         code += '                "triggerPhrase": "' + (config.modules?.preQualification?.triggerPhrase || 'YES_INITIATE_PREQUAL') + '",\n';
-        code += '                "triggerPhraseLegacy": "' + (config.modules?.preQualification?.triggerPhraseLegacy || "let's get started") + '"\n';
+        code += '                "triggerPhraseLegacy": "' + (config.modules?.preQualification?.triggerPhraseLegacy || "let\'s get started") + '"\n';
         code += '            },\n';
-        code += '            "splashScreen": ' + JSON.stringify(config.modules?.splashScreen || {}) + '\n';
+        code += '            "emailConfig": ' + JSON.stringify(config.modules?.emailConfig || {}) + ',\n';
+        code += '            "splashScreen": ' + JSON.stringify(config.modules?.splashScreen || {}) + ',\n';
+        code += '            "smartScreen": ' + JSON.stringify(config.modules?.smartScreen || { images: [] }) + '\n';
         code += '        }\n';
         code += '    };\n\n';
         
@@ -3869,7 +4031,7 @@ async function exportBridgeOnly() {
         code += '            }\n';
         code += '        }\n';
         code += '\n';
-                code += '        sendEmail() {\n';
+        code += '        sendEmail() {\n';
         code += '            console.log("📧 Sending emails...");\n';
         code += '            const data = this.answers;\n';
         code += '            \n';
@@ -3921,9 +4083,12 @@ async function exportBridgeOnly() {
         code += '                console.warn("⚠️ No prospect email provided, skipping prospect email");\n';
         code += '            }\n';
         code += '            \n';
-        code += '            // ===== EMAIL 2: TO YOU (template_8kx812d) =====\n';
+        code += '            // ===== EMAIL 2: TO AGENCY/CLIENT (template_8kx812d) =====\n';
+        code += '            // 🔥 DYNAMIC: Pulls from BotemiaConfig emailConfig\n';
+        code += '            const clientEmail = window.BotemiaConfig?.modules?.emailConfig?.clientEmail || "mobilewise.ai@gmail.com";\n';
+        code += '            \n';
         code += '            var clientParams = {\n';
-        code += '                to_email: "mobilewise.ai@gmail.com",\n';
+        code += '                to_email: clientEmail,\n';
         code += '                full_name: data.fullName || "Not provided",\n';
         code += '                business_name: data.businessName || "Not provided",\n';
         code += '                email: data.email || "Not provided",\n';
@@ -3940,7 +4105,7 @@ async function exportBridgeOnly() {
         code += '            };\n';
         code += '            \n';
         code += '            emailjs.send("service_b9bppgb", "template_8kx812d", clientParams)\n';
-        code += '                .then(() => console.log("✅ Client notification sent to mobilewise.ai@gmail.com"))\n';
+        code += '                .then(() => console.log("✅ Client notification sent to:", clientEmail))\n';
         code += '                .catch(e => console.error("❌ Client email error:", e));\n';
         code += '        }\n';
         code += '    }\n';
@@ -3978,6 +4143,35 @@ async function exportBridgeOnly() {
         code += '                // }\n';
         code += '            });\n';
         code += '            \n';
+        code += '                // ===== NEW: EMAIL COMMAND =====\n';
+        code += '                if (payload.payload.command === "SEND_EMAIL") {\n';
+        code += '                    console.log("📧 Email command received from TCS!");\n';
+        code += '                    if (window.preQualController && window.preQualController.isActive) {\n';
+        code += '                        window.preQualController.sendEmail();\n';
+        code += '                        window.preQualController.isActive = false;\n';
+        code += '                        console.log("✅ Email sent via TCS command");\n';
+        code += '                    } else {\n';
+        code += '                        console.warn("⚠️ Cannot send email - controller not active");\n';
+        code += '                    }\n';
+        code += '                }\n';
+        code += '                \n';
+        code += '                // ===== NEW: PHONE CONNECT COMMAND =====\n';
+        code += '                if (payload.payload.command === "PHONE_CONNECT") {\n';
+        code += '                    console.log("📞 Phone connect command received from TCS!");\n';
+        code += '                    // 🔥 DYNAMIC: Pulls from BotemiaConfig emailConfig\n';
+        code += '                    const phoneNumber = window.BotemiaConfig?.modules?.emailConfig?.supportPhone || "949-228-5263";\n';
+        code += '                    console.log("📞 Initiating call to:", phoneNumber);\n';
+        code += '                    window.open("tel:" + phoneNumber, "_blank");\n';
+        code += '                }\n';
+        code += '                \n';
+        code += '                // ===== NEW: SMART SCREEN COMMAND =====\n';
+        code += '                if (payload.payload.command === "SHOW_SMART_SCREEN") {\n';
+        code += '                    console.log("📸 Smart Screen command received:", payload.payload);\n';
+        code += '                    if (typeof window.showSmartScreen === "function") {\n';
+        code += '                        window.showSmartScreen(payload.payload.trigger, payload.payload.image);\n';
+        code += '                    }\n';
+        code += '                }\n';
+        code += '            });\n';
         code += '            tcsChannel.subscribe(function(status) { \n';
         code += '                if (status === "SUBSCRIBED") console.log("✅ [REALTIME] Connected to Supabase"); \n';
         code += '            });\n';
@@ -4148,6 +4342,16 @@ async function exportBridgeOnly() {
         code += '                                forcePreQualification();\n';
         code += '                            }, 3500);\n';
         code += '                        }\n';
+        code += '                        \n';
+        code += '                        // ===== 🔥 EMAIL TRIGGER =====\n';
+        code += '                        if (tessText.includes("EMAIL_SENT_NOW")) {\n';
+        code += '                            console.log("📧 Email trigger detected!");\n';
+        code += '                            if (window.preQualController && window.preQualController.isActive) {\n';
+        code += '                                window.preQualController.sendEmail();\n';
+        code += '                                window.preQualController.isActive = false;\n';
+        code += '                                console.log("✅ Interview complete - email sent");\n';
+        code += '                            }\n';
+        code += '                        }\n';
         code += '                    }\n';
         code += '                });\n';
         code += '            } else {\n';
@@ -4157,8 +4361,7 @@ async function exportBridgeOnly() {
         code += '            console.error("❌ Daily init error:", e); \n';
         code += '        }\n';
         code += '    }\n\n';
-
-                code += '    // ==========================================\n';
+        code += '    // ==========================================\n';
         code += '    // 🍋 UNIVERSAL LISTENER (For PostMessages)\n';
         code += '    // ==========================================\n';
         code += '    function setupUniversalListener() {\n';
