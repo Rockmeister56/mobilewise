@@ -4161,8 +4161,9 @@ async function exportBridgeOnly() {
         code += '                // ===== NEW: PHONE CONNECT COMMAND =====\n';
         code += '                if (payload.payload.command === "PHONE_CONNECT") {\n';
         code += '                    console.log("📞 Phone connect command received from TCS!");\n';
-        code += '                    // 🔥 DYNAMIC: Pulls from BotemiaConfig emailConfig\n';
-        code += '                    const phoneNumber = window.BotemiaConfig?.modules?.emailConfig?.supportPhone || "949-228-5263";\n';
+        code += '                    const phoneNumber = window.preQualController?.answers?.phone || \n';
+        code += '                                        window.BotemiaConfig?.modules?.contactInfo?.supportPhone || \n';
+        code += '                                        "949-228-5263";\n';
         code += '                    console.log("📞 Initiating call to:", phoneNumber);\n';
         code += '                    window.open("tel:" + phoneNumber, "_blank");\n';
         code += '                }\n';
