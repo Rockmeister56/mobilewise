@@ -1071,7 +1071,7 @@
         </div>
     </div>
 
-    <!-- EXISTING SCREENS LIST (SCROLLABLE) -->
+    <!-- EXISTING SCREENS LIST -->
     <div style="margin-bottom: 20px; max-height: 400px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; background: rgba(0,0,0,0.15);" id="smartScreenList">
         <div style="text-align: center; padding: 30px; color: rgba(255,255,255,0.3);" id="smartScreenEmptyState">
             <i class="fas fa-plus-circle" style="font-size: 3rem; margin-bottom: 10px;"></i>
@@ -1081,7 +1081,7 @@
 
     <!-- ADD NEW SMART SCREEN FORM -->
     <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
-        <h3 style="color: #f8c400; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <h3 style="color: #f8c400; margin-bottom: 20px;">
             <i class="fas fa-plus-circle"></i> Add New Smart Screen
         </h3>
 
@@ -1131,7 +1131,7 @@
                     <option value="800px">Maximum (800px)</option>
                     <option value="full">Full Width</option>
                 </select>
-                <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 5px;">"Auto" uses the image's natural size. Set a specific width to override.</p>
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 5px;">"Auto" uses the image's natural size.</p>
             </div>
             <div>
                 <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎨 Card Background</label>
@@ -1169,16 +1169,15 @@
         <!-- TRIGGER PHRASES -->
         <div style="margin-bottom: 15px;">
             <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
-                <i class="fas fa-bullhorn"></i> Trigger Phrases (comma separated) — unique to this screen
+                <i class="fas fa-bullhorn"></i> Trigger Phrases (comma separated)
             </label>
-            <textarea id="newSmartScreenTriggers" class="trigger-textarea" placeholder="e.g., sarah, 580, bad credit, fha" style="min-height: 60px; width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white; font-family: monospace;"></textarea>
+            <textarea id="newSmartScreenTriggers" placeholder="e.g., sarah, 580, bad credit, fha" style="min-height: 60px; width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white; font-family: monospace;"></textarea>
         </div>
 
         <button class="btn-add" onclick="addNewSmartScreen()" style="width: 100%; padding: 16px; font-size: 1.1rem;">
             <i class="fas fa-save"></i> SAVE THIS SMART SCREEN
         </button>
     </div>
-    <!-- END ADD NEW SMART SCREEN FORM -->
 
     <!-- DISPLAY MODE -->
     <div class="module-options" style="margin-top: 20px;">
@@ -1192,7 +1191,6 @@
         </div>
     </div>
 </div>
-<!-- END SMART SCREEN MODULE -->
 
             <!-- ===== MODULE 5: WEBSITE INFO CENTER ===== -->
             <div class="module-card">
@@ -5076,3 +5074,5 @@ function buildScriptCode(steps) {
     });
 }
     </script>
+  </body>
+</html>
