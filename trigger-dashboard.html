@@ -519,214 +519,13 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<style>
-        :root {
-            --primary: #f8c400;
-            --primary-dark: #d4a000;
-            --bg-dark: #0a0f1e;
-            --bg-panel: #161e31;
-            --text-light: #ffffff;
-            --text-muted: #a0a0a0;
-            --border: rgba(255,255,255,0.1);
-            --radius: 16px;
-        }
-
-        * { box-sizing: border-box; outline: none; }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        /* --- LAYOUT & GRID --- */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* THE FIX: This ensures 2 vertical columns (Left/Right) */
-        .module-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Forces 2 equal columns */
-            gap: 24px;
-            width: 100%;
-            margin-bottom: 24px;
-        }
-
-        /* Responsive: Stack on mobile */
-        @media (max-width: 900px) {
-            .module-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* --- MODULES --- */
-        .module-card {
-            background: var(--bg-panel);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-
-        .module-header {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-        }
-
-        .module-icon {
-            width: 50px;
-            height: 50px;
-            background: rgba(248, 196, 0, 0.1);
-            color: var(--primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .module-title h2 {
-            margin: 0;
-            font-size: 1.3rem;
-            color: #fff;
-        }
-
-        .module-title p {
-            margin: 5px 0 0 0;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        /* --- FORMS & INPUTS --- */
-        .field {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--border);
-            padding: 12px 16px;
-            border-radius: 8px;
-            color: white;
-            font-family: inherit;
-            font-size: 0.95rem;
-            transition: all 0.2s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--primary);
-            background: rgba(0,0,0,0.5);
-        }
-
-        /* --- BUTTONS --- */
-        .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: transform 0.1s;
-        }
-        .btn:active { transform: scale(0.98); }
-        .btn-purple { background: #9c27b0; color: white; width: 100%; justify-content: center; }
-        .btn-add { background: var(--primary); color: #0a0f1e; }
-        
-        /* --- HEADER & UTILITY --- */
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo-area { display: flex; align-items: center; gap: 15px; }
-        .logo-icon { font-size: 2rem; }
-        h1 { margin: 0; font-size: 1.5rem; }
-        
-        .badge {
-            background: rgba(248, 196, 0, 0.1);
-            color: var(--primary);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: 1px solid rgba(248, 196, 0, 0.3);
-        }
-
-        .client-config-bar {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            background: rgba(255,255,255,0.03);
-            padding: 20px;
-            border-radius: var(--radius);
-            margin-bottom: 24px;
-            align-items: end;
-        }
-
-        /* --- TOAST --- */
-        .save-toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #2e7d32;
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transform: translateY(150%);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1000;
-            border: 1px solid #4caf50;
-        }
-        .save-toast.show { transform: translateY(0); }
-
-        /* Helper for scrollable areas */
-        .scroll-box {
-            max-height: 300px;
-            overflow-y: auto;
-            background: rgba(0,0,0,0.2);
-            border-radius: 12px;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border);
-        }
-    </style>
-</head>
 <body>
     <div class="container">
 
-        <!-- Save Toast -->
-        <div id="saveToast" class="save-toast">
-            <strong>✅ Config Saved!</strong><br>
-            <small id="saveDetails">Updated at 12:00 PM</small>
-        </div>
+            <div id="saveToast" class="save-toast">
+        <strong>✅ Config Saved!</strong><br>
+        <small id="saveDetails"></small>
+    </div>
 
         <!-- ===== HEADER ===== -->
         <div class="dashboard-header">
@@ -770,38 +569,41 @@
             </div>
         </div>
 
-        <!-- Email Configuration Section -->
-        <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-bottom: 24px;">
-            <h3 style="color: #f8c400; margin-top:0;">📧 Pre-Qual Email Settings</h3>
-            <div style="display: grid; gap: 15px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-                <div>
-                    <label>Loan Officer Email *</label>
-                    <input type="email" id="loanOfficerEmail" value="loans@clientcompany.com">
-                </div>
-                <div>
-                    <label>CC Email (optional)</label>
-                    <input type="email" id="ccEmail" value="">
-                </div>
-                <div style="grid-column: 1 / -1;">
-                    <label>Email Subject</label>
-                    <input type="text" id="emailSubject" value="New Pre-Qual Lead: {{firstName}} {{lastName}}">
-                </div>
-            </div>
+       <!-- Email Configuration Section -->
+<div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px;">
+    <h3 style="color: #f8c400; margin-bottom: 15px;">📧 Pre-Qual Email Settings</h3>
+    
+    <div style="display: grid; gap: 15px;">
+        <div>
+            <label style="color: white; display: block; margin-bottom: 5px;">Loan Officer Email *</label>
+            <input type="email" id="loanOfficerEmail" value="loans@clientcompany.com" 
+                   style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
         </div>
-
-        <!-- Add this after the Client ID field -->
-        <div class="field" style="margin-bottom: 24px;">
-            <label><i class="fas fa-globe"></i> Client Website URL</label>
-            <input type="url" id="clientWebsiteUrl" placeholder="https://client-website.com" value="">
-            <p style="color: #aaa; font-size:0.75rem; margin-top:3px;">The URL where this client's bridge is installed</p>
+        
+        <div>
+            <label style="color: white; display: block; margin-bottom: 5px;">CC Email (optional)</label>
+            <input type="email" id="ccEmail" value="" 
+                   style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
         </div>
+        
+        <div>
+            <label style="color: white; display: block; margin-bottom: 5px;">Email Subject</label>
+            <input type="text" id="emailSubject" value="New Pre-Qual Lead: {{firstName}} {{lastName}}" 
+                   style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
+        </div>
+    </div>
+</div>
 
-        <!-- ===== ROW 1: API & SPLASH ===== -->
-        <!-- START OF GRID 1 -->
+        <!-- Add this after the Client ID field or in the client config bar -->
+<div class="field">
+    <label><i class="fas fa-globe"></i> Client Website URL</label>
+    <input type="url" id="clientWebsiteUrl" placeholder="https://client-website.com" value="">
+    <p style="color: #aaa; font-size:0.75rem; margin-top:3px;">The URL where this client's bridge is installed</p>
+</div>
+
+        <!-- ===== MODULE 1: LEMONSLICE API CONFIG ===== -->
         <div class="module-grid">
-            
-            <!-- ===== MODULE 1: LEMONSLICE API CONFIG ===== -->
-            <div class="module-card">
+            <div class="module-card" style="max-height: 700px; overflow-y: auto;">
                 <div class="module-header">
                     <div class="module-icon"><i class="fas fa-plug"></i></div>
                     <div class="module-title">
@@ -810,19 +612,19 @@
                     </div>
                 </div>
                 <div style="display: grid; gap: 20px;">
-                    <div class="field">
+                    <div class="option-row">
                         <label><i class="fas fa-key"></i> Agent ID <span style="color: #f8c400;">*</span></label>
                         <input type="text" id="agentId" placeholder="agent_xxxxxxxxxxxxxxxx" value="">
                     </div>
-                    <div class="field">
+                    <div class="option-row">
                         <label><i class="fas fa-id-card"></i> Widget ID</label>
                         <input type="text" id="widgetId" placeholder="widget_xxxxxxxxxxxxxxxx (optional)">
                     </div>
-                    <div class="field">
+                    <div class="option-row">
                         <label><i class="fas fa-lock"></i> API Key</label>
                         <input type="password" id="apiKey" placeholder="•••••••••••••••• (optional)">
                     </div>
-                    <div class="field">
+                    <div class="option-row">
                         <label><i class="fas fa-cloud"></i> Environment</label>
                         <select id="environment">
                             <option value="production" selected>production</option>
@@ -834,180 +636,569 @@
                 <div style="margin-top: 16px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 0.85rem;">
                     <i class="fas fa-info-circle"></i> All dialog content comes from your knowledge base. This section only configures the LemonSlice connection.
                 </div>
-                <!-- DIAGNOSTIC TEST BUTTON -->
-                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <button onclick="runDiagnostics()" class="btn btn-purple">
-                        <i class="fas fa-stethoscope"></i> Run Diagnostics
-                    </button>
-                </div>
+                            <!-- DIAGNOSTIC TEST BUTTON -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button onclick="runDiagnostics()" class="btn btn-purple" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-stethoscope"></i> Run Diagnostics
+                </button>
+            </div>
             </div>
 
             <!-- ===== MODULE 2: SPLASH SCREEN CONFIGURATION ===== -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon"><i class="fas fa-images"></i></div>
-                    <div class="module-title">
-                        <h2>🚀 Splash Screen Configuration</h2>
-                        <p>Instant-load welcome screen with live avatar</p>
+<div class="module-card" style="max-height: 700px; overflow-y: auto;">
+    <div class="module-header">
+        <div class="module-icon"><i class="fas fa-images"></i></div>
+        <div class="module-title">
+            <h2>🚀 Splash Screen Configuration</h2>
+            <p>Instant-load welcome screen with live avatar — beats bounce rate</p>
+        </div>
+    </div>
+
+    <div class="trigger-section" style="max-height: 600px; overflow-y: auto; padding-right: 10px;">
+        <!-- Enable Toggle -->
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; background: rgba(248,196,0,0.1); padding: 15px; border-radius: 12px;">
+            <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; width: 100%;">
+                <input type="checkbox" id="splashEnabled" checked style="width: 20px; height: 20px;"> 
+                <span style="color:#f8c400; font-weight:700; font-size:1.2rem;">✓ Enable Splash Screen on Page Load</span>
+            </label>
+        </div>
+
+       <!-- Simple Preview -->
+<div style="background: linear-gradient(145deg, #0f1a2f, #1e3a5a); border-radius: 20px; padding: 30px; margin-bottom: 25px; border: 2px solid #f8c400; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+    <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-bottom: 5px; letter-spacing: 1px;">LIVE PREVIEW</div>
+    <div style="color: white; font-size: 1.8rem; font-weight: 600; margin-bottom: 5px;" id="previewTopText">✨ Meet Tess 🤗</div>
+    <div style="color: #f8c400; font-size: 1.2rem; margin-bottom: 20px;" id="previewSubText">Your Personal AI Web Guide</div>
+    <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; border: 3px solid #f8c400;">
+        <i class="fas fa-user-circle" style="font-size: 60px; color: #f8c400;"></i>
+    </div>
+    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 15px;">
+        <div style="background: #f8c400; color: #0a0f1e; padding: 12px 24px; border-radius: 40px; font-weight: bold;" id="previewPrimary">Get AI help with Tess</div>
+        <div style="background: #444; color: white; padding: 12px 24px; border-radius: 40px; font-weight: bold;" id="previewSecondary">Just Browsing</div>
+    </div>
+</div>
+
+        <!-- AGENT ID SECTION (follows client selection) -->
+<div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #f8c400;">
+    <h4 style="color: #f8c400; margin-bottom: 15px;"><i class="fas fa-robot"></i> Lemon Slice Agent Configuration</h4>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="field">
+            <label><i class="fas fa-id-card"></i> Agent ID (same for both widgets)</label>
+            <input type="text" id="splashAgentId" value="" placeholder="agent_... (auto-populates from client)">
+            <p style="color: #aaa; font-size:0.75rem; margin-top:3px;">
+                <i class="fas fa-info-circle"></i> Populates from selected client's Agent ID
+            </p>
+        </div>
+        <div class="field">
+            <label><i class="fas fa-ruler"></i> Splash Widget Size</label>
+            <select id="splashWidgetSize">
+                <option value="252" selected>Medium (252×377)</option>
+                <option value="300">Large (300×450)</option>
+                <option value="200">Small (200×300)</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+        <div style="display: grid; gap: 20px;">
+            <!-- Headlines -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="field">
+                    <label><i class="fas fa-heading"></i> Top Headline</label>
+                    <input type="text" id="splashTopText" value="Meet Tess" placeholder="e.g., Meet Tess" oninput="updateSplashPreview()">
+                </div>
+                <div class="field">
+                    <label><i class="fas fa-subscript"></i> Sub Headline</label>
+                    <input type="text" id="splashSubText" value="Your Personal AI Web Guide" placeholder="e.g., Your Personal AI Web Guide" oninput="updateSplashPreview()">
+                </div>
+            </div>
+
+          <!-- Tess Talking Video (for persistent button) -->
+<div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; border: 1px dashed #f8c400;">
+    <label style="color: #f8c400; font-weight: 600; display: block; margin-bottom: 15px;">
+        <i class="fas fa-video"></i> Tess Talking Video (for animated button)
+    </label>
+    
+    <div class="field" style="margin-bottom: 15px;">
+        <label><i class="fas fa-link"></i> Video URL (Supabase CDN or direct link)</label>
+        <input type="text" id="splashTessVideoUrl" placeholder="https://your-storage.supabase.co/.../tess-loop.mp4" value="" style="width: 100%; padding: 10px;">
+        <p style="color: #aaa; font-size:0.8rem; margin-top:5px;">MP4 video loop recommended: 180×180, muted, 3-5 seconds</p>
+    </div>
+    
+    <!-- Video Fit Option -->
+    <div style="margin-top: 15px; margin-bottom: 20px;">
+        <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
+            <i class="fas fa-crop"></i> Video Fit in Circle
+        </label>
+        <select id="tessVideoFit" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white;">
+            <option value="cover" selected>Cover (fills circle, may crop edges)</option>
+            <option value="contain">Contain (shows entire video, may have black bars)</option>
+            <option value="fill">Fill (stretches to fit, may distort)</option>
+        </select>
+        <p style="color: #aaa; font-size:0.75rem; margin-top:5px;">
+            <i class="fas fa-info-circle"></i> "Cover" is recommended for circular buttons
+        </p>
+    </div>
+    
+    <!-- Larger Preview Area with Button -->
+<div style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px;">
+    <div style="width: 180px; height: 180px; background: rgba(0,0,0,0.3); border-radius: 50%; border: 4px solid #f8c400; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; position: relative;" id="simpleVideoPreview">
+        <i class="fas fa-video" style="color: #f8c400; font-size: 60px; margin-bottom: 20px;"></i>
+        <!-- This shows where text would be in preview -->
+        <div style="position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.6); color: #f8c400; padding: 4px; font-size: 14px; font-weight: bold;">
+            Ask Tess 👆
+        </div>
+    </div>
+    
+    <!-- Preview Button -->
+    <button onclick="previewVideoUrl()" style="background: #f8c400; color: #0a0f1e; border: none; padding: 12px 24px; border-radius: 40px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 16px;">
+        <i class="fas fa-eye"></i> Preview Video
+    </button>
+    </div>
+</div>
+
+            <!-- Add after Agent ID field -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+    <div class="field">
+        <label><i class="fas fa-heading"></i> Title Text</label>
+        <input type="text" id="splashTitle" value="Meet Tess" placeholder="e.g., Meet Tess">
+    </div>
+    <div class="field">
+        <label><i class="fas fa-subscript"></i> Subtitle Text</label>
+        <input type="text" id="splashSubtitle" value="Your Personal AI Web Guide" placeholder="e.g., Your Personal AI Web Guide">
+    </div>
+</div>
+
+<!-- Splash Background Gradient -->
+<div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+    <h4 style="color: #f8c400; margin-bottom: 15px;">🎨 Splash Background Gradient</h4>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="field">
+            <label>Center Color (bright)</label>
+            <input type="color" id="splashGradientCenter" value="#1e4a8a">
+        </div>
+        <div class="field">
+            <label>Outer Color (dark)</label>
+            <input type="color" id="splashGradientOuter" value="#0a1a2f">
+        </div>
+    </div>
+</div>
+
+<!-- Ticker Tape Keywords for SPLASH SCREEN - EDITABLE FIELD -->
+<div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+        <i class="fas fa-tag" style="color: #f8c400;"></i>
+        <h4 style="color: white; margin:0;">Splash Screen Ticker</h4>
+    </div>
+    
+    <div class="field">
+        <label><i class="fas fa-list"></i> Keywords (comma separated)</label>
+        <input type="text" id="splashTickerKeywords" value="" placeholder="e.g., Mortgage Rates, Pre-Qualification, First-Time Buyer, Refinance" style="width: 100%; padding: 12px;">
+        <p style="color: #aaa; font-size:0.8rem; margin-top:5px;">
+            <i class="fas fa-info-circle"></i> Type your own keywords for each client. They will scroll at the bottom of Tess's video.
+        </p>
+    </div>
+</div>
+
+<!-- Primary Button Settings (update if needed) -->
+<div style="background: rgba(248,196,0,0.05); border-radius: 16px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #f8c400;">
+    <h4 style="color: #f8c400; margin-bottom: 15px;"><i class="fas fa-star"></i> Primary Button</h4>
+    
+    <div class="field" style="margin-bottom: 15px;">
+        <label>Button Text</label>
+        <input type="text" id="splashPrimaryText" value="Get AI help with Tess">
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <div class="field">
+            <label>Top Color</label>
+            <input type="color" id="splashPrimaryTop" value="#f8c400">
+        </div>
+        <div class="field">
+            <label>Bottom Color</label>
+            <input type="color" id="splashPrimaryBottom" value="#d4a000">
+        </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div class="field">
+            <label>Hover Top</label>
+            <input type="color" id="splashPrimaryHoverTop" value="#ffd700">
+        </div>
+        <div class="field">
+            <label>Hover Bottom</label>
+            <input type="color" id="splashPrimaryHoverBottom" value="#e0b000">
+        </div>
+    </div>
+    
+    <div class="field" style="margin-top: 15px;">
+        <label>Text Color</label>
+        <input type="color" id="splashPrimaryTextColor" value="#0a0f1e">
+    </div>
+</div>
+
+            <!-- Secondary Button Settings -->
+            <div style="background: rgba(255,255,255,0.03); border-radius: 16px; padding: 20px;">
+                <h4 style="color: #aaa; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-times"></i> Secondary Button (Just Browsing)
+                </h4>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                    <div class="field">
+                        <label>Button Text</label>
+                        <input type="text" id="splashSecondaryText" value="Just Browsing" oninput="updateSplashPreview()">
+                    </div>
+                    <div class="field">
+                        <label>Button Color</label>
+                        <input type="color" id="splashSecondaryColor" value="#555555" onchange="updateSplashPreview()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Persistent Button Settings -->
+            <div style="border-top: 2px solid rgba(248,196,0,0.2); padding-top: 20px;">
+                <h4 style="color: #f8c400; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-hand-pointer"></i> Persistent "Need Help?" Button
+                </h4>
+                
+                <div style="display: flex; align-items: center; gap: 30px; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="persistentButtonEnabled" checked> 
+                        <span style="font-weight:600;">Show persistent button after splash dismissed</span>
+                    </label>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="field">
+                        <label><i class="fas fa-arrows-alt"></i> Button Position</label>
+                        <select id="persistentButtonPosition" onchange="toggleCustomPosition()">
+                            <option value="bottom-left" selected>Bottom Left</option>
+                            <option value="middle-left">Middle Left</option>
+                            <option value="middle-right">Middle Right</option>
+                            <option value="custom">Custom Position</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label><i class="fas fa-mouse-pointer"></i> Click Action</label>
+                        <select id="persistentButtonAction">
+                            <option value="activate-tess" selected>Activate Tess (mic on)</option>
+                            <option value="show-splash">Show Splash Screen Again</option>
+                            <option value="open-chat">Open Chat Window</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="scroll-box" style="max-height: 500px; padding-right: 10px;">
-                    <!-- Enable Toggle -->
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; background: rgba(248,196,0,0.1); padding: 15px; border-radius: 12px;">
-                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; width: 100%; margin:0;">
-                            <input type="checkbox" id="splashEnabled" checked style="width: 20px; height: 20px;"> 
-                            <span style="color:#f8c400; font-weight:700; font-size:1.1rem;">✓ Enable Splash Screen on Page Load</span>
-                        </label>
+               <!-- Replace the current branding footer section -->
+<div style="border-top: 2px solid rgba(248,196,0,0.2); padding-top: 20px; margin-top: 20px;">
+    <h4 style="color: #f8c400; margin-bottom: 20px;"><i class="fas fa-building"></i> Client Branding</h4>
+    
+    <div class="field" style="margin-bottom: 15px;">
+        <label><i class="fas fa-tag"></i> Brand Name (optional)</label>
+        <input type="text" id="splashBrandName" placeholder="e.g., Assist Mortgage" value="">
+    </div>
+    
+    <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; border: 1px dashed #f8c400;">
+        <label style="color: #f8c400; display: block; margin-bottom: 10px;">
+            <i class="fas fa-cloud-upload-alt"></i> Brand Logo (optional)
+        </label>
+        <input type="file" id="splashBrandLogo" accept="image/*" onchange="handleBrandLogoUpload(this)">
+        <input type="hidden" id="splashBrandLogoData" value="">
+        <p style="color: #aaa; font-size:0.8rem; margin-top:8px;">Logo will appear at 40px height (60% bigger than before)</p>
+        <!-- Preview -->
+        <div style="margin-top: 15px; text-align: center; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px;">
+            <div style="color: #aaa; margin-bottom: 10px;">Preview:</div>
+            <div id="brandLogoPreview" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+                <i class="fas fa-building" style="color: #f8c400; font-size: 40px;"></i>
+                <span style="color: white; font-size: 24px;" id="brandNamePreview">Assist Mortgage</span>
+            </div>
+        </div>
+    </div>
+</div>
+                                <!-- Custom Position Controls -->
+                <div id="customPositionControls" style="display: none; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                    <div class="field">
+                        <label>Distance from Bottom (px)</label>
+                        <input type="number" id="customBottom" value="20" min="0" max="200">
                     </div>
-
-                    <!-- Simple Preview -->
-                    <div style="background: linear-gradient(145deg, #0f1a2f, #1e3a5a); border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 2px solid #f8c400; text-align: center;">
-                        <div style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-bottom: 5px;">LIVE PREVIEW</div>
-                        <div style="color: white; font-size: 1.4rem; font-weight: 600; margin-bottom: 5px;" id="previewTopText">✨ Meet Tess 🤗</div>
-                        <div style="color: #f8c400; font-size: 1rem; margin-bottom: 15px;" id="previewSubText">Your Personal AI Web Guide</div>
-                        <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; border: 3px solid #f8c400;">
-                            <i class="fas fa-user-circle" style="font-size: 40px; color: #f8c400;"></i>
-                        </div>
-                        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                            <div style="background: #f8c400; color: #0a0f1e; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;" id="previewPrimary">Get AI help with Tess</div>
-                            <div style="background: #444; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;" id="previewSecondary">Just Browsing</div>
-                        </div>
+                    <div class="field">
+                        <label>Distance from Right (px)</label>
+                        <input type="number" id="customRight" value="20" min="0" max="200">
                     </div>
-
-                    <!-- Headlines -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <div class="field">
-                            <label><i class="fas fa-heading"></i> Top Headline</label>
-                            <input type="text" id="splashTopText" value="Meet Tess" placeholder="e.g., Meet Tess" oninput="updateSplashPreview()">
-                        </div>
-                        <div class="field">
-                            <label><i class="fas fa-subscript"></i> Sub Headline</label>
-                            <input type="text" id="splashSubText" value="Your Personal AI Web Guide" placeholder="e.g., Your Personal AI Web Guide" oninput="updateSplashPreview()">
-                        </div>
+                    <div class="field">
+                        <label>Distance from Left (px)</label>
+                        <input type="text" id="customLeft" value="auto" placeholder="auto" disabled style="color: #888; background: rgba(0,0,0,0.2);">
                     </div>
-
-                    <!-- Colors -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <div class="field">
-                            <label>Primary Color</label>
-                            <input type="color" id="splashPrimaryColor" value="#f8c400">
-                        </div>
-                        <div class="field">
-                            <label>Secondary Color</label>
-                            <input type="color" id="splashSecondaryColor" value="#555555">
-                        </div>
+                    <div class="field">
+                        <label>Distance from Top (px)</label>
+                        <input type="text" id="customTop" value="auto" placeholder="auto" disabled style="color: #888; background: rgba(0,0,0,0.2);">
                     </div>
                 </div>
             </div>
         </div>
-        <!-- END OF GRID 1 -->
+    </div>
+</div>
 
-        <!-- ===== ROW 2: TESTIMONIALS & VIDEO VAULT ===== -->
-        <!-- START OF GRID 2 -->
-        <div class="module-grid">
-            
-            <!-- ===== MODULE 3: TESTIMONIAL GROUPS ===== -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon"><i class="fas fa-users"></i></div>
-                    <div class="module-title">
-                        <h2>📺 Testimonial Groups</h2>
-                        <p>Trigger phrase displays multiple videos</p>
-                    </div>
-                </div>
+           <!-- ===== MODULE 2: TESTIMONIAL GROUPS ===== -->
+<div class="module-card">
+    <div class="module-header">
+        <div class="module-icon"><i class="fas fa-users"></i></div>
+        <div class="module-title">
+            <h2>📺 Testimonial Groups</h2>
+            <p>Each group has one trigger phrase - displays multiple testimonials</p>
+        </div>
+    </div>
 
-                <div class="scroll-box" id="testimonialGroupsList">
-                    <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3);">
-                        <i class="fas fa-plus-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                        <p>No testimonial groups yet.</p>
-                    </div>
-                </div>
+    <!-- TESTIMONIAL GROUPS LIST -->
+    <div style="margin-bottom: 20px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; background: rgba(0,0,0,0.15);" id="testimonialGroupsList">
+        <!-- Groups will be dynamically populated here -->
+        <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3);" id="testimonialGroupsEmpty">
+            <i class="fas fa-plus-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+            <p>No testimonial groups yet. Add your first group below.</p>
+        </div>
+    </div>
 
-                <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: auto; border: 1px solid #f8c400;">
-                    <h4 style="color: #f8c400; margin: 0 0 15px 0;">Add Group</h4>
-                    <div class="field">
-                        <input type="text" id="newTestimonialGroupName" placeholder="Group Name (e.g. Success Stories)">
-                    </div>
-                    <div class="field">
-                        <input type="text" id="newTestimonialTrigger" placeholder="Trigger Phrase (e.g. Show me rates)">
-                    </div>
-                    <button class="btn btn-add" onclick="addTestimonialGroup()" style="width:100%">SAVE GROUP</button>
-                </div>
+    <!-- ADD NEW TESTIMONIAL GROUP FORM -->
+    <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
+        <h3 style="color: #f8c400; margin-bottom: 20px;">
+            <i class="fas fa-plus-circle"></i> Add Testimonial Group
+        </h3>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📛 Group Name</label>
+            <input type="text" id="newTestimonialGroupName" placeholder="e.g., Rate Success Stories" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎯 Trigger Phrase (what Botania says)</label>
+            <input type="text" id="newTestimonialTrigger" placeholder="e.g., Show me rate testimonials" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+            <p style="color: #f8c400; font-size:0.8rem; margin-top:5px;">
+                <i class="fas fa-info-circle"></i> Botania says this exact phrase to show this group
+            </p>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📁 Category/Theme</label>
+            <select id="newTestimonialCategory" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                <option value="rates">Rates</option>
+                <option value="first-time">First-Time Buyer</option>
+                <option value="service">Customer Service</option>
+                <option value="results">Success Results</option>
+                <option value="credibility">Trust & Credibility</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎬 Testimonial Videos (comma separated URLs)</label>
+            <textarea id="newTestimonialVideos" placeholder="https://youtube.com/..., https://vimeo.com/..." style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white; min-height: 60px;"></textarea>
+            <p style="color: #aaa; font-size:0.8rem; margin-top:5px;">All videos in this group will play in the testimonial player</p>
+        </div>
+
+        <button class="btn-add" onclick="addTestimonialGroup()" style="width: 100%; padding: 16px;">
+            <i class="fas fa-save"></i> SAVE TESTIMONIAL GROUP
+        </button>
+    </div>
+</div>
+
+            <!-- ===== MODULE 3: VIDEO VAULT (SINGLE VIDEOS) ===== -->
+<div class="module-card">
+    <div class="module-header">
+        <div class="module-icon"><i class="fas fa-film"></i></div>
+        <div class="module-title">
+            <h2>📹 Video Library</h2>
+            <p>Each video has its own trigger phrase - plays one video</p>
+        </div>
+    </div>
+
+    <!-- VIDEOS LIST -->
+    <div style="margin-bottom: 20px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; background: rgba(0,0,0,0.15);" id="videoList">
+        <!-- Videos will be dynamically populated here -->
+        <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3);" id="videoListEmpty">
+            <i class="fas fa-plus-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+            <p>No videos yet. Add your first video below.</p>
+        </div>
+    </div>
+
+    <!-- ADD NEW VIDEO FORM -->
+    <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
+        <h3 style="color: #f8c400; margin-bottom: 20px;">
+            <i class="fas fa-plus-circle"></i> Add Single Video
+        </h3>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📛 Video Title</label>
+            <input type="text" id="newVideoName" placeholder="e.g., Loan Process Overview" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎯 Trigger Phrase (what Botania says)</label>
+            <input type="text" id="newVideoTrigger" placeholder="e.g., Show me the loan process video" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+            <p style="color: #f8c400; font-size:0.8rem; margin-top:5px;">
+                <i class="fas fa-info-circle"></i> Botania says this exact phrase to play this video
+            </p>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔗 Video URL</label>
+            <input type="text" id="newVideoUrl" placeholder="https://youtube.com/..." style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📝 Description (optional)</label>
+            <input type="text" id="newVideoDescription" placeholder="Brief description of video content" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📁 Category</label>
+            <select id="newVideoCategory" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                <option value="process">Loan Process</option>
+                <option value="documents">Document Prep</option>
+                <option value="first-time">First-Time Buyer</option>
+                <option value="closing">Closing Day</option>
+                <option value="faq">FAQ</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+          <button class="btn-add" onclick="addVideo()" style="width: 100%; padding: 16px;">
+            <i class="fas fa-save"></i> SAVE VIDEO
+        </button>
+    </div>
+</div>
+</div>
+
+<div class="module-grid">
+
+
+ <!-- ===== SMART SCREEN MODULE (MULTI-SCREEN + FULL STYLING) ===== -->
+<div class="module-card">
+    <div class="module-header">
+        <div class="module-icon"><i class="fas fa-images"></i></div>
+        <div class="module-title">
+            <h2>📸 Smart Screens</h2>
+            <p>Each screen has its own image, caption, link, trigger phrases, and custom styling</p>
+        </div>
+    </div>
+
+    <!-- EXISTING SCREENS LIST -->
+    <div style="margin-bottom: 20px; max-height: 400px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; background: rgba(0,0,0,0.15);" id="smartScreenList">
+        <div style="text-align: center; padding: 30px; color: rgba(255,255,255,0.3);" id="smartScreenEmptyState">
+            <i class="fas fa-plus-circle" style="font-size: 3rem; margin-bottom: 10px;"></i>
+            <p>No smart screens yet. Add your first one below.</p>
+        </div>
+    </div>
+
+    <!-- ADD NEW SMART SCREEN FORM -->
+    <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
+        <h3 style="color: #f8c400; margin-bottom: 20px;">
+            <i class="fas fa-plus-circle"></i> Add New Smart Screen
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📛 Screen Name</label>
+                <input type="text" id="newSmartScreenName" placeholder="e.g., Sarah's Success" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
             </div>
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔗 Optional Link</label>
+                <input type="text" id="newSmartScreenLink" placeholder="https://..." style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+            </div>
+        </div>
 
-            <!-- ===== MODULE 4: VIDEO VAULT (SINGLE VIDEOS) ===== -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon"><i class="fas fa-film"></i></div>
-                    <div class="module-title">
-                        <h2>📹 Video Library</h2>
-                        <p>Each video has its own trigger phrase</p>
-                    </div>
-                </div>
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📝 Caption</label>
+            <input type="text" id="newSmartScreenCaption" placeholder="e.g., 580 credit → closed FHA 3.5% down" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
 
-                <div class="scroll-box" id="videoList">
-                    <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3);">
-                        <i class="fas fa-plus-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                        <p>No videos yet.</p>
-                    </div>
-                </div>
+        <!-- IMAGE UPLOAD -->
+        <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px; border: 1px dashed #f8c400;">
+            <label style="color: #f8c400; font-size: 0.9rem; display: block; margin-bottom: 10px;">
+                <i class="fas fa-cloud-upload-alt"></i> Upload Image (recommended: 600px × 400px, max 2MB)
+            </label>
+            <input type="file" id="smartScreenImageUpload" accept="image/*" style="color: white; margin-bottom: 10px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="newSmartScreenImageUrl" placeholder="Or enter CDN URL directly" style="flex:1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                <span style="color: rgba(255,255,255,0.4); font-size:0.8rem;">OR</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 10px;">
+                📁 Upload to: <code style="background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 4px; color: #f8c400;">
+                /clients/<span id="smartScreenClientPath">mortgage-assist-demo</span>/smart-screens/</code><br>
+                Paste the full public URL above. Recommended: 600-800px wide, WebP or JPG, under 500KB.
+            </p>
+        </div>
 
-                <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: auto; border: 1px solid #f8c400;">
-                    <h4 style="color: #f8c400; margin: 0 0 15px 0;">Add Single Video</h4>
-                    <div class="field">
-                        <input type="text" id="newVideoName" placeholder="Video Title">
-                    </div>
-                    <div class="field">
-                        <input type="text" id="newVideoTrigger" placeholder="Trigger Phrase">
-                    </div>
-                    <div class="field">
-                        <input type="text" id="newVideoUrl" placeholder="Video URL (YouTube/Vimeo)">
-                    </div>
-                    <button class="btn btn-add" onclick="addVideo()" style="width:100%">SAVE VIDEO</button>
+        <!-- STYLING CONTROLS -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📏 Image Size</label>
+                <select id="newSmartScreenSize" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                    <option value="auto" selected>Auto (Image Default)</option>
+                    <option value="300px">Small (300px)</option>
+                    <option value="400px">Medium (400px)</option>
+                    <option value="500px">Large (500px)</option>
+                    <option value="600px">X-Large (600px)</option>
+                    <option value="800px">Maximum (800px)</option>
+                    <option value="full">Full Width</option>
+                </select>
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 5px;">"Auto" uses the image's natural size.</p>
+            </div>
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎨 Card Background</label>
+                <select id="newSmartScreenBgColor" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                    <option value="white" selected>White</option>
+                    <option value="rgba(0,0,0,0.85)">Black (85% opaque)</option>
+                    <option value="rgba(0,0,0,0.7)">Black (70% opaque)</option>
+                    <option value="rgba(0,0,0,0.5)">Black (50% semi-transparent)</option>
+                    <option value="rgba(0,0,0,0.3)">Black (30% light)</option>
+                    <option value="rgba(255,255,255,0.9)">White (90% opaque)</option>
+                    <option value="rgba(255,255,255,0.7)">White (70% semi-transparent)</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔲 Backdrop Darkness</label>
+                <select id="newSmartScreenBackdrop" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                    <option value="0.3">Light (30%)</option>
+                    <option value="0.5" selected>Medium (50%)</option>
+                    <option value="0.7">Dark (70%)</option>
+                    <option value="0.9">Very Dark (90%)</option>
+                </select>
+            </div>
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📌 Title Display</label>
+                <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px;">
+                    <input type="checkbox" id="newSmartScreenShowTitle" checked style="width: 18px; height: 18px;">
+                    <label for="newSmartScreenShowTitle" style="color: white; font-size: 0.9rem;">Show title on screen</label>
                 </div>
             </div>
         </div>
-        <!-- END OF GRID 2 -->
 
-        <!-- ===== ROW 3: SMART SCREENS & WEBSITE INFO ===== -->
-        <!-- START OF GRID 3 -->
-        <div class="module-grid">
-            
-            <!-- ===== MODULE 5: SMART SCREENS ===== -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon"><i class="fas fa-images"></i></div>
-                    <div class="module-title">
-                        <h2>📸 Smart Screens</h2>
-                        <p>Images, captions, triggers & styling</p>
-                    </div>
-                </div>
+        <!-- TRIGGER PHRASES -->
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
+                <i class="fas fa-bullhorn"></i> Trigger Phrases (comma separated)
+            </label>
+            <textarea id="newSmartScreenTriggers" placeholder="e.g., sarah, 580, bad credit, fha" style="min-height: 60px; width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white; font-family: monospace;"></textarea>
+        </div>
 
-                <div class="scroll-box" id="smartScreenList">
-                    <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3);">
-                        <i class="fas fa-plus-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                        <p>No smart screens yet.</p>
-                    </div>
-                </div>
+        <button class="btn-add" onclick="addNewSmartScreen()" style="width: 100%; padding: 16px; font-size: 1.1rem;">
+            <i class="fas fa-save"></i> SAVE THIS SMART SCREEN
+        </button>
+    </div>
 
-                <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: auto; border: 1px solid #f8c400;">
-                    <h4 style="color: #f8c400; margin: 0 0 15px 0;">Add New Screen</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                        <input type="text" id="newSmartScreenName" placeholder="Screen Name">
-                        <input type="text" id="newSmartScreenLink" placeholder="Link (optional)">
-                    </div>
-                    <input type="text" id="newSmartScreenCaption" placeholder="Caption text" style="margin-bottom: 10px;">
-                    <input type="text" id="newSmartScreenTriggers" placeholder="Trigger Phrases (comma separated)" style="margin-bottom: 10px;">
-                    
-                    <label style="font-size: 0.8rem; margin-bottom: 5px;">Upload Image</label>
-                    <input type="file" id="smartScreenImageUpload" accept="image/*" style="margin-bottom: 10px;">
-                    
-                    <button class="btn btn-add" onclick="addNewSmartScreen()" style="width:100%">SAVE SCREEN</button>
-                </div>
-            </div>
+    <!-- DISPLAY MODE -->
+    <div class="module-options" style="margin-top: 20px;">
+        <div class="option-row">
+            <label><i class="fas fa-cog"></i> Default Display Mode</label>
+            <select id="smartScreenAction">
+                <option value="showBestMatch" selected>🎯 Show Best Match</option>
+                <option value="showGallery">🖼️ Show Gallery Grid</option>
+                <option value="rotate">🔄 Rotating Spotlight</option>
+            </select>
+        </div>
+    </div>
+</div>
 
-            <!-- ===== MODULE 6: WEBSITE INFO CENTER ===== -->
+            <!-- ===== MODULE 5: WEBSITE INFO CENTER ===== -->
             <div class="module-card">
                 <div class="module-header">
                     <div class="module-icon"><i class="fas fa-sitemap"></i></div>
@@ -1017,196 +1208,378 @@
                     </div>
                 </div>
 
-                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                    <div style="margin-bottom: 20px;">
-                        <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
-                            <i class="fas fa-bullhorn"></i> TRIGGER PHRASES
-                        </label>
-                        <textarea id="websiteTriggerPhrases" rows="4" placeholder="sitemap, navigation, help, find page" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: white;"></textarea>
+                <div class="trigger-section">
+                    <div class="trigger-header">
+                        <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
+                        <span class="preset-badge"><i class="fas fa-robot"></i> PRESET</span>
                     </div>
+                    <div class="custom-trigger-add">
+                        <input type="text" id="newWebsiteTrigger" placeholder="Add custom trigger phrase...">
+                        <button class="btn-add" onclick="addCustomTrigger('website')"><i class="fas fa-plus"></i> Add</button>
+                    </div>
+                </div>
 
-                    <div class="module-options">
-                        <div class="field">
-                            <label><i class="fas fa-info-circle"></i> Info Type</label>
-                            <select id="websiteInfoType">
-                                <option value="navigation" selected>🧭 Page Navigation</option>
-                                <option value="faq">❓ FAQ/Information</option>
-                                <option value="links">🔗 Direct Links</option>
-                            </select>
-                        </div>
-                        <div class="field">
-                            <label><i class="fas fa-play"></i> Action</label>
-                            <select id="websiteAction">
-                                <option value="showSmartNavigation" selected>🧠 Show Smart Navigation</option>
-                                <option value="showRelevantLinks">🔗 Show Relevant Links</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- END OF GRID 3 -->
-
-        <!-- ===== COMMUNICATION CENTER MODULE (FULL WIDTH) ===== -->
-        <div class="module-section" id="module-communicationCenter" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); padding: 24px; margin-bottom: 24px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 28px;">📬</span>
-                    <h2 style="margin: 0; color: #f8c400; font-size: 1.4rem;">Communication Center</h2>
-                </div>
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <span style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">Enable</span>
-                    <input type="checkbox" id="commsEnabled" checked style="width: 20px; height: 20px; cursor: pointer;">
-                </label>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
-                <!-- Left Column -->
-                <div>
-                    <h3 style="color: white; font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
-                        <i class="fas fa-address-card" style="margin-right: 8px; color: #f8c400;"></i>Agency Contact Info
-                    </h3>
-                    <div class="field">
-                        <label>Client Email</label>
-                        <input type="email" id="clientEmail" value="mobilewise.ai@gmail.com">
-                    </div>
-                    <div class="field">
-                        <label>Support Phone</label>
-                        <input type="tel" id="supportPhone" value="949-228-5263">
-                    </div>
-                </div>
-                
-                <!-- Right Column -->
-                <div>
-                    <h3 style="color: white; font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
-                        <i class="fas fa-bullhorn" style="margin-right: 8px; color: #f8c400;"></i>Trigger Phrases
-                    </h3>
-                    <div class="field">
-                        <label>Email Triggers</label>
-                        <textarea id="emailTriggers" rows="3">send the confirmation, email me, send that over</textarea>
-                    </div>
-                    <div class="field">
-                        <label>Phone Connect Triggers</label>
-                        <textarea id="phoneTriggers" rows="3">call me, speak to someone, phone call</textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-         <!-- ===== MODULE 7: PRE-QUALIFICATION ===== -->
-        <div class="module-grid">
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon"><i class="fas fa-clipboard-list"></i></div>
-                    <div class="module-title">
-                        <h2>📋 Pre-Qualification</h2>
-                        <p>Configure interview settings</p>
-                    </div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <label style="display: flex; align-items: center; gap: 10px;">
-                        <input type="checkbox" id="preQualEnabled" checked> Enable Pre-Qualification
-                    </label>
-                    <div class="field">
-                        <label>Knowledge Base Script</label>
-                        <select id="preQualKnowledgeBase">
-                            <option value="mortgage" selected>🏠 Mortgage Script</option>
-                            <option value="legal">⚖️ Personal Injury Script</option>
-                            <option value="tax">📋 Tax Resolution Script</option>
+                <div class="module-options">
+                    <div class="option-row">
+                        <label><i class="fas fa-info-circle"></i> Info Type</label>
+                        <select id="websiteInfoType">
+                            <option value="navigation" selected>🧭 Page Navigation</option>
+                            <option value="faq">❓ FAQ/Information</option>
+                            <option value="links">🔗 Direct Links</option>
+                            <option value="sitemap">🗺️ Site Map</option>
                         </select>
                     </div>
-                    <div class="field">
-                        <label>Trigger Phrase</label>
-                        <input type="text" id="preQualTriggerPhrase" value="Let's get you pre-qualified">
-                    </div>
-                </div>
-            </div>
-
-             <!-- ===== MODULE 8: KNOWLEDGE BASE SCRIPTS ===== -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon"><i class="fas fa-book-open"></i></div>
-                    <div class="module-title">
-                        <h2>📚 Knowledge Base Scripts</h2>
-                        <p>Upload and manage conversation scripts</p>
-                    </div>
-                </div>
-                <div>
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px;">
-                        <div class="field">
-                            <label>Select Industry</label>
-                            <select id="kbIndustrySelect">
-                                <option value="mortgage">🏠 Mortgage</option>
-                                <option value="legal">⚖️ Personal Injury</option>
-                                <option value="tax">📋 Tax Resolution</option>
-                                <option value="dental">🦷 Dental</option>
-                            </select>
-                        </div>
-                        <div style="display: flex; align-items: flex-end;">
-                            <button class="btn btn-add" onclick="document.getElementById('scriptFileInput').click()" style="width:100%;">
-                                <i class="fas fa-upload"></i> Upload Script
-                            </button>
-                            <input type="file" id="scriptFileInput" accept=".html,.htm" style="display: none;">
-                        </div>
-                    </div>
-                    
-                    <div id="parsedFieldsPreview" style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px;">
-                        <h4 style="color: #f8c400; margin-top:0; font-size: 1rem;">Extracted Fields</h4>
-                        <div id="fieldsList" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
-                            <span style="color: #aaa; font-size: 0.85rem;">No script uploaded</span>
-                        </div>
+                    <div class="option-row">
+                        <label><i class="fas fa-play"></i> Action</label>
+                        <select id="websiteAction">
+                            <option value="showSmartNavigation" selected>🧠 Show Smart Navigation</option>
+                            <option value="showRelevantLinks">🔗 Show Relevant Links</option>
+                            <option value="displayFAQ">📋 Display FAQ Section</option>
+                        </select>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ===== DEPLOYMENT SECTION ===== -->
-        <div style="margin-top: 40px; width: 100%;">
-            <div style="background: rgba(12, 25, 45, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 28px; width: 100%;">
-                
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px; flex-wrap: wrap;">
-                    <i class="fas fa-download" style="color: #f8c400; font-size: 1.8rem;"></i>
-                    <h2 style="color: #f8c400; font-size: 1.8rem; margin: 0;">DEPLOYMENT PACKAGE</h2>
-                    <button onclick="exportBridgeOnly()" class="btn" style="background: linear-gradient(145deg, #9c27b0, #7b1fa2); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; margin-left: auto;">
-                        <i class="fas fa-code"></i> Export Bridge Only
-                    </button>
-                </div>
-                
-                <div style="background: linear-gradient(145deg, rgba(248,196,0,0.1), rgba(0,0,0,0.2)); border: 1px solid #f8c400; border-radius: 20px; padding: 30px; margin-bottom: 30px;">
-                    <h3 style="color: #f8c400; margin-top: 0;">Complete Deployment Package</h3>
-                    <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;">Generate everything you need in one click: Supabase CSV + Client Bridge File + Installation Guide</p>
-                    
-                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                        <button onclick="generateDeploymentPackage()" class="btn" style="background: linear-gradient(145deg, #f8c400, #e0b000); color: #0a0f1e; padding: 16px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold;">
-                            <i class="fas fa-download"></i> Generate Complete Package
-                        </button>
-                        <button onclick="previewDeploymentPackage()" class="btn" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 16px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold;">
-                            <i class="fas fa-eye"></i> Preview Package
-                        </button>
-                    </div>
-                </div>
-
-                <div style="background: rgba(0,0,0,0.2); border: 1px solid #f8c400; border-radius: 20px; padding: 25px;">
-                    <h3 style="color: #f8c400; margin-top: 0; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-sliders-h"></i> Remote Control
-                    </h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                        <button onclick="controlTCS('enableAuto')" class="btn" style="background: #00c853; color: white; justify-content: center;">Enable Auto Trigger</button>
-                        <button onclick="controlTCS('disableAuto')" class="btn" style="background: #f44336; color: white; justify-content: center;">Disable Auto Trigger</button>
-                        <button onclick="controlTCS('openTCS')" class="btn" style="background: #f8c400; color: black; justify-content: center;">Open TCS</button>
-                        <button onclick="controlTCS('closeTCS')" class="btn" style="background: #6c757d; color: white; justify-content: center;">Close TCS</button>
-                    </div>
-                </div>
+        <!-- ===== COMMUNICATION CENTER MODULE ===== -->
+<div class="module-section" id="module-communicationCenter" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); padding: 24px; margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">📬</span>
+            <h2 style="margin: 0; color: #f8c400; font-size: 1.4rem;">Communication Center</h2>
+        </div>
+        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <span style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">Enable</span>
+            <input type="checkbox" id="commsEnabled" checked style="width: 20px; height: 20px; cursor: pointer;">
+        </label>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        
+        <!-- Left Column: Contact Info -->
+        <div>
+            <h3 style="color: white; font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <i class="fas fa-address-card" style="margin-right: 8px; color: #f8c400;"></i>
+                Agency Contact Info
+            </h3>
+            
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-envelope" style="margin-right: 6px;"></i>Client Email (where leads go)
+                </label>
+                <input type="email" id="clientEmail" value="mobilewise.ai@gmail.com" 
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;"
+                       placeholder="agency@example.com">
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Lead notifications will be sent here</span>
             </div>
             
-            <div style="margin-top: 20px; text-align: right;">
-                <button onclick="configManager.saveConfiguration()" class="btn" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
-                    <i class="fas fa-save"></i> Save Config
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-phone-alt" style="margin-right: 6px;"></i>Support Phone
+                </label>
+                <input type="tel" id="supportPhone" value="949-228-5263" 
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;"
+                       placeholder="800-555-1234">
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Used for "call me" triggers</span>
+            </div>
+        </div>
+        
+        <!-- Right Column: Trigger Phrases -->
+        <div>
+            <h3 style="color: white; font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <i class="fas fa-bullhorn" style="margin-right: 8px; color: #f8c400;"></i>
+                Trigger Phrases
+            </h3>
+            
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-tag" style="margin-right: 6px;"></i>Email Triggers
+                </label>
+                <textarea id="emailTriggers" rows="3"
+                          style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.9rem; resize: vertical;"
+                          placeholder="Enter phrases separated by commas">send the confirmation, email me, send that over, email it to me, send the email</textarea>
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">When Tess hears these, email is sent</span>
+            </div>
+            
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-tag" style="margin-right: 6px;"></i>Phone Connect Triggers
+                </label>
+                <textarea id="phoneTriggers" rows="3"
+                          style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.9rem; resize: vertical;"
+                          placeholder="Enter phrases separated by commas">call me, speak to someone, phone call, talk to a person, speak with a human</textarea>
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">When Tess hears these, phone dialer opens</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Preview Badge -->
+    <div style="margin-top: 20px; padding: 12px 16px; background: rgba(248,196,0,0.08); border-radius: 10px; border-left: 3px solid #f8c400;">
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+            <span style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+                <i class="fas fa-info-circle" style="margin-right: 6px;"></i>Active Triggers Preview:
+            </span>
+            <span style="background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; color: #a0c8ff; font-size: 0.8rem;" id="emailTriggersPreview">
+                "send the confirmation", "email me"...
+            </span>
+            <span style="background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; color: #a0c8ff; font-size: 0.8rem;" id="phoneTriggersPreview">
+                "call me", "speak to someone"...
+            </span>
+        </div>
+    </div>
+</div>
+
+         <!-- ===== MODULE 6: PRE-QUALIFICATION INTERVIEW ===== -->
+<div class="module-card">
+    <div class="module-header">
+        <div class="module-icon"><i class="fas fa-clipboard-list"></i></div>
+        <div class="module-title">
+            <h2>📋 Pre-Qualification</h2>
+            <p>Configure interview settings</p>
+        </div>
+    </div>
+
+    <!-- Enable/Disable -->
+    <div style="margin-bottom: 20px;">
+        <label style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="preQualEnabled" checked>
+            <span>Enable Pre-Qualification</span>
+        </label>
+    </div>
+
+    <!-- Knowledge Base Selection -->
+    <div class="field" style="margin-bottom: 20px;">
+        <label><i class="fas fa-book"></i> Knowledge Base Script</label>
+        <select id="preQualKnowledgeBase">
+            <option value="mortgage">🏠 Mortgage Script</option>
+            <option value="legal">⚖️ Personal Injury Script</option>
+            <option value="tax">📋 Tax Resolution Script</option>
+            <option value="dental">🦷 Dental Script</option>
+        </select>
+        <p style="color: #aaa; font-size:0.8rem;">Select which conversation flow to use</p>
+    </div>
+
+    <!-- Trigger Phrase -->
+    <div class="field" style="margin-bottom: 20px;">
+        <label><i class="fas fa-key"></i> Trigger Phrase</label>
+        <input type="text" id="preQualTriggerPhrase" value="Let's get you pre-qualified">
+    </div>
+
+    <!-- Email Template -->
+    <div style="border-top: 2px solid rgba(248,196,0,0.2); padding-top: 20px;">
+        <h4 style="color: #f8c400;"><i class="fas fa-envelope"></i> Email Template</h4>
+        
+        <div class="field" style="margin-bottom: 15px;">
+            <label>Subject</label>
+            <input type="text" id="emailSubject" value="New Lead: {{name}}">
+        </div>
+        
+        <div class="field">
+            <label>Template</label>
+            <textarea id="emailTemplate" rows="8" style="width:100%; background:rgba(0,0,0,0.3); color:white; padding:12px;">New Lead
+----------------
+Name: {{name}}
+Email: {{email}}
+Phone: {{phone}}
+Loan Purpose: {{loan_purpose}}
+Property Value: {{property_value}}
+Down Payment: {{down_payment}}
+Credit Score: {{credit_score}}
+Income: {{annual_income}}
+
+Full Transcript:
+{{transcript}}</textarea>
+        </div>
+    </div>
+
+      <!-- ===== MODULE 7: KNOWLEDGE BASE SCRIPTS ===== -->
+<div class="module-card">
+    <div class="module-header">
+        <div class="module-icon"><i class="fas fa-book-open"></i></div>
+        <div class="module-title">
+            <h2>📚 Knowledge Base Scripts</h2>
+            <p>Upload and manage conversation scripts</p>
+        </div>
+    </div>
+
+    <!-- Industry Selector -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <div class="field">
+            <label><i class="fas fa-industry"></i> Select Industry</label>
+            <select id="kbIndustrySelect" onchange="loadKnowledgeBaseScript()">
+                <option value="mortgage">🏠 Mortgage</option>
+                <option value="legal">⚖️ Personal Injury</option>
+                <option value="tax">📋 Tax Resolution</option>
+                <option value="dental">🦷 Dental</option>
+            </select>
+        </div>
+        <div style="display: flex; align-items: flex-end;">
+            <button class="btn-add" onclick="document.getElementById('scriptFileInput').click()" style="width:100%;">
+                <i class="fas fa-upload"></i> Upload Script
+            </button>
+        </div>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input type="file" id="scriptFileInput" accept=".html,.htm" style="display: none;" onchange="handleScriptUpload(this)">
+
+    <!-- Upload Status -->
+    <div id="uploadStatus" style="display: none; margin-bottom: 20px; padding: 15px; border-radius: 8px; background: #4CAF50; color: white; text-align: center;">
+        <i class="fas fa-check-circle"></i> File uploaded successfully!
+    </div>
+
+    <!-- Current Script Info -->
+    <div id="scriptInfo" style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h4 style="color: #f8c400; margin:0;">Current Script</h4>
+                <p id="currentScriptName" style="color: white; margin:5px 0 0 0;">No script uploaded</p>
+            </div>
+            <span id="scriptDate" style="color: #aaa; font-size:0.85rem;"></span>
+        </div>
+    </div>
+
+    <!-- Editable Questions Container - THIS WAS MISSING! -->
+    <div style="margin-top: 20px;">
+        <h4 style="color: #f8c400;">Editable Interview Steps</h4>
+        <div id="interviewQuestionsContainer" style="min-height: 100px; background: rgba(0,0,0,0.1); border-radius: 8px; padding: 15px;">
+            <!-- Questions will appear here after upload -->
+        </div>
+    </div>
+
+    <!-- Parsed Fields Preview -->
+    <div id="parsedFieldsPreview" style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px; margin-top: 20px;">
+        <h4 style="color: #f8c400; margin-top:0;">Extracted Fields</h4>
+        <div id="fieldsList" style="display: flex; flex-wrap: wrap; gap: 10px; min-height: 50px;">
+            <span style="color: #aaa;">Upload a script to see extracted fields</span>
+        </div>
+        <p style="color: #aaa; font-size:0.8rem; margin-top:15px;">
+            <i class="fas fa-info-circle"></i> These fields will be available for your email template
+        </p>
+    </div>
+</div>
+
+
+      <!-- ===== DEPLOYMENT PACKAGE SECTION ===== -->
+<div style="margin-top: 40px; width: 100%;">
+    <div style="background: rgba(12, 25, 45, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 28px; width: 100%;">
+        
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
+            <i class="fas fa-download" style="color: #f8c400; font-size: 1.8rem;"></i>
+            <h2 style="color: #f8c400; font-size: 1.8rem; margin: 0;">DEPLOYMENT PACKAGE</h2>
+            <button onclick="exportBridgeOnly()" style="background: linear-gradient(145deg, #9c27b0, #7b1fa2); color: white; border: none; padding: 16px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 10px; cursor: pointer; box-shadow: 0 10px 25px -5px rgba(156,39,176,0.3); min-width: 180px; justify-content: center;">
+    <i class="fas fa-code"></i> Export Bridge Only
+</button>
+        </div>
+        
+               <!-- Main Deployment Card -->
+        <div style="background: linear-gradient(145deg, rgba(248,196,0,0.1), rgba(0,0,0,0.2)); border: 1px solid #f8c400; border-radius: 20px; padding: 30px; margin-bottom: 30px; width: 100%;">
+            <h3 style="color: #f8c400; font-size: 1.5rem; margin-top: 0; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-rocket"></i> Complete Deployment Package
+            </h3>
+            <p style="color: rgba(255,255,255,0.8); font-size: 1.1rem; margin-bottom: 30px;">
+                Generate everything you need in one click: Supabase CSV + Client Bridge File + Installation Guide
+            </p>
+            
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+                <button onclick="configManager.generateDeploymentPackage()" style="background: linear-gradient(145deg, #f8c400, #e0b000); color: #0a0f1e; border: none; padding: 18px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; gap: 12px; cursor: pointer; box-shadow: 0 10px 25px -5px rgba(248,196,0,0.3);">
+                    <i class="fas fa-download"></i> Generate Complete Package
                 </button>
+                <button onclick="previewDeploymentPackage()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 18px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                    <i class="fas fa-eye"></i> Preview Package
+                </button>
+            </div>
+            
+            <!-- NEW: Client Test Button Row -->
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; border-top: 1px solid rgba(248,196,0,0.2); padding-top: 25px;">
+                <button onclick="generateClientTest()" style="background: linear-gradient(145deg, #00c853, #00a844); color: white; border: none; padding: 16px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 12px; cursor: pointer; box-shadow: 0 10px 25px -5px rgba(0,200,0,0.3); flex: 1; justify-content: center;">
+                    <i class="fas fa-flask"></i> 🧪 Generate Client Test (Screenshot + Bridge)
+                </button>
+                <button onclick="showTestingInstructions()" style="background: rgba(255,255,255,0.05); color: #f8c400; border: 1px solid #f8c400; padding: 16px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 0.5; justify-content: center;">
+                    <i class="fas fa-question-circle"></i> How to Test
+                </button>
+            </div>
+            
+            <!-- Testing Instructions (Hidden by default) -->
+            <div id="testingInstructions" style="display: none; margin-top: 20px; background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; border-left: 4px solid #00c853;">
+                <h4 style="color: #00c853; margin-bottom: 10px;"><i class="fas fa-flask"></i> How to Test Your Client's Bridge</h4>
+                <ol style="color: rgba(255,255,255,0.9); margin-left: 20px; line-height: 1.8;">
+                    <li><strong>Click "Generate Client Test"</strong> above</li>
+                    <li><strong>Upload a screenshot</strong> of the client's website when prompted</li>
+                    <li><strong>Two files will download:</strong> bridge-client.js and test-client.html</li>
+                    <li><strong>Upload both files to Netlify</strong> (rename test file to index.html)</li>
+                    <li><strong>Open the Netlify URL</strong> — you'll see their website screenshot with your splash screen overlaid</li>
+                    <li><strong>Test all buttons:</strong> "Get AI help" and "Just Browsing"</li>
+                    <li><strong>Send the Netlify link</strong> to your client for approval</li>
+                </ol>
+                <p style="color: #f8c400; margin-top: 10px; font-size: 0.9rem;">
+                    <i class="fas fa-lightbulb"></i> Once approved, send the bridge file to your client for production installation.
+                </p>
             </div>
         </div>
 
+        <!-- Action Buttons Row -->
+        <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
+            <button onclick="configManager.saveConfiguration()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 16px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 180px; justify-content: center;">
+                <i class="fas fa-save"></i> Save Config
+            </button>
+        </div>
+
+        <!-- Remote Control Section -->
+        <div style="background: rgba(0,0,0,0.2); border: 1px solid #f8c400; border-radius: 20px; padding: 25px; width: 100%;">
+            <h3 style="color: #f8c400; font-size: 1.4rem; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-sliders-h"></i> Remote Control
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <button onclick="controlTCS('enableAuto')" style="background: #00c853; color: white; border: none; padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%; justify-content: center;">
+                    <i class="fas fa-check-circle"></i> Enable Auto Trigger
+                </button>
+                
+                <button onclick="controlTCS('disableAuto')" style="background: #f44336; color: white; border: none; padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%; justify-content: center;">
+                    <i class="fas fa-ban"></i> Disable Auto Trigger
+                </button>
+                
+                <button onclick="controlTCS('openTCS')" style="background: #f8c400; color: black; border: none; padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%; justify-content: center;">
+                    <i class="fas fa-external-link-alt"></i> Open TCS
+                </button>
+                
+                <button onclick="controlTCS('closeTCS')" style="background: #6c757d; color: white; border: none; padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%; justify-content: center;">
+                    <i class="fas fa-times-circle"></i> Close TCS
+                </button>
+                
+                <button onclick="controlTCS('toggleOverlays', true)" style="background: #ff9800; color: white; border: none; padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%; justify-content: center;">
+                    <i class="fas fa-eye-slash"></i> Disable Overlays
+                </button>
+                
+                <button onclick="controlTCS('toggleOverlays', false)" style="background: #00c853; color: white; border: none; padding: 14px 16px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%; justify-content: center;">
+                    <i class="fas fa-eye"></i> Enable Overlays
+                </button>
+            </div>
+            
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-top: 15px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <i class="fas fa-info-circle"></i> Remote control affects the client page where the bridge is installed
+            </p>
+        </div>
     </div>
+</div>
+
+    <!-- PREVIEW SECTION (optional, shows what will be generated) -->
+    <div class="export-grid" style="margin-top: 20px; display: none;" id="previewSection">
+        <div class="export-card">
+            <h4><i class="fas fa-database"></i> Supabase Config Preview</h4>
+            <div class="bridge-preview" id="csvPreview">client_id,config_json,industry,updated_at</div>
+        </div>
+        <div class="export-card">
+            <h4><i class="fas fa-code"></i> Bridge File Preview</h4>
+            <div class="bridge-preview" id="bridgePreview">// Botemia Bridge with embedded config</div>
+        </div>
+        <div class="export-card">
+            <h4><i class="fas fa-file-alt"></i> Installation Guide</h4>
+            <div class="bridge-preview" id="guidePreview">1. Upload bridge.js to your server...</div>
+        </div>
+    </div>
+</div>
 
 <script>
 
