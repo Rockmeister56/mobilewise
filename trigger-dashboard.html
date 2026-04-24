@@ -1061,129 +1061,124 @@
     </div>
 </div>
 
-           <!-- ===== MODULE 4: SMART SCREEN (REDESIGNED) ===== -->
+          <!-- ===== SMART SCREEN MODULE (MULTI-SCREEN + FULL STYLING) ===== -->
 <div class="module-card">
     <div class="module-header">
         <div class="module-icon"><i class="fas fa-images"></i></div>
         <div class="module-title">
             <h2>📸 Smart Screens</h2>
-            <p>Each screen has its own image, caption, link, and trigger phrases</p>
+            <p>Each screen has its own image, caption, link, trigger phrases, and custom styling</p>
         </div>
     </div>
 
-    <!-- GLOBAL TRIGGERS REMOVED — each screen has its own -->
-
-    <!-- SMART SCREEN LIST (SCROLLABLE) -->
+    <!-- EXISTING SCREENS LIST (SCROLLABLE) -->
     <div style="margin-bottom: 20px; max-height: 400px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; background: rgba(0,0,0,0.15);" id="smartScreenList">
-        <!-- Screens will be dynamically populated here -->
         <div style="text-align: center; padding: 30px; color: rgba(255,255,255,0.3);" id="smartScreenEmptyState">
             <i class="fas fa-plus-circle" style="font-size: 3rem; margin-bottom: 10px;"></i>
             <p>No smart screens yet. Add your first one below.</p>
         </div>
     </div>
 
-   <!-- ADD NEW SMART SCREEN FORM -->
-<div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
-    <h3 style="color: #f8c400; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-        <i class="fas fa-plus-circle"></i> Add New Smart Screen
-    </h3>
+    <!-- ADD NEW SMART SCREEN FORM -->
+    <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
+        <h3 style="color: #f8c400; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-plus-circle"></i> Add New Smart Screen
+        </h3>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <div>
-            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📛 Screen Name</label>
-            <input type="text" id="newSmartScreenName" placeholder="e.g., Sarah's Success" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-        <div style="margin-bottom: 15px;">
-    <label style="display: flex; align-items: center; gap: 10px; color: #a0c8ff;">
-        <input type="checkbox" id="newSmartScreenShowTitle" checked> Show title on smart screen
-    </label>
-</div>
-        <div>
-            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔗 Optional Link</label>
-            <input type="text" id="newSmartScreenLink" placeholder="https://..." style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-        </div>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📝 Caption</label>
-        <input type="text" id="newSmartScreenCaption" placeholder="e.g., 580 credit → closed FHA 3.5% down" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-    </div>
-
-    <!-- IMAGE UPLOAD -->
-    <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px; border: 1px dashed #f8c400;">
-        <label style="color: #f8c400; font-size: 0.9rem; display: block; margin-bottom: 10px;">
-            <i class="fas fa-cloud-upload-alt"></i> Upload Image (recommended: 600px × 400px, max 2MB)
-        </label>
-        <input type="file" id="smartScreenImageUpload" accept="image/*" style="color: white; margin-bottom: 10px;">
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="text" id="newSmartScreenImageUrl" placeholder="Or enter CDN URL directly" style="flex:1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-            <span style="color: rgba(255,255,255,0.4); font-size:0.8rem;">OR</span>
-        </div>
-    </div>
-
-    <!-- NEW STYLING CONTROLS -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <!-- Image Size Control -->
-        <div>
-            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📏 Image Size</label>
-            <select id="newSmartScreenSize" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-                <option value="300px">Small (300px)</option>
-                <option value="400px" selected>Medium (400px)</option>
-                <option value="500px">Large (500px)</option>
-                <option value="600px">X-Large (600px)</option>
-                <option value="full">Full Width</option>
-            </select>
-        </div>
-
-        <!-- Card Background Color with Transparency -->
-        <div>
-            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎨 Card Background</label>
-            <select id="newSmartScreenBgColor" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-                <option value="white" selected>White</option>
-                <option value="rgba(0,0,0,0.85)">Black (85% opaque)</option>
-                <option value="rgba(0,0,0,0.7)">Black (70% opaque)</option>
-                <option value="rgba(0,0,0,0.5)">Black (50% semi-transparent)</option>
-                <option value="rgba(0,0,0,0.3)">Black (30% light)</option>
-                <option value="rgba(255,255,255,0.9)">White (90% opaque)</option>
-                <option value="rgba(255,255,255,0.7)">White (70% semi-transparent)</option>
-            </select>
-        </div>
-    </div>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <!-- Backdrop Darkness Control -->
-        <div>
-            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔲 Backdrop Darkness</label>
-            <select id="newSmartScreenBackdrop" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-                <option value="0.3">Light (30%)</option>
-                <option value="0.5" selected>Medium (50%)</option>
-                <option value="0.7">Dark (70%)</option>
-                <option value="0.9">Very Dark (90%)</option>
-            </select>
-        </div>
-
-        <!-- Optional Title Toggle -->
-        <div>
-            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📌 Title Display</label>
-            <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px;">
-                <input type="checkbox" id="newSmartScreenShowTitle" checked style="width: 18px; height: 18px;">
-                <label for="newSmartScreenShowTitle" style="color: white; font-size: 0.9rem;">Show title on screen</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📛 Screen Name</label>
+                <input type="text" id="newSmartScreenName" placeholder="e.g., Sarah's Success" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+            </div>
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔗 Optional Link</label>
+                <input type="text" id="newSmartScreenLink" placeholder="https://..." style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
             </div>
         </div>
-    </div>
 
-    <!-- TRIGGER PHRASES (per screen) -->
-    <div style="margin-bottom: 15px;">
-        <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
-            <i class="fas fa-bullhorn"></i> Trigger Phrases (comma separated) — unique to this screen
-        </label>
-        <textarea id="newSmartScreenTriggers" class="trigger-textarea" placeholder="e.g., sarah, 580, bad credit, fha" style="min-height: 60px; width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white; font-family: monospace;"></textarea>
-    </div>
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📝 Caption</label>
+            <input type="text" id="newSmartScreenCaption" placeholder="e.g., 580 credit → closed FHA 3.5% down" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
 
-    <button class="btn-add" onclick="addNewSmartScreen()" style="width: 100%; padding: 16px; font-size: 1.1rem;">
-        <i class="fas fa-save"></i> SAVE THIS SMART SCREEN
-    </button>
+       <!-- IMAGE UPLOAD -->
+<div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px; border: 1px dashed #f8c400;">
+    <label style="color: #f8c400; font-size: 0.9rem; display: block; margin-bottom: 10px;">
+        <i class="fas fa-cloud-upload-alt"></i> Upload Image (recommended: 600px × 400px, max 2MB)
+    </label>
+    <input type="file" id="smartScreenImageUpload" accept="image/*" style="color: white; margin-bottom: 10px;">
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" id="newSmartScreenImageUrl" placeholder="Or enter CDN URL directly" style="flex:1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        <span style="color: rgba(255,255,255,0.4); font-size:0.8rem;">OR</span>
+    </div>
+    <!-- 👇 BONUS HELPER TEXT 👇 -->
+    <p style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 10px;">
+        📁 Upload to: <code style="background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 4px; color: #f8c400;">
+        /clients/<span id="smartScreenClientPath">mortgage-assist-demo</span>/smart-screens/</code><br>
+        Paste the full public URL above. Recommended: 600-800px wide, WebP or JPG, under 500KB.
+    </p>
+    <!-- 👆 END BONUS HELPER TEXT 👆 -->
 </div>
+    <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📏 Image Size</label>
+    <select id="newSmartScreenSize" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        <option value="auto" selected>Auto (Image Default)</option>
+        <option value="300px">Small (300px)</option>
+        <option value="400px">Medium (400px)</option>
+        <option value="500px">Large (500px)</option>
+        <option value="600px">X-Large (600px)</option>
+        <option value="800px">Maximum (800px)</option>
+        <option value="full">Full Width</option>
+    </select>
+    <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 5px;">
+        "Auto" uses the image's natural size. Set a specific width to override.
+    </p>
+</div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎨 Card Background</label>
+                <select id="newSmartScreenBgColor" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                    <option value="white" selected>White</option>
+                    <option value="rgba(0,0,0,0.85)">Black (85% opaque)</option>
+                    <option value="rgba(0,0,0,0.7)">Black (70% opaque)</option>
+                    <option value="rgba(0,0,0,0.5)">Black (50% semi-transparent)</option>
+                    <option value="rgba(0,0,0,0.3)">Black (30% light)</option>
+                    <option value="rgba(255,255,255,0.9)">White (90% opaque)</option>
+                    <option value="rgba(255,255,255,0.7)">White (70% semi-transparent)</option>
+                </select>
+            </div>
+        </div>
 
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔲 Backdrop Darkness</label>
+                <select id="newSmartScreenBackdrop" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                    <option value="0.3">Light (30%)</option>
+                    <option value="0.5" selected>Medium (50%)</option>
+                    <option value="0.7">Dark (70%)</option>
+                    <option value="0.9">Very Dark (90%)</option>
+                </select>
+            </div>
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📌 Title Display</label>
+                <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px;">
+                    <input type="checkbox" id="newSmartScreenShowTitle" checked style="width: 18px; height: 18px;">
+                    <label for="newSmartScreenShowTitle" style="color: white; font-size: 0.9rem;">Show title on screen</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRIGGER PHRASES -->
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
+                <i class="fas fa-bullhorn"></i> Trigger Phrases (comma separated) — unique to this screen
+            </label>
+            <textarea id="newSmartScreenTriggers" class="trigger-textarea" placeholder="e.g., sarah, 580, bad credit, fha" style="min-height: 60px; width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white; font-family: monospace;"></textarea>
+        </div>
+
+        <button class="btn-add" onclick="addNewSmartScreen()" style="width: 100%; padding: 16px; font-size: 1.1rem;">
+            <i class="fas fa-save"></i> SAVE THIS SMART SCREEN
+        </button>
+    </div>
+
+    <!-- DISPLAY MODE -->
     <div class="module-options" style="margin-top: 20px;">
         <div class="option-row">
             <label><i class="fas fa-cog"></i> Default Display Mode</label>
@@ -3235,79 +3230,146 @@ Contact: support@botemia.com`;
             container.innerHTML = html;
         }
 
-        function addNewSmartScreen() {
-            const name = document.getElementById('newSmartScreenName')?.value.trim();
-            const link = document.getElementById('newSmartScreenLink')?.value.trim();
-            const caption = document.getElementById('newSmartScreenCaption')?.value.trim();
-            const imageUrl = document.getElementById('newSmartScreenImageUrl')?.value.trim();
-            const triggersRaw = document.getElementById('newSmartScreenTriggers')?.value.trim();
-            const fileInput = document.getElementById('smartScreenImageUpload');
-            
-            const imageSize = document.getElementById('newSmartScreenSize')?.value || '400px';
-            const bgColor = document.getElementById('newSmartScreenBgColor')?.value || 'white';
-            const backdropOpacity = parseFloat(document.getElementById('newSmartScreenBackdrop')?.value || '0.5');
-            const showTitle = document.getElementById('newSmartScreenShowTitle')?.checked || true;
-            const borderColor = document.getElementById('newSmartScreenBorderColor')?.value || '#f8c400';
-            
-            if (!name) { alert('Please enter a screen name'); return; }
-            if (!imageUrl && (!fileInput || fileInput.files.length === 0)) { alert('Please provide an image'); return; }
-            
-            const triggerMatch = triggersRaw.split(',').map(t => t.trim()).filter(t => t);
-            if (triggerMatch.length === 0) { alert('Please enter at least one trigger phrase'); return; }
-            
-            const finalImageUrl = imageUrl || (fileInput.files.length > 0 ? URL.createObjectURL(fileInput.files[0]) : '');
-            
-            const newScreen = {
-                name, link, caption, imageUrl: finalImageUrl, triggerMatch,
-                imageSize, bgColor, backdropOpacity, showTitle, borderColor
-            };
-            
-            let smartScreens = JSON.parse(localStorage.getItem('botemia_smartScreens') || '[]');
-            smartScreens.push(newScreen);
-            localStorage.setItem('botemia_smartScreens', JSON.stringify(smartScreens));
-            
-            renderSmartScreenList();
-            configManager.updateStatus('Smart screen added', 'success');
-        }
+        // ===== SMART SCREEN - COMPLETE MULTI-SCREEN MANAGER =====
 
-        function deleteSmartScreen(index) {
-            if (confirm('Delete this smart screen?')) {
-                smartScreens.splice(index, 1);
-                localStorage.setItem('botemia_smartScreens', JSON.stringify(smartScreens));
-                renderSmartScreenList();
-                configManager.updateStatus('Smart screen deleted', 'success');
-            }
-        }
+// Tracks screens currently displayed in the list
+let savedSmartScreens = [];
 
-        // ===== IMAGE GALLERY ROWS =====
-        let imageRowCounter = 2;
-        function addImageRow() {
-            imageRowCounter++;
-            const container = document.getElementById('imageGalleryContainer');
-            const newRow = document.createElement('div');
-            newRow.className = 'image-row';
-            newRow.id = `imageRow${imageRowCounter}`;
-            newRow.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <span style="color: #f8c400; font-weight: 600;"><i class="fas fa-image"></i> IMAGE ${imageRowCounter}</span>
-                    <button class="btn-remove" onclick="removeImageRow(${imageRowCounter})" style="padding: 6px 16px;">Remove</button>
+// Add a new screen from the form
+function addNewSmartScreen() {
+    const name = document.getElementById('newSmartScreenName').value.trim();
+    const url = document.getElementById('newSmartScreenImageUrl').value.trim();
+    const caption = document.getElementById('newSmartScreenCaption').value.trim();
+    const link = document.getElementById('newSmartScreenLink').value.trim();
+    const triggersRaw = document.getElementById('newSmartScreenTriggers').value;
+    const size = document.getElementById('newSmartScreenSize').value;
+    const bgColor = document.getElementById('newSmartScreenBgColor').value;
+    const backdrop = document.getElementById('newSmartScreenBackdrop').value;
+    const showTitle = document.getElementById('newSmartScreenShowTitle').checked;
+    
+    if (!name && !url) {
+        alert('Please enter at least a screen name or image URL.');
+        return;
+    }
+    
+    const screen = {
+        name,
+        url,
+        caption,
+        link,
+        triggerMatch: triggersRaw.split(',').map(s => s.trim()).filter(s => s),
+        imageSize: size,
+        backgroundColor: bgColor,
+        backdropOpacity: backdrop,
+        showTitle: showTitle
+    };
+    
+    savedSmartScreens.push(screen);
+    renderSmartScreenList();
+    clearSmartScreenForm();
+    updateSmartScreenConfig();
+}
+
+// Render all saved screens in the list
+function renderSmartScreenList() {
+    const list = document.getElementById('smartScreenList');
+    const emptyState = document.getElementById('smartScreenEmptyState');
+    
+    if (savedSmartScreens.length === 0) {
+        list.innerHTML = '';
+        list.appendChild(emptyState);
+        emptyState.style.display = 'block';
+        return;
+    }
+    
+    emptyState.style.display = 'none';
+    
+    list.innerHTML = savedSmartScreens.map((screen, index) => `
+        <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: flex-start; gap: 15px;">
+            <div style="flex: 1;">
+                <h4 style="margin: 0 0 8px 0; color: white; font-size: 1rem;">
+                    ${screen.showTitle !== false ? '📛' : '🖼️'} ${escapeHtml(screen.name) || 'Unnamed Screen'}
+                </h4>
+                <p style="margin: 0 0 6px 0; color: rgba(255,255,255,0.6); font-size: 0.8rem;">
+                    ${escapeHtml(screen.caption || 'No caption')}
+                </p>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+                    ${(screen.triggerMatch || []).map(t => 
+                        `<span style="background: rgba(248,196,0,0.15); color: #f8c400; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem;">${escapeHtml(t)}</span>`
+                    ).join('')}
+                    ${!screen.triggerMatch || screen.triggerMatch.length === 0 ? 
+                        '<span style="color: #f44336; font-size: 0.7rem;">⚠ No triggers set</span>' : ''}
                 </div>
-                <div class="image-row-grid">
-                    <input type="text" placeholder="Image Name" id="img${imageRowCounter}_name">
-                    <input type="text" placeholder="Supabase CDN URL" id="img${imageRowCounter}_url">
-                    <input type="text" placeholder="Caption" id="img${imageRowCounter}_caption">
-                    <input type="text" placeholder="Link URL (optional)" id="img${imageRowCounter}_link">
-                    <input type="text" placeholder="Trigger Match (comma)" id="img${imageRowCounter}_trigger">
+                <div style="margin-top: 8px; font-size: 0.7rem; color: rgba(255,255,255,0.4);">
+                    Size: ${screen.imageSize || '400px'} | BG: ${screen.backgroundColor || 'white'} | Backdrop: ${(screen.backdropOpacity || 0.5) * 100}%
                 </div>
-            `;
-            container.appendChild(newRow);
-            configManager.imageRowCounter = imageRowCounter;
-        }
+            </div>
+            <button onclick="removeSavedSmartScreen(${index})" 
+                    style="background: rgba(244,67,54,0.2); border: 1px solid #f44336; color: #f44336; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; white-space: nowrap;">
+                <i class="fas fa-trash"></i> Remove
+            </button>
+        </div>
+    `).join('');
+}
 
-        function removeImageRow(id) {
-            const row = document.getElementById(`imageRow${id}`);
-            if (row) row.remove();
-        }
+// Remove a saved screen
+function removeSavedSmartScreen(index) {
+    savedSmartScreens.splice(index, 1);
+    renderSmartScreenList();
+    updateSmartScreenConfig();
+}
+
+// Clear the add form
+function clearSmartScreenForm() {
+    document.getElementById('newSmartScreenName').value = '';
+    document.getElementById('newSmartScreenImageUrl').value = '';
+    document.getElementById('newSmartScreenCaption').value = '';
+    document.getElementById('newSmartScreenLink').value = '';
+    document.getElementById('newSmartScreenTriggers').value = '';
+    document.getElementById('newSmartScreenSize').value = '400px';
+    document.getElementById('newSmartScreenBgColor').value = 'white';
+    document.getElementById('newSmartScreenBackdrop').value = '0.5';
+    document.getElementById('newSmartScreenShowTitle').checked = true;
+}
+
+// Update config with current screens
+function updateSmartScreenConfig() {
+    const config = configManager.getCurrentConfig();
+    if (!config.modules) config.modules = {};
+    
+    config.modules.smartScreen = {
+        enabled: true,
+        action: document.getElementById('smartScreenAction')?.value || 'showBestMatch',
+        images: savedSmartScreens
+    };
+    
+    configManager.setCurrentConfig(config);
+}
+
+// Load screens from saved config
+function loadSmartScreens(screens) {
+    savedSmartScreens = screens || [];
+    renderSmartScreenList();
+    
+    // Set display mode
+    const config = configManager.getCurrentConfig();
+    const action = config?.modules?.smartScreen?.action || 'showBestMatch';
+    const actionSelect = document.getElementById('smartScreenAction');
+    if (actionSelect) actionSelect.value = action;
+}
+
+// Helper to escape HTML
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const config = configManager.getCurrentConfig();
+    const screens = config?.modules?.smartScreen?.images || [];
+    loadSmartScreens(screens);
+});
 
         function exportSupabaseCSV() {
             const config = configManager.getCurrentConfig();
