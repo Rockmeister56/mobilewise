@@ -1061,7 +1061,7 @@
     </div>
 </div>
 
-          <!-- ===== SMART SCREEN MODULE (MULTI-SCREEN + FULL STYLING) ===== -->
+ <!-- ===== SMART SCREEN MODULE (MULTI-SCREEN + FULL STYLING) ===== -->
 <div class="module-card">
     <div class="module-header">
         <div class="module-icon"><i class="fas fa-images"></i></div>
@@ -1101,38 +1101,39 @@
             <input type="text" id="newSmartScreenCaption" placeholder="e.g., 580 credit → closed FHA 3.5% down" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
         </div>
 
-       <!-- IMAGE UPLOAD -->
-<div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px; border: 1px dashed #f8c400;">
-    <label style="color: #f8c400; font-size: 0.9rem; display: block; margin-bottom: 10px;">
-        <i class="fas fa-cloud-upload-alt"></i> Upload Image (recommended: 600px × 400px, max 2MB)
-    </label>
-    <input type="file" id="smartScreenImageUpload" accept="image/*" style="color: white; margin-bottom: 10px;">
-    <div style="display: flex; gap: 10px; align-items: center;">
-        <input type="text" id="newSmartScreenImageUrl" placeholder="Or enter CDN URL directly" style="flex:1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-        <span style="color: rgba(255,255,255,0.4); font-size:0.8rem;">OR</span>
-    </div>
-    <!-- 👇 BONUS HELPER TEXT 👇 -->
-    <p style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 10px;">
-        📁 Upload to: <code style="background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 4px; color: #f8c400;">
-        /clients/<span id="smartScreenClientPath">mortgage-assist-demo</span>/smart-screens/</code><br>
-        Paste the full public URL above. Recommended: 600-800px wide, WebP or JPG, under 500KB.
-    </p>
-    <!-- 👆 END BONUS HELPER TEXT 👆 -->
-</div>
-    <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📏 Image Size</label>
-    <select id="newSmartScreenSize" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
-        <option value="auto" selected>Auto (Image Default)</option>
-        <option value="300px">Small (300px)</option>
-        <option value="400px">Medium (400px)</option>
-        <option value="500px">Large (500px)</option>
-        <option value="600px">X-Large (600px)</option>
-        <option value="800px">Maximum (800px)</option>
-        <option value="full">Full Width</option>
-    </select>
-    <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 5px;">
-        "Auto" uses the image's natural size. Set a specific width to override.
-    </p>
-</div>
+        <!-- IMAGE UPLOAD -->
+        <div style="margin-bottom: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px; border: 1px dashed #f8c400;">
+            <label style="color: #f8c400; font-size: 0.9rem; display: block; margin-bottom: 10px;">
+                <i class="fas fa-cloud-upload-alt"></i> Upload Image (recommended: 600px × 400px, max 2MB)
+            </label>
+            <input type="file" id="smartScreenImageUpload" accept="image/*" style="color: white; margin-bottom: 10px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="newSmartScreenImageUrl" placeholder="Or enter CDN URL directly" style="flex:1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                <span style="color: rgba(255,255,255,0.4); font-size:0.8rem;">OR</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 10px;">
+                📁 Upload to: <code style="background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 4px; color: #f8c400;">
+                /clients/<span id="smartScreenClientPath">mortgage-assist-demo</span>/smart-screens/</code><br>
+                Paste the full public URL above. Recommended: 600-800px wide, WebP or JPG, under 500KB.
+            </p>
+        </div>
+
+        <!-- STYLING CONTROLS -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📏 Image Size</label>
+                <select id="newSmartScreenSize" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+                    <option value="auto" selected>Auto (Image Default)</option>
+                    <option value="300px">Small (300px)</option>
+                    <option value="400px">Medium (400px)</option>
+                    <option value="500px">Large (500px)</option>
+                    <option value="600px">X-Large (600px)</option>
+                    <option value="800px">Maximum (800px)</option>
+                    <option value="full">Full Width</option>
+                </select>
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 5px;">"Auto" uses the image's natural size. Set a specific width to override.</p>
+            </div>
+            <div>
                 <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎨 Card Background</label>
                 <select id="newSmartScreenBgColor" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
                     <option value="white" selected>White</option>
@@ -1177,6 +1178,7 @@
             <i class="fas fa-save"></i> SAVE THIS SMART SCREEN
         </button>
     </div>
+    <!-- END ADD NEW SMART SCREEN FORM -->
 
     <!-- DISPLAY MODE -->
     <div class="module-options" style="margin-top: 20px;">
@@ -1190,6 +1192,7 @@
         </div>
     </div>
 </div>
+<!-- END SMART SCREEN MODULE -->
 
             <!-- ===== MODULE 5: WEBSITE INFO CENTER ===== -->
             <div class="module-card">
