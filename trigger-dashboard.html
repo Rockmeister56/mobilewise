@@ -4175,6 +4175,16 @@ function openTCS_ControlPanel() {
     }
 }
 
+function showSaveToast(message) {
+    const toast = document.getElementById('saveToast');
+    const details = document.getElementById('saveDetails');
+    if (details) details.textContent = message || 'Bridge exported successfully!';
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+}
+
 // ===== VIDEO URL PREVIEW FUNCTION =====
 function setupVideoPreview() {
     const videoUrlInput = document.getElementById('splashTessVideoUrl');
