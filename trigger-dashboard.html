@@ -1721,9 +1721,6 @@ let configManager = {
         // Get videos from localStorage
         const videos = JSON.parse(localStorage.getItem('botemia_videos') || '[]');
         
-        // Get smart screens from localStorage
-        const smartScreens = JSON.parse(localStorage.getItem('botemia_smartScreens') || '[]');
-        
         const config = {
             id: document.getElementById('clientId').value,
             name: document.getElementById('clientName').value,
@@ -1795,20 +1792,9 @@ let configManager = {
                         category: video.category || 'other'
                     }))
                 },
-                smartScreen: {
+                               smartScreen: {
                     action: document.getElementById('smartScreenAction')?.value || 'showBestMatch',
-                    images: smartScreens.map(screen => ({
-                        name: screen.name,
-                        url: screen.imageUrl,
-                        caption: screen.caption || '',
-                        link: screen.link || '',
-                        triggerMatch: screen.triggerMatch || [],
-                        imageSize: screen.imageSize || '400px',
-                        bgColor: screen.bgColor || 'white',
-                        backdropOpacity: screen.backdropOpacity || 0.5,
-                        showTitle: screen.showTitle !== false,
-                        borderColor: screen.borderColor || '#f8c400'
-                    }))
+                    images: JSON.parse(JSON.stringify(savedSmartScreens || []))
                 },
               websiteInfo: {
     triggers: [],
@@ -2059,13 +2045,12 @@ document.getElementById('emailSubject').value = preQual.emailSubject || 'New Lea
         triggerMatch: screen.triggerMatch || []
     }));
         
-    // Use the global smartScreens array
-    return smartScreens.map(screen => ({
+     return (savedSmartScreens || []).map(screen => ({
         name: screen.name,
-        url: screen.imageUrl,
+        url: screen.url,
         caption: screen.caption || '',
         link: screen.link || '',
-        triggerMatch: screen.triggers || []
+        triggerMatch: screen.triggerMatch || []
     }));
 },
 
