@@ -2720,14 +2720,10 @@ function escapeHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// Initialize on page load
+// Initialize on page load - wait for client selection
 document.addEventListener('DOMContentLoaded', function() {
-    const stored = localStorage.getItem('botemia_smartScreens');
-    if (stored) {
-        savedSmartScreens = JSON.parse(stored);
-        renderSmartScreenList();
-        console.log('📸 Loaded', savedSmartScreens.length, 'smart screen(s) from localStorage');
-    }
+    savedSmartScreens = [];
+    renderSmartScreenList();
 });
 
         function exportSupabaseCSV() {
