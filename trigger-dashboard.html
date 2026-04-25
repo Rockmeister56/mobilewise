@@ -1306,9 +1306,7 @@
                 <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
                     <i class="fas fa-tag" style="margin-right: 6px;"></i>Email Triggers
                 </label>
-                <textarea id="emailTriggers" rows="3"
-                          style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.9rem; resize: vertical;"
-                          placeholder="Enter phrases separated by commas">send the confirmation, email me, send that over, email it to me, send the email</textarea>
+                <textarea id="emailTriggers" ... placeholder="Enter phrases separated by commas"></textarea>
                 <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">When Tess hears these, email is sent</span>
             </div>
             
@@ -1316,9 +1314,7 @@
                 <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
                     <i class="fas fa-tag" style="margin-right: 6px;"></i>Phone Connect Triggers
                 </label>
-                <textarea id="phoneTriggers" rows="3"
-                          style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.9rem; resize: vertical;"
-                          placeholder="Enter phrases separated by commas">call me, speak to someone, phone call, talk to a person, speak with a human</textarea>
+                <textarea id="phoneTriggers" ... placeholder="Enter phrases separated by commas"></textarea>
                 <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">When Tess hears these, phone dialer opens</span>
             </div>
         </div>
@@ -1942,6 +1938,16 @@ populateClientSelect() {
     document.getElementById('splashTickerKeywords').value = splash.tickerKeywords || '';
     document.getElementById('splashGradientCenter').value = splash.gradientCenter || '#1e4a8a';
     document.getElementById('splashGradientOuter').value = splash.gradientOuter || '#0a1a2f';
+
+    // ===== LOAD EMAIL CONFIG =====
+const emailConfig = client.modules?.emailConfig || {};
+document.getElementById('clientEmail').value = emailConfig.clientEmail || '';
+document.getElementById('supportPhone').value = emailConfig.supportPhone || '';
+document.getElementById('emailTriggers').value = (emailConfig.emailTriggers || []).join(', ');
+document.getElementById('phoneTriggers').value = (emailConfig.phoneTriggers || []).join(', ');
+document.getElementById('loanOfficerEmail').value = emailConfig.loanOfficerEmail || '';
+document.getElementById('ccEmail').value = emailConfig.ccEmail || '';
+document.getElementById('emailSubject').value = emailConfig.emailSubject || '';
     
     // Primary button
     document.getElementById('splashPrimaryText').value = splash.primaryButton?.text || 'Get AI help with Tess';
