@@ -1713,7 +1713,7 @@ let configManager = {
             industry: document.getElementById('industryPreset').value,
             modules: {
 
-                emailConfig: {
+   emailConfig: {
     ...(configManager.getCurrentConfig?.()?.modules?.emailConfig || {}),
     loanOfficerEmail: document.getElementById('loanOfficerEmail').value,
     ccEmail: document.getElementById('ccEmail').value,
