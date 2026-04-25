@@ -2044,6 +2044,10 @@ document.getElementById('emailSubject').value = preQual.emailSubject || 'New Lea
  saveConfiguration() {
     // 🔥 Refresh smartScreen before saving
     const config = this.getCurrentConfig();
+     config.agentId = document.getElementById('agentId').value;
+    if (config.modules?.splashScreen) {
+        config.modules.splashScreen.agentId = document.getElementById('splashAgentId')?.value || document.getElementById('agentId').value;
+    }
     if (!config.id || !config.name) {
         alert('Please enter a client name');
         return;
@@ -2153,6 +2157,10 @@ generateDeploymentPackage() {
     // ===== MOVE TRY BLOCK TO TOP TO CATCH STRINGIFY ERRORS =====
     try {
         const config = this.getCurrentConfig();
+         config.agentId = document.getElementById('agentId').value;
+    if (config.modules?.splashScreen) {
+        config.modules.splashScreen.agentId = document.getElementById('splashAgentId')?.value || document.getElementById('agentId').value;
+    }
         
         if (!config.id || !config.name) {
             alert('Please enter a client name');
