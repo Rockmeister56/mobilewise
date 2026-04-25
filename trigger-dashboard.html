@@ -2078,12 +2078,21 @@ document.getElementById('emailSubject').value = preQual.emailSubject || 'New Lea
 },
 
 
-            saveConfiguration() {
+  saveConfiguration() {
+    // 🔥 Refresh smartScreen before saving
     const config = this.getCurrentConfig();
     if (!config.id || !config.name) {
         alert('Please enter a client name');
         return;
     }
+    
+    // Ensure smartScreen module is up to date
+    if (!config.modules) config.modules = {};
+    config.modules.smartScreen = {
+        enabled: true,
+        action: document.getElementById('smartScreenAction')?.value || 'showBestMatch',
+        images: JSON.parse(JSON.stringify(savedSmartScreens || []))
+    };
 
     // Save to localStorage (for quick access)
     this.clients[config.id] = config;
