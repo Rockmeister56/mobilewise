@@ -357,11 +357,6 @@ function exportData() {
     showNotification('Data exported!');
 }
 
-function refreshDashboard() {
-    refreshDashboard();
-    showNotification('Dashboard refreshed');
-}
-
 function logout() {
     if (confirm('Logout?')) {
         window.location.href = '/';
