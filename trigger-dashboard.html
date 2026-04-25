@@ -2732,9 +2732,27 @@ function escapeHtml(str) {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
+    // Try localStorage first (source of truth)
+    const stored = localStorage.getItem('botemia_smartScreens');
+    if (stored) {
+        savedSmartScreens = JSON.parse(stored);
+        console.log('📸 Restored', savedSmartScreens.length, 'smart screens from localStorage');
+    } else {
+        // Fallback to Supabase config
+        const config = configManager.getCurrentConfig();
+        const screens = config?.modules?.smartScreen?.images || [];
+        if (screens.length > 0) {
+            savedSmartScreens = screens;
+            localStorage.setItem('botemia_smartScreens', JSON.stringify(screens));
+        }
+    }
+    renderSmartScreenList();
+    
+    // Set display mode
     const config = configManager.getCurrentConfig();
-    const screens = config?.modules?.smartScreen?.images || [];
-    loadSmartScreens(screens);
+    const action = config?.modules?.smartScreen?.action || 'showBestMatch';
+    const actionSelect = document.getElementById('smartScreenAction');
+    if (actionSelect) actionSelect.value = action;
 });
 
         function exportSupabaseCSV() {
