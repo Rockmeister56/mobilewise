@@ -1549,21 +1549,6 @@ function loadCommunicationCenter() {
     updateTriggersPreview();
 }
 
-// Save Communication Center settings to config
-function saveCommunicationCenter() {
-    if (!config.modules) config.modules = {};
-    
-    config.modules.communicationCenter = {
-        enabled: document.getElementById('commsEnabled').checked,
-        clientEmail: document.getElementById('clientEmail').value.trim(),
-        supportPhone: document.getElementById('supportPhone').value.trim(),
-        emailTriggers: document.getElementById('emailTriggers').value.split(',').map(s => s.trim()).filter(s => s),
-        phoneTriggers: document.getElementById('phoneTriggers').value.split(',').map(s => s.trim()).filter(s => s)
-    };
-    
-    console.log('✅ Communication Center settings saved');
-}
-
 // Update the preview badges
 function updateTriggersPreview() {
     const emailTriggers = document.getElementById('emailTriggers').value.split(',').map(s => s.trim()).filter(s => s);
@@ -2055,7 +2040,7 @@ document.getElementById('emailSubject').value = preQual.emailSubject || 'New Lea
 },
 
 
-  saveConfiguration() {
+ saveConfiguration() {
     // 🔥 Refresh smartScreen before saving
     const config = this.getCurrentConfig();
     if (!config.id || !config.name) {
@@ -2069,6 +2054,17 @@ document.getElementById('emailSubject').value = preQual.emailSubject || 'New Lea
         enabled: true,
         action: document.getElementById('smartScreenAction')?.value || 'showBestMatch',
         images: JSON.parse(JSON.stringify(savedSmartScreens || []))
+    };
+
+    // 🔥 Ensure emailConfig is up to date
+    const emailTriggers = document.getElementById('emailTriggers')?.value || '';
+    const phoneTriggers = document.getElementById('phoneTriggers')?.value || '';
+    config.modules.emailConfig = {
+        ...config.modules.emailConfig,
+        clientEmail: document.getElementById('clientEmail')?.value || '',
+        supportPhone: document.getElementById('supportPhone')?.value || '',
+        emailTriggers: emailTriggers.split(',').map(s => s.trim()).filter(s => s),
+        phoneTriggers: phoneTriggers.split(',').map(s => s.trim()).filter(s => s)
     };
 
     // Save to localStorage (for quick access)
