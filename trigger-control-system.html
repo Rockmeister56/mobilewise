@@ -472,6 +472,46 @@
 <div class="module-control-panel" style="margin-bottom: 30px;">
     <h2 style="color: #f8c400; margin-bottom: 20px;"><i class="fas fa-sliders-h"></i> Active Modules Control</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+
+        <!-- ===== LIVE ANALYTICS WIDGET ===== -->
+<div class="module-card" id="module-liveAnalytics" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); padding: 24px; margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <h2 style="margin: 0; color: #f8c400; font-size: 1.4rem;">📊 Live Analytics</h2>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="openClientAnalytics()" style="background: #f8c400; color: #0a0f1e; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-external-link-alt"></i> Open Dashboard
+            </button>
+            <button onclick="emailClientReport()" style="background: #2196f3; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-envelope"></i> Email Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Live Metrics Grid -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
+        <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; text-align: center; border-left: 3px solid #f8c400;">
+            <div style="color: rgba(255,255,255,0.6); font-size: 0.75rem; margin-bottom: 5px;">Today's Leads</div>
+            <div id="tcsTodayLeads" style="color: white; font-size: 2rem; font-weight: 700;">0</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; text-align: center; border-left: 3px solid #2196f3;">
+            <div style="color: rgba(255,255,255,0.6); font-size: 0.75rem; margin-bottom: 5px;">Conversations</div>
+            <div id="tcsConversations" style="color: white; font-size: 2rem; font-weight: 700;">0</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; text-align: center; border-left: 3px solid #00c853;">
+            <div style="color: rgba(255,255,255,0.6); font-size: 0.75rem; margin-bottom: 5px;">Phone Calls</div>
+            <div id="tcsPhoneCalls" style="color: white; font-size: 2rem; font-weight: 700;">0</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; text-align: center; border-left: 3px solid #9c27b0;">
+            <div style="color: rgba(255,255,255,0.6); font-size: 0.75rem; margin-bottom: 5px;">Est. Value</div>
+            <div id="tcsEstValue" style="color: white; font-size: 2rem; font-weight: 700;">$0</div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Mini-Feed -->
+    <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; max-height: 200px; overflow-y: auto;" id="tcsLiveFeed">
+        <div style="color: rgba(255,255,255,0.4); text-align: center;">Waiting for live events...</div>
+    </div>
+</div>
         
         <!-- MODULE 1: PRE-QUALIFICATION -->
         <div class="module-control-card" id="module-preQual" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
@@ -2546,6 +2586,116 @@ function triggerPreQual() {
         }
     }
 }
+
+// ============================================
+// LIVE ANALYTICS WIDGET FUNCTIONS
+// ============================================
+
+let liveMetrics = {
+    todayLeads: 0,
+    conversations: 0,
+    phoneCalls: 0,
+    estValue: 0
+};
+
+// Listen for analytics events from bridge
+function setupLiveAnalyticsListener() {
+    if (!window.supabaseChannel) {
+        setTimeout(setupLiveAnalyticsListener, 1000);
+        return;
+    }
+    
+    window.supabaseChannel.on('broadcast', { event: 'analytics_event' }, (payload) => {
+        const event = payload.payload;
+        updateLiveMetrics(event);
+    });
+    
+    console.log('👂 Live analytics listener active');
+}
+
+function updateLiveMetrics(event) {
+    const eventType = event.event_type;
+    
+    switch(eventType) {
+        case 'lead_captured':
+            liveMetrics.todayLeads++;
+            liveMetrics.estValue += 150;
+            addLiveFeedItem('📧', 'Lead captured', event.event_data?.email || 'Unknown');
+            break;
+        case 'activate_tess':
+            liveMetrics.conversations++;
+            addLiveFeedItem('🤖', 'Tess activated', 'New conversation started');
+            break;
+        case 'prequal_complete':
+            addLiveFeedItem('✅', 'Interview complete', 'Pre-qual finished');
+            break;
+        case 'phone_connect':
+            liveMetrics.phoneCalls++;
+            addLiveFeedItem('📞', 'Phone call initiated', 'Direct connect');
+            break;
+    }
+    
+    updateLiveMetricsDisplay();
+}
+
+function updateLiveMetricsDisplay() {
+    document.getElementById('tcsTodayLeads').textContent = liveMetrics.todayLeads;
+    document.getElementById('tcsConversations').textContent = liveMetrics.conversations;
+    document.getElementById('tcsPhoneCalls').textContent = liveMetrics.phoneCalls;
+    document.getElementById('tcsEstValue').textContent = '$' + liveMetrics.estValue.toLocaleString();
+}
+
+function addLiveFeedItem(icon, title, detail) {
+    const feed = document.getElementById('tcsLiveFeed');
+    if (!feed) return;
+    
+    // Remove empty state if present
+    if (feed.querySelector('div[style*="Waiting"]')) {
+        feed.innerHTML = '';
+    }
+    
+    const item = document.createElement('div');
+    item.style.cssText = 'padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px;';
+    item.innerHTML = `
+        <span style="font-size: 1.2rem;">${icon}</span>
+        <div style="flex: 1;">
+            <div style="color: white; font-size: 0.9rem;">${title}</div>
+            <div style="color: rgba(255,255,255,0.4); font-size: 0.75rem;">${detail}</div>
+        </div>
+        <span style="color: rgba(255,255,255,0.3); font-size: 0.7rem;">${new Date().toLocaleTimeString()}</span>
+    `;
+    feed.insertBefore(item, feed.firstChild);
+    
+    // Keep only last 20 items
+    while (feed.children.length > 20) {
+        feed.lastChild.remove();
+    }
+}
+
+function openClientAnalytics() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientId = urlParams.get('clientId') || 'mortgage-assist-demo';
+    window.open(`https://mobilewise.netlify.app/analytics?clientId=${clientId}`, '_blank');
+}
+
+function emailClientReport() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientId = urlParams.get('clientId') || 'mortgage-assist-demo';
+    const clientEmail = window.BotemiaConfig?.modules?.emailConfig?.clientEmail || 'client@example.com';
+    
+    const analyticsUrl = `https://mobilewise.netlify.app/analytics?clientId=${clientId}`;
+    
+    // Send via EmailJS or open mailto as fallback
+    const subject = `Your MobileWise AI Analytics Report - ${new Date().toLocaleDateString()}`;
+    const body = `View your live analytics dashboard here: ${analyticsUrl}`;
+    
+    window.open(`mailto:${clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setupLiveAnalyticsListener();
+});
 
     </script>
 </body>
