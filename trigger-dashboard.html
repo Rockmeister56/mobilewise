@@ -2698,12 +2698,14 @@ function updateSmartScreenConfig() {
     const config = configManager.getCurrentConfig();
     if (!config.modules) config.modules = {};
     
+    // FORCE the images array directly from savedSmartScreens
     config.modules.smartScreen = {
         enabled: true,
         action: document.getElementById('smartScreenAction')?.value || 'showBestMatch',
-        images: savedSmartScreens
+        images: JSON.parse(JSON.stringify(savedSmartScreens)) // Deep copy
     };
     
+    console.log('💾 Saving smartScreen with images:', config.modules.smartScreen.images.length, 'screens');
     configManager.saveConfiguration();
 }
 
