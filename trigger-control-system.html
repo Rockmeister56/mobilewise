@@ -2675,7 +2675,7 @@ function addLiveFeedItem(icon, title, detail) {
 function openClientAnalytics() {
     const urlParams = new URLSearchParams(window.location.search);
     const clientId = urlParams.get('clientId') || 'mortgage-assist-demo';
-    window.open(`https://mobilewise.netlify.app/analytics?clientId=${clientId}`, '_blank');
+    window.open(`https://mobilewise.netlify.app/dashboard?clientId=${clientId}`, '_blank');
 }
 
 function emailClientReport() {
