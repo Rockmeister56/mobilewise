@@ -2624,7 +2624,6 @@ function clearSmartScreenForm() {
     document.getElementById('newSmartScreenShowTitle').checked = true;
 }
 
-// Update config with current screens
 function updateSmartScreenConfig() {
     const config = configManager.getCurrentConfig();
     if (!config.modules) config.modules = {};
@@ -2635,7 +2634,7 @@ function updateSmartScreenConfig() {
         images: savedSmartScreens
     };
     
-    configManager.setCurrentConfig(config);
+    configManager.saveConfiguration();
 }
 
 // Load screens from saved config
@@ -3360,6 +3359,7 @@ async function exportBridgeOnly() {
         code += '            }\n';
         code += '            \n';
         code += '            this.speak("That is everything! I am generating your pre-qualification letter now.");\n';
+        code += '        trackEvent(\'prequal_complete\');\n';
         code += '            this.sendEmail();\n';
         code += '        }\n';
         code += '\n';
@@ -3386,6 +3386,7 @@ async function exportBridgeOnly() {
         code += '        }\n';
         code += '\n';
         code += '        sendEmail() {\n';
+        code += '        trackEvent(\'lead_captured\', { email: data.email });\n';
         code += '            console.log("📧 Sending emails...");\n';
         code += '            const data = this.answers;\n';
         code += '            \n';
@@ -3558,6 +3559,27 @@ async function exportBridgeOnly() {
         code += '        \n';
         code += '        document.head.appendChild(script);\n';
         code += '    })();\n\n';
+
+            code += '    // ===== ANALYTICS EVENT TRACKER =====\n';
+    code += '    function trackEvent(eventType, eventData = {}) {\n';
+    code += '        if (!window.supabaseChannel) return;\n';
+    code += '        \n';
+    code += '        window.supabaseChannel.send({\n';
+    code += '            type: \'broadcast\',\n';
+    code += '            event: \'analytics_event\',\n';
+    code += '            payload: {\n';
+    code += '                client_id: window.BotemiaConfig?.id || \'unknown\',\n';
+    code += '                session_id: window.tessSessionId || \'unknown\',\n';
+    code += '                event_type: eventType,\n';
+    code += '                event_data: eventData,\n';
+    code += '                source_url: window.location.href,\n';
+    code += '                referrer: document.referrer || \'direct\',\n';
+    code += '                timestamp: Date.now()\n';
+    code += '            }\n';
+    code += '        });\n';
+    code += '        console.log(\'📊 Tracked: \' + eventType, eventData);\n';
+    code += '    }\n';
+    code += '\n';
 
         code += '    window.preQualController = new PreQualificationController();\n';
         code += '    console.log("✅ Controller created (Listener Mode)");\n';
@@ -3815,6 +3837,7 @@ async function exportBridgeOnly() {
         code += '        // Send trigger to LemonSlice\n';
         code += '        if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
         code += '            window.mainWidget.sendMessage("START_INTERVIEW_NOW");\n';
+        code += '        trackEvent(\'prequal_start\');\n';
         code += '            console.log("📤 Sent START_INTERVIEW_NOW to LemonSlice");\n';
         code += '        }\n';
         code += '        \n';
@@ -3837,6 +3860,7 @@ async function exportBridgeOnly() {
         code += '            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);\n';
         code += '            display: flex; align-items: center; justify-content: center; z-index: 99999;\n';
         code += '        `;\n\n';
+        code += '        trackEvent(\'splash_view\');\n';
 
         code += '        const card = document.createElement(\'div\');\n';
         code += '        card.className = \'splash-card\';\n';
@@ -3951,7 +3975,9 @@ async function exportBridgeOnly() {
         code += '        if (typeof initDaily === "function") { initDaily(); }\n';
         code += '        window.activateTess = activateTess;\n';
         code += '    }\n';
+        code += '        trackEvent(\'activate_tess\');\n';
         code += '\n';
+
 
                // Show Persistent Avatar
         code += '    function showPersistentAvatar() {\n';
@@ -4010,6 +4036,7 @@ async function exportBridgeOnly() {
         code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n';
         code += '        if (config?.persistentButton?.enabled) {\n';
         code += '            showPersistentAvatar();\n';
+        code += '        trackEvent(\'just_browsing\');\n';
         code += '        } else {\n';
         code += '            if (!window.mainWidget || !document.body.contains(window.mainWidget)) { window.mainWidget = createMainWidget(); document.body.appendChild(window.mainWidget); }\n';
         code += '            window.mainWidget.style.display = \'block\';\n';
