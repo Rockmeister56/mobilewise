@@ -1787,6 +1787,17 @@ preQualification: {
     emailTemplate: document.getElementById('emailTemplate')?.value || ''
 }
 },
+
+                emailConfig: {
+                    loanOfficerEmail: document.getElementById('loanOfficerEmail')?.value || '',
+                    ccEmail: document.getElementById('ccEmail')?.value || '',
+                    emailSubject: document.getElementById('emailSubject')?.value || 'New Pre-Qual Lead: {{firstName}} {{lastName}}',
+                    clientEmail: document.getElementById('clientEmail')?.value || '',
+                    supportPhone: document.getElementById('supportPhone')?.value || '',
+                    emailTriggers: (document.getElementById('emailTriggers')?.value || '').split(',').map(s => s.trim()).filter(s => s),
+                    phoneTriggers: (document.getElementById('phoneTriggers')?.value || '').split(',').map(s => s.trim()).filter(s => s)
+                },
+                
 updatedAt: new Date().toISOString()
         };
         return config;
