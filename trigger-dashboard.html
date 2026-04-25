@@ -1339,6 +1339,16 @@
                     </div>
                 </div>
             </div>
+                <!-- Save & Test Buttons -->
+    <div style="margin-top: 20px; display: flex; gap: 12px;">
+        <button onclick="saveCommunicationCenter()" style="flex: 1; background: #f8c400; color: #0a0f1e; border: none; padding: 14px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 1rem;">
+            <i class="fas fa-save"></i> Save Settings
+        </button>
+        <button onclick="testCommunicationCenter()" style="flex: 1; background: #2196f3; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 1rem;">
+            <i class="fas fa-vial"></i> Test Connection
+        </button>
+    </div>
+    <div id="commsTestResult" style="display: none; margin-top: 12px; padding: 10px; border-radius: 8px; text-align: center;"></div>
 
          <!-- ===== MODULE: PRE-QUALIFICATION INTERVIEW ===== -->
 <div class="module-card">
@@ -1587,6 +1597,64 @@ document.addEventListener('DOMContentLoaded', function() {
     initCommunicationCenter();
     // loadCommunicationCenter() should be called when loading saved config
 });
+
+</script>
+
+<script>
+
+function saveCommunicationCenter() {
+    const config = configManager.getCurrentConfig();
+    if (!config.modules) config.modules = {};
+    
+    config.modules.emailConfig = {
+        clientEmail: document.getElementById('clientEmail')?.value || '',
+        supportPhone: document.getElementById('supportPhone')?.value || '',
+        emailTriggers: (document.getElementById('emailTriggers')?.value || '').split(',').map(s => s.trim()).filter(s => s),
+        phoneTriggers: (document.getElementById('phoneTriggers')?.value || '').split(',').map(s => s.trim()).filter(s => s)
+    };
+    
+    configManager.saveConfiguration();
+    showToast('✅ Communication Center saved!');
+}
+
+function testCommunicationCenter() {
+    const resultDiv = document.getElementById('commsTestResult');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+    resultDiv.style.background = 'rgba(33, 150, 243, 0.2)';
+    resultDiv.style.color = '#90caf9';
+    
+    const email = document.getElementById('clientEmail')?.value;
+    const phone = document.getElementById('supportPhone')?.value;
+    const emailTriggers = document.getElementById('emailTriggers')?.value;
+    const phoneTriggers = document.getElementById('phoneTriggers')?.value;
+    
+    const checks = [];
+    if (email) checks.push('✅ Email configured');
+    else checks.push('⚠️ No email set');
+    if (phone) checks.push('✅ Phone configured');
+    else checks.push('⚠️ No phone set');
+    if (emailTriggers) checks.push('✅ Email triggers set');
+    else checks.push('⚠️ No email triggers');
+    if (phoneTriggers) checks.push('✅ Phone triggers set');
+    else checks.push('⚠️ No phone triggers');
+    
+    setTimeout(() => {
+        resultDiv.innerHTML = checks.join('<br>');
+        resultDiv.style.background = email && phone ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255, 152, 0, 0.2)';
+        resultDiv.style.color = email && phone ? '#a5d6a7' : '#ffcc80';
+    }, 800);
+}
+
+function showToast(message) {
+    const toast = document.getElementById('saveToast');
+    const details = document.getElementById('saveDetails');
+    if (details) details.textContent = message;
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+}
 
 </script>
 
