@@ -1938,16 +1938,6 @@ populateClientSelect() {
     document.getElementById('splashTickerKeywords').value = splash.tickerKeywords || '';
     document.getElementById('splashGradientCenter').value = splash.gradientCenter || '#1e4a8a';
     document.getElementById('splashGradientOuter').value = splash.gradientOuter || '#0a1a2f';
-
-    // ===== LOAD EMAIL CONFIG =====
-const emailConfig = client.modules?.emailConfig || {};
-document.getElementById('clientEmail').value = emailConfig.clientEmail || '';
-document.getElementById('supportPhone').value = emailConfig.supportPhone || '';
-document.getElementById('emailTriggers').value = (emailConfig.emailTriggers || []).join(', ');
-document.getElementById('phoneTriggers').value = (emailConfig.phoneTriggers || []).join(', ');
-document.getElementById('loanOfficerEmail').value = emailConfig.loanOfficerEmail || '';
-document.getElementById('ccEmail').value = emailConfig.ccEmail || '';
-document.getElementById('emailSubject').value = emailConfig.emailSubject || '';
     
     // Primary button
     document.getElementById('splashPrimaryText').value = splash.primaryButton?.text || 'Get AI help with Tess';
