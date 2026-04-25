@@ -3523,7 +3523,6 @@ async function exportBridgeOnly() {
         code += '                        window.showSmartScreen(payload.payload.trigger, payload.payload.image);\n';
         code += '                    }\n';
         code += '                }\n';
-        code += '            });\n';
         code += '            tcsChannel.subscribe(function(status) { \n';
         code += '                if (status === "SUBSCRIBED") console.log("✅ [REALTIME] Connected to Supabase"); \n';
         code += '            });\n';
