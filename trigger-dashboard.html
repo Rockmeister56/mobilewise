@@ -2641,19 +2641,18 @@ function addNewSmartScreen() {
     updateSmartScreenConfig();
 }
 
-// Render all saved screens in the list
 function renderSmartScreenList() {
     const list = document.getElementById('smartScreenList');
-    const emptyState = document.getElementById('smartScreenEmptyState');
     
     if (savedSmartScreens.length === 0) {
-        list.innerHTML = '';
-        list.appendChild(emptyState);
-        emptyState.style.display = 'block';
+        list.innerHTML = `
+            <div id="smartScreenEmptyState" style="text-align: center; padding: 30px; color: rgba(255,255,255,0.3);">
+                <i class="fas fa-plus-circle" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                <p>No smart screens yet. Add your first one below.</p>
+            </div>
+        `;
         return;
     }
-    
-    emptyState.style.display = 'none';
     
     list.innerHTML = savedSmartScreens.map((screen, index) => `
         <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: flex-start; gap: 15px;">
@@ -2668,11 +2667,6 @@ function renderSmartScreenList() {
                     ${(screen.triggerMatch || []).map(t => 
                         `<span style="background: rgba(248,196,0,0.15); color: #f8c400; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem;">${escapeHtml(t)}</span>`
                     ).join('')}
-                    ${!screen.triggerMatch || screen.triggerMatch.length === 0 ? 
-                        '<span style="color: #f44336; font-size: 0.7rem;">⚠ No triggers set</span>' : ''}
-                </div>
-                <div style="margin-top: 8px; font-size: 0.7rem; color: rgba(255,255,255,0.4);">
-                    Size: ${screen.imageSize || '400px'} | BG: ${screen.backgroundColor || 'white'} | Backdrop: ${(screen.backdropOpacity || 0.5) * 100}%
                 </div>
             </div>
             <button onclick="removeSavedSmartScreen(${index})" 
