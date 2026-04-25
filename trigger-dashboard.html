@@ -2139,6 +2139,8 @@ uploadToSupabase(config, supabaseUrl, supabaseKey) {
         supabaseData.created_at = new Date().toISOString();
     }
     
+    console.log('🔍 smartScreen at save time:', config?.modules?.smartScreen);
+
     console.log('Sending to Supabase:', supabaseData);
     
     // Upsert using client_id as the conflict target
