@@ -2016,11 +2016,16 @@ if (splash.branding?.logo) {
         renderVideos();
     }
     
-    // ===== LOAD SMART SCREENS =====
-    if (client.modules?.smartScreen?.images) {
-        smartScreens = client.modules.smartScreen.images;
-        localStorage.setItem('botemia_smartScreens', JSON.stringify(smartScreens));
+        // ===== LOAD SMART SCREENS =====
+    if (client.modules?.smartScreen?.images && client.modules.smartScreen.images.length > 0) {
+        savedSmartScreens = client.modules.smartScreen.images;
+        localStorage.setItem('botemia_smartScreens', JSON.stringify(savedSmartScreens));
         renderSmartScreenList();
+        const actionSelect = document.getElementById('smartScreenAction');
+        if (actionSelect && client.modules.smartScreen.action) {
+            actionSelect.value = client.modules.smartScreen.action;
+        }
+        console.log('📸 Loaded', savedSmartScreens.length, 'smart screens from client config');
     }
     
    // ===== LOAD WEBSITE INFO =====
@@ -2046,27 +2051,14 @@ document.getElementById('emailSubject').value = preQual.emailSubject || 'New Lea
 },
 
             getImageGallery() {
-    // Load from localStorage if not already in memory
-    if (typeof smartScreens === 'undefined' || smartScreens.length === 0) {
-        const saved = localStorage.getItem('botemia_smartScreens');
-        if (saved) {
-            try {
-                const screens = JSON.parse(saved);
-                return screens.map(screen => ({
-                    name: screen.name,
-                    url: screen.imageUrl,
-                    caption: screen.caption || '',
-                    link: screen.link || '',
-                    triggerMatch: screen.triggers || []
-                }));
-            } catch(e) {
-                console.error('Error parsing smart screens:', e);
-                return [];
-            }
-        }
-        return [];
-    }
-    
+    return (savedSmartScreens || []).map(screen => ({
+        name: screen.name,
+        url: screen.url,
+        caption: screen.caption || '',
+        link: screen.link || '',
+        triggerMatch: screen.triggerMatch || []
+    }));
+        
     // Use the global smartScreens array
     return smartScreens.map(screen => ({
         name: screen.name,
