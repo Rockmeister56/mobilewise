@@ -1831,6 +1831,16 @@ fetchFromSupabase(supabaseUrl, supabaseKey) {
                 this.populateClientSelect();
                 
                 console.log('✅ Loaded', data.length, 'clients from Supabase');
+                // Auto-select the first client if none is selected
+setTimeout(() => {
+    const select = document.getElementById('clientSelect');
+    const clientIds = Object.keys(this.clients).filter(id => id !== 'test-123');
+    if (select && select.value === '' && clientIds.length > 0) {
+        select.value = clientIds[0];
+        this.loadClient(clientIds[0]);
+        console.log('🔄 Auto-selected client:', clientIds[0]);
+    }
+}, 300);
             }
         })
         .catch(error => {
