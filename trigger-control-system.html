@@ -1033,9 +1033,11 @@ if (resultDiv) {
         
         // Wait for response (Bridge will send back result via module_status or trigger_test_result)
         const timeout = setTimeout(() => {
-            resultDiv.innerHTML = '❌ No response from Bridge (timeout)';
-            resultDiv.className = 'test-result error';
-        }, 8000);
+    if (resultDiv) {
+        resultDiv.innerHTML = '❌ No response from Bridge (timeout)';
+        resultDiv.className = 'test-result error';
+    }
+}, 8000);
         
         // Listen for test result
         const resultHandler = (payload) => {
@@ -1056,10 +1058,6 @@ if (resultDiv) {
         // Add one-time listener
         if (window.supabaseChannel) {
             window.supabaseChannel.on('broadcast', { event: 'trigger_test_result' }, resultHandler);
-            // Auto-remove after 10 seconds to prevent memory leak
-            setTimeout(() => {
-                window.supabaseChannel.off('broadcast', { event: 'trigger_test_result' }, resultHandler);
-            }, 10000);
         }
     } else {
         resultDiv.innerHTML = '❌ Supabase channel not connected';
