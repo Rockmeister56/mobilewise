@@ -1321,19 +1321,19 @@
     </div>
     
     <!-- Preview Badge -->
-    <div style="margin-top: 20px; padding: 12px 16px; background: rgba(248,196,0,0.08); border-radius: 10px; border-left: 3px solid #f8c400;">
-        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-            <span style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">
-                <i class="fas fa-info-circle" style="margin-right: 6px;"></i>Active Triggers Preview:
-            </span>
-            <span style="background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; color: #a0c8ff; font-size: 0.8rem;" id="emailTriggersPreview">
-                "send the confirmation", "email me"...
-            </span>
-            <span style="background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; color: #a0c8ff; font-size: 0.8rem;" id="phoneTriggersPreview">
-                "call me", "speak to someone"...
-            </span>
-                    </div>
-                </div>
+<div style="margin-top: 20px; padding: 12px 16px; background: rgba(248,196,0,0.08); border-radius: 10px; border-left: 3px solid #f8c400;">
+    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+        <span style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">
+            <i class="fas fa-info-circle" style="margin-right: 6px;"></i>Active Triggers Preview:
+        </span>
+        <span style="background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; color: #a0c8ff; font-size: 0.8rem;" id="emailTriggersPreview">
+            Loading...
+        </span>
+        <span style="background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; color: #a0c8ff; font-size: 0.8rem;" id="phoneTriggersPreview">
+            Loading...
+        </span>
+    </div>
+</div>
                           <!-- Save & Test Buttons -->
     <div style="margin-top: 20px; display: flex; gap: 12px;">
         <button onclick="saveCommunicationCenter()" style="flex: 1; background: #f8c400; color: #0a0f1e; border: none; padding: 14px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 1rem;">
@@ -1519,6 +1519,39 @@ function previewVideoUrl() {
     } else {
         preview.innerHTML = '<i class="fas fa-video" style="color: #f8c400; font-size: 60px;"></i>';
         alert('Please enter a video URL first');
+    }
+}
+
+</script>
+
+<script>
+
+function updateTriggerPreviews() {
+    const emailPreview = document.getElementById('emailTriggersPreview');
+    const phonePreview = document.getElementById('phoneTriggersPreview');
+    
+    // Email triggers — grab from whatever input/textarea holds them
+    const emailTriggerField = document.getElementById('emailTriggerPhrases'); // adjust ID to match your field
+    if (emailPreview && emailTriggerField) {
+        const raw = emailTriggerField.value.trim();
+        if (raw) {
+            const phrases = raw.split(',').map(p => `"${p.trim()}"`).join(', ');
+            emailPreview.textContent = phrases.length > 60 ? phrases.substring(0, 60) + '...' : phrases;
+        } else {
+            emailPreview.textContent = 'No triggers set';
+        }
+    }
+    
+    // Phone triggers — grab from whatever input/textarea holds them
+    const phoneTriggerField = document.getElementById('phoneTriggerPhrases'); // adjust ID to match your field
+    if (phonePreview && phoneTriggerField) {
+        const raw = phoneTriggerField.value.trim();
+        if (raw) {
+            const phrases = raw.split(',').map(p => `"${p.trim()}"`).join(', ');
+            phonePreview.textContent = phrases.length > 60 ? phrases.substring(0, 60) + '...' : phrases;
+        } else {
+            phonePreview.textContent = 'No triggers set';
+        }
     }
 }
 
