@@ -1011,9 +1011,11 @@ async function toggleModule(module) {
 // Test trigger for a module
 async function testModule(module) {
     const resultDiv = document.getElementById(`${module}TestResult`);
+if (resultDiv) {
     resultDiv.style.display = 'block';
-    resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing trigger...';
+    resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
     resultDiv.className = 'test-result testing';
+}
     
     // Send test command to Bridge via Supabase
     if (window.supabaseChannel) {
@@ -2488,30 +2490,6 @@ window.clientManager = new ClientConnectionManager();
 
 // Start scanning for clients is DISABLED (not needed)
 // clientManager.startScanning();
-
-// Add to your freshChannel setup (after other listeners)
-freshChannel.on('broadcast', { event: 'module_command' }, (payload) => {
-    console.log("📡 MODULE COMMAND received:", payload);
-    // Forward to UI or handle directly
-    const { module, command, value } = payload.payload;
-    if (command === 'set_enabled') {
-        moduleStates[module] = value;
-        // Update UI
-        const toggleBtn = document.getElementById(`${module}ToggleBtn`);
-        const statusBadge = document.getElementById(`${module}StatusBadge`);
-        if (value) {
-            toggleBtn.innerHTML = '<i class="fas fa-power-off"></i> Disable';
-            toggleBtn.style.background = '#f44336';
-            statusBadge.className = 'status-badge-active';
-            statusBadge.innerHTML = '🟢 ACTIVE';
-        } else {
-            toggleBtn.innerHTML = '<i class="fas fa-play"></i> Enable';
-            toggleBtn.style.background = '#4caf50';
-            statusBadge.className = 'status-badge-inactive';
-            statusBadge.innerHTML = '🔴 INACTIVE';
-        }
-    }
-});
 
 // ============================================
 // ADD TO TRANSCRIPT FEED (helper)
