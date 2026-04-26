@@ -1595,29 +1595,22 @@ function updateTriggersPreview() {
     }
 }
 
-// Add event listeners for real-time preview
+// ===== INITIALIZE COMMUNICATION CENTER =====
 function initCommunicationCenter() {
     const emailField = document.getElementById('emailTriggers');
     const phoneField = document.getElementById('phoneTriggers');
     
-    if (emailField) emailField.addEventListener('input', updateTriggersPreview);
-    if (phoneField) phoneField.addEventListener('input', updateTriggersPreview);
+    if (emailField) emailField.addEventListener('input', updateTriggerPreviews);
+    if (phoneField) phoneField.addEventListener('input', updateTriggerPreviews);
+    
+    // Load saved config into fields
+    loadCommunicationCenter();
+    
+    // Populate preview badges
+    updateTriggerPreviews();
 }
 
-// Call this in your DOMContentLoaded or initialization function
-document.addEventListener('DOMContentLoaded', function() {
-    initCommunicationCenter();
-    // loadCommunicationCenter() should be called when loading saved config
-});
-
-// Fire on page load
-document.addEventListener('DOMContentLoaded', updateTriggerPreviews);
-
-// Live update as user types
-const emailField = document.getElementById('emailTriggers');
-const phoneField = document.getElementById('phoneTriggers');
-if (emailField) emailField.addEventListener('input', updateTriggerPreviews);
-if (phoneField) phoneField.addEventListener('input', updateTriggerPreviews);
+document.addEventListener('DOMContentLoaded', initCommunicationCenter);
 
 
 function saveCommunicationCenter() {
