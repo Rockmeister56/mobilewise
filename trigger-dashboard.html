@@ -1609,7 +1609,13 @@ function initCommunicationCenter() {
     if (emailField) emailField.addEventListener('input', updateTriggerPreviews);
     if (phoneField) phoneField.addEventListener('input', updateTriggerPreviews);
     
+    // Load saved config into fields FIRST
     loadCommunicationCenter();
+    
+    // Force preview update AFTER fields are populated (small delay ensures DOM is ready)
+    setTimeout(() => {
+        updateTriggerPreviews();
+    }, 100);
 }
 
 document.addEventListener('DOMContentLoaded', initCommunicationCenter);
