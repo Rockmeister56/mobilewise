@@ -1527,27 +1527,25 @@ function previewVideoUrl() {
 <script>
 
 function updateTriggerPreviews() {
+    const emailField = document.getElementById('emailTriggers');
+    const phoneField = document.getElementById('phoneTriggers');
     const emailPreview = document.getElementById('emailTriggersPreview');
     const phonePreview = document.getElementById('phoneTriggersPreview');
     
-    // Email triggers — grab from whatever input/textarea holds them
-    const emailTriggerField = document.getElementById('emailTriggerPhrases'); // adjust ID to match your field
-    if (emailPreview && emailTriggerField) {
-        const raw = emailTriggerField.value.trim();
+    if (emailPreview && emailField) {
+        const raw = emailField.value.trim();
         if (raw) {
-            const phrases = raw.split(',').map(p => `"${p.trim()}"`).join(', ');
+            const phrases = raw.split(',').map(p => `"${p.trim()}"`).filter(p => p !== '""').join(', ');
             emailPreview.textContent = phrases.length > 60 ? phrases.substring(0, 60) + '...' : phrases;
         } else {
             emailPreview.textContent = 'No triggers set';
         }
     }
     
-    // Phone triggers — grab from whatever input/textarea holds them
-    const phoneTriggerField = document.getElementById('phoneTriggerPhrases'); // adjust ID to match your field
-    if (phonePreview && phoneTriggerField) {
-        const raw = phoneTriggerField.value.trim();
+    if (phonePreview && phoneField) {
+        const raw = phoneField.value.trim();
         if (raw) {
-            const phrases = raw.split(',').map(p => `"${p.trim()}"`).join(', ');
+            const phrases = raw.split(',').map(p => `"${p.trim()}"`).filter(p => p !== '""').join(', ');
             phonePreview.textContent = phrases.length > 60 ? phrases.substring(0, 60) + '...' : phrases;
         } else {
             phonePreview.textContent = 'No triggers set';
@@ -1612,18 +1610,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // loadCommunicationCenter() should be called when loading saved config
 });
 
-</script>
+// Fire on page load
+document.addEventListener('DOMContentLoaded', updateTriggerPreviews);
 
-<script>
+// Live update as user types
+const emailField = document.getElementById('emailTriggers');
+const phoneField = document.getElementById('phoneTriggers');
+if (emailField) emailField.addEventListener('input', updateTriggerPreviews);
+if (phoneField) phoneField.addEventListener('input', updateTriggerPreviews);
+
 
 function saveCommunicationCenter() {
     const config = configManager.getCurrentConfig();
     if (!config.modules) config.modules = {};
     
-     config.modules.emailConfig = {
-        loanOfficerEmail: document.getElementById('loanOfficerEmail')?.value || '',
-        ccEmail: document.getElementById('ccEmail')?.value || '',
-        emailSubject: document.getElementById('emailSubject')?.value || '',
+    config.modules.emailConfig = {
         clientEmail: document.getElementById('clientEmail')?.value || '',
         supportPhone: document.getElementById('supportPhone')?.value || '',
         emailTriggers: (document.getElementById('emailTriggers')?.value || '').split(',').map(s => s.trim()).filter(s => s),
@@ -1632,6 +1633,7 @@ function saveCommunicationCenter() {
     
     configManager.saveConfiguration();
     showToast('✅ Communication Center saved!');
+    updateTriggerPreviews();
 }
 
 function testCommunicationCenter() {
