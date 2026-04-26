@@ -1559,39 +1559,45 @@ function updateTriggerPreviews() {
 
 // ===== COMMUNICATION CENTER FUNCTIONS =====
 
-// Load Communication Center settings from config
+// ===== LOAD COMMUNICATION CENTER SETTINGS =====
 function loadCommunicationCenter() {
-    const comms = config.modules?.communicationCenter || {};
+    const config = configManager.getCurrentConfig();
+    const comms = config.modules?.emailConfig || {};
     
     document.getElementById('commsEnabled').checked = comms.enabled !== false;
-    document.getElementById('clientEmail').value = comms.clientEmail || 'mobilewise.ai@gmail.com';
-    document.getElementById('supportPhone').value = comms.supportPhone || '949-228-5263';
-    document.getElementById('emailTriggers').value = (comms.emailTriggers || [
-        'send the confirmation', 'email me', 'send that over', 'email it to me', 'send the email'
-    ]).join(', ');
-    document.getElementById('phoneTriggers').value = (comms.phoneTriggers || [
-        'call me', 'speak to someone', 'phone call', 'talk to a person', 'speak with a human'
-    ]).join(', ');
+    document.getElementById('clientEmail').value = comms.clientEmail || '';
+    document.getElementById('supportPhone').value = comms.supportPhone || '';
+    document.getElementById('emailTriggers').value = (comms.emailTriggers || []).join(', ');
+    document.getElementById('phoneTriggers').value = (comms.phoneTriggers || []).join(', ');
     
-    updateTriggersPreview();
+    updateTriggerPreviews();
 }
 
-// Update the preview badges
-function updateTriggersPreview() {
-    const emailTriggers = document.getElementById('emailTriggers').value.split(',').map(s => s.trim()).filter(s => s);
-    const phoneTriggers = document.getElementById('phoneTriggers').value.split(',').map(s => s.trim()).filter(s => s);
-    
+// ===== UPDATE TRIGGER PREVIEW BADGES =====
+function updateTriggerPreviews() {
+    const emailField = document.getElementById('emailTriggers');
+    const phoneField = document.getElementById('phoneTriggers');
     const emailPreview = document.getElementById('emailTriggersPreview');
     const phonePreview = document.getElementById('phoneTriggersPreview');
     
-    if (emailPreview) {
-        const display = emailTriggers.slice(0, 3).map(t => `"${t}"`).join(', ');
-        emailPreview.innerHTML = display + (emailTriggers.length > 3 ? '...' : '');
+    if (emailPreview && emailField) {
+        const raw = emailField.value.trim();
+        if (raw) {
+            const phrases = raw.split(',').map(p => `"${p.trim()}"`).filter(p => p !== '""').join(', ');
+            emailPreview.textContent = phrases.length > 60 ? phrases.substring(0, 60) + '...' : phrases;
+        } else {
+            emailPreview.textContent = 'No triggers set';
+        }
     }
     
-    if (phonePreview) {
-        const display = phoneTriggers.slice(0, 3).map(t => `"${t}"`).join(', ');
-        phonePreview.innerHTML = display + (phoneTriggers.length > 3 ? '...' : '');
+    if (phonePreview && phoneField) {
+        const raw = phoneField.value.trim();
+        if (raw) {
+            const phrases = raw.split(',').map(p => `"${p.trim()}"`).filter(p => p !== '""').join(', ');
+            phonePreview.textContent = phrases.length > 60 ? phrases.substring(0, 60) + '...' : phrases;
+        } else {
+            phonePreview.textContent = 'No triggers set';
+        }
     }
 }
 
@@ -1603,21 +1609,18 @@ function initCommunicationCenter() {
     if (emailField) emailField.addEventListener('input', updateTriggerPreviews);
     if (phoneField) phoneField.addEventListener('input', updateTriggerPreviews);
     
-    // Load saved config into fields
     loadCommunicationCenter();
-    
-    // Populate preview badges
-    updateTriggerPreviews();
 }
 
 document.addEventListener('DOMContentLoaded', initCommunicationCenter);
 
-
+// ===== SAVE COMMUNICATION CENTER =====
 function saveCommunicationCenter() {
     const config = configManager.getCurrentConfig();
     if (!config.modules) config.modules = {};
     
     config.modules.emailConfig = {
+        enabled: document.getElementById('commsEnabled')?.checked !== false,
         clientEmail: document.getElementById('clientEmail')?.value || '',
         supportPhone: document.getElementById('supportPhone')?.value || '',
         emailTriggers: (document.getElementById('emailTriggers')?.value || '').split(',').map(s => s.trim()).filter(s => s),
@@ -1629,6 +1632,7 @@ function saveCommunicationCenter() {
     updateTriggerPreviews();
 }
 
+// ===== TEST COMMUNICATION CENTER =====
 function testCommunicationCenter() {
     const resultDiv = document.getElementById('commsTestResult');
     resultDiv.style.display = 'block';
