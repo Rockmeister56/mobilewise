@@ -1780,15 +1780,7 @@ let configManager = {
     infoType: document.getElementById('websiteInfoType')?.value || 'navigation',
     action: document.getElementById('websiteAction')?.value || 'showSmartNavigation'
 },
-preQualification: {
-    enabled: document.getElementById('preQualEnabled')?.checked || false,
-    triggerPhrase: document.getElementById('preQualTriggerPhrase')?.value || '',
-    emailSubject: document.getElementById('emailSubject')?.value || 'New Lead: {{name}}',
-    emailTemplate: document.getElementById('emailTemplate')?.value || ''
-}
-},
-
-                emailConfig: {
+ emailConfig: {
                     loanOfficerEmail: document.getElementById('loanOfficerEmail')?.value || '',
                     ccEmail: document.getElementById('ccEmail')?.value || '',
                     emailSubject: document.getElementById('emailSubject')?.value || 'New Pre-Qual Lead: {{firstName}} {{lastName}}',
@@ -1797,7 +1789,13 @@ preQualification: {
                     emailTriggers: (document.getElementById('emailTriggers')?.value || '').split(',').map(s => s.trim()).filter(s => s),
                     phoneTriggers: (document.getElementById('phoneTriggers')?.value || '').split(',').map(s => s.trim()).filter(s => s)
                 },
-                
+preQualification: {
+    enabled: document.getElementById('preQualEnabled')?.checked || false,
+    triggerPhrase: document.getElementById('preQualTriggerPhrase')?.value || '',
+    emailSubject: document.getElementById('emailSubject')?.value || 'New Lead: {{name}}',
+    emailTemplate: document.getElementById('emailTemplate')?.value || ''
+}
+},
 updatedAt: new Date().toISOString()
         };
         return config;
