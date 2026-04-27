@@ -2067,6 +2067,11 @@ document.getElementById('emailSubject').value = preQual.emailSubject || 'New Lea
     if (document.getElementById('splashTessVideoUrl').value) {
         previewVideoUrl();
     }
+
+    // Update communication center preview badges
+    if (typeof updateTriggerPreviews === 'function') {
+        updateTriggerPreviews();
+    }
     
     this.updateBridgePreview();
     this.updateStatus(`Loaded ${client.name}`, 'success');
@@ -2607,7 +2612,9 @@ function addNewSmartScreen() {
     
     // Save to config and Supabase
     const config = configManager.getCurrentConfig();
-    if (!config.modules) config.modules = {};
+if (!config.modules) config.modules = {};
+
+if (savedSmartScreens && savedSmartScreens.length > 0) {
     config.modules.smartScreen = {
         enabled: true,
         action: document.getElementById('smartScreenAction')?.value || 'showBestMatch',
@@ -2615,6 +2622,9 @@ function addNewSmartScreen() {
     };
     configManager.saveConfiguration();
     console.log('💾 Saved', savedSmartScreens.length, 'smart screen(s)');
+} else {
+    console.log('⚠️ No smart screens to save — skipping');
+}
 }
 
 // Render the screen list
