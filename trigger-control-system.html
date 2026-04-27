@@ -1053,7 +1053,7 @@ if (resultDiv) {
     if (window.supabaseChannel) {
         window.supabaseChannel.send({
             type: 'broadcast',
-            event: 'module_command',
+            event: 'command',
             payload: {
                 module: module,
                 command: 'test_trigger',
