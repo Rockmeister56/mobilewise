@@ -3547,7 +3547,9 @@ async function exportBridgeOnly() {
         code += '            \n';
         code += '            tcsChannel.on("broadcast", { event: "command" }, function(payload) {\n';
         code += '                console.log("📡 [REALTIME] Command received:", payload);\n';
-        code += '                const command = payload.payload?.command;\n';
+        code += '                var cmd = payload.payload?.command;\n';
+        code += '                var mod = payload.payload?.module;\n';
+        code += '                var phrase = (payload.payload?.trigger_phrase || "").toLowerCase();\n';
         code += '                \n';
         code += '                // ===== EMAIL COMMAND =====\n';
         code += '                if (command === "SEND_EMAIL") {\n';
