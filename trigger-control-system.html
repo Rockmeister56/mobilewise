@@ -1703,6 +1703,22 @@ runDiagnosticTest() {
                 return;
             }
         }
+
+            // ========================================
+        // PRIORITY 0.7: SMART SCREEN TRIGGER
+        // ========================================
+        const smartImages = this.config.modules?.smartScreen?.images || [];
+        for (const img of smartImages) {
+            const triggers = img.triggerMatch || [];
+            for (const trigger of triggers) {
+                if (lowerTranscript.includes(trigger.toLowerCase()) && moduleStates.smart_screen) {
+                    console.log('📸 TCS: Smart Screen Trigger Detected!');
+                    this.addToTranscriptFeed(`📸 Smart Screen Trigger: "${trigger}"`);
+                    this.triggerModule('smartScreen', trigger, transcript);
+                    return;
+                }
+            }
+        }
         
         // ========================================
         // PRIORITY 1: PRE-QUALIFICATION INTERVIEW TRIGGER
