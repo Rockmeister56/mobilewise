@@ -899,6 +899,7 @@ function updateModuleDisplays() {
     const preQualDisplay = document.getElementById('preQualTriggerDisplay');
     if (preQualDisplay) {
         preQualDisplay.innerHTML = preQualTrigger;
+        moduleTriggers.pre_qual = preQualTrigger;
         console.log("✅ Updated pre-qual trigger display:", preQualTrigger);
     }
     
@@ -906,19 +907,28 @@ function updateModuleDisplays() {
     const smartScreens = window.BotemiaConfig?.modules?.smartScreen?.images || [];
     const smartTriggers = smartScreens.map(s => s.triggerMatch).flat().join(', ') || "No triggers configured";
     const smartDisplay = document.getElementById('smartScreenTriggerDisplay');
-    if (smartDisplay) smartDisplay.innerHTML = smartTriggers;
+    if (smartDisplay) {
+        smartDisplay.innerHTML = smartTriggers;
+        moduleTriggers.smart_screen = smartTriggers;
+    }
     
     // Testimonials Triggers
     const testimonialGroups = window.BotemiaConfig?.modules?.testimonial?.groups || [];
     const testimonialTriggers = testimonialGroups.map(g => g.triggerPhrase).join(', ') || "No groups configured";
     const testimonialDisplay = document.getElementById('testimonialsTriggerDisplay');
-    if (testimonialDisplay) testimonialDisplay.innerHTML = testimonialTriggers;
+    if (testimonialDisplay) {
+        testimonialDisplay.innerHTML = testimonialTriggers;
+        moduleTriggers.testimonials = testimonialTriggers;
+    }
     
     // Video Vault Triggers
     const videos = window.BotemiaConfig?.modules?.videoVault?.videos || [];
     const videoTriggers = videos.map(v => v.triggerPhrase).join(', ') || "No videos configured";
     const videoDisplay = document.getElementById('videoVaultTriggerDisplay');
-    if (videoDisplay) videoDisplay.innerHTML = videoTriggers;
+    if (videoDisplay) {
+        videoDisplay.innerHTML = videoTriggers;
+        moduleTriggers.video_vault = videoTriggers;
+    }
     
     // Email Triggers
     const emailTriggers = window.BotemiaConfig?.modules?.emailConfig?.emailTriggers || [];
@@ -927,6 +937,7 @@ function updateModuleDisplays() {
         emailDisplay.innerHTML = emailTriggers.length > 0 
             ? emailTriggers.map(p => `"${p}"`).join(', ') 
             : 'No triggers configured';
+        moduleTriggers.email_trigger = emailTriggers.join(', ') || 'No triggers configured';
         console.log("✅ Updated email trigger display:", emailTriggers);
     }
     
@@ -937,6 +948,7 @@ function updateModuleDisplays() {
         phoneDisplay.innerHTML = phoneTriggers.length > 0 
             ? phoneTriggers.map(p => `"${p}"`).join(', ') 
             : 'No triggers configured';
+        moduleTriggers.phone_connect = phoneTriggers.join(', ') || 'No triggers configured';
         console.log("✅ Updated phone trigger display:", phoneTriggers);
     }
 
@@ -947,6 +959,7 @@ function updateModuleDisplays() {
         websiteDisplay.innerHTML = websiteTriggers.length > 0 
             ? websiteTriggers.map(p => `"${p}"`).join(', ') 
             : 'No triggers configured';
+        moduleTriggers.website_info = websiteTriggers.join(', ') || 'No triggers configured';
         console.log("✅ Updated website info trigger display:", websiteTriggers);
     }
 }
