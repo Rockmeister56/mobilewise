@@ -3552,7 +3552,7 @@ async function exportBridgeOnly() {
         code += '                var phrase = (payload.payload?.trigger_phrase || "").toLowerCase();\n';
         code += '                \n';
         code += '                // ===== EMAIL COMMAND =====\n';
-        code += '                if (command === "SEND_EMAIL") {\n';
+        code += '                if (cmd === "SEND_EMAIL") {\n';
         code += '                    console.log("📧 Email command received from TCS!");\n';
         code += '                    if (window.preQualController && window.preQualController.isActive) {\n';
         code += '                        window.preQualController.sendEmail();\n';
@@ -3573,7 +3573,7 @@ async function exportBridgeOnly() {
         code += '                }\n';
         code += '                \n';
         code += '                // ===== PHONE CONNECT COMMAND =====\n';
-        code += '                if (command === "PHONE_CONNECT") {\n';
+        code += '                if (cmd === "PHONE_CONNECT") {\n';
         code += '                    console.log("📞 Phone connect command received from TCS!");\n';
         code += '                    const phoneNumber = window.BotemiaConfig?.modules?.emailConfig?.supportPhone || "949-228-5263";\n';
         code += '                    console.log("📞 Would initiate call to:", phoneNumber);\n';
@@ -3589,7 +3589,7 @@ async function exportBridgeOnly() {
         code += '                }\n';
         code += '                \n';
         code += '                // ===== SMART SCREEN COMMAND =====\n';
-        code += '                if (command === "SHOW_SMART_SCREEN") {\n';
+        code += '                if (cmd === "SHOW_SMART_SCREEN") {\n';
         code += '                    console.log("📸 Smart Screen command received:", payload.payload);\n';
         code += '                    if (typeof window.showSmartScreen === "function") {\n';
         code += '                        window.showSmartScreen(payload.payload.trigger, payload.payload.image);\n';
