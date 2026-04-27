@@ -3602,7 +3602,7 @@ async function exportBridgeOnly() {
         code += '                if (command === "test_trigger") {\n';
         code += '                    const module = payload.payload.module;\n';
         code += '                    const phrase = (payload.payload.trigger_phrase || "").toLowerCase();\n';
-        code += '                    console.log("🧪 TCS Test: Simulating trigger for " + module + " with phrase \\"" + phrase + \\"\\");\n';
+        code += '                    console.log("🧪 TCS Test: Simulating trigger for " + module + " with phrase: " + phrase);\n';
         code += '                    \n';
         code += '                    let result = { success: false, message: "No trigger matched" };\n';
         code += '                    \n';
