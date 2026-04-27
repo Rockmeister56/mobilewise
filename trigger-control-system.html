@@ -919,6 +919,36 @@ function updateModuleDisplays() {
     const videoTriggers = videos.map(v => v.triggerPhrase).join(', ') || "No videos configured";
     const videoDisplay = document.getElementById('videoVaultTriggerDisplay');
     if (videoDisplay) videoDisplay.innerHTML = videoTriggers;
+    
+    // Email Triggers
+    const emailTriggers = window.BotemiaConfig?.modules?.emailConfig?.emailTriggers || [];
+    const emailDisplay = document.getElementById('emailTriggerDisplay');
+    if (emailDisplay) {
+        emailDisplay.innerHTML = emailTriggers.length > 0 
+            ? emailTriggers.map(p => `"${p}"`).join(', ') 
+            : 'No triggers configured';
+        console.log("✅ Updated email trigger display:", emailTriggers);
+    }
+    
+    // Phone Triggers
+    const phoneTriggers = window.BotemiaConfig?.modules?.emailConfig?.phoneTriggers || [];
+    const phoneDisplay = document.getElementById('phoneConnectTriggerDisplay');
+    if (phoneDisplay) {
+        phoneDisplay.innerHTML = phoneTriggers.length > 0 
+            ? phoneTriggers.map(p => `"${p}"`).join(', ') 
+            : 'No triggers configured';
+        console.log("✅ Updated phone trigger display:", phoneTriggers);
+    }
+
+    // Website Info Triggers
+    const websiteTriggers = window.BotemiaConfig?.modules?.websiteInfo?.triggers || [];
+    const websiteDisplay = document.getElementById('websiteInfoTriggerDisplay');
+    if (websiteDisplay) {
+        websiteDisplay.innerHTML = websiteTriggers.length > 0 
+            ? websiteTriggers.map(p => `"${p}"`).join(', ') 
+            : 'No triggers configured';
+        console.log("✅ Updated website info trigger display:", websiteTriggers);
+    }
 }
 
 // Call this after Supabase is initialized and you have the client ID
@@ -965,7 +995,9 @@ let moduleTriggers = {
     smart_screen: 'Loading...',
     testimonials: 'Loading...',
     video_vault: 'Loading...',
-    website_info: 'Loading...'
+    website_info: 'Loading...',
+    email_trigger: 'Loading...',
+    phone_connect: 'Loading...'
 };
 
 // Toggle module on/off
@@ -1066,33 +1098,41 @@ if (resultDiv) {
 }
 
 function loadTriggerDisplays() {
-    const config = configManager.getCurrentConfig();
+    const config = window.BotemiaConfig;
+    if (!config) {
+        console.log('⏳ BotemiaConfig not loaded yet, retrying...');
+        setTimeout(loadTriggerDisplays, 500);
+        return;
+    }
     
     // Email triggers
     const emailDisplay = document.getElementById('emailTriggerDisplay');
-    if (emailDisplay && config.modules?.emailConfig?.emailTriggers) {
-        const phrases = config.modules.emailConfig.emailTriggers;
-        emailDisplay.textContent = phrases.length > 0 
-            ? phrases.map(p => `"${p}"`).join(', ') 
+    if (emailDisplay) {
+        const emailTriggers = config.modules?.emailConfig?.emailTriggers || [];
+        emailDisplay.textContent = emailTriggers.length > 0 
+            ? emailTriggers.map(p => `"${p}"`).join(', ') 
             : 'No triggers configured';
+        console.log('✅ Email triggers loaded:', emailTriggers);
     }
     
     // Phone triggers
     const phoneDisplay = document.getElementById('phoneConnectTriggerDisplay');
-    if (phoneDisplay && config.modules?.emailConfig?.phoneTriggers) {
-        const phrases = config.modules.emailConfig.phoneTriggers;
-        phoneDisplay.textContent = phrases.length > 0 
-            ? phrases.map(p => `"${p}"`).join(', ') 
+    if (phoneDisplay) {
+        const phoneTriggers = config.modules?.emailConfig?.phoneTriggers || [];
+        phoneDisplay.textContent = phoneTriggers.length > 0 
+            ? phoneTriggers.map(p => `"${p}"`).join(', ') 
             : 'No triggers configured';
+        console.log('✅ Phone triggers loaded:', phoneTriggers);
     }
     
-    // Smart Screen triggers
-    const ssDisplay = document.getElementById('smartScreenTriggerDisplay');
-    if (ssDisplay && config.modules?.smartScreen?.triggers) {
-        const phrases = config.modules.smartScreen.triggers;
-        ssDisplay.textContent = phrases.length > 0 
-            ? phrases.map(p => `"${p}"`).join(', ') 
+    // Website Info triggers
+    const websiteDisplay = document.getElementById('websiteInfoTriggerDisplay');
+    if (websiteDisplay) {
+        const websiteTriggers = config.modules?.websiteInfo?.triggers || [];
+        websiteDisplay.textContent = websiteTriggers.length > 0 
+            ? websiteTriggers.map(p => `"${p}"`).join(', ') 
             : 'No triggers configured';
+        console.log('✅ Website triggers loaded:', websiteTriggers);
     }
 }
 
@@ -2699,11 +2739,11 @@ function emailClientReport() {
     window.open(`mailto:${clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
 }
 
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     setupLiveAnalyticsListener();
-
- document.addEventListener('DOMContentLoaded', loadTriggerDisplays);
+    loadTriggerDisplays();
 });
 
     </script>
