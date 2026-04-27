@@ -1084,17 +1084,19 @@ if (resultDiv) {
     }
 }, 8000);
         
-        // Listen for test result
+                // Listen for test result
         const resultHandler = (payload) => {
             if (payload.event === 'trigger_test_result' && payload.payload.module === module) {
                 clearTimeout(timeout);
+                const resultEl = document.getElementById(`${module}TestResult`);
+                if (!resultEl) return;
                 if (payload.payload.success) {
-                    resultDiv.innerHTML = `✅ Trigger detected! Bridge responded: "${payload.payload.message || 'Success'}"`;
-                    resultDiv.className = 'test-result success';
+                    resultEl.innerHTML = `✅ ${payload.payload.message || 'Success'}`;
+                    resultEl.className = 'test-result success';
                     addToTranscriptFeed(`✅ ${moduleNames[module]} trigger test PASSED`);
                 } else {
-                    resultDiv.innerHTML = `❌ Trigger test failed: ${payload.payload.message || 'Unknown error'}`;
-                    resultDiv.className = 'test-result error';
+                    resultEl.innerHTML = `❌ ${payload.payload.message || 'Unknown error'}`;
+                    resultEl.className = 'test-result error';
                     addToTranscriptFeed(`❌ ${moduleNames[module]} trigger test FAILED`);
                 }
             }
