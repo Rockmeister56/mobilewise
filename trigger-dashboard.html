@@ -3849,12 +3849,6 @@ async function exportBridgeOnly() {
         code += '                // ===== 🎧 CLEAN AUDIO LISTENER =====\n';
         code += '                dailyCallObject.on("app-message", (ev) => {\n';
         code += '                    \n';
-        code += '                    // 🔥 SILENCE DEFAULT AI WHEN CONTROLLER IS ACTIVE\n';
-        code += '                    if (window.preQualController && window.preQualController.isActive && ev?.data?.type === "agent_transcription") {\n';
-        code += '                        console.log("🚫 Silencing default AI - controller is active");\n';
-        code += '                        return;\n';
-        code += '                    }\n';
-        code += '                    \n';
         code += '                    // 🔥 NEW: Handle USER transcriptions during interview\n';
         code += '                    if (window.preQualController && window.preQualController.isActive && ev?.data?.type === "user_transcription") {\n';
         code += '                        const userText = ev.data.transcription || ev.data.text || "";\n';
