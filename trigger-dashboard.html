@@ -3038,7 +3038,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Diagnostics Complete! Check the Console (F12) for results.');
         }
 
-           // ===== EXPORT BRIDGE ONLY (COMPLETE VERSION 5.6 - FIX) =====
+// ===== EXPORT BRIDGE ONLY (COMPLETE VERSION 5.6 - FIX) =====
 // Includes: Single Widget Fix + Gradients + Branding + Full Styling
 async function exportBridgeOnly() {
     console.log('🔧 Exporting bridge only...');
@@ -3050,16 +3050,16 @@ async function exportBridgeOnly() {
             return;
         }
         
-        // ===== GET EMAIL CONFIG FROM CLIENT CONFIG =====
-        const emailConfig = config.emailConfig || {
-            loanOfficerEmail: 'loans@clientcompany.com',
-            ccEmail: '',
-            emailSubject: 'New Pre-Qual Lead: {{firstName}} {{lastName}}',
-            clientEmail: '',
-            supportPhone: '',
-            emailTriggers: [],
-            phoneTriggers: []
-        };
+    // ===== GET EMAIL CONFIG FROM CLIENT CONFIG =====
+    const emailConfig = config.modules?.emailConfig || {
+    loanOfficerEmail: '',
+    ccEmail: '',
+    emailSubject: 'New Pre-Qual Lead: {{firstName}} {{lastName}}',
+    clientEmail: '',
+    supportPhone: '',
+    emailTriggers: [],
+    phoneTriggers: []
+};
         
                 // ===== STEP 1: FETCH DYNAMIC KNOWLEDGE BASE =====
         const industry = document.getElementById('kbIndustrySelect')?.value || 'mortgage';
