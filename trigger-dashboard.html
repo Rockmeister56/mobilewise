@@ -3923,8 +3923,12 @@ async function exportBridgeOnly() {
         code += '                            var emailCfg2 = window.BotemiaConfig?.modules?.emailConfig;\n';
         code += '                            if (emailCfg2?.emailTriggers?.some(function(t) { return lowerText.indexOf(t.toLowerCase()) !== -1; })) {\n';
         code += '                                console.log("📧 Email trigger detected during interview!");\n';
+        code += '                                if (window.preQualController && window.preQualController.isActive) {\n';
+        code += '                                    window.preQualController.sendEmail();\n';
+        code += '                                    window.preQualController.isActive = false;\n';
+        code += '                                    console.log("✅ Email sent via trigger during interview");\n';
+        code += '                                }\n';
         code += '                            }\n';
-        code += '                            \n';
         code += '                            // --- PHONE TRIGGER (during interview) ---\n';
         code += '                            if (emailCfg2?.phoneTriggers?.some(function(t) { return lowerText.indexOf(t.toLowerCase()) !== -1; })) {\n';
         code += '                                console.log("📞 Phone trigger detected during interview!");\n';
