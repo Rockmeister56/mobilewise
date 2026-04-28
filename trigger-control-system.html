@@ -608,15 +608,18 @@
                     <div id="smartScreenStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
-                    <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
-                        <i class="fas fa-bullhorn"></i> TRIGGER PHRASES
-                    </div>
-                    <code id="smartScreenTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
-                </div>
+    <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
+        <i class="fas fa-bullhorn"></i> TRIGGER PHRASES
+    </div>
+    <select id="smartScreenTriggerSelect" style="width: 100%; background: #0a0f1e; border: 1px solid rgba(248,196,0,0.3); border-radius: 8px; padding: 10px 12px; color: #f8c400; font-size: 0.85rem; cursor: pointer; margin-bottom: 8px;">
+        <option value="">— Select a trigger phrase to test —</option>
+    </select>
+    <code id="smartScreenTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
+       </div>
                 <div style="display: flex; gap: 12px;">
-                    <button id="smartScreenTestBtn" class="module-test-btn" onclick="testModule('smart_screen')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
-                        <i class="fas fa-vial"></i> Test Trigger
-                    </button>
+                    <button id="smartScreenTestBtn" class="module-test-btn" onclick="testSmartScreen()" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+    <i class="fas fa-vial"></i> Test Trigger
+                   </button>
                     <button id="smartScreenToggleBtn" class="module-toggle-btn" onclick="toggleModule('smart_screen')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
                         <i class="fas fa-power-off"></i> Disable
                     </button>
@@ -862,6 +865,102 @@
         // Store globally
         window.supabaseChannel = freshChannel;
 
+        // Populate the smart screen trigger dropdown
+function populateSmartScreenTriggers() {
+    const select = document.getElementById('smartScreenTriggerSelect');
+    const display = document.getElementById('smartScreenTriggerDisplay');
+    if (!select) return;
+    
+    const images = window.BotemiaConfig?.modules?.smartScreen?.images || [];
+    
+    // Clear and rebuild
+    select.innerHTML = '<option value="">— Select a trigger phrase to test —</option>';
+    
+    let allTriggers = [];
+    images.forEach((img, imgIndex) => {
+        const triggers = img.triggerMatch || [];
+        triggers.forEach(trigger => {
+            allTriggers.push(trigger);
+            const option = document.createElement('option');
+            option.value = trigger;
+            option.textContent = `${trigger} (${img.name || 'Screen ' + (imgIndex + 1)})`;
+            select.appendChild(option);
+        });
+    });
+    
+    // Update the display
+    if (display) {
+        display.textContent = allTriggers.length > 0 
+            ? allTriggers.map(t => `"${t}"`).join(', ') 
+            : 'No triggers configured';
+    }
+    
+    // Update moduleTriggers for the test button
+    moduleTriggers.smart_screen = allTriggers.join(', ') || 'No triggers configured';
+    
+    console.log('📸 Smart Screen triggers populated:', allTriggers.length);
+}
+
+// Test smart screen with selected trigger
+function testSmartScreen() {
+    const select = document.getElementById('smartScreenTriggerSelect');
+    const selectedPhrase = select?.value;
+    
+    if (!selectedPhrase) {
+        alert('Please select a trigger phrase to test');
+        return;
+    }
+    
+    const resultDiv = document.getElementById('smart_screenTestResult');
+    if (resultDiv) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+        resultDiv.className = 'test-result testing';
+    }
+    
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'command',
+            payload: {
+                module: 'smart_screen',
+                command: 'test_trigger',
+                trigger_phrase: selectedPhrase,
+                timestamp: Date.now()
+            }
+        });
+        console.log('📡 Sent TEST_TRIGGER command for smart_screen with phrase:', selectedPhrase);
+    }
+    
+    const timeout = setTimeout(() => {
+        if (resultDiv) {
+            resultDiv.innerHTML = '❌ No response from Bridge (timeout)';
+            resultDiv.className = 'test-result error';
+        }
+    }, 8000);
+    
+    const resultHandler = (payload) => {
+        if (payload.event === 'trigger_test_result' && payload.payload.module === 'smart_screen') {
+            clearTimeout(timeout);
+            const resultEl = document.getElementById('smart_screenTestResult');
+            if (!resultEl) return;
+            if (payload.payload.success) {
+                resultEl.innerHTML = `✅ ${payload.payload.message || 'Success'}`;
+                resultEl.className = 'test-result success';
+                addToTranscriptFeed('✅ Smart Screen trigger test PASSED');
+            } else {
+                resultEl.innerHTML = `❌ ${payload.payload.message || 'Unknown error'}`;
+                resultEl.className = 'test-result error';
+                addToTranscriptFeed('❌ Smart Screen trigger test FAILED');
+            }
+        }
+    };
+    
+    if (window.supabaseChannel) {
+        window.supabaseChannel.on('broadcast', { event: 'trigger_test_result' }, resultHandler);
+    }
+}
+
     // ===== LOAD CLIENT CONFIGURATION =====
 async function loadClientConfig(clientId) {
     console.log("📥 Loading client config for:", clientId);
@@ -909,6 +1008,7 @@ function updateModuleDisplays() {
     if (smartDisplay) {
         smartDisplay.innerHTML = smartTriggers;
         moduleTriggers.smart_screen = smartTriggers;
+        populateSmartScreenTriggers();
     }
     
     // Testimonials Triggers
