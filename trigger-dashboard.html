@@ -3446,9 +3446,10 @@ async function exportBridgeOnly() {
         code += '        }\n';
         code += '\n';
         code += '        sendEmail() {\n';
-        code += '        trackEvent(\'lead_captured\', { email: data.email });\n';
         code += '            console.log("📧 Sending emails...");\n';
         code += '            const data = this.answers;\n';
+        code += '            \n';
+        code += '            trackEvent(\'lead_captured\', { email: data.email });\n';
         code += '            \n';
         code += '            // Build formatted answers string\n';
         code += '            let formattedAnswers = "";\n';
