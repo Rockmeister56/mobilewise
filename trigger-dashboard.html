@@ -3363,7 +3363,8 @@ async function exportBridgeOnly() {
         code += '                    userText = userText\n';
         code += '                        .replace(/\\s+at\\s+/g, "@")\n';
         code += '                        .replace(/\\s+dot\\s+/g, ".")\n';
-        code += '                        .replace(/\\s+/g, "");\n';
+        code += '                        .replace(/\\s+/g, "")\n';
+        code += '                        .replace(/\\.+$/g, "");\n';
         code += '                }\n';
         code += '                \n';
         code += '                // Normalize phone numbers\n';
