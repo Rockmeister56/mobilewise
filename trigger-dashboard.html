@@ -3537,13 +3537,11 @@ async function exportBridgeOnly() {
         code += '                    phone: data.phone || "Not provided",\n';
         code += '                    business_name: data.businessName || "Not provided",\n';
         code += '                    scheduled_datetime: data.scheduledDateTime || "To be determined",\n';
-        code += '                    loan_type: data.loanType || "Not provided",\n';
-        code += '                    annual_income: data.annualIncome || "Not provided",\n';
-        code += '                    down_payment: data.downPayment || "Not provided",\n';
-        code += '                    credit_score: data.creditScore || "Not provided",\n';
+        code += '                    loan_type: "See Full Example Below",\n';
+        code += '                    annual_income: "See Full Example Below",\n';
+        code += '                    down_payment: "See Full Example Below",\n';
+        code += '                    credit_score: "See Full Example Below",\n';
         code += '                    special_requests: data.specialRequests || "None",\n';
-        code += '                    all_answers: formattedAnswers,\n';
-        code += '                    full_json: JSON.stringify(jsonForTemplate, null, 2),\n';
         code += '                    submitted_at: new Date().toLocaleString()\n';
         code += '                };\n';
         code += '                \n';
@@ -3553,7 +3551,6 @@ async function exportBridgeOnly() {
         code += '            } else {\n';
         code += '                console.warn("⚠️ No prospect email provided, skipping prospect email");\n';
         code += '            }\n';
-        code += '            \n';
         code += '            // ===== EMAIL 2: TO YOU/AGENCY — Just contact info for zoom meeting (template_8kx812d) =====\n';
         code += '            var clientEmail = window.BotemiaConfig?.modules?.emailConfig?.clientEmail || "mobilewise.ai@gmail.com";\n';
         code += '            \n';
