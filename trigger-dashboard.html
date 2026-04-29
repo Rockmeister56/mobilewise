@@ -1182,6 +1182,16 @@
             </div>
         </div>
 
+        <!-- DISPLAY DURATION -->
+<div style="margin-bottom: 15px;">
+    <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
+        <i class="fas fa-clock"></i> Display Duration (seconds)
+    </label>
+    <input type="number" id="newSmartScreenDuration" value="10" min="3" max="120" 
+           style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+    <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 5px;">How long the smart screen stays visible before auto-closing.</p>
+</div>
+
         <!-- TRIGGER PHRASES -->
         <div style="margin-bottom: 15px;">
             <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
@@ -2590,6 +2600,7 @@ function addNewSmartScreen() {
     const bgColor = document.getElementById('newSmartScreenBgColor').value;
     const backdrop = document.getElementById('newSmartScreenBackdrop').value;
     const showTitle = document.getElementById('newSmartScreenShowTitle').checked;
+    const duration = parseInt(document.getElementById('newSmartScreenDuration')?.value) || 10;
     
     if (!name && !url) {
         alert('Please enter at least a screen name or image URL.');
@@ -2602,7 +2613,8 @@ function addNewSmartScreen() {
         imageSize: size,
         backgroundColor: bgColor,
         backdropOpacity: backdrop,
-        showTitle: showTitle
+        showTitle: showTitle,
+        displayDuration: duration
     };
     
     savedSmartScreens.push(screen);
@@ -2651,6 +2663,9 @@ function renderSmartScreenList() {
                     ${(screen.triggerMatch || []).map(t => `<span style="background: rgba(248,196,0,0.15); color: #f8c400; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem;">${escapeHtml(t)}</span>`).join('')}
                     ${!screen.triggerMatch || screen.triggerMatch.length === 0 ? '<span style="color: #f44336; font-size: 0.7rem;">⚠ No triggers</span>' : ''}
                 </div>
+                <div style="color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 4px;">
+                <i class="fas fa-clock"></i> ${screen.displayDuration || 10}s display
+                </div>
                  ${screen.url ? `<div style="width: 100%; height: 120px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                 <img src="${screen.url}" alt="${escapeHtml(screen.name)}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=color:#aaa>🖼️ Image preview unavailable</span>'">
             </div>` : ''}
@@ -2679,6 +2694,7 @@ function clearSmartScreenForm() {
     document.getElementById('newSmartScreenBgColor').value = 'white';
     document.getElementById('newSmartScreenBackdrop').value = '0.5';
     document.getElementById('newSmartScreenShowTitle').checked = true;
+    document.getElementById('newSmartScreenDuration').value = '10';
 }
 
 // Load screens from config or localStorage
@@ -3331,6 +3347,19 @@ async function exportBridgeOnly() {
         code += '            \n';
         code += '            // Detect which field we\'re capturing based on Tess\'s last question\n';
         code += '            if (this.currentField) {\n';
+        code += '                // Normalize email addresses before storing\n';
+        code += '                if (this.currentField === "email" && userText) {\n';
+        code += '                    userText = userText\n';
+        code += '                        .replace(/\\s+at\\s+/g, "@")\n';
+        code += '                        .replace(/\\s+dot\\s+/g, ".")\n';
+        code += '                        .replace(/\\s+/g, "");\n';
+        code += '                }\n';
+        code += '                \n';
+        code += '                // Normalize phone numbers\n';
+        code += '                if (this.currentField === "phone" && userText) {\n';
+        code += '                    userText = userText.replace(/[^0-9\\-()+]/g, "").trim();\n';
+        code += '                }\n';
+        code += '                \n';
         code += '                // Check if this is a confirmation ("yes" to "Is that correct?")\n';
         code += '                if (lowerText === "yes" || lowerText === "yes it is" || lowerText === "correct" || lowerText === "that\'s correct") {\n';
         code += '                    if (this.pendingValue) {\n';
