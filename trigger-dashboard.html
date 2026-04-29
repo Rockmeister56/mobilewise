@@ -2663,9 +2663,13 @@ function renderSmartScreenList() {
                     ${(screen.triggerMatch || []).map(t => `<span style="background: rgba(248,196,0,0.15); color: #f8c400; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem;">${escapeHtml(t)}</span>`).join('')}
                     ${!screen.triggerMatch || screen.triggerMatch.length === 0 ? '<span style="color: #f44336; font-size: 0.7rem;">⚠ No triggers</span>' : ''}
                 </div>
-                <div style="color: rgba(255,255,255,0.4); font-size: 0.7rem; margin-top: 4px;">
-                <i class="fas fa-clock"></i> ${screen.displayDuration || 10}s display
-                </div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+    <i class="fas fa-clock" style="color: rgba(255,255,255,0.4); font-size: 0.7rem;"></i>
+    <input type="number" value="${screen.displayDuration || 10}" min="3" max="120" 
+           onchange="updateSmartScreenDuration(${index}, this.value)"
+           style="width: 50px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 2px 6px; color: white; font-size: 0.7rem;">
+    <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">seconds</span>
+</div>
                  ${screen.url ? `<div style="width: 100%; height: 120px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                 <img src="${screen.url}" alt="${escapeHtml(screen.name)}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=color:#aaa>🖼️ Image preview unavailable</span>'">
             </div>` : ''}
@@ -2681,6 +2685,13 @@ function removeSavedSmartScreen(index) {
     savedSmartScreens.splice(index, 1);
     localStorage.setItem('botemia_smartScreens', JSON.stringify(savedSmartScreens));
     renderSmartScreenList();
+}
+
+function updateSmartScreenDuration(index, value) {
+    const duration = parseInt(value) || 10;
+    savedSmartScreens[index].displayDuration = Math.max(3, Math.min(120, duration));
+    localStorage.setItem('botemia_smartScreens', JSON.stringify(savedSmartScreens));
+    console.log('⏱️ Updated screen', index, 'duration to', savedSmartScreens[index].displayDuration, 'seconds');
 }
 
 // Clear the form
