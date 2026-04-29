@@ -3372,14 +3372,15 @@ async function exportBridgeOnly() {
         code += '                }\n';
         code += '                \n';
         code += '                // Check if this is a confirmation ("yes" to "Is that correct?")\n';
-        code += '                if (lowerText === "yes" || lowerText === "yes it is" || lowerText === "correct" || lowerText === "that\'s correct") {\n';
+        code += '                var cleanLower = lowerText.replace(/[.!?,]/g, "").trim();\n';
+        code += '                if (cleanLower === "yes" || cleanLower === "yes it is" || cleanLower === "correct" || cleanLower === "that\'s correct") {\n';
         code += '                    if (this.pendingValue) {\n';
         code += '                        this.answers[this.currentField] = this.pendingValue;\n';
         code += '                        console.log("✅ Confirmed:", this.currentField, "=", this.pendingValue);\n';
         code += '                    }\n';
         code += '                    this.pendingValue = null;\n';
         code += '                    this.currentField = null;\n';
-        code += '                } else if (lowerText === "no" || lowerText.includes("redo") || lowerText.includes("repeat") || lowerText === "that\'s not correct") {\n';
+        code += '                } else if (cleanLower === "no" || cleanLower.includes("redo") || cleanLower.includes("repeat") || cleanLower === "that\'s not correct") {\n';
         code += '                    console.log("🔄 User wants to redo:", this.currentField);\n';
         code += '                    this.pendingValue = null;\n';
         code += '                    // Keep currentField so we capture the next attempt\n';
