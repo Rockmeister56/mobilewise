@@ -2652,25 +2652,33 @@ function renderSmartScreenList() {
         return;
     }
     
-    list.innerHTML = savedSmartScreens.map((screen, index) => `
+        list.innerHTML = savedSmartScreens.map((screen, index) => `
         <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: flex-start; gap: 15px;">
             <div style="flex: 1;">
                 <h4 style="margin: 0 0 8px 0; color: white; font-size: 1rem;">
                     ${screen.showTitle !== false ? '📛' : '🖼️'} ${escapeHtml(screen.name) || 'Unnamed Screen'}
                 </h4>
                 <p style="margin: 0 0 6px 0; color: rgba(255,255,255,0.6); font-size: 0.8rem;">${escapeHtml(screen.caption || 'No caption')}</p>
-                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
-                    ${(screen.triggerMatch || []).map(t => `<span style="background: rgba(248,196,0,0.15); color: #f8c400; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem;">${escapeHtml(t)}</span>`).join('')}
-                    ${!screen.triggerMatch || screen.triggerMatch.length === 0 ? '<span style="color: #f44336; font-size: 0.7rem;">⚠ No triggers</span>' : ''}
+                
+                <!-- EDITABLE TRIGGER PHRASES -->
+                <div style="margin-top: 8px;">
+                    <label style="color: rgba(255,255,255,0.5); font-size: 0.65rem; display: block; margin-bottom: 4px;">Trigger Phrases:</label>
+                    <input type="text" value="${(screen.triggerMatch || []).join(', ')}" 
+                           onchange="updateSmartScreenTriggers(${index}, this.value)"
+                           style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px; color: #f8c400; font-size: 0.75rem; font-family: monospace;"
+                           placeholder="e.g., zoom invite, schedule meeting">
                 </div>
-                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-    <i class="fas fa-clock" style="color: rgba(255,255,255,0.4); font-size: 0.7rem;"></i>
-    <input type="number" value="${screen.displayDuration || 10}" min="3" max="120" 
-           onchange="updateSmartScreenDuration(${index}, this.value)"
-           style="width: 50px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 2px 6px; color: white; font-size: 0.7rem;">
-    <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">seconds</span>
-</div>
-                 ${screen.url ? `<div style="width: 100%; height: 120px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                
+                <!-- EDITABLE DURATION -->
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 6px;">
+                    <i class="fas fa-clock" style="color: rgba(255,255,255,0.4); font-size: 0.7rem;"></i>
+                    <input type="number" value="${screen.displayDuration || 10}" min="3" max="120" 
+                           onchange="updateSmartScreenDuration(${index}, this.value)"
+                           style="width: 50px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 2px 6px; color: white; font-size: 0.7rem;">
+                    <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">seconds</span>
+                </div>
+                
+                 ${screen.url ? `<div style="width: 100%; height: 120px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                 <img src="${screen.url}" alt="${escapeHtml(screen.name)}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=color:#aaa>🖼️ Image preview unavailable</span>'">
             </div>` : ''}
             </div>
@@ -2692,6 +2700,12 @@ function updateSmartScreenDuration(index, value) {
     savedSmartScreens[index].displayDuration = Math.max(3, Math.min(120, duration));
     localStorage.setItem('botemia_smartScreens', JSON.stringify(savedSmartScreens));
     console.log('⏱️ Updated screen', index, 'duration to', savedSmartScreens[index].displayDuration, 'seconds');
+}
+
+function updateSmartScreenTriggers(index, value) {
+    savedSmartScreens[index].triggerMatch = value.split(',').map(s => s.trim()).filter(s => s);
+    localStorage.setItem('botemia_smartScreens', JSON.stringify(savedSmartScreens));
+    console.log('🔧 Updated screen', index, 'triggers to:', savedSmartScreens[index].triggerMatch);
 }
 
 // Clear the form
