@@ -1505,6 +1505,28 @@
     </div>
 </div>
 
+<!-- CLIENT ANALYTICS BASELINE -->
+<div style="margin-top: 15px; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 15px;">
+    <h4 style="color: #f8c400; margin: 0 0 10px 0;"><i class="fas fa-chart-bar"></i> Analytics Baseline</h4>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: end;">
+        <div>
+            <label style="color: rgba(255,255,255,0.5); font-size: 0.7rem; display: block;">Baseline Leads/Mo</label>
+            <input type="number" id="clientBaselineLeads" value="20" style="width:80px; background: rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:8px; color:white;">
+        </div>
+        <div>
+            <label style="color: rgba(255,255,255,0.5); font-size: 0.7rem; display: block;">Monthly Visitors</label>
+            <input type="number" id="clientBaselineVisitors" value="2000" style="width:80px; background: rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:8px; color:white;">
+        </div>
+        <div>
+            <label style="color: rgba(255,255,255,0.5); font-size: 0.7rem; display: block;">Per-Lead Rate ($)</label>
+            <input type="number" id="clientPerLeadRate" value="150" style="width:80px; background: rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:8px; color:white;">
+        </div>
+        <button onclick="saveClientBaseline()" style="background:#f8c400; color:#0a0f1e; border:none; padding:8px 16px; border-radius:6px; font-weight:600; cursor:pointer;">
+            <i class="fas fa-save"></i> Save Baseline
+        </button>
+    </div>
+</div>
+
 <script>
 
 // Simple preview button function
@@ -4720,6 +4742,20 @@ function generateDynamicScriptCode(knowledgeBase) {
 
     // 5. Generate the code string
     return buildScriptCode(stepsArray);
+}
+
+function saveClientBaseline() {
+    const config = configManager.getCurrentConfig();
+    if (!config.modules) config.modules = {};
+    
+    config.modules.analyticsBaseline = {
+        baselineLeads: parseInt(document.getElementById('clientBaselineLeads').value) || 20,
+        baselineVisitors: parseInt(document.getElementById('clientBaselineVisitors').value) || 2000,
+        perLeadRate: parseInt(document.getElementById('clientPerLeadRate').value) || 150
+    };
+    
+    configManager.saveConfiguration();
+    console.log('📊 Analytics baseline saved:', config.modules.analyticsBaseline);
 }
 
 // Helper: Build the actual JS code
