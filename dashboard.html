@@ -49,37 +49,27 @@
     <!-- ============================================ -->
     <div style="max-width: 1400px; margin: 0 auto; padding: 24px;">
         
-        <!-- SETTINGS BAR -->
-        <div style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); padding: 24px; margin-bottom: 24px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 28px;">📊</span>
-                    <h2 style="margin: 0; color: #f8c400; font-size: 1.4rem;">Client Performance Analytics</h2>
-                </div>
-            </div>
-            
-            <div style="background: rgba(0,0,0,0.25); border-radius: 12px; padding: 15px 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Baseline:</span>
-                    <input type="number" id="analyticsBaselineLeads" value="20" style="width: 60px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px; color: white; font-size: 0.85rem;" onchange="updateAnalyticsSettings()">
-                    <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem;">leads/mo</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Visitors:</span>
-                    <input type="number" id="analyticsBaselineVisitors" value="2000" style="width: 70px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px; color: white; font-size: 0.85rem;" onchange="updateAnalyticsSettings()">
-                    <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem;">visitors/mo</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Rate:</span>
-                    <span style="color: #f8c400; font-weight: 600;">$</span>
-                    <input type="number" id="analyticsPerLeadRate" value="150" style="width: 70px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px; color: white; font-size: 0.85rem;" onchange="updateAnalyticsSettings()">
-                    <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem;">per lead</span>
-                </div>
-                <div id="analyticsSettingsSaved" style="color: #4caf50; font-size: 0.75rem; display: none; margin-left: auto;">
-                    <i class="fas fa-check"></i> Saved
-                </div>
-            </div>
-        </div>
+       <!-- SETTINGS BAR (Read-Only) -->
+<div style="background: rgba(0,0,0,0.25); border-radius: 12px; padding: 15px 20px; display: flex; align-items: center; gap: 30px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">Baseline:</span>
+        <span id="analyticsBaselineLeads" style="color: white; font-weight: 600; font-size: 1rem;">20</span>
+        <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">leads/mo</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">Visitors:</span>
+        <span id="analyticsBaselineVisitors" style="color: white; font-weight: 600; font-size: 1rem;">2,000</span>
+        <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">visitors/mo</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">Rate:</span>
+        <span id="analyticsPerLeadRate" style="color: #f8c400; font-weight: 600; font-size: 1rem;">$150</span>
+        <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">per lead</span>
+    </div>
+    <div style="margin-left: auto; color: rgba(255,255,255,0.35); font-size: 0.7rem;">
+        <i class="fas fa-lock"></i> Set by administrator
+    </div>
+</div>
         
         <!-- ROW 1 — THE MONEY METRICS -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 24px;">
