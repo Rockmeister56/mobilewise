@@ -6,7 +6,6 @@
     <title>📊 MobileWise AI Dashboard</title>
     <link rel="stylesheet" href="dashboard.css">
     <link rel="icon" type="image/png" href="assets/mobilewise-owl.png">
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -32,10 +31,10 @@
             </div>
             
             <div class="header-actions">
-                <button class="btn-export" onclick="exportData()">
+                <button class="btn-export" onclick="exportAnalyticsReport()">
                     <span class="btn-icon">📥</span> Export
                 </button>
-                <button class="btn-refresh" onclick="refreshDashboard()">
+                <button class="btn-refresh" onclick="refreshAnalytics()">
                     <span class="btn-icon">🔄</span> Refresh
                 </button>
                 <button class="btn-logout" onclick="logout()">
@@ -45,257 +44,130 @@
         </div>
     </header>
     
-    <!-- Live Stats Bar -->
-    <div class="live-stats">
-        <div class="live-stat">
-            <span class="live-label">Live Now:</span>
-            <span class="live-value" id="liveConversations">0</span>
-            <span class="live-unit">active conversations</span>
+    <!-- ============================================ -->
+    <!-- CLIENT PERFORMANCE ANALYTICS MODULE           -->
+    <!-- ============================================ -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: 24px;">
+        
+        <!-- SETTINGS BAR -->
+        <div style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); padding: 24px; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 28px;">📊</span>
+                    <h2 style="margin: 0; color: #f8c400; font-size: 1.4rem;">Client Performance Analytics</h2>
+                </div>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.25); border-radius: 12px; padding: 15px 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Baseline:</span>
+                    <input type="number" id="analyticsBaselineLeads" value="20" style="width: 60px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px; color: white; font-size: 0.85rem;" onchange="updateAnalyticsSettings()">
+                    <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem;">leads/mo</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Visitors:</span>
+                    <input type="number" id="analyticsBaselineVisitors" value="2000" style="width: 70px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px; color: white; font-size: 0.85rem;" onchange="updateAnalyticsSettings()">
+                    <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem;">visitors/mo</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Rate:</span>
+                    <span style="color: #f8c400; font-weight: 600;">$</span>
+                    <input type="number" id="analyticsPerLeadRate" value="150" style="width: 70px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px; color: white; font-size: 0.85rem;" onchange="updateAnalyticsSettings()">
+                    <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem;">per lead</span>
+                </div>
+                <div id="analyticsSettingsSaved" style="color: #4caf50; font-size: 0.75rem; display: none; margin-left: auto;">
+                    <i class="fas fa-check"></i> Saved
+                </div>
+            </div>
         </div>
-        <div class="live-stat">
-            <span class="live-label">Today:</span>
-            <span class="live-value" id="todayLeads">0</span>
-            <span class="live-unit">qualified leads</span>
+        
+        <!-- ROW 1 — THE MONEY METRICS -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 24px;">
+            
+            <div style="background: rgba(18, 28, 46, 0.7); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(248,196,0,0.3); border-top: 3px solid #f8c400;">
+                <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Pre-Qual Leads</div>
+                <div id="analyticsTotalLeads" style="color: white; font-size: 2.5rem; font-weight: 700;">0</div>
+                <div id="analyticsIncrementalLeads" style="color: #4caf50; font-size: 0.85rem; margin-top: 4px;">+0 above baseline</div>
+            </div>
+            
+            <div style="background: rgba(18, 28, 46, 0.7); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(33,150,243,0.3); border-top: 3px solid #2196f3;">
+                <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Phone Calls</div>
+                <div id="analyticsPhoneCalls" style="color: white; font-size: 2.5rem; font-weight: 700;">0</div>
+                <div style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px;">direct connects</div>
+            </div>
+            
+            <div style="background: rgba(18, 28, 46, 0.7); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(76,175,80,0.3); border-top: 3px solid #4caf50;">
+                <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Revenue This Month</div>
+                <div id="analyticsRevenue" style="color: white; font-size: 2.5rem; font-weight: 700;">$0</div>
+                <div id="analyticsRevenueDetail" style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px;">0 leads × $150</div>
+            </div>
+            
+            <div style="background: rgba(18, 28, 46, 0.7); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(156,39,176,0.3); border-top: 3px solid #9c27b0;">
+                <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Improvement</div>
+                <div id="analyticsImprovement" style="color: white; font-size: 2.5rem; font-weight: 700;">0%</div>
+                <div style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px;">vs. forms alone</div>
+            </div>
         </div>
-        <div class="live-stat">
-            <span class="live-label">Estimated Value:</span>
-            <span class="live-value" id="estimatedValue">$0</span>
+        
+        <!-- ROW 2 — BEFORE vs AFTER + ENGAGEMENT -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+            
+            <div style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); padding: 24px;">
+                <h3 style="color: white; font-size: 1.1rem; margin: 0 0 20px 0;">📋 Before vs After</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="background: rgba(244,67,54,0.1); border: 1px solid rgba(244,67,54,0.3); border-radius: 10px; padding: 20px; text-align: center;">
+                        <div style="color: #f44336; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">Before (Forms)</div>
+                        <div id="analyticsBeforeLeads" style="color: white; font-size: 2rem; font-weight: 700;">20</div>
+                        <div style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">leads/month</div>
+                        <div id="analyticsBeforeRate" style="color: #f44336; font-size: 0.85rem; margin-top: 6px;">1.0% conversion</div>
+                    </div>
+                    <div style="background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.3); border-radius: 10px; padding: 20px; text-align: center;">
+                        <div style="color: #4caf50; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">After (With Tess)</div>
+                        <div id="analyticsAfterLeads" style="color: white; font-size: 2rem; font-weight: 700;">0</div>
+                        <div style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">leads/month</div>
+                        <div id="analyticsAfterRate" style="color: #4caf50; font-size: 0.85rem; margin-top: 6px;">0% conversion</div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; background: rgba(248,196,0,0.08); border-radius: 10px; padding: 14px; text-align: center;">
+                    <div id="analyticsWinStatement" style="color: #f8c400; font-weight: 600; font-size: 0.95rem;">
+                        📈 Tess is delivering 0 more leads than forms alone
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); padding: 24px;">
+                <h3 style="color: white; font-size: 1.1rem; margin: 0 0 20px 0;">📊 AI Assistant Engagement</h3>
+                <div style="display: flex; align-items: flex-end; gap: 12px; height: 140px; padding: 0 10px;" id="engagementBarChart"></div>
+                <div style="display: flex; justify-content: space-between; margin-top: 8px; color: rgba(255,255,255,0.4); font-size: 0.7rem;" id="engagementBarLabels"></div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px;">
+                    <div style="text-align: center;">
+                        <div style="color: rgba(255,255,255,0.5); font-size: 0.7rem;">Clicks This Period</div>
+                        <div id="analyticsClicks" style="color: white; font-size: 1.4rem; font-weight: 600;">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="color: rgba(255,255,255,0.5); font-size: 0.7rem;">Avg Session</div>
+                        <div id="analyticsAvgSession" style="color: white; font-size: 1.4rem; font-weight: 600;">—</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="color: rgba(255,255,255,0.5); font-size: 0.7rem;">Peak Hour</div>
+                        <div id="analyticsPeakHour" style="color: white; font-size: 1.4rem; font-weight: 600;">--:--</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="color: rgba(255,255,255,0.5); font-size: 0.7rem;">Completion Rate</div>
+                        <div id="analyticsCompletionRate" style="color: white; font-size: 1.4rem; font-weight: 600;">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ROW 3 — RECENT LEAD ACTIVITY -->
+        <div style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); padding: 24px;">
+            <h3 style="color: white; font-size: 1.1rem; margin: 0 0 20px 0;">🕐 Recent Lead Activity</h3>
+            <div id="analyticsRecentFeed" style="max-height: 250px; overflow-y: auto;">
+                <div style="color: rgba(255,255,255,0.4); text-align: center; padding: 30px;">No leads yet this period. Events will appear here in real time.</div>
+            </div>
         </div>
     </div>
-    
-    <!-- Main Dashboard Grid -->
-    <main class="dashboard-grid">
-        
-        <!-- AI Engagement Card -->
-        <section class="dashboard-card card-wide">
-            <div class="card-header">
-                <h2><span class="card-icon">🤖</span> AI Assistant Engagement</h2>
-                <div class="card-actions">
-                    <button class="btn-card" onclick="showDetails('ai')">View Details</button>
-                </div>
-            </div>
-            
-            <div class="card-metrics">
-                <div class="metric-large">
-                    <div class="metric-value" id="aiClicks">0</div>
-                    <div class="metric-label">Clicks on AI Button</div>
-                    <div class="metric-trend" id="aiTrend">+0% vs previous period</div>
-                </div>
-                
-                <div class="metric-breakdown">
-                    <div class="breakdown-item">
-                        <div class="breakdown-label">Engagement Rate</div>
-                        <div class="breakdown-value" id="engagementRate">0%</div>
-                    </div>
-                    <div class="breakdown-item">
-                        <div class="breakdown-label">Avg Session</div>
-                        <div class="breakdown-value" id="avgSessionTime">0s</div>
-                    </div>
-                    <div class="breakdown-item">
-                        <div class="breakdown-label">Peak Hour</div>
-                        <div class="breakdown-value" id="peakHour">--:--</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card-chart">
-                <canvas id="aiEngagementChart"></canvas>
-            </div>
-        </section>
-        
-        <!-- Voice Conversations Card -->
-        <section class="dashboard-card">
-            <div class="card-header">
-                <h2><span class="card-icon">🎤</span> Voice Conversations</h2>
-            </div>
-            
-            <div class="card-metrics">
-                <div class="metric-large">
-                    <div class="metric-value" id="totalConversations">0</div>
-                    <div class="metric-label">Total Conversations</div>
-                </div>
-                
-                <div class="metric-details">
-                    <div class="detail-item">
-                        <span class="detail-label">Avg Messages</span>
-                        <span class="detail-value" id="avgMessages">0</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Avg Duration</span>
-                        <span class="detail-value" id="avgDuration">0s</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Completion Rate</span>
-                        <span class="detail-value" id="completionRate">0%</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Testimonial Performance Card -->
-        <section class="dashboard-card">
-            <div class="card-header">
-                <h2><span class="card-icon">📺</span> Testimonial Impact</h2>
-            </div>
-            
-            <div class="card-metrics">
-                <div class="metric-large">
-                    <div class="metric-value" id="testimonialsViewed">0</div>
-                    <div class="metric-label">Testimonials Viewed</div>
-                </div>
-                
-                <div class="testimonial-types">
-                    <div class="type-item type-price">
-                        <span class="type-label">Price Concerns</span>
-                        <span class="type-value" id="priceTestimonials">0</span>
-                    </div>
-                    <div class="type-item type-time">
-                        <span class="type-label">Time Concerns</span>
-                        <span class="type-value" id="timeTestimonials">0</span>
-                    </div>
-                    <div class="type-item type-trust">
-                        <span class="type-label">Trust Concerns</span>
-                        <span class="type-value" id="trustTestimonials">0</span>
-                    </div>
-                </div>
-                
-                <div class="metric-details">
-                    <div class="detail-item">
-                        <span class="detail-label">Avg Watch Time</span>
-                        <span class="detail-value" id="avgWatchTime">0s</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Post-Watch Conv.</span>
-                        <span class="detail-value" id="postWatchConversion">0%</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Action Center Card -->
-        <section class="dashboard-card card-wide">
-            <div class="card-header">
-                <h2><span class="card-icon">🚀</span> Communication Relay Center</h2>
-                <div class="card-actions">
-                    <button class="btn-card" onclick="showDetails('action')">Button Breakdown</button>
-                </div>
-            </div>
-            
-            <div class="card-metrics">
-                <div class="metric-large">
-                    <div class="metric-value" id="actionCenterClicks">0</div>
-                    <div class="metric-label">Total Button Clicks</div>
-                    <div class="metric-trend" id="actionTrend">Conversion Rate: 0%</div>
-                </div>
-                
-                <div class="button-grid">
-                    <div class="button-metric" id="callButton">
-                        <div class="button-icon">📞</div>
-                        <div class="button-info">
-                            <div class="button-label">Call Now</div>
-                            <div class="button-stats">
-                                <span class="button-count">0</span>
-                                <span class="button-percent">0%</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="button-metric" id="scheduleButton">
-                        <div class="button-icon">📅</div>
-                        <div class="button-info">
-                            <div class="button-label">Schedule Call</div>
-                            <div class="button-stats">
-                                <span class="button-count">0</span>
-                                <span class="button-percent">0%</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="button-metric" id="quoteButton">
-                        <div class="button-icon">💰</div>
-                        <div class="button-info">
-                            <div class="button-label">Get Quote</div>
-                            <div class="button-stats">
-                                <span class="button-count">0</span>
-                                <span class="button-percent">0%</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="button-metric" id="emailButton">
-                        <div class="button-icon">📧</div>
-                        <div class="button-info">
-                            <div class="button-label">Email Us</div>
-                            <div class="button-stats">
-                                <span class="button-count">0</span>
-                                <span class="button-percent">0%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card-footer">
-                <div class="roi-calculation">
-                    <div class="roi-label">Estimated Pipeline Value</div>
-                    <div class="roi-value" id="pipelineValue">$0</div>
-                    <div class="roi-note">Based on 20% close rate @ avg deal size</div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Timeline Card -->
-        <section class="dashboard-card">
-            <div class="card-header">
-                <h2><span class="card-icon">📅</span> Recent Activity</h2>
-            </div>
-            
-            <div class="activity-timeline" id="activityTimeline">
-                <div class="activity-item">
-                    <div class="activity-time">Just now</div>
-                    <div class="activity-desc">Visitor engaged with AI</div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-time">5 min ago</div>
-                    <div class="activity-desc">Qualified lead captured</div>
-                </div>
-                <!-- More activities will populate here -->
-            </div>
-        </section>
-        
-        <!-- ROI Calculator Card -->
-        <section class="dashboard-card">
-            <div class="card-header">
-                <h2><span class="card-icon">📈</span> ROI Calculator</h2>
-            </div>
-            
-            <div class="roi-calculator">
-                <div class="roi-input">
-                    <label>Your Monthly Ad Spend</label>
-                    <input type="number" id="adSpend" value="6000" min="0" step="100">
-                </div>
-                
-                <div class="roi-results">
-                    <div class="roi-result">
-                        <span class="result-label">Projected AI Impact</span>
-                        <span class="result-value" id="projectedImpact">+30%</span>
-                    </div>
-                    <div class="roi-result">
-                        <span class="result-label">Additional Leads/Month</span>
-                        <span class="result-value" id="additionalLeads">0</span>
-                    </div>
-                    <div class="roi-result highlight">
-                        <span class="result-label">Monthly Value Added</span>
-                        <span class="result-value" id="monthlyValue">$0</span>
-                    </div>
-                    <div class="roi-result highlight">
-                        <span class="result-label">ROI (12 Months)</span>
-                        <span class="result-value" id="roiValue">0%</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
     
     <!-- Footer -->
     <footer class="dashboard-footer">
