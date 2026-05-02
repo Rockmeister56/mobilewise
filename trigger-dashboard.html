@@ -3575,6 +3575,7 @@ async function exportBridgeOnly() {
         code += '                .then(function() { console.log("✅ Agency notification sent to: " + clientEmail); })\n';
         code += '                .catch(function(e) { console.error("❌ Agency email error:", e); });\n';
         code += '        }\n';
+        code += '    }\n';
         code += '    window.PreQualificationController = PreQualificationController;\n\n';
 
                 // Supabase Realtime
