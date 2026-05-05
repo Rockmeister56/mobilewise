@@ -2146,6 +2146,12 @@ document.getElementById('websiteAction').value = client.modules?.websiteInfo?.ac
 // ===== LOAD PRE-QUALIFICATION SETTINGS =====
 const preQual = client.modules?.preQualification || {};
 
+// ===== LOAD ANALYTICS BASELINE =====
+const baseline = client.modules?.analyticsBaseline || {};
+document.getElementById('analyticsBaselineLeads').value = baseline.baselineLeads || 20;
+document.getElementById('analyticsBaselineVisitors').value = baseline.baselineVisitors || 2000;
+document.getElementById('analyticsPerLeadRate').value = baseline.perLeadRate || 150;
+
 // Basic settings
 document.getElementById('preQualEnabled').checked = preQual.enabled !== false;
 document.getElementById('preQualTriggerPhrase').value = preQual.triggerPhrase || '';
