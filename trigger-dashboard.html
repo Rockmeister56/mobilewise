@@ -1916,6 +1916,11 @@ preQualification: {
     triggerPhrase: document.getElementById('preQualTriggerPhrase')?.value || '',
     emailSubject: document.getElementById('emailSubject')?.value || 'New Lead: {{name}}',
     emailTemplate: document.getElementById('emailTemplate')?.value || ''
+},
+analyticsBaseline: {
+    baselineLeads: parseInt(document.getElementById('analyticsBaselineLeads')?.value) || 20,
+    baselineVisitors: parseInt(document.getElementById('analyticsBaselineVisitors')?.value) || 2000,
+    perLeadRate: parseInt(document.getElementById('analyticsPerLeadRate')?.value) || 150
 }
 },
 updatedAt: new Date().toISOString()
