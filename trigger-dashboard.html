@@ -538,7 +538,7 @@
                 </div>
             </div>
             <div class="badge">
-                <i class="fas fa-check-circle"></i> v3.0 · BRIDGE GENERATOR
+                <i class="fas fa-check-circle"></i> v4.0 · BRIDGE GENERATOR
             </div>
         </div>
 
@@ -574,6 +574,14 @@
     </button>
 </div>
         </div>
+        <div class="field">
+    <label><i class="fas fa-chart-bar"></i> ANALYTICS BASELINE</label>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+        <input type="number" id="analyticsBaselineLeads" value="20" placeholder="Leads/mo" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; font-size: 0.85rem;">
+        <input type="number" id="analyticsBaselineVisitors" value="2000" placeholder="Visitors/mo" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; font-size: 0.85rem;">
+        <input type="number" id="analyticsPerLeadRate" value="150" placeholder="$/lead" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; font-size: 0.85rem;">
+    </div>
+</div>
 
         <!-- Email Configuration Section -->
 <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px;">
@@ -1566,6 +1574,39 @@ function updateTriggerPreviews() {
             phonePreview.textContent = 'No triggers set';
         }
     }
+}
+
+</script>
+
+<script>
+
+function createNewClient() {
+    // Clear the form for a fresh client
+    document.getElementById('clientSelect').value = '';
+    document.getElementById('clientName').value = '';
+    document.getElementById('clientId').value = '';
+    document.getElementById('agentId').value = '';
+    document.getElementById('clientWebsiteUrl').value = '';
+    
+    // Reset modules to defaults
+    document.getElementById('splashEnabled').checked = true;
+    document.getElementById('preQualEnabled').checked = true;
+    
+    // Clear smart screens, testimonials, videos
+    savedSmartScreens = [];
+    testimonialGroups = [];
+    videos = [];
+    localStorage.removeItem('botemia_smartScreens');
+    localStorage.removeItem('botemia_testimonialGroups');
+    localStorage.removeItem('botemia_videos');
+    renderSmartScreenList();
+    renderTestimonialGroups();
+    renderVideos();
+    
+    // Focus on client name
+    document.getElementById('clientName').focus();
+    
+    configManager.updateStatus('New client ready — enter details and save', 'ready');
 }
 
 </script>
