@@ -1607,10 +1607,17 @@ function createNewClient() {
     document.getElementById('clientId').value = '';
     document.getElementById('agentId').value = '';
     document.getElementById('clientWebsiteUrl').value = '';
+    document.getElementById('industryPreset').value = 'mortgage';
     
-    // Reset modules to defaults
+    // Reset analytics baseline
+    document.getElementById('analyticsBaselineLeads').value = '20';
+    document.getElementById('analyticsBaselineVisitors').value = '2000';
+    document.getElementById('analyticsPerLeadRate').value = '150';
+    
+    // Reset modules
     document.getElementById('splashEnabled').checked = true;
     document.getElementById('preQualEnabled').checked = true;
+    document.getElementById('preQualTriggerPhrase').value = "let's get started";
     
     // Clear smart screens, testimonials, videos
     savedSmartScreens = [];
@@ -1627,6 +1634,7 @@ function createNewClient() {
     document.getElementById('clientName').focus();
     
     configManager.updateStatus('New client ready — enter details and save', 'ready');
+    console.log('🆕 New client form reset');
 }
 
 </script>
