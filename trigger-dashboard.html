@@ -543,43 +543,63 @@
         </div>
 
         <!-- ===== CLIENT CONFIGURATION ===== -->
-        <div class="client-config-bar">
-            <div class="field">
-                <label><i class="fas fa-user"></i> SELECT CLIENT</label>
-                <select id="clientSelect">
-                    <option value="">— New Client —</option>
-                </select>
-            </div>
-            <div class="field">
-                <label><i class="fas fa-building"></i> CLIENT NAME</label>
-                <input type="text" id="clientName" placeholder="e.g. Mortgage Assist" value="Mortgage Assist Demo">
-            </div>
-            <div class="field">
-                <label><i class="fas fa-id"></i> CLIENT ID</label>
-                <input type="text" id="clientId" readonly value="mortgage-assist-demo">
-            </div>
-            <div class="field">
-                <label><i class="fas fa-industry"></i> INDUSTRY PRESET</label>
-                <select id="industryPreset">
-                    <option value="mortgage" selected>🏠 Mortgage</option>
-                    <option value="legal">⚖️ Legal / Personal Injury</option>
-                    <option value="tax">📋 Tax Resolution</option>
-                    <option value="dental">🦷 Dental / Medical</option>
-                    <option value="manufacturing">🏭 Manufacturing</option>
-                </select>
-            </div>
-            <div class="field" style="display: flex; align-items: flex-end; gap: 10px;">
-    <button onclick="createNewClient()" style="background: #f8c400; color: #0a0f1e; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;">
-        <i class="fas fa-plus"></i> New Client
-    </button>
-</div>
+<div class="client-config-bar">
+    <div class="field">
+        <label><i class="fas fa-user"></i> SELECT CLIENT</label>
+        <div style="display: flex; gap: 10px;">
+            <select id="clientSelect" style="flex: 1;">
+                <option value="">— New Client —</option>
+            </select>
+            <button onclick="createNewClient()" style="background: #f8c400; color: #0a0f1e; border: none; padding: 12px 16px; border-radius: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 0.9rem;">
+                <i class="fas fa-plus"></i> New
+            </button>
         </div>
-        <div class="field">
-    <label><i class="fas fa-chart-bar"></i> ANALYTICS BASELINE</label>
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-        <input type="number" id="analyticsBaselineLeads" value="20" placeholder="Leads/mo" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; font-size: 0.85rem;">
-        <input type="number" id="analyticsBaselineVisitors" value="2000" placeholder="Visitors/mo" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; font-size: 0.85rem;">
-        <input type="number" id="analyticsPerLeadRate" value="150" placeholder="$/lead" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: white; font-size: 0.85rem;">
+    </div>
+    <div class="field">
+        <label><i class="fas fa-building"></i> CLIENT NAME</label>
+        <input type="text" id="clientName" placeholder="e.g. ABC Mortgage" value="">
+    </div>
+    <div class="field">
+        <label><i class="fas fa-id"></i> CLIENT ID</label>
+        <input type="text" id="clientId" readonly value="" placeholder="auto-generated">
+    </div>
+    <div class="field">
+        <label><i class="fas fa-globe"></i> WEBSITE URL</label>
+        <input type="url" id="clientWebsiteUrl" placeholder="https://client-website.com" value="">
+    </div>
+    <div class="field">
+        <label><i class="fas fa-industry"></i> INDUSTRY</label>
+        <select id="industryPreset">
+            <option value="mortgage" selected>🏠 Mortgage</option>
+            <option value="legal">⚖️ Legal / Personal Injury</option>
+            <option value="tax">📋 Tax Resolution</option>
+            <option value="dental">🦷 Dental / Medical</option>
+            <option value="manufacturing">🏭 Manufacturing</option>
+        </select>
+    </div>
+</div>
+
+<!-- ANALYTICS BASELINE BAR -->
+<div style="background: rgba(12, 25, 45, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(248,196,0,0.3); border-radius: 24px; padding: 20px 28px; margin-bottom: 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-chart-bar" style="color: #f8c400; font-size: 1.2rem;"></i>
+        <span style="color: #f8c400; font-weight: 600; font-size: 0.9rem;">ANALYTICS BASELINE</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Leads/mo:</span>
+        <input type="number" id="analyticsBaselineLeads" value="20" min="0" style="width: 70px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 10px; color: white; font-size: 0.85rem;">
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Visitors/mo:</span>
+        <input type="number" id="analyticsBaselineVisitors" value="2000" min="0" style="width: 80px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 10px; color: white; font-size: 0.85rem;">
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">$/lead:</span>
+        <span style="color: #f8c400;">$</span>
+        <input type="number" id="analyticsPerLeadRate" value="150" min="0" style="width: 70px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 10px; color: white; font-size: 0.85rem;">
+    </div>
+    <div style="margin-left: auto; color: rgba(255,255,255,0.4); font-size: 0.75rem;">
+        <i class="fas fa-info-circle"></i> Set per client — used for analytics & invoicing
     </div>
 </div>
 
