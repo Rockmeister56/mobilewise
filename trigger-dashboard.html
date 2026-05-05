@@ -2292,137 +2292,92 @@ uploadToSupabase(config, supabaseUrl, supabaseKey) {
 
             },
             
-generateDeploymentPackage() {
-    // ===== MOVE TRY BLOCK TO TOP TO CATCH STRINGIFY ERRORS =====
-    try {
-        const config = this.getCurrentConfig();
-         config.agentId = document.getElementById('agentId').value;
-    if (config.modules?.splashScreen) {
-        config.modules.splashScreen.agentId = document.getElementById('splashAgentId')?.value || document.getElementById('agentId').value;
-    }
-        
-        if (!config.id || !config.name) {
-            alert('Please enter a client name');
-            return;
-        }
-
-        // Safe Stringify to handle circular references (common cause of crashes)
-        const safeStringify = (obj) => {
-            const cache = new Set();
-            return JSON.stringify(obj, (key, value) => {
-                if (typeof value === 'object' && value !== null) {
-                    if (cache.has(value)) return; // Discard circular references
-                    cache.add(value);
-                }
-                return value;
-            }, 4);
-        };
-
-          // ===== SPLASH SCREEN CONFIG EXTRACTION =====
-        const splashConfig = config.modules?.splashScreen || {};
-
-        // ===== 1. Generate Supabase CSV =====
-        const csvData = [
-            ['client_id', 'config_json', 'industry', 'updated_at'],
-            [config.id, safeStringify(config), config.industry || '', new Date().toISOString()]
-        ];
-        const csv = csvData.map(row => row.map(cell => 
-            typeof cell === 'string' ? `"${cell.replace(/"/g, '""')}"` : (cell || '')
-        ).join(',')).join('\n');
-
-        // ===== 3. Generate Installation Guide =====
-        const guideCode = `BOTEMIA INSTALLATION GUIDE
-========================
-Client: ${config.name}
-Client ID: ${config.id}
-Generated: ${new Date().toLocaleString()}
-
-INSTALLATION STEPS:
-1. Upload the bridge file to your website's root folder
-2. Add this line to your website, just before the closing <\/body> tag:
-   <script src="bridge-${config.id}.js"><\/script>
-3. That's it! The widget will load automatically
-
-TROUBLESHOOTING:
-- Open browser console (F12) to verify bridge loaded
-- Look for "✅ Widget created" message
-- Config is available at window.BotemiaConfig
-
-SUPPORT:
-Contact: support@botemia.com`;
-
-        // ===== 4. Download all three files =====
-        // Helper to download
-        const downloadFile = (content, fileName, mimeType) => {
-            const blob = new Blob([content], { type: mimeType });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName;
-            link.click();
-            URL.revokeObjectURL(link.href);
-        };
-
-        // Execute Downloads
-        downloadFile(csv, config.id + '-config.csv', 'text/csv');
-        setTimeout(() => downloadFile(bridgeCode, 'bridge-' + config.id + '.js', 'application/javascript'), 100);
-        setTimeout(() => downloadFile(guideCode, config.id + '-install.txt', 'text/plain'), 200);
-
-        this.updateStatus('✅ Complete deployment package generated for ' + config.name, 'success');
-
-    } catch (error) {
-        console.error('Deployment Error:', error);
-        this.updateStatus('❌ Error generating package: ' + error.message, 'error');
-        alert('Error generating package: ' + error.message);
-    }
-},
-
-    updateBridgePreview() {
-    const clientId = document.getElementById('clientId').value || 'client-id';
-    const agentId = document.getElementById('agentId').value || 'agent-id';
-    const preview = document.getElementById('bridgePreview');
-    
-    preview.innerHTML = `// Botemia Bridge for ${clientId}
-(function() {
-        "use strict"; 
-
-        const CLIENT_CONFIG = {
-            id: '${clientId}',
-            agentId: **' + document.getElementById('agentId').value + "', // ✅ FIXED: Use .value to get the actual value from the DOM
-            environment: '** + document.getElementById('environment').value + "', // ✅ FIXED: Use .value to get the actual value from the DOM
-            class BotemiaBridge { ... }
+    generateDeploymentPackage() {
+        // ===== MOVE TRY BLOCK TO TOP TO CATCH STRINGIFY ERRORS =====
+        try {
+            const config = this.getCurrentConfig();
+            config.agentId = document.getElementById('agentId').value;
+            if (config.modules?.splashScreen) {
+                config.modules.splashScreen.agentId = document.getElementById('splashAgentId')?.value || document.getElementById('agentId').value;
+            }
             
-            constructor() {
-                this.clientId = CLIENT_CONFIG.id;
-                this.agentId = CLIENT_CONFIG.agentId;
-                console.log('Bridge initializing for ' + this.clientId);
-                this.init();
+            if (!config.id || !config.name) {
+                alert('Please enter a client name');
+                return;
             }
 
-            async init() {
-                // Load config from Supabase
-                const { data, error } = await supabase
-                    .from('clients')
-                    .select('*')
-                    .eq('client_id', this.clientId)
-                    .single();
+            // Safe Stringify to handle circular references
+            const safeStringify = (obj) => {
+                const cache = new Set();
+                return JSON.stringify(obj, (key, value) => {
+                    if (typeof value === 'object' && value !== null) {
+                        if (cache.has(value)) return;
+                        cache.add(value);
+                    }
+                    return value;
+                }, 4);
+            };
 
-                if (data) {
-                    window.botemiaConfig = data.config;
-                    this.loadWidget();
-                }
-            }
+            // ===== SPLASH SCREEN CONFIG EXTRACTION =====
+            const splashConfig = config.modules?.splashScreen || {};
 
-            loadWidget() {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.botemia.com/widget.js';
-                script.async = true;
-                document.head.appendChild(script);
-            }
+            // ===== 1. GENERATE BRIDGE FILE =====
+            // We call the separate export function to handle the heavy JS generation
+            exportBridgeOnly();
+            
+            // ===== 2. GENERATE INSTALLATION GUIDE =====
+            setTimeout(() => {
+                const guideCode = `BOTEMIA INSTALLATION GUIDE
+    ========================
+    Client: ${config.name}
+    Client ID: ${config.id}
+    Generated: ${new Date().toLocaleString()}
+
+    INSTALLATION STEPS:
+    1. Upload the bridge file to your website's root folder
+    2. Add this line to your website, just before the closing <\/body> tag:
+       <script src="bridge-${config.id}.js"><\/script>
+    3. That's it! The widget will load automatically
+
+    TROUBLESHOOTING:
+    - Open browser console (F12) to verify bridge loaded
+    - Look for "✅ Widget created" message
+    - Config is available at window.BotemiaConfig
+
+    SUPPORT:
+    Contact: support@botemia.com`;
+
+                const guideBlob = new Blob([guideCode], { type: 'text/plain' });
+                const guideLink = document.createElement('a');
+                guideLink.href = URL.createObjectURL(guideBlob);
+                guideLink.download = config.id + '-install.txt';
+                guideLink.click();
+                URL.revokeObjectURL(guideLink.href);
+            }, 300);
+
+            this.updateStatus('✅ Complete package generated for ' + config.name, 'success');
+
+        } catch (error) {
+            console.error('Deployment Error:', error);
+            this.updateStatus('❌ Error generating package: ' + error.message, 'error');
+            alert('Error generating package: ' + error.message);
         }
+    },
 
-        new BotemiaBridge();
-})();`; 
-            },
+        updateBridgePreview() {
+        const clientId = document.getElementById('clientId').value || 'client-id';
+        const agentId = document.getElementById('agentId').value || 'agent-id';
+        const preview = document.getElementById('bridgePreview');
+        
+        // This simply shows the IDs in the preview box
+        if (preview) {
+            preview.innerHTML = `// Botemia Bridge for ${clientId}
+// Agent ID: ${agentId}
+// Environment: Production
+// Ready to export...
+`;
+        }
+    },
 
             updateStatus: function(message, type) {
     console.log('Status:', message, type);
@@ -4314,9 +4269,9 @@ async function exportBridgeOnly() {
         code += '    window.forcePreQualification = forcePreQualification;\n';
         code += '\n';
 
-               // Show Splash Function
+        // ===== SHOW SPLASH FUNCTION =====
         code += '    function showSplash() {\n';
-        code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n'; // FIXED: Scoped correctly
+        code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n'; 
         code += '        if (!config || !config.enabled) return;\n\n';
 
         code += '        const overlay = document.createElement(\'div\');\n';
@@ -4331,16 +4286,21 @@ async function exportBridgeOnly() {
 
         code += '        const card = document.createElement(\'div\');\n';
         code += '        card.className = \'splash-card\';\n';
-        code += '        // Original: Direct style application (Safer than CSS variables)\n';
         code += '        card.style.background = `radial-gradient(circle at center, ${config.gradientCenter || \'#1e4a8a\'} 0%, ${config.gradientOuter || \'#0a1a2f\'} 80%)`;\n\n';
         
+        // ✅ FIXED: We use backticks (`) here to allow the ${} variables, but we escape them properly for the string builder
         code += '        let cardHTML = `\n';
         code += '            <h1>✨ ${config.title || \'Meet Tess!\'} ✨</h1>\n';
         code += '            <h2>${config.subtitle || \'Your Personal AI Web Guide\'}</h2>\n';
         code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
         code += '            <div class="button-group">\n';
+        
+        // Primary Button
         code += '                <button class="primary-btn" id="activateTessBtn" style="background: linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'}); color: ${config.primaryButton?.textColor || \'#0a0f1e\'};">${config.primaryButton?.text || \'Get AI help with Tess\'}</button>\n';
+        
+        // Secondary Button (THE FIX)
         code += '                <button class="secondary-btn" id="justBrowsingBtn" style="background: linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'}); color: ${config.secondaryButton?.textColor || \'#ffffff\'};">${config.secondaryButton?.text || \'Just Browsing\'}</button>\n';
+        
         code += '            </div>\n';
         code += '        `;\n\n';
         
@@ -4375,7 +4335,6 @@ async function exportBridgeOnly() {
         code += '                const tickerContent = document.createElement(\'div\');\n';
         code += '                tickerContent.className = \'ticker-content\';\n';
         code += '                \n';
-        code += '                // Duplicate keywords for seamless looping\n';
         code += '                const allKeywords = [...keywords, ...keywords];\n';
         code += '                \n';
         code += '                allKeywords.forEach(keyword => {\n';
@@ -4393,7 +4352,7 @@ async function exportBridgeOnly() {
         code += '        document.getElementById(\'activateTessBtn\').addEventListener(\'click\', activateTess);\n';
         code += '        document.getElementById(\'justBrowsingBtn\').addEventListener(\'click\', justBrowsing);\n\n';
         
-        // Hover Effects (Condensed for brevity, logic remains same)
+        // Hover Effects
         code += '        const primaryBtn = document.getElementById(\'activateTessBtn\');\n';
         code += '        primaryBtn.onmouseover = () => { primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.hoverTop || \'#ffd700\'}, ${config.primaryButton?.hoverBottom || \'#e0b000\'})`; primaryBtn.style.transform = \'scale(1.02)\'; };\n';
         code += '        primaryBtn.onmouseout = () => { primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'})`; primaryBtn.style.transform = \'scale(1)\'; };\n';
@@ -4402,18 +4361,16 @@ async function exportBridgeOnly() {
         code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
         code += '    }\n\n';
 
-               code += '    // ===== ACTIVATE TESS FUNCTION =====\n';
+        // ===== ACTIVATE TESS FUNCTION =====
         code += '    async function activateTess() {\n';
         code += '        console.log("🖱️ Click detected: Capturing user gesture for audio...");\n';
         code += '        \n';
-        code += '        // Remove splash widget\n';
         code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
         code += '        if (splashWidget) {\n';
         code += '            splashWidget.innerHTML = \'\';\n';
         code += '            if (splashWidget.parentNode) splashWidget.parentNode.removeChild(splashWidget);\n';
         code += '        }\n';
         code += '        \n';
-        code += '        // Remove overlay\n';
         code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
         code += '        if (overlay) overlay.remove();\n';
         code += '\n';
@@ -4446,7 +4403,7 @@ async function exportBridgeOnly() {
         code += '\n';
 
 
-               // Show Persistent Avatar
+        // ===== SHOW PERSISTENT AVATAR =====
         code += '    function showPersistentAvatar() {\n';
         code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n';
         code += '        const persistentConfig = config?.persistentButton || {};\n';
@@ -4492,7 +4449,7 @@ async function exportBridgeOnly() {
         code += '    }\n';
         code += '\n';
 
-        // Just Browsing
+        // ===== JUST BROWSING =====
         code += '    function justBrowsing() {\n';
         code += '        console.log("👆 Just Browsing clicked - showing persistent avatar");\n';
         code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
@@ -4511,7 +4468,7 @@ async function exportBridgeOnly() {
         code += '    }\n';
         code += '\n';
 
-                // Init Widget
+        // ===== INIT WIDGET =====
         code += '    window.disableBridgeTriggers = false;\n';
         code += '    function initWidget() {\n';
         code += '        if (document.querySelector(\'lemon-slice-widget\')) { console.log(\'✅ Widget already exists\'); return; }\n';
@@ -4528,7 +4485,7 @@ async function exportBridgeOnly() {
         code += '    console.log(\'✅ Botemia Bridge v5.8 loaded for\', window.BotemiaConfig.name);\n';
         code += '\n';
 
-              code += '    // ===== CLIENT ANNOUNCEMENT FUNCTION =====\n';
+        code += '    // ===== CLIENT ANNOUNCEMENT FUNCTION =====\n';
         code += '    function announceToTCS() {\n';
         code += '        const sendAnnouncement = function() {\n';
         code += '            if (window.supabaseChannel) {\n';
@@ -4575,55 +4532,52 @@ async function exportBridgeOnly() {
         code += '    console.log("🩺 Bridge health check available: window.bridgeHealthCheck()");\n';
         code += '})();\n';
 
+      // =========================================
+    // 📡 TCS REMOTE CONTROL LINK
+    // DASHBOARD ONLY - DO NOT EXPORT TO BRIDGE
     // =========================================
-// 📡 TCS REMOTE CONTROL LINK
-// DASHBOARD ONLY - DO NOT EXPORT TO BRIDGE
-// =========================================
+    const TCS_SERVER_URL = 'https://mobilewise.netlify.app/trigger-control-system'; 
 
-const TCS_SERVER_URL = 'https://mobilewise.netlify.app/trigger-control-system'; 
+    function openTCS_ControlPanel() {  
+        // 0. PREVENT LOOP
+        if (window.location.href.includes("trigger-control-system")) {
+            console.log("🚫 We are inside TCS. Stopping loop.");
+            return;
+        }
 
-function openTCS_ControlPanel() {  
-    // 0. PREVENT LOOP
-    if (window.location.href.includes("trigger-control-system")) {
-        console.log("🚫 We are inside the TCS. Stopping loop.");
-        return;
-    }
+        // 1. Check if already open
+        if (window.tcsWindow && !window.tcsWindow.closed) {
+            console.log("🔗 TCS is already open. Focusing...");
+            window.tcsWindow.focus();
+            return;
+        }
 
-    // 1. Check if already open
-    if (window.tcsWindow && !window.tcsWindow.closed) {
-        console.log("🔗 TCS is already open. Focusing...");
-        window.tcsWindow.focus();
-        return;
-    }
-
-    // 2. 🔥 SAFETY LOCK: Get Client ID
-    // We look for the ID from the Dashboard's input or state
-    // If you have an input field with id "clientIdInput", use that.
-    // Otherwise, we default to the demo ID.
-    let clientIdInput = document.getElementById('clientIdInput')?.value;
-    let clientId = clientIdInput || "mortgage-assist-demo";
-    
-    // Safety check just in case
-    if (!clientId || clientId === "0" || clientId === 0) {
-        console.warn("⚠️ TCS Client ID invalid. Forcing mortgage-assist-demo.");
-        clientId = "mortgage-assist-demo";
-    }
-    
-    // 3. Construct URL
-    const tcsUrl = TCS_SERVER_URL + "?clientId=" + clientId + "&websiteUrl=" + encodeURIComponent(window.location.href);
-    
-    // 4. Open the Popup
-    console.log("🔗 Opening TCS Control Panel with ID:", clientId);
-    try {
-        window.tcsWindow = window.open(
-            tcsUrl, 
-            'Botemia_TCS_Control', 
-            'width=1200,height=800,scrollbars=yes,resizable=yes'
-        );
-    } catch (e) {
-        console.error("❌ Failed to open TCS (Popup blocked?):", e);
-    }
-}  
+        // 2. GET CLIENT ID SAFELY
+        // We look for ID from Dashboard's input or state
+        let clientIdInput = document.getElementById('clientIdInput')?.value;
+        let clientId = clientIdInput || "mortgage-assist-demo";
+        
+        // Safety check
+        if (!clientId || clientId === "0" || clientId === 0) {
+            console.warn("⚠️ TCS Client ID invalid. Forcing mortgage-assist-demo.");
+            clientId = "mortgage-assist-demo";
+        }
+        
+        // 3. Construct URL
+        const tcsUrl = TCS_SERVER_URL + "?clientId=" + clientId + "&websiteUrl=" + encodeURIComponent(window.location.href);
+        
+        // 4. Open Popup
+        console.log("🔗 Opening TCS Control Panel with ID:", clientId);
+        try {
+            window.tcsWindow = window.open(
+                tcsUrl, 
+                'Botemia_TCS_Control', 
+                'width=1200,height=800,scrollbars=yes,resizable=yes'
+            );
+        } catch (e) {
+            console.error("❌ Failed to open TCS (Popup blocked?):", e);
+        }
+    }  
         
         // ===== DOWNLOAD THE FILE =====
         const bridgeBlob = new Blob([code], { type: 'application/javascript' });
