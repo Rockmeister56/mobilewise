@@ -61,6 +61,42 @@ async function initAnalytics() {
     if (!isDemoMode) {
         setupRealtimeListener();
         setInterval(refreshAnalytics, 30000);
+        
+        // ===== LIVE ACTIVITY TICKER =====
+        var tickerChannel = supabaseClient.channel('analytics-live-ticker');
+        tickerChannel.on('broadcast', { event: 'analytics_event' }, function(payload) {
+            var event = payload.payload;
+            if (event.client_id !== currentClientId) return;
+            
+            var ticker = document.getElementById('live-activity');
+            var text = document.getElementById('live-activity-text');
+            if (!ticker || !text) return;
+            
+            switch(event.event_type) {
+                case 'splash_view': 
+                    text.textContent = '👀 Visitor viewing splash screen'; 
+                    break;
+                case 'activate_tess': 
+                    text.textContent = '🤖 Visitor activated Tess'; 
+                    break;
+                case 'prequal_start': 
+                    text.textContent = '📋 Pre-qualification interview started'; 
+                    break;
+                case 'lead_captured': 
+                    text.textContent = '📧 Lead captured: ' + (event.event_data?.email || 'new lead'); 
+                    break;
+                case 'phone_connect': 
+                    text.textContent = '📞 Phone call initiated'; 
+                    break;
+                default:
+                    text.textContent = '🟢 Visitor activity detected';
+            }
+            
+            ticker.style.display = 'block';
+            setTimeout(function() { ticker.style.display = 'none'; }, 4000);
+        });
+        tickerChannel.subscribe();
+        console.log('👂 Live activity ticker active');
     }
 }
 
