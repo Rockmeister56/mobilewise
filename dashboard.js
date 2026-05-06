@@ -1,6 +1,6 @@
 // ============================================
-// MOBILEWISE AI ANALYTICS ENGINE v3.0
-// Client Performance Analytics + Supabase Realtime
+// MOBILEWISE AI ANALYTICS ENGINE v3.1
+// Client Performance Analytics + Demo Mode
 // ============================================
 
 const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
@@ -8,6 +8,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 let supabaseClient = null;
 let currentClientId = 'mortgage-assist-demo';
+let isDemoMode = false;
 
 // ============================================
 // ANALYTICS SETTINGS & DATA
@@ -46,14 +47,21 @@ async function initAnalytics() {
     if (urlParams.get('clientId')) {
         currentClientId = urlParams.get('clientId');
     }
+    if (urlParams.get('demo') === 'true') {
+        isDemoMode = true;
+    }
     
     const clientInfo = document.getElementById('clientInfo');
-    if (clientInfo) clientInfo.textContent = `Client: ${currentClientId}`;
+    if (clientInfo) {
+        clientInfo.textContent = `Client: ${currentClientId}${isDemoMode ? ' (Demo Mode)' : ''}`;
+    }
 
     loadAnalyticsSettings();
-    setupRealtimeListener();
     
-    setInterval(refreshAnalytics, 30000);
+    if (!isDemoMode) {
+        setupRealtimeListener();
+        setInterval(refreshAnalytics, 30000);
+    }
 }
 
 // ============================================
@@ -84,33 +92,56 @@ function loadAnalyticsSettings() {
     const saved = localStorage.getItem('mobilewise_analytics_settings');
     if (saved) {
         analyticsSettings = JSON.parse(saved);
-        const bl = document.getElementById('analyticsBaselineLeads');
-        const bv = document.getElementById('analyticsBaselineVisitors');
-        const pr = document.getElementById('analyticsPerLeadRate');
-        if (bl) bl.value = analyticsSettings.baselineLeads;
-        if (bv) bv.value = analyticsSettings.baselineVisitors;
-        if (pr) pr.value = analyticsSettings.perLeadRate;
     }
+    
+    const bl = document.getElementById('analyticsBaselineLeads');
+    const bv = document.getElementById('analyticsBaselineVisitors');
+    const pr = document.getElementById('analyticsPerLeadRate');
+    if (bl) bl.textContent = analyticsSettings.baselineLeads;
+    if (bv) bv.textContent = analyticsSettings.baselineVisitors.toLocaleString();
+    if (pr) pr.textContent = '$' + analyticsSettings.perLeadRate;
+    
     loadAnalyticsData();
 }
 
-function updateAnalyticsSettings() {
-    analyticsSettings.baselineLeads = parseInt(document.getElementById('analyticsBaselineLeads').value) || 20;
-    analyticsSettings.baselineVisitors = parseInt(document.getElementById('analyticsBaselineVisitors').value) || 2000;
-    analyticsSettings.perLeadRate = parseInt(document.getElementById('analyticsPerLeadRate').value) || 150;
-    
-    localStorage.setItem('mobilewise_analytics_settings', JSON.stringify(analyticsSettings));
-    
-    const savedEl = document.getElementById('analyticsSettingsSaved');
-    if (savedEl) {
-        savedEl.style.display = 'block';
-        setTimeout(() => { savedEl.style.display = 'none'; }, 2000);
+function loadAnalyticsData() {
+    // ===== DEMO MODE: Load sample data =====
+    if (isDemoMode) {
+        console.log('📊 Loading demo analytics data...');
+        analyticsData = {
+            totalLeads: 42,
+            phoneCalls: 7,
+            tessClicks: 128,
+            totalVisitors: 2100,
+            completedInterviews: 38,
+            sessions: [
+                { type: 'click', time: Date.now() - 3600000 },
+                { type: 'interview_start', time: Date.now() - 3500000 },
+                { type: 'click', time: Date.now() - 1800000 },
+                { type: 'interview_start', time: Date.now() - 1700000 }
+            ],
+            peakHours: {
+                '9:00': 12, '10:00': 18, '11:00': 22, '12:00': 15,
+                '13:00': 10, '14:00': 24, '15:00': 20, '16:00': 7
+            },
+            recentActivity: [
+                { type: 'lead', email: 'john@abcmortgage.com', value: 150, time: 'Today 2:45 PM' },
+                { type: 'lead', email: 'sarah@homeloans.com', value: 150, time: 'Today 1:30 PM' },
+                { type: 'phone', time: 'Today 12:15 PM' },
+                { type: 'lead', email: 'mike@premierlending.com', value: 150, time: 'Today 11:00 AM' },
+                { type: 'lead', email: 'lisa@coastalfunding.com', value: 150, time: 'Today 10:20 AM' },
+                { type: 'lead', email: 'david@peaklending.com', value: 150, time: 'Yesterday 4:10 PM' },
+                { type: 'phone', time: 'Yesterday 3:00 PM' },
+                { type: 'lead', email: 'amanda@sunrisemortgage.com', value: 150, time: 'Yesterday 1:45 PM' }
+            ]
+        };
+        analyticsSettings = { baselineLeads: 20, baselineVisitors: 2000, perLeadRate: 150 };
+        refreshAnalyticsDisplay();
+        updateTime();
+        return;
     }
     
-    refreshAnalyticsDisplay();
-}
-
-function loadAnalyticsData() {
+    // ===== NORMAL MODE: Load from localStorage =====
     const saved = localStorage.getItem('mobilewise_analytics_data');
     if (saved) {
         analyticsData = JSON.parse(saved);
@@ -120,6 +151,7 @@ function loadAnalyticsData() {
 }
 
 function saveAnalyticsData() {
+    if (isDemoMode) return; // Don't overwrite demo data
     localStorage.setItem('mobilewise_analytics_data', JSON.stringify(analyticsData));
 }
 
@@ -128,6 +160,8 @@ function saveAnalyticsData() {
 // ============================================
 
 function trackAnalyticsEvent(eventType, eventData = {}) {
+    if (isDemoMode) return;
+    
     const now = new Date();
     const hour = now.getHours();
     const hourLabel = hour + ':00';
