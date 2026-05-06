@@ -32,75 +32,6 @@ let analyticsData = {
 };
 
 // ============================================
-// INITIALIZATION
-// ============================================
-
-async function initAnalytics() {
-    if (window.supabase && window.supabase.createClient) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Analytics Engine: Supabase connected');
-    } else {
-        console.warn('⚠️ Supabase SDK not loaded. Using local storage.');
-    }
-
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('clientId')) {
-        currentClientId = urlParams.get('clientId');
-    }
-    if (urlParams.get('demo') === 'true') {
-        isDemoMode = true;
-    }
-    
-    const clientInfo = document.getElementById('clientInfo');
-    if (clientInfo) {
-        clientInfo.textContent = `Client: ${currentClientId}${isDemoMode ? ' (Demo Mode)' : ''}`;
-    }
-
-    loadAnalyticsSettings();
-    
-    if (!isDemoMode) {
-        setupRealtimeListener();
-        setInterval(refreshAnalytics, 30000);
-        
-        // ===== LIVE ACTIVITY TICKER =====
-        var tickerChannel = supabaseClient.channel('analytics-live-ticker');
-        tickerChannel.on('broadcast', { event: 'analytics_event' }, function(payload) {
-            var event = payload.payload;
-            if (event.client_id !== currentClientId) return;
-            
-            var ticker = document.getElementById('live-activity');
-            var text = document.getElementById('live-activity-text');
-            if (!ticker || !text) return;
-            
-            switch(event.event_type) {
-                case 'splash_view': 
-                    text.textContent = '👀 Visitor viewing splash screen'; 
-                    break;
-                case 'activate_tess': 
-                    text.textContent = '🤖 Visitor activated Tess'; 
-                    break;
-                case 'prequal_start': 
-                    text.textContent = '📋 Pre-qualification interview started'; 
-                    break;
-                case 'lead_captured': 
-                    text.textContent = '📧 Lead captured: ' + (event.event_data?.email || 'new lead'); 
-                    break;
-                case 'phone_connect': 
-                    text.textContent = '📞 Phone call initiated'; 
-                    break;
-                default:
-                    text.textContent = '🟢 Visitor activity detected';
-            }
-            
-            ticker.style.display = 'block';
-            setTimeout(function() { ticker.style.display = 'none'; }, 4000);
-        });
-        tickerChannel.subscribe();
-        console.log('👂 Live activity ticker active');
-    }
-}
-
-// ============================================
 // REAL-TIME LISTENER
 // ============================================
 
@@ -350,6 +281,39 @@ function refreshAnalyticsDisplay() {
 }
 
 // ============================================
+// INITIALIZATION
+// ============================================
+
+async function initAnalytics() {
+    if (window.supabase && window.supabase.createClient) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Analytics Engine: Supabase connected');
+    } else {
+        console.warn('⚠️ Supabase SDK not loaded. Using local storage.');
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('clientId')) {
+        currentClientId = urlParams.get('clientId');
+    }
+    if (urlParams.get('demo') === 'true') {
+        isDemoMode = true;
+    }
+    
+    const clientInfo = document.getElementById('clientInfo');
+    if (clientInfo) {
+        clientInfo.textContent = `Client: ${currentClientId}${isDemoMode ? ' (Demo Mode)' : ''}`;
+    }
+
+    loadAnalyticsSettings();
+    
+    if (!isDemoMode) {
+        setupRealtimeListener();
+        setInterval(refreshAnalytics, 30000);
+    }
+}
+
+// ============================================
 // ENGAGEMENT BAR CHART
 // ============================================
 
@@ -482,4 +446,3 @@ window.analyticsData = analyticsData;
 window.analyticsSettings = analyticsSettings;
 window.refreshAnalytics = refreshAnalytics;
 window.exportAnalyticsReport = exportAnalyticsReport;
-window.updateAnalyticsSettings = updateAnalyticsSettings;
