@@ -631,7 +631,7 @@
         <!-- Add this after the Client ID field or in the client config bar -->
 <div class="field">
     <label><i class="fas fa-globe"></i> Client Website URL</label>
-    <input type="url" id="clientWebsiteUrl" placeholder="https://client-website.com" value="">
+    <input type="url" id="emailClientWebsiteUrl" placeholder="https://client-website.com" value="">
     <p style="color: #aaa; font-size:0.75rem; margin-top:3px;">The URL where this client's bridge is installed</p>
 </div>
 
@@ -1709,8 +1709,8 @@ function saveCommunicationCenter() {
     const config = configManager.getCurrentConfig();
     if (!config.modules) config.modules = {};
     
-    // Save website URL at the top level
-    config.websiteUrl = document.getElementById('clientWebsiteUrl')?.value || '';
+    // Save website URL at the top level (checks both fields)
+    config.websiteUrl = document.getElementById('emailClientWebsiteUrl')?.value || document.getElementById('clientWebsiteUrl')?.value || '';
     
     config.modules.emailConfig = {
         enabled: document.getElementById('commsEnabled')?.checked !== false,
@@ -2054,6 +2054,7 @@ populateClientSelect() {
     document.getElementById('clientId').value = id;
     document.getElementById('agentId').value = client.agentId || '';
     document.getElementById('clientWebsiteUrl').value = client.websiteUrl || '';
+    document.getElementById('emailClientWebsiteUrl').value = client.websiteUrl || '';
     document.getElementById('widgetId').value = client.widgetId || '';
     document.getElementById('apiKey').value = client.apiKey || '';
     document.getElementById('environment').value = client.environment || 'production';
