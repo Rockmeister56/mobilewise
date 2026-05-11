@@ -3207,7 +3207,7 @@ async function exportBridgeOnly() {
         code += '            },\n';
         code += '            "emailConfig": ' + JSON.stringify(config.modules?.emailConfig || {}) + ',\n';
         code += '            "splashScreen": ' + JSON.stringify(config.modules?.splashScreen || {}) + ',\n';
-        code += '            "smartScreen": ' + JSON.stringify(config.modules?.smartScreen || { images: [] }) + ',\n';
+        code += '            "smartScreen": ' + JSON.stringify(config.modules?.smartScreen || { images: [] });
         code += '            "testimonial": ' + JSON.stringify(config.modules?.testimonial || { groups: [] }) + ',\n';
         code += '            "videoVault": ' + JSON.stringify(config.modules?.videoVault || { videos: [] }) + ',\n';
         code += '            "websiteInfo": ' + JSON.stringify(config.modules?.websiteInfo || { triggers: [] }) + '\n';
