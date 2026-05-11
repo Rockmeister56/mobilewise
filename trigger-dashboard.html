@@ -1010,10 +1010,10 @@
         </div>
 
         <div style="margin-bottom: 15px;">
-            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎯 Trigger Phrase (what Botania says)</label>
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎯 Trigger Phrase (what Tess says)</label>
             <input type="text" id="newTestimonialTrigger" placeholder="e.g., Show me rate testimonials" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
             <p style="color: #f8c400; font-size:0.8rem; margin-top:5px;">
-                <i class="fas fa-info-circle"></i> Botania says this exact phrase to show this group
+                <i class="fas fa-info-circle"></i> Tess says this exact phrase to show this group
             </p>
         </div>
 
@@ -1071,10 +1071,10 @@
         </div>
 
         <div style="margin-bottom: 15px;">
-            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎯 Trigger Phrase (what Botania says)</label>
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🎯 Trigger Phrase (what Tess says)</label>
             <input type="text" id="newVideoTrigger" placeholder="e.g., Show me the loan process video" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
             <p style="color: #f8c400; font-size:0.8rem; margin-top:5px;">
-                <i class="fas fa-info-circle"></i> Botania says this exact phrase to play this video
+                <i class="fas fa-info-circle"></i> Tess says this exact phrase to play this video
             </p>
         </div>
 
@@ -3204,6 +3204,9 @@ async function exportBridgeOnly() {
         code += '            "emailConfig": ' + JSON.stringify(config.modules?.emailConfig || {}) + ',\n';
         code += '            "splashScreen": ' + JSON.stringify(config.modules?.splashScreen || {}) + ',\n';
         code += '            "smartScreen": ' + JSON.stringify(config.modules?.smartScreen || { images: [] }) + '\n';
+        code += '            "testimonial": ' + JSON.stringify(config.modules?.testimonial || { groups: [] }) + ',\n';
+        code += '            "videoVault": ' + JSON.stringify(config.modules?.videoVault || { videos: [] }) + ',\n';
+        code += '            "websiteInfo": ' + JSON.stringify(config.modules?.websiteInfo || { triggers: [] }) + '\n';
         code += '        }\n';
         code += '    };\n\n';
         
