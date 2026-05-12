@@ -627,61 +627,67 @@
                 <div id="smart_screenTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
         </div>
 
-        <!-- MODULE 3: TESTIMONIALS -->
-        <div class="module-control-card" id="module-testimonials" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
-            <div style="padding: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-users" style="font-size: 24px; color: #f8c400;"></i>
-                        <h3 style="margin: 0; color: white;">Testimonials</h3>
-                    </div>
-                    <div id="testimonialsStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
-                </div>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
-                    <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
-                        <i class="fas fa-bullhorn"></i> TRIGGER PHRASES (by group)
-                    </div>
-                    <code id="testimonialsTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
-                </div>
-                <div style="display: flex; gap: 12px;">
-                    <button id="testimonialsTestBtn" class="module-test-btn" onclick="testModule('testimonials')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
-                        <i class="fas fa-vial"></i> Test Trigger
-                    </button>
-                    <button id="testimonialsToggleBtn" class="module-toggle-btn" onclick="toggleModule('testimonials')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
-                        <i class="fas fa-power-off"></i> Disable
-                    </button>
-                </div>
-                <div id="testimonialsTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
+        <!-- MODULE: TESTIMONIALS -->
+<div class="module-control-card" id="module-testimonials" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
+    <div style="padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-users" style="font-size: 24px; color: #f8c400;"></i>
+                <h3 style="margin: 0; color: white;">Testimonials</h3>
             </div>
+            <div id="testimonialsStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
         </div>
+        <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+            <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
+                <i class="fas fa-bullhorn"></i> TRIGGER PHRASES (by group)
+            </div>
+            <select id="testimonialsTriggerSelect" style="width: 100%; background: #0a0f1e; border: 1px solid rgba(248,196,0,0.3); border-radius: 8px; padding: 10px 12px; color: #f8c400; font-size: 0.85rem; cursor: pointer; margin-bottom: 8px;">
+                <option value="">— Select a trigger phrase to test —</option>
+            </select>
+            <code id="testimonialsTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button id="testimonialsTestBtn" class="module-test-btn" onclick="testTestimonials()" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                <i class="fas fa-vial"></i> Test Trigger
+            </button>
+            <button id="testimonialsToggleBtn" class="module-toggle-btn" onclick="toggleModule('testimonials')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                <i class="fas fa-power-off"></i> Disable
+            </button>
+        </div>
+        <div id="testimonialsTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
+    </div>
+</div>
 
-        <!-- MODULE 4: VIDEO VAULT -->
-        <div class="module-control-card" id="module-videoVault" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
-            <div style="padding: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fas fa-film" style="font-size: 24px; color: #f8c400;"></i>
-                        <h3 style="margin: 0; color: white;">Video Vault</h3>
-                    </div>
-                    <div id="videoVaultStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
-                </div>
-                <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
-                    <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
-                        <i class="fas fa-bullhorn"></i> TRIGGER PHRASES (by video)
-                    </div>
-                    <code id="videoVaultTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
-                </div>
-                <div style="display: flex; gap: 12px;">
-                    <button id="videoVaultTestBtn" class="module-test-btn" onclick="testModule('video_vault')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
-                        <i class="fas fa-vial"></i> Test Trigger
-                    </button>
-                    <button id="videoVaultToggleBtn" class="module-toggle-btn" onclick="toggleModule('video_vault')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
-                        <i class="fas fa-power-off"></i> Disable
-                    </button>
-                </div>
-                <div id="video_vaultTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
+       <!-- MODULE: VIDEO VAULT -->
+<div class="module-control-card" id="module-videoVault" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
+    <div style="padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-film" style="font-size: 24px; color: #f8c400;"></i>
+                <h3 style="margin: 0; color: white;">Video Vault</h3>
             </div>
+            <div id="videoVaultStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
         </div>
+        <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+            <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
+                <i class="fas fa-bullhorn"></i> TRIGGER PHRASES (by video)
+            </div>
+            <select id="videoVaultTriggerSelect" style="width: 100%; background: #0a0f1e; border: 1px solid rgba(248,196,0,0.3); border-radius: 8px; padding: 10px 12px; color: #f8c400; font-size: 0.85rem; cursor: pointer; margin-bottom: 8px;">
+                <option value="">— Select a trigger phrase to test —</option>
+            </select>
+            <code id="videoVaultTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button id="videoVaultTestBtn" class="module-test-btn" onclick="testVideoVault()" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                <i class="fas fa-vial"></i> Test Trigger
+            </button>
+            <button id="videoVaultToggleBtn" class="module-toggle-btn" onclick="toggleModule('video_vault')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                <i class="fas fa-power-off"></i> Disable
+            </button>
+        </div>
+        <div id="videoVaultTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
+    </div>
+</div>
 
         <!-- MODULE 5: WEBSITE INFO -->
         <div class="module-control-card" id="module-websiteInfo" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
@@ -1061,6 +1067,9 @@ function updateModuleDisplays() {
         moduleTriggers.website_info = websiteTriggers.join(', ') || 'No triggers configured';
         console.log("✅ Updated website info trigger display:", websiteTriggers);
     }
+    // Populate dropdown selectors
+    populateTestimonialTriggers();
+    populateVideoVaultTriggers();
 }
 
 // Call this after Supabase is initialized and you have the client ID
@@ -2689,6 +2698,188 @@ window.clientManager = new ClientConnectionManager();
 
 // Start scanning for clients is DISABLED (not needed)
 // clientManager.startScanning();
+
+// ===== POPULATE TESTIMONIALS TRIGGER DROPDOWN =====
+function populateTestimonialTriggers() {
+    const select = document.getElementById('testimonialsTriggerSelect');
+    const display = document.getElementById('testimonialsTriggerDisplay');
+    if (!select) return;
+    
+    const groups = window.BotemiaConfig?.modules?.testimonial?.groups || [];
+    
+    select.innerHTML = '<option value="">— Select a trigger phrase to test —</option>';
+    
+    let allTriggers = [];
+    groups.forEach((group) => {
+        if (group.triggerPhrase) {
+            allTriggers.push(group.triggerPhrase);
+            const option = document.createElement('option');
+            option.value = group.triggerPhrase;
+            option.textContent = `${group.triggerPhrase} (${group.name || 'Group'})`;
+            select.appendChild(option);
+        }
+    });
+    
+    if (display) {
+        display.textContent = allTriggers.length > 0 
+            ? allTriggers.map(t => `"${t}"`).join(', ') 
+            : 'No triggers configured';
+    }
+    
+    moduleTriggers.testimonials = allTriggers.join(', ') || 'No triggers configured';
+    console.log('🎬 Testimonial triggers populated:', allTriggers.length);
+}
+
+// ===== TEST TESTIMONIALS WITH SELECTED TRIGGER =====
+function testTestimonials() {
+    const select = document.getElementById('testimonialsTriggerSelect');
+    const selectedPhrase = select?.value;
+    
+    if (!selectedPhrase) {
+        alert('Please select a trigger phrase to test');
+        return;
+    }
+    
+    const resultDiv = document.getElementById('testimonialsTestResult');
+    if (resultDiv) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+        resultDiv.className = 'test-result testing';
+    }
+    
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'command',
+            payload: {
+                module: 'testimonials',
+                command: 'test_trigger',
+                trigger_phrase: selectedPhrase,
+                timestamp: Date.now()
+            }
+        });
+        console.log('📡 Sent TEST_TRIGGER command for testimonials with phrase:', selectedPhrase);
+    }
+    
+    const timeout = setTimeout(() => {
+        if (resultDiv) {
+            resultDiv.innerHTML = '❌ No response from Bridge (timeout)';
+            resultDiv.className = 'test-result error';
+        }
+    }, 8000);
+    
+    const resultHandler = (payload) => {
+        if (payload.event === 'trigger_test_result' && payload.payload.module === 'testimonials') {
+            clearTimeout(timeout);
+            const resultEl = document.getElementById('testimonialsTestResult');
+            if (!resultEl) return;
+            if (payload.payload.success) {
+                resultEl.innerHTML = `✅ ${payload.payload.message || 'Success'}`;
+                resultEl.className = 'test-result success';
+                addToTranscriptFeed('✅ Testimonial trigger test PASSED');
+            } else {
+                resultEl.innerHTML = `❌ ${payload.payload.message || 'Unknown error'}`;
+                resultEl.className = 'test-result error';
+                addToTranscriptFeed('❌ Testimonial trigger test FAILED');
+            }
+        }
+    };
+    
+    if (window.supabaseChannel) {
+        window.supabaseChannel.on('broadcast', { event: 'trigger_test_result' }, resultHandler);
+    }
+}
+
+// ===== POPULATE VIDEO VAULT TRIGGER DROPDOWN =====
+function populateVideoVaultTriggers() {
+    const select = document.getElementById('videoVaultTriggerSelect');
+    const display = document.getElementById('videoVaultTriggerDisplay');
+    if (!select) return;
+    
+    const videos = window.BotemiaConfig?.modules?.videoVault?.videos || [];
+    
+    select.innerHTML = '<option value="">— Select a trigger phrase to test —</option>';
+    
+    let allTriggers = [];
+    videos.forEach((video) => {
+        if (video.triggerPhrase) {
+            allTriggers.push(video.triggerPhrase);
+            const option = document.createElement('option');
+            option.value = video.triggerPhrase;
+            option.textContent = `${video.triggerPhrase} (${video.name || 'Video'})`;
+            select.appendChild(option);
+        }
+    });
+    
+    if (display) {
+        display.textContent = allTriggers.length > 0 
+            ? allTriggers.map(t => `"${t}"`).join(', ') 
+            : 'No videos configured';
+    }
+    
+    moduleTriggers.video_vault = allTriggers.join(', ') || 'No videos configured';
+    console.log('📹 Video Vault triggers populated:', allTriggers.length);
+}
+
+// ===== TEST VIDEO VAULT WITH SELECTED TRIGGER =====
+function testVideoVault() {
+    const select = document.getElementById('videoVaultTriggerSelect');
+    const selectedPhrase = select?.value;
+    
+    if (!selectedPhrase) {
+        alert('Please select a trigger phrase to test');
+        return;
+    }
+    
+    const resultDiv = document.getElementById('videoVaultTestResult');
+    if (resultDiv) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+        resultDiv.className = 'test-result testing';
+    }
+    
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'command',
+            payload: {
+                module: 'video_vault',
+                command: 'test_trigger',
+                trigger_phrase: selectedPhrase,
+                timestamp: Date.now()
+            }
+        });
+        console.log('📡 Sent TEST_TRIGGER command for video_vault with phrase:', selectedPhrase);
+    }
+    
+    const timeout = setTimeout(() => {
+        if (resultDiv) {
+            resultDiv.innerHTML = '❌ No response from Bridge (timeout)';
+            resultDiv.className = 'test-result error';
+        }
+    }, 8000);
+    
+    const resultHandler = (payload) => {
+        if (payload.event === 'trigger_test_result' && payload.payload.module === 'video_vault') {
+            clearTimeout(timeout);
+            const resultEl = document.getElementById('videoVaultTestResult');
+            if (!resultEl) return;
+            if (payload.payload.success) {
+                resultEl.innerHTML = `✅ ${payload.payload.message || 'Success'}`;
+                resultEl.className = 'test-result success';
+                addToTranscriptFeed('✅ Video Vault trigger test PASSED');
+            } else {
+                resultEl.innerHTML = `❌ ${payload.payload.message || 'Unknown error'}`;
+                resultEl.className = 'test-result error';
+                addToTranscriptFeed('❌ Video Vault trigger test FAILED');
+            }
+        }
+    };
+    
+    if (window.supabaseChannel) {
+        window.supabaseChannel.on('broadcast', { event: 'trigger_test_result' }, resultHandler);
+    }
+}
 
 // ============================================
 // ADD TO TRANSCRIPT FEED (helper)
