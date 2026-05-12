@@ -3786,7 +3786,7 @@ async function exportBridgeOnly() {
         code += '                        if (!result.success) result.message = "❌ No website trigger matched";\n';
         code += '                    }\n';
         code += '                    \n';
-                code += '                    // --- TESTIMONIALS ---\n';
+        code += '                    // --- TESTIMONIALS ---\n';
         code += '                    if (mod === "testimonials") {\n';
         code += '                        var groups = window.BotemiaConfig?.modules?.testimonial?.groups || [];\n';
         code += '                        var matchedGroup = null;\n';
@@ -3854,6 +3854,8 @@ async function exportBridgeOnly() {
         code += '                            result.message = "❌ No video trigger matched";\n';
         code += '                        }\n';
         code += '                    }\n';
+        code += '                    // --- CLOSING BRACES FOR TEST_TRIGGER & BROADCAST LISTENER ---\n';
+        code += '                    }\n'; 
         code += '            tcsChannel.subscribe(function(status) { \n';
         code += '                if (status === "SUBSCRIBED") console.log("✅ [REALTIME] Connected to Supabase"); \n';
         code += '            });\n';
