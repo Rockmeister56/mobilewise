@@ -3815,6 +3815,12 @@ async function exportBridgeOnly() {
         code += '                                webFrame.style.cssText = "width:85vw;height:75vh;border:none;";\n';
         code += '                                webOverlay.appendChild(webFrame);\n';
         code += '                                document.body.appendChild(webOverlay);\n';
+        code += '                                if (window.supabaseChannel) {\n';
+        code += '                                    window.supabaseChannel.send({\n';
+        code += '                                        type: "broadcast", event: "trigger_test_result",\n';
+        code += '                                        payload: { module: mod, success: result.success, message: result.message, timestamp: Date.now() }\n';
+        code += '                                    });\n';
+        code += '                                }\n';
         code += '                                break;\n';
         code += '                            }\n';
         code += '                        }\n';
