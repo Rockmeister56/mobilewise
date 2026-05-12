@@ -3814,6 +3814,11 @@ async function exportBridgeOnly() {
         code += '                                    var vidCaption = document.createElement("div");\n';
         code += '                                    vidCaption.style.cssText = "color:white;font-size:1.3rem;margin-top:15px;font-weight:600;";\n';
         code += '                                    vidCaption.textContent = matchedGroup.name;\n';
+        code += '                                var closeBtn = document.createElement("button");\n';
+        code += '                                closeBtn.textContent = "✕ Close";\n';
+        code += '                                closeBtn.style.cssText = "margin-top:12px;padding:8px 25px;background:#f8c400;color:#0a0f1e;border:none;border-radius:30px;font-size:0.9rem;font-weight:600;cursor:pointer;";\n';
+        code += '                                closeBtn.onclick = function() { videoOverlay.remove(); };\n';
+        code += '                                videoOverlay.appendChild(closeBtn);\n';
         code += '                                    videoOverlay.appendChild(vidCaption);\n';
         code += '                                }\n';
         code += '                                document.body.appendChild(videoOverlay);\n';
@@ -3847,6 +3852,11 @@ async function exportBridgeOnly() {
         code += '                                var vidCaption = document.createElement("div");\n';
         code += '                                vidCaption.style.cssText = "color:white;font-size:1.3rem;margin-top:15px;font-weight:600;";\n';
         code += '                                vidCaption.textContent = matchedVideo.name;\n';
+        code += '                                var closeBtn = document.createElement("button");\n';
+        code += '                                closeBtn.textContent = "✕ Close";\n';
+        code += '                                closeBtn.style.cssText = "margin-top:12px;padding:8px 25px;background:#f8c400;color:#0a0f1e;border:none;border-radius:30px;font-size:0.9rem;font-weight:600;cursor:pointer;";\n';
+        code += '                                closeBtn.onclick = function() { videoOverlay.remove(); };\n';
+        code += '                                videoOverlay.appendChild(closeBtn);\n';
         code += '                                videoOverlay.appendChild(vidCaption);\n';
         code += '                            }\n';
         code += '                            document.body.appendChild(videoOverlay);\n';
