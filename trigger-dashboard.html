@@ -2153,9 +2153,12 @@ if (client.modules?.websiteInfo?.links) {
         console.log('📸 Loaded', savedSmartScreens.length, 'smart screens from client config');
     }
     
-   // ===== LOAD WEBSITE INFO =====
-document.getElementById('websiteInfoType').value = client.modules?.websiteInfo?.infoType || 'navigation';
-document.getElementById('websiteAction').value = client.modules?.websiteInfo?.action || 'showSmartNavigation';
+  // ===== LOAD WEBSITE INFO LINKS =====
+if (client.modules?.websiteInfo?.links) {
+    websiteLinks = client.modules.websiteInfo.links;
+    localStorage.setItem('botemia_websiteLinks', JSON.stringify(websiteLinks));
+    renderWebsiteLinks();
+}
 
 // ===== LOAD PRE-QUALIFICATION SETTINGS =====
 const preQual = client.modules?.preQualification || {};
