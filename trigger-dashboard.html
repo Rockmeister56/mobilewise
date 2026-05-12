@@ -3795,6 +3795,12 @@ async function exportBridgeOnly() {
         code += '                        for (var w = 0; w < webLinks.length; w++) {\n';
         code += '                            if (webLinks[w].triggerPhrase && phrase.indexOf(webLinks[w].triggerPhrase.toLowerCase()) !== -1) {\n';
         code += '                                result = { success: true, message: "✅ Website Info: " + webLinks[w].title };\n';
+        code += '                                if (window.supabaseChannel) {\n';
+        code += '                                    window.supabaseChannel.send({\n';
+        code += '                                        type: "broadcast", event: "trigger_test_result",\n';
+        code += '                                        payload: { module: mod, success: true, message: "✅ Website Info: " + webLinks[w].title, timestamp: Date.now() }\n';
+        code += '                                    });\n';
+        code += '                                }\n';
         code += '                                // Show the link overlay\n';
         code += '                                var webOverlay = document.createElement("div");\n';
         code += '                                webOverlay.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,15,30,0.98);z-index:999998;display:flex;flex-direction:column;padding:0;border-radius:16px;max-width:90vw;max-height:85vh;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.8);border:2px solid #f8c400;";\n';
