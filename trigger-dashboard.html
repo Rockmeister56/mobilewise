@@ -1453,7 +1453,12 @@
                 <button onclick="previewDeploymentPackage()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 18px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; display: flex; align-items: center; gap: 12px; cursor: pointer;">
                     <i class="fas fa-eye"></i> Preview Package
                 </button>
-            </div>
+                <!-- Action Buttons Row -->
+        <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
+            <button onclick="configManager.saveConfiguration()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 16px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 180px; justify-content: center;">
+                <i class="fas fa-save"></i> Save Config
+            </button>
+        </div>
             
             <!-- NEW: Client Test Button Row -->
             <div style="display: flex; gap: 20px; flex-wrap: wrap; border-top: 1px solid rgba(248,196,0,0.2); padding-top: 25px;">
@@ -1481,13 +1486,6 @@
                     <i class="fas fa-lightbulb"></i> Once approved, send the bridge file to your client for production installation.
                 </p>
             </div>
-        </div>
-
-        <!-- Action Buttons Row -->
-        <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
-            <button onclick="configManager.saveConfiguration()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 16px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: 180px; justify-content: center;">
-                <i class="fas fa-save"></i> Save Config
-            </button>
         </div>
 
         <!-- Remote Control Section -->
