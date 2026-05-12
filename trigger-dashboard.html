@@ -1251,48 +1251,53 @@
     </div>
 </div>
 
-            <!-- ===== MODULE 5: WEBSITE INFO CENTER ===== -->
-            <div class="module-card">
-                <div class="module-header">
-                    <div class="module-icon"><i class="fas fa-sitemap"></i></div>
-                    <div class="module-title">
-                        <h2>🌐 Website Info Center</h2>
-                        <p>Smart navigation & page guidance</p>
-                    </div>
-                </div>
+            <!-- ===== MODULE: WEBSITE INFO CENTER ===== -->
+<div class="module-card">
+    <div class="module-header">
+        <div class="module-icon"><i class="fas fa-sitemap"></i></div>
+        <div class="module-title">
+            <h2>🌐 Website Info Center</h2>
+            <p>Add links that Tess can display when triggered</p>
+        </div>
+    </div>
 
-                <div class="trigger-section">
-                    <div class="trigger-header">
-                        <label><i class="fas fa-bullhorn"></i> TRIGGER PHRASES</label>
-                        <span class="preset-badge"><i class="fas fa-robot"></i> PRESET</span>
-                    </div>
-                    <div class="custom-trigger-add">
-                        <input type="text" id="newWebsiteTrigger" placeholder="Add custom trigger phrase...">
-                        <button class="btn-add" onclick="addCustomTrigger('website')"><i class="fas fa-plus"></i> Add</button>
-                    </div>
-                </div>
+    <!-- EXISTING LINKS LIST -->
+    <div style="margin-bottom: 20px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; background: rgba(0,0,0,0.15);" id="websiteLinksList">
+        <div style="text-align: center; padding: 30px; color: rgba(255,255,255,0.3);" id="websiteLinksEmpty">
+            <i class="fas fa-plus-circle" style="font-size: 3rem; margin-bottom: 10px;"></i>
+            <p>No website links yet. Add your first one below.</p>
+        </div>
+    </div>
 
-                <div class="module-options">
-                    <div class="option-row">
-                        <label><i class="fas fa-info-circle"></i> Info Type</label>
-                        <select id="websiteInfoType">
-                            <option value="navigation" selected>🧭 Page Navigation</option>
-                            <option value="faq">❓ FAQ/Information</option>
-                            <option value="links">🔗 Direct Links</option>
-                            <option value="sitemap">🗺️ Site Map</option>
-                        </select>
-                    </div>
-                    <div class="option-row">
-                        <label><i class="fas fa-play"></i> Action</label>
-                        <select id="websiteAction">
-                            <option value="showSmartNavigation" selected>🧠 Show Smart Navigation</option>
-                            <option value="showRelevantLinks">🔗 Show Relevant Links</option>
-                            <option value="displayFAQ">📋 Display FAQ Section</option>
-                        </select>
-                        </div>
-                    </div>
-                </div>
+    <!-- ADD NEW LINK FORM -->
+    <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px solid #f8c400;">
+        <h3 style="color: #f8c400; margin-bottom: 20px;">
+            <i class="fas fa-plus-circle"></i> Add Website Link
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">📛 Link Title</label>
+                <input type="text" id="newWebsiteLinkTitle" placeholder="e.g., AI Performance Plan" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
             </div>
+            <div>
+                <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔗 URL</label>
+                <input type="text" id="newWebsiteLinkUrl" placeholder="https://..." style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+            </div>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="color: #a0c8ff; font-size: 0.85rem; display: block; margin-bottom: 5px;">
+                <i class="fas fa-bullhorn"></i> Trigger Phrase
+            </label>
+            <input type="text" id="newWebsiteLinkTrigger" placeholder="e.g., show me the pricing" style="width:100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: white;">
+        </div>
+
+        <button class="btn-add" onclick="addWebsiteLink()" style="width: 100%; padding: 16px; font-size: 1.1rem;">
+            <i class="fas fa-save"></i> SAVE THIS LINK
+        </button>
+    </div>
+</div>
         <!-- END OF GRID 3 -->
 
         <!-- ===== COMMUNICATION CENTER MODULE ===== -->
@@ -1901,9 +1906,8 @@ let configManager = {
                     images: JSON.parse(JSON.stringify(savedSmartScreens || []))
                 },
               websiteInfo: {
-    triggers: [],
-    infoType: document.getElementById('websiteInfoType')?.value || 'navigation',
-    action: document.getElementById('websiteAction')?.value || 'showSmartNavigation'
+    triggers: websiteLinks.map(l => l.triggerPhrase),
+    links: websiteLinks.map(l => ({ title: l.title, url: l.url, triggerPhrase: l.triggerPhrase }))
 },
  emailConfig: {
                     loanOfficerEmail: document.getElementById('loanOfficerEmail')?.value || '',
@@ -2123,6 +2127,12 @@ if (splash.branding?.logo) {
         localStorage.setItem('botemia_testimonialGroups', JSON.stringify(testimonialGroups));
         renderTestimonialGroups();
     }
+    // Load website links
+if (client.modules?.websiteInfo?.links) {
+    websiteLinks = client.modules.websiteInfo.links;
+    localStorage.setItem('botemia_websiteLinks', JSON.stringify(websiteLinks));
+    renderWebsiteLinks();
+}
     
     // ===== LOAD VIDEOS =====
     if (client.modules?.videoVault?.videos) {
@@ -3776,16 +3786,36 @@ async function exportBridgeOnly() {
         code += '                    \n';
         code += '                    // --- WEBSITE INFO ---\n';
         code += '                    if (mod === "website_info") {\n';
-        code += '                        var webTriggers = window.BotemiaConfig?.modules?.websiteInfo?.triggers || [];\n';
-        code += '                        for (var w = 0; w < webTriggers.length; w++) {\n';
-        code += '                            if (webTriggers[w] && phrase.indexOf(webTriggers[w].toLowerCase()) !== -1) {\n';
-        code += '                                result = { success: true, message: "✅ Website Info trigger matched" };\n';
+        code += '                        var webInfo = window.BotemiaConfig?.modules?.websiteInfo;\n';
+        code += '                        var webLinks = webInfo?.links || [];\n';
+        code += '                        for (var w = 0; w < webLinks.length; w++) {\n';
+        code += '                            if (webLinks[w].triggerPhrase && phrase.indexOf(webLinks[w].triggerPhrase.toLowerCase()) !== -1) {\n';
+        code += '                                result = { success: true, message: "✅ Website Info: " + webLinks[w].title };\n';
+        code += '                                // Show the link overlay\n';
+        code += '                                var webOverlay = document.createElement("div");\n';
+        code += '                                webOverlay.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,15,30,0.98);z-index:999998;display:flex;flex-direction:column;padding:0;border-radius:16px;max-width:90vw;max-height:85vh;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.8);border:2px solid #f8c400;";\n';
+        code += '                                var webHeader = document.createElement("div");\n';
+        code += '                                webHeader.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:rgba(0,0,0,0.5);border-bottom:1px solid #f8c400;";\n';
+        code += '                                var webTitle = document.createElement("span");\n';
+        code += '                                webTitle.style.cssText = "color:#f8c400;font-size:1.1rem;font-weight:600;";\n';
+        code += '                                webTitle.textContent = webLinks[w].title;\n';
+        code += '                                webHeader.appendChild(webTitle);\n';
+        code += '                                var webClose = document.createElement("button");\n';
+        code += '                                webClose.textContent = "✕";\n';
+        code += '                                webClose.style.cssText = "background:#f44336;color:white;border:none;width:32px;height:32px;border-radius:50%;font-size:1rem;cursor:pointer;";\n';
+        code += '                                webClose.onclick = function() { webOverlay.remove(); };\n';
+        code += '                                webHeader.appendChild(webClose);\n';
+        code += '                                webOverlay.appendChild(webHeader);\n';
+        code += '                                var webFrame = document.createElement("iframe");\n';
+        code += '                                webFrame.src = webLinks[w].url;\n';
+        code += '                                webFrame.style.cssText = "width:85vw;height:75vh;border:none;";\n';
+        code += '                                webOverlay.appendChild(webFrame);\n';
+        code += '                                document.body.appendChild(webOverlay);\n';
         code += '                                break;\n';
         code += '                            }\n';
         code += '                        }\n';
-        code += '                        if (!result.success) result.message = "❌ No website trigger matched";\n';
+        code += '                        if (!result.success) result.message = "❌ No website info trigger matched";\n';
         code += '                    }\n';
-        code += '                    \n';
         code += '                    // --- TESTIMONIALS ---\n';
         code += '                    if (mod === "testimonials") {\n';
         code += '                        var groups = window.BotemiaConfig?.modules?.testimonial?.groups || [];\n';
@@ -4214,6 +4244,36 @@ async function exportBridgeOnly() {
         code += '            console.error("❌ Daily init error:", e); \n';
         code += '        }\n';
         code += '    }\n\n';
+        code += '                        // --- WEBSITE INFO TRIGGER (normal mode) ---\n';
+        code += '                        var webInfo = window.BotemiaConfig?.modules?.websiteInfo;\n';
+        code += '                        if (webInfo?.links && webInfo.links.length > 0) {\n';
+        code += '                            for (var wi = 0; wi < webInfo.links.length; wi++) {\n';
+        code += '                                var link = webInfo.links[wi];\n';
+        code += '                                if (link.triggerPhrase && lowerText.indexOf(link.triggerPhrase.toLowerCase()) !== -1) {\n';
+        code += '                                    console.log("🌐 Website Info matched:", link.title);\n';
+        code += '                                    var webOverlay = document.createElement("div");\n';
+        code += '                                    webOverlay.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,15,30,0.98);z-index:999998;display:flex;flex-direction:column;padding:0;border-radius:16px;max-width:90vw;max-height:85vh;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.8);border:2px solid #f8c400;";\n';
+        code += '                                    var webHeader = document.createElement("div");\n';
+        code += '                                    webHeader.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:rgba(0,0,0,0.5);border-bottom:1px solid #f8c400;";\n';
+        code += '                                    var webTitle = document.createElement("span");\n';
+        code += '                                    webTitle.style.cssText = "color:#f8c400;font-size:1.1rem;font-weight:600;";\n';
+        code += '                                    webTitle.textContent = link.title;\n';
+        code += '                                    webHeader.appendChild(webTitle);\n';
+        code += '                                    var webClose = document.createElement("button");\n';
+        code += '                                    webClose.textContent = "✕";\n';
+        code += '                                    webClose.style.cssText = "background:#f44336;color:white;border:none;width:32px;height:32px;border-radius:50%;font-size:1rem;cursor:pointer;";\n';
+        code += '                                    webClose.onclick = function() { webOverlay.remove(); };\n';
+        code += '                                    webHeader.appendChild(webClose);\n';
+        code += '                                    webOverlay.appendChild(webHeader);\n';
+        code += '                                    var webFrame = document.createElement("iframe");\n';
+        code += '                                    webFrame.src = link.url;\n';
+        code += '                                    webFrame.style.cssText = "width:85vw;height:75vh;border:none;";\n';
+        code += '                                    webOverlay.appendChild(webFrame);\n';
+        code += '                                    document.body.appendChild(webOverlay);\n';
+        code += '                                    break;\n';
+        code += '                                }\n';
+        code += '                            }\n';
+        code += '                        }\n';
         code += '    // ==========================================\n';
         code += '    // 🍋 UNIVERSAL LISTENER (For PostMessages)\n';
         code += '    // ==========================================\n';
@@ -4690,6 +4750,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadTestimonialGroups();
     loadVideos();
     loadSmartScreens();
+    loadWebsiteLinks();
     
     if (document.getElementById('splashTopText')) updateSplashPreview();
     if (document.getElementById('splashBgStyle')) toggleGradientControls();
@@ -4713,6 +4774,75 @@ document.addEventListener('DOMContentLoaded', () => {
         apiCard.appendChild(btn);
     }
 });
+
+// ===== WEBSITE INFO LINKS MANAGEMENT =====
+let websiteLinks = [];
+
+function loadWebsiteLinks() {
+    const saved = localStorage.getItem('botemia_websiteLinks');
+    if (saved) {
+        websiteLinks = JSON.parse(saved);
+        renderWebsiteLinks();
+    }
+}
+
+function renderWebsiteLinks() {
+    const list = document.getElementById('websiteLinksList');
+    const emptyState = document.getElementById('websiteLinksEmpty');
+    
+    if (!list) return;
+    
+    if (websiteLinks.length === 0) {
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+    
+    if (emptyState) emptyState.style.display = 'none';
+    
+    list.innerHTML = websiteLinks.map((link, index) => `
+        <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: flex-start; gap: 15px;">
+            <div style="flex: 1;">
+                <h4 style="margin: 0 0 5px 0; color: white; font-size: 1rem;">🌐 ${escapeHtml(link.title) || 'Untitled Link'}</h4>
+                <p style="margin: 0 0 5px 0; color: #f8c400; font-size: 0.85rem;">
+                    <i class="fas fa-bullhorn"></i> "${escapeHtml(link.triggerPhrase)}"
+                </p>
+                <p style="margin: 0; font-size: 0.8rem; color: #888;">
+                    <i class="fas fa-link"></i> ${escapeHtml(link.url)}
+                </p>
+            </div>
+            <button onclick="removeWebsiteLink(${index})" style="background: rgba(244,67,54,0.2); border: 1px solid #f44336; color: #f44336; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; white-space: nowrap;">
+                <i class="fas fa-trash"></i> Remove
+            </button>
+        </div>
+    `).join('');
+}
+
+function addWebsiteLink() {
+    const title = document.getElementById('newWebsiteLinkTitle').value.trim();
+    const url = document.getElementById('newWebsiteLinkUrl').value.trim();
+    const triggerPhrase = document.getElementById('newWebsiteLinkTrigger').value.trim();
+    
+    if (!title || !url || !triggerPhrase) {
+        alert('Please fill in all fields');
+        return;
+    }
+    
+    websiteLinks.push({ title, url, triggerPhrase });
+    localStorage.setItem('botemia_websiteLinks', JSON.stringify(websiteLinks));
+    renderWebsiteLinks();
+    
+    document.getElementById('newWebsiteLinkTitle').value = '';
+    document.getElementById('newWebsiteLinkUrl').value = '';
+    document.getElementById('newWebsiteLinkTrigger').value = '';
+    
+    configManager.updateStatus('Website link added', 'success');
+}
+
+function removeWebsiteLink(index) {
+    websiteLinks.splice(index, 1);
+    localStorage.setItem('botemia_websiteLinks', JSON.stringify(websiteLinks));
+    renderWebsiteLinks();
+}
 
 // ============================================
 // HELPER: FETCH KNOWLEDGE BASE (GLOBAL SCOPE)
