@@ -3818,7 +3818,7 @@ async function exportBridgeOnly() {
         code += '                                webOverlay.appendChild(webHeader);\n';
         code += '                                var webFrame = document.createElement("iframe");\n';
         code += '                                webFrame.src = webLinks[w].url;\n';
-        code += '                                webFrame.style.cssText = "width:85vw;height:75vh;border:none;";\n';
+        code += '                                webFrame.style.cssText = "width:800px;max-width:90vw;height:75vh;border:none;";\n';
         code += '                                webOverlay.appendChild(webFrame);\n';
         code += '                                document.body.appendChild(webOverlay);\n';
         code += '                                if (window.supabaseChannel) {\n';
@@ -4275,7 +4275,7 @@ async function exportBridgeOnly() {
         code += '                                    webOverlay.appendChild(webHeader);\n';
         code += '                                    var webFrame = document.createElement("iframe");\n';
         code += '                                    webFrame.src = link.url;\n';
-        code += '                                    webFrame.style.cssText = "width:85vw;height:75vh;border:none;";\n';
+        code += '                                    webFrame.style.cssText = "width:800px;max-width:90vw;height:75vh;border:none;";\n';
         code += '                                    webOverlay.appendChild(webFrame);\n';
         code += '                                    document.body.appendChild(webOverlay);\n';
         code += '                                    break;\n';
