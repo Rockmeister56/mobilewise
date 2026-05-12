@@ -4065,6 +4065,14 @@ async function exportBridgeOnly() {
         code += '                                    window.preQualController.sendEmail();\n';
         code += '                                    window.preQualController.isActive = false;\n';
         code += '                                    console.log("✅ Email sent via trigger during interview");\n';
+        code += '                            \n';
+        code += '                                    // Show confirmation overlay after email sent\n';
+        code += '                                    var confirmOverlay = document.createElement("div");\n';
+        code += '                                    confirmOverlay.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.95);z-index:999998;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:30px 40px;border-radius:16px;border:2px solid #f8c400;";\n';
+        code += '                                    confirmOverlay.innerHTML = \'<div style="color:#f8c400;font-size:1.5rem;margin-bottom:10px;">📧</div><div style="color:white;font-size:1.3rem;font-weight:600;text-align:center;">Email confirmation sent!</div><div style="color:rgba(255,255,255,0.6);font-size:0.9rem;margin-top:8px;">Check your inbox</div>\';\n';
+        code += '                                    confirmOverlay.onclick = function() { confirmOverlay.remove(); };\n';
+        code += '                                    document.body.appendChild(confirmOverlay);\n';
+        code += '                                    setTimeout(function() { if (confirmOverlay.parentNode) confirmOverlay.remove(); }, 5000);\n';
         code += '                                }\n';
         code += '                            }\n';
         code += '                            // --- PHONE TRIGGER (during interview) ---\n';
