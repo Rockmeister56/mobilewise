@@ -617,7 +617,7 @@
     <code id="smartScreenTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
        </div>
                 <div style="display: flex; gap: 12px;">
-                    <button id="smartScreenTestBtn" class="module-test-btn" onclick="testSmartScreen()" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                    <button id="smartScreenTestBtn" class="module-test-btn" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
     <i class="fas fa-vial"></i> Test Trigger
                    </button>
                     <button id="smartScreenToggleBtn" class="module-toggle-btn" onclick="toggleModule('smart_screen')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
@@ -970,6 +970,9 @@ function testSmartScreen() {
         window.supabaseChannel.on('broadcast', { event: 'trigger_test_result' }, resultHandler);
     }
 }
+
+// Wire up the button click AFTER the function exists
+document.getElementById('smartScreenTestBtn')?.addEventListener('click', testSmartScreen);
 
     // ===== LOAD CLIENT CONFIGURATION =====
 async function loadClientConfig(clientId) {
