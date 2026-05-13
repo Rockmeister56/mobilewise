@@ -1429,20 +1429,20 @@ function sendCommandViaSupabase(command, clientId = null) {
     const urlAgentId = urlParams.get('agentId');
     
     // Use the URL params or fallback defaults
-    this.config = {
-        id: urlClientId || 'mortgage-assist-demo',
-        name: urlClientId || 'mortgage-assist-demo',
-        agentId: urlAgentId || 'agent_7b0776ef6b855de5',
-        industry: 'Mortgage',
-        modules: {
-            testimonial: { triggers: [] },
-            videoVault: { triggers: [] },
-            smartScreen: { triggers: [], images: [] },
-            websiteInfo: { triggers: [] },
-            communication: { actionType: 'preQual' },
-            preQualification: { enabled: true }
-        }
-    };
+   this.config = {
+    id: urlClientId || '',
+    name: urlClientId || 'Unknown Client',
+    agentId: urlAgentId || '',
+    industry: 'Mortgage',
+    modules: {
+        testimonial: { triggers: [] },
+        videoVault: { triggers: [] },
+        smartScreen: { triggers: [], images: [] },
+        websiteInfo: { triggers: [] },
+        communication: { actionType: 'preQual' },
+        preQualification: { enabled: true }
+    }
+};
     console.log("✅ Manual Config Loaded:", this.config);
     
     // 2. Setup speech recognition (don't start yet)
