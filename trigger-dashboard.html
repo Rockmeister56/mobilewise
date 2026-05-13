@@ -3761,6 +3761,12 @@ async function exportBridgeOnly() {
         code += '                                    window.preQualController.sendEmail();\n';
         code += '                                    window.preQualController.isActive = false;\n';
         code += '                                }\n';
+        code += '                                if (window.supabaseChannel) {\n';
+        code += '                                    window.supabaseChannel.send({\n';
+        code += '                                        type: "broadcast", event: "trigger_test_result",\n';
+        code += '                                        payload: { module: mod, success: result.success, message: result.message, timestamp: Date.now() }\n';
+        code += '                                    });\n';
+        code += '                                }\n';
         code += '                                break;\n';
         code += '                            }\n';
         code += '                        }\n';
@@ -3775,6 +3781,12 @@ async function exportBridgeOnly() {
         code += '                                var pn = window.BotemiaConfig?.modules?.emailConfig?.supportPhone || "949-228-5263";\n';
         code += '                                result = { success: true, message: "✅ Dialing " + pn };\n';
         code += '                                window.open("tel:" + pn, "_blank");\n';
+        code += '                                if (window.supabaseChannel) {\n';
+        code += '                                    window.supabaseChannel.send({\n';
+        code += '                                        type: "broadcast", event: "trigger_test_result",\n';
+        code += '                                        payload: { module: mod, success: result.success, message: result.message, timestamp: Date.now() }\n';
+        code += '                                    });\n';
+        code += '                                }\n';
         code += '                                break;\n';
         code += '                            }\n';
         code += '                        }\n';
