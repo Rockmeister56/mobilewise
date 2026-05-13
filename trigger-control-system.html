@@ -770,6 +770,10 @@
 
         <script>
 
+            window.addEventListener('error', function(e) {
+    console.error('🔥 EARLY ERROR:', e.message, 'at', e.filename, 'line', e.lineno);
+});
+
  let tessIsPlayingAudio = false; // Global flag for Smart Filter
 
 // ============================================
