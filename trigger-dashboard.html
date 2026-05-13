@@ -3709,7 +3709,7 @@ async function exportBridgeOnly() {
         code += '                    }\n';
         code += '                }\n';
         code += '                \n';
-         code += '                // ===== TEST TRIGGER COMMAND (For TCS test buttons) =====\n';
+        code += '                // ===== TEST TRIGGER COMMAND (For TCS test buttons) =====\n';
         code += '                if (cmd === "test_trigger") {\n';
         code += '                    console.log("🧪 TCS Test: " + mod + " - " + phrase);\n';
         code += '                    var result = { success: false, message: "No trigger matched" };\n';
@@ -3737,6 +3737,12 @@ async function exportBridgeOnly() {
         code += '                                        overlay.appendChild(caption);\n';
         code += '                                    }\n';
         code += '                                    document.body.appendChild(overlay);\n';
+        code += '                                    if (window.supabaseChannel) {\n';
+        code += '                                        window.supabaseChannel.send({\n';
+        code += '                                            type: "broadcast", event: "trigger_test_result",\n';
+        code += '                                            payload: { module: mod, success: result.success, message: result.message, timestamp: Date.now() }\n';
+        code += '                                        });\n';
+        code += '                                    }\n';
         code += '                                    break;\n';
         code += '                                }\n';
         code += '                            }\n';
