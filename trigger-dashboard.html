@@ -1162,7 +1162,7 @@
             </div>
             <p style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 10px;">
                 📁 Upload to: <code style="background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 4px; color: #f8c400;">
-                /clients/<span id="smartScreenClientPath">mortgage-assist-demo</span>/smart-screens/</code><br>
+                /clients/<span id="smartScreenClientPath"></span>/smart-screens/</code><br>
                 Paste the full public URL above. Recommended: 600-800px wide, WebP or JPG, under 500KB.
             </p>
         </div>
@@ -2063,6 +2063,7 @@ populateClientSelect() {
     document.getElementById('widgetId').value = client.widgetId || '';
     document.getElementById('apiKey').value = client.apiKey || '';
     document.getElementById('environment').value = client.environment || 'production';
+    document.getElementById('smartScreenClientPath').textContent = id;
     
     if (client.industry) {
         document.getElementById('industryPreset').value = client.industry;
@@ -3309,7 +3310,8 @@ async function exportBridgeOnly() {
                        // Helper Functions
         code += '    function createSplashWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-        code += '        let clientId = window.BotemiaConfig?.id || "mortgage-assist-demo";\n';
+        code += '        let clientId = window.BotemiaConfig?.id;\n';
+        code += '        if (!clientId) { console.error("❌ CRITICAL: BotemiaConfig ID missing!"); return null; }\n';
         code += '        widget.setAttribute(\'client-id\', clientId);\n';
         code += '        widget.clientId = clientId;\n';
         code += '        const sessionId = \'session-\' + crypto.randomUUID();\n';
@@ -4369,7 +4371,8 @@ async function exportBridgeOnly() {
         code += '    function createMainWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
         code += '        widget.setAttribute(\'agent-id\', \'' + (config.modules?.splashScreen?.agentId || config.agentId) + '\');\n';
-        code += '        let clientId = window.BotemiaConfig?.id || "mortgage-assist-demo";\n';
+        code += '        let clientId = window.BotemiaConfig?.id;\n';
+        code += '        if (!clientId) { console.error("❌ CRITICAL: BotemiaConfig ID missing!"); return null; }\n';
         code += '        widget.setAttribute(\'client-id\', clientId);\n';
         code += '        widget.clientId = clientId;\n';
         code += '        const apiKey = "sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP";\n';
@@ -4702,15 +4705,14 @@ async function exportBridgeOnly() {
             return;
         }
 
-        // 2. GET CLIENT ID SAFELY
-        // We look for ID from Dashboard's input or state
+                // 2. GET CLIENT ID SAFELY
         let clientIdInput = document.getElementById('clientIdInput')?.value;
-        let clientId = clientIdInput || "mortgage-assist-demo";
+        let clientId = clientIdInput || '';
         
         // Safety check
-        if (!clientId || clientId === "0" || clientId === 0) {
-            console.warn("⚠️ TCS Client ID invalid. Forcing mortgage-assist-demo.");
-            clientId = "mortgage-assist-demo";
+        if (!clientId) {
+            console.error("❌ TCS Client ID missing! Cannot open client window.");
+            return;
         }
         
         // 3. Construct URL
