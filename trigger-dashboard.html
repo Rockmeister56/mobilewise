@@ -4024,10 +4024,15 @@ async function exportBridgeOnly() {
         code += '\n';
         code += '        console.log("✅ Daily SDK loaded. Creating room...");\n';
         code += '        try {\n';
-        code += '            const response = await fetch("https://fcgbusobfdwnpoqyuzoe.supabase.co/functions/v1/create-daily-room", {\n';
+        code += '            const response = await fetch("https://lemonslice.com/api/liveai/rooms", {\n';
         code += '                method: "POST",\n';
-        code += '                headers: { "Content-Type": "application/json" },\n';
-        code += '                body: JSON.stringify({})\n';
+        code += '                headers: { \n';
+        code += '                    "Content-Type": "application/json",\n';
+        code += '                    "X-API-Key": "sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP"\n';
+        code += '                },\n';
+        code += '                body: JSON.stringify({ \n';
+        code += '                    "agent_id": "' + (config.agentId || '') + '"\n';
+        code += '                })\n';
         code += '            });\n';
         code += '            const data = await response.json();\n';
         code += '            \n';
