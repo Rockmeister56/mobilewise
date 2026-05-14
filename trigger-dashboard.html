@@ -4056,6 +4056,13 @@ async function exportBridgeOnly() {
         code += '                // ===== 🎧 CLEAN AUDIO LISTENER =====\n';
         code += '                dailyCallObject.on("app-message", (ev) => {\n';
         code += '                    \n';
+        code += '                    // 🔥 BLOCK USER TRANSCRIPTIONS from triggering modules\n';
+        code += '                    if (ev?.data?.type === "user_transcription") {\n';
+        code += '                        const userText = ev.data.transcription || ev.data.text || "";\n';
+        code += '                        console.log("👤 [DAILY] User said (ignored):", userText);\n';
+        code += '                        return;\n';
+        code += '                    }\n';
+        code += '                    \n';
         code += '                    // 🔥 NEW: Handle USER transcriptions during interview\n';
         code += '                    if (window.preQualController && window.preQualController.isActive && ev?.data?.type === "user_transcription") {\n';
         code += '                        const userText = ev.data.transcription || ev.data.text || "";\n';
