@@ -1629,22 +1629,47 @@ function createNewClient() {
     document.getElementById('preQualEnabled').checked = true;
     document.getElementById('preQualTriggerPhrase').value = "let's get started";
     
-    // Clear smart screens, testimonials, videos
+    // Clear smart screens
     savedSmartScreens = [];
-    testimonialGroups = [];
-    videos = [];
     localStorage.removeItem('botemia_smartScreens');
-    localStorage.removeItem('botemia_testimonialGroups');
-    localStorage.removeItem('botemia_videos');
     renderSmartScreenList();
+    
+    // Clear testimonial groups
+    testimonialGroups = [];
+    localStorage.removeItem('botemia_testimonialGroups');
     renderTestimonialGroups();
+    
+    // Clear video vault
+    videos = [];
+    localStorage.removeItem('botemia_videos');
     renderVideos();
+    
+    // Clear website links
+    websiteLinks = [];
+    localStorage.removeItem('botemia_websiteLinks');
+    renderWebsiteLinks();
+    
+    // Clear communication center fields
+    document.getElementById('clientEmail').value = '';
+    document.getElementById('supportPhone').value = '';
+    document.getElementById('emailTriggers').value = '';
+    document.getElementById('phoneTriggers').value = '';
+    updateTriggerPreviews();
+    
+    // Clear splash screen fields
+    document.getElementById('splashTitle').value = 'Meet Tess';
+    document.getElementById('splashSubtitle').value = 'Your Personal AI Web Guide';
+    document.getElementById('splashTessVideoUrl').value = '';
+    document.getElementById('splashTickerKeywords').value = '';
+    document.getElementById('splashBrandName').value = '';
+    document.getElementById('splashBrandLogoData').value = '';
+    document.getElementById('brandLogoPreview').innerHTML = '<i class="fas fa-building" style="color: #f8c400; font-size: 40px;"></i><span style="color: white; font-size: 24px;">Brand Name</span>';
     
     // Focus on client name
     document.getElementById('clientName').focus();
     
     configManager.updateStatus('New client ready — enter details and save', 'ready');
-    console.log('🆕 New client form reset');
+    console.log('🆕 New client form reset - clean slate');
 }
 
 </script>
