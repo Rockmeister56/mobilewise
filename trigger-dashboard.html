@@ -4504,14 +4504,11 @@ async function exportBridgeOnly() {
         code += '    function showSplash() {\n';
         code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n';
         code += '        if (!config || !config.enabled) {\n';
-        code += '            // Splash disabled — create minimized widget directly\n';
-        code += '            window.mainWidget = createMainWidget();\n';
-        code += '            document.body.appendChild(window.mainWidget);\n';
-        code += '            window.mainWidget.style.display = "block";\n';
-        code += '            window.mainWidget.setAttribute("controlled-widget-state", "active");\n';
-        code += '            console.log("✅ Tess loaded in corner (splash disabled)");\n';
+        code += '            // Splash disabled — activate Tess directly\n';
+        code += '            console.log("✅ Splash disabled — activating Tess directly");\n';
+        code += '            activateTess();\n';
         code += '            return;\n';
-        code += '        }\n\n';  
+        code += '        }\n\n';
 
         code += '        const overlay = document.createElement(\'div\');\n';
         code += '        overlay.className = \'splash-overlay\';\n';
