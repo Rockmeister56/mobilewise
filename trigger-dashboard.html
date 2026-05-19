@@ -4622,8 +4622,12 @@ async function exportBridgeOnly() {
         code += '            setTimeout(async () => {\n';
         code += '                console.log("🎤 Finalizing audio state...");\n';
         code += '                try {\n';
-        code += '                    if (window.mainWidget && typeof window.mainWidget.micOn === \'function\') {\n';
-        code += '                        await window.mainWidget.micOn();\n';
+        code += '                    if (window.mainWidget) {\n';
+        code += '                        // sendMessage auto-starts room and activates mic per LemonSlice docs\n';
+        code += '                        if (typeof window.mainWidget.sendMessage === \'function\') {\n';
+        code += '                            await window.mainWidget.sendMessage("");\n';
+        code += '                            console.log("✅ Tess auto-started via sendMessage");\n';
+        code += '                        }\n';
         code += '                        await window.mainWidget.unmute?.();\n';
         code += '                    }\n';
         code += '                } catch(e) {\n';
