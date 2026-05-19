@@ -4629,6 +4629,18 @@ async function exportBridgeOnly() {
         code += '                } catch(e) {\n';
         code += '                    console.error("❌ Mic activation failed:", e);\n';
         code += '                }\n';
+        code += '                \n';
+        code += '                // Nuclear Shadow DOM unmute\n';
+        code += '                try {\n';
+        code += '                    var shadow = window.mainWidget.shadowRoot;\n';
+        code += '                    if (shadow) {\n';
+        code += '                        var v = shadow.querySelector("video");\n';
+        code += '                        var a = shadow.querySelector("audio");\n';
+        code += '                        if (v) { v.muted = false; v.volume = 1.0; }\n';
+        code += '                        if (a) { a.muted = false; a.volume = 1.0; }\n';
+        code += '                    }\n';
+        code += '                    console.log("🔊 Tess force unmuted via Shadow DOM");\n';
+        code += '                } catch(e) { console.warn("Shadow unmute error:", e); }\n';
         code += '            }, 3000);\n';
         code += '        }, 100);\n';
         code += '        \n';
