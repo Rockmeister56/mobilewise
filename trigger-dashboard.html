@@ -4623,10 +4623,11 @@ async function exportBridgeOnly() {
         code += '                console.log("🎤 Finalizing audio state...");\n';
         code += '                try {\n';
         code += '                    if (window.mainWidget) {\n';
-        code += '                        // sendMessage auto-starts room and activates mic per LemonSlice docs\n';
         code += '                        if (typeof window.mainWidget.sendMessage === \'function\') {\n';
-        code += '                            await window.mainWidget.sendMessage("");\n';
-        code += '                            console.log("✅ Tess auto-started via sendMessage");\n';
+        code += '                            var prospectName = localStorage.getItem("prospectName") || "";\n';
+        code += '                            var greeting = prospectName ? "Hi " + prospectName + ", I\'m Tess from AdSpend Audit Group. Thanks for checking out your free PPC audit report." : "Hi, I\'m Tess from AdSpend Audit Group. Thanks for checking out your free PPC audit report.";\n';
+        code += '                            await window.mainWidget.sendMessage(greeting);\n';
+        code += '                            console.log("✅ Tess primed with greeting");\n';
         code += '                        }\n';
         code += '                        await window.mainWidget.unmute?.();\n';
         code += '                    }\n';
