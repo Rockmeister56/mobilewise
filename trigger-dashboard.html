@@ -4623,6 +4623,9 @@ async function exportBridgeOnly() {
         code += '                console.log("🎤 Finalizing audio state...");\n';
         code += '                try {\n';
         code += '                    if (window.mainWidget) {\n';
+        code += '                        // Start the room first, then send greeting\n';
+        code += '                        await window.mainWidget.micOn?.();\n';
+        code += '                        await new Promise(resolve => setTimeout(resolve, 2000));\n';
         code += '                        if (typeof window.mainWidget.sendMessage === \'function\') {\n';
         code += '                            var prospectName = localStorage.getItem("prospectName") || "";\n';
         code += '                            var greeting = prospectName ? "Hi " + prospectName + ", I\'m Tess from AdSpend Audit Group. Thanks for checking out your free PPC audit report." : "Hi, I\'m Tess from AdSpend Audit Group. Thanks for checking out your free PPC audit report.";\n';
