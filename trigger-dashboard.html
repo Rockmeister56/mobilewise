@@ -4504,7 +4504,13 @@ async function exportBridgeOnly() {
         code += '    function showSplash() {\n';
         code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n';
         code += '        if (!config || !config.enabled) {\n';
-        code += '            // Splash disabled — activate Tess directly\n';
+        code += '            // Check for admin mode before activating\n';
+        code += '            var urlParams = new URLSearchParams(window.location.search);\n';
+        code += '            var isAdmin = urlParams.get("admin") === "true";\n';
+        code += '            if (isAdmin) {\n';
+        code += '                console.log("🔒 Admin mode — Tess not activated");\n';
+        code += '                return;\n';
+        code += '            }\n';
         code += '            console.log("✅ Splash disabled — activating Tess directly");\n';
         code += '            activateTess();\n';
         code += '            return;\n';
