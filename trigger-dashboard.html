@@ -4504,13 +4504,7 @@ async function exportBridgeOnly() {
         code += '    function showSplash() {\n';
         code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n';
         code += '        if (!config || !config.enabled) {\n';
-        code += '            // Check for admin mode before activating\n';
-        code += '            var urlParams = new URLSearchParams(window.location.search);\n';
-        code += '            var isAdmin = urlParams.get("admin") === "true";\n';
-        code += '            if (isAdmin) {\n';
-        code += '                console.log("🔒 Admin mode — Tess not activated");\n';
-        code += '                return;\n';
-        code += '            }\n';
+        code += '            // Splash disabled — activate Tess directly\n';
         code += '            console.log("✅ Splash disabled — activating Tess directly");\n';
         code += '            activateTess();\n';
         code += '            return;\n';
@@ -4636,7 +4630,9 @@ async function exportBridgeOnly() {
         code += '                            var prospectName = localStorage.getItem("prospectName") || "";\n';
         code += '                            var greeting = prospectName ? "Hi " + prospectName + ", I\'m Tess from AdSpend Audit Group. Thanks for checking out your free PPC audit report." : "Hi, I\'m Tess from AdSpend Audit Group. Thanks for checking out your free PPC audit report.";\n';
         code += '                            await window.mainWidget.sendMessage(greeting);\n';
-        code += '                            console.log("✅ Tess primed with greeting");\n';
+        code += '                            
+        code += '            var controlBar = document.getElementById("tess-control-bar");\n';
+        code += '            if (controlBar) controlBar.style.display = "flex";\n';
         code += '                        }\n';
         code += '                        await window.mainWidget.unmute?.();\n';
         code += '                    }\n';
