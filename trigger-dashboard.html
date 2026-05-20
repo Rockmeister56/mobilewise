@@ -4636,15 +4636,13 @@ async function exportBridgeOnly() {
         code += '                            document.addEventListener("keydown", function(e) {\n';
         code += '                                if (e.ctrlKey && !e.shiftKey && (e.key === "x" || e.key === "X")) {\n';
         code += '                                    e.preventDefault();\n';
-        code += '                                    if (window.dailyCallObject) {\n';
-        code += '                                        window.dailyCallObject.sendAppMessage({ event: "force-end" }, "*");\n';
-        code += '                                    }\n';
         code += '                                    if (window.mainWidget) {\n';
-        code += '                                        window.mainWidget.setAttribute("controlled-widget-state", "minimized");\n';
+        code += '                                        window.mainWidget.setAttribute("controlled-widget-state", "hidden");\n';
         code += '                                        window.mainWidget.micOff?.();\n';
         code += '                                        window.mainWidget.mute?.();\n';
+        code += '                                        window.mainWidget.style.display = "none";\n';
         code += '                                    }\n';
-        code += '                                    console.log("⏹️ Tess fully stopped via Ctrl+X");\n';
+        code += '                                    console.log("⏹️ Tess hidden via Ctrl+X");\n';
         code += '                                }\n';
         code += '                            });\n';
         code += '                        await window.mainWidget.unmute?.();\n';
