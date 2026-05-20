@@ -4630,7 +4630,7 @@ async function exportBridgeOnly() {
         code += '                            var prospectName = localStorage.getItem("prospectName") || "";\n';
         code += '                            var greeting = prospectName ? "Hi " + prospectName + ", I\'m Tess from AdSpend Audit Group. Thanks for checking out your free PPC audit report." : "Hi, I\'m Tess from AdSpend Audit Group. Thanks for checking out your free PPC audit report.";\n';
         code += '                            await window.mainWidget.sendMessage(greeting);\n';
-        code += '                            
+        code += '                            console.log("✅ Tess primed with greeting");\n';
         code += '            var controlBar = document.getElementById("tess-control-bar");\n';
         code += '            if (controlBar) controlBar.style.display = "flex";\n';
         code += '                        }\n';
