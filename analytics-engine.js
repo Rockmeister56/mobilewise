@@ -335,10 +335,12 @@ function refreshAnalyticsDisplay() {
     if (revenueEl) revenueEl.textContent = '$' + revenue.toLocaleString();
     if (revenueDetailEl) revenueDetailEl.textContent = incremental + ' leads × $' + settings.perLeadRate;
     
-    // Before vs After
-    const beforeRate = settings.baselineVisitors > 0 ? ((settings.baselineLeads / settings.baselineVisitors) * 100).toFixed(1) : 0;
-    const afterRate = data.totalVisitors > 0 ? ((data.totalLeads / data.totalVisitors) * 100).toFixed(1) : 0;
-    const improvement = beforeRate > 0 ? (((afterRate - beforeRate) / beforeRate) * 100).toFixed(0) : 0;
+   // Before vs After
+// Use total visitors (splash + clicks) for more accurate conversion rate
+const totalVisitors = Math.max(data.totalVisitors, data.tessClicks, 1);
+const beforeRate = settings.baselineVisitors > 0 ? ((settings.baselineLeads / settings.baselineVisitors) * 100).toFixed(1) : 0;
+const afterRate = ((data.totalLeads / totalVisitors) * 100).toFixed(1);
+const improvement = beforeRate > 0 ? (((afterRate - beforeRate) / beforeRate) * 100).toFixed(0) : 0;
     
     const beforeLeadsEl = document.getElementById('analyticsBeforeLeads');
     const beforeRateEl = document.getElementById('analyticsBeforeRate');
