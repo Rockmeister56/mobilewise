@@ -3988,7 +3988,7 @@ async function exportBridgeOnly() {
         code += '        document.head.appendChild(script);\n';
         code += '    })(); // END Supabase IIFE\n';
 
-   // ===== ANALYTICS EVENT TRACKER (Edge Function + Realtime) =====
+  // ===== ANALYTICS EVENT TRACKER =====
 code += '    function trackEvent(eventType, eventData = {}) {\n';
 code += '        const payload = {\n';
 code += '            client_id: window.BotemiaConfig?.id || \'unknown\',\n';
@@ -4000,7 +4000,7 @@ code += '            referrer: document.referrer || \'direct\',\n';
 code += '            timestamp: Date.now()\n';
 code += '        };\n';
 code += '        \n';
-code += '        // 1. Send to Edge Function → writes to analytics_events table\n';
+code += '        // Send to Edge Function (writes to analytics_events table)\n';
 code += '        fetch("https://fcgbusobfdwnpoqyuzoe.supabase.co/functions/v1/analytics-ingest", {\n';
 code += '            method: "POST",\n';
 code += '            headers: { \n';
@@ -4008,9 +4008,9 @@ code += '                "Content-Type": "application/json",\n';
 code += '                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk"\n';
 code += '            },\n';
 code += '            body: JSON.stringify(payload)\n';
-code += '        }).then(r => r.json()).then(d => console.log("📊 Stored:", eventType, d)).catch(e => console.error("Track error:", e));\n';
+code += '        }).then(r => r.json()).then(d => console.log("📊 Stored:", eventType, d.success ? "✅" : "❌")).catch(e => console.error("Track error:", e));\n';
 code += '        \n';
-code += '        // 2. Also broadcast via Realtime for dashboard live updates\n';
+code += '        // Also broadcast via Realtime for dashboard live updates\n';
 code += '        if (window.supabaseChannel) {\n';
 code += '            window.supabaseChannel.send({\n';
 code += '                type: \'broadcast\',\n';
@@ -4020,6 +4020,7 @@ code += '            });\n';
 code += '        }\n';
 code += '        console.log(\'📊 Tracked: \' + eventType, eventData);\n';
 code += '    }\n';
+code += '\n';
 
         code += '    window.preQualController = new PreQualificationController();\n';
         code += '    console.log("✅ Controller created (Listener Mode)");\n';
