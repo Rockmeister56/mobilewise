@@ -389,34 +389,44 @@ function renderEngagementChart() {
     const labels = document.getElementById('engagementBarLabels');
     if (!container || !labels) return;
     
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const today = new Date().getDay();
-    
+    // Build last 30 days
     const barData = [];
-    for (let i = 6; i >= 0; i--) {
-        const dayIndex = (today - i + 7) % 7;
+    const now = new Date();
+    for (let i = 29; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const dayNum = d.getDate();
+        const isToday = i === 0;
+        
+        // Use mock data for now — will be replaced by real Supabase query
         const clicks = analyticsData.tessClicks > 0 ? 
-            Math.floor(Math.random() * Math.max(analyticsData.tessClicks, 10)) : 
-            Math.floor(Math.random() * 5);
-        barData.push({ label: days[dayIndex], value: clicks });
+            Math.floor(Math.random() * Math.max(analyticsData.tessClicks / 7, 5)) : 
+            Math.floor(Math.random() * 3);
+        barData.push({ label: dayNum, value: clicks, isToday });
     }
     
     const maxVal = Math.max(...barData.map(d => d.value), 1);
     
-    container.innerHTML = barData.map(d => {
-        const height = (d.value / maxVal) * 140;
-        const color = d.value > 0 ? 
+    // Make container scrollable
+    container.parentElement.style.overflowX = 'auto';
+    
+    container.innerHTML = barData.map((d, i) => {
+        const height = (d.value / maxVal) * 120;
+        const color = d.isToday ? 
             'linear-gradient(180deg, #f8c400, #d4a000)' : 
-            'linear-gradient(180deg, #3a4050, #2a2f3f)';
-        return `<div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;">
-            <span style="color: rgba(255,255,255,0.6); font-size: 0.7rem;">${d.value}</span>
-            <div style="width:100%; height:${height}px; background:${color}; border-radius:6px 6px 0 0; min-height:4px;"></div>
+            'linear-gradient(180deg, #3a5060, #2a3f4f)';
+        const opacity = d.isToday ? '0.9' : '0.5';
+        return `<div style="flex:0 0 24px; display:flex; flex-direction:column; align-items:center; gap:2px;" title="Day ${d.label}: ${d.value} clicks">
+            <span style="color: rgba(255,255,255,${opacity}); font-size: 0.55rem;">${d.value || ''}</span>
+            <div style="width:18px; height:${height}px; background:${color}; border-radius:4px 4px 0 0; min-height:2px;"></div>
         </div>`;
     }).join('');
     
-    labels.innerHTML = barData.map(d => 
-        `<span style="flex:1; text-align:center;">${d.label}</span>`
-    ).join('');
+    labels.innerHTML = barData.map((d, i) => {
+        // Show every 5th label to avoid clutter
+        const showLabel = d.label % 5 === 0 || i === 29;
+        return `<span style="flex:0 0 24px; text-align:center; color: rgba(255,255,255,${showLabel ? '0.6' : '0.2'}); font-size: 0.55rem;">${showLabel ? d.label : ''}</span>`;
+    }).join('');
 }
 
 // ============================================
