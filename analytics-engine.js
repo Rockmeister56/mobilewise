@@ -141,8 +141,7 @@ async function loadAnalyticsFromSupabase() {
             
             switch(e.event_type) {
                 case 'splash_view': totalVisitors++; break;
-                case 'activate_tess': 
-                    tessClicks++; 
+                case 'activate_tess': tessClicks++; totalVisitors++; break;  // count clicks as visitors too 
                     peakHours[hourLabel] = (peakHours[hourLabel] || 0) + 1;
                     dailyClicks[dayKey] = (dailyClicks[dayKey] || 0) + 1;
                     break;
