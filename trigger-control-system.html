@@ -561,6 +561,9 @@
                     <button id="emailTriggerTestBtn" class="module-test-btn" onclick="testModule('email_trigger')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
                         <i class="fas fa-vial"></i> Test Trigger
                     </button>
+                    <button onclick="testEmailSend()" style="flex: 1; background: #4caf50; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600; margin-top: 8px;">
+    <i class="fas fa-envelope"></i> Send Test Email
+</button>
                     <button id="emailTriggerToggleBtn" class="module-toggle-btn" onclick="toggleModule('email_trigger')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
                         <i class="fas fa-power-off"></i> Disable
                     </button>
@@ -1001,6 +1004,55 @@ async function loadClientConfig(clientId) {
         console.error("❌ Failed to load client config:", error);
     }
     return null;
+}
+
+function testEmailSend() {
+    const resultDiv = document.getElementById('email_triggerTestResult');
+    if (resultDiv) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending test email...';
+        resultDiv.className = 'test-result testing';
+    }
+    
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'command',
+            payload: {
+                module: 'email_trigger',
+                command: 'SEND_TEST_EMAIL',
+                test_email: 'test@example.com',
+                timestamp: Date.now()
+            }
+        });
+        console.log('📡 Sent SEND_TEST_EMAIL command');
+    }
+    
+    const timeout = setTimeout(() => {
+        if (resultDiv) {
+            resultDiv.innerHTML = '❌ No response from Bridge (timeout)';
+            resultDiv.className = 'test-result error';
+        }
+    }, 10000);
+    
+    const resultHandler = (payload) => {
+        if (payload.event === 'trigger_test_result' && payload.payload.module === 'email_trigger') {
+            clearTimeout(timeout);
+            const resultEl = document.getElementById('email_triggerTestResult');
+            if (!resultEl) return;
+            if (payload.payload.success) {
+                resultEl.innerHTML = '✅ Test email sent! Check inbox.';
+                resultEl.className = 'test-result success';
+            } else {
+                resultEl.innerHTML = '❌ ' + (payload.payload.message || 'Failed');
+                resultEl.className = 'test-result error';
+            }
+        }
+    };
+    
+    if (window.supabaseChannel) {
+        window.supabaseChannel.on('broadcast', { event: 'trigger_test_result' }, resultHandler);
+    }
 }
 
 // ===== UPDATE MODULE DISPLAYS =====
