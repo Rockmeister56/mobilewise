@@ -2299,14 +2299,19 @@ uploadToSupabase(config, supabaseUrl, supabaseKey) {
     const { createClient } = supabase;
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
     
-    // Match the actual table structure with client_id added
-    const supabaseData = {
-        client_id: config.id,           // Your mortgage-assist-demo ID
-        name: config.name,
-        industry: config.industry,
-        metadata: config,                // Store entire config in metadata JSONB
-        updated_at: new Date().toISOString()
-    };
+    // Extract baseline from config modules
+const baseline = config.modules?.analyticsBaseline || {};
+
+const supabaseData = {
+    client_id: config.id,
+    name: config.name,
+    industry: config.industry,
+    baseline_leads: parseInt(document.getElementById('analyticsBaselineLeads')?.value) || baseline.baselineLeads || 20,
+    baseline_visitors: parseInt(document.getElementById('analyticsBaselineVisitors')?.value) || baseline.baselineVisitors || 2000,
+    per_lead_rate: parseInt(document.getElementById('analyticsPerLeadRate')?.value) || baseline.perLeadRate || 150,
+    metadata: config,
+    updated_at: new Date().toISOString()
+};
     
     // If this is a new record, also set created_at
     if (!this.clients[config.id]) {
