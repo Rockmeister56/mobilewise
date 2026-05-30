@@ -561,7 +561,7 @@
                     <button id="emailTriggerTestBtn" class="module-test-btn" onclick="testModule('email_trigger')" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
                         <i class="fas fa-vial"></i> Test Trigger
                     </button>
-                    <button onclick="testEmailSend()" style="flex: 1; background: #4caf50; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600; margin-top: 8px;">
+                    <button id="testEmailBtn" style="flex: 1; background: #4caf50; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600; margin-top: 8px;">
     <i class="fas fa-envelope"></i> Send Test Email
 </button>
                     <button id="emailTriggerToggleBtn" class="module-toggle-btn" onclick="toggleModule('email_trigger')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
@@ -3204,8 +3204,10 @@ function testEmailSend() {
     
     if (window.supabaseChannel) {
         window.supabaseChannel.on('broadcast', { event: 'trigger_test_result' }, resultHandler);
+        
     }
 }
+document.getElementById('testEmailBtn')?.addEventListener('click', testEmailSend);
 </script>
 </body>
 </html>
