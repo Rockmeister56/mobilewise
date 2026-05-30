@@ -120,7 +120,7 @@ async function loadAnalyticsFromSupabase() {
         // Get event counts grouped by type
         const { data: eventCounts, error: countError } = await supabaseClient
             .from('analytics_events')
-            .select('event_type')
+            .select('event_type, created_at')
             .eq('client_id', currentClientId);
         
         if (countError) throw countError;
@@ -131,11 +131,21 @@ async function loadAnalyticsFromSupabase() {
         let tessClicks = 0;
         let totalVisitors = 0;
         let completedInterviews = 0;
+        const peakHours = {};
+        const dailyClicks = {}; // For 30-day chart
         
         (eventCounts || []).forEach(e => {
+            const d = new Date(e.created_at);
+            const hourLabel = d.getHours() + ':00';
+            const dayKey = d.toISOString().split('T')[0]; // YYYY-MM-DD
+            
             switch(e.event_type) {
                 case 'splash_view': totalVisitors++; break;
-                case 'activate_tess': tessClicks++; break;
+                case 'activate_tess': 
+                    tessClicks++; 
+                    peakHours[hourLabel] = (peakHours[hourLabel] || 0) + 1;
+                    dailyClicks[dayKey] = (dailyClicks[dayKey] || 0) + 1;
+                    break;
                 case 'lead_captured': totalLeads++; completedInterviews++; break;
                 case 'phone_connect': phoneCalls++; break;
                 case 'prequal_complete': completedInterviews++; break;
@@ -164,12 +174,12 @@ async function loadAnalyticsFromSupabase() {
             tessClicks,
             totalVisitors,
             completedInterviews,
-            sessions: [],
-            peakHours: {},
+            peakHours,
+            dailyClicks,  // NEW: real daily data for the chart
             recentActivity
         };
         
-        console.log('📊 Loaded from Supabase:', analyticsData.totalLeads, 'leads,', analyticsData.phoneCalls, 'calls');
+        console.log('📊 Loaded from Supabase:', totalLeads, 'leads,', phoneCalls, 'calls,', tessClicks, 'clicks');
         
     } catch (e) {
         console.error('❌ Error loading from Supabase:', e.message);
@@ -389,41 +399,42 @@ function renderEngagementChart() {
     const labels = document.getElementById('engagementBarLabels');
     if (!container || !labels) return;
     
-    // Build last 30 days
+    // Build last 30 days from real data
     const barData = [];
     const now = new Date();
+    
     for (let i = 29; i >= 0; i--) {
         const d = new Date(now);
         d.setDate(d.getDate() - i);
+        const dayKey = d.toISOString().split('T')[0];
         const dayNum = d.getDate();
         const isToday = i === 0;
         
-        // Use mock data for now — will be replaced by real Supabase query
-        const clicks = analyticsData.tessClicks > 0 ? 
-            Math.floor(Math.random() * Math.max(analyticsData.tessClicks / 7, 5)) : 
-            Math.floor(Math.random() * 3);
-        barData.push({ label: dayNum, value: clicks, isToday });
+        // Pull from real dailyClicks data
+        const clicks = (analyticsData.dailyClicks && analyticsData.dailyClicks[dayKey]) || 0;
+        barData.push({ label: dayNum, value: clicks, isToday, dayKey });
     }
     
     const maxVal = Math.max(...barData.map(d => d.value), 1);
     
     // Make container scrollable
-    container.parentElement.style.overflowX = 'auto';
+    if (container.parentElement) {
+        container.parentElement.style.overflowX = 'auto';
+    }
     
-    container.innerHTML = barData.map((d, i) => {
-        const height = (d.value / maxVal) * 120;
+    container.innerHTML = barData.map((d) => {
+        const height = Math.max((d.value / maxVal) * 120, 2);
         const color = d.isToday ? 
             'linear-gradient(180deg, #f8c400, #d4a000)' : 
-            'linear-gradient(180deg, #3a5060, #2a3f4f)';
+            (d.value > 0 ? 'linear-gradient(180deg, #3a7080, #2a5060)' : 'linear-gradient(180deg, #2a3040, #1a2030)');
         const opacity = d.isToday ? '0.9' : '0.5';
-        return `<div style="flex:0 0 24px; display:flex; flex-direction:column; align-items:center; gap:2px;" title="Day ${d.label}: ${d.value} clicks">
+        return `<div style="flex:0 0 24px; display:flex; flex-direction:column; align-items:center; gap:2px;" title="${d.dayKey}: ${d.value} clicks">
             <span style="color: rgba(255,255,255,${opacity}); font-size: 0.55rem;">${d.value || ''}</span>
             <div style="width:18px; height:${height}px; background:${color}; border-radius:4px 4px 0 0; min-height:2px;"></div>
         </div>`;
     }).join('');
     
     labels.innerHTML = barData.map((d, i) => {
-        // Show every 5th label to avoid clutter
         const showLabel = d.label % 5 === 0 || i === 29;
         return `<span style="flex:0 0 24px; text-align:center; color: rgba(255,255,255,${showLabel ? '0.6' : '0.2'}); font-size: 0.55rem;">${showLabel ? d.label : ''}</span>`;
     }).join('');
