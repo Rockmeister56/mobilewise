@@ -158,6 +158,7 @@
                             <th>Rate</th>
                             <th>Revenue</th>
                             <th>Improvement</th>
+                            <th>Link</th>
                         </tr>
                     </thead>
                     <tbody id="clientTableBody">
@@ -253,17 +254,18 @@
                     const sign = improvement >= 0 ? '+' : '';
 
                     rows += `
-                        <tr>
-                            <td><a href="dashboard.html?clientId=${c.client_id}" class="client-link" target="_blank">${c.name || 'Unnamed'}</a></td>
-                            <td>${c.industry || '—'}</td>
-                            <td>${baseline}/mo</td>
-                            <td><strong>${stats.leads}</strong></td>
-                            <td><span class="badge ${incremental > 0 ? 'badge-up' : 'badge-flat'}">+${incremental}</span></td>
-                            <td>$${rate}</td>
-                            <td><strong>$${revenue.toLocaleString()}</strong></td>
-                            <td><span class="badge ${badge}">${sign}${improvement.toFixed(0)}%</span></td>
-                        </tr>
-                    `;
+                    <tr>
+                 <td><a href="dashboard.html?clientId=${c.client_id}" class="client-link" target="_blank">${c.name || 'Unnamed'}</a></td>
+                 <td>${c.industry || '—'}</td>
+                 <td>${baseline}/mo</td>
+                 <td><strong>${stats.leads}</strong></td>
+                 <td><span class="badge ${incremental > 0 ? 'badge-up' : 'badge-flat'}">+${incremental}</span></td>
+                 <td>$${rate}</td>
+                 <td><strong>$${revenue.toLocaleString()}</strong></td>
+                 <td><span class="badge ${badge}">${sign}${improvement.toFixed(0)}%</span></td>
+                 <td><button onclick="copyClientLink('${c.client_id}')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;">📋 Copy</button></td>
+                 </tr>
+           `;
                 });
 
                 document.getElementById('clientTableBody').innerHTML = rows;
@@ -304,6 +306,15 @@
         }
 
         init();
+
+        function copyClientLink(clientId) {
+    const link = window.location.origin + '/dashboard.html?clientId=' + clientId;
+    navigator.clipboard.writeText(link).then(() => {
+        alert('✅ Client dashboard link copied!\n\n' + link);
+    }).catch(() => {
+        prompt('Copy this link:', link);
+    });
+}
     </script>
 </body>
 </html>
