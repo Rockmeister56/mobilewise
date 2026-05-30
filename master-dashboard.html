@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 MobileWise AI — Master Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #050a12;
+            color: #F0F4FF;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 0; margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-wrap: wrap; gap: 16px;
+        }
+        .header h1 { font-size: 1.6rem; font-weight: 700; color: #f8c400; }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn {
+            padding: 10px 20px; border-radius: 8px; border: none;
+            font-weight: 600; font-size: 0.85rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-refresh { background: rgba(255,255,255,0.1); color: white; }
+        .btn-refresh:hover { background: rgba(255,255,255,0.2); }
+        .btn-export { background: #f8c400; color: #0a0f1e; }
+        .btn-export:hover { background: #ffd700; }
+
+        .stat-row {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 16px; margin-bottom: 24px;
+        }
+        .stat-card {
+            background: rgba(18,28,46,0.7); border-radius: 14px;
+            padding: 20px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .stat-card .label {
+            font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 1px; color: rgba(255,255,255,0.5);
+            margin-bottom: 8px;
+        }
+        .stat-card .value {
+            font-size: 2.2rem; font-weight: 700; color: white;
+        }
+        .stat-card .sub {
+            font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 4px;
+        }
+        .stat-card.gold { border-top: 3px solid #f8c400; }
+        .stat-card.green { border-top: 3px solid #4caf50; }
+        .stat-card.blue { border-top: 3px solid #2196f3; }
+        .stat-card.purple { border-top: 3px solid #9c27b0; }
+
+        .table-wrap {
+            background: rgba(18,28,46,0.7); border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05); overflow: hidden;
+        }
+        .table-header {
+            padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .table-header h2 { font-size: 1.1rem; color: white; }
+        .table-header .period {
+            font-size: 0.8rem; color: rgba(255,255,255,0.5);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left; padding: 14px 20px;
+            font-size: 0.72rem; text-transform: uppercase;
+            letter-spacing: 1px; color: rgba(255,255,255,0.45);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        td {
+            padding: 14px 20px; font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        .client-link {
+            color: #f8c400; text-decoration: none; font-weight: 600;
+        }
+        .client-link:hover { text-decoration: underline; }
+        .badge {
+            display: inline-block; padding: 4px 10px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .badge-up { background: rgba(76,175,80,0.15); color: #4caf50; }
+        .badge-down { background: rgba(244,67,54,0.15); color: #f44336; }
+        .badge-flat { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+        .loading { text-align: center; padding: 40px; color: rgba(255,255,255,0.4); }
+
+        @media (max-width: 768px) {
+            .stat-row { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .stat-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Master Dashboard</h1>
+            <div class="header-actions">
+                <button class="btn btn-refresh" onclick="refreshAll()">🔄 Refresh</button>
+                <button class="btn btn-export" onclick="exportCSV()">📥 Export CSV</button>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stat-row">
+            <div class="stat-card gold">
+                <div class="label">Active Clients</div>
+                <div class="value" id="statClients">—</div>
+                <div class="sub">with Tess deployed</div>
+            </div>
+            <div class="stat-card green">
+                <div class="label">Total Leads This Month</div>
+                <div class="value" id="statLeads">—</div>
+                <div class="sub">all clients combined</div>
+            </div>
+            <div class="stat-card blue">
+                <div class="label">Monthly Revenue</div>
+                <div class="value" id="statRevenue">—</div>
+                <div class="sub">incremental leads × rate</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="label">Avg Improvement</div>
+                <div class="value" id="statImprovement">—</div>
+                <div class="sub">vs. forms alone</div>
+            </div>
+        </div>
+
+        <!-- Client Table -->
+        <div class="table-wrap">
+            <div class="table-header">
+                <h2>Client Performance</h2>
+                <span class="period" id="periodLabel">Current Month</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Industry</th>
+                            <th>Baseline</th>
+                            <th>Leads</th>
+                            <th>Incremental</th>
+                            <th>Rate</th>
+                            <th>Revenue</th>
+                            <th>Improvement</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientTableBody">
+                        <tr><td colspan="8" class="loading">Loading client data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3); font-size: 0.75rem;">
+            Master Dashboard v1.0 · Auto-refreshes every 60 seconds
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
+
+        let supabaseClient;
+
+        async function init() {
+            const { createClient } = supabase;
+            supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            await loadMasterData();
+            setInterval(loadMasterData, 60000);
+        }
+
+        async function loadMasterData() {
+            try {
+                // Get all clients
+                const { data: clients, error: clientError } = await supabaseClient
+                    .from('clients')
+                    .select('client_id, name, industry, baseline_leads, baseline_visitors, per_lead_rate')
+                    .not('client_id', 'is', null);
+
+                if (clientError) throw clientError;
+                if (!clients || clients.length === 0) {
+                    document.getElementById('clientTableBody').innerHTML = 
+                        '<tr><td colspan="8" class="loading">No clients found. Add clients in the Trigger Dashboard.</td></tr>';
+                    return;
+                }
+
+                // Get this month's events for all clients
+                const startOfMonth = new Date();
+                startOfMonth.setDate(1);
+                startOfMonth.setHours(0, 0, 0, 0);
+
+                const { data: events, error: eventError } = await supabaseClient
+                    .from('analytics_events')
+                    .select('client_id, event_type')
+                    .gte('created_at', startOfMonth.toISOString());
+
+                if (eventError) throw eventError;
+
+                // Aggregate events per client
+                const clientStats = {};
+                (events || []).forEach(e => {
+                    if (!clientStats[e.client_id]) {
+                        clientStats[e.client_id] = { leads: 0, clicks: 0, calls: 0 };
+                    }
+                    if (e.event_type === 'lead_captured') clientStats[e.client_id].leads++;
+                    if (e.event_type === 'activate_tess') clientStats[e.client_id].clicks++;
+                    if (e.event_type === 'phone_connect') clientStats[e.client_id].calls++;
+                });
+
+                // Build table rows
+                let totalLeads = 0, totalRevenue = 0, totalImprovement = 0, activeCount = 0;
+                let rows = '';
+
+                clients.forEach(c => {
+                    const stats = clientStats[c.client_id] || { leads: 0, clicks: 0, calls: 0 };
+                    const baseline = c.baseline_leads || 20;
+                    const visitors = c.baseline_visitors || 2000;
+                    const rate = c.per_lead_rate || 150;
+                    const incremental = Math.max(0, stats.leads - baseline);
+                    const revenue = incremental * rate;
+                    const beforeRate = visitors > 0 ? (baseline / visitors) * 100 : 0;
+                    const afterRate = visitors > 0 ? (stats.leads / visitors) * 100 : 0;
+                    const improvement = beforeRate > 0 ? ((afterRate - beforeRate) / beforeRate) * 100 : 0;
+
+                    totalLeads += stats.leads;
+                    totalRevenue += revenue;
+                    if (stats.leads > 0 || stats.clicks > 0) {
+                        totalImprovement += improvement;
+                        activeCount++;
+                    }
+
+                    let badge;
+                    if (improvement > 20) badge = 'badge-up';
+                    else if (improvement < 0) badge = 'badge-down';
+                    else badge = 'badge-flat';
+
+                    const sign = improvement >= 0 ? '+' : '';
+
+                    rows += `
+                        <tr>
+                            <td><a href="dashboard.html?clientId=${c.client_id}" class="client-link" target="_blank">${c.name || 'Unnamed'}</a></td>
+                            <td>${c.industry || '—'}</td>
+                            <td>${baseline}/mo</td>
+                            <td><strong>${stats.leads}</strong></td>
+                            <td><span class="badge ${incremental > 0 ? 'badge-up' : 'badge-flat'}">+${incremental}</span></td>
+                            <td>$${rate}</td>
+                            <td><strong>$${revenue.toLocaleString()}</strong></td>
+                            <td><span class="badge ${badge}">${sign}${improvement.toFixed(0)}%</span></td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('clientTableBody').innerHTML = rows;
+                document.getElementById('statClients').textContent = clients.length;
+                document.getElementById('statLeads').textContent = totalLeads;
+                document.getElementById('statRevenue').textContent = '$' + totalRevenue.toLocaleString();
+                const avgImprovement = activeCount > 0 ? totalImprovement / activeCount : 0;
+                document.getElementById('statImprovement').textContent = (avgImprovement >= 0 ? '+' : '') + avgImprovement.toFixed(0) + '%';
+
+            } catch (e) {
+                console.error('Error loading master data:', e);
+                document.getElementById('clientTableBody').innerHTML = 
+                    '<tr><td colspan="8" class="loading">Error loading data. Check console.</td></tr>';
+            }
+        }
+
+        function refreshAll() {
+            loadMasterData();
+        }
+
+        function exportCSV() {
+            const rows = document.querySelectorAll('#clientTableBody tr');
+            let csv = 'Client,Industry,Baseline,Leads,Incremental,Rate,Revenue,Improvement\n';
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 8) {
+                    const data = Array.from(cells).map(c => c.textContent.replace(/,/g, '').trim());
+                    csv += data.join(',') + '\n';
+                }
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mobilewise-master-report.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        init();
+    </script>
+</body>
+</html>
