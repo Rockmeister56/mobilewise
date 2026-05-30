@@ -1006,55 +1006,6 @@ async function loadClientConfig(clientId) {
     return null;
 }
 
-function testEmailSend() {
-    const resultDiv = document.getElementById('email_triggerTestResult');
-    if (resultDiv) {
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending test email...';
-        resultDiv.className = 'test-result testing';
-    }
-    
-    if (window.supabaseChannel) {
-        window.supabaseChannel.send({
-            type: 'broadcast',
-            event: 'command',
-            payload: {
-                module: 'email_trigger',
-                command: 'SEND_TEST_EMAIL',
-                test_email: 'test@example.com',
-                timestamp: Date.now()
-            }
-        });
-        console.log('📡 Sent SEND_TEST_EMAIL command');
-    }
-    
-    const timeout = setTimeout(() => {
-        if (resultDiv) {
-            resultDiv.innerHTML = '❌ No response from Bridge (timeout)';
-            resultDiv.className = 'test-result error';
-        }
-    }, 10000);
-    
-    const resultHandler = (payload) => {
-        if (payload.event === 'trigger_test_result' && payload.payload.module === 'email_trigger') {
-            clearTimeout(timeout);
-            const resultEl = document.getElementById('email_triggerTestResult');
-            if (!resultEl) return;
-            if (payload.payload.success) {
-                resultEl.innerHTML = '✅ Test email sent! Check inbox.';
-                resultEl.className = 'test-result success';
-            } else {
-                resultEl.innerHTML = '❌ ' + (payload.payload.message || 'Failed');
-                resultEl.className = 'test-result error';
-            }
-        }
-    };
-    
-    if (window.supabaseChannel) {
-        window.supabaseChannel.on('broadcast', { event: 'trigger_test_result' }, resultHandler);
-    }
-}
-
 // ===== UPDATE MODULE DISPLAYS =====
 function updateModuleDisplays() {
     // Pre-Qualification Trigger
@@ -3206,5 +3157,55 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
     </script>
+    <script>
+function testEmailSend() {
+    const resultDiv = document.getElementById('email_triggerTestResult');
+    if (resultDiv) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending test email...';
+        resultDiv.className = 'test-result testing';
+    }
+    
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'command',
+            payload: {
+                module: 'email_trigger',
+                command: 'SEND_TEST_EMAIL',
+                test_email: 'test@example.com',
+                timestamp: Date.now()
+            }
+        });
+        console.log('📡 Sent SEND_TEST_EMAIL command');
+    }
+    
+    const timeout = setTimeout(() => {
+        if (resultDiv) {
+            resultDiv.innerHTML = '❌ No response from Bridge (timeout)';
+            resultDiv.className = 'test-result error';
+        }
+    }, 10000);
+    
+    const resultHandler = (payload) => {
+        if (payload.event === 'trigger_test_result' && payload.payload.module === 'email_trigger') {
+            clearTimeout(timeout);
+            const resultEl = document.getElementById('email_triggerTestResult');
+            if (!resultEl) return;
+            if (payload.payload.success) {
+                resultEl.innerHTML = '✅ Test email sent! Check inbox.';
+                resultEl.className = 'test-result success';
+            } else {
+                resultEl.innerHTML = '❌ ' + (payload.payload.message || 'Failed');
+                resultEl.className = 'test-result error';
+            }
+        }
+    };
+    
+    if (window.supabaseChannel) {
+        window.supabaseChannel.on('broadcast', { event: 'trigger_test_result' }, resultHandler);
+    }
+}
+</script>
 </body>
 </html>
