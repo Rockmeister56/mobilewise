@@ -34,6 +34,25 @@
         .btn-export { background: #f8c400; color: #0a0f1e; }
         .btn-export:hover { background: #ffd700; }
 
+        /* Tabs */
+        .tabs {
+            display: flex; gap: 4px; margin-bottom: 24px;
+            background: rgba(18,28,46,0.7); border-radius: 12px;
+            padding: 4px; width: fit-content;
+        }
+        .tab {
+            padding: 10px 24px; border-radius: 10px; border: none;
+            background: transparent; color: rgba(255,255,255,0.5);
+            font-weight: 600; font-size: 0.85rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab.active { background: #f8c400; color: #0a0f1e; }
+        .tab:hover:not(.active) { color: white; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Stats */
         .stat-row {
             display: grid; grid-template-columns: repeat(4, 1fr);
             gap: 16px; margin-bottom: 24px;
@@ -59,6 +78,7 @@
         .stat-card.blue { border-top: 3px solid #2196f3; }
         .stat-card.purple { border-top: 3px solid #9c27b0; }
 
+        /* Table */
         .table-wrap {
             background: rgba(18,28,46,0.7); border-radius: 16px;
             border: 1px solid rgba(255,255,255,0.05); overflow: hidden;
@@ -69,9 +89,7 @@
             flex-wrap: wrap; gap: 10px;
         }
         .table-header h2 { font-size: 1.1rem; color: white; }
-        .table-header .period {
-            font-size: 0.8rem; color: rgba(255,255,255,0.5);
-        }
+        .table-header .period { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
 
         table { width: 100%; border-collapse: collapse; }
         th {
@@ -85,9 +103,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.03);
         }
         tr:hover td { background: rgba(255,255,255,0.02); }
-        .client-link {
-            color: #f8c400; text-decoration: none; font-weight: 600;
-        }
+        .client-link { color: #f8c400; text-decoration: none; font-weight: 600; }
         .client-link:hover { text-decoration: underline; }
         .badge {
             display: inline-block; padding: 4px 10px; border-radius: 20px;
@@ -96,7 +112,20 @@
         .badge-up { background: rgba(76,175,80,0.15); color: #4caf50; }
         .badge-down { background: rgba(244,67,54,0.15); color: #f44336; }
         .badge-flat { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+        .badge-sent { background: rgba(33,150,243,0.15); color: #2196f3; }
+        .badge-pending { background: rgba(248,196,0,0.15); color: #f8c400; }
+        .badge-paid { background: rgba(76,175,80,0.15); color: #4caf50; }
         .loading { text-align: center; padding: 40px; color: rgba(255,255,255,0.4); }
+
+        /* Expandable row */
+        .expandable-row { cursor: pointer; }
+        .expanded-row td { padding: 0; }
+        .expanded-content {
+            padding: 16px 24px; background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .expanded-content table { margin-top: 8px; }
+        .expanded-content th { font-size: 0.65rem; padding: 8px 12px; }
 
         @media (max-width: 768px) {
             .stat-row { grid-template-columns: repeat(2, 1fr); }
@@ -116,60 +145,120 @@
             </div>
         </div>
 
-        <!-- Stats Row -->
-        <div class="stat-row">
-            <div class="stat-card gold">
-                <div class="label">Active Clients</div>
-                <div class="value" id="statClients">—</div>
-                <div class="sub">with Tess deployed</div>
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('performance')">📈 Client Performance</button>
+            <button class="tab" onclick="switchTab('billing')">💰 Billing & Invoices</button>
+        </div>
+
+        <!-- ==================== PERFORMANCE TAB ==================== -->
+        <div id="tab-performance" class="tab-content active">
+            <div class="stat-row">
+                <div class="stat-card gold">
+                    <div class="label">Active Clients</div>
+                    <div class="value" id="statClients">—</div>
+                    <div class="sub">with Tess deployed</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="label">Total Leads This Month</div>
+                    <div class="value" id="statLeads">—</div>
+                    <div class="sub">all clients combined</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="label">Monthly Revenue</div>
+                    <div class="value" id="statRevenue">—</div>
+                    <div class="sub">incremental leads × rate</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="label">Avg Improvement</div>
+                    <div class="value" id="statImprovement">—</div>
+                    <div class="sub">vs. forms alone</div>
+                </div>
             </div>
-            <div class="stat-card green">
-                <div class="label">Total Leads This Month</div>
-                <div class="value" id="statLeads">—</div>
-                <div class="sub">all clients combined</div>
-            </div>
-            <div class="stat-card blue">
-                <div class="label">Monthly Revenue</div>
-                <div class="value" id="statRevenue">—</div>
-                <div class="sub">incremental leads × rate</div>
-            </div>
-            <div class="stat-card purple">
-                <div class="label">Avg Improvement</div>
-                <div class="value" id="statImprovement">—</div>
-                <div class="sub">vs. forms alone</div>
+
+            <div class="table-wrap">
+                <div class="table-header">
+                    <h2>Client Performance</h2>
+                    <span class="period" id="periodLabel">Current Month</span>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Industry</th>
+                                <th>Baseline</th>
+                                <th>Leads</th>
+                                <th>Incremental</th>
+                                <th>Rate</th>
+                                <th>Revenue</th>
+                                <th>Improvement</th>
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientTableBody">
+                            <tr><td colspan="9" class="loading">Loading client data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- Client Table -->
-        <div class="table-wrap">
-            <div class="table-header">
-                <h2>Client Performance</h2>
-                <span class="period" id="periodLabel">Current Month</span>
+        <!-- ==================== BILLING TAB ==================== -->
+        <div id="tab-billing" class="tab-content">
+            <div class="stat-row">
+                <div class="stat-card gold">
+                    <div class="label">Total Invoiced (MTD)</div>
+                    <div class="value" id="billingTotalInvoiced">—</div>
+                    <div class="sub">this month</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="label">Paid</div>
+                    <div class="value" id="billingPaid">—</div>
+                    <div class="sub">invoices marked paid</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="label">Pending</div>
+                    <div class="value" id="billingPending">—</div>
+                    <div class="sub">awaiting payment</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="label">Outstanding</div>
+                    <div class="value" id="billingOutstanding">—</div>
+                    <div class="sub">pending + overdue</div>
+                </div>
             </div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Client</th>
-                            <th>Industry</th>
-                            <th>Baseline</th>
-                            <th>Leads</th>
-                            <th>Incremental</th>
-                            <th>Rate</th>
-                            <th>Revenue</th>
-                            <th>Improvement</th>
-                            <th>Link</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clientTableBody">
-                        <tr><td colspan="8" class="loading">Loading client data...</td></tr>
-                    </tbody>
-                </table>
+
+            <div class="table-wrap">
+                <div class="table-header">
+                    <h2>Invoice History</h2>
+                    <button class="btn btn-refresh" onclick="loadBillingData()" style="font-size:0.75rem;">🔄 Refresh Invoices</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Client</th>
+                                <th>Period</th>
+                                <th>Baseline</th>
+                                <th>Total Leads</th>
+                                <th>Incremental</th>
+                                <th>Rate</th>
+                                <th>Amount Due</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billingTableBody">
+                            <tr><td colspan="9" class="loading">Loading invoices...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3); font-size: 0.75rem;">
-            Master Dashboard v1.0 · Auto-refreshes every 60 seconds
+            Master Dashboard v2.0 · Auto-refreshes every 60 seconds
         </div>
     </div>
 
@@ -186,9 +275,19 @@
             setInterval(loadMasterData, 60000);
         }
 
+        // ==================== TAB SWITCHING ====================
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            if (tabName === 'billing') loadBillingData();
+        }
+
+        // ==================== PERFORMANCE TAB ====================
         async function loadMasterData() {
             try {
-                // Get all clients
                 const { data: clients, error: clientError } = await supabaseClient
                     .from('clients')
                     .select('client_id, name, industry, baseline_leads, baseline_visitors, per_lead_rate')
@@ -197,34 +296,27 @@
                 if (clientError) throw clientError;
                 if (!clients || clients.length === 0) {
                     document.getElementById('clientTableBody').innerHTML = 
-                        '<tr><td colspan="8" class="loading">No clients found. Add clients in the Trigger Dashboard.</td></tr>';
+                        '<tr><td colspan="9" class="loading">No clients found.</td></tr>';
                     return;
                 }
 
-                // Get this month's events for all clients
                 const startOfMonth = new Date();
                 startOfMonth.setDate(1);
                 startOfMonth.setHours(0, 0, 0, 0);
 
-                const { data: events, error: eventError } = await supabaseClient
+                const { data: events } = await supabaseClient
                     .from('analytics_events')
                     .select('client_id, event_type')
                     .gte('created_at', startOfMonth.toISOString());
 
-                if (eventError) throw eventError;
-
-                // Aggregate events per client
                 const clientStats = {};
                 (events || []).forEach(e => {
-                    if (!clientStats[e.client_id]) {
-                        clientStats[e.client_id] = { leads: 0, clicks: 0, calls: 0 };
-                    }
+                    if (!clientStats[e.client_id]) clientStats[e.client_id] = { leads: 0, clicks: 0, calls: 0 };
                     if (e.event_type === 'lead_captured') clientStats[e.client_id].leads++;
                     if (e.event_type === 'activate_tess') clientStats[e.client_id].clicks++;
                     if (e.event_type === 'phone_connect') clientStats[e.client_id].calls++;
                 });
 
-                // Build table rows
                 let totalLeads = 0, totalRevenue = 0, totalImprovement = 0, activeCount = 0;
                 let rows = '';
 
@@ -241,80 +333,165 @@
 
                     totalLeads += stats.leads;
                     totalRevenue += revenue;
-                    if (stats.leads > 0 || stats.clicks > 0) {
-                        totalImprovement += improvement;
-                        activeCount++;
-                    }
+                    if (stats.leads > 0 || stats.clicks > 0) { totalImprovement += improvement; activeCount++; }
 
-                    let badge;
-                    if (improvement > 20) badge = 'badge-up';
-                    else if (improvement < 0) badge = 'badge-down';
-                    else badge = 'badge-flat';
-
+                    let badge = improvement > 20 ? 'badge-up' : improvement < 0 ? 'badge-down' : 'badge-flat';
                     const sign = improvement >= 0 ? '+' : '';
 
                     rows += `
-                    <tr>
-                 <td><a href="dashboard.html?clientId=${c.client_id}" class="client-link" target="_blank">${c.name || 'Unnamed'}</a></td>
-                 <td>${c.industry || '—'}</td>
-                 <td>${baseline}/mo</td>
-                 <td><strong>${stats.leads}</strong></td>
-                 <td><span class="badge ${incremental > 0 ? 'badge-up' : 'badge-flat'}">+${incremental}</span></td>
-                 <td>$${rate}</td>
-                 <td><strong>$${revenue.toLocaleString()}</strong></td>
-                 <td><span class="badge ${badge}">${sign}${improvement.toFixed(0)}%</span></td>
-                 <td><button onclick="copyClientLink('${c.client_id}')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;">📋 Copy</button></td>
-                 </tr>
-           `;
+                        <tr>
+                            <td><a href="dashboard.html?clientId=${c.client_id}" class="client-link" target="_blank">${c.name || 'Unnamed'}</a></td>
+                            <td>${c.industry || '—'}</td>
+                            <td>${baseline}/mo</td>
+                            <td><strong>${stats.leads}</strong></td>
+                            <td><span class="badge ${incremental > 0 ? 'badge-up' : 'badge-flat'}">+${incremental}</span></td>
+                            <td>$${rate}</td>
+                            <td><strong>$${revenue.toLocaleString()}</strong></td>
+                            <td><span class="badge ${badge}">${sign}${improvement.toFixed(0)}%</span></td>
+                            <td><button onclick="copyClientLink('${c.client_id}')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;">📋 Copy</button></td>
+                        </tr>
+                    `;
                 });
 
                 document.getElementById('clientTableBody').innerHTML = rows;
                 document.getElementById('statClients').textContent = clients.length;
                 document.getElementById('statLeads').textContent = totalLeads;
                 document.getElementById('statRevenue').textContent = '$' + totalRevenue.toLocaleString();
-                const avgImprovement = activeCount > 0 ? totalImprovement / activeCount : 0;
-                document.getElementById('statImprovement').textContent = (avgImprovement >= 0 ? '+' : '') + avgImprovement.toFixed(0) + '%';
+                document.getElementById('statImprovement').textContent = (activeCount > 0 ? (totalImprovement / activeCount) : 0).toFixed(0) + '%';
 
             } catch (e) {
-                console.error('Error loading master data:', e);
-                document.getElementById('clientTableBody').innerHTML = 
-                    '<tr><td colspan="8" class="loading">Error loading data. Check console.</td></tr>';
+                console.error('Error:', e);
+                document.getElementById('clientTableBody').innerHTML = '<tr><td colspan="9" class="loading">Error loading data.</td></tr>';
             }
+        }
+
+        // ==================== BILLING TAB ====================
+        async function loadBillingData() {
+            try {
+                const { data: invoices, error } = await supabaseClient
+                    .from('invoices')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+
+                if (error) throw error;
+
+                // Get client names
+                const { data: clients } = await supabaseClient
+                    .from('clients')
+                    .select('client_id, name');
+
+                const clientMap = {};
+                (clients || []).forEach(c => { clientMap[c.client_id] = c.name || c.client_id; });
+
+                let totalInvoiced = 0, totalPaid = 0, totalPending = 0;
+
+                let rows = '';
+                (invoices || []).forEach(inv => {
+                    totalInvoiced += inv.amount_due || 0;
+                    if (inv.status === 'paid') totalPaid += inv.amount_due || 0;
+                    if (inv.status === 'pending' || inv.status === 'sent') totalPending += inv.amount_due || 0;
+
+                    let statusBadge = 'badge-pending';
+                    if (inv.status === 'paid') statusBadge = 'badge-paid';
+                    if (inv.status === 'sent') statusBadge = 'badge-sent';
+
+                    const lineItems = inv.line_items || [];
+                    const itemRows = lineItems.map(item => 
+                        `<tr><td style="padding:4px 12px;font-size:0.8rem;">${item.date}</td><td style="padding:4px 12px;font-size:0.8rem;">${item.email}</td><td style="padding:4px 12px;font-size:0.8rem;">${item.status}</td></tr>`
+                    ).join('');
+
+                    rows += `
+                        <tr class="expandable-row" onclick="toggleExpand(this)">
+                            <td><strong>${inv.invoice_number}</strong></td>
+                            <td>${clientMap[inv.client_id] || inv.client_id}</td>
+                            <td>${inv.period_start} → ${inv.period_end}</td>
+                            <td>${inv.baseline_leads}</td>
+                            <td>${inv.total_leads}</td>
+                            <td><strong>${inv.incremental_leads}</strong></td>
+                            <td>$${inv.per_lead_rate}</td>
+                            <td><strong>$${(inv.amount_due || 0).toLocaleString()}</strong></td>
+                            <td><span class="badge ${statusBadge}">${inv.status}</span></td>
+                        </tr>
+                        <tr class="expanded-row" style="display:none;">
+                            <td colspan="9">
+                                <div class="expanded-content">
+                                    <strong style="color:#f8c400;">Itemized Leads:</strong>
+                                    <table style="width:100%;margin-top:8px;">
+                                        <thead><tr><th>Date</th><th>Email</th><th>Status</th></tr></thead>
+                                        <tbody>${itemRows || '<tr><td colspan="3" style="padding:8px;color:rgba(255,255,255,0.4);">No itemized data</td></tr>'}</tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('billingTableBody').innerHTML = rows || '<tr><td colspan="9" class="loading">No invoices yet.</td></tr>';
+                document.getElementById('billingTotalInvoiced').textContent = '$' + totalInvoiced.toLocaleString();
+                document.getElementById('billingPaid').textContent = '$' + totalPaid.toLocaleString();
+                document.getElementById('billingPending').textContent = '$' + totalPending.toLocaleString();
+                document.getElementById('billingOutstanding').textContent = '$' + (totalPending).toLocaleString();
+
+            } catch (e) {
+                console.error('Billing error:', e);
+                document.getElementById('billingTableBody').innerHTML = '<tr><td colspan="9" class="loading">Error loading invoices.</td></tr>';
+            }
+        }
+
+        function toggleExpand(row) {
+            const next = row.nextElementSibling;
+            if (next && next.classList.contains('expanded-row')) {
+                next.style.display = next.style.display === 'none' ? 'table-row' : 'none';
+            }
+        }
+
+        function copyClientLink(clientId) {
+            const link = window.location.origin + '/dashboard.html?clientId=' + clientId;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('✅ Client dashboard link copied!');
+            }).catch(() => {
+                prompt('Copy this link:', link);
+            });
         }
 
         function refreshAll() {
             loadMasterData();
+            if (document.getElementById('tab-billing').classList.contains('active')) loadBillingData();
         }
 
         function exportCSV() {
-            const rows = document.querySelectorAll('#clientTableBody tr');
-            let csv = 'Client,Industry,Baseline,Leads,Incremental,Rate,Revenue,Improvement\n';
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                if (cells.length === 8) {
-                    const data = Array.from(cells).map(c => c.textContent.replace(/,/g, '').trim());
-                    csv += data.join(',') + '\n';
-                }
-            });
+            const activeTab = document.querySelector('.tab-content.active').id;
+            let csv = '';
+            
+            if (activeTab === 'tab-performance') {
+                csv = 'Client,Industry,Baseline,Leads,Incremental,Rate,Revenue,Improvement\n';
+                document.querySelectorAll('#clientTableBody tr').forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 8) {
+                        csv += Array.from(cells).slice(0, 8).map(c => c.textContent.replace(/,/g, '').trim()).join(',') + '\n';
+                    }
+                });
+            } else {
+                csv = 'Invoice#,Client,Period,Baseline,Total,Incremental,Rate,Amount,Status\n';
+                document.querySelectorAll('#billingTableBody tr.expandable-row').forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 9) {
+                        csv += Array.from(cells).map(c => c.textContent.replace(/,/g, '').trim()).join(',') + '\n';
+                    }
+                });
+            }
+            
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'mobilewise-master-report.csv';
+            a.download = 'mobilewise-export.csv';
             a.click();
             URL.revokeObjectURL(url);
         }
 
         init();
-
-        function copyClientLink(clientId) {
-    const link = window.location.origin + '/dashboard.html?clientId=' + clientId;
-    navigator.clipboard.writeText(link).then(() => {
-        alert('✅ Client dashboard link copied!\n\n' + link);
-    }).catch(() => {
-        prompt('Copy this link:', link);
-    });
-}
     </script>
 </body>
 </html>
