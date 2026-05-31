@@ -1341,14 +1341,22 @@
             
             <div style="margin-bottom: 18px;">
                 <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
-                    <i class="fas fa-phone-alt" style="margin-right: 6px;"></i>Support Phone
+                    <i class="fas fa-heading" style="margin-right: 6px;"></i>Phone Overlay Title
                 </label>
-                <input type="tel" id="supportPhone" value="949-228-5263" 
+                <input type="text" id="phoneOverlayTitle" value="Call Your Conversion Expert" 
                        style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;"
-                       placeholder="800-555-1234">
-                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Used for "call me" triggers</span>
+                       placeholder="Call Your Mortgage Expert">
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Headline shown when phone overlay appears</span>
             </div>
-        </div>
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-align-left" style="margin-right: 6px;"></i>Phone Overlay Subtitle
+                </label>
+                <input type="text" id="phoneOverlaySubtitle" value="We're ready to help you right now" 
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;"
+                       placeholder="We're ready to help you right now">
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Subtext below the phone number</span>
+            </div>
         
         <!-- Right Column: Trigger Phrases -->
         <div>
@@ -3869,7 +3877,9 @@ async function exportBridgeOnly() {
         code += '                                // Show phone number overlay for desktop users\n';
         code += '                                var phoneOverlay = document.createElement("div");\n';
         code += '                                phoneOverlay.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,15,30,0.97);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;border-radius:20px;border:2px solid #f8c400;text-align:center;";\n';
-        code += '                                phoneOverlay.innerHTML = \'<div style="font-size:3rem;margin-bottom:15px;">📞</div><div style="color:white;font-size:1.4rem;font-weight:700;margin-bottom:8px;">Call Your Conversion Expert</div><div style="color:#f8c400;font-size:2rem;font-weight:700;margin-bottom:20px;">\' + pn + \'</div><div style="color:rgba(255,255,255,0.5);font-size:0.85rem;margin-bottom:20px;">We are ready to help you right now</div><button onclick="this.parentElement.remove()" style="background:#f8c400;color:#0a0f1e;border:none;padding:12px 30px;border-radius:30px;font-size:1rem;font-weight:600;cursor:pointer;">✕ Close</button>\';\n';
+        code += '                                var phoneTitle = window.BotemiaConfig?.modules?.emailConfig?.phoneOverlayTitle || "Call Your Conversion Expert";\n';
+        code += '                                var phoneSubtitle = window.BotemiaConfig?.modules?.emailConfig?.phoneOverlaySubtitle || "We\'re ready to help you right now";\n';
+        code += '                                phoneOverlay.innerHTML = \'<div style="font-size:3rem;margin-bottom:15px;">📞</div><div style="color:white;font-size:1.4rem;font-weight:700;margin-bottom:8px;">\' + phoneTitle + \'</div><div style="color:#f8c400;font-size:2rem;font-weight:700;margin-bottom:20px;">\' + pn + \'</div><div style="color:rgba(255,255,255,0.5);font-size:0.85rem;margin-bottom:20px;">\' + phoneSubtitle + \'</div><button onclick="this.parentElement.remove()" style="background:#f8c400;color:#0a0f1e;border:none;padding:12px 30px;border-radius:30px;font-size:1rem;font-weight:600;cursor:pointer;">✕ Close</button>\';\n';
         code += '                                phoneOverlay.onclick = function(e) { if (e.target === phoneOverlay) phoneOverlay.remove(); };\n';
         code += '                                document.body.appendChild(phoneOverlay);\n';
         code += '                                window.open("tel:" + pn, "_blank");\n';
