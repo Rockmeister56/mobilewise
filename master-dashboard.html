@@ -555,9 +555,23 @@ async function sendInvoice(id, event) {
     const { data } = await supabaseClient.from('invoices').select('*').eq('id', id).single();
     if (!data) return;
 
+    // Build line items HTML from the stored JSON
+    const items = data.line_items || [];
+    let lineItemsHtml = '';
+    items.forEach(i => {
+        lineItemsHtml += `<tr><td style="padding:6px 8px;border-bottom:1px solid #eee;">${i.date}</td><td style="padding:6px 8px;border-bottom:1px solid #eee;">${i.email}</td><td style="padding:6px 8px;border-bottom:1px solid #eee;">${i.status}</td></tr>`;
+    });
+
+    // Get client email from clients table
+    const { data: clientData } = await supabaseClient.from('clients').select('metadata').eq('client_id', data.client_id).single();
+    const metadata = clientData?.metadata || {};
+    const clientEmail = metadata?.modules?.emailConfig?.loanOfficerEmail || 
+                        metadata?.modules?.emailConfig?.clientEmail || 
+                        "bizboost.expert@gmail.com";
+
     try {
         await emailjs.send("service_b9bppgb", "template_yf09xm5", {
-            to_email: "bizboost.expert@gmail.com",
+            to_email: clientEmail,
             client_name: data.client_id,
             invoice_number: data.invoice_number,
             period: `${data.period_start} - ${data.period_end}`,
@@ -565,13 +579,15 @@ async function sendInvoice(id, event) {
             total_leads: data.total_leads,
             incremental_leads: data.incremental_leads,
             per_lead_rate: "$" + data.per_lead_rate,
-            amount_due: "$" + data.amount_due.toLocaleString()
+            amount_due: "$" + data.amount_due.toLocaleString(),
+            line_items_html: lineItemsHtml
         });
 
         await supabaseClient.from('invoices').update({ status: 'sent', sent_at: new Date().toISOString() }).eq('id', id);
         btn.textContent = '✅ Sent';
         loadInvoices();
     } catch (e) {
+        console.error(e);
         btn.textContent = '❌ Retry';
         btn.disabled = false;
     }
