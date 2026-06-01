@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoices — MobileWise AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #050a12; color: #F0F4FF;
+            min-height: 100vh; padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #f8c400; font-size: 1.5rem; margin-bottom: 24px; }
+        .nav { display: flex; gap: 16px; margin-bottom: 24px; }
+        .nav a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.9rem; }
+        .nav a:hover { color: #f8c400; }
+        .nav a.active { color: #f8c400; font-weight: 600; }
+        
+        table { width: 100%; border-collapse: collapse; background: rgba(18,28,46,0.7); border-radius: 14px; overflow: hidden; }
+        th { text-align: left; padding: 14px 18px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        td { padding: 14px 18px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+        .badge-pending { background: rgba(255,152,0,0.15); color: #ff9800; }
+        .badge-sent { background: rgba(33,150,243,0.15); color: #2196f3; }
+        .badge-paid { background: rgba(76,175,80,0.15); color: #4caf50; }
+        
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+        .btn-send { background: #2196f3; color: white; }
+        .btn-send:hover { background: #1976d2; }
+        .btn-send:disabled { background: #555; cursor: not-allowed; }
+        .btn-view { background: rgba(255,255,255,0.08); color: white; }
+        .btn-refresh { background: rgba(255,255,255,0.05); color: white; padding: 10px 20px; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.open { display: flex; }
+        .modal-content { background: #0f1a2e; border-radius: 16px; padding: 30px; max-width: 550px; width: 90%; max-height: 80vh; overflow-y: auto; border: 1px solid rgba(248,196,0,0.3); }
+        .modal-content h3 { color: #f8c400; margin-bottom: 16px; }
+        .modal-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .modal-row .lbl { color: rgba(255,255,255,0.5); }
+        .modal-row .val { font-weight: 600; }
+        .modal-close { background: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Invoices</h1>
+        <div class="nav">
+            <a href="master-dashboard.html">← Master Dashboard</a>
+            <a href="#" class="active">Invoices</a>
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+            <button class="btn btn-refresh" onclick="loadInvoices()">🔄 Refresh</button>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Invoice #</th>
+                    <th>Client</th>
+                    <th>Period</th>
+                    <th>Leads</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceTableBody">
+                <tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Invoice Detail Modal -->
+    <div class="modal" id="invoiceModal">
+        <div class="modal-content" id="invoiceModalContent"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
+        
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        emailjs.init("7-9oxa3UC3uKxtqGM");
+
+        async function loadInvoices() {
+            const { data, error } = await supabaseClient
+                .from('invoices')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            const tbody = document.getElementById('invoiceTableBody');
+            
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,0.4);padding:40px;">No invoices yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(inv => `
+                <tr>
+                    <td><strong>${inv.invoice_number}</strong></td>
+                    <td>${inv.client_id}</td>
+                    <td>${inv.period_start} → ${inv.period_end}</td>
+                    <td>+${inv.incremental_leads}</td>
+                    <td><strong>$${inv.amount_due.toLocaleString()}</strong></td>
+                    <td><span class="badge badge-${inv.status}">${inv.status}</span></td>
+                    <td>
+                        <button class="btn btn-view" onclick="viewInvoice('${inv.id}')">👁 View</button>
+                        ${inv.status === 'pending' ? `<button class="btn btn-send" onclick="sendInvoice('${inv.id}')">📧 Send</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function viewInvoice(id) {
+            const { data } = await supabaseClient.from('invoices').select('*').eq('id', id).single();
+            if (!data) return;
+
+            const items = data.line_items || [];
+            const itemsHtml = items.length > 0 ? items.map(i => 
+                `<div class="modal-row"><span>${i.date}</span><span>${i.email}</span><span>${i.status}</span></div>`
+            ).join('') : '<div style="color:rgba(255,255,255,0.4);padding:10px;">No line items</div>';
+
+            document.getElementById('invoiceModalContent').innerHTML = `
+                <h3>${data.invoice_number}</h3>
+                <div class="modal-row"><span class="lbl">Client</span><span class="val">${data.client_id}</span></div>
+                <div class="modal-row"><span class="lbl">Period</span><span class="val">${data.period_start} → ${data.period_end}</span></div>
+                <div class="modal-row"><span class="lbl">Baseline</span><span class="val">${data.baseline_leads} leads</span></div>
+                <div class="modal-row"><span class="lbl">Total Leads</span><span class="val">${data.total_leads}</span></div>
+                <div class="modal-row"><span class="lbl">Incremental</span><span class="val" style="color:#4caf50;">+${data.incremental_leads}</span></div>
+                <div class="modal-row"><span class="lbl">Rate</span><span class="val">$${data.per_lead_rate}/lead</span></div>
+                <div class="modal-row"><span class="lbl">Amount Due</span><span class="val" style="color:#f8c400;font-size:1.2rem;">$${data.amount_due.toLocaleString()}</span></div>
+                <div class="modal-row"><span class="lbl">Status</span><span class="val"><span class="badge badge-${data.status}">${data.status}</span></span></div>
+                <h4 style="margin-top:16px;color:white;">Line Items</h4>
+                ${itemsHtml}
+                <button class="modal-close" onclick="document.getElementById('invoiceModal').classList.remove('open')">Close</button>
+            `;
+            document.getElementById('invoiceModal').classList.add('open');
+        }
+
+        async function sendInvoice(id) {
+            const { data } = await supabaseClient.from('invoices').select('*').eq('id', id).single();
+            if (!data) return;
+
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            try {
+                await emailjs.send("service_b9bppgb", "template_yf09xm5", {
+                    to_email: "bizboost.expert@gmail.com",
+                    client_name: data.client_id,
+                    invoice_number: data.invoice_number,
+                    period: `${data.period_start} - ${data.period_end}`,
+                    baseline_leads: data.baseline_leads,
+                    total_leads: data.total_leads,
+                    incremental_leads: data.incremental_leads,
+                    per_lead_rate: "$" + data.per_lead_rate,
+                    amount_due: "$" + data.amount_due.toLocaleString()
+                });
+
+                await supabaseClient.from('invoices').update({ status: 'sent', sent_at: new Date().toISOString() }).eq('id', id);
+                btn.textContent = '✅ Sent';
+                loadInvoices();
+            } catch (e) {
+                console.error(e);
+                btn.textContent = '❌ Failed';
+                btn.disabled = false;
+            }
+        }
+
+        loadInvoices();
+    </script>
+</body>
+</html>
