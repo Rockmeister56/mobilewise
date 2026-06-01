@@ -578,8 +578,8 @@ async function sendInvoice(id, event) {
             baseline_leads: data.baseline_leads,
             total_leads: data.total_leads,
             incremental_leads: data.incremental_leads,
-            per_lead_rate: "$" + data.per_lead_rate,
-            amount_due: "$" + data.amount_due.toLocaleString(),
+            per_lead_rate: data.per_lead_rate,
+            amount_due: data.amount_due.toLocaleString(),
             line_items_html: lineItemsHtml
         });
 
