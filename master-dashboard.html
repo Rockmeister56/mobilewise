@@ -541,8 +541,9 @@
             <td style="padding:10px 14px;"><strong>$${inv.amount_due.toLocaleString()}</strong></td>
             <td style="padding:10px 14px;"><span class="badge badge-${inv.status === 'paid' ? 'up' : inv.status === 'sent' ? 'up' : 'flat'}">${inv.status}</span></td>
             <td style="padding:10px 14px;">
-                ${inv.status === 'pending' ? `<button onclick="sendInvoice('${inv.id}', event)" style="background:#2196f3;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.7rem;">📧 Send</button>` : '<span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">—</span>'}
-            </td>
+    ${inv.status === 'pending' ? `<button onclick="sendInvoice('${inv.id}', event)" style="background:#2196f3;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.7rem;margin-right:4px;">📧 Send</button>` : ''}
+    <button onclick="deleteInvoice('${inv.id}', event)" style="background:#f44336;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.7rem;">🗑</button>
+</td>
         </tr>
     `).join('');
 }
@@ -589,6 +590,21 @@ async function sendInvoice(id, event) {
     } catch (e) {
         console.error(e);
         btn.textContent = '❌ Retry';
+        btn.disabled = false;
+    }
+}
+
+async function deleteInvoice(id, event) {
+    if (!confirm('Delete this invoice? This cannot be undone.')) return;
+    
+    const btn = event.target;
+    btn.disabled = true;
+    
+    const { error } = await supabaseClient.from('invoices').delete().eq('id', id);
+    if (!error) {
+        loadInvoices();
+    } else {
+        alert('Delete failed: ' + error.message);
         btn.disabled = false;
     }
 }
