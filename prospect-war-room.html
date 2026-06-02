@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Wise AI — Sales War Room</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(145deg,#0a1a2a,#0f2b4b);color:#fff;min-height:100vh;}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:rgba(10,20,35,0.95);border-bottom:1px solid rgba(52,168,83,0.2);position:sticky;top:0;z-index:100;}
+.nav-brand{display:flex;align-items:center;gap:12px;}
+.nav-brand h1{font-size:1.25rem;font-weight:700;background:linear-gradient(135deg,#fff,#34a853);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-right{display:flex;align-items:center;gap:16px;}
+.conn-dot{font-size:0.75rem;color:rgba(255,255,255,0.3);}
+
+/* MAIN */
+.main{padding:28px 32px;max-width:1700px;margin:0 auto;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px;}
+.stat{background:rgba(18,28,46,0.8);border-radius:12px;padding:16px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+.stat-val{font-size:1.8rem;font-weight:700;margin-bottom:4px;}
+.stat-lbl{font-size:0.68rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;}
+
+/* WEEK TABS */
+.week-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.week-chip{padding:6px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.78rem;font-weight:600;transition:all 0.2s;white-space:nowrap;}
+.week-chip:hover{border-color:#34a853;color:#34a853;}
+.week-chip.active{background:rgba(52,168,83,0.2);border-color:#34a853;color:#34a853;}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+input[type=text],select{background:#060e1a;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#ddd;font-family:inherit;font-size:0.82rem;padding:8px 14px;outline:none;transition:border-color 0.2s;}
+input[type=text]:focus,select:focus{border-color:#34a853;}
+select option{background:#0f2b4b;}
+.search-inp{width:220px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border:none;border-radius:30px;font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.btn-ghost{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);}
+.btn-ghost:hover{background:rgba(255,255,255,0.13);}
+.btn-green{background:linear-gradient(135deg,#34a853,#2d8e46);color:#fff;}
+.btn-green:hover{transform:translateY(-1px);box-shadow:0 6px 18px -4px rgba(52,168,83,0.5);}
+
+/* TABLE */
+.card{background:rgba(18,28,46,0.8);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:1050px;}
+th{text-align:left;padding:12px 10px;color:#34a853;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid rgba(52,168,83,0.2);white-space:nowrap;font-weight:600;}
+td{padding:11px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.82rem;vertical-align:middle;}
+tr:hover td{background:rgba(52,168,83,0.03);}
+
+/* STATUS */
+.sbadge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;user-select:none;border:1px solid;}
+.sbadge:hover{transform:scale(1.06);}
+.s0{background:rgba(52,168,83,0.15);color:#34a853;border-color:#34a853;}
+.s1{background:rgba(255,152,0,0.15);color:#ff9800;border-color:#ff9800;}
+.s2{background:rgba(33,150,243,0.15);color:#2196f3;border-color:#2196f3;}
+.s3{background:rgba(156,39,176,0.15);color:#9c27b0;border-color:#9c27b0;}
+.s4{background:rgba(244,67,54,0.15);color:#f44336;border-color:#f44336;}
+.s5{background:rgba(76,175,80,0.15);color:#4caf50;border-color:#4caf50;}
+.s6{background:rgba(255,255,255,0.1);color:#aaa;border-color:#666;}
+
+/* LINKS */
+.lbtn{display:inline-block;padding:4px 10px;border-radius:14px;font-size:0.7rem;font-weight:600;text-decoration:none;transition:all 0.2s;white-space:nowrap;}
+.lbtn-g{background:rgba(52,168,83,0.12);color:#34a853;border:1px solid rgba(52,168,83,0.3);}
+.lbtn-g:hover{background:rgba(52,168,83,0.25);}
+.lbtn-b{background:rgba(66,133,244,0.12);color:#4285f4;border:1px solid rgba(66,133,244,0.3);}
+.lbtn-b:hover{background:rgba(66,133,244,0.25);}
+
+/* EMAIL INPUT */
+.email-inp{background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.12);color:#34a853;font-size:0.78rem;width:155px;outline:none;padding:3px 0;font-family:inherit;}
+.email-inp:focus{border-bottom-color:#34a853;}
+.email-inp::placeholder{color:rgba(255,255,255,0.18);font-size:0.72rem;}
+
+/* NOTES INPUT */
+.notes-inp{background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);font-size:0.75rem;width:140px;outline:none;padding:3px 0;font-family:inherit;}
+.notes-inp:focus{border-bottom-color:#34a853;}
+.notes-inp::placeholder{color:rgba(255,255,255,0.15);font-size:0.72rem;}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:200;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:#0d2035;border:1px solid rgba(52,168,83,0.3);border-radius:20px;padding:32px;max-width:620px;width:90%;max-height:80vh;overflow-y:auto;}
+.modal h3{color:#34a853;margin-bottom:16px;font-size:1.05rem;}
+.modal-body{background:rgba(255,255,255,0.04);border-radius:10px;padding:20px;font-size:0.87rem;line-height:1.95;white-space:pre-wrap;border:1px solid rgba(255,255,255,0.07);margin-bottom:20px;color:rgba(255,255,255,0.88);}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+
+/* EMPTY / LOADING */
+.empty{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.3);}
+.empty .icon{font-size:3.5rem;margin-bottom:16px;}
+.loading{text-align:center;padding:40px;color:#34a853;font-size:0.9rem;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:#34a853;color:#fff;padding:12px 22px;border-radius:30px;font-weight:600;font-size:0.85rem;z-index:300;opacity:0;transform:translateY(10px);transition:all 0.3s;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+@media(max-width:900px){.stats-row{grid-template-columns:repeat(3,1fr);}.search-inp{width:160px;}}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr);}.nav{padding:12px 16px;}.main{padding:16px;}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-brand">
+    <span style="font-size:1.5rem;">🏠</span>
+    <div>
+      <h1>Mobile Wise AI — Sales War Room</h1>
+      <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:2px;">Brett Duncan · AI Conversion Specialist · 949-357-0655</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-ghost" onclick="loadLeads()">🔄 Refresh</button>
+    <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+    <div class="conn-dot" id="connDot">Connecting...</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val" id="st-total" style="color:#34a853">—</div><div class="stat-lbl">Total Leads</div></div>
+    <div class="stat"><div class="stat-val" id="st-new" style="color:#34a853">—</div><div class="stat-lbl">🟢 New</div></div>
+    <div class="stat"><div class="stat-val" id="st-emailed" style="color:#2196f3">—</div><div class="stat-lbl">📧 Emailed</div></div>
+    <div class="stat"><div class="stat-val" id="st-called" style="color:#9c27b0">—</div><div class="stat-lbl">✅ Called</div></div>
+    <div class="stat"><div class="stat-val" id="st-hot" style="color:#f44336">—</div><div class="stat-lbl">🔥 Hot</div></div>
+    <div class="stat"><div class="stat-val" id="st-closed" style="color:#4caf50">—</div><div class="stat-lbl">💰 Closed</div></div>
+  </div>
+
+  <!-- WEEK TABS -->
+  <div class="week-bar" id="weekBar">
+    <div class="week-chip active" onclick="selectWeek('all',this)">📋 All Weeks</div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <input class="search-inp" type="text" id="searchInput" placeholder="🔍 Search company, contact, city..." oninput="renderLeads()">
+    <select id="statusFilter" onchange="renderLeads()">
+      <option value="">All Statuses</option>
+      <option>🟢 New</option><option>⏳ Queue</option><option>📧 Emailed</option>
+      <option>✅ Called</option><option>🔥 Hot</option><option>💰 Closed</option><option>❌ Not Interested</option>
+    </select>
+    <select id="cityFilter" onchange="renderLeads()">
+      <option value="">All Cities</option>
+    </select>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th>
+          <th>Contact</th>
+          <th>Company</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Website</th>
+          <th>Reviews</th>
+          <th>City</th>
+          <th>Maps</th>
+          <th>Status</th>
+          <th>Notes</th>
+          <th>Outreach</th>
+          <th>Week</th>
+        </tr></thead>
+        <tbody id="leadsBody"></tbody>
+      </table>
+    </div>
+    <div class="loading" id="leadsLoading">Loading leads from Supabase...</div>
+    <div class="empty" id="leadsEmpty" style="display:none;">
+      <div class="icon">📋</div>
+      <p>No leads match your filters</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- OUTREACH MODAL -->
+<div class="modal-bg" id="outreachModal">
+  <div class="modal">
+    <h3>📧 Outreach Message</h3>
+    <div class="modal-body" id="modalText"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      <button class="btn btn-green" onclick="copyModal()">📋 Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  MOBILE WISE AI — TOMMY'S WAR ROOM
+//  Supabase direct · no server needed
+// ═══════════════════════════════════════════════════════════
+
+const SB_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
+
+const STATUS_FLOW  = ['🟢 New','⏳ Queue','📧 Emailed','✅ Called','🔥 Hot','💰 Closed','❌ Not Interested'];
+const STATUS_CLASS = ['s0','s1','s2','s3','s4','s5','s6'];
+
+let allLeads   = [];
+let activeWeek = 'all';
+let modalText  = '';
+
+// ── Supabase ──────────────────────────────────────────────
+async function sb(method, table, body=null, query='') {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}${query}`, {
+    method,
+    headers:{
+      'Content-Type':'application/json',
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Prefer': method==='POST' ? 'return=representation' : 'return=minimal',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (method === 'GET') {
+    try { return await res.json(); } catch { return []; }
+  }
+  return res;
+}
+
+// ── Init ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadLeads();
+});
+
+// ── Load Leads ────────────────────────────────────────────
+async function loadLeads() {
+  document.getElementById('leadsLoading').style.display = 'block';
+  document.getElementById('leadsEmpty').style.display   = 'none';
+  document.getElementById('leadsBody').innerHTML        = '';
+
+  try {
+    allLeads = await sb('GET','leads','','?order=created_at.desc&limit=5000');
+    if (!Array.isArray(allLeads)) allLeads = [];
+
+    document.getElementById('connDot').textContent = '● Live';
+    document.getElementById('connDot').style.color = '#34a853';
+
+    buildWeekTabs();
+    buildCityFilter();
+    renderLeads();
+    updateStats();
+  } catch(e) {
+    document.getElementById('connDot').textContent = '● Connection error';
+    document.getElementById('connDot').style.color = '#f44336';
+  }
+  document.getElementById('leadsLoading').style.display = 'none';
+}
+
+// ── Week Tabs ─────────────────────────────────────────────
+function buildWeekTabs() {
+  const weeks = [...new Set(allLeads.map(l=>l.week_label||'Untagged').filter(Boolean))];
+  const bar   = document.getElementById('weekBar');
+  bar.innerHTML = `<div class="week-chip active" onclick="selectWeek('all',this)">📋 All (${allLeads.length})</div>`;
+  weeks.forEach(w => {
+    const cnt = allLeads.filter(l=>l.week_label===w).length;
+    bar.innerHTML += `<div class="week-chip" onclick="selectWeek('${esc(w)}',this)">📅 ${esc(w)} <span style="opacity:0.5;margin-left:4px;">(${cnt})</span></div>`;
+  });
+}
+
+function selectWeek(w, el) {
+  activeWeek = w;
+  document.querySelectorAll('.week-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderLeads();
+  updateStats();
+}
+
+function buildCityFilter() {
+  const cities = [...new Set(allLeads.map(l=>l.city).filter(Boolean))].sort();
+  const sel = document.getElementById('cityFilter');
+  sel.innerHTML = '<option value="">All Cities</option>' + cities.map(c=>`<option>${esc(c)}</option>`).join('');
+}
+
+// ── Render ────────────────────────────────────────────────
+function renderLeads() {
+  const search  = document.getElementById('searchInput').value.toLowerCase();
+  const statusF = document.getElementById('statusFilter').value;
+  const cityF   = document.getElementById('cityFilter').value;
+
+  let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
+  if (statusF) data = data.filter(l=>l.status===statusF);
+  if (cityF)   data = data.filter(l=>l.city===cityF);
+
+  const tbody = document.getElementById('leadsBody');
+  const empty = document.getElementById('leadsEmpty');
+
+  if (!data.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = data.map((l,i) => {
+    const si = STATUS_FLOW.indexOf(l.status);
+    const sc = si >= 0 ? STATUS_CLASS[si] : 's0';
+    return `<tr>
+      <td style="color:rgba(255,255,255,0.25);font-size:0.7rem;">${i+1}</td>
+      <td><strong style="color:#fff;">${esc(l.contact_name||'—')}</strong></td>
+      <td style="max-width:180px;">${esc(l.company_name||'—')}</td>
+      <td style="white-space:nowrap;font-size:0.78rem;">${esc(l.phone||'—')}</td>
+      <td>
+        <input class="email-inp"
+          value="${esc(l.email||'')}"
+          placeholder="add email..."
+          onchange="saveEmail(${l.id},this.value)"
+          onclick="event.stopPropagation()">
+      </td>
+      <td>${l.website?`<a class="lbtn lbtn-g" href="${esc(l.website)}" target="_blank">🌐 Site</a>`:'—'}</td>
+      <td style="text-align:center;">${l.reviews?`<strong style="color:#34a853;">${l.reviews}</strong>`:'—'}</td>
+      <td style="font-size:0.76rem;color:rgba(255,255,255,0.5);white-space:nowrap;">${esc(l.city||'—')}</td>
+      <td>${l.maps_url?`<a class="lbtn lbtn-b" href="${esc(l.maps_url)}" target="_blank">📍 Maps</a>`:'—'}</td>
+      <td>
+        <span class="sbadge ${sc}" onclick="cycleStatus(${l.id},'${esc(l.status||'🟢 New')}')">
+          ${esc(l.status||'🟢 New')}
+        </span>
+      </td>
+      <td>
+        <input class="notes-inp"
+          value="${esc(l.notes||'')}"
+          placeholder="add notes..."
+          onchange="saveNotes(${l.id},this.value)"
+          onclick="event.stopPropagation()">
+      </td>
+      <td>${l.outreach_msg?`<button class="lbtn lbtn-g" onclick="showOutreach(${l.id})" style="cursor:pointer;border:none;">📧 View</button>`:'—'}</td>
+      <td style="font-size:0.7rem;color:rgba(255,255,255,0.3);white-space:nowrap;">${esc(l.week_label||'—')}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Stats ─────────────────────────────────────────────────
+function updateStats() {
+  const data = activeWeek==='all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  document.getElementById('st-total').textContent   = data.length;
+  document.getElementById('st-new').textContent     = data.filter(l=>l.status==='🟢 New').length;
+  document.getElementById('st-emailed').textContent = data.filter(l=>l.status==='📧 Emailed').length;
+  document.getElementById('st-called').textContent  = data.filter(l=>l.status==='✅ Called').length;
+  document.getElementById('st-hot').textContent     = data.filter(l=>l.status==='🔥 Hot').length;
+  document.getElementById('st-closed').textContent  = data.filter(l=>l.status==='💰 Closed').length;
+}
+
+// ── Status cycle ──────────────────────────────────────────
+async function cycleStatus(id, current) {
+  const idx  = STATUS_FLOW.indexOf(current);
+  const next = STATUS_FLOW[(idx+1) % STATUS_FLOW.length];
+  await sb('PATCH','leads',{status:next},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.status = next;
+  renderLeads();
+  updateStats();
+  toast('Status updated');
+}
+
+// ── Save email ────────────────────────────────────────────
+async function saveEmail(id, val) {
+  await sb('PATCH','leads',{email:val},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.email = val;
+  toast('Email saved ✓');
+}
+
+// ── Save notes ────────────────────────────────────────────
+async function saveNotes(id, val) {
+  await sb('PATCH','leads',{notes:val},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.notes = val;
+  toast('Notes saved ✓');
+}
+
+// ── Outreach modal ────────────────────────────────────────
+function showOutreach(id) {
+  const l = allLeads.find(x=>x.id===id);
+  if (!l) return;
+  modalText = l.outreach_msg || '';
+  document.getElementById('modalText').textContent = modalText;
+  document.getElementById('outreachModal').classList.add('open');
+}
+function closeModal(){ document.getElementById('outreachModal').classList.remove('open'); }
+document.getElementById('outreachModal').addEventListener('click', e=>{
+  if (e.target===document.getElementById('outreachModal')) closeModal();
+});
+function copyModal(){
+  navigator.clipboard.writeText(modalText).then(()=>{
+    toast('Copied to clipboard ✓');
+    closeModal();
+  });
+}
+
+// ── Export CSV ────────────────────────────────────────────
+function exportCSV() {
+  const data = activeWeek==='all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  const cols = ['contact_name','company_name','phone','email','website','reviews','address','maps_url','city','status','notes','week_label','outreach_msg'];
+  const hdrs = ['ContactName','CompanyName','Phone','Email','Website','Reviews','Address','MapsURL','City','Status','Notes','Week','OutreachMsg'];
+  let csv = hdrs.join(',') + '\n';
+  data.forEach(l => { csv += cols.map(c=>`"${String(l[c]||'').replace(/"/g,'""')}"`).join(',') + '\n'; });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `mortgage-leads-${activeWeek.replace(/\s/g,'-')}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV downloaded');
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+function esc(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+window.loadLeads=loadLeads; window.selectWeek=selectWeek; window.cycleStatus=cycleStatus;
+window.saveEmail=saveEmail; window.saveNotes=saveNotes; window.showOutreach=showOutreach;
+window.closeModal=closeModal; window.copyModal=copyModal; window.exportCSV=exportCSV;
+</script>
+</body>
+</html>
