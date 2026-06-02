@@ -14,106 +14,150 @@
             overflow-x: hidden;
         }
         
-        /* Full-screen thank you image */
-        .hero-image {
-            width: 100%;
-            min-height: 100vh;
-            background-size: cover;
-            background-position: center;
+        /* ===== SPLASH SCREEN (stays visible) ===== */
+        .splash-screen {
+            position: fixed;
+            inset: 0;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
-            padding: 40px 20px;
+            z-index: 100;
+            padding: 20px;
         }
-        .hero-image::before {
+        .splash-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+        }
+        .splash-bg::after {
             content: '';
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.35);
+            background: rgba(0,0,0,0.45);
         }
         
-        .overlay-content {
+        .splash-card {
             position: relative;
             z-index: 1;
-            text-align: center;
-            max-width: 450px;
+            background: rgba(18,28,46,0.85);
+            border-radius: 24px;
+            padding: 40px 30px 30px;
+            max-width: 420px;
             width: 100%;
+            text-align: center;
+            border: 2px solid rgba(248,196,0,0.3);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
         
         .logo-overlay {
-            height: 50px;
-            margin-bottom: 20px;
+            height: 40px;
+            margin-bottom: 16px;
         }
         
         .avatar-container {
-            width: 180px; height: 260px;
+            width: 200px;
+            height: 300px;
             margin: 0 auto 20px;
-            border-radius: 16px; overflow: hidden;
-            background: rgba(0,0,0,0.5);
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
             border: 2px solid rgba(255,255,255,0.2);
+            position: relative;
+        }
+        .avatar-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .avatar-container lemon-slice-widget {
-            width: 240px !important;
-            height: 310px !important;
-            margin: -15px 0 0 -30px;
+            position: absolute;
+            inset: 0;
+            width: 260px !important;
+            height: 360px !important;
+            margin: -20px 0 0 -30px;
         }
         
         .btn-listen {
             display: inline-block;
-            padding: 16px 40px;
+            padding: 16px 36px;
             border-radius: 50px;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             cursor: pointer;
             border: none;
             background: linear-gradient(135deg, #f8c400, #e6a800);
             color: #0a0f1e;
             box-shadow: 0 8px 30px rgba(248,196,0,0.3);
             transition: all 0.3s;
-            margin-top: 10px;
         }
         .btn-listen:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 40px rgba(248,196,0,0.5);
         }
+        .btn-listen:disabled {
+            background: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
         
-        /* Interview steps */
-        .step-container {
+        .splash-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #f8c400;
+        }
+        .splash-subtitle {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        /* ===== INTERVIEW OVERLAY (over splash) ===== */
+        .interview-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
             display: none;
-            min-height: 100vh;
-            background: #050a12;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
+            background: rgba(0,0,0,0.85);
+            padding: 20px;
         }
-        .step-container.active {
+        .interview-overlay.active {
             display: flex;
         }
         
-        .card {
+        .interview-card {
             background: rgba(18,28,46,0.95);
             border-radius: 20px;
-            padding: 40px 30px;
-            border: 1px solid rgba(255,255,255,0.08);
+            padding: 30px;
             max-width: 500px;
             width: 100%;
             text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .card h2 { font-size: 1.5rem; margin-bottom: 16px; }
-        .card .subtitle { color: rgba(255,255,255,0.6); font-size: 0.95rem; margin-bottom: 24px; }
+        .interview-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+        }
+        .interview-card .subtitle {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
         
         .btn {
             display: inline-block;
-            padding: 14px 32px;
+            padding: 14px 28px;
             border-radius: 50px;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer;
             border: none;
             transition: all 0.2s;
-            margin: 8px;
+            margin: 6px;
         }
         .btn-gold { background: #f8c400; color: #0a0f1e; }
         .btn-green { background: #00c853; color: #0a0f1e; }
@@ -122,67 +166,115 @@
         .btn-gold:hover, .btn-green:hover { transform: translateY(-2px); }
         
         .recording-dot {
-            display: inline-block; width: 12px; height: 12px;
-            background: #f44336; border-radius: 50%;
-            animation: pulse 1s infinite; margin-right: 8px;
+            display: inline-block;
+            width: 12px; height: 12px;
+            background: #f44336;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+            margin-right: 8px;
         }
-        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
         
         .video-box {
-            width: 100%; border-radius: 12px; overflow: hidden;
-            background: #000; aspect-ratio: 16/9; margin-bottom: 16px;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 16/9;
+            margin-bottom: 12px;
             border: 2px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .video-box video { width: 100%; height: 100%; object-fit: cover; }
-        
-        .accept-redo { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
-        
-        .thank-icon { font-size: 4rem; margin-bottom: 16px; }
-        .incentive-box {
-            background: rgba(255,152,0,0.1);
-            border: 1px solid rgba(255,152,0,0.3);
-            border-radius: 12px; padding: 16px; margin-top: 16px;
+        .video-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
-        .complaint-box {
-            background: rgba(244,67,54,0.1);
-            border: 1px solid rgba(244,67,54,0.3);
-            border-radius: 12px; padding: 20px; margin-top: 16px;
-            text-align: center;
+        .accept-redo {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 12px;
         }
         
         .progress-row {
-            display: flex; justify-content: center; gap: 6px; margin: 12px 0;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 10px 0;
         }
         .pdot {
-            width: 8px; height: 8px; border-radius: 50%;
+            width: 8px; height: 8px;
+            border-radius: 50%;
             background: rgba(255,255,255,0.2);
         }
         .pdot.done { background: #00c853; }
         .pdot.current { background: #f8c400; animation: pulse 1s infinite; }
         
-        .powered-by { color: rgba(255,255,255,0.25); font-size: 0.7rem; margin-top: 20px; }
+        .complaint-box {
+            background: rgba(244,67,54,0.1);
+            border: 1px solid rgba(244,67,54,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 12px;
+            text-align: center;
+        }
+        
+        .incentive-box {
+            background: rgba(255,152,0,0.1);
+            border: 1px solid rgba(255,152,0,0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+        
+        .thank-icon {
+            font-size: 3.5rem;
+            margin-bottom: 12px;
+        }
+        
+        .powered-by {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.25);
+            font-size: 0.7rem;
+            z-index: 300;
+        }
     </style>
 </head>
 <body>
 
-<!-- ===== HERO: THANK YOU IMAGE ===== -->
-<div class="hero-image" id="heroSection" style="background-image: url('');">
-    <div class="overlay-content">
+<!-- ===== SPLASH SCREEN (always visible) ===== -->
+<div class="splash-screen" id="splashScreen">
+    <div class="splash-bg" id="splashBg"></div>
+    <div class="splash-card">
         <img id="logoOverlay" class="logo-overlay" src="" alt="Logo" style="display:none;">
-        <div class="avatar-container" id="avatarContainer"></div>
-        <button class="btn-listen" id="btnListen" onclick="activateTess()">🎧 Listen to Your Personal Thank You Message</button>
+        <div class="splash-title" id="splashTitle">A Special Thank You</div>
+        <div class="splash-subtitle" id="splashSubtitle">We appreciate your trust in us</div>
+        
+        <!-- Silent Tess video (pre-activation) -->
+        <div class="avatar-container" id="avatarContainer">
+            <video id="silentTessVideo" src="" muted loop playsinline autoplay style="display:none;"></video>
+        </div>
+        
+        <button class="btn-listen" id="btnListen" onclick="activateTess()">🎧 Listen to Your Personal Thank You</button>
     </div>
-    <p class="powered-by" style="position:relative;z-index:1;">Powered by MobileWise AI</p>
 </div>
 
-<!-- ===== INTERVIEW STEPS ===== -->
-<div class="step-container" id="stepInterview">
-    <div class="card">
-        <div id="interviewContent"></div>
-    </div>
+<!-- ===== INTERVIEW OVERLAY ===== -->
+<div class="interview-overlay" id="interviewOverlay">
+    <div class="interview-card" id="interviewContent"></div>
 </div>
+
+<p class="powered-by">Powered by MobileWise AI</p>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -206,7 +298,7 @@
     let stream = null;
     
     const questions = [
-        "Did ABC Mortgage meet your expectations?",
+        "Did they meet your expectations?",
         "What was the best part about working with them?",
         "Would you recommend them to friends or family?"
     ];
@@ -223,41 +315,52 @@
             reviewConfig = data.metadata.modules?.reviewSystem || {};
         }
         
-        // Apply thank you image
+        // Apply background image
         if (reviewConfig.thankYouImage) {
-            document.getElementById('heroSection').style.backgroundImage = `url(${reviewConfig.thankYouImage})`;
+            document.getElementById('splashBg').style.backgroundImage = `url(${reviewConfig.thankYouImage})`;
         }
+        
+        // Apply logo
         if (reviewConfig.logoUrl) {
             const logo = document.getElementById('logoOverlay');
             logo.src = reviewConfig.logoUrl;
             logo.style.display = 'block';
         }
-        // Customize questions with company name
+        
+        // Apply silent Tess video
+        if (reviewConfig.tessSilentVideo) {
+            const video = document.getElementById('silentTessVideo');
+            video.src = reviewConfig.tessSilentVideo;
+            video.style.display = 'block';
+        }
+        
+        // Apply branding
         if (reviewConfig.companyName) {
+            document.getElementById('splashTitle').textContent = `A Special Thank You`;
+            document.getElementById('splashSubtitle').textContent = `From all of us at ${reviewConfig.companyName}`;
             questions[0] = `Did ${reviewConfig.companyName} meet your expectations?`;
             questions[1] = `What was the best part about working with ${reviewConfig.companyName}?`;
             questions[2] = `Would you recommend ${reviewConfig.companyName} to friends or family?`;
         }
     }
     
-    // ===== ACTIVATE TESS (audio consent) =====
+    // ===== ACTIVATE TESS =====
     function activateTess() {
-        document.getElementById('btnListen').textContent = '🎧 Connecting...';
-        document.getElementById('btnListen').disabled = true;
+        const btn = document.getElementById('btnListen');
+        btn.textContent = '🎧 Connecting...';
+        btn.disabled = true;
         
-        // Simulate Tess activation — in production, this loads LemonSlice widget
+        // In production: load LemonSlice widget into avatarContainer, replacing silent video
+        // For now, simulate activation
         setTimeout(() => {
             showSatisfactionCheck();
         }, 1500);
     }
     
     function showSatisfactionCheck() {
-        document.getElementById('heroSection').style.display = 'none';
-        document.getElementById('stepInterview').classList.add('active');
-        
+        document.getElementById('interviewOverlay').classList.add('active');
         document.getElementById('interviewContent').innerHTML = `
-            <div class="avatar-container" id="interviewAvatar" style="margin:0 auto 20px;"></div>
-            <h2>Hi ${firstName}!</h2>
+            <h2>Hi ${firstName}! 👋</h2>
             <p class="subtitle">We wanted to thank you sincerely for your trust. We're hoping you're 100% satisfied with your experience?</p>
             <button class="btn btn-green" onclick="handleSatisfaction(true)">😊 Yes, I'm very satisfied!</button>
             <button class="btn btn-red" onclick="handleSatisfaction(false)">😔 No, I had some issues</button>
@@ -268,22 +371,22 @@
         if (!satisfied) {
             document.getElementById('interviewContent').innerHTML = `
                 <div class="complaint-box">
-                    <h2>😔 We're Sorry</h2>
-                    <p style="margin:12px 0;">We want to make it right. A representative will reach out to you shortly.</p>
+                    <h2>😔 We're Sorry, ${firstName}</h2>
+                    <p style="margin:12px 0;">We want to make this right. A representative will reach out to you shortly to address your concerns.</p>
                     <p style="color:rgba(255,255,255,0.5);font-size:0.85rem;">Your feedback has been forwarded to our team.</p>
                 </div>
+                <button class="btn btn-outline" onclick="closeInterview()" style="margin-top:12px;">Close</button>
             `;
             notifyClient('complaint', firstName);
             trackEvent('review_complaint');
             return;
         }
         
-        // Satisfied — ask for testimonial
         document.getElementById('interviewContent').innerHTML = `
-            <h2>That's Wonderful! 🎉</h2>
+            <h2>That's Wonderful, ${firstName}! 🎉</h2>
             <p class="subtitle">Would you be willing to share your experience with other valued customers? We'd really appreciate it.</p>
-            <button class="btn btn-gold" onclick="startCameraFlow()">🎤 Yes, I'd love to!</button>
-            <button class="btn btn-outline" onclick="showThankYou()">🙏 No thanks, just the thank you</button>
+            <button class="btn btn-gold" onclick="startCameraFlow()">🎤 Yes, I'd Love To!</button>
+            <button class="btn btn-outline" onclick="showSimpleThanks()">🙏 No Thanks</button>
         `;
     }
     
@@ -308,7 +411,7 @@
         document.getElementById('interviewContent').innerHTML = `
             <h2><span class="recording-dot"></span>Recording</h2>
             <p class="subtitle">Q${currentQuestionIndex + 1}: ${questions[currentQuestionIndex]}</p>
-            <div class="video-box" id="videoBox">
+            <div class="video-box">
                 ${stream ? '<video id="previewVideo" autoplay muted playsinline></video>' : '<p style="color:rgba(255,255,255,0.5);">📷 Audio Only</p>'}
             </div>
             <div class="progress-row" id="progressRow"></div>
@@ -387,13 +490,17 @@
         trackEvent('testimonial_completed', { videos: recordings.length });
     }
     
-    function showThankYou() {
+    function showSimpleThanks() {
         document.getElementById('interviewContent').innerHTML = `
             <div class="thank-icon">🙏</div>
             <h2>Thank You, ${firstName}!</h2>
             <p class="subtitle">We truly appreciate your trust in us.</p>
-            <p style="color:rgba(255,255,255,0.4);font-size:0.85rem;">Have a wonderful day!</p>
+            <button class="btn btn-outline" onclick="closeInterview()">Close</button>
         `;
+    }
+    
+    function closeInterview() {
+        document.getElementById('interviewOverlay').classList.remove('active');
     }
     
     async function publishAll() {
@@ -401,6 +508,7 @@
             <div class="thank-icon">🚀</div>
             <h2>Published!</h2>
             <p class="subtitle">Your testimonial is being shared. Thank you!</p>
+            <button class="btn btn-outline" onclick="closeInterview()">Close</button>
         `;
         
         trackEvent('testimonial_published', { videos: recordings.length });
@@ -415,7 +523,9 @@
             email: reviewConfig.notifyEmail,
             phone: "",
             scheduled_datetime: new Date().toLocaleString(),
-            message: type === 'complaint' ? `⚠️ ${name} was NOT satisfied and needs follow-up.` : `🎉 ${name} completed a testimonial! (${recordings.length} videos)`
+            message: type === 'complaint' 
+                ? `⚠️ ${name} was NOT satisfied and needs follow-up.` 
+                : `🎉 ${name} completed a testimonial! (${recordings.length} videos)`
         }).catch(() => {});
     }
     
