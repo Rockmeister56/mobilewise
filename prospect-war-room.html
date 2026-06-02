@@ -309,9 +309,13 @@ function renderLeads() {
     const sc = si >= 0 ? STATUS_CLASS[si] : 's0';
     return `<tr>
       <td style="color:rgba(255,255,255,0.25);font-size:0.7rem;">${i+1}</td>
-      <td><strong style="color:#fff;">${esc(l.contact_name||'—')}</strong></td>
+      <td>
+        <input class="email-inp" value="${esc(l.contact_name||'')}" placeholder="add name..." style="color:#fff;font-weight:600;" onchange="saveName(${l.id},this.value)" onclick="event.stopPropagation()">
+      </td>
       <td style="max-width:180px;">${esc(l.company_name||'—')}</td>
-      <td style="white-space:nowrap;font-size:0.78rem;">${esc(l.phone||'—')}</td>
+      <td>
+        <input class="email-inp" value="${esc(l.phone||'')}" placeholder="add phone..." style="width:130px;" onchange="savePhone(${l.id},this.value)" onclick="event.stopPropagation()">
+      </td>
       <td>
         <input class="email-inp"
           value="${esc(l.email||'')}"
@@ -378,6 +382,20 @@ async function saveEmail(id, val) {
 }
 
 // ── Save notes ────────────────────────────────────────────
+async function saveName(id, val) {
+  await sb('PATCH','leads',{contact_name:val},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.contact_name = val;
+  toast('Name saved ✓');
+}
+
+async function savePhone(id, val) {
+  await sb('PATCH','leads',{phone:val},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.phone = val;
+  toast('Phone saved ✓');
+}
+
 async function saveWebsite(id, val) {
   // Clean up URL
   if (val && !val.startsWith('http')) val = 'https://' + val;
@@ -442,7 +460,7 @@ function esc(s){
 }
 
 window.loadLeads=loadLeads; window.selectWeek=selectWeek; window.cycleStatus=cycleStatus;
-window.saveEmail=saveEmail; window.saveNotes=saveNotes; window.saveWebsite=saveWebsite; window.showOutreach=showOutreach;
+window.saveEmail=saveEmail; window.saveNotes=saveNotes; window.saveWebsite=saveWebsite; window.saveName=saveName; window.savePhone=savePhone; window.showOutreach=showOutreach;
 window.closeModal=closeModal; window.copyModal=copyModal; window.exportCSV=exportCSV;
 </script>
 </body>
