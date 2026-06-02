@@ -314,6 +314,26 @@
                 </div>
             </div>
         </div>
+
+        <!-- Test Link Generator -->
+<div class="card">
+    <h2>🧪 Generate Test Link</h2>
+    <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 16px;">
+        Create a personalized link to send to your client. Add their first name for Tess to greet them.
+    </p>
+    <div style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+        <div class="field" style="flex:1; min-width:200px;">
+            <label>Customer's First Name</label>
+            <input type="text" id="testFirstName" placeholder="John" value="John">
+        </div>
+        <button class="btn btn-gold" onclick="generateClientLink()" style="height:46px;">🔗 Generate Link</button>
+    </div>
+    <div class="link-output" id="clientLinkOutput"></div>
+    <div style="margin-top: 12px;">
+        <button class="btn btn-action" onclick="copyClientLink()" style="display:none;" id="btnCopyClientLink">📋 Copy Link</button>
+        <button class="btn btn-action" onclick="openClientLink()" style="display:none;" id="btnOpenClientLink">👁 Open in New Tab</button>
+    </div>
+</div>
         
         <!-- Save -->
         <button class="btn btn-save" onclick="saveSettings()">💾 Save Review Settings</button>
@@ -376,6 +396,30 @@
             document.getElementById('clientStatus').style.display = 'inline';
             updateStats();
         }
+
+        let currentClientLink = '';
+
+function generateClientLink() {
+    const name = document.getElementById('testFirstName').value.trim() || 'Valued Customer';
+    currentClientLink = `https://mobilewise.netlify.app/review.html?clientId=${currentClientId || 'demo'}&name=${encodeURIComponent(name)}`;
+    
+    const out = document.getElementById('clientLinkOutput');
+    out.style.display = 'block';
+    out.innerHTML = `🔗 ${currentClientLink}`;
+    
+    document.getElementById('btnCopyClientLink').style.display = 'inline-block';
+    document.getElementById('btnOpenClientLink').style.display = 'inline-block';
+}
+
+function copyClientLink() {
+    navigator.clipboard.writeText(currentClientLink).then(() => {
+        alert('✅ Link copied! Send this to your client.');
+    });
+}
+
+function openClientLink() {
+    window.open(currentClientLink, '_blank');
+}
         
         async function saveSettings() {
             if (!currentClientId) return alert('Select a client first');
