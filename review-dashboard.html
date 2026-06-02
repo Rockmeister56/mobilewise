@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Dashboard — MobileWise AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #050a12;
+            color: #F0F4FF;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 0; margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-wrap: wrap; gap: 16px;
+        }
+        .header h1 { font-size: 1.5rem; font-weight: 700; color: #00c853; }
+        .header .nav-links { display: flex; gap: 16px; }
+        .header .nav-links a {
+            color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.85rem;
+        }
+        .header .nav-links a:hover { color: #f8c400; }
+        
+        .card {
+            background: rgba(18,28,46,0.7);
+            border-radius: 20px;
+            border: 1px solid rgba(0,200,83,0.3);
+            padding: 30px;
+            margin-bottom: 24px;
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #00c853;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 12px;
+        }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        
+        .field { margin-bottom: 16px; }
+        .field label {
+            display: block;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.82rem;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .field input, .field select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 0.9rem;
+        }
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: #00c853;
+        }
+        .field .hint {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.7rem;
+            margin-top: 4px;
+        }
+        .field input[type="color"] {
+            height: 46px; padding: 4px 12px; cursor: pointer;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-save {
+            background: #00c853;
+            color: #0a0f1e;
+            width: 100%;
+            font-size: 1rem;
+            padding: 16px;
+        }
+        .btn-save:hover { background: #00e676; }
+        .btn-action {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .btn-action:hover { background: rgba(255,255,255,0.2); }
+        .btn-gold { background: #f8c400; color: #0a0f1e; }
+        
+        .stat-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-box .num {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00c853;
+        }
+        .stat-box .lbl {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+        
+        .link-output {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            color: #00c853;
+            font-family: monospace;
+            font-size: 0.8rem;
+            display: none;
+            word-break: break-all;
+        }
+        
+        .save-status {
+            text-align: center;
+            margin-top: 8px;
+            color: #00c853;
+            font-size: 0.8rem;
+            display: none;
+        }
+        
+        .client-selector {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 20px;
+        }
+        .client-selector select {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 0.95rem;
+            min-width: 250px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .grid-4 { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Review & Testimonial Dashboard</h1>
+            <div class="nav-links">
+                <a href="trigger-dashboard.html">← Trigger Dashboard</a>
+                <a href="master-dashboard.html">Master Dashboard</a>
+            </div>
+        </div>
+        
+        <!-- Client Selector -->
+        <div class="card">
+            <div class="client-selector">
+                <span style="color: rgba(255,255,255,0.6);">Client:</span>
+                <select id="clientSelect" onchange="loadClientReview()">
+                    <option value="">Select a client...</option>
+                </select>
+                <span id="clientStatus" style="color: #00c853; font-size: 0.8rem; display: none;">✅ Loaded</span>
+            </div>
+        </div>
+        
+        <!-- Publishing Integrations -->
+        <div class="card">
+            <h2>📡 Publishing Integrations</h2>
+            <div class="grid-2">
+                <div class="field">
+                    <label>YouTube Channel ID</label>
+                    <input type="text" id="youtubeChannelId" placeholder="UCxxxxxxxxxxxxxxxx">
+                    <div class="hint">Channel where testimonials publish</div>
+                </div>
+                <div class="field">
+                    <label>Video Privacy</label>
+                    <select id="youtubePrivacy">
+                        <option value="unlisted" selected>Unlisted</option>
+                        <option value="public">Public</option>
+                        <option value="private">Private</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>YouTube Playlist (optional)</label>
+                    <input type="text" id="youtubePlaylist" placeholder="PLxxxxxxxxxxxxxxxx">
+                </div>
+                <div class="field">
+                    <label>Google Business Profile Location ID</label>
+                    <input type="text" id="gbpLocationId" placeholder="12345678901234567890">
+                    <div class="hint">For auto-publishing reviews</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Interview Settings -->
+        <div class="card">
+            <h2>🎤 Interview Settings</h2>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Tess Agent ID (LemonSlice)</label>
+                    <input type="text" id="reviewAgentId" placeholder="agent_xxxxxxxxxxxxxxxx">
+                </div>
+                <div class="field">
+                    <label>Max Video Length</label>
+                    <select id="maxVideoLength">
+                        <option value="60">60 seconds</option>
+                        <option value="90" selected>90 seconds</option>
+                        <option value="120">120 seconds</option>
+                        <option value="180">180 seconds</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Incentive Message</label>
+                    <input type="text" id="reviewIncentive" value="As a thank you, we'll send you a $25 gift card after your testimonial is published!">
+                </div>
+                <div class="field">
+                    <label>Notification Email</label>
+                    <input type="email" id="reviewNotifyEmail" placeholder="client@example.com">
+                    <div class="hint">Get notified on new testimonials</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Landing Page Branding -->
+        <div class="card">
+            <h2>🎨 Landing Page Branding</h2>
+            <div class="grid-3">
+                <div class="field">
+                    <label>Company Name</label>
+                    <input type="text" id="reviewCompanyName" placeholder="ABC Mortgage">
+                </div>
+                <div class="field">
+                    <label>Brand Color</label>
+                    <input type="color" id="reviewBrandColor" value="#2A42F2">
+                </div>
+                <div class="field">
+                    <label>Company Logo URL</label>
+                    <input type="text" id="reviewLogoUrl" placeholder="https://...">
+                </div>
+                <div class="field">
+                    <label>Thank You Background Image URL</label>
+                    <input type="text" id="reviewThankYouImage" placeholder="https://...">
+                    <div class="hint">Full-screen background image</div>
+                </div>
+                <div class="field">
+                    <label>Tess Silent Video URL (loop, no audio)</label>
+                    <input type="text" id="reviewTessSilentVideo" placeholder="https://...">
+                    <div class="hint">Shown before activation</div>
+                </div>
+                <div class="field">
+                    <label>Welcome Title</label>
+                    <input type="text" id="reviewSplashTitle" value="A Special Thank You">
+                </div>
+                <div class="field">
+                    <label>Welcome Subtitle</label>
+                    <input type="text" id="reviewSplashSubtitle" value="We appreciate your trust in us">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Links & Distribution -->
+        <div class="card">
+            <h2>🔗 Distribution Links</h2>
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 16px;">
+                Add <code>?name=FirstName</code> to personalize. Example: <code>...&name=John</code>
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;">
+                <button class="btn btn-gold" onclick="generateQR()">📱 Generate QR Code</button>
+                <button class="btn btn-action" onclick="copyLink('sms')">💬 Copy SMS Link</button>
+                <button class="btn btn-action" onclick="copyLink('email')">📧 Copy Email Link</button>
+                <button class="btn btn-action" onclick="previewPage()">👁 Preview Page</button>
+            </div>
+            <div class="link-output" id="linkOutput"></div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="card">
+            <h2>📊 Stats</h2>
+            <div class="grid-4">
+                <div class="stat-box">
+                    <div class="num" id="statMonth">0</div>
+                    <div class="lbl">This Month</div>
+                </div>
+                <div class="stat-box">
+                    <div class="num" id="statPublished">0</div>
+                    <div class="lbl">Published</div>
+                </div>
+                <div class="stat-box">
+                    <div class="num" id="statPending">0</div>
+                    <div class="lbl">Pending</div>
+                </div>
+                <div class="stat-box">
+                    <div class="num" id="statComplaints">0</div>
+                    <div class="lbl">Complaints</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Save -->
+        <button class="btn btn-save" onclick="saveSettings()">💾 Save Review Settings</button>
+        <div class="save-status" id="saveStatus">✅ Settings saved</div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
+        
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let currentClientId = null;
+        let allClients = {};
+        
+        async function init() {
+            const { data } = await supabaseClient.from('clients').select('client_id, name').not('client_id', 'is', null);
+            const select = document.getElementById('clientSelect');
+            data?.forEach(c => {
+                allClients[c.client_id] = c;
+                const opt = document.createElement('option');
+                opt.value = c.client_id;
+                opt.textContent = c.name || c.client_id;
+                select.appendChild(opt);
+            });
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientId = urlParams.get('clientId');
+            if (clientId && allClients[clientId]) {
+                select.value = clientId;
+                loadClientReview();
+            }
+        }
+        
+        async function loadClientReview() {
+            const clientId = document.getElementById('clientSelect').value;
+            if (!clientId) return;
+            currentClientId = clientId;
+            
+            const { data } = await supabaseClient.from('clients').select('metadata').eq('client_id', clientId).single();
+            const review = data?.metadata?.modules?.reviewSystem || {};
+            
+            document.getElementById('youtubeChannelId').value = review.youtubeChannelId || '';
+            document.getElementById('youtubePrivacy').value = review.youtubePrivacy || 'unlisted';
+            document.getElementById('youtubePlaylist').value = review.youtubePlaylist || '';
+            document.getElementById('gbpLocationId').value = review.gbpLocationId || '';
+            document.getElementById('reviewAgentId').value = review.agentId || '';
+            document.getElementById('maxVideoLength').value = review.maxVideoLength || '90';
+            document.getElementById('reviewIncentive').value = review.incentive || "As a thank you, we'll send you a $25 gift card after your testimonial is published!";
+            document.getElementById('reviewNotifyEmail').value = review.notifyEmail || '';
+            document.getElementById('reviewCompanyName').value = review.companyName || '';
+            document.getElementById('reviewBrandColor').value = review.brandColor || '#2A42F2';
+            document.getElementById('reviewLogoUrl').value = review.logoUrl || '';
+            document.getElementById('reviewThankYouImage').value = review.thankYouImage || '';
+            document.getElementById('reviewTessSilentVideo').value = review.tessSilentVideo || '';
+            document.getElementById('reviewSplashTitle').value = review.splashTitle || 'A Special Thank You';
+            document.getElementById('reviewSplashSubtitle').value = review.splashSubtitle || 'We appreciate your trust in us';
+            
+            document.getElementById('clientStatus').style.display = 'inline';
+            updateStats();
+        }
+        
+        async function saveSettings() {
+            if (!currentClientId) return alert('Select a client first');
+            
+            const { data } = await supabaseClient.from('clients').select('metadata').eq('client_id', currentClientId).single();
+            const metadata = data?.metadata || {};
+            if (!metadata.modules) metadata.modules = {};
+            
+            metadata.modules.reviewSystem = {
+                youtubeChannelId: document.getElementById('youtubeChannelId').value.trim(),
+                youtubePrivacy: document.getElementById('youtubePrivacy').value,
+                youtubePlaylist: document.getElementById('youtubePlaylist').value.trim(),
+                gbpLocationId: document.getElementById('gbpLocationId').value.trim(),
+                agentId: document.getElementById('reviewAgentId').value.trim(),
+                maxVideoLength: document.getElementById('maxVideoLength').value,
+                incentive: document.getElementById('reviewIncentive').value.trim(),
+                notifyEmail: document.getElementById('reviewNotifyEmail').value.trim(),
+                companyName: document.getElementById('reviewCompanyName').value.trim(),
+                brandColor: document.getElementById('reviewBrandColor').value,
+                logoUrl: document.getElementById('reviewLogoUrl').value.trim(),
+                thankYouImage: document.getElementById('reviewThankYouImage').value.trim(),
+                tessSilentVideo: document.getElementById('reviewTessSilentVideo').value.trim(),
+                splashTitle: document.getElementById('reviewSplashTitle').value.trim(),
+                splashSubtitle: document.getElementById('reviewSplashSubtitle').value.trim()
+            };
+            
+            await supabaseClient.from('clients').update({ metadata, updated_at: new Date().toISOString() }).eq('client_id', currentClientId);
+            
+            const status = document.getElementById('saveStatus');
+            status.style.display = 'block';
+            setTimeout(() => status.style.display = 'none', 2000);
+        }
+        
+        function getReviewLink() {
+            return `https://mobilewise.netlify.app/review.html?clientId=${currentClientId || 'demo'}`;
+        }
+        
+        function copyLink(type) {
+            const link = getReviewLink();
+            navigator.clipboard.writeText(link).then(() => {
+                const out = document.getElementById('linkOutput');
+                out.style.display = 'block';
+                out.innerHTML = `✅ ${type.toUpperCase()} link copied: ${link}`;
+            });
+        }
+        
+        function generateQR() {
+            const link = getReviewLink();
+            const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link)}`;
+            const out = document.getElementById('linkOutput');
+            out.style.display = 'block';
+            out.innerHTML = `<img src="${qrApi}" alt="QR Code" style="border-radius:12px;border:2px solid #00c853;"><br><small>Scan to leave a review</small>`;
+        }
+        
+        function previewPage() {
+            window.open(getReviewLink(), '_blank');
+        }
+        
+        async function updateStats() {
+            if (!currentClientId) return;
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+            
+            const { count: monthCount } = await supabaseClient.from('analytics_events').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId).eq('event_type', 'testimonial_completed').gte('created_at', monthStart);
+            const { count: pubCount } = await supabaseClient.from('analytics_events').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId).eq('event_type', 'testimonial_published');
+            const { count: compCount } = await supabaseClient.from('analytics_events').select('*', { count: 'exact', head: true }).eq('client_id', currentClientId).eq('event_type', 'review_complaint');
+            
+            document.getElementById('statMonth').textContent = monthCount || 0;
+            document.getElementById('statPublished').textContent = pubCount || 0;
+            document.getElementById('statPending').textContent = Math.max(0, (monthCount || 0) - (pubCount || 0));
+            document.getElementById('statComplaints').textContent = compCount || 0;
+        }
+        
+        init();
+    </script>
+</body>
+</html>

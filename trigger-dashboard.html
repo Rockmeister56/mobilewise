@@ -1390,7 +1390,6 @@
                 <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">When Tess hears these, phone dialer opens</span>
             </div>
         </div>
-        </div>
 
         <!-- ===== REVIEW & TESTIMONIAL DASHBOARD ===== -->
 <div class="module-section" id="module-reviewDashboard" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(0,200,83,0.3); padding: 24px; margin-bottom: 24px;">
@@ -1527,20 +1526,6 @@
                        style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
             </div>
         </div>
-        <div>
-    <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">Thank You Background Image URL</label>
-    <input type="text" id="reviewThankYouImage" placeholder="https://..."
-           style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
-    <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Full-screen background image for the thank you page</span>
-</div>
-
-    <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
-        <i class="fas fa-video" style="margin-right: 6px;"></i>Tess Silent Video URL (loop, no audio)
-    </label>
-    <input type="text" id="reviewTessSilentVideo" placeholder="https://..."
-           style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
-    <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Silent looping Tess video shown before activation</span>
-</div>
     </div>
     
     <!-- Generate Links -->
@@ -1592,7 +1577,7 @@
         <div id="reviewSaveStatus" style="text-align: center; margin-top: 8px; color: #00c853; font-size: 0.8rem; display: none;">✅ Settings saved</div>
     </div>
 </div>
-    
+    </div>
     
     <!-- Preview Badge -->
 <div style="margin-top: 20px; padding: 12px 16px; background: rgba(248,196,0,0.08); border-radius: 10px; border-left: 3px solid #f8c400;">
@@ -1793,112 +1778,6 @@ function previewVideoUrl() {
         alert('Please enter a video URL first');
     }
 }
-
-</script>
-
-<script>
-
-// ===== REVIEW & TESTIMONIAL FUNCTIONS =====
-
-function loadReviewSettings() {
-    const config = configManager.getCurrentConfig();
-    const review = config.modules?.reviewSystem || {};
-    
-    document.getElementById('reviewEnabled').checked = review.enabled !== false;
-    document.getElementById('youtubeChannelId').value = review.youtubeChannelId || '';
-    document.getElementById('youtubePrivacy').value = review.youtubePrivacy || 'unlisted';
-    document.getElementById('youtubePlaylist').value = review.youtubePlaylist || '';
-    document.getElementById('gbpLocationId').value = review.gbpLocationId || '';
-    document.getElementById('reviewAgentId').value = review.agentId || config.agentId || '';
-    document.getElementById('maxVideoLength').value = review.maxVideoLength || '90';
-    document.getElementById('reviewIncentive').value = review.incentive || "As a thank you, we'll send you a $25 gift card after your testimonial is published!";
-    document.getElementById('reviewNotifyEmail').value = review.notifyEmail || '';
-    document.getElementById('reviewCompanyName').value = review.companyName || config.name || '';
-    document.getElementById('reviewBrandColor').value = review.brandColor || '#2A42F2';
-    document.getElementById('reviewLogoUrl').value = review.logoUrl || '';
-    
-    updateReviewStats();
-}
-
-function saveReviewSettings() {
-    const config = configManager.getCurrentConfig();
-    if (!config.modules) config.modules = {};
-    
-    config.modules.reviewSystem = {
-        enabled: document.getElementById('reviewEnabled').checked,
-        youtubeChannelId: document.getElementById('youtubeChannelId').value.trim(),
-        youtubePrivacy: document.getElementById('youtubePrivacy').value,
-        youtubePlaylist: document.getElementById('youtubePlaylist').value.trim(),
-        gbpLocationId: document.getElementById('gbpLocationId').value.trim(),
-        agentId: document.getElementById('reviewAgentId').value.trim(),
-        maxVideoLength: document.getElementById('maxVideoLength').value,
-        incentive: document.getElementById('reviewIncentive').value.trim(),
-        notifyEmail: document.getElementById('reviewNotifyEmail').value.trim(),
-        companyName: document.getElementById('reviewCompanyName').value.trim(),
-        brandColor: document.getElementById('reviewBrandColor').value,
-        logoUrl: document.getElementById('reviewLogoUrl').value.trim()
-    };
-    
-    configManager.saveConfiguration();
-    document.getElementById('reviewSaveStatus').style.display = 'block';
-    setTimeout(() => {
-        document.getElementById('reviewSaveStatus').style.display = 'none';
-    }, 2000);
-}
-
-function generateReviewLink() {
-    const config = configManager.getCurrentConfig();
-    const clientId = config.id || 'demo';
-    return `https://mobilewise.netlify.app/review.html?clientId=${clientId}`;
-}
-
-function copyReviewLink(type) {
-    const link = generateReviewLink();
-    const formattedLink = type === 'sms' ? link : link;
-    navigator.clipboard.writeText(formattedLink).then(() => {
-        const output = document.getElementById('reviewLinkOutput');
-        output.style.display = 'block';
-        output.innerHTML = `✅ ${type.toUpperCase()} link copied: ${formattedLink}`;
-    });
-}
-
-function generateReviewQR() {
-    const link = generateReviewLink();
-    const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link)}`;
-    const preview = document.getElementById('reviewQRPreview');
-    preview.style.display = 'block';
-    preview.innerHTML = `<img src="${qrApi}" alt="QR Code" style="border-radius:12px;border:2px solid #00c853;"><br><small style="color:rgba(255,255,255,0.5);">Scan to leave a review</small>`;
-}
-
-function previewReviewLanding() {
-    const link = generateReviewLink();
-    window.open(link, '_blank');
-}
-
-async function updateReviewStats() {
-    const config = configManager.getCurrentConfig();
-    const clientId = config.id;
-    if (!clientId || !supabaseClient) return;
-    
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    
-    const { count } = await supabaseClient
-        .from('analytics_events')
-        .select('*', { count: 'exact', head: true })
-        .eq('client_id', clientId)
-        .eq('event_type', 'testimonial_completed')
-        .gte('created_at', monthStart);
-    
-    document.getElementById('reviewCountMonth').textContent = count || 0;
-}
-
-// Call on client load
-const origLoadClient = configManager.loadClient;
-configManager.loadClient = function(clientId) {
-    origLoadClient.call(this, clientId);
-    setTimeout(loadReviewSettings, 500);
-};
 
 </script>
 
