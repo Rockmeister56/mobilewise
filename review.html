@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave a Review</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #050a12;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo {
+            height: 50px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: rgba(18,28,46,0.9);
+            border-radius: 20px;
+            padding: 40px 30px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .avatar-container {
+            width: 200px; height: 280px;
+            margin: 0 auto 20px;
+            border-radius: 16px; overflow: hidden;
+            background: #000;
+            border: 2px solid rgba(0,200,83,0.3);
+        }
+        .avatar-container lemon-slice-widget {
+            width: 260px !important;
+            height: 340px !important;
+            margin: -20px 0 0 -30px;
+        }
+        h1 { font-size: 1.5rem; margin-bottom: 8px; color: #00c853; }
+        .subtitle { color: rgba(255,255,255,0.6); font-size: 0.95rem; margin-bottom: 24px; }
+        
+        .step { display: none; }
+        .step.active { display: block; }
+        
+        .btn {
+            display: inline-block;
+            padding: 14px 36px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            margin: 8px;
+        }
+        .btn-primary {
+            background: #00c853;
+            color: #0a0f1e;
+        }
+        .btn-primary:hover {
+            background: #00e676;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+        
+        .recording-indicator {
+            display: inline-block;
+            width: 12px; height: 12px;
+            background: #f44336;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+            margin-right: 8px;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .incentive-box {
+            background: rgba(255,152,0,0.1);
+            border: 1px solid rgba(255,152,0,0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+        .incentive-box .icon { font-size: 1.5rem; }
+        
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+        }
+        .dot.done { background: #00c853; }
+        .dot.current { background: #f8c400; animation: pulse 1s infinite; }
+        
+        .video-preview {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 16/9;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .video-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .thank-you-icon { font-size: 4rem; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img id="clientLogo" class="logo" src="" alt="Logo" style="display:none;">
+        
+        <div class="card">
+            <!-- STEP 0: Intro -->
+            <div class="step active" id="step-intro">
+                <h1 id="companyName">Leave a Review</h1>
+                <p class="subtitle">Share your experience with a quick video testimonial</p>
+                <div class="avatar-container" id="avatarContainer"></div>
+                <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 16px;">Tess will guide you through a few short questions</p>
+                <button class="btn btn-primary" onclick="startInterview()">🎤 Get Started</button>
+            </div>
+            
+            <!-- STEP 1: Satisfaction Check -->
+            <div class="step" id="step-satisfaction">
+                <h2 style="margin-bottom: 20px;">Were you satisfied with your experience?</h2>
+                <button class="btn btn-primary" onclick="satisfactionResponse(true)">😊 Yes, absolutely!</button>
+                <button class="btn btn-secondary" onclick="satisfactionResponse(false)">😐 Not really</button>
+            </div>
+            
+            <!-- STEP 2: Recording -->
+            <div class="step" id="step-recording">
+                <h2 style="margin-bottom: 8px;"><span class="recording-indicator"></span>Recording</h2>
+                <p class="subtitle" id="currentQuestion">Loading question...</p>
+                <div class="video-preview" id="videoPreview">
+                    <video id="previewVideo" autoplay muted playsinline></video>
+                </div>
+                <div class="progress-dots" id="progressDots"></div>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-danger" id="btnStop" onclick="stopRecording()" style="display:none;">⏹ Stop Recording</button>
+                    <button class="btn btn-primary" id="btnNext" onclick="nextQuestion()" style="display:none;">➡ Next Question</button>
+                    <button class="btn btn-outline" id="btnSkip" onclick="skipQuestion()">⏭ Skip</button>
+                </div>
+            </div>
+            
+            <!-- STEP 3: Complete -->
+            <div class="step" id="step-complete">
+                <div class="thank-you-icon">🎉</div>
+                <h2>Thank You!</h2>
+                <p class="subtitle">Your testimonial has been recorded.</p>
+                <div class="incentive-box" id="incentiveBox">
+                    <span class="icon">🎁</span>
+                    <p id="incentiveText"></p>
+                </div>
+                <button class="btn btn-primary" onclick="publishTestimonial()" style="margin-top: 16px;">✅ Publish My Testimonial</button>
+            </div>
+            
+            <!-- STEP 4: Published -->
+            <div class="step" id="step-published">
+                <div class="thank-you-icon">🚀</div>
+                <h2>Published!</h2>
+                <p class="subtitle">Your testimonial is live. Thank you for sharing!</p>
+                <button class="btn btn-outline" onclick="window.close()">Close</button>
+            </div>
+        </div>
+        
+        <p style="color: rgba(255,255,255,0.3); font-size: 0.7rem; margin-top: 16px;">Powered by MobileWise AI</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        // ===== CONFIG =====
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientId = urlParams.get('clientId') || 'demo';
+        
+        const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
+        
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        emailjs.init("7-9oxa3UC3uKxtqGM");
+        
+        let reviewConfig = {};
+        let currentQuestionIndex = 0;
+        let recordings = [];
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        
+        // ===== LOAD CLIENT CONFIG =====
+        async function loadConfig() {
+            const { data } = await supabaseClient
+                .from('clients')
+                .select('metadata')
+                .eq('client_id', clientId)
+                .single();
+            
+            if (data?.metadata) {
+                reviewConfig = data.metadata.modules?.reviewSystem || {};
+            }
+            
+            // Apply branding
+            if (reviewConfig.companyName) {
+                document.getElementById('companyName').textContent = reviewConfig.companyName;
+                document.title = `Leave a Review — ${reviewConfig.companyName}`;
+            }
+            if (reviewConfig.logoUrl) {
+                const logo = document.getElementById('clientLogo');
+                logo.src = reviewConfig.logoUrl;
+                logo.style.display = 'block';
+            }
+            if (reviewConfig.brandColor) {
+                document.querySelectorAll('.btn-primary').forEach(b => b.style.background = reviewConfig.brandColor);
+                document.querySelector('h1').style.color = reviewConfig.brandColor;
+            }
+            if (reviewConfig.incentive) {
+                document.getElementById('incentiveText').textContent = reviewConfig.incentive;
+            }
+        }
+        
+        // ===== STEP NAVIGATION =====
+        function showStep(stepId) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById(stepId).classList.add('active');
+        }
+        
+        function satisfactionResponse(satisfied) {
+            if (!satisfied) {
+                alert("We appreciate your honesty. Thank you for your time!");
+                window.close();
+                return;
+            }
+            showStep('step-recording');
+            initCamera();
+            startRecordingQuestion();
+        }
+        
+        // ===== CAMERA =====
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const video = document.getElementById('previewVideo');
+                video.srcObject = stream;
+                await video.play();
+            } catch(e) {
+                console.warn('Camera not available, continuing with audio only');
+                document.getElementById('videoPreview').innerHTML = '<p style="color:rgba(255,255,255,0.5);">📷 Camera not available — audio only</p>';
+            }
+        }
+        
+        // ===== RECORDING =====
+        const questions = [
+            "What was your situation before working with us?",
+            "What results have you seen since working with us?",
+            "What would you say to someone considering our services?",
+            "Is there anything else you'd like to share?"
+        ];
+        
+        function updateProgress() {
+            const dots = document.getElementById('progressDots');
+            dots.innerHTML = questions.map((_, i) => {
+                let cls = 'dot';
+                if (i < currentQuestionIndex) cls += ' done';
+                if (i === currentQuestionIndex) cls += ' current';
+                return `<div class="${cls}"></div>`;
+            }).join('');
+        }
+        
+        async function startRecordingQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                finishInterview();
+                return;
+            }
+            
+            document.getElementById('currentQuestion').textContent = `Q${currentQuestionIndex + 1}: ${questions[currentQuestionIndex]}`;
+            document.getElementById('btnStop').style.display = 'inline-block';
+            document.getElementById('btnNext').style.display = 'none';
+            document.getElementById('btnSkip').style.display = 'inline-block';
+            updateProgress();
+            
+            // Start recording
+            recordedChunks = [];
+            const stream = document.getElementById('previewVideo')?.srcObject;
+            if (stream) {
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    recordings.push({
+                        questionIndex: currentQuestionIndex,
+                        question: questions[currentQuestionIndex],
+                        blob: blob,
+                        url: URL.createObjectURL(blob)
+                    });
+                    document.getElementById('btnNext').style.display = 'inline-block';
+                    document.getElementById('btnStop').style.display = 'none';
+                };
+                mediaRecorder.start();
+            }
+        }
+        
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+        }
+        
+        function nextQuestion() {
+            currentQuestionIndex++;
+            startRecordingQuestion();
+        }
+        
+        function skipQuestion() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+            currentQuestionIndex++;
+            startRecordingQuestion();
+        }
+        
+        function finishInterview() {
+            showStep('step-complete');
+            trackEvent('testimonial_completed');
+        }
+        
+        async function publishTestimonial() {
+            showStep('step-published');
+            
+            // Track in analytics
+            trackEvent('testimonial_published');
+            
+            // Notify client
+            if (reviewConfig.notifyEmail) {
+                emailjs.send("service_b9bppgb", "template_8kx812d", {
+                    to_email: reviewConfig.notifyEmail,
+                    full_name: "New Testimonial",
+                    email: reviewConfig.notifyEmail,
+                    phone: "",
+                    scheduled_datetime: new Date().toLocaleString(),
+                    message: `${recordings.length} testimonial videos recorded for ${reviewConfig.companyName || clientId}`
+                }).catch(() => {});
+            }
+        }
+        
+        function trackEvent(eventType, eventData = {}) {
+            fetch("https://fcgbusobfdwnpoqyuzoe.supabase.co/functions/v1/analytics-ingest", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + SUPABASE_ANON_KEY
+                },
+                body: JSON.stringify({
+                    client_id: clientId,
+                    session_id: 'review-' + Date.now(),
+                    event_type: eventType,
+                    event_data: eventData,
+                    source_url: window.location.href,
+                    referrer: document.referrer || 'direct',
+                    timestamp: Date.now()
+                })
+            }).catch(() => {});
+        }
+        
+        // ===== INIT =====
+        loadConfig();
+    </script>
+</body>
+</html>
