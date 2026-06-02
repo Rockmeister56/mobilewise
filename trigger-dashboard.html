@@ -1390,6 +1390,193 @@
                 <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">When Tess hears these, phone dialer opens</span>
             </div>
         </div>
+
+        <!-- ===== REVIEW & TESTIMONIAL DASHBOARD ===== -->
+<div class="module-section" id="module-reviewDashboard" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(0,200,83,0.3); padding: 24px; margin-bottom: 24px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">🎬</span>
+            <h2 style="margin: 0; color: #00c853; font-size: 1.4rem;">Review & Testimonial System</h2>
+        </div>
+        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <span style="color: rgba(255,255,255,0.7); font-size: 0.9rem;">Enable</span>
+            <input type="checkbox" id="reviewEnabled" checked style="width: 20px; height: 20px; cursor: pointer;">
+        </label>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        
+        <!-- Left Column: Integrations -->
+        <div>
+            <h3 style="color: white; font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <i class="fas fa-plug" style="margin-right: 8px; color: #00c853;"></i>
+                Publishing Integrations
+            </h3>
+            
+            <!-- YouTube -->
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fab fa-youtube" style="margin-right: 6px; color: #ff0000;"></i>YouTube Channel ID
+                </label>
+                <input type="text" id="youtubeChannelId" placeholder="UCxxxxxxxxxxxxxxxx"
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Channel where testimonials will be published</span>
+            </div>
+            
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    Video Privacy Setting
+                </label>
+                <select id="youtubePrivacy" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
+                    <option value="unlisted" selected>Unlisted (anyone with link)</option>
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    YouTube Playlist (optional)
+                </label>
+                <input type="text" id="youtubePlaylist" placeholder="PLxxxxxxxxxxxxxxxx"
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
+            </div>
+            
+            <!-- Google Business Profile -->
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-map-marker-alt" style="margin-right: 6px; color: #ea4335;"></i>Google Business Profile Location ID
+                </label>
+                <input type="text" id="gbpLocationId" placeholder="12345678901234567890"
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">For auto-publishing reviews to GBP</span>
+            </div>
+        </div>
+        
+        <!-- Right Column: Interview Settings -->
+        <div>
+            <h3 style="color: white; font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+                <i class="fas fa-sliders-h" style="margin-right: 8px; color: #00c853;"></i>
+                Interview Settings
+            </h3>
+            
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-robot" style="margin-right: 6px;"></i>Tess Agent ID
+                </label>
+                <input type="text" id="reviewAgentId" placeholder="agent_xxxxxxxxxxxxxxxx"
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">LemonSlice agent for testimonial interviews</span>
+            </div>
+            
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    Max Video Length (seconds)
+                </label>
+                <select id="maxVideoLength" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
+                    <option value="60">60 seconds</option>
+                    <option value="90" selected>90 seconds</option>
+                    <option value="120">120 seconds</option>
+                    <option value="180">180 seconds</option>
+                </select>
+            </div>
+            
+            <!-- Incentive -->
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-gift" style="margin-right: 6px; color: #ff9800;"></i>Incentive Message
+                </label>
+                <input type="text" id="reviewIncentive" value="As a thank you, we'll send you a $25 gift card after your testimonial is published!"
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Shown after interview completion</span>
+            </div>
+            
+            <!-- Notification Email -->
+            <div style="margin-bottom: 18px;">
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">
+                    <i class="fas fa-bell" style="margin-right: 6px;"></i>Notification Email
+                </label>
+                <input type="email" id="reviewNotifyEmail" placeholder="client@example.com"
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
+                <span style="color: rgba(255,255,255,0.4); font-size: 0.75rem; margin-top: 4px; display: block;">Get notified when new testimonials publish</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Landing Page Branding -->
+    <div style="margin-top: 8px;">
+        <h3 style="color: white; font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">
+            <i class="fas fa-paint-brush" style="margin-right: 8px; color: #00c853;"></i>
+            Landing Page Branding
+        </h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+            <div>
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">Company Name</label>
+                <input type="text" id="reviewCompanyName" placeholder="ABC Mortgage"
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
+            </div>
+            <div>
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">Brand Color</label>
+                <input type="color" id="reviewBrandColor" value="#2A42F2"
+                       style="width: 100%; height: 46px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 4px 12px; cursor: pointer;">
+            </div>
+            <div>
+                <label style="display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 6px;">Company Logo URL</label>
+                <input type="text" id="reviewLogoUrl" placeholder="https://..."
+                       style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 16px; color: white; font-size: 0.95rem;">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Generate Links -->
+    <div style="margin-top: 20px; padding: 20px; background: rgba(0,200,83,0.08); border-radius: 12px; border: 1px solid rgba(0,200,83,0.2);">
+        <h4 style="color: #00c853; margin: 0 0 12px 0;">🔗 Client Distribution Links</h4>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button onclick="generateReviewQR()" style="background: #00c853; color: #0a0f1e; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-qrcode"></i> Generate QR Code
+            </button>
+            <button onclick="copyReviewLink('sms')" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-sms"></i> Copy SMS Link
+            </button>
+            <button onclick="copyReviewLink('email')" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-envelope"></i> Copy Email Link
+            </button>
+            <button onclick="previewReviewLanding()" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-eye"></i> Preview Landing Page
+            </button>
+        </div>
+        <div id="reviewLinkOutput" style="margin-top: 12px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; color: #00c853; font-family: monospace; font-size: 0.8rem; display: none;"></div>
+        <div id="reviewQRPreview" style="margin-top: 12px; text-align: center; display: none;"></div>
+    </div>
+    
+    <!-- Stats -->
+    <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+        <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 16px; text-align: center;">
+            <div style="color: #00c853; font-size: 1.8rem; font-weight: 700;" id="reviewCountMonth">0</div>
+            <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">Testimonials This Month</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 16px; text-align: center;">
+            <div style="color: #ff0000; font-size: 1.8rem; font-weight: 700;" id="reviewCountYoutube">0</div>
+            <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">Published to YouTube</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 16px; text-align: center;">
+            <div style="color: #ea4335; font-size: 1.8rem; font-weight: 700;" id="reviewCountGbp">0</div>
+            <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">Published to GBP</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 16px; text-align: center;">
+            <div style="color: #ff9800; font-size: 1.8rem; font-weight: 700;" id="reviewCountPending">0</div>
+            <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">Pending Publish</div>
+        </div>
+    </div>
+    
+    <!-- Save Button -->
+    <div style="margin-top: 20px;">
+        <button onclick="saveReviewSettings()" style="width: 100%; background: #00c853; color: #0a0f1e; border: none; padding: 16px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer;">
+            <i class="fas fa-save"></i> Save Review Settings
+        </button>
+        <div id="reviewSaveStatus" style="text-align: center; margin-top: 8px; color: #00c853; font-size: 0.8rem; display: none;">✅ Settings saved</div>
+    </div>
+</div>
     </div>
     
     <!-- Preview Badge -->
@@ -1591,6 +1778,112 @@ function previewVideoUrl() {
         alert('Please enter a video URL first');
     }
 }
+
+</script>
+
+<script>
+
+// ===== REVIEW & TESTIMONIAL FUNCTIONS =====
+
+function loadReviewSettings() {
+    const config = configManager.getCurrentConfig();
+    const review = config.modules?.reviewSystem || {};
+    
+    document.getElementById('reviewEnabled').checked = review.enabled !== false;
+    document.getElementById('youtubeChannelId').value = review.youtubeChannelId || '';
+    document.getElementById('youtubePrivacy').value = review.youtubePrivacy || 'unlisted';
+    document.getElementById('youtubePlaylist').value = review.youtubePlaylist || '';
+    document.getElementById('gbpLocationId').value = review.gbpLocationId || '';
+    document.getElementById('reviewAgentId').value = review.agentId || config.agentId || '';
+    document.getElementById('maxVideoLength').value = review.maxVideoLength || '90';
+    document.getElementById('reviewIncentive').value = review.incentive || "As a thank you, we'll send you a $25 gift card after your testimonial is published!";
+    document.getElementById('reviewNotifyEmail').value = review.notifyEmail || '';
+    document.getElementById('reviewCompanyName').value = review.companyName || config.name || '';
+    document.getElementById('reviewBrandColor').value = review.brandColor || '#2A42F2';
+    document.getElementById('reviewLogoUrl').value = review.logoUrl || '';
+    
+    updateReviewStats();
+}
+
+function saveReviewSettings() {
+    const config = configManager.getCurrentConfig();
+    if (!config.modules) config.modules = {};
+    
+    config.modules.reviewSystem = {
+        enabled: document.getElementById('reviewEnabled').checked,
+        youtubeChannelId: document.getElementById('youtubeChannelId').value.trim(),
+        youtubePrivacy: document.getElementById('youtubePrivacy').value,
+        youtubePlaylist: document.getElementById('youtubePlaylist').value.trim(),
+        gbpLocationId: document.getElementById('gbpLocationId').value.trim(),
+        agentId: document.getElementById('reviewAgentId').value.trim(),
+        maxVideoLength: document.getElementById('maxVideoLength').value,
+        incentive: document.getElementById('reviewIncentive').value.trim(),
+        notifyEmail: document.getElementById('reviewNotifyEmail').value.trim(),
+        companyName: document.getElementById('reviewCompanyName').value.trim(),
+        brandColor: document.getElementById('reviewBrandColor').value,
+        logoUrl: document.getElementById('reviewLogoUrl').value.trim()
+    };
+    
+    configManager.saveConfiguration();
+    document.getElementById('reviewSaveStatus').style.display = 'block';
+    setTimeout(() => {
+        document.getElementById('reviewSaveStatus').style.display = 'none';
+    }, 2000);
+}
+
+function generateReviewLink() {
+    const config = configManager.getCurrentConfig();
+    const clientId = config.id || 'demo';
+    return `https://mobilewise.netlify.app/review.html?clientId=${clientId}`;
+}
+
+function copyReviewLink(type) {
+    const link = generateReviewLink();
+    const formattedLink = type === 'sms' ? link : link;
+    navigator.clipboard.writeText(formattedLink).then(() => {
+        const output = document.getElementById('reviewLinkOutput');
+        output.style.display = 'block';
+        output.innerHTML = `✅ ${type.toUpperCase()} link copied: ${formattedLink}`;
+    });
+}
+
+function generateReviewQR() {
+    const link = generateReviewLink();
+    const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(link)}`;
+    const preview = document.getElementById('reviewQRPreview');
+    preview.style.display = 'block';
+    preview.innerHTML = `<img src="${qrApi}" alt="QR Code" style="border-radius:12px;border:2px solid #00c853;"><br><small style="color:rgba(255,255,255,0.5);">Scan to leave a review</small>`;
+}
+
+function previewReviewLanding() {
+    const link = generateReviewLink();
+    window.open(link, '_blank');
+}
+
+async function updateReviewStats() {
+    const config = configManager.getCurrentConfig();
+    const clientId = config.id;
+    if (!clientId || !supabaseClient) return;
+    
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    
+    const { count } = await supabaseClient
+        .from('analytics_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('client_id', clientId)
+        .eq('event_type', 'testimonial_completed')
+        .gte('created_at', monthStart);
+    
+    document.getElementById('reviewCountMonth').textContent = count || 0;
+}
+
+// Call on client load
+const origLoadClient = configManager.loadClient;
+configManager.loadClient = function(clientId) {
+    origLoadClient.call(this, clientId);
+    setTimeout(loadReviewSettings, 500);
+};
 
 </script>
 
