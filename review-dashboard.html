@@ -187,6 +187,12 @@
                 <span id="clientStatus" style="color: #00c853; font-size: 0.8rem; display: none;">✅ Loaded</span>
             </div>
         </div>
+
+        <div class="field" style="margin-top: 16px;">
+    <label>Client Website URL (where bridge is installed)</label>
+    <input type="text" id="reviewClientWebsite" placeholder="https://abcmortgage.com">
+    <div class="hint">The actual client website where the bridge JS file is loaded</div>
+</div>
         
         <!-- Publishing Integrations -->
         <div class="card">
@@ -413,7 +419,16 @@
 
 function generateClientLink() {
     const name = document.getElementById('testFirstName').value.trim() || 'Valued Customer';
-    currentClientLink = `https://mobilewise.netlify.app/review.html?clientId=${currentClientId || 'demo'}&name=${encodeURIComponent(name)}`;
+    const website = document.getElementById('reviewClientWebsite')?.value.trim();
+    
+    if (website) {
+        // Use client's website with bridge in review mode
+        const separator = website.includes('?') ? '&' : '?';
+        currentClientLink = `${website}${separator}mode=review&name=${encodeURIComponent(name)}`;
+    } else {
+        // Fallback to Netlify review page
+        currentClientLink = `https://mobilewise.netlify.app/review.html?clientId=${currentClientId || 'demo'}&name=${encodeURIComponent(name)}`;
+    }
     
     const out = document.getElementById('clientLinkOutput');
     out.style.display = 'block';
