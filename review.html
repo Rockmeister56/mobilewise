@@ -13,6 +13,12 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
+
+        body {
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
         
         .splash-screen {
             position: fixed; inset: 0;
@@ -213,6 +219,11 @@
             questions[1] = `What was the best part about working with ${reviewConfig.companyName}?`;
             questions[2] = `Would you recommend ${reviewConfig.companyName} to friends or family?`;
         }
+        if (reviewConfig.websiteBg) {
+    document.body.style.backgroundImage = `url(${reviewConfig.websiteBg})`;
+} else {
+    document.body.style.background = 'linear-gradient(135deg, #1a3a5c 0%, #2d5a3d 40%, #5a4a2d 100%)';
+}
     }
     
     // ===== DAILY.CO + LEMONSLICE INTEGRATION =====
