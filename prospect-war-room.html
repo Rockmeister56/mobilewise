@@ -167,6 +167,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
           <th>Notes</th>
           <th>Outreach</th>
           <th>Week</th>
+          <th>Archive</th>
         </tr></thead>
         <tbody id="leadsBody"></tbody>
       </table>
@@ -290,6 +291,8 @@ function renderLeads() {
   const cityF   = document.getElementById('cityFilter').value;
 
   let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  // Always hide archived leads from main pipeline
+  data = data.filter(l=>l.status !== '📦 Archived');
   if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
   if (statusF) data = data.filter(l=>l.status===statusF);
   if (cityF)   data = data.filter(l=>l.city===cityF);
@@ -346,13 +349,19 @@ function renderLeads() {
       </td>
       <td>${l.outreach_msg?`<button class="lbtn lbtn-g" onclick="showOutreach(${l.id})" style="cursor:pointer;border:none;">📧 View</button>`:'—'}</td>
       <td style="font-size:0.7rem;color:rgba(255,255,255,0.3);white-space:nowrap;">${esc(l.week_label||'—')}</td>
+      <td>
+        <button class="lbtn" onclick="archiveLead(${l.id},'${esc(l.company_name||'this lead')}')" 
+          style="background:rgba(255,152,0,0.1);color:#ff9800;border:1px solid rgba(255,152,0,0.3);cursor:pointer;">
+          📦 Archive
+        </button>
+      </td>
     </tr>`;
   }).join('');
 }
 
 // ── Stats ─────────────────────────────────────────────────
 function updateStats() {
-  const data = activeWeek==='all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  const data = (activeWeek==='all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek)).filter(l=>l.status!=='📦 Archived');
   document.getElementById('st-total').textContent   = data.length;
   document.getElementById('st-new').textContent     = data.filter(l=>l.status==='🟢 New').length;
   document.getElementById('st-emailed').textContent = data.filter(l=>l.status==='📧 Emailed').length;
@@ -382,6 +391,17 @@ async function saveEmail(id, val) {
 }
 
 // ── Save notes ────────────────────────────────────────────
+async function archiveLead(id, companyName) {
+  const confirmed = confirm(`Are you sure you want to archive "${companyName}"?\n\nThis lead will be hidden from the active pipeline but saved in Supabase for future research.`);
+  if (!confirmed) return;
+  await sb('PATCH','leads',{status:'📦 Archived'},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.status = '📦 Archived';
+  renderLeads();
+  updateStats();
+  toast('Lead archived ✓');
+}
+
 async function saveName(id, val) {
   await sb('PATCH','leads',{contact_name:val},`?id=eq.${id}`);
   const lead = allLeads.find(l=>l.id===id);
@@ -460,7 +480,7 @@ function esc(s){
 }
 
 window.loadLeads=loadLeads; window.selectWeek=selectWeek; window.cycleStatus=cycleStatus;
-window.saveEmail=saveEmail; window.saveNotes=saveNotes; window.saveWebsite=saveWebsite; window.saveName=saveName; window.savePhone=savePhone; window.showOutreach=showOutreach;
+window.saveEmail=saveEmail; window.saveNotes=saveNotes; window.saveWebsite=saveWebsite; window.saveName=saveName; window.archiveLead=archiveLead; window.savePhone=savePhone; window.showOutreach=showOutreach;
 window.closeModal=closeModal; window.copyModal=copyModal; window.exportCSV=exportCSV;
 </script>
 </body>
