@@ -220,6 +220,11 @@
                     <input type="text" id="reviewAgentId" placeholder="agent_xxxxxxxxxxxxxxxx">
                 </div>
                 <div class="field">
+    <label>LemonSlice API Key</label>
+    <input type="password" id="lemonsliceApiKey" value="sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP">
+    <div class="hint">Required for Daily room + transcription</div>
+               </div>
+                <div class="field">
                     <label>Max Video Length</label>
                     <select id="maxVideoLength">
                         <option value="60">60 seconds</option>
@@ -392,6 +397,7 @@
             document.getElementById('reviewTessSilentVideo').value = review.tessSilentVideo || '';
             document.getElementById('reviewSplashTitle').value = review.splashTitle || 'A Special Thank You';
             document.getElementById('reviewSplashSubtitle').value = review.splashSubtitle || 'We appreciate your trust in us';
+            document.getElementById('lemonsliceApiKey').value = review.lemonsliceApiKey || 'sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP';
             
             document.getElementById('clientStatus').style.display = 'inline';
             updateStats();
@@ -443,7 +449,8 @@ function openClientLink() {
                 thankYouImage: document.getElementById('reviewThankYouImage').value.trim(),
                 tessSilentVideo: document.getElementById('reviewTessSilentVideo').value.trim(),
                 splashTitle: document.getElementById('reviewSplashTitle').value.trim(),
-                splashSubtitle: document.getElementById('reviewSplashSubtitle').value.trim()
+                splashSubtitle: document.getElementById('reviewSplashSubtitle').value.trim(),
+                lemonsliceApiKey: document.getElementById('lemonsliceApiKey').value.trim(),
             };
             
             await supabaseClient.from('clients').update({ metadata, updated_at: new Date().toISOString() }).eq('client_id', currentClientId);
