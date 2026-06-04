@@ -430,6 +430,10 @@
             document.getElementById('reviewSplashTitle').value = review.splashTitle || 'A Special Thank You';
             document.getElementById('reviewSplashSubtitle').value = review.splashSubtitle || 'We appreciate your trust in us';
             document.getElementById('lemonsliceApiKey').value = review.lemonsliceApiKey || 'sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP';
+            document.getElementById('reviewButtonText').value = review.buttonText || '🎧 Listen to Your Personal Thank You';
+            document.getElementById('reviewButtonGradient').value = review.buttonGradient || 'linear-gradient(135deg, #f8c400, #e6a800)';
+            document.getElementById('reviewButtonTextColor').value = review.buttonTextColor || '#0a0f1e';
+            document.getElementById('reviewButtonBorderRadius').value = review.buttonBorderRadius || '50px';
             
             document.getElementById('clientStatus').style.display = 'inline';
             updateStats();
@@ -492,6 +496,10 @@ function openClientLink() {
                 splashTitle: document.getElementById('reviewSplashTitle').value.trim(),
                 splashSubtitle: document.getElementById('reviewSplashSubtitle').value.trim(),
                 lemonsliceApiKey: document.getElementById('lemonsliceApiKey').value.trim(),
+                buttonText: document.getElementById('reviewButtonText').value.trim(),
+                buttonGradient: document.getElementById('reviewButtonGradient').value.trim(),
+                buttonTextColor: document.getElementById('reviewButtonTextColor').value,
+                buttonBorderRadius: document.getElementById('reviewButtonBorderRadius').value,
             };
             
             await supabaseClient.from('clients').update({ metadata, updated_at: new Date().toISOString() }).eq('client_id', currentClientId);
