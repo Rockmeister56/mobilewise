@@ -3254,6 +3254,18 @@ async function exportBridgeOnly() {
         
         code += '(function() {\n';
         code += '    "use strict";\n\n';
+        code += '    // ===== MODE DETECTION: SALES vs REVIEW =====\n';
+        code += '    const urlParams = new URLSearchParams(window.location.search);\n';
+        code += '    const bridgeMode = urlParams.get(\'mode\') || \'sales\';\n';
+        code += '    const reviewerName = urlParams.get(\'name\') || \'Valued Customer\';\n';
+        code += '    \n';
+        code += '    if (bridgeMode === \'review\') {\n';
+        code += '        initReviewMode(reviewerName);\n';
+        code += '        return;\n';
+        code += '    }\n';
+        code += '    \n';
+        code += '    console.log(\'✅ Botemia Bridge v5.8 loaded for\', window.BotemiaConfig.name);\n';
+        code += '\n';
         code += '    // ===== GLOBAL VARIABLES =====\n';
         code += '    let isPreQualificationActive = false;\n';
         code += '    window.preQualController = null;\n';
@@ -4861,19 +4873,6 @@ code += '\n';
         code += '    } else {\n';
         code += '        initWidget();\n';
         code += '    }\n';
-        code += '    // ===== MODE DETECTION: SALES vs REVIEW =====\n';
-        code += '    const urlParams = new URLSearchParams(window.location.search);\n';
-        code += '    const bridgeMode = urlParams.get(\'mode\') || \'sales\';\n';
-        code += '    const reviewerName = urlParams.get(\'name\') || \'Valued Customer\';\n';
-        code += '    \n';
-        code += '    if (bridgeMode === \'review\') {\n';
-        code += '        initReviewMode(reviewerName);\n';
-        code += '    } else {\n';
-        code += '        initSalesMode();\n';
-        code += '    }\n';
-        code += '    \n';
-        code += '    console.log(\'✅ Botemia Bridge v5.8 loaded for\', window.BotemiaConfig.name);\n';
-        code += '\n';
 
         code += '    // ===== CLIENT ANNOUNCEMENT FUNCTION =====\n';
         code += '    function announceToTCS() {\n';
