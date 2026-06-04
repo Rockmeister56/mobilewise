@@ -3260,7 +3260,13 @@ async function exportBridgeOnly() {
         code += '    const reviewerName = urlParams.get(\'name\') || \'Valued Customer\';\n';
         code += '    \n';
         code += '    if (bridgeMode === \'review\') {\n';
-        code += '        initReviewMode(reviewerName);\n';
+        code += '        // Wait for config to be ready, then start review mode\n';
+        code += '        const reviewChecker = setInterval(function() {\n';
+        code += '            if (window.BotemiaConfig && window.BotemiaConfig.modules) {\n';
+        code += '                clearInterval(reviewChecker);\n';
+        code += '                initReviewMode(reviewerName);\n';
+        code += '            }\n';
+        code += '        }, 100);\n';
         code += '        return;\n';
         code += '    }\n';
         code += '    \n';
