@@ -154,7 +154,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <div class="tbl-wrap">
       <table>
         <thead><tr>
-          <th>#</th>
+          <th>MW ID</th>
           <th>Contact</th>
           <th>Company</th>
           <th>Phone</th>
@@ -311,7 +311,7 @@ function renderLeads() {
     const si = STATUS_FLOW.indexOf(l.status);
     const sc = si >= 0 ? STATUS_CLASS[si] : 's0';
     return `<tr>
-      <td style="color:rgba(255,255,255,0.25);font-size:0.7rem;">${i+1}</td>
+      <td style="color:#34a853;font-size:0.7rem;font-weight:700;white-space:nowrap;font-family:monospace;">${esc(l.lead_id||'—')}</td>
       <td>
         <input class="email-inp" value="${esc(l.contact_name||'')}" placeholder="add name..." style="color:#fff;font-weight:600;" onchange="saveName(${l.id},this.value)" onclick="event.stopPropagation()">
       </td>
@@ -455,8 +455,8 @@ function copyModal(){
 // ── Export CSV ────────────────────────────────────────────
 function exportCSV() {
   const data = activeWeek==='all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
-  const cols = ['contact_name','company_name','phone','email','website','reviews','address','maps_url','city','status','notes','week_label','outreach_msg'];
-  const hdrs = ['ContactName','CompanyName','Phone','Email','Website','Reviews','Address','MapsURL','City','Status','Notes','Week','OutreachMsg'];
+  const cols = ['lead_id','contact_name','company_name','phone','email','website','reviews','address','maps_url','city','status','notes','week_label','outreach_msg'];
+  const hdrs = ['MW_ID','ContactName','CompanyName','Phone','Email','Website','Reviews','Address','MapsURL','City','Status','Notes','Week','OutreachMsg'];
   let csv = hdrs.join(',') + '\n';
   data.forEach(l => { csv += cols.map(c=>`"${String(l[c]||'').replace(/"/g,'""')}"`).join(',') + '\n'; });
   const a = document.createElement('a');
