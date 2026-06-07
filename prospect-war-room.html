@@ -147,6 +147,12 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <select id="cityFilter" onchange="renderLeads()">
       <option value="">All Cities</option>
     </select>
+    <select id="sortSelect" onchange="renderLeads()">
+      <option value="mw_asc">🔢 MW# Low → High</option>
+      <option value="mw_desc">🔢 MW# High → Low</option>
+      <option value="newest">🕐 Newest First</option>
+      <option value="company">🔤 Company A–Z</option>
+    </select>
   </div>
 
   <!-- TABLE -->
@@ -296,6 +302,13 @@ function renderLeads() {
   if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
   if (statusF) data = data.filter(l=>l.status===statusF);
   if (cityF)   data = data.filter(l=>l.city===cityF);
+
+  // Sort
+  const sortV = document.getElementById('sortSelect').value;
+  if (sortV === 'mw_asc')  data.sort((a,b)=>(a.lead_id||'').localeCompare(b.lead_id||'', undefined, {numeric:true}));
+  if (sortV === 'mw_desc') data.sort((a,b)=>(b.lead_id||'').localeCompare(a.lead_id||'', undefined, {numeric:true}));
+  if (sortV === 'newest')  data.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+  if (sortV === 'company') data.sort((a,b)=>(a.company_name||'').localeCompare(b.company_name||''));
 
   const tbody = document.getElementById('leadsBody');
   const empty = document.getElementById('leadsEmpty');
