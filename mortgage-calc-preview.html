@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Calculator Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a1a2f 0%, #1e3a5f 50%, #0a0f1e 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 20px;
+  }
+
+  .demo-label {
+    color: rgba(248,196,0,0.8);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .context-note {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 12px 20px;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.78rem;
+    margin-bottom: 24px;
+    text-align: center;
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  /* ── THE CALCULATOR (matches bridge output exactly) ── */
+  .calc-overlay {
+    background: rgba(10,15,30,0.98);
+    border-radius: 20px;
+    width: 380px;
+    max-width: 95vw;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    border: 2px solid #f8c400;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .calc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, #1e3a5f, #0a1a2f);
+    border-bottom: 1px solid rgba(248,196,0,0.3);
+  }
+
+  .calc-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .calc-header-left .icon { font-size: 1.4rem; }
+
+  .calc-header-left .title {
+    color: #f8c400;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .calc-header-left .subtitle {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.72rem;
+    margin-top: 2px;
+  }
+
+  .close-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .close-btn:hover { background: rgba(255,255,255,0.2); }
+
+  .calc-body { padding: 20px; overflow-y: auto; }
+
+  .input-grid { display: grid; gap: 14px; }
+
+  .field-label {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .calc-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(248,196,0,0.3);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .calc-input:focus { border-color: #f8c400; }
+
+  .calc-select {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(10,15,30,0.9);
+    border: 1px solid rgba(248,196,0,0.3);
+    border-radius: 10px;
+    color: white;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .calc-select:focus { border-color: #f8c400; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .results {
+    margin-top: 18px;
+    background: linear-gradient(135deg, rgba(248,196,0,0.12), rgba(248,196,0,0.04));
+    border: 1px solid rgba(248,196,0,0.3);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .results-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .results-row:last-of-type { margin-bottom: 0; }
+
+  .result-cell { text-align: center; }
+
+  .result-label {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .result-val {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  .result-val.sm { font-size: 1rem; font-weight: 600; }
+
+  .verdict {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 10px;
+    min-height: 1.4em;
+  }
+
+  .cta-btn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 13px;
+    background: linear-gradient(135deg, #f8c400, #d4a000);
+    color: #0a0f1e;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .cta-btn:hover {
+    background: linear-gradient(135deg, #ffd700, #e0b000);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(248,196,0,0.3);
+  }
+
+  .disclaimer {
+    text-align: center;
+    color: rgba(255,255,255,0.3);
+    font-size: 0.7rem;
+    margin-top: 8px;
+  }
+
+  /* Tess context bar above calculator */
+  .tess-bar {
+    width: 380px;
+    max-width: 95vw;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(248,196,0,0.2);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tess-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f8c400, #d4a000);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .tess-bubble {
+    background: rgba(248,196,0,0.1);
+    border: 1px solid rgba(248,196,0,0.3);
+    border-radius: 12px;
+    padding: 8px 12px;
+    color: rgba(255,255,255,0.85);
+    font-size: 0.82rem;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .tess-bubble strong { color: #f8c400; }
+</style>
+</head>
+<body>
+
+<div class="demo-label">🧪 Live Preview — Mortgage Calculator Module</div>
+
+<div class="context-note">
+  This is exactly how the calculator appears on the client's website when Tess says the trigger phrase. Try changing the values — it calculates live.
+</div>
+
+<!-- Tess speech bubble (context) -->
+<div class="tess-bar">
+  <div class="tess-avatar">🤖</div>
+  <div class="tess-bubble">
+    <strong>Tess:</strong> "Let me show you what you can afford based on your situation — I've pulled up our mortgage calculator for you right now."
+  </div>
+</div>
+
+<!-- The calculator (matches bridge output exactly) -->
+<div class="calc-overlay">
+
+  <div class="calc-header">
+    <div class="calc-header-left">
+      <span class="icon">🏠</span>
+      <div>
+        <div class="title">Mortgage Calculator</div>
+        <div class="subtitle">See what you can afford</div>
+      </div>
+    </div>
+    <button class="close-btn" onclick="this.closest('.calc-overlay').style.opacity='0.3'">✕</button>
+  </div>
+
+  <div class="calc-body">
+    <div class="input-grid">
+
+      <div>
+        <label class="field-label">💰 Annual Income</label>
+        <input id="mc-income" class="calc-input" type="number" value="85000" oninput="calcMortgage()">
+      </div>
+
+      <div>
+        <label class="field-label">🏦 Down Payment ($)</label>
+        <input id="mc-down" class="calc-input" type="number" value="40000" oninput="calcMortgage()">
+      </div>
+
+      <div>
+        <label class="field-label">📊 Credit Score Range</label>
+        <select id="mc-credit" class="calc-select" onchange="calcMortgage()">
+          <option value="0.5">Excellent (760+) — Best rates</option>
+          <option value="0.25" selected>Good (700–759)</option>
+          <option value="0">Fair (640–699)</option>
+          <option value="-0.5">Poor (580–639) — Higher rates</option>
+        </select>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <label class="field-label">📅 Loan Term</label>
+          <select id="mc-term" class="calc-select" onchange="calcMortgage()">
+            <option value="30" selected>30 Years</option>
+            <option value="20">20 Years</option>
+            <option value="15">15 Years</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">📈 Interest Rate %</label>
+          <input id="mc-rate" class="calc-input" type="number" step="0.05" value="7.25" oninput="calcMortgage()">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Results -->
+    <div class="results">
+      <div class="results-row">
+        <div class="result-cell">
+          <div class="result-label">Home Price Range</div>
+          <div class="result-val" id="mc-home-price" style="color:#f8c400;">—</div>
+        </div>
+        <div class="result-cell">
+          <div class="result-label">Monthly Payment</div>
+          <div class="result-val" id="mc-monthly" style="color:#34a853;">—</div>
+        </div>
+      </div>
+      <div class="results-row">
+        <div class="result-cell">
+          <div class="result-label">Loan Amount</div>
+          <div class="result-val sm" id="mc-loan" style="color:white;">—</div>
+        </div>
+        <div class="result-cell">
+          <div class="result-label">Est. DTI Ratio</div>
+          <div class="result-val sm" id="mc-dti" style="color:white;">—</div>
+        </div>
+      </div>
+      <div class="verdict" id="mc-verdict"></div>
+    </div>
+
+    <button class="cta-btn" onclick="alert('✅ In the live system, this closes the calculator and Tess starts the Pre-Qualification interview!')">
+      🚀 Start Full Pre-Qualification →
+    </button>
+
+    <div class="disclaimer">Results are estimates. Actual qualification depends on full credit review.</div>
+
+  </div>
+</div>
+
+<script>
+function calcMortgage() {
+  const income    = parseFloat(document.getElementById('mc-income').value) || 0;
+  const down      = parseFloat(document.getElementById('mc-down').value) || 0;
+  const creditAdj = parseFloat(document.getElementById('mc-credit').value) || 0;
+  const term      = parseInt(document.getElementById('mc-term').value) || 30;
+  const rateRaw   = parseFloat(document.getElementById('mc-rate').value) || 7.25;
+
+  if (!income) return;
+
+  const rate = rateRaw - creditAdj;
+  const mr = rate / 100 / 12;
+  const n  = term * 12;
+  const gm = income / 12;
+  const mp = gm * 0.28;
+
+  const maxLoan = mr > 0
+    ? mp * (1 - Math.pow(1 + mr, -n)) / mr
+    : mp * n;
+
+  const maxHome = maxLoan + down;
+
+  const pmt = mr > 0
+    ? maxLoan * (mr * Math.pow(1 + mr, n)) / (Math.pow(1 + mr, n) - 1)
+    : maxLoan / n;
+
+  const dti = gm > 0 ? ((pmt / gm) * 100).toFixed(1) : 0;
+  const fmt = v => '$' + Math.round(v).toLocaleString();
+
+  document.getElementById('mc-home-price').textContent = fmt(maxHome * 0.9) + '–' + fmt(maxHome);
+  document.getElementById('mc-monthly').textContent    = fmt(pmt) + '/mo';
+  document.getElementById('mc-loan').textContent       = fmt(maxLoan);
+
+  const dtiEl = document.getElementById('mc-dti');
+  dtiEl.textContent  = dti + '%';
+  dtiEl.style.color  = parseFloat(dti) <= 28 ? '#34a853'
+                     : parseFloat(dti) <= 36 ? '#f8c400'
+                     : '#f44336';
+
+  document.getElementById('mc-verdict').textContent =
+    parseFloat(dti) <= 28 ? '✅ Strong qualification profile — you\'re in great shape!'
+  : parseFloat(dti) <= 36 ? '⚠️ Good profile. A larger down payment could improve your rate.'
+  : '📋 DTI is higher than ideal. Let\'s talk through your options.';
+}
+
+// Run on load
+calcMortgage();
+</script>
+
+</body>
+</html>
