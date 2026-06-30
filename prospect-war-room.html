@@ -115,6 +115,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
   <div class="nav-right">
     <button class="btn btn-ghost" onclick="loadLeads()">🔄 Refresh</button>
     <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="btn btn-ghost" onclick="exportForEmail()" style="background:rgba(248,196,0,0.1);border-color:rgba(248,196,0,0.4);color:#f8c400;">📧 Export for Email Batch</button>
     <div class="conn-dot" id="connDot">Connecting...</div>
   </div>
 </div>
@@ -485,6 +486,52 @@ function toast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+function exportForEmail() {
+  // Get currently visible leads that have an email address
+  const search  = document.getElementById('searchInput').value.toLowerCase();
+  const statusF = document.getElementById('statusFilter').value;
+  const cityF   = document.getElementById('cityFilter').value;
+
+  let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  data = data.filter(l=>l.status !== '📦 Archived');
+  if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
+  if (statusF) data = data.filter(l=>l.status===statusF);
+  if (cityF)   data = data.filter(l=>l.city===cityF);
+
+  // Only leads with emails
+  const withEmail = data.filter(l => l.email && l.email.trim());
+  const noEmail   = data.length - withEmail.length;
+
+  if (!withEmail.length) {
+    alert('No leads with email addresses in the current view.\n\nMake sure Tommy has added emails before exporting for the batch sender.');
+    return;
+  }
+
+  // Build CSV: FirstName, Email only
+  let csv = 'FirstName,Email\n';
+  // Cap at 20 for batch sender
+  const batch = withEmail.slice(0, 20);
+  batch.forEach(l => {
+    const firstName = (l.contact_name || '').split(' ')[0] || 'there';
+    csv += `${firstName.replace(/,/g,'')},${(l.email||'').replace(/,/g,'')}\n`;
+  });
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `email-batch-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+
+  const msg = batch.length < withEmail.length
+    ? `Exported ${batch.length} leads (capped at 20 per batch).\n${withEmail.length - batch.length} remaining — export again for next batch.`
+    : `Exported ${batch.length} lead${batch.length!==1?'s':''} for email batch.`;
+
+  if (noEmail) {
+    toast(`${msg} (${noEmail} skipped — no email)`);
+  } else {
+    toast(msg);
+  }
 }
 
 function esc(s){

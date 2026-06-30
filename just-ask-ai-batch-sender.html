@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Just Ask AI — Batch Email Sender</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0f1e;color:white;min-height:100vh;padding:40px 20px;}
+.container{max-width:700px;margin:0 auto;}
+
+h1{color:#f8c400;text-align:center;font-size:1.6rem;margin-bottom:4px;}
+.subtitle{color:rgba(255,255,255,0.4);text-align:center;font-size:0.82rem;margin-bottom:32px;}
+
+.section{background:rgba(18,28,46,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:16px;}
+.section h2{color:#f8c400;font-size:0.95rem;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+
+label{display:block;color:rgba(255,255,255,0.5);font-size:0.75rem;margin-bottom:5px;letter-spacing:0.5px;}
+textarea,input[type=text],input[type=email]{width:100%;padding:10px 14px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-size:0.88rem;font-family:inherit;outline:none;transition:border-color 0.2s;}
+textarea:focus,input:focus{border-color:#f8c400;}
+textarea{resize:vertical;line-height:1.6;}
+
+.hint{color:rgba(255,255,255,0.3);font-size:0.7rem;margin-top:5px;}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border:none;border-radius:40px;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.btn-send{background:#f8c400;color:#0a0f1e;width:100%;justify-content:center;font-size:1rem;padding:16px;}
+.btn-send:hover{background:#ffd740;transform:translateY(-1px);}
+.btn-send:disabled{background:#555;color:#888;cursor:not-allowed;transform:none;}
+.btn-preview{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;width:100%;justify-content:center;margin-bottom:10px;}
+.btn-preview:hover{background:rgba(255,255,255,0.14);}
+.btn-clear{background:rgba(244,67,54,0.1);border:1px solid rgba(244,67,54,0.3);color:#f44336;padding:6px 16px;font-size:0.78rem;}
+
+/* LEAD TABLE */
+.lead-table{width:100%;border-collapse:collapse;margin-top:12px;}
+.lead-table th{text-align:left;padding:8px 10px;color:#f8c400;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.1);}
+.lead-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.82rem;vertical-align:middle;}
+.lead-table tr:hover td{background:rgba(248,196,0,0.03);}
+.lead-num{color:rgba(255,255,255,0.25);font-size:0.72rem;width:28px;}
+.remove-btn{background:transparent;border:none;color:rgba(255,255,255,0.25);cursor:pointer;font-size:0.85rem;padding:2px 6px;border-radius:4px;transition:color 0.2s;}
+.remove-btn:hover{color:#f44336;}
+
+/* STATUS BADGES */
+.status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:600;}
+.s-pending{background:rgba(255,152,0,0.15);color:#ff9800;border:1px solid rgba(255,152,0,0.3);}
+.s-sending{background:rgba(33,150,243,0.15);color:#2196f3;border:1px solid rgba(33,150,243,0.3);}
+.s-sent{background:rgba(76,175,80,0.15);color:#4caf50;border:1px solid rgba(76,175,80,0.3);}
+.s-failed{background:rgba(244,67,54,0.15);color:#f44336;border:1px solid rgba(244,67,54,0.3);}
+
+/* LOG */
+.log-box{background:#03060f;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px;max-height:200px;overflow-y:auto;font-family:'Courier New',monospace;font-size:11px;line-height:1.9;margin-top:16px;}
+.l-info{color:#7dbb7d;}.l-error{color:#ff6b6b;}.l-success{color:#44dd44;}.l-time{color:#1a2a1a;}
+
+/* PROGRESS */
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,0.07);border-radius:3px;margin-top:16px;overflow:hidden;display:none;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#f8c400,#ffd740);border-radius:3px;transition:width 0.4s ease;width:0%;}
+
+/* COUNTER */
+.counter{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.count-badge{background:rgba(248,196,0,0.15);color:#f8c400;border:1px solid rgba(248,196,0,0.3);padding:4px 14px;border-radius:20px;font-size:0.78rem;font-weight:600;}
+
+/* SUMMARY BOX */
+.summary{background:rgba(76,175,80,0.08);border:1px solid rgba(76,175,80,0.25);border-radius:10px;padding:16px 20px;margin-top:16px;display:none;}
+.summary h3{color:#4caf50;margin-bottom:8px;font-size:0.95rem;}
+.summary p{font-size:0.83rem;color:rgba(255,255,255,0.6);line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>📧 Just Ask AI — Batch Email Sender</h1>
+  <p class="subtitle">Import up to 20 leads · edit your letter · send all at once</p>
+
+  <!-- STEP 1: IMPORT LEADS -->
+  <div class="section">
+    <h2>① Import Leads</h2>
+
+    <label>Paste CSV from Tommy's War Room export (FirstName, Email) — one per line</label>
+    <textarea id="csvInput" rows="6" placeholder="John, john@firstmortgage.com&#10;Sarah, sarah@hometownlending.com&#10;Mike, mike@coastalmortgage.com" oninput="parseLeads()"></textarea>
+    <p class="hint">Format: FirstName, Email — one lead per line. Max 20 per batch.</p>
+
+    <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-clear" onclick="clearAll()">🗑 Clear All</button>
+      <span id="parseStatus" style="font-size:0.78rem;color:rgba(255,255,255,0.4);"></span>
+    </div>
+
+    <!-- LEAD TABLE -->
+    <div id="leadTableWrap" style="display:none;margin-top:16px;">
+      <div class="counter">
+        <span style="font-size:0.8rem;color:rgba(255,255,255,0.5);">Leads ready to send:</span>
+        <span class="count-badge" id="leadCount">0 leads</span>
+      </div>
+      <table class="lead-table">
+        <thead><tr>
+          <th>#</th>
+          <th>First Name</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="leadTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- STEP 2: EDIT LETTER -->
+  <div class="section">
+    <h2>② Edit Your Outreach Letter</h2>
+    <p class="hint" style="margin-bottom:12px;">This letter goes into the email for every lead in the batch. Edit it freely before sending. The recipient's first name is added automatically above this.</p>
+
+    <div style="margin-bottom:12px;">
+      <label>Email Subject Line</label>
+      <input type="text" id="emailSubject" value="Have You Seen What AI Is Doing to Mortgage Lead Conversion?">
+    </div>
+
+    <div>
+      <label>Outreach Letter (same for all leads in this batch)</label>
+      <textarea id="dynamicLetter" rows="8">I came across your mortgage company while researching top-rated lenders in your area and wanted to share something I think you'll find genuinely eye-opening.
+
+We just released a Just Ask AI podcast episode featuring two mortgage brokers who share exactly how AI is eliminating form abandonment and turning website visitors into pre-qualified leads — without changing their ad spend.
+
+The numbers are hard to ignore: 3–5x more conversions from the same traffic they were already getting.
+
+I'd love for you to watch the episode, try our free AI Conversion Calculator, and if it resonates — book a quick Zoom so I can show you how it would work on your website specifically.
+
+No cost. No obligation. Just a conversation about what's possible.</textarea>
+    </div>
+
+    <div style="margin-top:14px;">
+      <label>Landing Page URL (used in header image link & Watch Episode button)</label>
+      <input type="text" id="landingPage" value="https://www.youtube.com/watch?v=nqws6SCbvu8">
+    </div>
+  </div>
+
+  <!-- STEP 3: PREVIEW & SEND -->
+  <div class="section">
+    <h2>③ Preview &amp; Send</h2>
+
+    <button class="btn btn-preview" onclick="previewEmail()">👁 Preview Email</button>
+    <button class="btn btn-send" id="sendBtn" onclick="sendBatch()" disabled>
+      📤 Send to All Leads
+    </button>
+
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="log-box" id="logBox" style="display:none;"></div>
+
+    <div class="summary" id="summaryBox">
+      <h3>✅ Batch Complete</h3>
+      <p id="summaryText"></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+emailjs.init('7-9oxa3UC3uKxtqGM');
+
+const EMAILJS_SERVICE = 'service_b9bppgb';
+const EMAILJS_TEMPLATE = 'template_f6j78g6';
+
+let leads = [];
+
+// ── Parse CSV input ───────────────────────────────────────
+function parseLeads() {
+  const raw = document.getElementById('csvInput').value.trim();
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  leads = [];
+
+  for (const line of lines) {
+    const parts = line.split(',').map(p => p.trim());
+    const name  = parts[0] || '';
+    const email = parts[1] || '';
+    if (name && email && email.includes('@')) {
+      leads.push({ name, email, status: 'pending' });
+    }
+  }
+
+  // Cap at 20
+  if (leads.length > 20) {
+    leads = leads.slice(0, 20);
+    document.getElementById('parseStatus').textContent = '⚠️ Capped at 20 leads per batch';
+  } else {
+    document.getElementById('parseStatus').textContent = leads.length ? `${leads.length} valid lead(s) found` : 'No valid leads yet';
+  }
+
+  renderLeadTable();
+  document.getElementById('sendBtn').disabled = leads.length === 0;
+}
+
+function renderLeadTable() {
+  const wrap  = document.getElementById('leadTableWrap');
+  const tbody = document.getElementById('leadTableBody');
+  const count = document.getElementById('leadCount');
+
+  if (!leads.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  count.textContent = `${leads.length} lead${leads.length !== 1 ? 's' : ''}`;
+
+  tbody.innerHTML = leads.map((l, i) => `
+    <tr id="lead-row-${i}">
+      <td class="lead-num">${i+1}</td>
+      <td style="font-weight:600;color:#fff;">${esc(l.name)}</td>
+      <td style="color:rgba(255,255,255,0.6);font-size:0.8rem;">${esc(l.email)}</td>
+      <td><span class="status-badge s-${l.status}" id="status-${i}">${statusLabel(l.status)}</span></td>
+      <td><button class="remove-btn" onclick="removeLead(${i})" title="Remove">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function statusLabel(s) {
+  if (s === 'pending')  return '⏳ Pending';
+  if (s === 'sending')  return '📤 Sending...';
+  if (s === 'sent')     return '✅ Sent';
+  if (s === 'failed')   return '❌ Failed';
+  return s;
+}
+
+function removeLead(i) {
+  leads.splice(i, 1);
+  // Re-sync CSV box
+  document.getElementById('csvInput').value = leads.map(l => `${l.name}, ${l.email}`).join('\n');
+  parseLeads();
+}
+
+function clearAll() {
+  leads = [];
+  document.getElementById('csvInput').value = '';
+  document.getElementById('parseStatus').textContent = '';
+  document.getElementById('leadTableWrap').style.display = 'none';
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('logBox').style.display = 'none';
+  document.getElementById('summaryBox').style.display = 'none';
+  document.getElementById('progressBar').style.display = 'none';
+}
+
+// ── Build email HTML ──────────────────────────────────────
+function buildEmailHTML(name) {
+  const letter      = document.getElementById('dynamicLetter').value.trim();
+  const landingPage = document.getElementById('landingPage').value.trim() || 'https://www.youtube.com/watch?v=nqws6SCbvu8';
+
+  // Replace \n with <br><br> for HTML email
+  const letterHTML = letter.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">
+<style>
+body{font-family:'Segoe UI',system-ui,sans-serif;margin:0;padding:0;background:#f5f5f0;}
+.email-container{max-width:600px;margin:0 auto;background:white;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.header{text-align:center;padding:10px 0;}
+.header img{height:83px;width:auto;}
+.body{padding:30px;color:#333;line-height:1.7;}
+.body h1{color:#1a3a5c;font-size:1.4rem;margin-bottom:15px;}
+.btn{display:inline-block;padding:16px 36px;border-radius:40px;font-weight:700;text-decoration:none;font-size:1.1rem;margin:10px 0;text-align:center;}
+.process-image{width:100%;border-radius:8px;margin:20px 0;border:1px solid #e0e0e0;}
+.testimonial-box{background:#f9f9f5;border-left:4px solid #f8c400;padding:16px 20px;margin:20px 0;border-radius:4px;font-style:italic;color:#333;}
+.testimonial-box strong{font-style:normal;color:#1a3a5c;}
+.footer{background:#fafaf5;padding:15px 30px;text-align:center;font-size:0.75rem;color:#888;border-top:1px solid #e8e8e0;}
+.footer a{color:#888;text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="email-container">
+  <div class="header">
+    <a href="${landingPage}" target="_blank">
+      <img src="https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/sign/email-images/header5.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wNjJjNGVkZS0wYzRiLTQyMzAtOGE5MC1jMDhmNjhlNDVkNTciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJlbWFpbC1pbWFnZXMvaGVhZGVyNS5qcGciLCJpYXQiOjE3Nzk4OTY1NDgsImV4cCI6MTgxMTQzMjU0OH0.yh4AW3rvx1vr8sFuP8v5DvjU1X5IngzZCupdhnlcq18" alt="Just Ask AI">
+    </a>
+  </div>
+  <div class="body">
+    <h1>Have Mortgage Brokers Finally Found the Answer to Lead Conversion?</h1>
+    <p style="font-size:1.05rem;color:#1a3a5c;">Hi ${name},</p>
+    <p>${letterHTML}</p>
+
+    <a href="${landingPage}" target="_blank" style="display:block;text-decoration:none;">
+      <img src="https://img.youtube.com/vi/nqws6SCbvu8/maxresdefault.jpg" alt="Just Ask AI Episode" class="process-image">
+    </a>
+
+    <div class="testimonial-box">
+      <p>"I came into this thinking I knew where our leads were falling off. Now I see how we can actually fix the leak."<br>
+      <strong>— Sarah, Hometown Mortgage</strong></p>
+    </div>
+    <div class="testimonial-box">
+      <p>"Watching Tess in action changed my perspective. We finally have a solution that works with our business."<br>
+      <strong>— Mark, Today's Lending</strong></p>
+    </div>
+
+    <div style="text-align:center;">
+      <a href="${landingPage}" class="btn" style="background:#f8c400;color:#0a0f1e;">▶️ Watch the Episode</a>
+    </div>
+
+    <h2 style="font-size:1.1rem;color:#1a3a5c;margin-top:30px;">See What 6X More Leads Would Mean for You</h2>
+    <p>Try our AI Conversion Calculator — free, fast, and based on real data. Plug in your numbers and see the impact.</p>
+    <div style="text-align:center;">
+      <a href="https://youraisum.info" class="btn" style="background:#1a3a5c;color:white;">📊 Use the AI Conversion Calculator</a>
+    </div>
+
+    <h2 style="font-size:1.1rem;color:#1a3a5c;margin-top:30px;">Ready to Talk? Let's Find Your Growth Path.</h2>
+    <p>Book a no-obligation Zoom consultation to see how Tess would work on your website.</p>
+    <div style="text-align:center;">
+      <a href="https://zoom4ai.us" class="btn" style="background:#f8c400;color:#0a0f1e;">📅 Schedule Your Zoom Consultation</a>
+    </div>
+
+    <p style="color:#888;font-size:0.85rem;margin-top:30px;">No cost. No obligation. Just a conversation about what's possible.</p>
+  </div>
+  <div class="footer">
+    <p style="margin-bottom:8px;">If you'd prefer not to receive future emails, <a href="mailto:mobilewise.ai@gmail.com?subject=Unsubscribe">unsubscribe here</a>.</p>
+    <p>© 2026 MobileWise AI — Just Ask AI for Mortgage Brokers</p>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+// ── Preview ───────────────────────────────────────────────
+function previewEmail() {
+  const name = leads.length ? leads[0].name : 'John';
+  const html = buildEmailHTML(name);
+  const win  = window.open('', 'emailPreview', 'width=680,height=750');
+  win.document.write(html);
+  win.document.close();
+}
+
+// ── Send Batch ────────────────────────────────────────────
+async function sendBatch() {
+  if (!leads.length) return;
+
+  const subject = document.getElementById('emailSubject').value.trim();
+  const btn     = document.getElementById('sendBtn');
+  const logBox  = document.getElementById('logBox');
+  const progBar = document.getElementById('progressBar');
+  const progFill= document.getElementById('progressFill');
+  const summary = document.getElementById('summaryBox');
+
+  btn.disabled   = true;
+  btn.textContent = '⏳ Sending batch...';
+  logBox.style.display  = 'block';
+  progBar.style.display = 'block';
+  summary.style.display = 'none';
+  logBox.innerHTML = '';
+
+  let sent = 0, failed = 0;
+
+  for (let i = 0; i < leads.length; i++) {
+    const lead = leads[i];
+    lead.status = 'sending';
+    updateRowStatus(i);
+
+    addLog(`[${i+1}/${leads.length}] Sending to ${lead.name} <${lead.email}>...`);
+
+    try {
+      const emailHTML = buildEmailHTML(lead.name);
+
+      await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+        user_email:     lead.email,
+        from_name:      'Brett Duncan — Mobile Wise AI',
+        reply_to:       'mobilewise.ai@gmail.com',
+        subject:        subject,
+        name:           lead.name,
+        message:        emailHTML,
+        email_header:   'Have Mortgage Brokers Finally Found the Answer to Lead Conversion?',
+        dynamic_letter: document.getElementById('dynamicLetter').value.trim(),
+        landing_page:   document.getElementById('landingPage').value.trim(),
+      });
+
+      lead.status = 'sent';
+      sent++;
+      addLog(`  ✅ Sent to ${lead.email}`, 'l-success');
+
+    } catch(err) {
+      lead.status = 'failed';
+      failed++;
+      addLog(`  ❌ Failed — ${lead.email}: ${err.text || err.message}`, 'l-error');
+    }
+
+    updateRowStatus(i);
+
+    // Update progress bar
+    progFill.style.width = `${Math.round(((i+1)/leads.length)*100)}%`;
+
+    // Small delay between sends to avoid rate limiting
+    if (i < leads.length - 1) await sleep(1200);
+  }
+
+  // Done
+  btn.textContent = '▶ Send Another Batch';
+  btn.disabled = false;
+  summary.style.display = 'block';
+  document.getElementById('summaryText').innerHTML =
+    `<strong style="color:#4caf50;">${sent} email${sent!==1?'s':''} sent successfully</strong>${failed ? ` · <span style="color:#f44336;">${failed} failed</span>` : ''}<br>
+    Check your EmailJS dashboard to confirm delivery.`;
+
+  addLog(`\n🎉 Batch complete — ${sent} sent, ${failed} failed`, 'l-success');
+}
+
+function updateRowStatus(i) {
+  const badge = document.getElementById(`status-${i}`);
+  if (!badge) return;
+  const l = leads[i];
+  badge.className = `status-badge s-${l.status}`;
+  badge.textContent = statusLabel(l.status);
+}
+
+function addLog(msg, cls='l-info') {
+  const box = document.getElementById('logBox');
+  const t   = new Date().toLocaleTimeString();
+  box.innerHTML += `<div><span class="l-time">[${t}]</span> <span class="${cls}">${esc(msg)}</span></div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+function esc(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
