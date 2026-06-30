@@ -156,11 +156,24 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     </select>
   </div>
 
+  <!-- BULK ACTION BAR -->
+  <div id="bulkBar" style="display:none;background:rgba(248,196,0,0.08);border:1px solid rgba(248,196,0,0.25);border-radius:10px;padding:12px 18px;margin-bottom:12px;display:none;align-items:center;gap:12px;flex-wrap:wrap;">
+    <span id="bulkCount" style="font-size:0.82rem;color:#f8c400;font-weight:600;"></span>
+    <span style="color:rgba(255,255,255,0.3);font-size:0.8rem;">Mark selected as:</span>
+    <button class="btn btn-ghost" onclick="bulkStatus('📧 Emailed')" style="padding:6px 14px;font-size:0.78rem;background:rgba(33,150,243,0.15);border-color:#2196f3;color:#2196f3;">📧 Emailed</button>
+    <button class="btn btn-ghost" onclick="bulkStatus('✅ Called')" style="padding:6px 14px;font-size:0.78rem;background:rgba(156,39,176,0.15);border-color:#9c27b0;color:#9c27b0;">✅ Called</button>
+    <button class="btn btn-ghost" onclick="bulkStatus('🔥 Hot')" style="padding:6px 14px;font-size:0.78rem;background:rgba(244,67,54,0.15);border-color:#f44336;color:#f44336;">🔥 Hot</button>
+    <button class="btn btn-ghost" onclick="bulkStatus('💰 Closed')" style="padding:6px 14px;font-size:0.78rem;background:rgba(76,175,80,0.15);border-color:#4caf50;color:#4caf50;">💰 Closed</button>
+    <button class="btn btn-ghost" onclick="bulkStatus('📦 Archived')" style="padding:6px 14px;font-size:0.78rem;">📦 Archive</button>
+    <button class="btn btn-ghost" onclick="clearSelection()" style="padding:6px 14px;font-size:0.78rem;margin-left:auto;">✕ Clear</button>
+  </div>
+
   <!-- TABLE -->
   <div class="card">
     <div class="tbl-wrap">
       <table>
         <thead><tr>
+          <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;" title="Select all"></th>
           <th>MW ID</th>
           <th>Contact</th>
           <th>Company</th>
@@ -325,6 +338,7 @@ function renderLeads() {
     const si = STATUS_FLOW.indexOf(l.status);
     const sc = si >= 0 ? STATUS_CLASS[si] : 's0';
     return `<tr>
+      <td><input type="checkbox" class="lead-check" data-id="${l.id}" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;"></td>
       <td style="color:#34a853;font-size:0.7rem;font-weight:700;white-space:nowrap;font-family:monospace;">${esc(l.lead_id||'—')}</td>
       <td>
         <input class="email-inp" value="${esc(l.contact_name||'')}" placeholder="add name..." style="color:#fff;font-weight:600;" onchange="saveName(${l.id},this.value)" onclick="event.stopPropagation()">
@@ -534,6 +548,56 @@ function exportForEmail() {
   }
 }
 
+// ── Bulk selection ───────────────────────────────────────
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.lead-check').forEach(c => c.checked = cb.checked);
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const checked = document.querySelectorAll('.lead-check:checked');
+  const bar     = document.getElementById('bulkBar');
+  const count   = document.getElementById('bulkCount');
+  if (checked.length > 0) {
+    bar.style.display = 'flex';
+    count.textContent = `${checked.length} lead${checked.length!==1?'s':''} selected`;
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function clearSelection() {
+  document.querySelectorAll('.lead-check').forEach(c => c.checked = false);
+  const selAll = document.getElementById('selectAll');
+  if (selAll) selAll.checked = false;
+  updateBulkBar();
+}
+
+async function bulkStatus(newStatus) {
+  const checked = [...document.querySelectorAll('.lead-check:checked')];
+  if (!checked.length) return;
+
+  const ids = checked.map(c => parseInt(c.dataset.id));
+  const confirmed = newStatus === '📦 Archived'
+    ? confirm(`Archive ${ids.length} lead${ids.length!==1?'s':''}? They will be hidden from the pipeline.`)
+    : true;
+  if (!confirmed) return;
+
+  // Update Supabase for each selected lead
+  let done = 0;
+  for (const id of ids) {
+    await sb('PATCH','leads',{status:newStatus},`?id=eq.${id}`);
+    const lead = allLeads.find(l=>l.id===id);
+    if (lead) lead.status = newStatus;
+    done++;
+  }
+
+  clearSelection();
+  renderLeads();
+  updateStats();
+  toast(`${done} lead${done!==1?'s':''} marked as ${newStatus}`);
+}
+
 function esc(s){
   if(!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -541,6 +605,11 @@ function esc(s){
 
 window.loadLeads=loadLeads; window.selectWeek=selectWeek; window.cycleStatus=cycleStatus;
 window.saveEmail=saveEmail; window.saveNotes=saveNotes; window.saveWebsite=saveWebsite; window.saveName=saveName; window.archiveLead=archiveLead; window.savePhone=savePhone; window.showOutreach=showOutreach;
+window.toggleSelectAll=toggleSelectAll; window.bulkStatus=bulkStatus; window.clearSelection=clearSelection;
+
+document.addEventListener('change', e => {
+  if (e.target.classList.contains('lead-check')) updateBulkBar();
+});
 window.closeModal=closeModal; window.copyModal=copyModal; window.exportCSV=exportCSV;
 </script>
 </body>
