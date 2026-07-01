@@ -113,6 +113,11 @@ textarea{resize:vertical;line-height:1.6;}
       <input type="text" id="emailSubject" value="Have You Seen What AI Is Doing to Mortgage Lead Conversion?">
     </div>
 
+    <div style="margin-bottom:12px;">
+      <label>Email Header Line (the bold headline inside the email)</label>
+      <input type="text" id="emailHeader" value="Have Mortgage Brokers Finally Found the Answer to Lead Conversion?">
+    </div>
+
     <div>
       <label>Outreach Letter (same for all leads in this batch)</label>
       <textarea id="dynamicLetter" rows="8">I came across your mortgage company while researching top-rated lenders in your area and wanted to share something I think you'll find genuinely eye-opening.
@@ -270,7 +275,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;margin:0;padding:0;background:#
     </a>
   </div>
   <div class="body">
-    <h1>Have Mortgage Brokers Finally Found the Answer to Lead Conversion?</h1>
+    <h1>${document.getElementById('emailHeader').value.trim() || 'Have Mortgage Brokers Finally Found the Answer to Lead Conversion?'}</h1>
     <p style="font-size:1.05rem;color:#1a3a5c;">Hi ${name},</p>
     <p>${letterHTML}</p>
 
@@ -360,7 +365,7 @@ async function sendBatch() {
         subject:        subject,
         name:           lead.name,
         message:        emailHTML,
-        email_header:   'Have Mortgage Brokers Finally Found the Answer to Lead Conversion?',
+        email_header:   document.getElementById('emailHeader').value.trim() || 'Have Mortgage Brokers Finally Found the Answer to Lead Conversion?',
         dynamic_letter: document.getElementById('dynamicLetter').value.trim(),
         landing_page:   document.getElementById('landingPage').value.trim(),
       });
