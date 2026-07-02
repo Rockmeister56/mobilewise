@@ -262,7 +262,7 @@ async function loadLeads() {
   document.getElementById('leadsBody').innerHTML        = '';
 
   try {
-    allLeads = await sb('GET','leads','','?order=created_at.desc&limit=5000');
+    allLeads = await sb('GET','leads','','?order=created_at.desc&limit=20000');
     if (!Array.isArray(allLeads)) allLeads = [];
 
     document.getElementById('connDot').textContent = '● Live';
@@ -281,12 +281,11 @@ async function loadLeads() {
 
 // ── Week Tabs ─────────────────────────────────────────────
 function buildWeekTabs() {
-  const pipeline = allLeads.filter(l => l.status !== '🔒 Reserve');
-  const weeks = [...new Set(pipeline.map(l=>l.week_label||'Untagged').filter(Boolean))];
+  const weeks = [...new Set(allLeads.map(l=>l.week_label||'Untagged').filter(Boolean))];
   const bar   = document.getElementById('weekBar');
-  bar.innerHTML = `<div class="week-chip active" onclick="selectWeek('all',this)">📋 All (${pipeline.length})</div>`;
+  bar.innerHTML = `<div class="week-chip active" onclick="selectWeek('all',this)">📋 All (${allLeads.length})</div>`;
   weeks.forEach(w => {
-    const cnt = pipeline.filter(l=>l.week_label===w).length;
+    const cnt = allLeads.filter(l=>l.week_label===w).length;
     bar.innerHTML += `<div class="week-chip" onclick="selectWeek('${esc(w)}',this)">📅 ${esc(w)} <span style="opacity:0.5;margin-left:4px;">(${cnt})</span></div>`;
   });
 }
