@@ -111,7 +111,7 @@ textarea{resize:vertical;line-height:1.6;}
     <div style="margin-bottom:12px;">
       <label>Email Subject Line <span style="color:rgba(255,255,255,0.3);font-weight:normal;">(recipient's first name is added automatically at the end)</span></label>
       <input type="text" id="emailSubject" value="Have You Seen What AI Is Doing to Mortgage Lead Conversion?">
-      <p class="hint">Preview: <span id="subjectPreview" style="color:#f8c400;">Hi John — Have You Seen What AI Is Doing to Mortgage Lead Conversion?</span></p>
+      <p class="hint">Preview: <span id="subjectPreview" style="color:#f8c400;">Hi John! - It's Tess, AI Co-Host of the "Just Ask AI" Podcast</span></p>
     </div>
 
     <div style="margin-bottom:12px;">
@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const preview      = document.getElementById('subjectPreview');
   if (subjectInput && preview) {
     subjectInput.addEventListener('input', () => {
-      preview.textContent = `Hi John — ${subjectInput.value}`;
+      preview.textContent = `Hi John! - It's Tess, AI Co-Host of the "Just Ask AI" Podcast`;
     });
   }
 });
@@ -375,7 +375,7 @@ async function sendBatch() {
       const emailHTML = buildEmailHTML(lead.name);
 
       // Build personalized subject with first name
-      const personalizedSubject = `Hi ${lead.name} — ${subject}`;
+      const personalizedSubject = `Hi ${lead.name}! - It's Tess, AI Co-Host of the "Just Ask AI" Podcast`;
 
       await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
         user_email:     lead.email,
