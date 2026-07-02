@@ -262,11 +262,8 @@ async function loadLeads() {
   document.getElementById('leadsBody').innerHTML        = '';
 
   try {
-    allLeads = await sb('GET','leads','','?order=created_at.desc&limit=20000');
+    allLeads = await sb('GET','leads','','?order=created_at.desc&limit=5000');
     if (!Array.isArray(allLeads)) allLeads = [];
-    console.log('WAR ROOM — Total leads loaded:', allLeads.length);
-    console.log('WAR ROOM — Unique week labels:', [...new Set(allLeads.map(l=>l.week_label))]);
-    console.log('WAR ROOM — Status breakdown:', allLeads.reduce((acc,l)=>{acc[l.status]=(acc[l.status]||0)+1;return acc;},{}));
 
     document.getElementById('connDot').textContent = '● Live';
     document.getElementById('connDot').style.color = '#34a853';
@@ -276,7 +273,6 @@ async function loadLeads() {
     renderLeads();
     updateStats();
   } catch(e) {
-    console.error('loadLeads error:', e);
     document.getElementById('connDot').textContent = '● Connection error';
     document.getElementById('connDot').style.color = '#f44336';
   }
@@ -285,27 +281,14 @@ async function loadLeads() {
 
 // ── Week Tabs ─────────────────────────────────────────────
 function buildWeekTabs() {
-  // Exclude Reserve leads — Tommy only sees pipeline leads
-  const pipelineLeads = allLeads.filter(l => l.status !== '🔒 Reserve');
-  // Get unique weeks — show ALL weeks that have any pipeline leads
-  const weeks = [...new Set(pipelineLeads.map(l=>l.week_label).filter(Boolean))];
-  const bar = document.getElementById('weekBar');
-  const total = pipelineLeads.filter(l => l.status !== '📦 Archived').length;
-  bar.innerHTML = `<div class="week-chip active" onclick="selectWeek('all',this)">📋 All (${total})</div>`;
+  const pipeline = allLeads.filter(l => l.status !== '🔒 Reserve');
+  const weeks = [...new Set(pipeline.map(l=>l.week_label||'Untagged').filter(Boolean))];
+  const bar   = document.getElementById('weekBar');
+  bar.innerHTML = `<div class="week-chip active" onclick="selectWeek('all',this)">📋 All (${pipeline.length})</div>`;
   weeks.forEach(w => {
-    // Count active (non-archived) leads for display number
-    const activeCnt = pipelineLeads.filter(l=>l.week_label===w && l.status !== '📦 Archived').length;
-    // Total including archived for reference
-    const totalCnt = pipelineLeads.filter(l=>l.week_label===w).length;
-    // Always show the tab even if activeCnt is 0
-    const label = activeCnt < totalCnt
-      ? `${activeCnt} <span style="opacity:0.3;font-size:0.7em;">+${totalCnt-activeCnt} archived</span>`
-      : `${activeCnt}`;
-    bar.innerHTML += `<div class="week-chip" onclick="selectWeek('${esc(w)}',this)">📅 ${esc(w)} <span style="opacity:0.5;margin-left:4px;">(${label})</span></div>`;
+    const cnt = pipeline.filter(l=>l.week_label===w).length;
+    bar.innerHTML += `<div class="week-chip" onclick="selectWeek('${esc(w)}',this)">📅 ${esc(w)} <span style="opacity:0.5;margin-left:4px;">(${cnt})</span></div>`;
   });
-  console.log('Week tabs built:', weeks);
-  console.log('Pipeline leads:', pipelineLeads.length);
-  console.log('All leads:', allLeads.length);
 }
 
 function selectWeek(w, el) {
