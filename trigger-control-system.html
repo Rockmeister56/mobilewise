@@ -692,6 +692,34 @@
     </div>
 </div>
 
+<!-- MODULE: MORTGAGE CALCULATOR -->
+<div class="module-control-card" id="module-mortgageCalc" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
+    <div style="padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-calculator" style="font-size: 24px; color: #f8c400;"></i>
+                <h3 style="margin: 0; color: white;">Mortgage Calculator</h3>
+            </div>
+            <div id="mortgageCalcStatusBadge" class="status-badge-active">🟢 ACTIVE</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+            <div style="color: #a0c8ff; font-size: 0.8rem; margin-bottom: 5px;">
+                <i class="fas fa-bullhorn"></i> TRIGGER PHRASE
+            </div>
+            <code id="mortgageCalcTriggerDisplay" style="background: #0a0f1e; padding: 8px 12px; border-radius: 8px; display: block; color: #f8c400; font-size: 0.85rem;">Loading...</code>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button id="mortgageCalcTestBtn" class="module-test-btn" onclick="testMortgageCalc()" style="flex: 1; background: #2196f3; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                <i class="fas fa-vial"></i> Test Trigger
+            </button>
+            <button id="mortgageCalcToggleBtn" class="module-toggle-btn" onclick="toggleModule('mortgage_calc')" style="flex: 1; background: #f44336; border: none; padding: 10px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600;">
+                <i class="fas fa-power-off"></i> Disable
+            </button>
+        </div>
+        <div id="mortgage_calcTestResult" class="test-result" style="display: none; margin-top: 12px;"></div>
+    </div>
+</div>
+
         <!-- MODULE 5: WEBSITE INFO -->
 <div class="module-control-card" id="module-websiteInfo" style="background: rgba(18, 28, 46, 0.7); border-radius: 20px; border: 1px solid rgba(248,196,0,0.3); overflow: hidden;">
     <div style="padding: 20px;">
@@ -1044,6 +1072,15 @@ function updateModuleDisplays() {
         videoDisplay.innerHTML = videoTriggers;
         moduleTriggers.video_vault = videoTriggers;
     }
+
+    // Mortgage Calculator Trigger
+    const mcCfg = window.BotemiaConfig?.modules?.mortgageCalc;
+    const mcTrigger = (mcCfg?.enabled && mcCfg?.triggerPhrase) ? mcCfg.triggerPhrase : "Not configured";
+    const mcDisplay = document.getElementById('mortgageCalcTriggerDisplay');
+    if (mcDisplay) {
+        mcDisplay.innerHTML = mcTrigger;
+        moduleTriggers.mortgage_calc = mcTrigger;
+    }
     
     // Email Triggers
     const emailTriggers = window.BotemiaConfig?.modules?.emailConfig?.emailTriggers || [];
@@ -1082,6 +1119,7 @@ function updateModuleDisplays() {
     // Populate dropdown selectors
     populateTestimonialTriggers();
     populateVideoVaultTriggers();
+    populateMortgageCalcTrigger();
     populateWebsiteInfoTriggers();
 }
 
@@ -1108,6 +1146,7 @@ let moduleStates = {
     smart_screen: true,
     testimonials: true,
     video_vault: true,
+    mortgage_calc: true,
     website_info: true,
     email_trigger: true,
     phone_connect: true
@@ -1118,6 +1157,7 @@ const moduleNames = {
     smart_screen: 'Smart Screen',
     testimonials: 'Testimonials',
     video_vault: 'Video Vault',
+    mortgage_calc: 'Mortgage Calculator',
     website_info: 'Website Info',
     email_trigger: 'Email Confirmation',
     phone_connect: 'Phone Connect'
@@ -1129,6 +1169,7 @@ let moduleTriggers = {
     smart_screen: 'Loading...',
     testimonials: 'Loading...',
     video_vault: 'Loading...',
+    mortgage_calc: 'Loading...',
     website_info: 'Loading...',
     email_trigger: 'Loading...',
     phone_connect: 'Loading...'
@@ -2911,6 +2952,72 @@ function addToTranscriptFeed(text) {
     `;
     feed.appendChild(entry);
     feed.scrollTop = feed.scrollHeight;
+}
+
+// ===== POPULATE MORTGAGE CALCULATOR TRIGGER =====
+function populateMortgageCalcTrigger() {
+    const display = document.getElementById('mortgageCalcTriggerDisplay');
+    const mcCfg = window.BotemiaConfig?.modules?.mortgageCalc;
+    const trigger = (mcCfg?.enabled && mcCfg?.triggerPhrase) ? mcCfg.triggerPhrase : "Not configured";
+    if (display) display.textContent = `"${trigger}"`;
+    moduleTriggers.mortgage_calc = trigger;
+    console.log('🏠 Mortgage Calculator trigger populated:', trigger);
+}
+
+// ===== TEST MORTGAGE CALCULATOR =====
+function testMortgageCalc() {
+    const mcCfg = window.BotemiaConfig?.modules?.mortgageCalc;
+    if (!mcCfg?.enabled || !mcCfg?.triggerPhrase) {
+        alert('Mortgage Calculator is not enabled or has no trigger phrase configured.');
+        return;
+    }
+
+    const resultDiv = document.getElementById('mortgage_calcTestResult');
+    if (resultDiv) {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+        resultDiv.className = 'test-result testing';
+    }
+
+    if (window.supabaseChannel) {
+        window.supabaseChannel.send({
+            type: 'broadcast',
+            event: 'command',
+            payload: {
+                module: 'mortgage_calc',
+                command: 'test_trigger',
+                trigger_phrase: mcCfg.triggerPhrase,
+                timestamp: Date.now()
+            }
+        });
+        console.log('📡 Sent TEST_TRIGGER for mortgage_calc:', mcCfg.triggerPhrase);
+    }
+
+    const timeout = setTimeout(() => {
+        if (resultDiv && resultDiv.innerHTML.includes('Testing')) {
+            resultDiv.innerHTML = '❌ No response from Bridge (timeout)';
+            resultDiv.className = 'test-result error';
+        }
+    }, 8000);
+
+    if (window.supabaseChannel) {
+        window.supabaseChannel.on('broadcast', { event: 'trigger_test_result' }, (payload) => {
+            if (payload.payload.module === 'mortgage_calc') {
+                clearTimeout(timeout);
+                const el = document.getElementById('mortgage_calcTestResult');
+                if (!el) return;
+                if (payload.payload.success) {
+                    el.innerHTML = `✅ ${payload.payload.message || 'Calculator launched'}`;
+                    el.className = 'test-result success';
+                    addToTranscriptFeed('✅ Mortgage Calculator trigger test PASSED');
+                } else {
+                    el.innerHTML = `❌ ${payload.payload.message || 'Unknown error'}`;
+                    el.className = 'test-result error';
+                    addToTranscriptFeed('❌ Mortgage Calculator trigger test FAILED');
+                }
+            }
+        });
+    }
 }
 
 // Manual client opener
