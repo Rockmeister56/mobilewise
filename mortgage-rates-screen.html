@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Assist — Today's Rates</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0a1a2f 0%, #1e3a5f 60%, #0a0f1e 100%);
+    min-height: 100vh;
+    color: white;
+    padding: 0;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #0f2b4b, #1a3a5c);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid rgba(248,196,0,0.4);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-icon {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #f8c400, #d4a000);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .brand-name {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.5px;
+  }
+
+  .brand-tagline {
+    font-size: 0.72rem;
+    color: #f8c400;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    text-align: right;
+  }
+
+  .as-of {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .as-of-date {
+    font-size: 0.88rem;
+    color: #f8c400;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* ── HERO BANNER ── */
+  .hero {
+    background: linear-gradient(135deg, rgba(248,196,0,0.1), rgba(248,196,0,0.03));
+    border-bottom: 1px solid rgba(248,196,0,0.2);
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .hero-text h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+  }
+
+  .hero-text p {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.5;
+    max-width: 440px;
+  }
+
+  .fed-badge {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 10px 16px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .fed-label {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+  }
+
+  .fed-rate {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #f8c400;
+  }
+
+  .fed-note {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.35);
+    margin-top: 2px;
+  }
+
+  /* ── MAIN RATES GRID ── */
+  .content { padding: 24px 28px; }
+
+  .section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+
+  .rates-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .rate-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .rate-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(248,196,0,0.3);
+  }
+
+  .rate-card.featured {
+    border-color: rgba(248,196,0,0.4);
+    background: linear-gradient(135deg, rgba(248,196,0,0.08), rgba(248,196,0,0.02));
+  }
+
+  .rate-card.featured::before {
+    content: "MOST POPULAR";
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #f8c400;
+    color: #0a0f1e;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+
+  .loan-type {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .loan-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 16px;
+  }
+
+  .rate-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 8px;
+  }
+
+  .rate-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .rate-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #f8c400;
+    line-height: 1;
+  }
+
+  .rate-unit {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgba(248,196,0,0.7);
+  }
+
+  .apr-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+
+  .apr-label {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.35);
+  }
+
+  .apr-value {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.68rem;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-top: 6px;
+  }
+
+  .trend.down {
+    background: rgba(52,168,83,0.15);
+    color: #34a853;
+  }
+
+  .trend.up {
+    background: rgba(244,67,54,0.12);
+    color: #f44336;
+  }
+
+  .trend.flat {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* ── PAYMENT ESTIMATOR ── */
+  .estimator {
+    background: linear-gradient(135deg, rgba(26,58,92,0.8), rgba(10,26,47,0.8));
+    border: 1px solid rgba(248,196,0,0.25);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .estimator h3 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #f8c400;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .est-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .est-cell {
+    text-align: center;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 12px 8px;
+  }
+
+  .est-label {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .est-val {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #34a853;
+  }
+
+  .est-note {
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.3);
+    margin-top: 3px;
+  }
+
+  /* ── MARKET NOTE ── */
+  .market-note {
+    background: rgba(33,150,243,0.08);
+    border: 1px solid rgba(33,150,243,0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .market-note .icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .market-note-text {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.6;
+  }
+
+  .market-note-text strong { color: #a0c8ff; }
+
+  /* ── CTA ── */
+  .cta-bar {
+    background: linear-gradient(135deg, #f8c400, #d4a000);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .cta-text {
+    color: #0a0f1e;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .cta-sub {
+    color: rgba(10,15,30,0.65);
+    font-size: 0.75rem;
+    margin-top: 2px;
+  }
+
+  .cta-btn {
+    background: #0a0f1e;
+    color: #f8c400;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+
+  .cta-btn:hover { background: #1a2f4a; }
+
+  /* ── FOOTER ── */
+  .footer-note {
+    text-align: center;
+    color: rgba(255,255,255,0.25);
+    font-size: 0.65rem;
+    padding: 16px 28px 20px;
+    line-height: 1.6;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 8px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 500px) {
+    .rates-grid { grid-template-columns: 1fr; }
+    .est-grid { grid-template-columns: 1fr 1fr; }
+    .hero { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="brand">
+    <div class="brand-icon">🏠</div>
+    <div>
+      <div class="brand-name">Mortgage Assist</div>
+      <div class="brand-tagline">AI-Powered Home Lending</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="as-of">Rates as of</div>
+    <div class="as-of-date">July 3, 2026 · Source: Freddie Mac / Zillow</div>
+  </div>
+</div>
+
+<!-- HERO BANNER -->
+<div class="hero">
+  <div class="hero-text">
+    <h2>Today's Mortgage Rates</h2>
+    <p>Rates have held near 6.5% for seven consecutive weeks. The Fed held the federal funds rate at 3.50–3.75% at its June meeting — next decision July 28-29. Rates are at a seven-week low and easing slightly.</p>
+  </div>
+  <div class="fed-badge">
+    <div class="fed-label">Fed Funds Rate</div>
+    <div class="fed-rate">3.50–3.75%</div>
+    <div class="fed-note">Held · June 16–17, 2026</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+  <div class="section-title">📊 Purchase Loan Rates</div>
+
+  <div class="rates-grid">
+
+    <!-- 30-Year Fixed -->
+    <div class="rate-card featured">
+      <div class="loan-type">Fixed Rate</div>
+      <div class="loan-name">30-Year Conventional</div>
+      <div class="rate-row">
+        <div class="rate-label">Interest Rate</div>
+        <div><span class="rate-value">6.43</span><span class="rate-unit">%</span></div>
+      </div>
+      <div class="apr-row">
+        <span class="apr-label">APR</span>
+        <span class="apr-value">6.47%</span>
+      </div>
+      <span class="trend down">↓ Down from 6.49% last week</span>
+    </div>
+
+    <!-- 15-Year Fixed -->
+    <div class="rate-card">
+      <div class="loan-type">Fixed Rate</div>
+      <div class="loan-name">15-Year Conventional</div>
+      <div class="rate-row">
+        <div class="rate-label">Interest Rate</div>
+        <div><span class="rate-value">5.79</span><span class="rate-unit">%</span></div>
+      </div>
+      <div class="apr-row">
+        <span class="apr-label">APR</span>
+        <span class="apr-value">5.93%</span>
+      </div>
+      <span class="trend down">↓ Down from 5.84% last week</span>
+    </div>
+
+    <!-- 30-Year FHA -->
+    <div class="rate-card">
+      <div class="loan-type">Government Loan</div>
+      <div class="loan-name">30-Year FHA</div>
+      <div class="rate-row">
+        <div class="rate-label">Interest Rate</div>
+        <div><span class="rate-value">6.27</span><span class="rate-unit">%</span></div>
+      </div>
+      <div class="apr-row">
+        <span class="apr-label">APR</span>
+        <span class="apr-value">6.29%</span>
+      </div>
+      <span class="trend flat">→ Holding steady</span>
+    </div>
+
+    <!-- 30-Year Jumbo -->
+    <div class="rate-card">
+      <div class="loan-type">Jumbo Loan · $832,750+</div>
+      <div class="loan-name">30-Year Jumbo</div>
+      <div class="rate-row">
+        <div class="rate-label">Interest Rate</div>
+        <div><span class="rate-value">6.40</span><span class="rate-unit">%</span></div>
+      </div>
+      <div class="apr-row">
+        <span class="apr-label">APR</span>
+        <span class="apr-value">6.46%</span>
+      </div>
+      <span class="trend down">↓ Down from 6.46% this week</span>
+    </div>
+
+    <!-- 5/1 ARM -->
+    <div class="rate-card">
+      <div class="loan-type">Adjustable Rate</div>
+      <div class="loan-name">5/1 ARM</div>
+      <div class="rate-row">
+        <div class="rate-label">Intro Rate</div>
+        <div><span class="rate-value">6.49</span><span class="rate-unit">%</span></div>
+      </div>
+      <div class="apr-row">
+        <span class="apr-label">APR</span>
+        <span class="apr-value">6.52%</span>
+      </div>
+      <span class="trend up">↑ Adjusts after year 5</span>
+    </div>
+
+    <!-- 30-Year VA -->
+    <div class="rate-card">
+      <div class="loan-type">Military / Veterans</div>
+      <div class="loan-name">30-Year VA</div>
+      <div class="rate-row">
+        <div class="rate-label">Interest Rate</div>
+        <div><span class="rate-value">6.09</span><span class="rate-unit">%</span></div>
+      </div>
+      <div class="apr-row">
+        <span class="apr-label">APR</span>
+        <span class="apr-value">6.12%</span>
+      </div>
+      <span class="trend down">↓ Best rate available for eligible veterans</span>
+    </div>
+
+  </div>
+
+  <!-- PAYMENT ESTIMATOR -->
+  <div class="estimator">
+    <h3>💡 What $300,000 Costs You Per Month</h3>
+    <div class="est-grid">
+      <div class="est-cell">
+        <div class="est-label">30-Year Fixed</div>
+        <div class="est-val">$1,876</div>
+        <div class="est-note">at 6.43%</div>
+      </div>
+      <div class="est-cell">
+        <div class="est-label">15-Year Fixed</div>
+        <div class="est-val">$2,519</div>
+        <div class="est-note">at 5.79%</div>
+      </div>
+      <div class="est-cell">
+        <div class="est-label">FHA 30-Year</div>
+        <div class="est-val">$1,848</div>
+        <div class="est-note">at 6.27%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARKET NOTE -->
+  <div class="market-note">
+    <div class="icon">📈</div>
+    <div class="market-note-text">
+      <strong>Market Insight:</strong> The 30-year fixed rate has held near 6.5% for seven straight weeks — its longest stretch of stability in over a year. With the <strong>Fed holding rates steady</strong> and the next FOMC meeting on July 28-29, economists expect rates to remain in the 6.25–6.75% range through Q3 2026. Purchase applications are running ahead of 2025's pace, signaling buyer confidence is returning despite elevated rates.
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-bar">
+    <div>
+      <div class="cta-text">See what you qualify for at today's rates</div>
+      <div class="cta-sub">Tess will walk you through it in under 2 minutes — no forms, no waiting</div>
+    </div>
+    <button class="cta-btn" onclick="if(window.parent && window.parent.mainWidget && typeof window.parent.mainWidget.sendMessage === 'function'){window.parent.mainWidget.sendMessage('let me show you what you can qualify for');}">
+      💬 Ask Tess Now
+    </button>
+  </div>
+
+</div>
+
+<!-- FOOTER NOTE -->
+<div class="footer-note">
+  Rates shown are national averages sourced from Freddie Mac PMMS and Zillow as of July 3, 2026. Actual rates vary by lender, credit score, loan amount, down payment, and property location. This is not a rate lock or commitment to lend. Contact a licensed loan officer for your personalized rate quote. Conforming loan limit: $832,750 (2026).
+</div>
+
+</body>
+</html>
