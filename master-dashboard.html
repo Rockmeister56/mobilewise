@@ -467,32 +467,50 @@
                 document.getElementById('billingTableBody').innerHTML = '<tr><td colspan="9" class="loading">Error loading invoices.</td></tr>';
             }
         }
-        async function generatePortalLink(clientId) {
-    // Generate a random 8-character key
-    const key = Math.random().toString(36).substring(2, 10);
+       async function generatePortalLink(clientId) {
+    // Generate a random 8-character access code
+    const code = Math.random().toString(36).substring(2, 10);
     
-    // Save to Supabase
+    // Get client email
+    const { data: clientData } = await supabaseClient
+        .from('clients')
+        .select('metadata')
+        .eq('client_id', clientId)
+        .single();
+    
+    const metadata = clientData?.metadata || {};
+    const clientEmail = metadata?.modules?.emailConfig?.loanOfficerEmail || 
+                        metadata?.modules?.emailConfig?.clientEmail || 
+                        'client@example.com';
+    
+    // Save access code to Supabase
     const { error } = await supabaseClient
         .from('clients')
-        .update({ portal_key: key })
+        .update({ portal_key: code })
         .eq('client_id', clientId);
     
     if (error) {
-        alert('Failed to generate key: ' + error.message);
+        alert('Failed: ' + error.message);
         return;
     }
     
-    // Build the link
-    const link = `${window.location.origin}/dashboard.html?clientId=${clientId}&key=${key}`;
+    // Show the credentials
+    alert(
+        '✅ Client Portal Ready!\n\n' +
+        'Send this to your client:\n\n' +
+        '🔗 URL: https://mobilewise.netlify.app/portal.html\n' +
+        '📧 Email: ' + clientEmail + '\n' +
+        '🔑 Access Code: ' + code + '\n\n' +
+        'Credentials copied to clipboard.'
+    );
     
     // Copy to clipboard
-    navigator.clipboard.writeText(link).then(() => {
-        alert('✅ Portal link copied!\n\n' + link + '\n\nSend this to your client. They can view their analytics and billing here.');
-    }).catch(() => {
-        prompt('Copy this portal link:', link);
-    });
+    navigator.clipboard.writeText(
+        'URL: https://mobilewise.netlify.app/portal.html\n' +
+        'Email: ' + clientEmail + '\n' +
+        'Access Code: ' + code
+    );
 }
-
         function toggleExpand(row) {
             const next = row.nextElementSibling;
             if (next && next.classList.contains('expanded-row')) {
