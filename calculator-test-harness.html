@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧪 Calculator Test Harness — No API Credits</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a1a2f;
+    color: white;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  /* LEFT — SIMULATOR */
+  .simulator {
+    padding: 24px;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    max-height: 100vh;
+  }
+
+  .panel-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 4px;
+  }
+
+  .transcript-log {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 0.8rem;
+    line-height: 1.7;
+    min-height: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: monospace;
+  }
+
+  .log-tess { color: #f8c400; }
+  .log-user { color: #34a853; }
+  .log-system { color: #2196f3; }
+  .log-error { color: #f44336; }
+  .log-success { color: #34a853; font-weight: 700; }
+
+  .quick-scripts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .script-btn {
+    background: rgba(248,196,0,0.1);
+    border: 1px solid rgba(248,196,0,0.3);
+    color: #f8c400;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+  }
+  .script-btn:hover { background: rgba(248,196,0,0.2); }
+  .script-btn.tess { border-color: rgba(248,196,0,0.5); }
+  .script-btn.user { border-color: rgba(52,168,83,0.5); color: #34a853; background: rgba(52,168,83,0.08); }
+  .script-btn.user:hover { background: rgba(52,168,83,0.2); }
+
+  .manual-input {
+    display: flex;
+    gap: 8px;
+  }
+
+  .manual-input input {
+    flex: 1;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: white;
+    font-size: 0.85rem;
+    outline: none;
+  }
+
+  .manual-input input:focus { border-color: #f8c400; }
+
+  .send-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .send-tess { background: #f8c400; color: #0a0f1e; }
+  .send-user { background: #34a853; color: white; }
+
+  .state-display {
+    background: rgba(33,150,243,0.08);
+    border: 1px solid rgba(33,150,243,0.2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.75rem;
+    font-family: monospace;
+    line-height: 1.8;
+  }
+
+  .run-full-btn {
+    background: linear-gradient(135deg, #1a3a5c, #0f2b4b);
+    border: 2px solid #f8c400;
+    color: #f8c400;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+  }
+  .run-full-btn:hover { background: linear-gradient(135deg, #2a4a6c, #1a3a5c); }
+
+  .reset-btn {
+    background: rgba(244,67,54,0.1);
+    border: 1px solid rgba(244,67,54,0.3);
+    color: #f44336;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  /* RIGHT — CALCULATOR (mirrored from bridge) */
+  .calc-panel {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    max-height: 100vh;
+  }
+
+  /* ── Calculator styles (identical to bridge output) ── */
+  #calc-wrapper {
+    background: rgba(10,15,30,0.98);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 2px solid #f8c400;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    font-family: sans-serif;
+  }
+
+  .calc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, #1e3a5f, #0a1a2f);
+    border-bottom: 1px solid rgba(248,196,0,0.3);
+  }
+
+  .calc-header-left { display: flex; align-items: center; gap: 10px; }
+  .calc-title { color: #f8c400; font-size: 1rem; font-weight: 700; }
+  .calc-sub { color: rgba(255,255,255,0.5); font-size: 0.72rem; }
+
+  .calc-body { padding: 20px; }
+
+  .calc-field { margin-bottom: 14px; }
+
+  .calc-label {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .calc-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(248,196,0,0.3);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s, background 0.3s;
+  }
+
+  .calc-input:focus { border-color: #f8c400; }
+  .calc-input.just-populated {
+    border-color: #34a853 !important;
+    background: rgba(52,168,83,0.12) !important;
+  }
+
+  .calc-select {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(10,15,30,0.9);
+    border: 1px solid rgba(248,196,0,0.3);
+    border-radius: 10px;
+    color: white;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .calc-select:focus { border-color: #f8c400; }
+  .calc-select.just-populated {
+    border-color: #34a853 !important;
+    background: rgba(52,168,83,0.12) !important;
+  }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+
+  .calc-results {
+    margin-top: 18px;
+    background: linear-gradient(135deg, rgba(248,196,0,0.12), rgba(248,196,0,0.04));
+    border: 1px solid rgba(248,196,0,0.3);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .result-cell { text-align: center; }
+  .result-label { color: rgba(255,255,255,0.5); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 4px; }
+  .result-val { font-size: 1.3rem; font-weight: 700; }
+
+  #calc-verdict {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 10px;
+    min-height: 20px;
+  }
+
+  .cta-btn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 13px;
+    background: linear-gradient(135deg, #f8c400, #d4a000);
+    color: #0a0f1e;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .disclaimer {
+    text-align: center;
+    color: rgba(255,255,255,0.3);
+    font-size: 0.7rem;
+    margin-top: 8px;
+  }
+
+  /* Population flash animation */
+  @keyframes flashGreen {
+    0% { border-color: #34a853; background: rgba(52,168,83,0.2); }
+    100% { border-color: rgba(248,196,0,0.3); background: rgba(255,255,255,0.07); }
+  }
+  .flash { animation: flashGreen 1.5s ease forwards; }
+</style>
+</head>
+<body>
+
+<!-- LEFT: SIMULATOR -->
+<div class="simulator">
+  <div>
+    <div class="panel-title">🧪 Tess Transcript Simulator</div>
+    <div style="color:rgba(255,255,255,0.4);font-size:0.72rem;">No API credits used — fires bridge logic directly in browser</div>
+  </div>
+
+  <div>
+    <div class="panel-title" style="margin-bottom:8px;">Transcript Log</div>
+    <div class="transcript-log" id="transcriptLog">
+      <span class="log-system">Ready — click a script button or type a custom transcript below.</span><br>
+    </div>
+  </div>
+
+  <!-- QUICK TESS SCRIPTS -->
+  <div>
+    <div class="panel-title" style="margin-bottom:8px;">Quick Tess Lines (triggers field detection)</div>
+    <div class="quick-scripts">
+      <button class="script-btn tess" onclick="sendTess('First — what is your approximate annual income? Just give me a ballpark number.')">💬 Ask: Annual Income</button>
+      <button class="script-btn tess" onclick="sendTess('I heard one hundred twenty thousand dollars. Is that correct?')">🔁 Heard: $120K income</button>
+      <button class="script-btn tess" onclick="sendTess('And how much do you have available for a down payment — give me a dollar amount if you can, or a percentage works too.')">💬 Ask: Down Payment</button>
+      <button class="script-btn tess" onclick="sendTess('I heard forty thousand dollars. Is that correct?')">🔁 Heard: $40K down</button>
+      <button class="script-btn tess" onclick="sendTess('Approximately how much do you pay each month in debt payments — car loans, student loans, credit cards?')">💬 Ask: Monthly Debt</button>
+      <button class="script-btn tess" onclick="sendTess('I heard five hundred dollars. Is that correct?')">🔁 Heard: $500 debt</button>
+      <button class="script-btn tess" onclick="sendTess('How would you describe your credit score — Excellent, Good, Fair, or Poor?')">💬 Ask: Credit Score</button>
+      <button class="script-btn tess" onclick="sendTess('I heard Good, which is seven hundred to seven hundred fifty-nine. Is that correct?')">🔁 Heard: Good credit</button>
+      <button class="script-btn tess" onclick="sendTess('Do you prefer a 30-year, 20-year, or 15-year mortgage?')">💬 Ask: Loan Term</button>
+      <button class="script-btn tess" onclick="sendTess('I heard thirty-year. Is that correct?')">🔁 Heard: 30yr</button>
+      <button class="script-btn tess" onclick="sendTess('Last one — do you have a specific interest rate in mind, or should I use today&apos;s current market rate?')">💬 Ask: Interest Rate</button>
+      <button class="script-btn tess" onclick="sendTess('I will use the current market rate for you.')">🔁 Current rate</button>
+    </div>
+  </div>
+
+  <!-- QUICK USER RESPONSES -->
+  <div>
+    <div class="panel-title" style="margin-bottom:8px;">Quick User Responses</div>
+    <div class="quick-scripts">
+      <button class="script-btn user" onclick="sendUser('Yes.')">✅ Yes</button>
+      <button class="script-btn user" onclick="sendUser('No.')">❌ No</button>
+      <button class="script-btn user" onclick="sendUser('$120,000')">💰 $120,000</button>
+      <button class="script-btn user" onclick="sendUser('Ten percent.')">📊 Ten percent</button>
+      <button class="script-btn user" onclick="sendUser('$500')">💳 $500 debt</button>
+      <button class="script-btn user" onclick="sendUser('None.')">🚫 No debt</button>
+      <button class="script-btn user" onclick="sendUser('Good.')">⭐ Good credit</button>
+      <button class="script-btn user" onclick="sendUser('Thirty.')">📅 30 years</button>
+      <button class="script-btn user" onclick="sendUser('The best rate available.')">📈 Best rate</button>
+      <button class="script-btn user" onclick="sendUser('Brett Duncan')">👤 Name</button>
+    </div>
+  </div>
+
+  <!-- FULL AUTO RUN -->
+  <button class="run-full-btn" onclick="runFullScript()">
+    ▶ Run Full Calculator Script Automatically
+  </button>
+
+  <!-- MANUAL INPUT -->
+  <div>
+    <div class="panel-title" style="margin-bottom:8px;">Custom Transcript</div>
+    <div class="manual-input">
+      <input type="text" id="tessInput" placeholder="Type Tess line..." onkeydown="if(event.key==='Enter')sendTessCustom()">
+      <button class="send-btn send-tess" onclick="sendTessCustom()">Tess</button>
+    </div>
+    <div class="manual-input" style="margin-top:8px;">
+      <input type="text" id="userInput" placeholder="Type user response..." onkeydown="if(event.key==='Enter')sendUserCustom()">
+      <button class="send-btn send-user" onclick="sendUserCustom()">User</button>
+    </div>
+  </div>
+
+  <!-- STATE DISPLAY -->
+  <div>
+    <div class="panel-title" style="margin-bottom:8px;">Bridge State</div>
+    <div class="state-display" id="stateDisplay">Loading...</div>
+  </div>
+
+  <button class="reset-btn" onclick="resetAll()">🔄 Reset Everything</button>
+</div>
+
+<!-- RIGHT: CALCULATOR -->
+<div class="calc-panel">
+  <div class="panel-title">🏠 Live Calculator (bridge code running directly)</div>
+
+  <div id="calc-wrapper">
+    <div class="calc-header">
+      <div class="calc-header-left">
+        <span style="font-size:1.4rem;">🏠</span>
+        <div>
+          <div class="calc-title">Mortgage Calculator</div>
+          <div class="calc-sub">See what you can afford</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-body">
+      <div class="calc-field">
+        <label class="calc-label">💰 Annual Income</label>
+        <input id="mc-income" type="number" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
+      </div>
+      <div class="calc-field">
+        <label class="calc-label">🏦 Down Payment ($)</label>
+        <input id="mc-down" type="number" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
+      </div>
+      <div class="calc-field">
+        <label class="calc-label">💳 Monthly Debt Payments</label>
+        <input id="mc-debt" type="number" class="calc-input" placeholder="Car, student, credit card..." oninput="calcMortgage()">
+      </div>
+      <div class="calc-field">
+        <label class="calc-label">📊 Credit Score Range</label>
+        <select id="mc-credit" class="calc-select" onchange="calcMortgage()">
+          <option value="0.5">Excellent (760+)</option>
+          <option value="0.25" selected>Good (700–759)</option>
+          <option value="0">Fair (640–699)</option>
+          <option value="-0.5">Poor (580–639)</option>
+        </select>
+      </div>
+      <div class="two-col">
+        <div class="calc-field">
+          <label class="calc-label">📅 Loan Term</label>
+          <select id="mc-term" class="calc-select" onchange="calcMortgage()">
+            <option value="30" selected>30 Years</option>
+            <option value="20">20 Years</option>
+            <option value="15">15 Years</option>
+          </select>
+        </div>
+        <div class="calc-field">
+          <label class="calc-label">📈 Rate %</label>
+          <input id="mc-rate" type="number" step="0.05" value="7.25" class="calc-input" oninput="calcMortgage()">
+        </div>
+      </div>
+
+      <div class="calc-results">
+        <div class="results-grid">
+          <div class="result-cell">
+            <div class="result-label">Home Price Range</div>
+            <div class="result-val" id="mc-home-price" style="color:#f8c400;">—</div>
+          </div>
+          <div class="result-cell">
+            <div class="result-label">Monthly Payment</div>
+            <div class="result-val" id="mc-monthly" style="color:#34a853;">—</div>
+          </div>
+        </div>
+        <div class="results-grid">
+          <div class="result-cell">
+            <div class="result-label">Loan Amount</div>
+            <div class="result-val" id="mc-loan" style="color:white;font-size:1rem;">—</div>
+          </div>
+          <div class="result-cell">
+            <div class="result-label">Est. DTI Ratio</div>
+            <div class="result-val" id="mc-dti" style="color:white;font-size:1rem;">—</div>
+          </div>
+        </div>
+        <div id="mc-verdict"></div>
+      </div>
+
+      <button class="cta-btn">🚀 Start Full Pre-Qualification →</button>
+      <div class="disclaimer">Results are estimates. Actual qualification depends on full credit review.</div>
+    </div>
+  </div>
+
+  <!-- _calcResults dump -->
+  <div>
+    <div class="panel-title" style="margin-bottom:8px;">_calcResults (what goes in the email)</div>
+    <div class="state-display" id="calcResultsDisplay" style="font-size:0.7rem;line-height:1.9;">—</div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// BRIDGE LOGIC — copied directly from bridge
+// ==========================================
+
+// Mock window globals
+window._calcModeActive = false;
+window._tessHeardEmail = '';
+window._tessHeardName = '';
+window._calcResults = null;
+
+// ── PreQualificationController (minimal for testing) ──
+class PreQualificationController {
+  constructor() {
+    this.isActive = false;
+    this.answers = {};
+    this.currentField = null;
+    this.pendingValue = null;
+    this.interviewCompleted = false;
+  }
+
+  handleUserInput(userText) {
+    if (!this.isActive && !window._calcModeActive) return;
+
+    if (this.currentField === 'creditScore') {
+      userText = userText.replace(/[$,]/g, '').trim();
+    }
+
+    const lowerText = userText.toLowerCase();
+
+    if (this.currentField) {
+      if (window._calcModeActive && !this.pendingValue) {
+        var cleanLowerCheck = lowerText.replace(/[.!?,]/g, '').trim();
+        var isConfirmation = (cleanLowerCheck === 'yes' || cleanLowerCheck === 'correct' || cleanLowerCheck === "that's correct");
+        if (!isConfirmation) {
+          this.pendingValue = userText;
+          log('system', `📝 User direct value: ${this.currentField} = ${userText}`);
+          return;
+        }
+      }
+
+      if (this.currentField === 'email' && userText) {
+        userText = userText.replace(/\s+at\s+/g, '@').replace(/\s+dot\s+/g, '.').replace(/\s+/g, '').replace(/\.+$/g, '');
+      }
+
+      var cleanLower = lowerText.replace(/[.!?,]/g, '').trim();
+      if (cleanLower === 'yes' || cleanLower === 'yes it is' || cleanLower === 'correct' || cleanLower === "that's correct") {
+        if (this.pendingValue) {
+          this.answers[this.currentField] = this.pendingValue;
+          log('success', `✅ Confirmed: ${this.currentField} = "${this.pendingValue}"`);
+          var calcFields = ['annualIncome','monthlyIncome','downPayment','creditScore','loanTerm','interestRate','monthlyDebt'];
+          if (calcFields.includes(this.currentField) && typeof window.populateCalcField === 'function') {
+            var populated = window.populateCalcField(this.currentField, this.pendingValue);
+            if (populated) log('success', `🏠 Calculator field populated: ${this.currentField}`);
+            else log('error', `❌ populateCalcField returned false for: ${this.currentField} = "${this.pendingValue}"`);
+          }
+        }
+        this.pendingValue = null;
+        this.currentField = null;
+      } else if (cleanLower === 'no') {
+        log('system', `🔄 Redo: ${this.currentField}`);
+        this.pendingValue = null;
+      } else {
+        this.pendingValue = userText;
+        log('system', `📝 Pending: ${this.currentField} = "${userText}"`);
+      }
+    }
+    updateState();
+  }
+
+  detectFieldFromQuestion(tessText) {
+    const lowerText = tessText.toLowerCase();
+    var calcQuestions = ['annual income','down payment','credit score','loan term','interest rate','specific rate','lowest rate','monthly debt','debt payment','car payment','monthly obligation'];
+    var isCalcQuestion = calcQuestions.some(q => lowerText.includes(q));
+    if (isCalcQuestion && !this.isActive) {
+      window._calcModeActive = true;
+      log('system', '🏠 Calculator capture mode: ACTIVE');
+    }
+
+    if ((lowerText.includes('full name') || lowerText.includes('two quick things')) && window._calcModeActive) {
+      window._calcModeActive = false;
+      log('system', '🏠 Calculator mode ended — contact collection starting');
+    }
+
+    if (lowerText.includes('full name') || lowerText.includes('start with your')) this.currentField = 'fullName';
+    else if (lowerText.includes('email')) this.currentField = 'email';
+    else if (lowerText.includes('phone')) this.currentField = 'phone';
+    else if (lowerText.includes('annual income') || lowerText.includes('annual salary')) this.currentField = 'annualIncome';
+    else if (lowerText.includes('monthly income') || lowerText.includes('gross monthly')) this.currentField = 'monthlyIncome';
+    else if (lowerText.includes('monthly debt') || lowerText.includes('debt payment') || lowerText.includes('car payment') || lowerText.includes('monthly obligation')) this.currentField = 'monthlyDebt';
+    else if (lowerText.includes('putting down') || lowerText.includes('down payment') || lowerText.includes('how much down')) this.currentField = 'downPayment';
+    else if (lowerText.includes('credit score')) this.currentField = 'creditScore';
+    else if (lowerText.includes('loan term') || lowerText.includes('how many years') || lowerText.includes('30-year') || lowerText.includes('fifteen-year')) this.currentField = 'loanTerm';
+    else if (lowerText.includes('interest rate') || lowerText.includes('current rate') || lowerText.includes('rate in mind')) this.currentField = 'interestRate';
+
+    if (this.currentField) log('system', `🎯 Expecting answer for: ${this.currentField}`);
+    updateState();
+  }
+}
+
+window.preQualController = new PreQualificationController();
+
+// ── Spoken number parser ──
+window.parseSpokenNumber = function(text) {
+  var t = text.toLowerCase().trim();
+  var direct = parseFloat(t.replace(/[^0-9.]/g, ''));
+  if (!isNaN(direct) && direct > 0) return direct;
+  var words = {zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90,hundred:100,thousand:1000,million:1000000};
+  if (t.includes('point')) {
+    var parts = t.split('point');
+    var intPart = window.parseSpokenNumber(parts[0].trim());
+    var decStr = parts[1].trim().split(/\s+/).map(w => words[w]!==undefined?words[w]:w).join('');
+    return parseFloat(intPart + '.' + decStr);
+  }
+  var tokens = t.split(/[\s,]+/);
+  var result = 0, current = 0;
+  tokens.forEach(token => {
+    var val = words[token];
+    if (val === undefined) val = parseFloat(token);
+    if (isNaN(val)) return;
+    if (val === 100) current = current > 0 ? current * 100 : 100;
+    else if (val >= 1000) { result += (current > 0 ? current : 1) * val; current = 0; }
+    else current += val;
+  });
+  return result + current || null;
+};
+
+// ── populateCalcField ──
+window.populateCalcField = function(fieldName, spokenValue) {
+  var lower = spokenValue.toLowerCase().trim();
+  var el, num;
+
+  if (fieldName === 'annualIncome' || fieldName === 'monthlyIncome') {
+    num = window.parseSpokenNumber(spokenValue);
+    if (num) {
+      if (fieldName === 'monthlyIncome') num *= 12;
+      el = document.getElementById('mc-income');
+      if (el) { el.value = Math.round(num); flashField('mc-income'); calcMortgage(); }
+      return true;
+    }
+  } else if (fieldName === 'downPayment') {
+    if (lower.includes('percent') || lower.includes('%')) {
+      var pct = window.parseSpokenNumber(spokenValue);
+      if (pct) {
+        var incomeEl = document.getElementById('mc-income');
+        var income = incomeEl ? parseFloat(incomeEl.value) || 85000 : 85000;
+        var estHome = income * 3.5;
+        var dollarDown = Math.round(estHome * pct / 100);
+        el = document.getElementById('mc-down');
+        if (el) { el.value = dollarDown; flashField('mc-down'); calcMortgage(); }
+        log('system', `📊 ${pct}% down = $${dollarDown.toLocaleString()}`);
+        return true;
+      }
+    }
+    num = window.parseSpokenNumber(spokenValue);
+    if (num) {
+      el = document.getElementById('mc-down');
+      if (el) { el.value = Math.round(num); flashField('mc-down'); calcMortgage(); }
+      return true;
+    }
+  } else if (fieldName === 'monthlyDebt') {
+    if (lower.includes('none') || lower.includes('zero') || lower.includes('nothing')) {
+      el = document.getElementById('mc-debt');
+      if (el) { el.value = 0; flashField('mc-debt'); calcMortgage(); }
+      return true;
+    }
+    num = window.parseSpokenNumber(spokenValue);
+    if (num !== null) {
+      el = document.getElementById('mc-debt');
+      if (el) { el.value = Math.round(num); flashField('mc-debt'); calcMortgage(); }
+      return true;
+    }
+  } else if (fieldName === 'creditScore') {
+    var sel = document.getElementById('mc-credit');
+    if (sel) {
+      if (lower.includes('excellent') || lower.includes('760')) sel.value = '0.5';
+      else if (lower.includes('good') || lower.includes('700') || lower.includes('720') || lower.includes('740') || lower.includes('750')) sel.value = '0.25';
+      else if (lower.includes('fair') || lower.includes('640') || lower.includes('660') || lower.includes('680')) sel.value = '0';
+      else if (lower.includes('poor') || lower.includes('580') || lower.includes('600') || lower.includes('620')) sel.value = '-0.5';
+      else {
+        var scoreNum = window.parseSpokenNumber(spokenValue);
+        if (scoreNum >= 760) sel.value = '0.5';
+        else if (scoreNum >= 700) sel.value = '0.25';
+        else if (scoreNum >= 640) sel.value = '0';
+        else if (scoreNum >= 580) sel.value = '-0.5';
+      }
+      flashField('mc-credit');
+      calcMortgage();
+      return true;
+    }
+  } else if (fieldName === 'loanTerm') {
+    var sel2 = document.getElementById('mc-term');
+    if (sel2) {
+      if (lower.includes('15') || lower.includes('fifteen')) sel2.value = '15';
+      else if (lower.includes('20') || lower.includes('twenty')) sel2.value = '20';
+      else sel2.value = '30';
+      flashField('mc-term');
+      calcMortgage();
+      return true;
+    }
+  } else if (fieldName === 'interestRate') {
+    if (lower.includes('current') || lower.includes('market') || lower.includes('lowest') || lower.includes('use that') || lower.includes('whatever') || lower.includes('best')) {
+      calcMortgage();
+      return true;
+    }
+    num = window.parseSpokenNumber(spokenValue);
+    if (num && num < 30) {
+      el = document.getElementById('mc-rate');
+      if (el) { el.value = num.toFixed(2); flashField('mc-rate'); calcMortgage(); }
+      return true;
+    }
+  }
+  return false;
+};
+
+// ── calcMortgage ──
+window.calcMortgage = function() {
+  var income = parseFloat(document.getElementById('mc-income')?.value) || 0;
+  var down = parseFloat(document.getElementById('mc-down')?.value) || 0;
+  var debt = parseFloat(document.getElementById('mc-debt')?.value) || 0;
+  var creditAdj = parseFloat(document.getElementById('mc-credit')?.value) || 0;
+  var term = parseInt(document.getElementById('mc-term')?.value) || 30;
+  var rate = parseFloat(document.getElementById('mc-rate')?.value) - creditAdj;
+  if (!income) return;
+  var mr = rate/100/12, n = term*12, gm = income/12;
+  var maxHousingPayment = (gm * 0.43) - debt;
+  if (maxHousingPayment < gm * 0.1) maxHousingPayment = gm * 0.1;
+  var mp = Math.min(maxHousingPayment, gm * 0.28);
+  var maxLoan = mr > 0 ? mp*(1-Math.pow(1+mr,-n))/mr : mp*n;
+  var maxHome = maxLoan + down;
+  var pmt = mr > 0 ? maxLoan*(mr*Math.pow(1+mr,n))/(Math.pow(1+mr,n)-1) : maxLoan/n;
+  var dti = gm > 0 ? (((pmt+debt)/gm)*100).toFixed(1) : 0;
+  var fmt = v => '$' + Math.round(v).toLocaleString();
+
+  var hp = document.getElementById('mc-home-price'); if(hp) hp.textContent = fmt(maxHome*0.9)+'–'+fmt(maxHome);
+  var mp2 = document.getElementById('mc-monthly'); if(mp2) mp2.textContent = fmt(pmt)+'/mo';
+  var la = document.getElementById('mc-loan'); if(la) la.textContent = fmt(maxLoan);
+  var de = document.getElementById('mc-dti');
+  if(de) { de.textContent = dti+'%'; de.style.color = parseFloat(dti)<=28?'#34a853':parseFloat(dti)<=43?'#f8c400':'#f44336'; }
+  var ve = document.getElementById('mc-verdict');
+  if(ve) ve.textContent = parseFloat(dti)<=28?'✅ Strong profile — you qualify well!':parseFloat(dti)<=43?'⚠️ Good profile. Reducing debt could improve your range.':'📋 Higher DTI — let\'s talk through your options.';
+
+  // Save results
+  var creditLabels = {'0.5':'Excellent (760+)','0.25':'Good (700-759)','0':'Fair (640-699)','-0.5':'Poor (580-639)'};
+  var creditSel = document.getElementById('mc-credit');
+  var termSel = document.getElementById('mc-term');
+  window._calcResults = {
+    income: income ? '$'+parseInt(income).toLocaleString() : 'Not provided',
+    debt: debt ? '$'+parseInt(debt).toLocaleString()+'/mo' : '$0/mo',
+    down: down ? '$'+parseInt(down).toLocaleString() : 'Not provided',
+    credit: creditSel ? (creditLabels[creditSel.value] || 'Not provided') : 'Not provided',
+    term: termSel ? termSel.value+' Years' : '30 Years',
+    rate: document.getElementById('mc-rate')?.value ? document.getElementById('mc-rate').value+'%' : 'Not provided',
+    homePrice: document.getElementById('mc-home-price')?.textContent || 'Not provided',
+    monthly: document.getElementById('mc-monthly')?.textContent || 'Not provided',
+    loanAmount: document.getElementById('mc-loan')?.textContent || 'Not provided',
+    dti: document.getElementById('mc-dti')?.textContent || 'Not provided',
+    verdict: document.getElementById('mc-verdict')?.textContent || ''
+  };
+  updateCalcResults();
+};
+
+// ==========================================
+// SIMULATOR UI
+// ==========================================
+
+function log(type, msg) {
+  var el = document.getElementById('transcriptLog');
+  var span = document.createElement('span');
+  span.className = 'log-' + type;
+  span.textContent = msg;
+  el.appendChild(span);
+  el.appendChild(document.createElement('br'));
+  el.scrollTop = el.scrollHeight;
+}
+
+function sendTess(text) {
+  log('tess', '🤖 Tess: ' + text);
+  window.preQualController.detectFieldFromQuestion(text);
+  // Also handle "I heard" capture
+  var heardMatch = text.match(/I heard\s+["']?(.+?)["']?\.?\s*Is that correct/i);
+  if (heardMatch && heardMatch[1]) {
+    var heardValue = heardMatch[1].trim();
+    if (heardValue.indexOf('@') !== -1 || heardValue.toLowerCase().includes(' at ') || heardValue.toLowerCase().includes('gmail')) {
+      window._tessHeardEmail = heardValue;
+      log('system', '📧 Captured email: ' + heardValue);
+    } else if (window._calcModeActive && window.preQualController) {
+      window.preQualController.pendingValue = heardValue;
+      log('system', '🏠 Calc pending from Tess: "' + heardValue + '"');
+    } else {
+      window._tessHeardName = heardValue;
+      log('system', '👤 Captured name: ' + heardValue);
+    }
+  }
+  updateState();
+}
+
+function sendUser(text) {
+  log('user', '👤 User: ' + text);
+  if (window.preQualController && (window.preQualController.isActive || window._calcModeActive)) {
+    window.preQualController.handleUserInput(text);
+  } else {
+    log('error', '⚠️ Controller not active — activate calc mode first by sending a Tess question');
+  }
+  updateState();
+}
+
+function sendTessCustom() {
+  var v = document.getElementById('tessInput').value.trim();
+  if (v) { sendTess(v); document.getElementById('tessInput').value = ''; }
+}
+
+function sendUserCustom() {
+  var v = document.getElementById('userInput').value.trim();
+  if (v) { sendUser(v); document.getElementById('userInput').value = ''; }
+}
+
+function flashField(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('flash');
+  void el.offsetWidth; // reflow
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 1500);
+}
+
+function updateState() {
+  var ctrl = window.preQualController;
+  document.getElementById('stateDisplay').innerHTML =
+    `calcModeActive: <b style="color:${window._calcModeActive?'#34a853':'#f44336'}">${window._calcModeActive}</b><br>` +
+    `preQualActive:  <b style="color:${ctrl.isActive?'#34a853':'#f44336'}">${ctrl.isActive}</b><br>` +
+    `currentField:   <b style="color:#f8c400">${ctrl.currentField || 'null'}</b><br>` +
+    `pendingValue:   <b style="color:#a0c8ff">${ctrl.pendingValue || 'null'}</b><br>` +
+    `answers:        <b style="color:#ccc">${JSON.stringify(ctrl.answers).slice(0,80)}</b>`;
+}
+
+function updateCalcResults() {
+  var r = window._calcResults;
+  if (!r) return;
+  document.getElementById('calcResultsDisplay').innerHTML =
+    Object.entries(r).map(([k,v]) => `<span style="color:rgba(255,255,255,0.4)">${k}:</span> <b style="color:#f8c400">${v}</b>`).join('<br>');
+}
+
+async function runFullScript() {
+  resetAll();
+  var delay = ms => new Promise(r => setTimeout(r, ms));
+  log('system', '▶ Running full calculator script...');
+  await delay(400);
+  sendTess('First — what is your approximate annual income? Just give me a ballpark number.');
+  await delay(600);
+  sendUser('$120,000');
+  await delay(600);
+  sendTess('I heard one hundred twenty thousand dollars. Is that correct?');
+  await delay(600);
+  sendUser('Yes.');
+  await delay(600);
+  sendTess('And how much do you have available for a down payment — give me a dollar amount if you can, or a percentage works too.');
+  await delay(600);
+  sendUser('$40,000');
+  await delay(600);
+  sendTess('I heard forty thousand dollars. Is that correct?');
+  await delay(600);
+  sendUser('Yes.');
+  await delay(600);
+  sendTess('Approximately how much do you pay each month in debt payments — car loans, student loans, credit cards?');
+  await delay(600);
+  sendUser('$500');
+  await delay(600);
+  sendTess('I heard five hundred dollars. Is that correct?');
+  await delay(600);
+  sendUser('Yes.');
+  await delay(600);
+  sendTess('How would you describe your credit score — Excellent, Good, Fair, or Poor?');
+  await delay(600);
+  sendUser('Good.');
+  await delay(600);
+  sendTess('I heard Good, which is seven hundred to seven hundred fifty-nine. Is that correct?');
+  await delay(600);
+  sendUser('Yes.');
+  await delay(600);
+  sendTess('Do you prefer a 30-year, 20-year, or 15-year mortgage?');
+  await delay(600);
+  sendUser('Thirty.');
+  await delay(600);
+  sendTess('I heard thirty-year. Is that correct?');
+  await delay(600);
+  sendUser('Yes.');
+  await delay(600);
+  sendTess('Last one — do you have a specific interest rate in mind, or should I use today\'s current market rate?');
+  await delay(600);
+  sendUser('The best rate available.');
+  await delay(600);
+  sendTess('I will use the current market rate for you.');
+  await delay(400);
+  log('success', '✅ Full script complete — check calculator fields and _calcResults above!');
+}
+
+function resetAll() {
+  window.preQualController = new PreQualificationController();
+  window._calcModeActive = false;
+  window._tessHeardEmail = '';
+  window._tessHeardName = '';
+  window._calcResults = null;
+  document.getElementById('transcriptLog').innerHTML = '<span class="log-system">Reset — ready for new test.</span><br>';
+  document.getElementById('mc-income').value = '';
+  document.getElementById('mc-down').value = '';
+  document.getElementById('mc-debt').value = '';
+  document.getElementById('mc-credit').value = '0.25';
+  document.getElementById('mc-term').value = '30';
+  document.getElementById('mc-rate').value = '7.25';
+  document.getElementById('mc-home-price').textContent = '—';
+  document.getElementById('mc-monthly').textContent = '—';
+  document.getElementById('mc-loan').textContent = '—';
+  document.getElementById('mc-dti').textContent = '—';
+  document.getElementById('mc-verdict').textContent = '';
+  document.getElementById('calcResultsDisplay').textContent = '—';
+  updateState();
+}
+
+// Init
+updateState();
+</script>
+</body>
+</html>
