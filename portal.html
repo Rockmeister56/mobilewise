@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Portal — MobileWise AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #060b14;
+            color: #e8ecf4;
+            min-height: 100vh;
+        }
+        
+        /* ===== LOGIN SCREEN ===== */
+        .login-screen {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 20px;
+        }
+        .login-card {
+            background: rgba(15,22,40,0.95);
+            border-radius: 20px; padding: 40px;
+            max-width: 420px; width: 100%;
+            border: 1px solid rgba(248,196,0,0.2);
+            text-align: center;
+        }
+        .login-card .logo { height: 48px; margin-bottom: 20px; }
+        .login-card h1 { font-size: 1.4rem; color: #f8c400; margin-bottom: 6px; }
+        .login-card .sub { color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 28px; }
+        .field { margin-bottom: 16px; text-align: left; }
+        .field label { display: block; font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+        .field input {
+            width: 100%; padding: 14px 16px;
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px; color: white; font-size: 0.95rem;
+        }
+        .field input:focus { outline: none; border-color: #f8c400; }
+        .btn-login {
+            width: 100%; padding: 14px; border-radius: 10px;
+            background: #f8c400; color: #0a0f1e;
+            font-weight: 700; font-size: 1rem; border: none;
+            cursor: pointer; margin-top: 8px;
+        }
+        .btn-login:hover { background: #ffd700; }
+        .error-msg { color: #f44336; font-size: 0.8rem; margin-top: 8px; display: none; }
+        
+        /* ===== PORTAL DASHBOARD ===== */
+        .portal { display: none; }
+        .portal.active { display: block; }
+        
+        .container { max-width: 1300px; margin: 0 auto; padding: 20px 24px; }
+        
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 0; margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-wrap: wrap; gap: 12px;
+        }
+        .topbar .welcome { font-size: 1.1rem; color: white; }
+        .topbar .welcome span { color: #f8c400; font-weight: 700; }
+        .btn-logout {
+            padding: 8px 20px; border-radius: 8px;
+            background: rgba(244,67,54,0.15); color: #f44336;
+            border: none; cursor: pointer; font-weight: 600; font-size: 0.8rem;
+        }
+        
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: rgba(15,22,40,0.8); border-radius: 12px; padding: 4px; width: fit-content; }
+        .tab {
+            padding: 10px 24px; border-radius: 10px; border: none;
+            background: transparent; color: rgba(255,255,255,0.5);
+            font-weight: 600; font-size: 0.85rem; cursor: pointer;
+        }
+        .tab.active { background: #f8c400; color: #0a0f1e; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Metric Cards */
+        .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .metric-card {
+            background: rgba(15,22,40,0.8); border-radius: 16px; padding: 22px 18px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.05);
+            position: relative; overflow: hidden;
+        }
+        .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .metric-card.gold::before { background: linear-gradient(90deg, #f8c400, #ffd700); }
+        .metric-card.blue::before { background: linear-gradient(90deg, #2196f3, #64b5f6); }
+        .metric-card.green::before { background: linear-gradient(90deg, #00c853, #69f0ae); }
+        .metric-card.purple::before { background: linear-gradient(90deg, #9c27b0, #ce93d8); }
+        .metric-card .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,0.45); margin-bottom: 10px; }
+        .metric-card .value { font-size: 2.4rem; font-weight: 700; color: white; line-height: 1; }
+        .metric-card .sub { font-size: 0.78rem; margin-top: 6px; }
+        
+        .panel {
+            background: rgba(15,22,40,0.8); border-radius: 18px; padding: 24px;
+            border: 1px solid rgba(255,255,255,0.05); margin-bottom: 24px;
+        }
+        .panel h3 { font-size: 1rem; color: white; margin: 0 0 18px 0; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px 16px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); border-bottom: 1px solid rgba(255,255,255,0.04); }
+        td { padding: 12px 16px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+        .badge-paid { background: rgba(76,175,80,0.15); color: #4caf50; }
+        .badge-sent { background: rgba(33,150,243,0.15); color: #2196f3; }
+        .badge-pending { background: rgba(248,196,0,0.15); color: #f8c400; }
+        
+        .chart-container { overflow-x: auto; }
+        
+        @media (max-width: 768px) {
+            .metrics-row { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .metrics-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div class="login-screen" id="loginScreen">
+    <div class="login-card">
+        <h1>📊 Client Portal</h1>
+        <p class="sub">Access your analytics and billing dashboard</p>
+        <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="loginEmail" placeholder="you@company.com">
+        </div>
+        <div class="field">
+            <label>Access Code</label>
+            <input type="text" id="loginCode" placeholder="Enter your access code">
+        </div>
+        <button class="btn-login" onclick="doLogin()">Sign In</button>
+        <div class="error-msg" id="loginError">Invalid email or access code.</div>
+    </div>
+</div>
+
+<!-- ===== PORTAL DASHBOARD ===== -->
+<div class="portal" id="portalDashboard">
+    <div class="container">
+        <div class="topbar">
+            <div class="welcome">Welcome, <span id="portalClientName">Client</span></div>
+            <button class="btn-logout" onclick="doLogout()">🚪 Logout</button>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchPortalTab('analytics')">📈 My Analytics</button>
+            <button class="tab" onclick="switchPortalTab('billing')">💰 My Billing</button>
+        </div>
+        
+        <!-- Analytics Tab -->
+        <div id="portal-analytics" class="tab-content active">
+            <div class="metrics-row">
+                <div class="metric-card gold"><div class="label">Pre-Qual Leads</div><div class="value" id="pLeads">0</div><div class="sub" id="pIncremental" style="color:#4caf50;">+0 above baseline</div></div>
+                <div class="metric-card blue"><div class="label">Phone Calls</div><div class="value" id="pCalls">0</div><div class="sub" style="color:rgba(255,255,255,0.4);">direct connects</div></div>
+                <div class="metric-card green"><div class="label">Revenue This Month</div><div class="value" id="pRevenue">$0</div><div class="sub" id="pRevenueDetail" style="color:rgba(255,255,255,0.4);">0 leads × $0</div></div>
+                <div class="metric-card purple"><div class="label">Improvement</div><div class="value" id="pImprovement">0%</div><div class="sub" style="color:rgba(255,255,255,0.4);">vs. forms alone</div></div>
+            </div>
+            <div class="panel">
+                <h3>📊 30-Day Engagement</h3>
+                <div class="chart-container">
+                    <div style="display:flex;align-items:flex-end;gap:10px;height:130px;padding:0 8px;" id="pChart"></div>
+                    <div style="display:flex;justify-content:space-between;margin-top:6px;" id="pChartLabels"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Billing Tab -->
+        <div id="portal-billing" class="tab-content">
+            <div class="panel">
+                <h3>💰 Invoice History</h3>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr><th>Invoice #</th><th>Period</th><th>Baseline</th><th>Total Leads</th><th>Incremental</th><th>Amount</th><th>Status</th></tr>
+                        </thead>
+                        <tbody id="pBillingTable"><tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,0.3);padding:30px;">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SUPABASE_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
+    
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentClient = null;
+    
+    // Check if already logged in (session storage)
+    const savedSession = sessionStorage.getItem('mw_portal_session');
+    if (savedSession) {
+        currentClient = JSON.parse(savedSession);
+        showPortal();
+    }
+    
+    async function doLogin() {
+        const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+        const code = document.getElementById('loginCode').value.trim();
+        
+        if (!email || !code) {
+            document.getElementById('loginError').style.display = 'block';
+            return;
+        }
+        
+        // Look up client by portal_key
+        const { data: clients, error } = await sb
+            .from('clients')
+            .select('client_id, name, portal_key, metadata')
+            .not('portal_key', 'is', null);
+        
+        if (error || !clients) {
+            document.getElementById('loginError').style.display = 'block';
+            return;
+        }
+        
+        // Find matching client
+        const client = clients.find(c => {
+            const clientEmail = c.metadata?.modules?.emailConfig?.loanOfficerEmail || 
+                               c.metadata?.modules?.emailConfig?.clientEmail || '';
+            return c.portal_key === code && clientEmail.toLowerCase() === email;
+        });
+        
+        if (!client) {
+            document.getElementById('loginError').style.display = 'block';
+            return;
+        }
+        
+        // Success
+        currentClient = { clientId: client.client_id, name: client.name, email: email };
+        sessionStorage.setItem('mw_portal_session', JSON.stringify(currentClient));
+        showPortal();
+    }
+    
+    function showPortal() {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('portalDashboard').classList.add('active');
+        document.getElementById('portalClientName').textContent = currentClient.name;
+        loadPortalAnalytics();
+        loadPortalBilling();
+    }
+    
+    function doLogout() {
+        sessionStorage.removeItem('mw_portal_session');
+        currentClient = null;
+        document.getElementById('portalDashboard').classList.remove('active');
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginCode').value = '';
+    }
+    
+    function switchPortalTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector(`[onclick="switchPortalTab('${tab}')"]`).classList.add('active');
+        document.getElementById(`portal-${tab}`).classList.add('active');
+    }
+    
+    async function loadPortalAnalytics() {
+        const id = currentClient.clientId;
+        
+        // Get settings
+        const { data: clientData } = await sb.from('clients').select('baseline_leads, baseline_visitors, per_lead_rate').eq('client_id', id).single();
+        const baseline = clientData?.baseline_leads || 20;
+        const rate = clientData?.per_lead_rate || 150;
+        
+        // Get events
+        const startOfMonth = new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0,0,0,0);
+        const { data: events } = await sb.from('analytics_events').select('event_type, created_at').eq('client_id', id).gte('created_at', startOfMonth.toISOString());
+        
+        let leads = 0, calls = 0, clicks = 0;
+        const dailyClicks = {};
+        
+        (events || []).forEach(e => {
+            const dayKey = new Date(e.created_at).toISOString().split('T')[0];
+            if (e.event_type === 'lead_captured') leads++;
+            if (e.event_type === 'phone_connect') calls++;
+            if (e.event_type === 'activate_tess') { clicks++; dailyClicks[dayKey] = (dailyClicks[dayKey] || 0) + 1; }
+        });
+        
+        const incremental = Math.max(0, leads - baseline);
+        const revenue = incremental * rate;
+        
+        document.getElementById('pLeads').textContent = leads;
+        document.getElementById('pIncremental').textContent = '+' + incremental + ' above baseline';
+        document.getElementById('pCalls').textContent = calls;
+        document.getElementById('pRevenue').textContent = '$' + revenue.toLocaleString();
+        document.getElementById('pRevenueDetail').textContent = incremental + ' leads × $' + rate;
+        
+        const beforeRate = baseline / (clientData?.baseline_visitors || 2000) * 100;
+        const afterRate = clicks > 0 ? (leads / clicks) * 100 : 0;
+        const improvement = beforeRate > 0 ? ((afterRate - beforeRate) / beforeRate) * 100 : 0;
+        document.getElementById('pImprovement').textContent = improvement.toFixed(0) + '%';
+        
+        // Chart
+        const chartDiv = document.getElementById('pChart');
+        const labelsDiv = document.getElementById('pChartLabels');
+        const now = new Date();
+        let chartHTML = '', labelsHTML = '';
+        let maxVal = 1;
+        const barData = [];
+        
+        for (let i = 29; i >= 0; i--) {
+            const d = new Date(now); d.setDate(d.getDate() - i);
+            const key = d.toISOString().split('T')[0];
+            const val = dailyClicks[key] || 0;
+            barData.push({ day: d.getDate(), val, isToday: i === 0 });
+            if (val > maxVal) maxVal = val;
+        }
+        
+        barData.forEach(d => {
+            const h = Math.max((d.val / maxVal) * 120, 2);
+            const color = d.isToday ? 'linear-gradient(180deg,#f8c400,#d4a000)' : (d.val > 0 ? 'linear-gradient(180deg,#3a7080,#2a5060)' : 'linear-gradient(180deg,#2a3040,#1a2030)');
+            chartHTML += `<div style="flex:0 0 24px;display:flex;flex-direction:column;align-items:center;gap:2px;"><span style="color:rgba(255,255,255,${d.isToday?'0.9':'0.4'});font-size:0.55rem;">${d.val||''}</span><div style="width:18px;height:${h}px;background:${color};border-radius:4px 4px 0 0;"></div></div>`;
+            labelsHTML += `<span style="flex:0 0 24px;text-align:center;color:rgba(255,255,255,${d.day%5===0||d.isToday?'0.6':'0.2'});font-size:0.5rem;">${d.day%5===0||d.isToday?d.day:''}</span>`;
+        });
+        
+        chartDiv.innerHTML = chartHTML;
+        labelsDiv.innerHTML = labelsHTML;
+    }
+    
+    async function loadPortalBilling() {
+        const { data: invoices } = await sb.from('invoices').select('*').eq('client_id', currentClient.clientId).order('created_at', { ascending: false }).limit(20);
+        
+        const tbody = document.getElementById('pBillingTable');
+        if (!invoices || invoices.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,0.3);padding:30px;">No invoices yet</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = invoices.map(inv => {
+            let badge = 'badge-pending';
+            if (inv.status === 'paid') badge = 'badge-paid';
+            if (inv.status === 'sent') badge = 'badge-sent';
+            return `<tr>
+                <td><strong>${inv.invoice_number}</strong></td>
+                <td>${inv.period_start} → ${inv.period_end}</td>
+                <td>${inv.baseline_leads}</td>
+                <td>${inv.total_leads}</td>
+                <td>+${inv.incremental_leads}</td>
+                <td><strong>$${(inv.amount_due || 0).toLocaleString()}</strong></td>
+                <td><span class="badge ${badge}">${inv.status}</span></td>
+            </tr>`;
+        }).join('');
+    }
+</script>
+</body>
+</html>
