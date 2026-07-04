@@ -456,6 +456,7 @@ window._calcModeActive = false;
 window._tessHeardEmail = '';
 window._tessHeardName = '';
 window._calcResults = null;
+window._pendingHeardValue = null;
 
 // ── PreQualificationController (minimal for testing) ──
 class PreQualificationController {
@@ -541,7 +542,23 @@ class PreQualificationController {
     else if (lowerText.includes('loan term') || lowerText.includes('how many years') || lowerText.includes('30-year') || lowerText.includes('fifteen-year')) this.currentField = 'loanTerm';
     else if (lowerText.includes('interest rate') || lowerText.includes('current rate') || lowerText.includes('rate in mind')) this.currentField = 'interestRate';
 
-    if (this.currentField) log('system', `🎯 Expecting answer for: ${this.currentField}`);
+    if (this.currentField) {
+      log('system', `🎯 Expecting answer for: ${this.currentField}`);
+      // Check if there's a pending heard value waiting to populate
+      if (window._pendingHeardValue && window._calcModeActive && typeof window.populateCalcField === 'function') {
+        log('system', `🏠 Applying pending heard value: ${this.currentField} = ${window._pendingHeardValue}`);
+        var applied = window.populateCalcField(this.currentField, window._pendingHeardValue);
+        if (applied) {
+          log('success', `✅ Pending value applied: ${this.currentField}`);
+          if (this.answers) this.answers[this.currentField] = window._pendingHeardValue;
+          this.currentField = null;
+          this.pendingValue = null;
+        } else {
+          log('error', `❌ Pending apply failed for: ${this.currentField}`);
+        }
+        window._pendingHeardValue = null;
+      }
+    }
     updateState();
   }
 }
@@ -725,19 +742,44 @@ function log(type, msg) {
 function sendTess(text) {
   log('tess', '🤖 Tess: ' + text);
   window.preQualController.detectFieldFromQuestion(text);
-  // Also handle "I heard" capture
+
+  // Match "I heard X. Is that correct?" pattern
   var heardMatch = text.match(/I heard\s+["']?(.+?)["']?\.?\s*Is that correct/i);
   if (heardMatch && heardMatch[1]) {
     var heardValue = heardMatch[1].trim();
-    if (heardValue.indexOf('@') !== -1 || heardValue.toLowerCase().includes(' at ') || heardValue.toLowerCase().includes('gmail')) {
-      window._tessHeardEmail = heardValue;
-      log('system', '📧 Captured email: ' + heardValue);
-    } else if (window._calcModeActive && window.preQualController) {
-      window.preQualController.pendingValue = heardValue;
-      log('system', '🏠 Calc pending from Tess: "' + heardValue + '"');
+    var skipWords = ["yes","no","that","it","okay","ok","sure","right","correct","you said"];
+    var isSkip = skipWords.some(w => heardValue.toLowerCase() === w || heardValue.toLowerCase().startsWith(w+" "));
+
+    if (!isSkip && heardValue.length > 3) {
+      if (heardValue.includes('@') || heardValue.toLowerCase().includes(' at ') || heardValue.toLowerCase().includes('gmail')) {
+        window._tessHeardEmail = heardValue;
+        log('system', '📧 Captured email: ' + heardValue);
+      } else if (window._calcModeActive && window.preQualController) {
+        log('system', '🔍 heardMatch fired. currentField: ' + window.preQualController.currentField + ' value: ' + heardValue);
+        if (!window.preQualController.currentField) {
+          // currentField not set yet — store for when detectFieldFromQuestion sets it
+          window._pendingHeardValue = heardValue;
+          log('system', '⏳ Stored pending heard value: ' + heardValue);
+        } else {
+          // currentField is set — populate immediately
+          log('system', '🏠 Populating immediately: ' + window.preQualController.currentField + ' = ' + heardValue);
+          var populated = window.populateCalcField(window.preQualController.currentField, heardValue);
+          if (populated) {
+            log('success', '✅ Field populated: ' + window.preQualController.currentField);
+            if (window.preQualController.answers) window.preQualController.answers[window.preQualController.currentField] = heardValue;
+            window.preQualController.currentField = null;
+            window.preQualController.pendingValue = null;
+          } else {
+            log('error', '❌ populateCalcField returned false for: ' + window.preQualController.currentField);
+            window.preQualController.pendingValue = heardValue;
+          }
+        }
+      } else {
+        window._tessHeardName = heardValue;
+        log('system', '👤 Captured name: ' + heardValue);
+      }
     } else {
-      window._tessHeardName = heardValue;
-      log('system', '👤 Captured name: ' + heardValue);
+      log('system', '🚫 Skipped vague heard value: ' + heardValue);
     }
   }
   updateState();
@@ -849,6 +891,7 @@ function resetAll() {
   window._tessHeardEmail = '';
   window._tessHeardName = '';
   window._calcResults = null;
+  window._pendingHeardValue = null;
   document.getElementById('transcriptLog').innerHTML = '<span class="log-system">Reset — ready for new test.</span><br>';
   document.getElementById('mc-income').value = '';
   document.getElementById('mc-down').value = '';
