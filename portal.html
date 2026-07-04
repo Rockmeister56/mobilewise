@@ -7,14 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #060b14; color: #e8ecf4;
-            min-height: 100vh; line-height: 1.5;
-        }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #060b14; color: #e8ecf4; min-height: 100vh; line-height: 1.5; }
         .container { max-width: 1400px; margin: 0 auto; padding: 20px 24px; }
-        
-        /* Login */
         .login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
         .login-card { background: rgba(15,22,40,0.95); border-radius: 20px; padding: 40px; max-width: 420px; width: 100%; border: 1px solid rgba(248,196,0,0.2); text-align: center; }
         .login-card h1 { font-size: 1.4rem; color: #f8c400; margin-bottom: 6px; }
@@ -24,33 +18,23 @@
         .field input { width: 100%; padding: 14px 16px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 0.95rem; }
         .field input:focus { outline: none; border-color: #f8c400; }
         .btn-login { width: 100%; padding: 14px; border-radius: 10px; background: #f8c400; color: #0a0f1e; font-weight: 700; font-size: 1rem; border: none; cursor: pointer; margin-top: 8px; }
-        .btn-login:hover { background: #ffd700; }
         .error-msg { color: #f44336; font-size: 0.8rem; margin-top: 8px; display: none; }
-        
-        /* Portal */
-        .portal { display: none; }
-        .portal.active { display: block; }
-        
-        /* Header */
-        .header { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 16px; }
-        .header-left { display: flex; align-items: center; gap: 14px; }
+        .portal { display: none; } .portal.active { display: block; }
+        .header { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 16px; }
         .header-title h1 { font-size: 1.3rem; font-weight: 700; color: #f8c400; margin: 0; }
         .header-title .sub { font-size: 0.78rem; color: rgba(255,255,255,0.45); }
-        .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .header-right select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 14px; color: white; font-size: 0.82rem; cursor: pointer; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
         .btn { padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; gap: 6px; }
-        .btn-export { background: #f8c400; color: #0a0f1e; }
         .btn-refresh { background: rgba(255,255,255,0.06); color: white; }
         .btn-logout { background: rgba(244,67,54,0.15); color: #f44336; }
-        
-        /* Settings Bar */
+        .tabs { display: flex; gap: 4px; background: rgba(15,22,40,0.8); border-radius: 12px; padding: 4px; width: fit-content; margin-bottom: 24px; }
+        .tab { padding: 10px 24px; border-radius: 10px; border: none; background: transparent; color: rgba(255,255,255,0.5); font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+        .tab.active { background: #f8c400; color: #0a0f1e; }
+        .tab-content { display: none; } .tab-content.active { display: block; }
         .settings-bar { background: rgba(15,22,40,0.8); border-radius: 14px; padding: 14px 22px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 24px; }
         .settings-bar .item { display: flex; align-items: center; gap: 8px; }
-        .settings-bar .lbl { color: rgba(255,255,255,0.4); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .settings-bar .val { color: white; font-weight: 600; font-size: 0.95rem; }
-        .settings-bar .val.gold { color: #f8c400; }
-        
-        /* Metric Cards */
+        .settings-bar .lbl { color: rgba(255,255,255,0.4); font-size: 0.72rem; text-transform: uppercase; }
+        .settings-bar .val { color: white; font-weight: 600; font-size: 0.95rem; } .settings-bar .val.gold { color: #f8c400; }
         .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         .metric-card { background: rgba(15,22,40,0.8); border-radius: 16px; padding: 22px 18px; text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
         .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
@@ -61,7 +45,6 @@
         .metric-card .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,0.45); margin-bottom: 10px; }
         .metric-card .value { font-size: 2.4rem; font-weight: 700; color: white; line-height: 1; }
         .metric-card .sub { font-size: 0.78rem; margin-top: 6px; }
-        
         .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
         .panel { background: rgba(15,22,40,0.8); border-radius: 18px; padding: 24px; border: 1px solid rgba(255,255,255,0.05); }
         .panel h3 { font-size: 1rem; color: white; margin: 0 0 18px 0; }
@@ -69,34 +52,25 @@
         .ba-card.before { background: rgba(244,67,54,0.08); border: 1px solid rgba(244,67,54,0.2); }
         .ba-card.after { background: rgba(0,200,83,0.08); border: 1px solid rgba(0,200,83,0.2); }
         .ba-card .ba-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .ba-card.before .ba-label { color: #f44336; }
-        .ba-card.after .ba-label { color: #00c853; }
+        .ba-card.before .ba-label { color: #f44336; } .ba-card.after .ba-label { color: #00c853; }
         .ba-card .ba-value { font-size: 1.8rem; font-weight: 700; color: white; }
         .ba-card .ba-sub { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
         .win-bar { margin-top: 16px; background: rgba(248,196,0,0.06); border-radius: 10px; padding: 12px 16px; text-align: center; }
         .chart-container { overflow-x: auto; }
         .engagement-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
-        .eng-stat { text-align: center; }
-        .eng-stat .eng-label { font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
+        .eng-stat { text-align: center; } .eng-stat .eng-label { font-size: 0.65rem; color: rgba(255,255,255,0.4); text-transform: uppercase; }
         .eng-stat .eng-value { font-size: 1.2rem; font-weight: 600; color: white; margin-top: 2px; }
-        
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 12px 16px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); border-bottom: 1px solid rgba(255,255,255,0.04); }
         td { padding: 12px 16px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
         .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
-        .badge-paid { background: rgba(76,175,80,0.15); color: #4caf50; }
-        .badge-sent { background: rgba(33,150,243,0.15); color: #2196f3; }
-        .badge-pending { background: rgba(248,196,0,0.15); color: #f8c400; }
-        
-        .footer { margin-top: 28px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 0.75rem; color: rgba(255,255,255,0.3); }
-        
+        .badge-paid { background: rgba(76,175,80,0.15); color: #4caf50; } .badge-sent { background: rgba(33,150,243,0.15); color: #2196f3; } .badge-pending { background: rgba(248,196,0,0.15); color: #f8c400; }
+        .footer { margin-top: 28px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 0.75rem; color: rgba(255,255,255,0.3); }
         @media (max-width: 768px) { .metrics-row { grid-template-columns: repeat(2, 1fr); } .row-2 { grid-template-columns: 1fr; } .engagement-stats { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 480px) { .metrics-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<!-- ===== LOGIN ===== -->
 <div class="login-screen" id="loginScreen">
     <div class="login-card">
         <h1>📊 Client Portal</h1>
@@ -108,88 +82,71 @@
     </div>
 </div>
 
-<!-- ===== PORTAL ===== -->
 <div class="portal" id="portalDashboard">
     <div class="container">
-        <!-- Header -->
         <div class="header">
-            <div class="header-left">
-                <div class="header-title">
-                    <h1>MobileWise AI Analytics</h1>
-                    <div class="sub">Welcome, <span id="portalClientName" style="color:#f8c400;font-weight:600;">Client</span></div>
-                </div>
-            </div>
+            <div class="header-title"><h1>MobileWise AI Analytics</h1><div class="sub">Welcome, <span id="portalClientName" style="color:#f8c400;font-weight:600;">Client</span></div></div>
             <div class="header-right">
-                <select id="timeRange"><option value="week">Last 7 Days</option><option value="month" selected>Last 30 Days</option></select>
                 <button class="btn btn-refresh" onclick="loadPortalAnalytics()">🔄 Refresh</button>
                 <button class="btn btn-logout" onclick="doLogout()">🚪 Logout</button>
             </div>
         </div>
-       
-        <div id="portal-analytics"></div>
-        <!-- Settings Bar -->
-        <div class="settings-bar">
-            <div class="item"><span class="lbl">Baseline:</span><span class="val" id="pBaseline">20</span><span class="lbl">leads/mo</span></div>
-            <div class="item"><span class="lbl">Visitors:</span><span class="val" id="pVisitors">2,000</span><span class="lbl">visitors/mo</span></div>
-            <div class="item"><span class="lbl">Rate:</span><span class="val gold" id="pRate">$150</span><span class="lbl">per lead</span></div>
-            <div class="item" style="margin-left:auto;"><span style="font-size:0.65rem;color:rgba(255,255,255,0.25);">🔒 Set by administrator</span></div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchPortalTab('analytics')">📈 My Analytics</button>
+            <button class="tab" onclick="switchPortalTab('billing')">💰 My Billing</button>
         </div>
         
-        <!-- Metric Cards -->
-        <div class="metrics-row">
-            <div class="metric-card gold"><div class="label">Pre-Qual Leads</div><div class="value" id="pLeads">0</div><div class="sub" id="pIncremental" style="color:#4caf50;">+0 above baseline</div></div>
-            <div class="metric-card blue"><div class="label">Phone Calls</div><div class="value" id="pCalls">0</div><div class="sub" style="color:rgba(255,255,255,0.4);">direct connects</div></div>
-            <div class="metric-card green"><div class="label">Revenue This Month</div><div class="value" id="pRevenue">$0</div><div class="sub" id="pRevenueDetail" style="color:rgba(255,255,255,0.4);">0 leads × $0</div></div>
-            <div class="metric-card purple"><div class="label">Improvement</div><div class="value" id="pImprovement">0%</div><div class="sub" style="color:rgba(255,255,255,0.4);">vs. forms alone</div></div>
-        </div>
-        
-        <!-- Before vs After + Chart -->
-        <div class="row-2">
-            <div class="panel">
-                <h3>📋 Before vs After</h3>
-                <div class="row-2" style="margin-bottom:0;">
-                    <div class="ba-card before"><div class="ba-label">Before (Forms)</div><div class="ba-value" id="pBeforeLeads">20</div><div class="ba-sub">leads/month</div><div class="ba-sub" id="pBeforeRate" style="color:#f44336;margin-top:4px;">0% conversion</div></div>
-                    <div class="ba-card after"><div class="ba-label">After (With Tess)</div><div class="ba-value" id="pAfterLeads">0</div><div class="ba-sub">leads/month</div><div class="ba-sub" id="pAfterRate" style="color:#00c853;margin-top:4px;">0% conversion</div></div>
+        <!-- Analytics Tab -->
+        <div id="portal-analytics" class="tab-content active">
+            <div class="settings-bar">
+                <div class="item"><span class="lbl">Baseline:</span><span class="val" id="pBaseline">20</span><span class="lbl">leads/mo</span></div>
+                <div class="item"><span class="lbl">Visitors:</span><span class="val" id="pVisitors">2,000</span><span class="lbl">visitors/mo</span></div>
+                <div class="item"><span class="lbl">Rate:</span><span class="val gold" id="pRate">$150</span><span class="lbl">per lead</span></div>
+                <div class="item" style="margin-left:auto;"><span style="font-size:0.65rem;color:rgba(255,255,255,0.25);">🔒 Set by administrator</span></div>
+            </div>
+            <div class="metrics-row">
+                <div class="metric-card gold"><div class="label">Pre-Qual Leads</div><div class="value" id="pLeads">0</div><div class="sub" id="pIncremental" style="color:#4caf50;">+0 above baseline</div></div>
+                <div class="metric-card blue"><div class="label">Phone Calls</div><div class="value" id="pCalls">0</div><div class="sub" style="color:rgba(255,255,255,0.4);">direct connects</div></div>
+                <div class="metric-card green"><div class="label">Revenue This Month</div><div class="value" id="pRevenue">$0</div><div class="sub" id="pRevenueDetail" style="color:rgba(255,255,255,0.4);">0 leads × $0</div></div>
+                <div class="metric-card purple"><div class="label">Improvement</div><div class="value" id="pImprovement">0%</div><div class="sub" style="color:rgba(255,255,255,0.4);">vs. forms alone</div></div>
+            </div>
+            <div class="row-2">
+                <div class="panel">
+                    <h3>📋 Before vs After</h3>
+                    <div class="row-2" style="margin-bottom:0;">
+                        <div class="ba-card before"><div class="ba-label">Before (Forms)</div><div class="ba-value" id="pBeforeLeads">20</div><div class="ba-sub">leads/month</div><div class="ba-sub" id="pBeforeRate" style="color:#f44336;margin-top:4px;">0% conversion</div></div>
+                        <div class="ba-card after"><div class="ba-label">After (With Tess)</div><div class="ba-value" id="pAfterLeads">0</div><div class="ba-sub">leads/month</div><div class="ba-sub" id="pAfterRate" style="color:#00c853;margin-top:4px;">0% conversion</div></div>
+                    </div>
+                    <div class="win-bar" id="pWinBar" style="color:#f8c400;font-weight:600;font-size:0.9rem;">📈 Tess is delivering 0 more leads than forms alone</div>
                 </div>
-                <div class="win-bar" id="pWinBar" style="color:#f8c400;font-weight:600;font-size:0.9rem;">📈 Tess is delivering 0 more leads than forms alone</div>
+                <div class="panel">
+                    <h3>📊 Daily Engagement (30 Days)</h3>
+                    <div class="chart-container">
+                        <div style="display:flex;align-items:flex-end;gap:10px;height:130px;padding:0 8px;" id="pChart"></div>
+                        <div style="display:flex;justify-content:space-between;margin-top:6px;" id="pChartLabels"></div>
+                    </div>
+                    <div class="engagement-stats">
+                        <div class="eng-stat"><div class="eng-label">Clicks</div><div class="eng-value" id="pClicks">0</div></div>
+                        <div class="eng-stat"><div class="eng-label">Avg Session</div><div class="eng-value" id="pAvgSession">—</div></div>
+                        <div class="eng-stat"><div class="eng-label">Peak Hour</div><div class="eng-value" id="pPeakHour">--:--</div></div>
+                        <div class="eng-stat"><div class="eng-label">Completion</div><div class="eng-value" id="pCompletion">0%</div></div>
+                    </div>
+                </div>
             </div>
             <div class="panel">
-                <h3>📊 Daily Engagement (30 Days)</h3>
-                <div class="chart-container">
-                    <div style="display:flex;align-items:flex-end;gap:10px;height:130px;padding:0 8px;" id="pChart"></div>
-                    <div style="display:flex;justify-content:space-between;margin-top:6px;" id="pChartLabels"></div>
-                </div>
-                <div class="engagement-stats">
-                    <div class="eng-stat"><div class="eng-label">Clicks</div><div class="eng-value" id="pClicks">0</div></div>
-                    <div class="eng-stat"><div class="eng-label">Avg Session</div><div class="eng-value" id="pAvgSession">—</div></div>
-                    <div class="eng-stat"><div class="eng-label">Peak Hour</div><div class="eng-value" id="pPeakHour">--:--</div></div>
-                    <div class="eng-stat"><div class="eng-label">Completion</div><div class="eng-value" id="pCompletion">0%</div></div>
-                </div>
+                <h3>🕐 Recent Lead Activity</h3>
+                <div id="pRecentFeed" style="max-height:220px;overflow-y:auto;"><div style="color:rgba(255,255,255,0.3);text-align:center;padding:30px;">No leads yet this period.</div></div>
             </div>
         </div>
         
-        <!-- Recent Activity -->
-        <div class="panel">
-            <h3>🕐 Recent Lead Activity</h3>
-            <div id="pRecentFeed" style="max-height:220px;overflow-y:auto;"><div style="color:rgba(255,255,255,0.3);text-align:center;padding:30px;">No leads yet this period.</div></div>
+        <!-- Billing Tab -->
+        <div id="portal-billing" class="tab-content">
+            <div class="panel">
+                <h3>💰 Invoice History</h3>
+                <div style="overflow-x:auto;"><table><thead><tr><th>Invoice #</th><th>Period</th><th>Baseline</th><th>Total</th><th>Incr</th><th>Amount</th><th>Status</th></tr></thead><tbody id="pBillingTable"><tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,0.3);padding:30px;">Loading...</td></tr></tbody></table></div>
+            </div>
         </div>
-    </div>
-        
-        <!-- Tabs for Billing -->
-<div style="margin-top:24px;">
-    <div class="tabs" style="display:flex;gap:4px;background:rgba(15,22,40,0.8);border-radius:12px;padding:4px;width:fit-content;margin-bottom:20px;">
-        <button class="tab active" onclick="switchPortalTab('analytics')" style="padding:10px 24px;border-radius:10px;border:none;background:#f8c400;color:#0a0f1e;font-weight:600;font-size:0.85rem;cursor:pointer;">📈 My Analytics</button>
-        <button class="tab" id="billingTabBtn" onclick="switchPortalTab('billing')" style="padding:10px 24px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.5);font-weight:600;font-size:0.85rem;cursor:pointer;">💰 My Billing</button>
-    </div>
-    
-    <!-- Billing Tab Content -->
-    <div id="portal-billing" style="display:none;">
-        <div class="panel">
-            <h3>💰 Invoice History</h3>
-            <div style="overflow-x:auto;"><table><thead><tr><th>Invoice #</th><th>Period</th><th>Baseline</th><th>Total</th><th>Incr</th><th>Amount</th><th>Status</th></tr></thead><tbody id="pBillingTable"><tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,0.3);padding:30px;">Loading...</td></tr></tbody></table></div>
-        </div>
-    </div>
-</div>
         
         <div class="footer"><div>MobileWise AI • 24/7 AI Sales Rep • Never Sleeps</div><div>Last updated: <span id="lastUpdated">--:--:--</span></div></div>
     </div>
@@ -201,7 +158,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentClient = null;
-
 const savedSession = sessionStorage.getItem('mw_portal_session');
 if (savedSession) { currentClient = JSON.parse(savedSession); showPortal(); }
 
@@ -220,34 +176,22 @@ async function doLogin() {
     showPortal();
 }
 
-function switchPortalTab(tab) {
-    const analyticsTab = document.querySelector('.tab');
-    const billingTab = document.getElementById('billingTabBtn');
-    const analyticsContent = document.getElementById('portal-analytics');
-    const billingContent = document.getElementById('portal-billing');
-    
-    if (tab === 'analytics') {
-        analyticsTab.style.background = '#f8c400'; analyticsTab.style.color = '#0a0f1e';
-        billingTab.style.background = 'transparent'; billingTab.style.color = 'rgba(255,255,255,0.5)';
-        analyticsContent.style.display = 'block';
-        billingContent.style.display = 'none';
-    } else {
-        billingTab.style.background = '#f8c400'; billingTab.style.color = '#0a0f1e';
-        analyticsTab.style.background = 'transparent'; analyticsTab.style.color = 'rgba(255,255,255,0.5)';
-        analyticsContent.style.display = 'none';
-        billingContent.style.display = 'block';
-        loadPortalBilling();
-    }
-}
-
 function showPortal() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('portalDashboard').classList.add('active');
     document.getElementById('portalClientName').textContent = currentClient.name;
-    loadPortalAnalytics(); loadPortalBilling();
+    loadPortalAnalytics();
 }
 
 function doLogout() { sessionStorage.removeItem('mw_portal_session'); location.reload(); }
+
+function switchPortalTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelector(`[onclick="switchPortalTab('${tab}')"]`).classList.add('active');
+    document.getElementById(`portal-${tab}`).classList.add('active');
+    if (tab === 'billing') loadPortalBilling();
+}
 
 async function loadPortalAnalytics() {
     const id = currentClient.clientId;
@@ -256,7 +200,6 @@ async function loadPortalAnalytics() {
     document.getElementById('pBaseline').textContent = baseline;
     document.getElementById('pVisitors').textContent = visitors.toLocaleString();
     document.getElementById('pRate').textContent = '$' + rate;
-    
     const sm = new Date(); sm.setDate(1); sm.setHours(0,0,0,0);
     const { data: ev } = await sb.from('analytics_events').select('event_type, event_data, created_at').eq('client_id', id).gte('created_at', sm.toISOString());
     let leads=0, calls=0, clicks=0, comp=0; const dc={}, ph={}, recent=[];
@@ -271,7 +214,6 @@ async function loadPortalAnalytics() {
     const imp=bRate>0?(((aRate-bRate)/bRate)*100).toFixed(0):0, compRate=clicks>0?((comp/clicks)*100).toFixed(0):0;
     let pkHr='--:--', pkCt=0;
     for(const[h,c]of Object.entries(ph)){if(c>pkCt){pkCt=c;pkHr=h;}}
-    
     document.getElementById('pLeads').textContent=leads;
     document.getElementById('pIncremental').textContent='+'+inc+' above baseline';
     document.getElementById('pIncremental').style.color=inc>0?'#4caf50':'#f44336';
@@ -290,12 +232,9 @@ async function loadPortalAnalytics() {
     document.getElementById('pClicks').textContent=clicks;
     document.getElementById('pPeakHour').textContent=pkHr;
     document.getElementById('pCompletion').textContent=compRate+'%';
-    
     const feed=document.getElementById('pRecentFeed');
     if(!recent.length) feed.innerHTML='<div style="color:rgba(255,255,255,0.3);text-align:center;padding:30px;">No leads yet this period.</div>';
     else feed.innerHTML=recent.slice(-10).reverse().map(e=>`<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:10px;"><span>${e.type==='lead'?'📧':'📞'}</span><span style="color:white;font-size:0.85rem;flex:1;">${e.type==='lead'?'Lead: '+e.email:'Phone call'}</span><span style="color:rgba(255,255,255,0.3);font-size:0.7rem;">${e.time}</span></div>`).join('');
-    
-    // Chart
     const cdv=document.getElementById('pChart'), ldv=document.getElementById('pChartLabels'), now=new Date();
     let mx=1; const bd=[];
     for(let i=29;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);const k=d.toISOString().split('T')[0],v=dc[k]||0;bd.push({day:d.getDate(),v,td:i===0});if(v>mx)mx=v;}
