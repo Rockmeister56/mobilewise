@@ -125,7 +125,8 @@
                 <button class="btn btn-logout" onclick="doLogout()">🚪 Logout</button>
             </div>
         </div>
-        
+       
+        <div id="portal-analytics"></div>
         <!-- Settings Bar -->
         <div class="settings-bar">
             <div class="item"><span class="lbl">Baseline:</span><span class="val" id="pBaseline">20</span><span class="lbl">leads/mo</span></div>
@@ -172,12 +173,23 @@
             <h3>🕐 Recent Lead Activity</h3>
             <div id="pRecentFeed" style="max-height:220px;overflow-y:auto;"><div style="color:rgba(255,255,255,0.3);text-align:center;padding:30px;">No leads yet this period.</div></div>
         </div>
+    </div>
         
-        <!-- Billing -->
-        <div class="panel" style="margin-top:24px;">
+        <!-- Tabs for Billing -->
+<div style="margin-top:24px;">
+    <div class="tabs" style="display:flex;gap:4px;background:rgba(15,22,40,0.8);border-radius:12px;padding:4px;width:fit-content;margin-bottom:20px;">
+        <button class="tab active" onclick="switchPortalTab('analytics')" style="padding:10px 24px;border-radius:10px;border:none;background:#f8c400;color:#0a0f1e;font-weight:600;font-size:0.85rem;cursor:pointer;">📈 My Analytics</button>
+        <button class="tab" id="billingTabBtn" onclick="switchPortalTab('billing')" style="padding:10px 24px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.5);font-weight:600;font-size:0.85rem;cursor:pointer;">💰 My Billing</button>
+    </div>
+    
+    <!-- Billing Tab Content -->
+    <div id="portal-billing" style="display:none;">
+        <div class="panel">
             <h3>💰 Invoice History</h3>
             <div style="overflow-x:auto;"><table><thead><tr><th>Invoice #</th><th>Period</th><th>Baseline</th><th>Total</th><th>Incr</th><th>Amount</th><th>Status</th></tr></thead><tbody id="pBillingTable"><tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,0.3);padding:30px;">Loading...</td></tr></tbody></table></div>
         </div>
+    </div>
+</div>
         
         <div class="footer"><div>MobileWise AI • 24/7 AI Sales Rep • Never Sleeps</div><div>Last updated: <span id="lastUpdated">--:--:--</span></div></div>
     </div>
@@ -206,6 +218,26 @@ async function doLogin() {
     currentClient = { clientId: client.client_id, name: client.name, email };
     sessionStorage.setItem('mw_portal_session', JSON.stringify(currentClient));
     showPortal();
+}
+
+function switchPortalTab(tab) {
+    const analyticsTab = document.querySelector('.tab');
+    const billingTab = document.getElementById('billingTabBtn');
+    const analyticsContent = document.getElementById('portal-analytics');
+    const billingContent = document.getElementById('portal-billing');
+    
+    if (tab === 'analytics') {
+        analyticsTab.style.background = '#f8c400'; analyticsTab.style.color = '#0a0f1e';
+        billingTab.style.background = 'transparent'; billingTab.style.color = 'rgba(255,255,255,0.5)';
+        analyticsContent.style.display = 'block';
+        billingContent.style.display = 'none';
+    } else {
+        billingTab.style.background = '#f8c400'; billingTab.style.color = '#0a0f1e';
+        analyticsTab.style.background = 'transparent'; analyticsTab.style.color = 'rgba(255,255,255,0.5)';
+        analyticsContent.style.display = 'none';
+        billingContent.style.display = 'block';
+        loadPortalBilling();
+    }
 }
 
 function showPortal() {
