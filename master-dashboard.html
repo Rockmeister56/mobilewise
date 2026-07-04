@@ -375,7 +375,9 @@
                             <td>$${rate}</td>
                             <td><strong>$${revenue.toLocaleString()}</strong></td>
                             <td><span class="badge ${badge}">${sign}${improvement.toFixed(0)}%</span></td>
-                            <td><button onclick="copyClientLink('${c.client_id}')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;">📋 Copy</button></td>
+                            <td>
+                            <button onclick="copyClientLink('${c.client_id}')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;">📋 Copy</button>
+                         <button onclick="generatePortalLink('${c.client_id}')" style="background:rgba(0,200,83,0.2);border:1px solid rgba(0,200,83,0.3);color:#00c853;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;margin-left:4px;">🔑 Portal</button></td>
                         </tr>
                     `;
                 });
@@ -465,6 +467,31 @@
                 document.getElementById('billingTableBody').innerHTML = '<tr><td colspan="9" class="loading">Error loading invoices.</td></tr>';
             }
         }
+        async function generatePortalLink(clientId) {
+    // Generate a random 8-character key
+    const key = Math.random().toString(36).substring(2, 10);
+    
+    // Save to Supabase
+    const { error } = await supabaseClient
+        .from('clients')
+        .update({ portal_key: key })
+        .eq('client_id', clientId);
+    
+    if (error) {
+        alert('Failed to generate key: ' + error.message);
+        return;
+    }
+    
+    // Build the link
+    const link = `${window.location.origin}/dashboard.html?clientId=${clientId}&key=${key}`;
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(link).then(() => {
+        alert('✅ Portal link copied!\n\n' + link + '\n\nSend this to your client. They can view their analytics and billing here.');
+    }).catch(() => {
+        prompt('Copy this portal link:', link);
+    });
+}
 
         function toggleExpand(row) {
             const next = row.nextElementSibling;
