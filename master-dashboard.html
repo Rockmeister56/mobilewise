@@ -378,7 +378,8 @@
                             <td>
                             <button onclick="copyClientLink('${c.client_id}')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;">📋 Copy</button>
                          <button onclick="generatePortalLink('${c.client_id}')" style="background:rgba(0,200,83,0.2);border:1px solid rgba(0,200,83,0.3);color:#00c853;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;margin-left:4px;">🔑 Portal</button></td>
-                        </tr>
+                         <button onclick="sendWelcomeEmail('${c.client_id}')" style="background:rgba(33,150,243,0.2);border:1px solid rgba(33,150,243,0.3);color:#2196f3;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;margin-left:4px;">✉️ Welcome</button>
+                         </tr>
                     `;
                 });
 
@@ -510,6 +511,43 @@
         'Email: ' + clientEmail + '\n' +
         'Access Code: ' + code
     );
+}
+
+async function sendWelcomeEmail(clientId) {
+    // Get client info
+    const { data: clientData } = await supabaseClient
+        .from('clients')
+        .select('name, portal_key, metadata')
+        .eq('client_id', clientId)
+        .single();
+    
+    if (!clientData) { alert('Client not found'); return; }
+    
+    // Generate portal key if not set
+    let code = clientData.portal_key;
+    if (!code) {
+        code = Math.random().toString(36).substring(2, 10);
+        await supabaseClient.from('clients').update({ portal_key: code }).eq('client_id', clientId);
+    }
+    
+    const metadata = clientData.metadata || {};
+    const clientEmail = metadata?.modules?.emailConfig?.loanOfficerEmail || 
+                        metadata?.modules?.emailConfig?.clientEmail || '';
+    
+    if (!clientEmail) { alert('No client email on file. Add one in the trigger dashboard first.'); return; }
+    
+    try {
+        await emailjs.send("service_b9bppgb", "template_8i0k6hr", {
+            to_email: clientEmail,
+            client_name: clientData.name || 'Valued Client',
+            portal_url: 'https://mobilewise.netlify.app/portal.html',
+            access_code: code,
+            login_email: clientEmail
+        });
+        alert('✅ Welcome email sent to ' + clientEmail);
+    } catch(e) {
+        alert('Failed to send: ' + e.message);
+    }
 }
         function toggleExpand(row) {
             const next = row.nextElementSibling;
