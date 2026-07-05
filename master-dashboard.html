@@ -517,7 +517,7 @@ async function sendWelcomeEmail(clientId) {
     // Get client info
     const { data: clientData } = await supabaseClient
         .from('clients')
-        .select('name, portal_key, metadata')
+        .select('name, portal_key, metadata, contact_name')
         .eq('client_id', clientId)
         .single();
     
@@ -536,10 +536,12 @@ async function sendWelcomeEmail(clientId) {
     
     if (!clientEmail) { alert('No client email on file. Add one in the trigger dashboard first.'); return; }
     
+    const contactName = clientData.contact_name || clientData.name || 'Valued Client';
+    
     try {
         await emailjs.send("service_b9bppgb", "template_8i0k6hr", {
             to_email: clientEmail,
-            client_name: clientData.name || 'Valued Client',
+            client_name: contactName,
             portal_url: 'https://mobilewise.netlify.app/portal.html',
             access_code: code,
             login_email: clientEmail

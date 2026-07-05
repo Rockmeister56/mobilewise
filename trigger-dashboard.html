@@ -560,6 +560,10 @@
         <input type="text" id="clientName" placeholder="e.g. ABC Mortgage" value="">
     </div>
     <div class="field">
+    <label><i class="fas fa-user"></i> CONTACT FIRST NAME</label>
+    <input type="text" id="contactName" placeholder="e.g. John" value="">
+</div>
+    <div class="field">
         <label><i class="fas fa-id"></i> CLIENT ID</label>
         <input type="text" id="clientId" readonly value="" placeholder="auto-generated">
     </div>
@@ -1934,6 +1938,7 @@ let configManager = {
         const config = {
             id: document.getElementById('clientId').value,
             name: document.getElementById('clientName').value,
+            contact_name: document.getElementById('contactName')?.value || '',
             websiteUrl: document.getElementById('clientWebsiteUrl')?.value || '',
             agentId: document.getElementById('agentId').value,
             widgetId: document.getElementById('widgetId').value,
@@ -2157,6 +2162,7 @@ populateClientSelect() {
     
     // Basic client info
     document.getElementById('clientName').value = client.name || '';
+    document.getElementById('contactName').value = client.contact_name || '';
     document.getElementById('clientId').value = id;
     document.getElementById('agentId').value = client.agentId || '';
     document.getElementById('clientWebsiteUrl').value = client.websiteUrl || '';
@@ -2378,6 +2384,7 @@ const supabaseData = {
     client_id: config.id,
     name: config.name,
     industry: config.industry,
+    contact_name: config.contact_name || '',
     baseline_leads: parseInt(document.getElementById('analyticsBaselineLeads')?.value) || baseline.baselineLeads || 20,
     baseline_visitors: parseInt(document.getElementById('analyticsBaselineVisitors')?.value) || baseline.baselineVisitors || 2000,
     per_lead_rate: parseInt(document.getElementById('analyticsPerLeadRate')?.value) || baseline.perLeadRate || 150,
