@@ -3335,7 +3335,7 @@ async function exportBridgeOnly() {
         code += '                "triggerPhraseLegacy": "' + (config.modules?.preQualification?.triggerPhraseLegacy || "let\'s get started") + '"\n';
         code += '            },\n';
         code += '            "emailConfig": ' + JSON.stringify(config.modules?.emailConfig || {}) + ',\n';
-        code += '            "splashScreen": ' + JSON.stringify(config.modules?.splashScreen || {}) + ',\n';
+        code += '            "splashScreen": ' + JSON.stringify(Object.assign({ serviceLine: "Offering 24/7 Customer Service!", presentsText: "Presents:" }, config.modules?.splashScreen || {})) + ',\n';
         code += '            "smartScreen": ' + JSON.stringify(config.modules?.smartScreen || { images: [] }) + ',\n';
         code += '            "testimonial": ' + JSON.stringify(config.modules?.testimonial || { groups: [] }) + ',\n';
         code += '            "videoVault": ' + JSON.stringify(config.modules?.videoVault || { videos: [] }) + ',\n';
@@ -3373,54 +3373,58 @@ async function exportBridgeOnly() {
         
         code += emailJsLoader + '\n';
         
-             // ===== ADD SPLASH SCREEN CSS =====
+        code += '    const fontLink = document.createElement(\'link\');\n';
+        code += '    fontLink.rel = \'stylesheet\';\n';
+        code += '    fontLink.href = \'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600;1,700&family=Dancing+Script:wght@600;700&display=swap\';\n';
+        code += '    document.head.appendChild(fontLink);\n';
+        code += '\n';
         code += '    const style = document.createElement(\'style\');\n';
         code += '    style.textContent = `\n';
+        code += '        .splash-overlay { display: block !important; background: transparent !important; backdrop-filter: none !important; padding: 0 !important; }\n';
+        code += '        .splash-page { display: flex; flex-direction: column; width: 100%; height: 100%; overflow-y: auto; background: #fff; }\n';
+        code += '        .splash-logo-bar { background: #fff; padding: 8px 20px 4px; text-align: center; min-height: 65px; }\n';
+        code += '        .splash-logo-bar img { max-width: 78%; max-height: 90px; height: auto; display: inline-block; }\n';
+        code += '        .splash-presents { background: #fff; text-align: center; padding: 2px 0 8px; font-family: \'Playfair Display\', serif; font-style: italic; font-weight: 600; font-size: 1.25rem; color: #1e4a8a; }\n';
+        code += '        .splash-navy { flex: 1; background: radial-gradient(circle at center, var(--grad-center, #1e4a8a) 0%, var(--grad-outer, #0a1a2f) 80%); padding: 11px 24px 0; display: flex; flex-direction: column; align-items: center; position: relative; }\n';
+        code += '        .splash-navy h1 { font-family: \'Playfair Display\', serif; font-style: italic; font-weight: 700; font-size: 2.9rem; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px; letter-spacing: 0.01em; margin: 0 0 0 -20px; }\n';
+        code += '        .splash-navy h1 .sparkle { font-size: 1.95rem; filter: drop-shadow(0 0 6px rgba(248,196,0,0.7)); }\n';
+        code += '        .splash-navy h2 { font-family: \'Dancing Script\', cursive; color: rgba(255,255,255,0.92); font-size: 1.55rem; font-weight: 600; margin: 2px 0 22px; text-align: center; }\n';
         code += '        .splash-avatar-container {\n';
-        code += '            width: 220px; height: 384px; margin: 0 auto 25px;\n';
-        code += '            border-radius: 20px; overflow: hidden;\n';
+        code += '            width: 175px; height: 175px; margin: 0 auto 20px;\n';
+        code += '            border-radius: 50%; overflow: hidden;\n';
         code += '            background: #000;\n';
-        code += '            box-shadow: 0 20px 30px rgba(0,0,0,0.5);\n';
-        code += '            border: 2px solid rgba(255,255,255,0.1);\n';
+        code += '            border: 3px solid rgba(248,196,0,0.85);\n';
+        code += '            box-shadow: 0 0 0 6px rgba(248,196,0,0.12), 0 20px 40px rgba(0,0,0,0.5);\n';
         code += '            display: flex; align-items: center; justify-content: center;\n';
         code += '            position: relative;\n';
         code += '        }\n';
         code += '        .splash-avatar-container lemon-slice-widget {\n';
         code += '            position: absolute;\n';
-        code += '            top: 50%; left: 45%;\n';
+        code += '            top: 80%; left: 46%;\n';
         code += '            transform: translate(-50%, -50%);\n';
-        code += '            width: 280px !important;\n';
-        code += '            height: 400px !important;\n';
+        code += '            width: 220px !important;\n';
+        code += '            height: 329px !important;\n';
         code += '            max-width: none !important;\n';
         code += '            max-height: none !important;\n';
-        code += '            border-radius: 18px;\n';
         code += '        }\n';
-        code += '        .splash-card {\n';
-        code += '            background: radial-gradient(circle at center, var(--grad-center, #1e4a8a) 0%, var(--grad-outer, #0a1a2f) 80%);\n';
-        code += '            border-radius: 48px; padding: 20px 30px 40px 30px;\n';
-        code += '            max-width: 475px; width: 90%; text-align: center;\n';
-        code += '            box-shadow: 0 30px 60px rgba(0,0,0,0.6);\n';
-        code += '            animation: slideUp 0.4s ease;\n';
-        code += '        }\n';
-        code += '        .splash-card h1 { color: white; font-size: 2.5rem; margin-bottom: 5px; font-weight: 700; }\n';
-        code += '        .splash-card h2 { color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-bottom: 20px; font-weight: 300; }\n';
-        code += '        .button-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }\n';
-        code += '        .primary-btn, .secondary-btn { padding: 12px 20px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer; flex: 1; max-width: 200px; border: none; transition: all 0.2s; }\n';
+        code += '        .splash-service-line { color: #fff; font-weight: 400; font-size: 1.15rem; text-align: center; margin: 6px 0 18px; }\n';
+        code += '        .button-group { display: flex; gap: 10px; justify-content: center; padding: 20px 20px 26px; }\n';
+        code += '        .primary-btn, .secondary-btn { padding: 14px 20px; border-radius: 40px; font-size: 1rem; font-weight: 600; cursor: pointer; flex: 1; max-width: 200px; border: none; transition: all 0.2s; }\n';
         code += '        .primary-btn:hover, .secondary-btn:hover { transform: scale(1.02); }\n';
         code += '        .ticker-container {\n';
-        code += '            position: absolute; bottom: 0; left: 0; right: 0;\n';
+        code += '            position: relative; width: calc(100% + 48px); margin: 0 -24px;\n';
         code += '            background: linear-gradient(90deg, rgba(0,0,0,0.9), rgba(248,196,0,0.2), rgba(0,0,0,0.9));\n';
-        code += '            backdrop-filter: blur(2px); color: #f8c400; padding: 6px 0;\n';
+        code += '            color: #f8c400; padding: 8px 0;\n';
         code += '            overflow: hidden; white-space: nowrap; font-size: 13px; font-weight: 600;\n';
-        code += '            text-shadow: 0 1px 2px rgba(0,0,0,0.8); z-index: 10; pointer-events: none;\n';
-        code += '            border-top: 2px solid #f8c400; border-bottom: none; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);\n';
+        code += '            text-shadow: 0 1px 2px rgba(0,0,0,0.8);\n';
+        code += '            border-top: 2px solid #f8c400; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);\n';
         code += '        }\n';
         code += '        .ticker-content { display: inline-block; animation: ticker 25s linear infinite; padding-left: 100%; }\n';
         code += '        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }\n';
         code += '        .ticker-item { display: inline-block; padding: 0 25px; color: white; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; }\n';
         code += '        .ticker-item i { margin-right: 8px; color: #f8c400; font-size: 12px; filter: drop-shadow(0 0 3px rgba(248,196,0,0.5)); }\n';
         code += '    `;\n';
-        code += '    document.head.appendChild(style);\n\n';
+        code += '    document.head.appendChild(style);\n';
         
                        // Helper Functions
         code += '    function createSplashWidget() {\n';
@@ -3976,6 +3980,7 @@ async function exportBridgeOnly() {
         code += '                        }\n';
         code += '                        var calcData = window._calcResults || {};\n';
         code += '                        if (typeof emailjs !== "undefined") {\n';
+        code += '                            // ===== EMAIL 1: TO THE PROSPECT (the person using the calculator) =====\n';
         code += '                            emailjs.send("service_b9bppgb", "template_8kx812d", {\n';
         code += '                                to_email:             email,\n';
         code += '                                full_name:            name,\n';
@@ -3995,7 +4000,20 @@ async function exportBridgeOnly() {
         code += '                                special_requests:     "None"\n';
         code += '                            })\n';
         code += '                            .then(function() { console.log("✅ Results email sent to:", email); })\n';
-        code += '                            .catch(function(e) { console.error("❌ Email error:", e); });\n';
+        code += '                            .catch(function(e) { console.error("❌ Prospect email error:", e); });\n';
+        code += '\n';
+        code += '                            // ===== EMAIL 2: TO THE CLIENT/LOAN OFFICER (the lead) =====\n';
+        code += '                            var leadClientEmail = window.BotemiaConfig?.modules?.emailConfig?.loanOfficerEmail || window.BotemiaConfig?.modules?.emailConfig?.clientEmail || "mobilewise.ai@gmail.com";\n';
+        code += '                            emailjs.send("service_b9bppgb", "template_uix9cyx", {\n';
+        code += '                                to_email:      leadClientEmail,\n';
+        code += '                                full_name:     name,\n';
+        code += '                                email:         email,\n';
+        code += '                                phone:         phone || "Not provided",\n';
+        code += '                                message:       "New home loan pre-qualification lead from the mortgage calculator.",\n';
+        code += '                                submitted_at:  new Date().toLocaleString()\n';
+        code += '                            })\n';
+        code += '                            .then(function() { console.log("✅ Lead notification sent to client:", leadClientEmail); })\n';
+        code += '                            .catch(function(e) { console.error("❌ Client lead email error:", e); });\n';
         code += '                        }\n';
         code += '                        // Notify Tess to trigger email confirmation smart screen\n';
         code += '                        if (window.mainWidget && typeof window.mainWidget.sendMessage === "function") {\n';
@@ -5120,94 +5138,93 @@ code += '\n';
         code += '            console.log("✅ Splash disabled — activating Tess directly");\n';
         code += '            activateTess();\n';
         code += '            return;\n';
-        code += '        }\n\n';
-
+        code += '        }\n';
+        code += '\n';
         code += '        const overlay = document.createElement(\'div\');\n';
         code += '        overlay.className = \'splash-overlay\';\n';
         code += '        overlay.id = \'splashOverlay\';\n';
         code += '        overlay.style.cssText = `\n';
         code += '            position: fixed; top: 0; left: 0; width: 100%; height: 100%;\n';
-        code += '            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);\n';
-        code += '            display: flex; align-items: center; justify-content: center; z-index: 99999;\n';
-        code += '        `;\n\n';
+        code += '            z-index: 99999;\n';
+        code += '        `;\n';
+        code += '\n';
         code += '        trackEvent(\'splash_view\');\n';
-
-        code += '        const card = document.createElement(\'div\');\n';
-        code += '        card.className = \'splash-card\';\n';
-        code += '        card.style.background = `radial-gradient(circle at center, ${config.gradientCenter || \'#1e4a8a\'} 0%, ${config.gradientOuter || \'#0a1a2f\'} 80%)`;\n\n';
-        
-        // ✅ FIXED: We use backticks (`) here to allow the ${} variables, but we escape them properly for the string builder
-        code += '        let cardHTML = `\n';
-        code += '            <h1>✨ ${config.title || \'Meet Tess!\'} ✨</h1>\n';
-        code += '            <h2>${config.subtitle || \'Your Personal AI Web Guide\'}</h2>\n';
-        code += '            <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
-        code += '            <div class="button-group">\n';
-        
-        // Primary Button
-        code += '                <button class="primary-btn" id="activateTessBtn" style="background: linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'}); color: ${config.primaryButton?.textColor || \'#0a0f1e\'};">${config.primaryButton?.text || \'Get AI help with Tess\'}</button>\n';
-        
-        // Secondary Button (THE FIX)
-        code += '                <button class="secondary-btn" id="justBrowsingBtn" style="background: linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'}); color: ${config.secondaryButton?.textColor || \'#ffffff\'};">${config.secondaryButton?.text || \'Just Browsing\'}</button>\n';
-        
+        code += '        const page = document.createElement(\'div\');\n';
+        code += '        page.className = \'splash-page\';\n';
+        code += '\n';
+        code += '        let logoHTML = \'\';\n';
+        code += '        if (config.branding?.logo || config.branding?.name) {\n';
+        code += '            logoHTML = `\n';
+        code += '            <div class="splash-logo-bar">\n';
+        code += '                ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" alt="\' + (config.branding?.name || \'Client Logo\') + \'">\' : \'<span style="color:#333;font-size:20px;font-weight:600;">\' + (config.branding?.name || \'\') + \'</span>\'}\n';
         code += '            </div>\n';
-        code += '        `;\n\n';
-        
-        code += '        // Add white footer area with logo - EXACT DIMENSIONS\n';
-        code += '        cardHTML += `\n';
-        code += '            <div style="position: relative; width: 475px; left: 50%; transform: translateX(-50%); margin-top: 25px; background: white; border-radius: 0 0 48px 48px; padding: 15px 0; margin-bottom: -40px;">\n';
-        code += '                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; width: 415px; margin: 0 auto;">\n';
-        code += '                    ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" style="height: 36px; width: auto;">\' : \'\'}\n';
-        code += '                    ${config.branding?.name ? \'<span style="color: #333; font-size: 18px; font-weight: 500;">\' + config.branding.name + \'</span>\' : \'\'}\n';
-        code += '                </div>\n';
+        code += '            <div class="splash-presents">${config.presentsText || \'Presents:\'}</div>\n';
+        code += '            `;\n';
+        code += '        }\n';
+        code += '\n';
+        code += '        let pageHTML = logoHTML + `\n';
+        code += '            <div class="splash-navy">\n';
+        code += '                <h1><span class="sparkle">✨</span>${config.title || \'Tess\'}</h1>\n';
+        code += '                <h2>${config.subtitle || \'Your Friendly AI Web Assistant\'}</h2>\n';
+        code += '                <div class="splash-avatar-container" id="splashAvatarContainer"></div>\n';
+        code += '                <div class="splash-service-line">${config.serviceLine || \'Offering 24/7 Customer Service!\'}</div>\n';
         code += '            </div>\n';
         code += '        `;\n';
-        
-        code += '        card.innerHTML = cardHTML;\n\n';
-
-        code += '        overlay.appendChild(card);\n';
-        code += '        document.body.appendChild(overlay);\n\n';
-
+        code += '\n';
+        code += '        page.innerHTML = pageHTML;\n';
+        code += '        overlay.appendChild(page);\n';
+        code += '        document.body.appendChild(overlay);\n';
+        code += '\n';
+        code += '        const navySection = page.querySelector(\'.splash-navy\');\n';
         code += '        const container = document.getElementById(\'splashAvatarContainer\');\n';
         code += '        const splashWidget = createSplashWidget();\n';
-        code += '        container.appendChild(splashWidget);\n\n';
-
+        code += '        container.appendChild(splashWidget);\n';
+        code += '\n';
         code += '        // Add ticker tape if keywords exist\n';
         code += '        const tickerKeywords = config.tickerKeywords;\n';
         code += '        if (tickerKeywords) {\n';
         code += '            const keywords = tickerKeywords.split(\',\').map(k => k.trim()).filter(k => k);\n';
-        code += '            \n';
+        code += '\n';
         code += '            if (keywords.length > 0) {\n';
         code += '                const tickerContainer = document.createElement(\'div\');\n';
         code += '                tickerContainer.className = \'ticker-container\';\n';
-        code += '                \n';
+        code += '\n';
         code += '                const tickerContent = document.createElement(\'div\');\n';
         code += '                tickerContent.className = \'ticker-content\';\n';
-        code += '                \n';
+        code += '\n';
         code += '                const allKeywords = [...keywords, ...keywords];\n';
-        code += '                \n';
+        code += '\n';
         code += '                allKeywords.forEach(keyword => {\n';
         code += '                    const span = document.createElement(\'span\');\n';
         code += '                    span.className = \'ticker-item\';\n';
         code += '                    span.innerHTML = `<i class="fas fa-star"></i> ${keyword}`;\n';
         code += '                    tickerContent.appendChild(span);\n';
         code += '                });\n';
-        code += '                \n';
+        code += '\n';
         code += '                tickerContainer.appendChild(tickerContent);\n';
-        code += '                container.appendChild(tickerContainer);\n';
+        code += '                navySection.appendChild(tickerContainer);\n';
         code += '            }\n';
         code += '        }\n';
-
+        code += '\n';
+        code += '        // Add button group after the ticker\n';
+        code += '        const buttonGroup = document.createElement(\'div\');\n';
+        code += '        buttonGroup.className = \'button-group\';\n';
+        code += '        buttonGroup.innerHTML = `\n';
+        code += '            <button class="primary-btn" id="activateTessBtn" style="background: linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'}); color: ${config.primaryButton?.textColor || \'#0a0f1e\'};">${config.primaryButton?.text || \'Get AI help with Tess\'}</button>\n';
+        code += '            <button class="secondary-btn" id="justBrowsingBtn" style="background: linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'}); color: ${config.secondaryButton?.textColor || \'#ffffff\'};">${config.secondaryButton?.text || \'Just Browsing\'}</button>\n';
+        code += '        `;\n';
+        code += '        navySection.appendChild(buttonGroup);\n';
+        code += '\n';
         code += '        document.getElementById(\'activateTessBtn\').addEventListener(\'click\', activateTess);\n';
-        code += '        document.getElementById(\'justBrowsingBtn\').addEventListener(\'click\', justBrowsing);\n\n';
-        
-        // Hover Effects
+        code += '        document.getElementById(\'justBrowsingBtn\').addEventListener(\'click\', justBrowsing);\n';
+        code += '\n';
         code += '        const primaryBtn = document.getElementById(\'activateTessBtn\');\n';
         code += '        primaryBtn.onmouseover = () => { primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.hoverTop || \'#ffd700\'}, ${config.primaryButton?.hoverBottom || \'#e0b000\'})`; primaryBtn.style.transform = \'scale(1.02)\'; };\n';
         code += '        primaryBtn.onmouseout = () => { primaryBtn.style.background = `linear-gradient(145deg, ${config.primaryButton?.gradientTop || \'#f8c400\'}, ${config.primaryButton?.gradientBottom || \'#d4a000\'})`; primaryBtn.style.transform = \'scale(1)\'; };\n';
         code += '        const secondaryBtn = document.getElementById(\'justBrowsingBtn\');\n';
         code += '        secondaryBtn.onmouseover = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.hoverTop || \'#4a5060\'}, ${config.secondaryButton?.hoverBottom || \'#3a4050\'})`; secondaryBtn.style.transform = \'scale(1.02)\'; };\n';
         code += '        secondaryBtn.onmouseout = () => { secondaryBtn.style.background = `linear-gradient(145deg, ${config.secondaryButton?.gradientTop || \'#3a4050\'}, ${config.secondaryButton?.gradientBottom || \'#2a2f3f\'})`; secondaryBtn.style.transform = \'scale(1)\'; };\n';
-        code += '    }\n\n';
+        code += '    }\n';
 
         // ===== ACTIVATE TESS FUNCTION =====
         code += '    async function activateTess() {\n';
