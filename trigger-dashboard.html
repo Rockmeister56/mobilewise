@@ -606,6 +606,45 @@
         <!-- Email Configuration Section -->
 <div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px;">
     <h3 style="color: #f8c400; margin-bottom: 15px;">📧 Pre-Qual Email Settings</h3>
+
+    <div style="background: rgba(248,196,0,0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px dashed #f8c400;">
+        <label style="color: #f8c400; font-weight: 700; display: block; margin-bottom: 8px;">
+            <i class="fas fa-toggle-on"></i> Bridge Mode
+        </label>
+        <select id="bridgeMode" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;" onchange="toggleDemoMockupField()">
+            <option value="normal" selected>Normal — prospect gets follow-up, client gets the lead</option>
+            <option value="demo">Demo — whoever fills the form gets the lead email (for pitching prospective clients)</option>
+        </select>
+        <div id="demoMockupField" style="display:none; margin-top: 12px;">
+            <label style="color: white; display: block; margin-bottom: 5px;">Prospect Email Mockup URL (optional)</label>
+            <input type="text" id="demoMockupUrl" value="" placeholder="https://yoursite.netlify.app/prospect-example-email"
+                   style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
+            <p style="color: #aaa; font-size:0.75rem; margin-top:5px;">
+                <i class="fas fa-info-circle"></i> If provided, a "See what your prospect receives" link appears after the demo email sends. Leave blank to skip this — the demo email still works fine without it.
+            </p>
+        </div>
+    </div>
+
+    <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+        <label style="color: #f8c400; font-weight: 600; display: block; margin-bottom: 8px;">
+            <i class="fas fa-envelope-open-text"></i> Email Templates (EmailJS Template IDs)
+        </label>
+        <p style="color: #aaa; font-size:0.75rem; margin-bottom:12px;">
+            <i class="fas fa-info-circle"></i> Design/edit the actual template content in your EmailJS dashboard — this just tells the bridge which template ID to use for this client/industry.
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+                <label style="color: white; display: block; margin-bottom: 5px; font-size:0.85rem;">Prospect Follow-Up Template ID</label>
+                <input type="text" id="prospectEmailTemplateId" value="template_8kx812d" placeholder="template_8kx812d"
+                       style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
+            </div>
+            <div>
+                <label style="color: white; display: block; margin-bottom: 5px; font-size:0.85rem;">Lead Notification Template ID</label>
+                <input type="text" id="leadEmailTemplateId" value="template_uix9cyx" placeholder="template_uix9cyx"
+                       style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
+            </div>
+        </div>
+    </div>
     
     <div style="display: grid; gap: 15px;">
         <div>
@@ -805,12 +844,22 @@
             <!-- Add after Agent ID field -->
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
     <div class="field">
-        <label><i class="fas fa-heading"></i> Title Text</label>
-        <input type="text" id="splashTitle" value="Meet Tess" placeholder="e.g., Meet Tess">
+        <label><i class="fas fa-heading"></i> Avatar Name (shown with ✨)</label>
+        <input type="text" id="splashTitle" value="Tess" placeholder="e.g., Tess">
     </div>
     <div class="field">
-        <label><i class="fas fa-subscript"></i> Subtitle Text</label>
-        <input type="text" id="splashSubtitle" value="Your Personal AI Web Guide" placeholder="e.g., Your Personal AI Web Guide">
+        <label><i class="fas fa-subscript"></i> Slogan (cursive text under name)</label>
+        <input type="text" id="splashSubtitle" value="Your Friendly AI Web Assistant" placeholder="e.g., Your Friendly AI Web Assistant">
+    </div>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+    <div class="field">
+        <label><i class="fas fa-quote-left"></i> "Presents:" Text (above avatar name)</label>
+        <input type="text" id="splashPresentsText" value="Presents:" placeholder="e.g., Presents:">
+    </div>
+    <div class="field">
+        <label><i class="fas fa-bullhorn"></i> Service Line (above ticker tape)</label>
+        <input type="text" id="splashServiceLine" value="Offering 24/7 Customer Service!" placeholder="e.g., Offering 24/7 Customer Service!">
     </div>
 </div>
 
@@ -916,7 +965,8 @@
                     <div class="field">
                         <label><i class="fas fa-arrows-alt"></i> Button Position</label>
                         <select id="persistentButtonPosition" onchange="toggleCustomPosition()">
-                            <option value="bottom-left" selected>Bottom Left</option>
+                            <option value="bottom-right" selected>Bottom Right</option>
+                            <option value="bottom-left">Bottom Left</option>
                             <option value="middle-left">Middle Left</option>
                             <option value="middle-right">Middle Right</option>
                             <option value="custom">Custom Position</option>
@@ -940,6 +990,17 @@
         <label><i class="fas fa-tag"></i> Brand Name (optional)</label>
         <input type="text" id="splashBrandName" placeholder="e.g., Assist Mortgage" value="">
     </div>
+
+    <div class="field" style="margin-bottom: 15px;">
+        <label><i class="fas fa-fill-drip"></i> Logo Bar Background</label>
+        <select id="splashLogoBarBg">
+            <option value="white" selected>White (for dark/colored logos)</option>
+            <option value="black">Black (for white/light logos)</option>
+        </select>
+        <p style="color: #aaa; font-size:0.75rem; margin-top:3px;">
+            <i class="fas fa-info-circle"></i> Choose whichever background makes this client's logo show up clearly
+        </p>
+    </div>
     
     <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; border: 1px dashed #f8c400;">
         <label style="color: #f8c400; display: block; margin-bottom: 10px;">
@@ -951,6 +1012,7 @@
         <!-- Preview -->
         <div style="margin-top: 15px; text-align: center; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px;">
             <div style="color: #aaa; margin-bottom: 10px;">Preview:</div>
+
             <div id="brandLogoPreview" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
                 <i class="fas fa-building" style="color: #f8c400; font-size: 40px;"></i>
                 <span style="color: white; font-size: 24px;" id="brandNamePreview">Assist Mortgage</span>
@@ -1728,8 +1790,11 @@ function createNewClient() {
     updateTriggerPreviews();
     
     // Clear splash screen fields
-    document.getElementById('splashTitle').value = 'Meet Tess';
-    document.getElementById('splashSubtitle').value = 'Your Personal AI Web Guide';
+    document.getElementById('splashTitle').value = 'Tess';
+    document.getElementById('splashSubtitle').value = 'Your Friendly AI Web Assistant';
+    document.getElementById('splashPresentsText').value = 'Presents:';
+    document.getElementById('splashServiceLine').value = 'Offering 24/7 Customer Service!';
+    document.getElementById('splashLogoBarBg').value = 'white';
     document.getElementById('splashTessVideoUrl').value = '';
     document.getElementById('splashTickerKeywords').value = '';
     document.getElementById('splashBrandName').value = '';
@@ -1951,8 +2016,10 @@ let configManager = {
                 splashScreen: {
                     enabled: document.getElementById('splashEnabled')?.checked || false,
                     agentId: document.getElementById('splashAgentId')?.value || '',
-                    title: document.getElementById('splashTitle')?.value || 'Meet Tess',
-                    subtitle: document.getElementById('splashSubtitle')?.value || 'Your Personal AI Web Guide',
+                    title: document.getElementById('splashTitle')?.value || 'Tess',
+                    subtitle: document.getElementById('splashSubtitle')?.value || 'Your Friendly AI Web Assistant',
+                    presentsText: document.getElementById('splashPresentsText')?.value || 'Presents:',
+                    serviceLine: document.getElementById('splashServiceLine')?.value || 'Offering 24/7 Customer Service!',
                     tessVideoUrl: document.getElementById('splashTessVideoUrl')?.value || '',
                     tessVideoFit: document.getElementById('tessVideoFit')?.value || 'cover',
                     tickerKeywords: document.getElementById('splashTickerKeywords')?.value || '',
@@ -1976,14 +2043,15 @@ let configManager = {
                     },
                     persistentButton: {
                         enabled: document.getElementById('persistentButtonEnabled')?.checked || true,
-                        position: document.getElementById('persistentButtonPosition')?.value || 'bottom-left',
+                        position: document.getElementById('persistentButtonPosition')?.value || 'bottom-right',
                         action: document.getElementById('persistentButtonAction')?.value || 'activate-tess',
                         gradientTop: document.getElementById('persistentGradientTop')?.value || '#f8c400',
                         gradientBottom: document.getElementById('persistentGradientBottom')?.value || '#d4a000'
                     },
                     branding: {
                         name: document.getElementById('splashBrandName')?.value || '',
-                        logo: document.getElementById('splashBrandLogoData')?.value || ''
+                        logo: document.getElementById('splashBrandLogoData')?.value || '',
+                        logoBarBg: document.getElementById('splashLogoBarBg')?.value || 'white'
                     }
                 },
                 testimonial: {
@@ -2012,6 +2080,10 @@ let configManager = {
     links: websiteLinks.map(l => ({ title: l.title, url: l.url, triggerPhrase: l.triggerPhrase }))
 },
  emailConfig: {
+                    bridgeMode: document.getElementById('bridgeMode')?.value || 'normal',
+                    prospectEmailTemplateId: document.getElementById('prospectEmailTemplateId')?.value || 'template_8kx812d',
+                    leadEmailTemplateId: document.getElementById('leadEmailTemplateId')?.value || 'template_uix9cyx',
+                    demoMockupUrl: document.getElementById('demoMockupUrl')?.value || '',
                     loanOfficerEmail: document.getElementById('loanOfficerEmail')?.value || '',
                     ccEmail: document.getElementById('ccEmail')?.value || '',
                     emailSubject: document.getElementById('emailSubject')?.value || 'New Pre-Qual Lead: {{firstName}} {{lastName}}',
@@ -2183,8 +2255,10 @@ populateClientSelect() {
     
     document.getElementById('splashEnabled').checked = splash.enabled !== false;
     document.getElementById('splashAgentId').value = splash.agentId || client.agentId || '';
-    document.getElementById('splashTitle').value = splash.title || 'Meet Tess';
-    document.getElementById('splashSubtitle').value = splash.subtitle || 'Your Personal AI Web Guide';
+    document.getElementById('splashTitle').value = splash.title || 'Tess';
+    document.getElementById('splashSubtitle').value = splash.subtitle || 'Your Friendly AI Web Assistant';
+    document.getElementById('splashPresentsText').value = splash.presentsText || 'Presents:';
+    document.getElementById('splashServiceLine').value = splash.serviceLine || 'Offering 24/7 Customer Service!';
     document.getElementById('splashTessVideoUrl').value = splash.tessVideoUrl || '';
     document.getElementById('tessVideoFit').value = splash.tessVideoFit || 'cover';
     document.getElementById('splashTickerKeywords').value = splash.tickerKeywords || '';
@@ -2193,6 +2267,11 @@ populateClientSelect() {
 
     // ===== LOAD EMAIL CONFIG =====
 const emailConfig = client.modules?.emailConfig || {};
+document.getElementById('bridgeMode').value = emailConfig.bridgeMode || 'normal';
+document.getElementById('prospectEmailTemplateId').value = emailConfig.prospectEmailTemplateId || 'template_8kx812d';
+document.getElementById('leadEmailTemplateId').value = emailConfig.leadEmailTemplateId || 'template_uix9cyx';
+document.getElementById('demoMockupUrl').value = emailConfig.demoMockupUrl || '';
+toggleDemoMockupField();
 document.getElementById('clientEmail').value = emailConfig.clientEmail || '';
 document.getElementById('supportPhone').value = emailConfig.supportPhone || '';
 document.getElementById('emailTriggers').value = (emailConfig.emailTriggers || []).join(', ');
@@ -2215,11 +2294,12 @@ document.getElementById('emailSubject').value = emailConfig.emailSubject || '';
     
     // Persistent button
     document.getElementById('persistentButtonEnabled').checked = splash.persistentButton?.enabled !== false;
-    document.getElementById('persistentButtonPosition').value = splash.persistentButton?.position || 'bottom-left';
+    document.getElementById('persistentButtonPosition').value = splash.persistentButton?.position || 'bottom-right';
     document.getElementById('persistentButtonAction').value = splash.persistentButton?.action || 'activate-tess';
     
     // Branding
     document.getElementById('splashBrandName').value = splash.branding?.name || '';
+    document.getElementById('splashLogoBarBg').value = splash.branding?.logoBarBg || 'white';
     document.getElementById('splashBrandLogoData').value = splash.branding?.logo || '';
 
     // Force logo preview to update
@@ -3087,6 +3167,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        function toggleDemoMockupField() {
+            const modeEl = document.getElementById('bridgeMode');
+            const field = document.getElementById('demoMockupField');
+            if (modeEl && field) {
+                field.style.display = modeEl.value === 'demo' ? 'block' : 'none';
+            }
+        }
+
         function handleTessImageUpload(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -3887,9 +3975,56 @@ async function exportBridgeOnly() {
         code += '                    if (cfgEmail) data.email = cfgEmail;\n';
         code += '                }\n';
         code += '            }\n';
+        code += '            var calcData = window._calcResults || {};\n';
+        code += '            var isDemoMode = (window.BotemiaConfig?.modules?.emailConfig?.bridgeMode === "demo");\n';
+        code += '            \n';
+        code += '            if (isDemoMode) {\n';
+        code += '                // ===== DEMO MODE: whoever filled the form gets the lead email themselves =====\n';
+        code += '                if (data.email) {\n';
+        code += '                    var demoLeadParams = {\n';
+        code += '                        to_email:             data.email,\n';
+        code += '                        full_name:            data.fullName || "Valued Client",\n';
+        code += '                        email:                data.email,\n';
+        code += '                        phone:                data.phone || "Not provided",\n';
+        code += '                        business_name:        data.businessName || "Not provided",\n';
+        code += '                        scheduled_datetime:   data.scheduledDateTime || "To be determined",\n';
+        code += '                        message:              data.specialRequests || "None",\n';
+        code += '                        submitted_at:         new Date().toLocaleString(),\n';
+        code += '                        calc_annual_income:   calcData.income     || "Not provided",\n';
+        code += '                        calc_down_payment:    calcData.down       || "Not provided",\n';
+        code += '                        calc_credit_score:    calcData.credit     || "Not provided",\n';
+        code += '                        calc_loan_term:       calcData.term       || "Not provided",\n';
+        code += '                        calc_interest_rate:   calcData.rate       || "Not provided",\n';
+        code += '                        calc_home_price:      calcData.homePrice  || "Not provided",\n';
+        code += '                        calc_monthly_payment: calcData.monthly    || "Not provided",\n';
+        code += '                        calc_loan_amount:     calcData.loanAmount || "Not provided",\n';
+        code += '                        calc_dti:             calcData.dti        || "Not provided",\n';
+        code += '                        calc_verdict:         calcData.verdict    || "",\n';
+        code += '                        special_requests:     data.specialRequests || "None"\n';
+        code += '                    };\n';
+        code += '                    var leadTplId = window.BotemiaConfig?.modules?.emailConfig?.leadEmailTemplateId || "template_uix9cyx";\n';
+        code += '                    emailjs.send("service_b9bppgb", leadTplId, demoLeadParams)\n';
+        code += '                        .then(function() {\n';
+        code += '                            console.log("✅ [DEMO] Lead email sent to:", data.email);\n';
+        code += '                            var mockupUrl = window.BotemiaConfig?.modules?.emailConfig?.demoMockupUrl;\n';
+        code += '                            if (mockupUrl) {\n';
+        code += '                                var toast = document.createElement("div");\n';
+        code += '                                toast.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0a1a2f;border:2px solid #f8c400;border-radius:14px;padding:16px 20px;z-index:9999999;box-shadow:0 10px 30px rgba(0,0,0,0.5);text-align:center;max-width:340px;";\n';
+        code += '                                toast.innerHTML = "<div style=\\"color:#fff;font-size:0.85rem;margin-bottom:10px;\\">✅ Lead email sent! That\'s what you\'d receive as the client.</div><a href=\\"" + mockupUrl + "\\" target=\\"_blank\\" rel=\\"noopener\\" style=\\"display:inline-block;background:linear-gradient(135deg,#f8c400,#d4a000);color:#0a0f1e;padding:10px 18px;border-radius:10px;font-weight:700;text-decoration:none;font-size:0.85rem;margin-right:8px;\\">📧 See what your prospect gets</a><span onclick=\\"this.parentElement.remove()\\" style=\\"cursor:pointer;color:#aaa;font-size:1.1rem;vertical-align:middle;\\">✕</span>";\n';
+        code += '                                document.body.appendChild(toast);\n';
+        code += '                                setTimeout(function(){ if (toast.parentElement) toast.remove(); }, 15000);\n';
+        code += '                            }\n';
+        code += '                        })\n';
+        code += '                        .catch(function(e) { console.error("❌ [DEMO] Lead email error:", e); });\n';
+        code += '                } else {\n';
+        code += '                    console.warn("⚠️ [DEMO] No email provided, skipping demo lead email");\n';
+        code += '                }\n';
+        code += '                return;\n';
+        code += '            }\n';
+        code += '            \n';
+        code += '            // ===== NORMAL MODE =====\n';
         code += '            // ===== EMAIL 1: TO LOAN BROKER PROSPECT =====\n';
         code += '            if (data.email) {\n';
-        code += '                var calcData = window._calcResults || {};\n';
         code += '                var prospectParams = {\n';
         code += '                    to_email:             data.email,\n';
         code += '                    full_name:            data.fullName || "Valued Client",\n';
@@ -3911,7 +4046,8 @@ async function exportBridgeOnly() {
         code += '                    special_requests:     data.specialRequests || "None"\n';
         code += '                };\n';
         code += '                \n';
-        code += '                emailjs.send("service_b9bppgb", "template_8kx812d", prospectParams)\n';
+        code += '                var prospectTplId = window.BotemiaConfig?.modules?.emailConfig?.prospectEmailTemplateId || "template_8kx812d";\n';
+        code += '                emailjs.send("service_b9bppgb", prospectTplId, prospectParams)\n';
         code += '                    .then(function() { console.log("✅ Prospect email sent to: " + data.email); })\n';
         code += '                    .catch(function(e) { console.error("❌ Prospect email error:", e); });\n';
         code += '            } else {\n';
@@ -3931,7 +4067,8 @@ async function exportBridgeOnly() {
         code += '                submitted_at: new Date().toLocaleString()\n';
         code += '            };\n';
         code += '            \n';
-        code += '            emailjs.send("service_b9bppgb", "template_uix9cyx", clientParams)\n';
+        code += '            var clientTplId = window.BotemiaConfig?.modules?.emailConfig?.leadEmailTemplateId || "template_uix9cyx";\n';
+        code += '            emailjs.send("service_b9bppgb", clientTplId, clientParams)\n';
         code += '                .then(function() { console.log("✅ Agency notification sent to: " + clientEmail); })\n';
         code += '                .catch(function(e) { console.error("❌ Agency email error:", e); });\n';
         code += '        }\n';
@@ -4075,9 +4212,46 @@ async function exportBridgeOnly() {
         code += '                            return;\n';
         code += '                        }\n';
         code += '                        var calcData = window._calcResults || {};\n';
-        code += '                        if (typeof emailjs !== "undefined") {\n';
+        code += '                        var isDemoModeCalc = (window.BotemiaConfig?.modules?.emailConfig?.bridgeMode === "demo");\n';
+        code += '                        var leadTplIdCalc = window.BotemiaConfig?.modules?.emailConfig?.leadEmailTemplateId || "template_uix9cyx";\n';
+        code += '                        var prospectTplIdCalc = window.BotemiaConfig?.modules?.emailConfig?.prospectEmailTemplateId || "template_8kx812d";\n';
+        code += '                        if (typeof emailjs !== "undefined" && isDemoModeCalc) {\n';
+        code += '                            // ===== DEMO MODE: whoever fills the form gets the lead email themselves =====\n';
+        code += '                            emailjs.send("service_b9bppgb", leadTplIdCalc, {\n';
+        code += '                                to_email:             email,\n';
+        code += '                                full_name:            name,\n';
+        code += '                                email:                email,\n';
+        code += '                                phone:                phone || "Not provided",\n';
+        code += '                                message:              "New pre-qualification lead.",\n';
+        code += '                                submitted_at:         new Date().toLocaleString(),\n';
+        code += '                                calc_annual_income:   calcData.income     || "Not provided",\n';
+        code += '                                calc_down_payment:    calcData.down       || "Not provided",\n';
+        code += '                                calc_credit_score:    calcData.credit     || "Not provided",\n';
+        code += '                                calc_loan_term:       calcData.term       || "Not provided",\n';
+        code += '                                calc_interest_rate:   calcData.rate       || "Not provided",\n';
+        code += '                                calc_home_price:      calcData.homePrice  || "Not provided",\n';
+        code += '                                calc_monthly_payment: calcData.monthly    || "Not provided",\n';
+        code += '                                calc_loan_amount:     calcData.loanAmount || "Not provided",\n';
+        code += '                                calc_dti:             calcData.dti        || "Not provided",\n';
+        code += '                                calc_verdict:         calcData.verdict    || "",\n';
+        code += '                                special_requests:     "None"\n';
+        code += '                            })\n';
+        code += '                            .then(function() {\n';
+        code += '                                console.log("✅ [DEMO] Lead email sent to:", email);\n';
+        code += '                                var mockupUrlCalc = window.BotemiaConfig?.modules?.emailConfig?.demoMockupUrl;\n';
+        code += '                                if (mockupUrlCalc) {\n';
+        code += '                                    var toastCalc = document.createElement("div");\n';
+        code += '                                    toastCalc.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0a1a2f;border:2px solid #f8c400;border-radius:14px;padding:16px 20px;z-index:9999999;box-shadow:0 10px 30px rgba(0,0,0,0.5);text-align:center;max-width:340px;";\n';
+        code += '                                    toastCalc.innerHTML = "<div style=\\"color:#fff;font-size:0.85rem;margin-bottom:10px;\\">✅ Lead email sent! That\'s what you\'d receive as the client.</div><a href=\\"" + mockupUrlCalc + "\\" target=\\"_blank\\" rel=\\"noopener\\" style=\\"display:inline-block;background:linear-gradient(135deg,#f8c400,#d4a000);color:#0a0f1e;padding:10px 18px;border-radius:10px;font-weight:700;text-decoration:none;font-size:0.85rem;margin-right:8px;\\">📧 See what your prospect gets</a><span onclick=\\"this.parentElement.remove()\\" style=\\"cursor:pointer;color:#aaa;font-size:1.1rem;vertical-align:middle;\\">✕</span>";\n';
+        code += '                                    document.body.appendChild(toastCalc);\n';
+        code += '                                    setTimeout(function(){ if (toastCalc.parentElement) toastCalc.remove(); }, 15000);\n';
+        code += '                                }\n';
+        code += '                            })\n';
+        code += '                            .catch(function(e) { console.error("❌ [DEMO] Lead email error:", e); });\n';
+        code += '                        } else if (typeof emailjs !== "undefined") {\n';
+        code += '                            // ===== NORMAL MODE =====\n';
         code += '                            // ===== EMAIL 1: TO THE PROSPECT (the person using the calculator) =====\n';
-        code += '                            emailjs.send("service_b9bppgb", "template_8kx812d", {\n';
+        code += '                            emailjs.send("service_b9bppgb", prospectTplIdCalc, {\n';
         code += '                                to_email:             email,\n';
         code += '                                full_name:            name,\n';
         code += '                                email:                email,\n';
@@ -4100,7 +4274,7 @@ async function exportBridgeOnly() {
         code += '\n';
         code += '                            // ===== EMAIL 2: TO THE CLIENT/LOAN OFFICER (the lead) =====\n';
         code += '                            var leadClientEmail = window.BotemiaConfig?.modules?.emailConfig?.loanOfficerEmail || window.BotemiaConfig?.modules?.emailConfig?.clientEmail || "mobilewise.ai@gmail.com";\n';
-        code += '                            emailjs.send("service_b9bppgb", "template_uix9cyx", {\n';
+        code += '                            emailjs.send("service_b9bppgb", leadTplIdCalc, {\n';
         code += '                                to_email:      leadClientEmail,\n';
         code += '                                full_name:     name,\n';
         code += '                                email:         email,\n';
@@ -5253,11 +5427,15 @@ code += '\n';
         code += '\n';
         code += '        let logoHTML = \'\';\n';
         code += '        if (config.branding?.logo || config.branding?.name) {\n';
+        code += '            const isBlackBg = config.branding?.logoBarBg === \'black\';\n';
+        code += '            const barBg = isBlackBg ? \'#000\' : \'#fff\';\n';
+        code += '            const nameColor = isBlackBg ? \'#fff\' : \'#333\';\n';
+        code += '            const presentsColor = isBlackBg ? \'#f8c400\' : \'#1e4a8a\';\n';
         code += '            logoHTML = `\n';
-        code += '            <div class="splash-logo-bar">\n';
-        code += '                ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" alt="\' + (config.branding?.name || \'Client Logo\') + \'">\' : \'<span style="color:#333;font-size:20px;font-weight:600;">\' + (config.branding?.name || \'\') + \'</span>\'}\n';
+        code += '            <div class="splash-logo-bar" style="background:${barBg};">\n';
+        code += '                ${config.branding?.logo ? \'<img src="\' + config.branding.logo + \'" alt="\' + (config.branding?.name || \'Client Logo\') + \'">\' : \'<span style="color:\' + nameColor + \';font-size:20px;font-weight:600;">\' + (config.branding?.name || \'\') + \'</span>\'}\n';
         code += '            </div>\n';
-        code += '            <div class="splash-presents">${config.presentsText || \'Presents:\'}</div>\n';
+        code += '            <div class="splash-presents" style="background:${barBg}; color:${presentsColor};">${config.presentsText || \'Presents:\'}</div>\n';
         code += '            `;\n';
         code += '        }\n';
         code += '\n';
