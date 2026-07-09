@@ -148,6 +148,12 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <select id="cityFilter" onchange="renderLeads()">
       <option value="">All Cities</option>
     </select>
+    <select id="industryFilter" onchange="renderLeads()">
+      <option value="">All Industries</option>
+      <option value="Mortgage">🏠 Mortgage</option>
+      <option value="Legal">⚖️ Legal / PI</option>
+      <option value="Tax Resolution">💼 Tax Resolution</option>
+    </select>
     <select id="sortSelect" onchange="renderLeads()">
       <option value="mw_asc">🔢 MW# Low → High</option>
       <option value="mw_desc">🔢 MW# High → Low</option>
@@ -183,6 +189,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
           <th>Reviews</th>
           <th>City</th>
           <th>Maps</th>
+          <th>Industry</th>
           <th>Status</th>
           <th>Notes</th>
           <th>Outreach</th>
@@ -316,6 +323,8 @@ function renderLeads() {
   if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
   if (statusF) data = data.filter(l=>l.status===statusF);
   if (cityF)   data = data.filter(l=>l.city===cityF);
+  const indF = document.getElementById('industryFilter').value;
+  if (indF) data = data.filter(l=>(l.industry||'Mortgage')===indF);
 
   // Sort
   const sortV = document.getElementById('sortSelect').value;
@@ -363,6 +372,7 @@ function renderLeads() {
       <td style="text-align:center;">${l.reviews?`<strong style="color:#34a853;">${l.reviews}</strong>`:'—'}</td>
       <td style="font-size:0.76rem;color:rgba(255,255,255,0.5);white-space:nowrap;">${esc(l.city||'—')}</td>
       <td>${l.maps_url?`<a class="lbtn lbtn-b" href="${esc(l.maps_url)}" target="_blank">📍 Maps</a>`:'—'}</td>
+      <td><span style="font-size:0.7rem;padding:3px 9px;border-radius:12px;white-space:nowrap;background:${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.15)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.15)':'rgba(52,168,83,0.1)'};color:${(l.industry||'Mortgage')==='Legal'?'#ce93d8':(l.industry||'Mortgage')==='Tax Resolution'?'#ffb74d':'#81c784'};border:1px solid ${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.4)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.4)':'rgba(52,168,83,0.3)'};">${(l.industry||'Mortgage')==='Legal'?'⚖️ Legal':(l.industry||'Mortgage')==='Tax Resolution'?'💼 Tax':'🏠 Mortgage'}</span></td>
       <td>
         <span class="sbadge ${sc}" onclick="cycleStatus(${l.id},'${esc(l.status||'🟢 New')}')">
           ${esc(l.status||'🟢 New')}
@@ -513,6 +523,8 @@ function exportForEmail() {
   if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
   if (statusF) data = data.filter(l=>l.status===statusF);
   if (cityF)   data = data.filter(l=>l.city===cityF);
+  const indF = document.getElementById('industryFilter').value;
+  if (indF) data = data.filter(l=>(l.industry||'Mortgage')===indF);
 
   // Only leads with emails
   const withEmail = data.filter(l => l.email && l.email.trim());
