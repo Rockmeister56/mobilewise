@@ -3977,6 +3977,7 @@ async function exportBridgeOnly() {
         code += '            }\n';
         code += '            var calcData = window._calcResults || {};\n';
         code += '            var isDemoMode = (window.BotemiaConfig?.modules?.emailConfig?.bridgeMode === "demo");\n';
+        code += '            data.firstName = (data.fullName || "").trim().split(/\\s+/)[0] || "there";\n';
         code += '            \n';
         code += '            if (isDemoMode) {\n';
         code += '                // ===== DEMO MODE: whoever filled the form gets the lead email themselves =====\n';
@@ -3984,6 +3985,7 @@ async function exportBridgeOnly() {
         code += '                    var demoLeadParams = {\n';
         code += '                        to_email:             data.email,\n';
         code += '                        full_name:            data.fullName || "Valued Client",\n';
+        code += '                        first_name:           data.firstName,\n';
         code += '                        email:                data.email,\n';
         code += '                        phone:                data.phone || "Not provided",\n';
         code += '                        business_name:        data.businessName || "Not provided",\n';
@@ -4028,6 +4030,7 @@ async function exportBridgeOnly() {
         code += '                var prospectParams = {\n';
         code += '                    to_email:             data.email,\n';
         code += '                    full_name:            data.fullName || "Valued Client",\n';
+        code += '                    first_name:           data.firstName,\n';
         code += '                    email:                data.email,\n';
         code += '                    phone:                data.phone || "Not provided",\n';
         code += '                    business_name:        data.businessName || "Not provided",\n';
@@ -4060,6 +4063,7 @@ async function exportBridgeOnly() {
         code += '            var clientParams = {\n';
         code += '                to_email: clientEmail,\n';
         code += '                full_name: data.fullName || "Not provided",\n';
+        code += '                first_name: data.firstName,\n';
         code += '                email: data.email || "Not provided",\n';
         code += '                phone: data.phone || "Not provided",\n';
         code += '                scheduled_datetime: data.scheduledDateTime || "Not provided",\n';
@@ -4213,6 +4217,7 @@ async function exportBridgeOnly() {
         code += '                        }\n';
         code += '                        var calcData = window._calcResults || {};\n';
         code += '                        var isDemoModeCalc = (window.BotemiaConfig?.modules?.emailConfig?.bridgeMode === "demo");\n';
+        code += '                        var firstName = (name || "").trim().split(/\\s+/)[0] || "there";\n';
         code += '                        var leadTplIdCalc = window.BotemiaConfig?.modules?.emailConfig?.leadEmailTemplateId || "template_uix9cyx";\n';
         code += '                        var prospectTplIdCalc = window.BotemiaConfig?.modules?.emailConfig?.prospectEmailTemplateId || "template_8kx812d";\n';
         code += '                        if (typeof emailjs !== "undefined" && isDemoModeCalc) {\n';
@@ -4220,6 +4225,7 @@ async function exportBridgeOnly() {
         code += '                            emailjs.send("service_b9bppgb", leadTplIdCalc, {\n';
         code += '                                to_email:             email,\n';
         code += '                                full_name:            name,\n';
+        code += '                                first_name:           firstName,\n';
         code += '                                email:                email,\n';
         code += '                                phone:                phone || "Not provided",\n';
         code += '                                message:              "New pre-qualification lead.",\n';
@@ -4254,6 +4260,7 @@ async function exportBridgeOnly() {
         code += '                            emailjs.send("service_b9bppgb", prospectTplIdCalc, {\n';
         code += '                                to_email:             email,\n';
         code += '                                full_name:            name,\n';
+        code += '                                first_name:           firstName,\n';
         code += '                                email:                email,\n';
         code += '                                phone:                phone || "Not provided",\n';
         code += '                                submitted_at:         new Date().toLocaleString(),\n';
@@ -4277,6 +4284,7 @@ async function exportBridgeOnly() {
         code += '                            emailjs.send("service_b9bppgb", leadTplIdCalc, {\n';
         code += '                                to_email:      leadClientEmail,\n';
         code += '                                full_name:     name,\n';
+        code += '                                first_name:    firstName,\n';
         code += '                                email:         email,\n';
         code += '                                phone:         phone || "Not provided",\n';
         code += '                                message:       "New home loan pre-qualification lead from the mortgage calculator.",\n';

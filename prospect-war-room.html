@@ -148,9 +148,9 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <select id="cityFilter" onchange="renderLeads()">
       <option value="">All Cities</option>
     </select>
-    <select id="industryFilter" onchange="renderLeads()">
+    <select id="industryFilter" onchange="onIndustryChange()">
       <option value="">All Industries</option>
-      <option value="Mortgage">🏠 Mortgage</option>
+      <option value="Mortgage" selected>🏠 Mortgage</option>
       <option value="Legal">⚖️ Legal / PI</option>
       <option value="Tax Resolution">💼 Tax Resolution</option>
     </select>
@@ -269,7 +269,11 @@ async function loadLeads() {
   document.getElementById('leadsBody').innerHTML        = '';
 
   try {
-    allLeads = await sb('GET','leads','','?order=created_at.desc&limit=20000');
+    // Default to Mortgage only on load to protect Tommy's RAM
+    // Full load only triggered when user changes industry filter
+    const activeInd = document.getElementById('industryFilter').value || 'Mortgage';
+    const indQuery = activeInd ? `&industry=eq.${encodeURIComponent(activeInd)}` : '';
+    allLeads = await sb('GET','leads','',`?order=created_at.desc&limit=20000${indQuery}`);
     if (!Array.isArray(allLeads)) allLeads = [];
 
     document.getElementById('connDot').textContent = '● Live';
@@ -303,6 +307,25 @@ function selectWeek(w, el) {
   el.classList.add('active');
   renderLeads();
   updateStats();
+}
+
+// Reload leads from Supabase when industry changes — protects Tommy's RAM
+// by only holding one industry in memory at a time
+async function onIndustryChange() {
+  const ind = document.getElementById('industryFilter').value;
+  document.getElementById('leadsLoading').style.display = 'block';
+  document.getElementById('leadsBody').innerHTML = '';
+  activeWeek = 'all';
+  try {
+    const indQuery = ind ? `&industry=eq.${encodeURIComponent(ind)}` : '';
+    allLeads = await sb('GET','leads','',`?order=created_at.desc&limit=20000${indQuery}`);
+    if (!Array.isArray(allLeads)) allLeads = [];
+    buildWeekTabs();
+    buildCityFilter();
+    renderLeads();
+    updateStats();
+  } catch(e) { console.error('Industry reload error:', e); }
+  document.getElementById('leadsLoading').style.display = 'none';
 }
 
 function buildCityFilter() {
