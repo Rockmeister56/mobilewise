@@ -148,9 +148,9 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <select id="cityFilter" onchange="renderLeads()">
       <option value="">All Cities</option>
     </select>
-    <select id="industryFilter" onchange="onIndustryChange()">
+    <select id="industryFilter" onchange="renderLeads()">
       <option value="">All Industries</option>
-      <option value="Mortgage" selected>🏠 Mortgage</option>
+      <option value="Mortgage">🏠 Mortgage</option>
       <option value="Legal">⚖️ Legal / PI</option>
       <option value="Tax Resolution">💼 Tax Resolution</option>
     </select>
@@ -269,11 +269,7 @@ async function loadLeads() {
   document.getElementById('leadsBody').innerHTML        = '';
 
   try {
-    // Default to Mortgage only on load to protect Tommy's RAM
-    // Full load only triggered when user changes industry filter
-    const activeInd = document.getElementById('industryFilter').value || 'Mortgage';
-    const indQuery = activeInd ? `&industry=eq.${encodeURIComponent(activeInd)}` : '';
-    allLeads = await sb('GET','leads','',`?order=created_at.desc&limit=20000${indQuery}`);
+    allLeads = await sb('GET','leads','','?order=created_at.desc&limit=20000');
     if (!Array.isArray(allLeads)) allLeads = [];
 
     document.getElementById('connDot').textContent = '● Live';
@@ -294,11 +290,25 @@ async function loadLeads() {
 function buildWeekTabs() {
   const weeks = [...new Set(allLeads.map(l=>l.week_label||'Untagged').filter(Boolean))];
   const bar   = document.getElementById('weekBar');
-  bar.innerHTML = `<div class="week-chip active" onclick="selectWeek('all',this)">📋 All (${allLeads.length})</div>`;
+  bar.innerHTML = `<div class="week-chip" onclick="selectWeek('all',this)">📋 All (${allLeads.length})</div>`;
   weeks.forEach(w => {
     const cnt = allLeads.filter(l=>l.week_label===w).length;
     bar.innerHTML += `<div class="week-chip" onclick="selectWeek('${esc(w)}',this)">📅 ${esc(w)} <span style="opacity:0.5;margin-left:4px;">(${cnt})</span></div>`;
   });
+
+  // Auto-select the most recent week tab on load instead of showing all leads
+  const chips = bar.querySelectorAll('.week-chip');
+  if (chips.length > 1) {
+    // chips[0] is "All", chips[1] is the first/most recent week
+    const firstWeekChip = chips[1];
+    firstWeekChip.classList.add('active');
+    const weekLabel = weeks[0];
+    activeWeek = weekLabel;
+  } else {
+    // Fallback to All if only one tab
+    chips[0].classList.add('active');
+    activeWeek = 'all';
+  }
 }
 
 function selectWeek(w, el) {
@@ -307,25 +317,6 @@ function selectWeek(w, el) {
   el.classList.add('active');
   renderLeads();
   updateStats();
-}
-
-// Reload leads from Supabase when industry changes — protects Tommy's RAM
-// by only holding one industry in memory at a time
-async function onIndustryChange() {
-  const ind = document.getElementById('industryFilter').value;
-  document.getElementById('leadsLoading').style.display = 'block';
-  document.getElementById('leadsBody').innerHTML = '';
-  activeWeek = 'all';
-  try {
-    const indQuery = ind ? `&industry=eq.${encodeURIComponent(ind)}` : '';
-    allLeads = await sb('GET','leads','',`?order=created_at.desc&limit=20000${indQuery}`);
-    if (!Array.isArray(allLeads)) allLeads = [];
-    buildWeekTabs();
-    buildCityFilter();
-    renderLeads();
-    updateStats();
-  } catch(e) { console.error('Industry reload error:', e); }
-  document.getElementById('leadsLoading').style.display = 'none';
 }
 
 function buildCityFilter() {
