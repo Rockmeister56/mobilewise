@@ -263,47 +263,83 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Load Leads ────────────────────────────────────────────
+// Step 1: Only fetch distinct week labels on startup — no lead data yet
 async function loadLeads() {
   document.getElementById('leadsLoading').style.display = 'block';
-  document.getElementById('leadsEmpty').style.display   = 'none';
-  document.getElementById('leadsBody').innerHTML        = '';
+  document.getElementById('leadsBody').innerHTML = '';
+  document.getElementById('leadsEmpty').style.display = 'none';
+
+  const ind = document.getElementById('industryFilter').value || 'Mortgage';
 
   try {
-    // Only load Mortgage leads on startup to protect RAM
-    allLeads = await sb('GET','leads','','?order=created_at.desc&limit=20000&industry=eq.Mortgage');
-    if (!Array.isArray(allLeads)) allLeads = [];
+    // Fetch ONLY week_label column — tiny query, no lead data downloaded
+    const weekData = await sb('GET','leads','',
+      `?select=week_label&industry=eq.${encodeURIComponent(ind)}&week_label=not.is.null&limit=20000`
+    );
 
     document.getElementById('connDot').textContent = '● Live';
     document.getElementById('connDot').style.color = '#34a853';
 
-    buildWeekTabs();
-    buildCityFilter();
-    renderLeads();
-    updateStats();
+    // Get unique weeks sorted by label
+    const weeks = [...new Set((weekData||[]).map(r=>r.week_label).filter(Boolean))];
+
+    buildWeekTabs(weeks, ind);
+
+    // Auto-load most recent week
+    const bar = document.getElementById('weekBar');
+    const firstChip = bar.querySelector('.week-chip[data-week]');
+    if (firstChip) {
+      firstChip.classList.add('active');
+      await loadWeekLeads(firstChip.dataset.week, ind);
+    }
+
   } catch(e) {
     document.getElementById('connDot').textContent = '● Connection error';
     document.getElementById('connDot').style.color = '#f44336';
+    console.error(e);
   }
   document.getElementById('leadsLoading').style.display = 'none';
 }
 
-// ── Week Tabs ─────────────────────────────────────────────
-function buildWeekTabs() {
-  const weeks = [...new Set(allLeads.map(l=>l.week_label||'Untagged').filter(Boolean))];
-  const bar   = document.getElementById('weekBar');
-  // No tab is active on load — Tommy clicks the week he wants to work
-  bar.innerHTML = `<div class="week-chip" onclick="selectWeek('all',this)">📋 All (${allLeads.length})</div>`;
+// ── Week Tabs — built from label list only, no lead data needed ──
+function buildWeekTabs(weeks, ind) {
+  const bar = document.getElementById('weekBar');
+  bar.innerHTML = '';
   weeks.forEach(w => {
-    const cnt = allLeads.filter(l=>l.week_label===w).length;
-    bar.innerHTML += `<div class="week-chip" onclick="selectWeek('${esc(w)}',this)">📅 ${esc(w)} <span style="opacity:0.5;margin-left:4px;">(${cnt})</span></div>`;
+    bar.innerHTML += `<div class="week-chip" data-week="${esc(w)}" onclick="onWeekClick('${esc(w)}',this)">📅 ${esc(w)}</div>`;
   });
-  // Show a prompt so Tommy knows to pick a week
+}
+
+// ── Week click — fetch ONLY that week from Supabase ──
+async function onWeekClick(w, el) {
+  document.querySelectorAll('.week-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  activeWeek = w;
+  const ind = document.getElementById('industryFilter').value || 'Mortgage';
+  document.getElementById('leadsLoading').style.display = 'block';
   document.getElementById('leadsBody').innerHTML = '';
-  document.getElementById('leadsEmpty').style.display = 'none';
-  const tbody = document.getElementById('leadsBody');
-  tbody.innerHTML = `<tr><td colspan="16" style="text-align:center;padding:60px 20px;color:rgba(255,255,255,0.3);font-size:0.9rem;">
-    👆 Click a week tab above to load leads — select the week you want to work on today
-  </td></tr>`;
+  await loadWeekLeads(w, ind);
+  document.getElementById('leadsLoading').style.display = 'none';
+}
+
+// ── Fetch leads for one specific week from Supabase ──
+async function loadWeekLeads(week, ind) {
+  try {
+    allLeads = await sb('GET','leads','',
+      `?order=lead_id.asc&limit=5000&industry=eq.${encodeURIComponent(ind)}&week_label=eq.${encodeURIComponent(week)}`
+    );
+    if (!Array.isArray(allLeads)) allLeads = [];
+    buildCityFilter();
+    renderLeads();
+    updateStats();
+  } catch(e) { console.error('Week load error:', e); }
+}
+
+// ── Industry change — rebuild week tabs for new industry ──
+async function onIndustryChange() {
+  allLeads = [];
+  document.getElementById('leadsBody').innerHTML = '';
+  await loadLeads();
 }
 
 function selectWeek(w, el) {
@@ -312,24 +348,6 @@ function selectWeek(w, el) {
   el.classList.add('active');
   renderLeads();
   updateStats();
-}
-
-// Reload from Supabase when industry changes — only holds one industry in RAM
-async function onIndustryChange() {
-  const ind = document.getElementById('industryFilter').value || 'Mortgage';
-  document.getElementById('leadsLoading').style.display = 'block';
-  document.getElementById('leadsBody').innerHTML = '';
-  activeWeek = 'all';
-  document.querySelectorAll('.week-chip').forEach(c=>c.classList.remove('active'));
-  try {
-    const indQuery = ind ? `&industry=eq.${encodeURIComponent(ind)}` : '';
-    allLeads = await sb('GET','leads','',`?order=created_at.desc&limit=20000${indQuery}`);
-    if (!Array.isArray(allLeads)) allLeads = [];
-    buildWeekTabs();
-    buildCityFilter();
-    // Don't auto-render — wait for Tommy to click a week tab
-  } catch(e) { console.error('Industry reload error:', e); }
-  document.getElementById('leadsLoading').style.display = 'none';
 }
 
 function buildCityFilter() {
