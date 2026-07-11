@@ -3994,9 +3994,10 @@ async function exportBridgeOnly() {
         code += '                        submitted_at:         new Date().toLocaleString(),\n';
         code += '                        calc_annual_income:   calcData.income     || "Not provided",\n';
         code += '                        calc_down_payment:    calcData.down       || "Not provided",\n';
+        code += '                        calc_monthly_debt:    calcData.debt       || "Not provided",\n';
+        code += '                        calc_loan_type:       calcData.loanType   || "Not provided",\n';
         code += '                        calc_credit_score:    calcData.credit     || "Not provided",\n';
         code += '                        calc_loan_term:       calcData.term       || "Not provided",\n';
-        code += '                        calc_interest_rate:   calcData.rate       || "Not provided",\n';
         code += '                        calc_home_price:      calcData.homePrice  || "Not provided",\n';
         code += '                        calc_monthly_payment: calcData.monthly    || "Not provided",\n';
         code += '                        calc_loan_amount:     calcData.loanAmount || "Not provided",\n';
@@ -4038,9 +4039,10 @@ async function exportBridgeOnly() {
         code += '                    submitted_at:         new Date().toLocaleString(),\n';
         code += '                    calc_annual_income:   calcData.income     || "Not provided",\n';
         code += '                    calc_down_payment:    calcData.down       || "Not provided",\n';
+        code += '                    calc_monthly_debt:    calcData.debt       || "Not provided",\n';
+        code += '                    calc_loan_type:       calcData.loanType   || "Not provided",\n';
         code += '                    calc_credit_score:    calcData.credit     || "Not provided",\n';
         code += '                    calc_loan_term:       calcData.term       || "Not provided",\n';
-        code += '                    calc_interest_rate:   calcData.rate       || "Not provided",\n';
         code += '                    calc_home_price:      calcData.homePrice  || "Not provided",\n';
         code += '                    calc_monthly_payment: calcData.monthly    || "Not provided",\n';
         code += '                    calc_loan_amount:     calcData.loanAmount || "Not provided",\n';
@@ -4232,9 +4234,10 @@ async function exportBridgeOnly() {
         code += '                                submitted_at:         new Date().toLocaleString(),\n';
         code += '                                calc_annual_income:   calcData.income     || "Not provided",\n';
         code += '                                calc_down_payment:    calcData.down       || "Not provided",\n';
+        code += '                                calc_monthly_debt:    calcData.debt       || "Not provided",\n';
+        code += '                                calc_loan_type:       calcData.loanType   || "Not provided",\n';
         code += '                                calc_credit_score:    calcData.credit     || "Not provided",\n';
         code += '                                calc_loan_term:       calcData.term       || "Not provided",\n';
-        code += '                                calc_interest_rate:   calcData.rate       || "Not provided",\n';
         code += '                                calc_home_price:      calcData.homePrice  || "Not provided",\n';
         code += '                                calc_monthly_payment: calcData.monthly    || "Not provided",\n';
         code += '                                calc_loan_amount:     calcData.loanAmount || "Not provided",\n';
@@ -4266,9 +4269,10 @@ async function exportBridgeOnly() {
         code += '                                submitted_at:         new Date().toLocaleString(),\n';
         code += '                                calc_annual_income:   calcData.income     || "Not provided",\n';
         code += '                                calc_down_payment:    calcData.down       || "Not provided",\n';
+        code += '                                calc_monthly_debt:    calcData.debt       || "Not provided",\n';
+        code += '                                calc_loan_type:       calcData.loanType   || "Not provided",\n';
         code += '                                calc_credit_score:    calcData.credit     || "Not provided",\n';
         code += '                                calc_loan_term:       calcData.term       || "Not provided",\n';
-        code += '                                calc_interest_rate:   calcData.rate       || "Not provided",\n';
         code += '                                calc_home_price:      calcData.homePrice  || "Not provided",\n';
         code += '                                calc_monthly_payment: calcData.monthly    || "Not provided",\n';
         code += '                                calc_loan_amount:     calcData.loanAmount || "Not provided",\n';
@@ -4485,6 +4489,7 @@ async function exportBridgeOnly() {
         code += '            credit: creditLabels[String(creditAdj)] || "Not provided",\n';
         code += '            term: term+" Years",\n';
         code += '            rate: rate ? rate.toFixed(2)+"%" : "Not provided",\n';
+        code += '            loanType: loanType || "Not provided",\n';
         code += '            homePrice: hp ? hp.textContent : "Not provided",\n';
         code += '            monthly: mp2 ? mp2.textContent : "Not provided",\n';
         code += '            loanAmount: la ? la.textContent : "Not provided",\n';
