@@ -841,6 +841,19 @@
     </div>
 </div>
 
+<!-- Preloader Audio ("Hi, I'm Tess...") -->
+<div style="background: rgba(0,0,0,0.2); border-radius: 16px; padding: 20px; margin-top: 20px; border: 1px dashed #f8c400;">
+    <label style="color: #f8c400; font-weight: 600; display: block; margin-bottom: 8px;">
+        <i class="fas fa-volume-up"></i> Preloader Audio (optional)
+    </label>
+    <p style="color: #aaa; font-size:0.8rem; margin-bottom:15px;">
+        A short voice clip that plays automatically while the widget loads — e.g. "Hi, this is Tess, I'll be with you in just a moment." Turns the wait into something reassuring instead of dead air. Leave blank to skip.
+    </p>
+    <input type="file" id="preloaderAudio" accept="audio/*" onchange="handlePreloaderAudioUpload(this)">
+    <input type="hidden" id="preloaderAudioData" value="">
+    <div id="preloaderAudioPreview" style="margin-top:12px;"></div>
+</div>
+
             <!-- Add after Agent ID field -->
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
     <div class="field">
@@ -884,12 +897,25 @@
         <i class="fas fa-tag" style="color: #f8c400;"></i>
         <h4 style="color: white; margin:0;">Splash Screen Ticker</h4>
     </div>
+
+    <div class="field" style="margin-bottom: 15px;">
+        <label><i class="fas fa-industry"></i> Load a Preset</label>
+        <select id="tickerPreset" onchange="applyTickerPreset()" style="width: 100%; padding: 12px;">
+            <option value="" selected>— Choose an industry preset (optional) —</option>
+            <option value="mortgage">Mortgage / Home Lending</option>
+            <option value="legal">Legal / Personal Injury</option>
+            <option value="taxres">Tax Resolution</option>
+        </select>
+        <p style="color: #aaa; font-size:0.8rem; margin-top:5px;">
+            <i class="fas fa-info-circle"></i> Fills the field below with ready-made phrases for that industry — still fully editable after loading.
+        </p>
+    </div>
     
     <div class="field">
         <label><i class="fas fa-list"></i> Keywords (comma separated)</label>
         <input type="text" id="splashTickerKeywords" value="" placeholder="e.g., Mortgage Rates, Pre-Qualification, First-Time Buyer, Refinance" style="width: 100%; padding: 12px;">
         <p style="color: #aaa; font-size:0.8rem; margin-top:5px;">
-            <i class="fas fa-info-circle"></i> Type your own keywords for each client. They will scroll at the bottom of Tess's video.
+            <i class="fas fa-info-circle"></i> Type your own keywords for each client, or load a preset above. They will scroll at the bottom of Tess's video.
         </p>
     </div>
 </div>
@@ -2021,6 +2047,7 @@ let configManager = {
                     presentsText: document.getElementById('splashPresentsText')?.value || 'Presents:',
                     serviceLine: document.getElementById('splashServiceLine')?.value || 'Offering 24/7 Customer Service!',
                     tessVideoUrl: document.getElementById('splashTessVideoUrl')?.value || '',
+                    preloaderAudioData: document.getElementById('preloaderAudioData')?.value || '',
                     tessVideoFit: document.getElementById('tessVideoFit')?.value || 'cover',
                     tickerKeywords: document.getElementById('splashTickerKeywords')?.value || '',
                     gradientCenter: document.getElementById('splashGradientCenter')?.value || '#1e4a8a',
@@ -2260,6 +2287,10 @@ populateClientSelect() {
     document.getElementById('splashPresentsText').value = splash.presentsText || 'Presents:';
     document.getElementById('splashServiceLine').value = splash.serviceLine || 'Offering 24/7 Customer Service!';
     document.getElementById('splashTessVideoUrl').value = splash.tessVideoUrl || '';
+    document.getElementById('preloaderAudioData').value = splash.preloaderAudioData || '';
+    if (splash.preloaderAudioData) {
+        document.getElementById('preloaderAudioPreview').innerHTML = '<audio controls style="width:100%;height:36px;"><source src="' + splash.preloaderAudioData + '"></audio>';
+    }
     document.getElementById('tessVideoFit').value = splash.tessVideoFit || 'cover';
     document.getElementById('splashTickerKeywords').value = splash.tickerKeywords || '';
     document.getElementById('splashGradientCenter').value = splash.gradientCenter || '#1e4a8a';
@@ -3175,6 +3206,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        function applyTickerPreset() {
+            const preset = document.getElementById('tickerPreset').value;
+            const presets = {
+                mortgage: "Get Pre-Qualified Today, Check Today's Rates, Refinance Options, First-Time Buyer Programs, Fast Pre-Approval",
+                legal: "Free Case Evaluation, No Fee Unless We Win, 24/7 Injury Hotline, Talk to an Attorney Now, Know Your Rights",
+                taxres: "Stop Wage Garnishment, Free Tax Consultation, Settle Your IRS Debt, Release a Tax Lien, Talk to a Specialist Now"
+            };
+            if (presets[preset]) {
+                document.getElementById('splashTickerKeywords').value = presets[preset];
+            }
+        }
+
         function handleTessImageUpload(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -3200,6 +3243,20 @@ document.addEventListener('DOMContentLoaded', function() {
             if (preview) {
                 preview.innerHTML = `<img src="${e.target.result}" style="height: 40px; width: auto; border-radius: 4px;"> 
                                      <span style="color: white; font-size: 24px;" id="brandNamePreview">${document.getElementById('splashBrandName').value || 'Brand Name'}</span>`;
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+        function handlePreloaderAudioUpload(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preloaderAudioData').value = e.target.result;
+            const preview = document.getElementById('preloaderAudioPreview');
+            if (preview) {
+                preview.innerHTML = '<audio controls style="width:100%;height:36px;"><source src="' + e.target.result + '"></audio>';
             }
         };
         reader.readAsDataURL(input.files[0]);
@@ -5577,6 +5634,16 @@ code += '\n';
         code += '                preloader.id = \'tess-preloader\';\n';
         code += '                preloader.innerHTML = \'<div class="spinner"></div>\';\n';
         code += '                wrap.appendChild(preloader);\n';
+        code += '\n';
+        code += '                // Play "Hi, I\'m Tess..." preloader audio, if configured\n';
+        code += '                var preloaderAudioSrc = window.BotemiaConfig?.modules?.splashScreen?.preloaderAudioData;\n';
+        code += '                if (preloaderAudioSrc) {\n';
+        code += '                    try {\n';
+        code += '                        var widgetPreloaderAudio = new Audio(preloaderAudioSrc);\n';
+        code += '                        widgetPreloaderAudio.play().catch(function(e) { console.warn(\'Preloader audio blocked:\', e); });\n';
+        code += '                    } catch (e) { console.warn(\'Preloader audio error:\', e); }\n';
+        code += '                }\n';
+        code += '\n';
         code += '                setTimeout(function() {\n';
         code += '                    const pl = document.getElementById(\'tess-preloader\');\n';
         code += '                    if (pl) {\n';
@@ -5668,9 +5735,6 @@ code += '\n';
         code += '    }\n';
         code += '        trackEvent(\'activate_tess\');\n';
         code += '\n';
-
-
-        // ===== SHOW PERSISTENT AVATAR =====
         code += '    function showPersistentAvatar() {\n';
         code += '        const config = window.BotemiaConfig.modules?.splashScreen;\n';
         code += '        const persistentConfig = config?.persistentButton || {};\n';
