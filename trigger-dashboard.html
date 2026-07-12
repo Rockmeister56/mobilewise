@@ -5439,7 +5439,7 @@ code += '\n';
                 // ===== WIDGET CREATION (CONFORMED) =====
         code += '    function createMainWidget() {\n';
         code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-        code += '        widget.setAttribute(\'agent-id\', \'agent_7b0776ef6b855de5\');\n';
+        code += '        widget.setAttribute(\'agent-id\', \'' + (config.modules?.splashScreen?.agentId || config.agentId) + '\');\n';
         code += '        let clientId = window.BotemiaConfig?.id;\n';
         code += '        if (!clientId) { console.error("❌ CRITICAL: BotemiaConfig ID missing!"); return null; }\n';
         code += '        widget.setAttribute(\'client-id\', clientId);\n';
