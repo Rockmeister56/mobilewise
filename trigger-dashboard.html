@@ -849,9 +849,21 @@
     <p style="color: #aaa; font-size:0.8rem; margin-bottom:15px;">
         A short voice clip that plays automatically while the widget loads — e.g. "Hi, this is Tess, I'll be with you in just a moment." Turns the wait into something reassuring instead of dead air. Leave blank to skip.
     </p>
-    <input type="file" id="preloaderAudio" accept="audio/*" onchange="handlePreloaderAudioUpload(this)">
-    <input type="hidden" id="preloaderAudioData" value="">
-    <div id="preloaderAudioPreview" style="margin-top:12px;"></div>
+
+    <div class="field" style="margin-bottom: 15px;">
+        <label><i class="fas fa-link"></i> Audio URL (recommended — Supabase CDN or direct link)</label>
+        <input type="text" id="preloaderAudioUrl" placeholder="https://your-storage.supabase.co/.../tess-intro.mp3" value="" style="width: 100%; padding: 10px;" oninput="document.getElementById('preloaderAudioData').value=''; document.getElementById('preloaderAudioPreview').innerHTML='';">
+        <p style="color: #aaa; font-size:0.75rem; margin-top:5px;">Hosting the file yourself (same as the Tess video) keeps the bridge file small — this is the better option for anything beyond a couple seconds of audio.</p>
+    </div>
+
+    <div style="color: #888; font-size:0.75rem; margin: 10px 0; text-align:center;">— or, for quick testing only —</div>
+
+    <div class="field">
+        <label style="font-size:0.85rem;"><i class="fas fa-upload"></i> Upload directly (embeds the file in the bridge — fine for a quick test, not recommended for production)</label>
+        <input type="file" id="preloaderAudio" accept="audio/*" onchange="handlePreloaderAudioUpload(this)">
+        <input type="hidden" id="preloaderAudioData" value="">
+        <div id="preloaderAudioPreview" style="margin-top:12px;"></div>
+    </div>
 </div>
 
             <!-- Add after Agent ID field -->
@@ -2047,7 +2059,7 @@ let configManager = {
                     presentsText: document.getElementById('splashPresentsText')?.value || 'Presents:',
                     serviceLine: document.getElementById('splashServiceLine')?.value || 'Offering 24/7 Customer Service!',
                     tessVideoUrl: document.getElementById('splashTessVideoUrl')?.value || '',
-                    preloaderAudioData: document.getElementById('preloaderAudioData')?.value || '',
+                    preloaderAudioData: document.getElementById('preloaderAudioUrl')?.value || document.getElementById('preloaderAudioData')?.value || '',
                     tessVideoFit: document.getElementById('tessVideoFit')?.value || 'cover',
                     tickerKeywords: document.getElementById('splashTickerKeywords')?.value || '',
                     gradientCenter: document.getElementById('splashGradientCenter')?.value || '#1e4a8a',
@@ -2287,9 +2299,16 @@ populateClientSelect() {
     document.getElementById('splashPresentsText').value = splash.presentsText || 'Presents:';
     document.getElementById('splashServiceLine').value = splash.serviceLine || 'Offering 24/7 Customer Service!';
     document.getElementById('splashTessVideoUrl').value = splash.tessVideoUrl || '';
-    document.getElementById('preloaderAudioData').value = splash.preloaderAudioData || '';
-    if (splash.preloaderAudioData) {
-        document.getElementById('preloaderAudioPreview').innerHTML = '<audio controls style="width:100%;height:36px;"><source src="' + splash.preloaderAudioData + '"></audio>';
+    const savedAudio = splash.preloaderAudioData || '';
+    if (savedAudio.startsWith('data:')) {
+        document.getElementById('preloaderAudioData').value = savedAudio;
+        document.getElementById('preloaderAudioUrl').value = '';
+    } else {
+        document.getElementById('preloaderAudioUrl').value = savedAudio;
+        document.getElementById('preloaderAudioData').value = '';
+    }
+    if (savedAudio) {
+        document.getElementById('preloaderAudioPreview').innerHTML = '<audio controls style="width:100%;height:36px;"><source src="' + savedAudio + '"></audio>';
     }
     document.getElementById('tessVideoFit').value = splash.tessVideoFit || 'cover';
     document.getElementById('splashTickerKeywords').value = splash.tickerKeywords || '';
@@ -3251,6 +3270,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function handlePreloaderAudioUpload(input) {
     if (input.files && input.files[0]) {
+        document.getElementById('preloaderAudioUrl').value = '';
         const reader = new FileReader();
         reader.onload = function(e) {
             document.getElementById('preloaderAudioData').value = e.target.result;
