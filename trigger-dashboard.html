@@ -874,7 +874,7 @@
     </div>
     <div class="field">
         <label><i class="fas fa-subscript"></i> Slogan (cursive text under name)</label>
-        <input type="text" id="splashSubtitle" value="Your Friendly AI Web Assistant" placeholder="e.g., Your Friendly AI Web Assistant">
+        <input type="text" id="splashSubtitle" value="Your Helpful AI Web Assistant" placeholder="e.g., Your Helpful AI Web Assistant">
     </div>
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
@@ -1829,7 +1829,7 @@ function createNewClient() {
     
     // Clear splash screen fields
     document.getElementById('splashTitle').value = 'Tess';
-    document.getElementById('splashSubtitle').value = 'Your Friendly AI Web Assistant';
+    document.getElementById('splashSubtitle').value = 'Your Helpful AI Web Assistant';
     document.getElementById('splashPresentsText').value = 'Presents:';
     document.getElementById('splashServiceLine').value = 'Offering 24/7 Customer Service!';
     document.getElementById('splashLogoBarBg').value = 'white';
@@ -2055,7 +2055,7 @@ let configManager = {
                     enabled: document.getElementById('splashEnabled')?.checked || false,
                     agentId: document.getElementById('splashAgentId')?.value || '',
                     title: document.getElementById('splashTitle')?.value || 'Tess',
-                    subtitle: document.getElementById('splashSubtitle')?.value || 'Your Friendly AI Web Assistant',
+                    subtitle: document.getElementById('splashSubtitle')?.value || 'Your Helpful AI Web Assistant',
                     presentsText: document.getElementById('splashPresentsText')?.value || 'Presents:',
                     serviceLine: document.getElementById('splashServiceLine')?.value || 'Offering 24/7 Customer Service!',
                     tessVideoUrl: document.getElementById('splashTessVideoUrl')?.value || '',
@@ -2295,7 +2295,7 @@ populateClientSelect() {
     document.getElementById('splashEnabled').checked = splash.enabled !== false;
     document.getElementById('splashAgentId').value = splash.agentId || client.agentId || '';
     document.getElementById('splashTitle').value = splash.title || 'Tess';
-    document.getElementById('splashSubtitle').value = splash.subtitle || 'Your Friendly AI Web Assistant';
+    document.getElementById('splashSubtitle').value = splash.subtitle || 'Your Helpful AI Web Assistant';
     document.getElementById('splashPresentsText').value = splash.presentsText || 'Presents:';
     document.getElementById('splashServiceLine').value = splash.serviceLine || 'Offering 24/7 Customer Service!';
     document.getElementById('splashTessVideoUrl').value = splash.tessVideoUrl || '';
@@ -3574,7 +3574,7 @@ async function exportBridgeOnly() {
         code += '        .splash-navy { flex: 1; background: radial-gradient(circle at center, var(--grad-center, #1e4a8a) 0%, var(--grad-outer, #0a1a2f) 80%); padding: 11px 24px 0; display: flex; flex-direction: column; align-items: center; position: relative; }\n';
         code += '        .splash-navy h1 { font-family: \'Playfair Display\', serif; font-style: italic; font-weight: 700; font-size: 2.9rem; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px; letter-spacing: 0.01em; margin: 0 0 0 -20px; }\n';
         code += '        .splash-navy h1 .sparkle { font-size: 1.95rem; filter: drop-shadow(0 0 6px rgba(248,196,0,0.7)); }\n';
-        code += '        .splash-navy h2 { font-family: \'Dancing Script\', cursive; color: rgba(255,255,255,0.92); font-size: 1.55rem; font-weight: 600; margin: 2px 0 22px; text-align: center; }\n';
+        code += '        .splash-navy h2 { font-family: Arial, Helvetica, sans-serif; font-style: italic; color: rgba(255,255,255,0.92); font-size: 1.35rem; font-weight: 400; margin: 2px 0 22px; text-align: center; }\n';
         code += '        .splash-avatar-container {\n';
         code += '            width: 175px; height: 175px; margin: 0 auto 20px;\n';
         code += '            border-radius: 50%; overflow: hidden;\n';
@@ -3586,10 +3586,10 @@ async function exportBridgeOnly() {
         code += '        }\n';
         code += '        .splash-avatar-container lemon-slice-widget {\n';
         code += '            position: absolute;\n';
-        code += '            top: 80%; left: 46%;\n';
+        code += '            top: 80%; left: 51%;\n';
         code += '            transform: translate(-50%, -50%);\n';
-        code += '            width: 220px !important;\n';
-        code += '            height: 329px !important;\n';
+        code += '            width: 200px !important;\n';
+        code += '            height: 300px !important;\n';
         code += '            max-width: none !important;\n';
         code += '            max-height: none !important;\n';
         code += '        }\n';
@@ -3678,7 +3678,7 @@ async function exportBridgeOnly() {
         code += '           override the base rules above at this screen width, without touching mobile */\n';
         code += '        @media (min-width: 470px) {\n';
         code += '            .splash-avatar-container lemon-slice-widget {\n';
-        code += '                transform: translate(calc(-50% - 10px), -50%);\n';
+        code += '                transform: translate(calc(-50% - 20px), -50%);\n';
         code += '            }\n';
         code += '            .splash-service-line {\n';
         code += '                margin-top: 55px;\n';
@@ -5532,7 +5532,7 @@ code += '\n';
         code += '        let pageHTML = logoHTML + `\n';
         code += '            <div class="splash-navy">\n';
         code += '                <h1><span class="sparkle">✨</span>${config.title || \'Tess\'}</h1>\n';
-        code += '                <h2>${config.subtitle || \'Your Friendly AI Web Assistant\'}</h2>\n';
+        code += '                <h2>${config.subtitle || \'Your Helpful AI Web Assistant\'}</h2>\n';
         code += '                <div class="splash-avatar-container" id="splashAvatarContainer">\n';
         code += '                    <div id="splash-preloader" style="position:absolute;inset:0;border-radius:50%;background:#000;display:flex;align-items:center;justify-content:center;z-index:999999;">\n';
         code += '                        <div class="spinner"></div>\n';
