@@ -557,7 +557,7 @@ function toast(msg) {
   setTimeout(()=>t.classList.remove('show'), 2500);
 }
 
-function exportForEmail() {
+async function exportForEmail() {
   // Get currently visible leads that have an email address
   const search  = document.getElementById('searchInput').value.toLowerCase();
   const statusF = document.getElementById('statusFilter').value;
@@ -571,37 +571,58 @@ function exportForEmail() {
   const indF = document.getElementById('industryFilter').value;
   if (indF) data = data.filter(l=>(l.industry||'Mortgage')===indF);
 
-  // Only leads with emails
-  const withEmail = data.filter(l => l.email && l.email.trim());
+  // Only leads with emails — skip already emailed
+  const withEmail = data.filter(l => l.email && l.email.trim() && l.status !== '📧 Emailed');
   const noEmail   = data.length - withEmail.length;
 
   if (!withEmail.length) {
-    alert('No leads with email addresses in the current view.\n\nMake sure Tommy has added emails before exporting for the batch sender.');
+    alert('No leads with email addresses in the current view, or all have already been emailed.\n\nMake sure Tommy has added emails before exporting.');
     return;
   }
 
-  // Build CSV: FirstName, Email only
-  let csv = 'FirstName,Email\n';
   // Cap at 20 for batch sender
   const batch = withEmail.slice(0, 20);
+
+  const confirmed = confirm(
+    `Ready to export ${batch.length} leads for email batch.\n\n` +
+    `This will:\n` +
+    `✅ Download the CSV for your email bulk sender\n` +
+    `✅ Mark these ${batch.length} leads as 📧 Emailed in Supabase\n` +
+    `✅ Send them to Brett\'s sales queue automatically\n\n` +
+    `Continue?`
+  );
+  if (!confirmed) return;
+
+  // Build CSV: FirstName, Email, Company for email sender
+  let csv = 'FirstName,Email,Company\n';
   batch.forEach(l => {
     const firstName = (l.contact_name || '').split(' ')[0] || 'there';
-    csv += `${firstName.replace(/,/g,'')},${(l.email||'').replace(/,/g,'')}\n`;
+    csv += `"${firstName.replace(/"/g,'')}", "${(l.email||'').replace(/"/g,'')}","${(l.company_name||'').replace(/"/g,'')}"\n`;
   });
 
+  // Download CSV
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   a.download = `email-batch-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 
-  const msg = batch.length < withEmail.length
-    ? `Exported ${batch.length} leads (capped at 20 per batch).\n${withEmail.length - batch.length} remaining — export again for next batch.`
-    : `Exported ${batch.length} lead${batch.length!==1?'s':''} for email batch.`;
-
-  if (noEmail) {
-    toast(`${msg} (${noEmail} skipped — no email)`);
-  } else {
-    toast(msg);
+  // Mark all 20 as Emailed in Supabase simultaneously
+  // Update in batches by ID
+  const ids = batch.map(l=>l.id);
+  try {
+    await sb('PATCH','leads',
+      { status: '📧 Emailed', scraped_date: new Date().toISOString().slice(0,10) },
+      `?id=in.(${ids.join(',')})`
+    );
+    // Update local state
+    batch.forEach(l => { l.status = '📧 Emailed'; });
+    renderLeads();
+    updateStats();
+    const remaining = withEmail.length - batch.length;
+    toast(`✅ ${batch.length} leads emailed + sent to Brett's queue${remaining ? ' · ' + remaining + ' more ready' : ''}`);
+  } catch(e) {
+    console.error('Failed to update Supabase:', e);
+    toast('CSV downloaded but Supabase update failed — refresh and try again');
   }
 }
 

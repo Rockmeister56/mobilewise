@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Client Act Warroom— MobileWise AI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#030b14;--surface:#071628;--surface2:#0a1f35;--border:rgba(255,255,255,0.07);
+  --accent:#f59e0b;--accent2:#0ea5e9;--green:#22c55e;--red:#ef4444;--purple:#a855f7;
+  --text:#f1f5f9;--muted:rgba(255,255,255,0.4);--radius:14px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(3,11,20,0.95);border-bottom:1px solid rgba(245,158,11,0.2);position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-logo{font-size:1.4rem;}
+.nav-title{font-size:1rem;font-weight:700;color:var(--accent);}
+.nav-sub{font-size:0.65rem;color:var(--muted);margin-top:1px;}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.conn{font-size:0.7rem;color:var(--muted);}
+.tabs{display:flex;gap:2px;padding:12px 20px 0;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
+.tab{padding:9px 18px;border-radius:10px 10px 0 0;font-size:0.78rem;font-weight:600;cursor:pointer;color:var(--muted);border:1px solid transparent;border-bottom:none;transition:all 0.2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.active{background:var(--bg);color:var(--accent);border-color:var(--border);border-bottom-color:var(--bg);}
+.tab-badge{display:inline-block;background:var(--accent);color:#000;border-radius:10px;padding:1px 6px;font-size:0.62rem;font-weight:700;margin-left:5px;}
+.panel{display:none;padding:20px;max-width:1400px;margin:0 auto;}
+.panel.active{display:block;}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 12px;text-align:center;}
+.stat-n{font-size:1.6rem;font-weight:700;line-height:1;}
+.stat-l{font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.queue-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;transition:border-color 0.2s;}
+.queue-item:hover{border-color:rgba(245,158,11,0.25);}
+.queue-item.urgent{border-left:3px solid var(--red);}
+.queue-item.today-cb{border-left:3px solid var(--accent);}
+.queue-item.new-lead{border-left:3px solid var(--green);}
+.queue-item.zoom-today{border-left:3px solid var(--purple);}
+.qi-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;}
+.qi-left{flex:1;min-width:0;}
+.qi-company{font-size:0.95rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.qi-contact{font-size:0.78rem;color:var(--muted);margin-top:2px;}
+.qi-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.qi-tag{font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:600;border:1px solid;}
+.qi-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.qa{padding:6px 12px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;border:1px solid;transition:all 0.15s;white-space:nowrap;font-family:inherit;background:transparent;}
+.qa:active{transform:scale(0.96);}
+.qa-call{color:var(--green);border-color:rgba(34,197,94,0.35);background:rgba(34,197,94,0.08);}
+.qa-vm{color:var(--accent);border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08);}
+.qa-zoom{color:var(--purple);border-color:rgba(168,85,247,0.35);background:rgba(168,85,247,0.08);}
+.qa-hot{color:var(--red);border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.08);}
+.qa-dead{color:var(--muted);border-color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);}
+.qa-note{color:var(--accent2);border-color:rgba(14,165,233,0.35);background:rgba(14,165,233,0.08);}
+.qi-phone a{color:var(--accent);text-decoration:none;font-weight:700;}
+.qi-note-box{font-size:0.75rem;color:rgba(255,255,255,0.5);margin-top:8px;padding:7px 10px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:2px solid rgba(245,158,11,0.3);font-style:italic;}
+.qi-zoom-box{font-size:0.75rem;color:var(--purple);margin-top:6px;padding:7px 10px;background:rgba(168,85,247,0.06);border-radius:6px;}
+.qi-zoom-box a{color:var(--purple);}
+.qi-fu-box{font-size:0.72rem;color:var(--accent);margin-top:4px;}
+.pipeline{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.pipe-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.pipe-header{padding:10px 14px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.pipe-count{background:rgba(255,255,255,0.08);border-radius:10px;padding:1px 8px;font-size:0.7rem;color:var(--muted);}
+.pipe-leads{padding:8px;max-height:380px;overflow-y:auto;}
+.pipe-lead{padding:8px 10px;border-radius:8px;margin-bottom:5px;cursor:pointer;transition:background 0.15s;font-size:0.78rem;border:1px solid transparent;}
+.pipe-lead:hover{background:rgba(255,255,255,0.04);border-color:var(--border);}
+.pipe-co{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pipe-city{font-size:0.68rem;color:var(--muted);margin-top:1px;}
+.fbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.fbar input,.fbar select{background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-family:inherit;font-size:0.78rem;padding:7px 13px;outline:none;}
+.fbar input:focus,.fbar select:focus{border-color:var(--accent);}
+.fbar input{width:200px;}
+.fbar select option{background:#071628;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:20px;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.btn-amber{background:linear-gradient(135deg,var(--accent),#d97706);color:#000;}
+.btn-ghost{background:rgba(255,255,255,0.06);border:1px solid var(--border);color:rgba(255,255,255,0.65);}
+.btn-ghost:hover{background:rgba(255,255,255,0.1);}
+/* CALENDAR */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.cal-month{font-size:1.1rem;font-weight:700;color:var(--text);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-dow{text-align:center;font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:6px 0;}
+.cal-day{background:var(--surface);border:1px solid var(--border);border-radius:10px;min-height:90px;padding:8px;position:relative;transition:border-color 0.2s;}
+.cal-day:hover{border-color:rgba(245,158,11,0.3);}
+.cal-day.other-month{opacity:0.3;}
+.cal-day.today{border-color:var(--accent);background:rgba(245,158,11,0.05);}
+.cal-day.has-zoom{border-color:rgba(168,85,247,0.4);background:rgba(168,85,247,0.04);}
+.cal-day-num{font-size:0.75rem;font-weight:700;color:var(--muted);margin-bottom:4px;}
+.cal-day.today .cal-day-num{color:var(--accent);}
+.cal-event{background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4);border-radius:6px;padding:3px 6px;font-size:0.65rem;color:var(--purple);font-weight:600;margin-bottom:3px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:background 0.15s;}
+.cal-event:hover{background:rgba(168,85,247,0.35);}
+.cal-event.zoom-done{background:rgba(100,116,139,0.2);border-color:rgba(100,116,139,0.3);color:#94a3b8;}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--surface);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal h3{color:var(--accent);margin-bottom:16px;font-size:1rem;}
+.modal label{display:block;font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;margin-top:14px;}
+.modal input,.modal select,.modal textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:0.85rem;padding:10px 12px;outline:none;}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--accent);}
+.modal textarea{resize:vertical;min-height:80px;line-height:1.6;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--accent);color:#000;padding:10px 22px;border-radius:30px;font-weight:700;font-size:0.82rem;z-index:300;opacity:0;transition:all 0.3s;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-icon{font-size:3rem;margin-bottom:12px;}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-title{font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2px;}
+.load-banner{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.load-banner-text{font-size:0.82rem;color:rgba(255,255,255,0.7);line-height:1.5;}
+@media(max-width:600px){
+  .stats{grid-template-columns:repeat(3,1fr);}
+  .stat-n{font-size:1.2rem;}
+  .panel{padding:12px;}
+  .fbar input{width:150px;}
+  .pipeline{grid-template-columns:1fr 1fr;}
+  .cal-day{min-height:60px;padding:5px;}
+  .cal-event{font-size:0.6rem;padding:2px 4px;}
+}
+@media(max-width:400px){
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .pipeline{grid-template-columns:1fr;}
+  .cal-grid{gap:2px;}
+  .cal-day{min-height:50px;}
+}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-brand">
+    <span class="nav-logo">⚡</span>
+    <div>
+      <div class="nav-title">Client Act Warroom</div>
+      <div class="nav-sub">MobileWise AI · 949-357-0655</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-ghost" onclick="refreshAll()" style="padding:6px 12px;font-size:0.75rem;">🔄 Refresh</button>
+    <span class="conn" id="connDot">Connecting...</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('queue')" id="tab-queue">📋 Queue <span class="tab-badge" id="badge-queue">—</span></div>
+  <div class="tab" onclick="showTab('pipeline')" id="tab-pipeline">🔥 Pipeline</div>
+  <div class="tab" onclick="showTab('all')" id="tab-all">📊 All Leads</div>
+  <div class="tab" onclick="showTab('zooms')" id="tab-zooms">📅 Zoom Calendar <span class="tab-badge" id="badge-zooms" style="background:var(--purple);">—</span></div>
+</div>
+
+<!-- QUEUE -->
+<div class="panel active" id="panel-queue">
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="sq-new" style="color:var(--green)">—</div><div class="stat-l">New Today</div></div>
+    <div class="stat"><div class="stat-n" id="sq-cb" style="color:var(--accent)">—</div><div class="stat-l">Callbacks Due</div></div>
+    <div class="stat"><div class="stat-n" id="sq-zoom" style="color:var(--purple)">—</div><div class="stat-l">Zooms Today</div></div>
+    <div class="stat"><div class="stat-n" id="sq-hot" style="color:var(--red)">—</div><div class="stat-l">🔥 Hot</div></div>
+    <div class="stat"><div class="stat-n" id="sq-closed" style="color:var(--green)">—</div><div class="stat-l">💰 Won</div></div>
+    <div class="stat"><div class="stat-n" id="sq-total" style="color:var(--accent2)">—</div><div class="stat-l">In Pipeline</div></div>
+  </div>
+
+  <div class="load-banner">
+    <div class="load-banner-text">
+      <strong style="color:var(--green);">📬 Load Today's Batch from Tommy</strong><br>
+      Pulls the 20 most recent leads Tommy has emailed that you haven't worked yet.
+    </div>
+    <button class="btn btn-amber" onclick="loadTodaysBatch()">⚡ Load Today's 20</button>
+  </div>
+
+  <div class="section-hdr">
+    <div class="section-title">Priority Queue</div>
+    <select id="queueIndustry" onchange="renderQueue()" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.75rem;padding:6px 12px;outline:none;font-family:inherit;">
+      <option value="">All Industries</option>
+      <option value="Mortgage">🏠 Mortgage</option>
+      <option value="Legal">⚖️ Legal / PI</option>
+      <option value="Tax Resolution">💼 Tax Resolution</option>
+    </select>
+  </div>
+  <div id="queueList"><div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">Click <strong style="color:var(--accent);">Load Today's 20</strong> to pull your leads from Tommy — or scroll down to see leads already in your pipeline.</div></div>
+</div>
+
+<!-- PIPELINE -->
+<div class="panel" id="panel-pipeline">
+  <div class="section-hdr" style="margin-bottom:16px;">
+    <div class="section-title">Sales Pipeline</div>
+    <select id="pipeIndustry" onchange="renderPipeline()" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.75rem;padding:6px 12px;outline:none;font-family:inherit;">
+      <option value="">All Industries</option>
+      <option value="Mortgage">🏠 Mortgage</option>
+      <option value="Legal">⚖️ Legal / PI</option>
+      <option value="Tax Resolution">💼 Tax Resolution</option>
+    </select>
+  </div>
+  <div class="pipeline" id="pipelineBoard"></div>
+</div>
+
+<!-- ALL LEADS -->
+<div class="panel" id="panel-all">
+  <div class="fbar">
+    <input type="text" id="allSearch" placeholder="🔍 Search..." oninput="renderAll()">
+    <select id="allStatus" onchange="renderAll()">
+      <option value="">All Statuses</option>
+      <option>🆕 New</option>
+      <option>📞 Called — No Answer</option>
+      <option>📱 Left Voicemail</option>
+      <option>💬 Contacted</option>
+      <option>📅 Zoom Scheduled</option>
+      <option>✅ Zoom Complete</option>
+      <option>📄 Proposal Sent</option>
+      <option>💰 Closed Won</option>
+      <option>❌ Closed Lost</option>
+      <option>🔥 Hot</option>
+      <option>🚫 Do Not Call</option>
+    </select>
+    <select id="allIndustry" onchange="renderAll()">
+      <option value="">All Industries</option>
+      <option value="Mortgage">🏠 Mortgage</option>
+      <option value="Legal">⚖️ Legal / PI</option>
+      <option value="Tax Resolution">💼 Tax Resolution</option>
+    </select>
+  </div>
+  <div id="allList"><div class="empty"><div class="empty-icon">📊</div>Load your queue first to see leads here.</div></div>
+</div>
+
+<!-- ZOOM CALENDAR -->
+<div class="panel" id="panel-zooms">
+  <div class="cal-nav">
+    <button class="btn btn-ghost" onclick="calPrev()" style="padding:6px 14px;">← Prev</button>
+    <div class="cal-month" id="calMonthLabel"></div>
+    <button class="btn btn-ghost" onclick="calNext()" style="padding:6px 14px;">Next →</button>
+  </div>
+  <div class="cal-grid" id="calDaysOfWeek">
+    <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div>
+    <div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>
+  </div>
+  <div class="cal-grid" id="calGrid" style="margin-top:4px;"></div>
+
+  <div style="margin-top:24px;">
+    <div class="section-title" style="margin-bottom:12px;">Upcoming Zooms</div>
+    <div id="zoomListBelow"></div>
+  </div>
+</div>
+
+<!-- ACTION MODAL -->
+<div class="modal-bg" id="actionModal">
+  <div class="modal">
+    <h3 id="modalTitle">Action</h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-amber" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
+
+let allLeads = [];
+let modalLead = null;
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+const STAGES = [
+  {key:"\uD83C\uDD95 New",               color:"#22c55e"},
+  {key:"\uD83D\uDCDE Called \u2014 No Answer",color:"#f59e0b"},
+  {key:"\uD83D\uDCF1 Left Voicemail",    color:"#f59e0b"},
+  {key:"\uD83D\uDCAC Contacted",          color:"#0ea5e9"},
+  {key:"\uD83D\uDCC5 Zoom Scheduled",    color:"#a855f7"},
+  {key:"\u2705 Zoom Complete",             color:"#a855f7"},
+  {key:"\uD83D\uDCC4 Proposal Sent",     color:"#0ea5e9"},
+  {key:"\uD83D\uDD25 Hot",                color:"#ef4444"},
+  {key:"\uD83D\uDCB0 Closed Won",        color:"#22c55e"},
+  {key:"\u274C Closed Lost",              color:"#64748b"},
+  {key:"\uD83D\uDEAB Do Not Call",       color:"#64748b"},
+];
+
+async function sb(method,table,body=null,query=""){
+  const res=await fetch(`${SB_URL}/rest/v1/${table}${query}`,{
+    method,headers:{"Content-Type":"application/json","apikey":SB_KEY,"Authorization":`Bearer ${SB_KEY}`,"Prefer":method==="POST"?"return=representation":"return=minimal"},
+    body:body?JSON.stringify(body):undefined
+  });
+  if(method==="GET"||(method==="POST"&&res.ok)){try{return await res.json();}catch{return[];}}
+  return res;
+}
+
+document.addEventListener("DOMContentLoaded",async()=>{
+  await loadPipelineLeads();
+  renderCalendar();
+});
+
+// Load all leads already in Brett's pipeline (previously loaded batches)
+async function loadPipelineLeads(){
+  try{
+    const data=await sb("GET","leads","","?order=created_at.desc&limit=3000&status=eq.\uD83D\uDCE7 Emailed&sales_status=not.is.null");
+    if(Array.isArray(data)) allLeads=[...allLeads,...data];
+    // Also load hot leads and zooms regardless of emailed status
+    const active=await sb("GET","leads","","?order=created_at.desc&limit=1000&sales_status=in.(\uD83D\uDD25 Hot,\uD83D\uDCC5 Zoom Scheduled,\u2705 Zoom Complete,\uD83D\uDCC4 Proposal Sent,\uD83D\uDCB0 Closed Won)");
+    if(Array.isArray(active)){
+      active.forEach(l=>{if(!allLeads.find(x=>x.id===l.id)) allLeads.push(l);});
+    }
+    allLeads.forEach(l=>{if(!l.sales_status) l.sales_status="\uD83C\uDD95 New";});
+    document.getElementById("connDot").textContent="● Live";
+    document.getElementById("connDot").style.color="#22c55e";
+    renderQueue(); renderPipeline(); renderAll(); renderCalendar(); updateBadges();
+  }catch(e){
+    document.getElementById("connDot").textContent="● Error";
+    document.getElementById("connDot").style.color="#ef4444";
+  }
+}
+
+// Load Today's 20 — pulls newest Emailed leads Brett hasn't touched yet
+async function loadTodaysBatch(){
+  const btn=event.target;
+  btn.disabled=true; btn.textContent="Loading...";
+  try{
+    const fresh=await sb("GET","leads","",
+      "?order=created_at.desc&limit=20&status=eq.\uD83D\uDCE7 Emailed&sales_status=is.null"
+    );
+    if(!Array.isArray(fresh)||!fresh.length){
+      toast("No new leads from Tommy yet — check back soon");
+      btn.disabled=false; btn.textContent="\u26A1 Load Today's 20";
+      return;
+    }
+    // Mark them as New in sales pipeline
+    const ids=fresh.map(l=>l.id);
+    await sb("PATCH","leads",{sales_status:"\uD83C\uDD95 New"},`?id=in.(${ids.join(",")})`);
+    fresh.forEach(l=>{
+      l.sales_status="\uD83C\uDD95 New";
+      if(!allLeads.find(x=>x.id===l.id)) allLeads.push(l);
+      else{const ex=allLeads.find(x=>x.id===l.id); if(ex) ex.sales_status="\uD83C\uDD95 New";}
+    });
+    toast(`\u2705 ${fresh.length} new leads loaded into your queue!`);
+    renderQueue(); renderPipeline(); renderAll(); updateBadges();
+  }catch(e){toast("Error loading batch — try refreshing");}
+  btn.disabled=false; btn.textContent="\u26A1 Load Today's 20";
+}
+
+async function refreshAll(){
+  allLeads=[];
+  await loadPipelineLeads();
+  toast("Refreshed \u2713");
+}
+
+function showTab(n){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("panel-"+n).classList.add("active");
+  document.getElementById("tab-"+n).classList.add("active");
+  if(n==="zooms") renderCalendar();
+}
+
+function updateBadges(){
+  const today=new Date().toISOString().slice(0,10);
+  const qc=allLeads.filter(l=>{
+    const ss=l.sales_status||"\uD83C\uDD95 New";
+    if(["\uD83D\uDCB0 Closed Won","\u274C Closed Lost","\uD83D\uDEAB Do Not Call"].includes(ss)) return false;
+    if(ss==="\uD83C\uDD95 New") return true;
+    if(ss==="\uD83D\uDD25 Hot") return true;
+    if(l.follow_up_date&&l.follow_up_date<=today) return true;
+    if(l.zoom_date&&l.zoom_date.slice(0,10)===today) return true;
+    return false;
+  }).length;
+  document.getElementById("badge-queue").textContent=qc;
+  const zc=allLeads.filter(l=>l.zoom_date&&l.sales_status==="\uD83D\uDCC5 Zoom Scheduled").length;
+  document.getElementById("badge-zooms").textContent=zc;
+}
+
+function ssColor(ss){return(STAGES.find(s=>s.key===ss)||{color:"#94a3b8"}).color;}
+
+function renderQueueItem(l,today){
+  const ss=l.sales_status||"\uD83C\uDD95 New";
+  const isOverdue=l.follow_up_date&&l.follow_up_date<today;
+  const isTodayCB=l.follow_up_date&&l.follow_up_date===today;
+  const isZoomToday=l.zoom_date&&l.zoom_date.slice(0,10)===today;
+  let cls="new-lead";
+  if(isOverdue) cls="urgent";
+  else if(isZoomToday) cls="zoom-today";
+  else if(isTodayCB) cls="today-cb";
+  else if(ss==="\uD83D\uDD25 Hot") cls="urgent";
+  const c=ssColor(ss);
+  const ind=l.industry||"Mortgage";
+  const indIcon=ind==="Legal"?"\u2696\uFE0F":ind==="Tax Resolution"?"\uD83D\uDCBC":"\uD83C\uDFE0";
+  let urgTag="";
+  if(isOverdue) urgTag=`<span class="qi-tag" style="color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);">\u26A0\uFE0F CALLBACK OVERDUE</span>`;
+  else if(isZoomToday) urgTag=`<span class="qi-tag" style="color:#a855f7;border-color:rgba(168,85,247,0.3);background:rgba(168,85,247,0.08);">\uD83D\uDCC5 ZOOM TODAY</span>`;
+  else if(isTodayCB) urgTag=`<span class="qi-tag" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);">\uD83D\uDCDE CALLBACK TODAY</span>`;
+  const zoomBox=l.zoom_date?`<div class="qi-zoom-box">\uD83D\uDCC5 ${new Date(l.zoom_date).toLocaleString("en-US",{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}${l.zoom_link?` · <a href="${esc(l.zoom_link)}" target="_blank">Join Zoom</a>`:""}</div>`:"";
+  const noteBox=l.sales_notes?`<div class="qi-note-box">\uD83D\uDCAC ${esc(l.sales_notes)}</div>`:"";
+  const fuBox=l.follow_up_date&&!isOverdue&&!isTodayCB?`<div class="qi-fu-box">\u23F0 Follow-up: ${l.follow_up_date}</div>`:"";
+  return `<div class="queue-item ${cls}">
+    <div class="qi-top">
+      <div class="qi-left">
+        <div class="qi-company">${esc(l.company_name||"\u2014")}</div>
+        <div class="qi-contact">${esc(l.contact_name||"")}</div>
+        <div class="qi-meta">
+          ${urgTag}
+          <span class="qi-tag" style="color:${c};border-color:${c}40;background:${c}12;">${esc(ss)}</span>
+          <span class="qi-tag" style="color:#0ea5e9;border-color:rgba(14,165,233,0.25);background:rgba(14,165,233,0.07);">${indIcon} ${esc(ind)}</span>
+          ${l.city?`<span class="qi-tag" style="color:#94a3b8;border-color:rgba(148,163,184,0.2);background:rgba(148,163,184,0.06);">\uD83D\uDCCD ${esc(l.city)}</span>`:""}
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div class="qi-phone">${l.phone?`<a href="tel:${esc(l.phone.replace(/\D/g,""))}">${esc(l.phone)}</a>`:"\u2014"}</div>
+        ${l.website?`<a href="${esc(l.website)}" target="_blank" style="font-size:0.68rem;color:#0ea5e9;text-decoration:none;">\uD83C\uDF10 Site</a>`:""}
+      </div>
+    </div>
+    ${zoomBox}${noteBox}${fuBox}
+    <div class="qi-actions">
+      <button class="qa qa-call" onclick="logCall(${l.id},'spoke')">\u2705 Spoke With</button>
+      <button class="qa qa-call" onclick="logCall(${l.id},'noanswer')">\uD83D\uDCDE No Answer</button>
+      <button class="qa qa-vm" onclick="logCall(${l.id},'voicemail')">\uD83D\uDCF1 Left VM</button>
+      <button class="qa qa-zoom" onclick="openZoomModal(${l.id})">\uD83D\uDCC5 Schedule Zoom</button>
+      <button class="qa qa-hot" onclick="setStatus(${l.id},'\uD83D\uDD25 Hot')">\uD83D\uDD25 Hot</button>
+      <button class="qa qa-note" onclick="openNoteModal(${l.id})">\uD83D\uDCDD Note</button>
+      <button class="qa qa-dead" onclick="openDeadModal(${l.id})">\u274C Dead</button>
+    </div>
+  </div>`;
+}
+
+function renderQueue(){
+  const today=new Date().toISOString().slice(0,10);
+  const indF=document.getElementById("queueIndustry").value;
+  const dead=["\uD83D\uDCB0 Closed Won","\u274C Closed Lost","\uD83D\uDEAB Do Not Call"];
+  let leads=allLeads.filter(l=>{
+    if(indF&&(l.industry||"Mortgage")!==indF) return false;
+    const ss=l.sales_status||"\uD83C\uDD95 New";
+    if(dead.includes(ss)) return false;
+    if(ss==="\uD83C\uDD95 New") return true;
+    if(ss==="\uD83D\uDD25 Hot") return true;
+    if(l.follow_up_date&&l.follow_up_date<=today) return true;
+    if(l.zoom_date&&l.zoom_date.slice(0,10)===today) return true;
+    return false;
+  });
+  leads.sort((a,b)=>{
+    const p=l=>{
+      if(l.follow_up_date&&l.follow_up_date<today) return 0;
+      if(l.zoom_date&&l.zoom_date.slice(0,10)===today) return 1;
+      if((l.sales_status||"")==='\uD83D\uDD25 Hot') return 2;
+      return 3;
+    };
+    return p(a)-p(b);
+  });
+  // Update stats
+  document.getElementById("sq-new").textContent=allLeads.filter(l=>(!l.sales_status||l.sales_status==="\uD83C\uDD95 New")).length;
+  document.getElementById("sq-cb").textContent=allLeads.filter(l=>l.follow_up_date&&l.follow_up_date<=today&&!dead.includes(l.sales_status)).length;
+  document.getElementById("sq-zoom").textContent=allLeads.filter(l=>l.zoom_date&&l.zoom_date.slice(0,10)===today).length;
+  document.getElementById("sq-hot").textContent=allLeads.filter(l=>l.sales_status==="\uD83D\uDD25 Hot").length;
+  document.getElementById("sq-closed").textContent=allLeads.filter(l=>l.sales_status==="\uD83D\uDCB0 Closed Won").length;
+  document.getElementById("sq-total").textContent=allLeads.filter(l=>!dead.includes(l.sales_status||"\uD83C\uDD95 New")).length;
+  const c=document.getElementById("queueList");
+  if(!leads.length){c.innerHTML='<div class="empty"><div class="empty-icon">\uD83C\uDF89</div><div>Queue is clear! Nothing needs attention right now.</div></div>';return;}
+  c.innerHTML=leads.map(l=>renderQueueItem(l,today)).join("");
+}
+
+function renderPipeline(){
+  const indF=document.getElementById("pipeIndustry").value;
+  let leads=indF?allLeads.filter(l=>(l.industry||"Mortgage")===indF):allLeads;
+  const dead=["\u274C Closed Lost","\uD83D\uDEAB Do Not Call"];
+  leads=leads.filter(l=>!dead.includes(l.sales_status));
+  const board=document.getElementById("pipelineBoard");
+  const show=STAGES.filter(s=>!dead.includes(s.key));
+  board.innerHTML=show.map(stage=>{
+    const sl=leads.filter(l=>(l.sales_status||"\uD83C\uDD95 New")===stage.key);
+    return `<div class="pipe-col">
+      <div class="pipe-header" style="color:${stage.color};">${esc(stage.key)}<span class="pipe-count">${sl.length}</span></div>
+      <div class="pipe-leads">${sl.length?sl.map(l=>`<div class="pipe-lead" onclick="openActionModal(${l.id})"><div class="pipe-co">${esc(l.company_name||"\u2014")}</div><div class="pipe-city">${esc(l.city||"")}${l.phone?" · "+esc(l.phone):""}</div></div>`).join(""):"<div style=\"padding:12px;font-size:0.72rem;color:var(--muted);text-align:center;\">Empty</div>"}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderAll(){
+  const s=document.getElementById("allSearch").value.toLowerCase();
+  const sf=document.getElementById("allStatus").value;
+  const inf=document.getElementById("allIndustry").value;
+  let leads=allLeads.filter(l=>{
+    if(s&&!(l.company_name+l.contact_name+l.city+"").toLowerCase().includes(s)) return false;
+    if(sf&&(l.sales_status||"\uD83C\uDD95 New")!==sf) return false;
+    if(inf&&(l.industry||"Mortgage")!==inf) return false;
+    return true;
+  });
+  const c=document.getElementById("allList");
+  if(!leads.length){c.innerHTML='<div class="empty"><div class="empty-icon">\uD83D\uDCCB</div><div>No leads match your filters.</div></div>';return;}
+  const today=new Date().toISOString().slice(0,10);
+  c.innerHTML=`<div style="margin-bottom:10px;font-size:0.75rem;color:var(--muted);">${leads.length} leads</div>`+leads.map(l=>renderQueueItem(l,today)).join("");
+}
+
+// CALENDAR
+function renderCalendar(){
+  const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  document.getElementById("calMonthLabel").textContent=`${months[calMonth]} ${calYear}`;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const daysInPrev=new Date(calYear,calMonth,0).getDate();
+  const zooms=allLeads.filter(l=>l.zoom_date);
+  const grid=document.getElementById("calGrid");
+  grid.innerHTML="";
+  // Build 6 weeks
+  let day=1; let nextDay=1;
+  for(let i=0;i<42;i++){
+    const cell=document.createElement("div");
+    cell.className="cal-day";
+    let cellDate=null;
+    if(i<firstDay){
+      const d=daysInPrev-(firstDay-1-i);
+      cell.innerHTML=`<div class="cal-day-num" style="color:rgba(255,255,255,0.15);">${d}</div>`;
+      cell.classList.add("other-month");
+      cellDate=new Date(calYear,calMonth-1,d);
+    } else if(day<=daysInMonth){
+      cellDate=new Date(calYear,calMonth,day);
+      const isToday=cellDate.getTime()===today.getTime();
+      if(isToday) cell.classList.add("today");
+      const dateStr=`${calYear}-${String(calMonth+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+      const dayZooms=zooms.filter(l=>l.zoom_date&&l.zoom_date.slice(0,10)===dateStr);
+      if(dayZooms.length) cell.classList.add("has-zoom");
+      cell.innerHTML=`<div class="cal-day-num">${day}</div>`+dayZooms.map(l=>`<div class="cal-event${l.sales_status==="\u2705 Zoom Complete"?" zoom-done":""}" onclick="openActionModal(${l.id})" title="${esc(l.company_name||"")}">\uD83D\uDCC5 ${new Date(l.zoom_date).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})} ${esc((l.company_name||"").slice(0,14))}</div>`).join("");
+      day++;
+    } else {
+      cell.innerHTML=`<div class="cal-day-num" style="color:rgba(255,255,255,0.15);">${nextDay}</div>`;
+      cell.classList.add("other-month");
+      nextDay++;
+    }
+    grid.appendChild(cell);
+  }
+  // Upcoming zooms list below calendar
+  const now=new Date().toISOString();
+  const upcoming=zooms.filter(l=>l.zoom_date>=now).sort((a,b)=>a.zoom_date.localeCompare(b.zoom_date)).slice(0,10);
+  const zl=document.getElementById("zoomListBelow");
+  if(!upcoming.length){zl.innerHTML='<div class="empty"><div class="empty-icon">\uD83D\uDCC5</div><div>No upcoming zooms. Schedule one from your queue.</div></div>';return;}
+  const today2=new Date().toISOString().slice(0,10);
+  zl.innerHTML=upcoming.map(l=>{
+    const zd=new Date(l.zoom_date);
+    const isToday2=l.zoom_date.slice(0,10)===today2;
+    return `<div class="queue-item ${isToday2?"zoom-today":""}">
+      <div class="qi-top">
+        <div class="qi-left">
+          <div class="qi-company">${esc(l.company_name||"\u2014")}</div>
+          <div class="qi-contact">${esc(l.contact_name||"")}</div>
+          <div class="qi-meta">
+            ${isToday2?'<span class="qi-tag" style="color:#a855f7;border-color:rgba(168,85,247,0.3);background:rgba(168,85,247,0.08);">TODAY</span>':""}
+            <span class="qi-tag" style="color:#a855f7;border-color:rgba(168,85,247,0.2);background:rgba(168,85,247,0.06);">${esc(l.sales_status||"")}</span>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.88rem;font-weight:700;color:#a855f7;">${zd.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
+          <div style="font-size:0.78rem;color:var(--muted);">${zd.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}</div>
+        </div>
+      </div>
+      <div class="qi-actions">
+        ${l.zoom_link?`<a href="${esc(l.zoom_link)}" target="_blank" class="qa qa-zoom" style="text-decoration:none;">\uD83D\uDD17 Join Zoom</a>`:""}
+        <button class="qa qa-call" onclick="setStatus(${l.id},'\u2705 Zoom Complete')">\u2705 Complete</button>
+        <button class="qa qa-zoom" onclick="openZoomModal(${l.id})">\u270F\uFE0F Reschedule</button>
+        <button class="qa qa-note" onclick="openNoteModal(${l.id})">\uD83D\uDCDD Note</button>
+      </div>
+      ${l.sales_notes?`<div class="qi-note-box">\uD83D\uDCAC ${esc(l.sales_notes)}</div>`:""}
+    </div>`;
+  }).join("");
+}
+
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
+
+// ACTIONS
+async function logCall(id,type){
+  const l=allLeads.find(x=>x.id===id); if(!l) return;
+  if(type==="spoke"){openActionModal(id);return;}
+  const ns=type==="voicemail"?"\uD83D\uDCF1 Left Voicemail":"\uD83D\uDCDE Called \u2014 No Answer";
+  const fu=new Date(); fu.setDate(fu.getDate()+2);
+  const fuStr=fu.toISOString().slice(0,10);
+  await sb("PATCH","leads",{sales_status:ns,follow_up_date:fuStr,last_called:new Date().toISOString(),call_attempts:(l.call_attempts||0)+1},`?id=eq.${id}`);
+  Object.assign(l,{sales_status:ns,follow_up_date:fuStr,call_attempts:(l.call_attempts||0)+1});
+  toast(type==="voicemail"?"\uD83D\uDCF1 VM logged \u2014 follow-up set for 2 days":"\uD83D\uDCDE No answer logged \u2014 follow-up set for 2 days");
+  renderQueue();renderPipeline();updateBadges();
+}
+
+async function setStatus(id,status){
+  await sb("PATCH","leads",{sales_status:status},`?id=eq.${id}`);
+  const l=allLeads.find(x=>x.id===id); if(l) l.sales_status=status;
+  toast(`Marked ${status}`);
+  renderQueue();renderPipeline();renderAll();renderCalendar();updateBadges();
+}
+
+// MODALS
+function openActionModal(id){
+  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  document.getElementById("modalTitle").textContent=`\uD83D\uDCCB ${modalLead.company_name||"Lead"}`;
+  document.getElementById("modalBody").innerHTML=`
+    ${modalLead.phone?`<div style="margin-bottom:14px;"><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Phone</div><a href="tel:${esc(modalLead.phone.replace(/\D/g,""))}" style="font-size:1.1rem;font-weight:700;color:var(--accent);text-decoration:none;">${esc(modalLead.phone)}</a></div>`:""}
+    <label>Stage</label>
+    <select id="m-status">${STAGES.map(s=>`<option value="${s.key}" ${(modalLead.sales_status||"\uD83C\uDD95 New")===s.key?"selected":""}>${s.key}</option>`).join("")}</select>
+    <label>Follow-up Date</label>
+    <input type="date" id="m-fudate" value="${modalLead.follow_up_date||""}">
+    <label>Zoom Date & Time</label>
+    <input type="datetime-local" id="m-zoomdate" value="${modalLead.zoom_date?modalLead.zoom_date.slice(0,16):""}">
+    <label>Zoom Link</label>
+    <input type="url" id="m-zoom" placeholder="https://zoom.us/j/..." value="${modalLead.zoom_link||""}">
+    <label>Sales Notes</label>
+    <textarea id="m-notes" placeholder="Call notes, objections, next steps...">${modalLead.sales_notes||""}</textarea>`;
+  document.getElementById("actionModal").classList.add("open");
+}
+
+function openNoteModal(id){
+  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  document.getElementById("modalTitle").textContent=`\uD83D\uDCDD Note \u2014 ${modalLead.company_name||""}`;
+  document.getElementById("modalBody").innerHTML=`
+    <label>Sales Note</label>
+    <textarea id="m-notes" rows="4" placeholder="Call notes, next steps...">${modalLead.sales_notes||""}</textarea>
+    <label>Follow-up Date</label>
+    <input type="date" id="m-fudate" value="${modalLead.follow_up_date||""}">`;
+  document.getElementById("actionModal").classList.add("open");
+}
+
+function openZoomModal(id){
+  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  document.getElementById("modalTitle").textContent=`\uD83D\uDCC5 Schedule Zoom \u2014 ${modalLead.company_name||""}`;
+  document.getElementById("modalBody").innerHTML=`
+    <label>Date & Time</label>
+    <input type="datetime-local" id="m-zoomdate" value="${modalLead.zoom_date?modalLead.zoom_date.slice(0,16):""}">
+    <label>Zoom Link</label>
+    <input type="url" id="m-zoom" placeholder="https://zoom.us/j/..." value="${modalLead.zoom_link||""}">
+    <label>Meeting Notes</label>
+    <textarea id="m-notes" placeholder="What to cover, prospect context...">${modalLead.sales_notes||""}</textarea>`;
+  document.getElementById("actionModal").classList.add("open");
+}
+
+function openDeadModal(id){
+  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  document.getElementById("modalTitle").textContent=`\u274C Close Lead \u2014 ${modalLead.company_name||""}`;
+  document.getElementById("modalBody").innerHTML=`
+    <label>Reason</label>
+    <select id="m-status">
+      <option value="\u274C Closed Lost">\u274C Closed Lost \u2014 Not Interested</option>
+      <option value="\uD83D\uDEAB Do Not Call">\uD83D\uDEAB Do Not Call</option>
+      <option value="\uD83D\uDCB0 Closed Won">\uD83D\uDCB0 Closed Won! \uD83C\uDF89</option>
+    </select>
+    <label>Notes</label>
+    <textarea id="m-notes" placeholder="Why lost? Objection? Future follow-up?">${modalLead.sales_notes||""}</textarea>`;
+  document.getElementById("actionModal").classList.add("open");
+}
+
+async function saveModal(){
+  if(!modalLead) return;
+  const patch={};
+  const get=id=>document.getElementById(id);
+  if(get("m-notes")) patch.sales_notes=get("m-notes").value;
+  if(get("m-status")) patch.sales_status=get("m-status").value;
+  if(get("m-fudate")) patch.follow_up_date=get("m-fudate").value||null;
+  if(get("m-zoom")) patch.zoom_link=get("m-zoom").value||null;
+  if(get("m-zoomdate")&&get("m-zoomdate").value){
+    patch.zoom_date=new Date(get("m-zoomdate").value).toISOString();
+    if(!patch.sales_status||patch.sales_status==="\uD83C\uDD95 New") patch.sales_status="\uD83D\uDCC5 Zoom Scheduled";
+  }
+  await sb("PATCH","leads",patch,`?id=eq.${modalLead.id}`);
+  Object.assign(modalLead,patch);
+  closeModal();
+  toast("Saved \u2713");
+  renderQueue();renderPipeline();renderAll();renderCalendar();updateBadges();
+}
+
+function closeModal(){document.getElementById("actionModal").classList.remove("open");modalLead=null;}
+document.getElementById("actionModal").addEventListener("click",e=>{if(e.target===document.getElementById("actionModal")) closeModal();});
+
+function esc(s){if(!s)return"";return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2800);}
+
+window.showTab=showTab;window.refreshAll=refreshAll;window.loadTodaysBatch=loadTodaysBatch;
+window.logCall=logCall;window.setStatus=setStatus;window.calPrev=calPrev;window.calNext=calNext;
+window.openActionModal=openActionModal;window.openNoteModal=openNoteModal;
+window.openZoomModal=openZoomModal;window.openDeadModal=openDeadModal;
+window.saveModal=saveModal;window.closeModal=closeModal;
+window.renderQueue=renderQueue;window.renderPipeline=renderPipeline;window.renderAll=renderAll;
+</script>
+</body>
+</html>
