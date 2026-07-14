@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>My Sales Empire — With MobileWise AI</title>
+<title>My Sales Empire - Take NO Prisoners! — MobileWise AI</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -130,7 +130,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="nav-brand">
     <span class="nav-logo">⚡</span>
     <div>
-      <div class="nav-title">My Sales Empire</div>
+      <div class="nav-title">My Sales Empire - Take NO Prisoners!</div>
       <div class="nav-sub">MobileWise AI · 949-357-0655</div>
     </div>
   </div>
@@ -493,7 +493,25 @@ function renderQueue(){
   document.getElementById("sq-total").textContent=allLeads.filter(l=>!dead.includes(l.sales_status||"\uD83C\uDD95 New")).length;
   const c=document.getElementById("queueList");
   if(!leads.length){c.innerHTML='<div class="empty"><div class="empty-icon">\uD83C\uDF89</div><div>Queue is clear! Nothing needs attention right now.</div></div>';return;}
-  c.innerHTML=leads.map(l=>renderQueueItem(l,today)).join("");
+
+  // Split into sections: Callbacks due + Zooms today vs New leads
+  const callbacks=leads.filter(l=>{
+    const ss=l.sales_status||"";
+    return (l.follow_up_date&&l.follow_up_date<=today&&ss!=="\uD83C\uDD95 New")
+        || (l.zoom_date&&l.zoom_date.slice(0,10)===today);
+  });
+  const newLeads=leads.filter(l=>!callbacks.includes(l));
+
+  let out="";
+  if(callbacks.length){
+    out+=`<div style="font-size:0.7rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;padding:6px 0;border-bottom:1px solid rgba(245,158,11,0.2);">\uD83D\uDCDE ${callbacks.length} Callback${callbacks.length!==1?"s":""} & Zoom${callbacks.filter(l=>l.zoom_date&&l.zoom_date.slice(0,10)===today).length?"s":""} Due Today</div>`;
+    out+=callbacks.map(l=>renderQueueItem(l,today)).join("");
+  }
+  if(newLeads.length){
+    out+=`<div style="font-size:0.7rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:2px;margin:${callbacks.length?"16px":0} 0 10px;padding:6px 0;border-bottom:1px solid rgba(34,197,94,0.2);">\uD83C\uDD95 ${newLeads.length} New Lead${newLeads.length!==1?"s":""}</div>`;
+    out+=newLeads.map(l=>renderQueueItem(l,today)).join("");
+  }
+  c.innerHTML=out;
 }
 
 function renderPipeline(){
@@ -608,12 +626,66 @@ function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalend
 async function logCall(id,type){
   const l=allLeads.find(x=>x.id===id); if(!l) return;
   if(type==="spoke"){openActionModal(id);return;}
+  // Open callback scheduler instead of auto-setting 2 days
+  openCallbackModal(id, type);
+}
+
+function openCallbackModal(id, type){
+  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
   const ns=type==="voicemail"?"\uD83D\uDCF1 Left Voicemail":"\uD83D\uDCDE Called \u2014 No Answer";
-  const fu=new Date(); fu.setDate(fu.getDate()+2);
-  const fuStr=fu.toISOString().slice(0,10);
-  await sb("PATCH","leads",{sales_status:ns,follow_up_date:fuStr,last_called:new Date().toISOString(),call_attempts:(l.call_attempts||0)+1},`?id=eq.${id}`);
-  Object.assign(l,{sales_status:ns,follow_up_date:fuStr,call_attempts:(l.call_attempts||0)+1});
-  toast(type==="voicemail"?"\uD83D\uDCF1 VM logged \u2014 follow-up set for 2 days":"\uD83D\uDCDE No answer logged \u2014 follow-up set for 2 days");
+  const today=new Date();
+  const tomorrow=new Date(); tomorrow.setDate(today.getDate()+1);
+  const in2=new Date(); in2.setDate(today.getDate()+2);
+  const in3=new Date(); in3.setDate(today.getDate()+3);
+  const fmt=d=>d.toISOString().slice(0,10);
+  const lbl=d=>d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+  document.getElementById("modalTitle").textContent=type==="voicemail"?"\uD83D\uDCF1 Left Voicemail \u2014 Schedule Follow-Up":"\uD83D\uDCDE No Answer \u2014 Schedule Callback";
+  document.getElementById("modalBody").innerHTML=`
+    <div style="margin-bottom:14px;font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.6;">
+      <strong style="color:#fff;">${esc(modalLead.company_name||"")}</strong><br>
+      ${modalLead.phone?`<a href="tel:${esc(modalLead.phone.replace(/\D/g,""))}" style="color:var(--accent);text-decoration:none;font-weight:700;">${esc(modalLead.phone)}</a>`:""}
+      <div style="margin-top:6px;font-size:0.72rem;color:rgba(255,255,255,0.35);">Pick when to follow up — it will appear in your Callbacks queue on that day.</div>
+    </div>
+    <label>Follow Up On</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+      <button class="btn btn-ghost" style="justify-content:center;padding:10px;" onclick="setCallback('${fmt(today)}','${ns}',${id})">
+        Today Later<br><span style="font-size:0.65rem;color:var(--muted);">${lbl(today)}</span>
+      </button>
+      <button class="btn btn-ghost" style="justify-content:center;padding:10px;" onclick="setCallback('${fmt(tomorrow)}','${ns}',${id})">
+        Tomorrow<br><span style="font-size:0.65rem;color:var(--muted);">${lbl(tomorrow)}</span>
+      </button>
+      <button class="btn btn-ghost" style="justify-content:center;padding:10px;" onclick="setCallback('${fmt(in2)}','${ns}',${id})">
+        In 2 Days<br><span style="font-size:0.65rem;color:var(--muted);">${lbl(in2)}</span>
+      </button>
+      <button class="btn btn-ghost" style="justify-content:center;padding:10px;" onclick="setCallback('${fmt(in3)}','${ns}',${id})">
+        In 3 Days<br><span style="font-size:0.65rem;color:var(--muted);">${lbl(in3)}</span>
+      </button>
+    </div>
+    <label>Or Pick a Specific Date</label>
+    <input type="date" id="m-fudate" value="${fmt(tomorrow)}" style="margin-bottom:10px;">
+    <label>Quick Note (optional)</label>
+    <textarea id="m-notes" rows="2" placeholder="Best time to call, gatekeeper name, anything useful...">${modalLead.sales_notes||""}</textarea>
+    <input type="hidden" id="m-status" value="${ns}">
+  `;
+  document.getElementById("actionModal").classList.add("open");
+}
+
+async function setCallback(date, status, id){
+  const notesEl=document.getElementById("m-notes");
+  const patch={
+    sales_status:status,
+    follow_up_date:date,
+    last_called:new Date().toISOString(),
+    call_attempts:(allLeads.find(l=>l.id===id)||{}).call_attempts||0+1
+  };
+  if(notesEl&&notesEl.value) patch.sales_notes=notesEl.value;
+  await sb("PATCH","leads",patch,`?id=eq.${id}`);
+  const l=allLeads.find(x=>x.id===id);
+  if(l) Object.assign(l,patch);
+  closeModal();
+  const d=new Date(date+"T12:00:00");
+  const label=d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+  toast(`\uD83D\uDCDE Callback set for ${label}`);
   renderQueue();renderPipeline();updateBadges();
 }
 
@@ -636,8 +708,8 @@ function openActionModal(id){
     <input type="date" id="m-fudate" value="${modalLead.follow_up_date||""}">
     <label>Zoom Date & Time</label>
     <input type="datetime-local" id="m-zoomdate" value="${modalLead.zoom_date?modalLead.zoom_date.slice(0,16):""}">
-    <label>Zoom Link</label>
-    <input type="url" id="m-zoom" placeholder="https://zoom.us/j/..." value="${modalLead.zoom_link||""}">
+    <label>Zoom / Calendly Link</label>
+    <input type="url" id="m-zoom" value="${modalLead.zoom_link||"https://calendly.com/mobilewise-ai/30min"}">
     <label>Sales Notes</label>
     <textarea id="m-notes" placeholder="Call notes, objections, next steps...">${modalLead.sales_notes||""}</textarea>`;
   document.getElementById("actionModal").classList.add("open");
@@ -660,8 +732,8 @@ function openZoomModal(id){
   document.getElementById("modalBody").innerHTML=`
     <label>Date & Time</label>
     <input type="datetime-local" id="m-zoomdate" value="${modalLead.zoom_date?modalLead.zoom_date.slice(0,16):""}">
-    <label>Zoom Link</label>
-    <input type="url" id="m-zoom" placeholder="https://zoom.us/j/..." value="${modalLead.zoom_link||""}">
+    <label>Zoom / Calendly Link</label>
+    <input type="url" id="m-zoom" value="${modalLead.zoom_link||"https://calendly.com/mobilewise-ai/30min"}">
     <label>Meeting Notes</label>
     <textarea id="m-notes" placeholder="What to cover, prospect context...">${modalLead.sales_notes||""}</textarea>`;
   document.getElementById("actionModal").classList.add("open");
@@ -686,14 +758,44 @@ async function saveModal(){
   if(!modalLead) return;
   const patch={};
   const get=id=>document.getElementById(id);
-  if(get("m-notes")) patch.sales_notes=get("m-notes").value;
-  if(get("m-status")) patch.sales_status=get("m-status").value;
-  if(get("m-fudate")) patch.follow_up_date=get("m-fudate").value||null;
-  if(get("m-zoom")) patch.zoom_link=get("m-zoom").value||null;
-  if(get("m-zoomdate")&&get("m-zoomdate").value){
-    patch.zoom_date=new Date(get("m-zoomdate").value).toISOString();
-    if(!patch.sales_status||patch.sales_status==="\uD83C\uDD95 New") patch.sales_status="\uD83D\uDCC5 Zoom Scheduled";
+  const statusEl=get("m-status");
+  const notesEl=get("m-notes");
+  const fudateEl=get("m-fudate");
+  const zoomEl=get("m-zoom");
+  const zoomdateEl=get("m-zoomdate");
+
+  if(notesEl) patch.sales_notes=notesEl.value;
+  if(statusEl) patch.sales_status=statusEl.value;
+  if(zoomEl) patch.zoom_link=zoomEl.value||null;
+
+  // Zoom scheduled
+  if(zoomdateEl&&zoomdateEl.value){
+    patch.zoom_date=new Date(zoomdateEl.value).toISOString();
+    if(!patch.sales_status||patch.sales_status==="\uD83C\uDD95 New")
+      patch.sales_status="\uD83D\uDCC5 Zoom Scheduled";
   }
+
+  // Callback modal (voicemail or no answer) — always use the date picker
+  const isCallback = statusEl && (
+    statusEl.value.includes("Voicemail") ||
+    statusEl.value.includes("No Answer")
+  );
+  if(isCallback && fudateEl && fudateEl.value){
+    patch.follow_up_date=fudateEl.value;
+    patch.last_called=new Date().toISOString();
+    patch.call_attempts=(modalLead.call_attempts||0)+1;
+    const d=new Date(fudateEl.value+"T12:00:00");
+    const label=d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+    await sb("PATCH","leads",patch,`?id=eq.${modalLead.id}`);
+    Object.assign(modalLead,patch);
+    closeModal();
+    toast(`\uD83D\uDCDE Callback set for ${label}`);
+    renderQueue();renderPipeline();updateBadges();
+    return;
+  }
+
+  if(fudateEl&&fudateEl.value) patch.follow_up_date=fudateEl.value||null;
+
   await sb("PATCH","leads",patch,`?id=eq.${modalLead.id}`);
   Object.assign(modalLead,patch);
   closeModal();
@@ -707,7 +809,7 @@ document.getElementById("actionModal").addEventListener("click",e=>{if(e.target=
 function esc(s){if(!s)return"";return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2800);}
 
-window.showTab=showTab;window.refreshAll=refreshAll;window.loadTodaysBatch=loadTodaysBatch;
+window.showTab=showTab;window.setCallback=setCallback;window.openCallbackModal=openCallbackModal;window.refreshAll=refreshAll;window.loadTodaysBatch=loadTodaysBatch;
 window.logCall=logCall;window.setStatus=setStatus;window.calPrev=calPrev;window.calNext=calNext;
 window.openActionModal=openActionModal;window.openNoteModal=openNoteModal;
 window.openZoomModal=openZoomModal;window.openDeadModal=openDeadModal;
