@@ -884,7 +884,7 @@
     </div>
     <div class="field">
         <label><i class="fas fa-bullhorn"></i> Service Line (above ticker tape)</label>
-        <input type="text" id="splashServiceLine" value="Offering 24/7 Customer Service!" placeholder="e.g., Offering 24/7 Customer Service!">
+        <input type="text" id="splashServiceLine" value="Offering Friendly Customer Service 24/7" placeholder="e.g., Offering Friendly Customer Service 24/7!">
     </div>
 </div>
 
@@ -1831,7 +1831,7 @@ function createNewClient() {
     document.getElementById('splashTitle').value = 'Tess';
     document.getElementById('splashSubtitle').value = 'Your Helpful AI Web Assistant';
     document.getElementById('splashPresentsText').value = 'Presents:';
-    document.getElementById('splashServiceLine').value = 'Offering 24/7 Customer Service!';
+    document.getElementById('splashServiceLine').value = 'Offering Friendly Customer Service 24/7';
     document.getElementById('splashLogoBarBg').value = 'white';
     document.getElementById('splashTessVideoUrl').value = '';
     document.getElementById('splashTickerKeywords').value = '';
@@ -2057,7 +2057,7 @@ let configManager = {
                     title: document.getElementById('splashTitle')?.value || 'Tess',
                     subtitle: document.getElementById('splashSubtitle')?.value || 'Your Helpful AI Web Assistant',
                     presentsText: document.getElementById('splashPresentsText')?.value || 'Presents:',
-                    serviceLine: document.getElementById('splashServiceLine')?.value || 'Offering 24/7 Customer Service!',
+                    serviceLine: document.getElementById('splashServiceLine')?.value || 'Offering Friendly Customer Service 24/7',
                     tessVideoUrl: document.getElementById('splashTessVideoUrl')?.value || '',
                     preloaderAudioData: document.getElementById('preloaderAudioUrl')?.value || document.getElementById('preloaderAudioData')?.value || '',
                     tessVideoFit: document.getElementById('tessVideoFit')?.value || 'cover',
@@ -2297,7 +2297,7 @@ populateClientSelect() {
     document.getElementById('splashTitle').value = splash.title || 'Tess';
     document.getElementById('splashSubtitle').value = splash.subtitle || 'Your Helpful AI Web Assistant';
     document.getElementById('splashPresentsText').value = splash.presentsText || 'Presents:';
-    document.getElementById('splashServiceLine').value = splash.serviceLine || 'Offering 24/7 Customer Service!';
+    document.getElementById('splashServiceLine').value = splash.serviceLine || 'Offering Friendly Customer Service 24/7';
     document.getElementById('splashTessVideoUrl').value = splash.tessVideoUrl || '';
     const savedAudio = splash.preloaderAudioData || '';
     if (savedAudio.startsWith('data:')) {
@@ -3500,7 +3500,7 @@ async function exportBridgeOnly() {
         code += '                "triggerPhraseLegacy": "' + (config.modules?.preQualification?.triggerPhraseLegacy || "let\'s get started") + '"\n';
         code += '            },\n';
         code += '            "emailConfig": ' + JSON.stringify(config.modules?.emailConfig || {}) + ',\n';
-        code += '            "splashScreen": ' + JSON.stringify(Object.assign({ serviceLine: "Offering 24/7 Customer Service!", presentsText: "Presents:" }, config.modules?.splashScreen || {})) + ',\n';
+        code += '            "splashScreen": ' + JSON.stringify(Object.assign({ serviceLine: "Offering Friendly Customer Service 24/7", presentsText: "Presents:" }, config.modules?.splashScreen || {})) + ',\n';
         code += '            "smartScreen": ' + JSON.stringify(config.modules?.smartScreen || { images: [] }) + ',\n';
         code += '            "testimonial": ' + JSON.stringify(config.modules?.testimonial || { groups: [] }) + ',\n';
         code += '            "videoVault": ' + JSON.stringify(config.modules?.videoVault || { videos: [] }) + ',\n';
@@ -5538,7 +5538,7 @@ code += '\n';
         code += '                        <div class="spinner"></div>\n';
         code += '                    </div>\n';
         code += '                </div>\n';
-        code += '                <div class="splash-service-line">${config.serviceLine || \'Offering 24/7 Customer Service!\'}</div>\n';
+        code += '                <div class="splash-service-line">${config.serviceLine || \'Offering Friendly Customer Service 24/7!\'}</div>\n';
         code += '            </div>\n';
         code += '        `;\n';
         code += '\n';
