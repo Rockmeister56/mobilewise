@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Client Act Sales— MobileWise AI</title>
+<title>Client Act Sales — MobileWise AI</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -316,7 +316,7 @@ async function loadTodaysBatch(){
   btn.disabled=true; btn.textContent="Loading...";
   try{
     const fresh=await sb("GET","leads","",
-      "?order=created_at.desc&limit=20&status=eq.\uD83D\uDCE7 Emailed&sales_status=is.null"
+      "?order=created_at.desc&limit=20&status=eq.\uD83D\uDCE7 Emailed&or=(sales_status.is.null,sales_status.eq.New)"
     );
     if(!Array.isArray(fresh)||!fresh.length){
       toast("No new leads from Tommy yet — check back soon");
