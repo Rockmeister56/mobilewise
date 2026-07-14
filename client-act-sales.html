@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Empire Sales Dashboard — MobileWise AI</title>
+<title>Brett's Sales Dashboard — MobileWise AI</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -130,7 +130,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="nav-brand">
     <span class="nav-logo">⚡</span>
     <div>
-      <div class="nav-title"Empire Sales Dashboard</div>
+      <div class="nav-title">Brett's Sales Dashboard</div>
       <div class="nav-sub">MobileWise AI · 949-357-0655</div>
     </div>
   </div>
@@ -412,7 +412,6 @@ function renderQueueItem(l,today){
           <span class="qi-tag" style="color:#0ea5e9;border-color:rgba(14,165,233,0.25);background:rgba(14,165,233,0.07);">${indIcon} ${esc(ind)}</span>
           ${l.city?`<span class="qi-tag" style="color:#94a3b8;border-color:rgba(148,163,184,0.2);background:rgba(148,163,184,0.06);">\uD83D\uDCCD ${esc(l.city)}</span>`:""}
         </div>
-        ${l.notes?`<div style="margin-top:8px;font-size:0.72rem;color:rgba(255,255,255,0.55);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);line-height:1.5;"><span style="font-size:0.62rem;color:#0ea5e9;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Tommy's Notes · </span>${esc(l.notes)}</div>`:""}
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div class="qi-phone">${l.phone?`<a href="tel:${esc(l.phone.replace(/\D/g,""))}">${esc(l.phone)}</a>`:"\u2014"}</div>
@@ -420,6 +419,7 @@ function renderQueueItem(l,today){
         ${l.email?`<div style="margin-top:3px;"><a href="mailto:${esc(l.email)}" style="font-size:0.68rem;color:#34a853;text-decoration:none;">\u2709\uFE0F ${esc(l.email)}</a></div>`:""}
       </div>
     </div>
+    ${l.notes?`<div style="margin-top:8px;font-size:0.72rem;color:rgba(255,255,255,0.55);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);line-height:1.5;"><span style="font-size:0.62rem;color:#0ea5e9;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Tommy's Notes · </span>${esc(l.notes)}</div>`:""}
     ${zoomBox}${noteBox}${fuBox}
     <div class="qi-actions">
       <button class="qa qa-call" onclick="logCall(${l.id},'spoke')">\u2705 Spoke With</button>
