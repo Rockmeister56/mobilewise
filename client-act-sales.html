@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>War Room Sales — MobileWise AI</title>
+<title>Empire Sales Dashboard — MobileWise AI</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -130,7 +130,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="nav-brand">
     <span class="nav-logo">⚡</span>
     <div>
-      <div class="nav-title">War Room Sales</div>
+      <div class="nav-title"Empire Sales Dashboard</div>
       <div class="nav-sub">MobileWise AI · 949-357-0655</div>
     </div>
   </div>
@@ -168,12 +168,23 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
   <div class="section-hdr">
     <div class="section-title">Priority Queue</div>
-    <select id="queueIndustry" onchange="renderQueue()" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.75rem;padding:6px 12px;outline:none;font-family:inherit;">
-      <option value="">All Industries</option>
-      <option value="Mortgage">🏠 Mortgage</option>
-      <option value="Legal">⚖️ Legal / PI</option>
-      <option value="Tax Resolution">💼 Tax Resolution</option>
-    </select>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <select id="queueSort" onchange="renderQueue()" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.75rem;padding:6px 12px;outline:none;font-family:inherit;">
+        <option value="priority">⚡ Priority (Default)</option>
+        <option value="id_asc">🔢 MW-ID Low → High</option>
+        <option value="id_desc">🔢 MW-ID High → Low</option>
+        <option value="followup">📅 Follow-up Date</option>
+        <option value="zoom">📅 Zoom Date</option>
+        <option value="company">🔤 Company A→Z</option>
+        <option value="status">🔄 Status</option>
+      </select>
+      <select id="queueIndustry" onchange="renderQueue()" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.75rem;padding:6px 12px;outline:none;font-family:inherit;">
+        <option value="">All Industries</option>
+        <option value="Mortgage">🏠 Mortgage</option>
+        <option value="Legal">⚖️ Legal / PI</option>
+        <option value="Tax Resolution">💼 Tax Resolution</option>
+      </select>
+    </div>
   </div>
   <div id="queueList"><div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">Click <strong style="color:var(--accent);">Load Today's 20</strong> to pull your leads from Tommy — or scroll down to see leads already in your pipeline.</div></div>
 </div>
@@ -392,7 +403,8 @@ function renderQueueItem(l,today){
   return `<div class="queue-item ${cls}">
     <div class="qi-top">
       <div class="qi-left">
-        <div class="qi-company">${esc(l.company_name||"\u2014")} <span style="font-size:0.65rem;color:var(--muted);font-weight:400;font-family:monospace;">${esc(l.lead_id||"")}</span></div>
+        <div class="qi-company">${esc(l.company_name||"\u2014")}</div>
+        ${l.lead_id?`<div style="font-size:12px;color:#0ea5e9;font-family:monospace;font-weight:600;margin-top:2px;letter-spacing:0.5px;">${esc(l.lead_id)}</div>`:""}
         <div class="qi-contact">${esc(l.contact_name||"")}</div>
         <div class="qi-meta">
           ${urgTag}
@@ -435,11 +447,39 @@ function renderQueue(){
     if(l.zoom_date&&l.zoom_date.slice(0,10)===today) return true;
     return false;
   });
+  const sortBy = document.getElementById("queueSort") ? document.getElementById("queueSort").value : "priority";
   leads.sort((a,b)=>{
+    if(sortBy==="id_asc"){
+      const na=parseInt((a.lead_id||"MW-99999").replace(/[^0-9]/g,""))||99999;
+      const nb=parseInt((b.lead_id||"MW-99999").replace(/[^0-9]/g,""))||99999;
+      return na-nb;
+    }
+    if(sortBy==="id_desc"){
+      const na=parseInt((a.lead_id||"MW-0").replace(/[^0-9]/g,""))||0;
+      const nb=parseInt((b.lead_id||"MW-0").replace(/[^0-9]/g,""))||0;
+      return nb-na;
+    }
+    if(sortBy==="followup"){
+      const fa=a.follow_up_date||"9999-12-31";
+      const fb=b.follow_up_date||"9999-12-31";
+      return fa.localeCompare(fb);
+    }
+    if(sortBy==="zoom"){
+      const za=a.zoom_date||"9999-12-31";
+      const zb=b.zoom_date||"9999-12-31";
+      return za.localeCompare(zb);
+    }
+    if(sortBy==="company"){
+      return (a.company_name||"").localeCompare(b.company_name||"");
+    }
+    if(sortBy==="status"){
+      return (a.sales_status||"").localeCompare(b.sales_status||"");
+    }
+    // Default: priority sort
     const p=l=>{
       if(l.follow_up_date&&l.follow_up_date<today) return 0;
       if(l.zoom_date&&l.zoom_date.slice(0,10)===today) return 1;
-      if((l.sales_status||"")==='\uD83D\uDD25 Hot') return 2;
+      if((l.sales_status||"")==="\uD83D\uDD25 Hot") return 2;
       return 3;
     };
     return p(a)-p(b);
