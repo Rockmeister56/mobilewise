@@ -641,11 +641,18 @@ function openCallbackModal(id, type){
   const lbl=d=>d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
   document.getElementById("modalTitle").textContent=type==="voicemail"?"\uD83D\uDCF1 Left Voicemail \u2014 Schedule Follow-Up":"\uD83D\uDCDE No Answer \u2014 Schedule Callback";
   document.getElementById("modalBody").innerHTML=`
-    <div style="margin-bottom:14px;font-size:0.82rem;color:rgba(255,255,255,0.6);line-height:1.6;">
-      <strong style="color:#fff;">${esc(modalLead.company_name||"")}</strong><br>
-      ${modalLead.phone?`<a href="tel:${esc(modalLead.phone.replace(/\D/g,""))}" style="color:var(--accent);text-decoration:none;font-weight:700;">${esc(modalLead.phone)}</a>`:""}
-      <div style="margin-top:6px;font-size:0.72rem;color:rgba(255,255,255,0.35);">Pick when to follow up — it will appear in your Callbacks queue on that day.</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.07);">
+      <div>
+        ${(modalLead.contact_name||"").split(" ")[0]?`<div style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:2px;">👤 ${esc((modalLead.contact_name||"").split(" ")[0])}</div>`:""}
+        <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);">${esc(modalLead.company_name||"")}</div>
+        ${modalLead.phone?`<a href="tel:${esc(modalLead.phone.replace(/\D/g,""))}" style="font-size:1rem;font-weight:700;color:var(--accent);text-decoration:none;display:block;margin-top:4px;">${esc(modalLead.phone)}</a>`:""}
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Attempt #</div>
+        <div style="font-size:1.4rem;font-weight:700;color:${(modalLead.call_attempts||0)>=3?"#ef4444":"#f59e0b"};">${(modalLead.call_attempts||0)+1}</div>
+      </div>
     </div>
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-bottom:12px;">Pick when to follow up — appears in your Callbacks queue on that day.</div>
     <label>Follow Up On</label>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
       <button class="btn btn-ghost" style="justify-content:center;padding:10px;" onclick="setCallback('${fmt(today)}','${ns}',${id})">
@@ -699,9 +706,23 @@ async function setStatus(id,status){
 // MODALS
 function openActionModal(id){
   modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  const firstName = (modalLead.contact_name||"").split(" ")[0]||"";
+  const attempts = modalLead.call_attempts||0;
   document.getElementById("modalTitle").textContent=`\uD83D\uDCCB ${modalLead.company_name||"Lead"}`;
   document.getElementById("modalBody").innerHTML=`
-    ${modalLead.phone?`<div style="margin-bottom:14px;"><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Phone</div><a href="tel:${esc(modalLead.phone.replace(/\D/g,""))}" style="font-size:1.1rem;font-weight:700;color:var(--accent);text-decoration:none;">${esc(modalLead.phone)}</a></div>`:""}
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.07);">
+      <div>
+        ${firstName?`<div style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:2px;">👤 ${esc(firstName)}</div>`:""}
+        <div style="font-size:0.72rem;color:var(--muted);">${esc(modalLead.company_name||"")}</div>
+        ${modalLead.phone?`<a href="tel:${esc(modalLead.phone.replace(/\D/g,""))}" style="font-size:1rem;font-weight:700;color:var(--accent);text-decoration:none;display:block;margin-top:4px;">${esc(modalLead.phone)}</a>`:""}
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Call Attempts</div>
+        <div style="font-size:1.4rem;font-weight:700;color:${attempts>=3?"#ef4444":attempts>=1?"#f59e0b":"#22c55e"};">${attempts}</div>
+        ${attempts>0?`<div style="font-size:0.62rem;color:var(--muted);">${attempts===1?"1st try":"try #"+(attempts+1)+" next"}</div>`:"<div style=\"font-size:0.62rem;color:#22c55e;\">first contact</div>"}
+      </div>
+    </div>`;
+  document.getElementById("modalBody").innerHTML+=`
     <label>Stage</label>
     <select id="m-status">${STAGES.map(s=>`<option value="${s.key}" ${(modalLead.sales_status||"\uD83C\uDD95 New")===s.key?"selected":""}>${s.key}</option>`).join("")}</select>
     <label>Follow-up Date</label>
