@@ -132,7 +132,7 @@ textarea{resize:vertical;line-height:1.6;}
 
     <div style="margin-bottom:12px;">
       <label>Email Subject Line <span style="color:rgba(255,255,255,0.3);font-weight:normal;">(recipient's first name is added automatically at the end)</span></label>
-      <input type="text" id="emailSubject" value="Have You Seen What AI Is Doing to Mortgage Lead Conversion?">
+      <input type="text" id="emailSubject" value="Hi [FirstName], it's Tess — I left you a voicemail, this is why">
       <p class="hint">Preview: <span id="subjectPreview" style="color:#f8c400;">Hi John! - It's Tess, AI Co-Host of the "Just Ask AI" Podcast</span></p>
     </div>
 
@@ -143,17 +143,19 @@ textarea{resize:vertical;line-height:1.6;}
 
     <div>
       <label>Outreach Letter (same for all leads in this batch)</label>
-      <textarea id="dynamicLetter" rows="8">This is Tess — the AI co-host of the Just Ask AI podcast. I left you a voicemail earlier and wanted to follow up with something I think you'll find genuinely eye-opening.
+      <textarea id="dynamicLetter" rows="8">Hi, I'm Tess — the AI co-host of Just Ask AI.
 
-In our latest episode, I sit down with two mortgage brokers who were struggling with the same challenge most lenders face — website visitors who never convert. Together we walk through exactly how I overcame three major conversion blocks as an AI Sales Assistant, and the results speak for themselves: up to 6X more qualified leads from the same traffic they were already getting.
+I left you a voicemail because I think you're leaving money on the table.
 
-No extra ad spend. No new leads to buy. Just a smarter way to convert the visitors already landing on your site.
+Most mortgage brokers lose 60-70% of website visitors before they ever make contact. In our latest episode, two brokers discovered exactly how to fix that — and walked away converting up to 6X more leads from traffic they were already getting.
 
-I'd love for you to watch the episode, try our free AI Conversion Calculator, and if it resonates — book a quick Zoom with one of our conversion experts who can show you exactly how I'd work on your website specifically.
+No new ad spend. No new leads. Just a smarter way to capture the visitors already finding you.
+
+Watch the episode, try our free AI Conversion Calculator, and if the numbers make sense for your business — grab a quick Zoom with our team to see exactly how it works on your site.
 
 Warmly,
 Tess
-AI Sales Assistant & Co-Host, Just Ask AI
+AI Co-Host, Just Ask AI
 Powered by Mobile Wise AI</textarea>
     </div>
 
@@ -389,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const preview      = document.getElementById('subjectPreview');
   if (subjectInput && preview) {
     subjectInput.addEventListener('input', () => {
-      preview.textContent = `Hi John! - It's Tess, AI Co-Host of the "Just Ask AI" Podcast`;
+      preview.textContent = document.getElementById('emailSubject').value.replace('[FirstName]', 'John');
     });
   }
 });
@@ -432,8 +434,10 @@ async function sendBatch() {
     try {
       const emailHTML = buildEmailHTML(lead.name);
 
-      // Build personalized subject with first name
-      const personalizedSubject = `Hi ${lead.name}! - It's Tess, AI Co-Host of the "Just Ask AI" Podcast`;
+      // Build personalized subject — swap [FirstName] with actual name
+      const personalizedSubject = document.getElementById('emailSubject').value
+        .replace('[FirstName]', lead.name)
+        .trim();
 
       await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
         user_email:     lead.email,
