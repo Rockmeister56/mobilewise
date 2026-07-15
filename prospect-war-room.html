@@ -593,11 +593,11 @@ async function exportForEmail() {
   );
   if (!confirmed) return;
 
-  // Build CSV: FirstName, Email, Company for email sender
-  let csv = 'FirstName,Email,Company\n';
+  // Build CSV: FirstName and Email only
+  let csv = 'FirstName,Email\n';
   batch.forEach(l => {
     const firstName = (l.contact_name || '').split(' ')[0] || 'there';
-    csv += `"${firstName.replace(/"/g,'')}", "${(l.email||'').replace(/"/g,'')}","${(l.company_name||'').replace(/"/g,'')}"\n`;
+    csv += `"${firstName.replace(/"/g,'')}", "${(l.email||'').replace(/"/g,'')}"\n`;
   });
 
   // Download CSV
