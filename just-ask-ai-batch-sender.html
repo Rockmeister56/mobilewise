@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Just Ask AI — Batch Email Sender</title>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js">window.importCSVFile = importCSVFile;
+window.removeLead = removeLead;
+window.clearAll = clearAll;
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0f1e;color:white;min-height:100vh;padding:40px 20px;}
@@ -75,29 +78,33 @@ textarea{resize:vertical;line-height:1.6;}
   <div class="section">
     <h2>① Import Leads</h2>
 
-    <label>Import CSV from Tommy's War Room Export</label>
-    <div id="dropZone" onclick="document.getElementById('csvFile').click()" style="border:2px dashed rgba(248,196,0,0.35);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(248,196,0,0.03);" onmouseover="this.style.background='rgba(248,196,0,0.07)'" onmouseout="this.style.background='rgba(248,196,0,0.03)'">
-      <div style="font-size:2rem;margin-bottom:8px;">📂</div>
-      <div style="font-weight:700;color:#f8c400;margin-bottom:4px;">Click to import CSV file</div>
+    <!-- FILE IMPORT ZONE -->
+    <div id="dropZone" onclick="document.getElementById('csvFile').click()"
+      style="border:2px dashed rgba(248,196,0,0.4);border-radius:12px;padding:36px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(248,196,0,0.03);"
+      onmouseover="this.style.background='rgba(248,196,0,0.07)'"
+      onmouseout="this.style.background='rgba(248,196,0,0.03)'">
+      <div style="font-size:2.5rem;margin-bottom:8px;">📂</div>
+      <div style="font-weight:700;color:#f8c400;font-size:1rem;margin-bottom:4px;">Click to Import CSV from Tommy</div>
       <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);">FirstName, Email — exported from Tommy's War Room</div>
       <input type="file" id="csvFile" accept=".csv" style="display:none;" onchange="importCSVFile(this)">
     </div>
-    <div id="importStatus" style="display:none;margin-top:12px;padding:10px 16px;background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.3);border-radius:8px;display:none;align-items:center;justify-content:space-between;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:1.2rem;">✅</span>
-        <div>
-          <div style="font-weight:700;color:#4caf50;" id="importCount">0 leads imported</div>
-          <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);" id="importFileName">filename.csv</div>
-        </div>
-      </div>
-      <button class="btn btn-clear" onclick="clearImport()">✕ Clear</button>
-    </div>
-    <p class="hint" style="margin-top:8px;">Max 20 leads per batch. Only FirstName and Email columns needed.</p>
 
-    <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-      <button class="btn btn-clear" onclick="clearAll()">🗑 Clear All</button>
-      <span id="parseStatus" style="font-size:0.78rem;color:rgba(255,255,255,0.4);"></span>
+    <!-- IMPORT SUCCESS BANNER -->
+    <div id="importBanner" style="display:none;margin-top:12px;padding:12px 18px;background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.3);border-radius:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.4rem;">✅</span>
+          <div>
+            <div style="font-weight:700;color:#4caf50;font-size:0.95rem;" id="importCount">0 leads imported</div>
+            <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:1px;" id="importFileName">—</div>
+          </div>
+        </div>
+        <button class="btn btn-clear" onclick="clearAll()" style="padding:6px 14px;font-size:0.75rem;">✕ Clear &amp; Start Over</button>
+      </div>
     </div>
+
+    <p class="hint" style="margin-top:10px;">Max 20 leads per batch. Export from Tommy's War Room using the Export for Email Batch button.</p>
+    <div style="margin-top:8px;"><span id="parseStatus" style="font-size:0.78rem;color:rgba(255,255,255,0.4);"></span></div>
 
     <!-- LEAD TABLE -->
     <div id="leadTableWrap" style="display:none;margin-top:16px;">
@@ -188,17 +195,28 @@ const EMAILJS_TEMPLATE = 'template_f6j78g6';
 let leads = [];
 
 // ── Parse CSV input ───────────────────────────────────────
-function parseLeads() {
-  const el = document.getElementById('csvInput');
-  if (el) parseLeadsFromText(el.value.trim());
+function importCSVFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    parseLeadsFromText(e.target.result, file.name);
+  };
+  reader.readAsText(file);
+  input.value = ''; // reset so same file can be re-imported if needed
 }
 
-function parseLeadsFromText(raw) {
-  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+function parseLeads() {} // kept for compatibility
+
+function parseLeadsFromText(raw, fileName) {
+  const lines = raw.trim().split('\n').map(l => l.trim()).filter(Boolean);
   leads = [];
 
   for (const line of lines) {
-    const parts = line.split(',').map(p => p.trim());
+    // Skip header row
+    if (line.toLowerCase().startsWith('firstname') || line.toLowerCase().startsWith('first name')) continue;
+    // Handle quoted CSV: "John", "john@email.com"
+    const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g, '').trim());
     const name  = parts[0] || '';
     const email = parts[1] || '';
     if (name && email && email.includes('@')) {
@@ -209,9 +227,21 @@ function parseLeadsFromText(raw) {
   // Cap at 20
   if (leads.length > 20) {
     leads = leads.slice(0, 20);
-    document.getElementById('parseStatus').textContent = '⚠️ Capped at 20 leads per batch';
+    document.getElementById('parseStatus').textContent = '⚠️ Capped at 20 per batch';
   } else {
-    document.getElementById('parseStatus').textContent = leads.length ? `${leads.length} valid lead(s) found` : 'No valid leads yet';
+    document.getElementById('parseStatus').textContent = '';
+  }
+
+  // Show import banner with count and filename
+  if (leads.length > 0) {
+    document.getElementById('importBanner').style.display = 'block';
+    document.getElementById('importCount').textContent = `${leads.length} lead${leads.length!==1?'s':''} imported successfully`;
+    document.getElementById('importFileName').textContent = fileName || 'CSV imported';
+    // Scroll down to show the lead table
+    document.getElementById('dropZone').style.borderColor = 'rgba(76,175,80,0.5)';
+    document.getElementById('dropZone').style.background = 'rgba(76,175,80,0.04)';
+  } else {
+    document.getElementById('parseStatus').textContent = '⚠️ No valid leads found — check CSV format (FirstName, Email)';
   }
 
   renderLeadTable();
@@ -248,20 +278,29 @@ function statusLabel(s) {
 
 function removeLead(i) {
   leads.splice(i, 1);
-  // Re-sync CSV box
-  document.getElementById('csvInput').value = leads.map(l => `${l.name}, ${l.email}`).join('\n');
-  parseLeads();
+  // Update count in banner
+  if (leads.length > 0) {
+    document.getElementById('importCount').textContent = `${leads.length} lead${leads.length!==1?'s':''} imported successfully`;
+  } else {
+    document.getElementById('importBanner').style.display = 'none';
+    document.getElementById('dropZone').style.borderColor = 'rgba(248,196,0,0.4)';
+    document.getElementById('dropZone').style.background = 'rgba(248,196,0,0.03)';
+  }
+  renderLeadTable();
+  document.getElementById('sendBtn').disabled = leads.length === 0;
 }
 
 function clearAll() {
   leads = [];
-  document.getElementById('csvInput').value = '';
   document.getElementById('parseStatus').textContent = '';
   document.getElementById('leadTableWrap').style.display = 'none';
   document.getElementById('sendBtn').disabled = true;
   document.getElementById('logBox').style.display = 'none';
   document.getElementById('summaryBox').style.display = 'none';
   document.getElementById('progressBar').style.display = 'none';
+  document.getElementById('importBanner').style.display = 'none';
+  document.getElementById('dropZone').style.borderColor = 'rgba(248,196,0,0.4)';
+  document.getElementById('dropZone').style.background = 'rgba(248,196,0,0.03)';
 }
 
 // ── Build email HTML ──────────────────────────────────────
