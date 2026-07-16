@@ -633,10 +633,13 @@
             <i class="fas fa-info-circle"></i> Design/edit the actual template content in your EmailJS dashboard — this just tells the bridge which template ID to use for this client/industry.
         </p>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div>
+            <div id="prospectTemplateWrapper">
                 <label style="color: white; display: block; margin-bottom: 5px; font-size:0.85rem;">Prospect Follow-Up Template ID</label>
                 <input type="text" id="prospectEmailTemplateId" value="template_8kx812d" placeholder="template_8kx812d"
                        style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid #f8c400; border-radius: 8px; color: white;">
+                <p id="prospectTemplateInactiveNote" style="display:none; color: #aaa; font-size:0.72rem; margin-top:5px;">
+                    <i class="fas fa-moon"></i> Inactive in Demo mode — this activates once Bridge Mode is set to Normal.
+                </p>
             </div>
             <div>
                 <label style="color: white; display: block; margin-bottom: 5px; font-size:0.85rem;">Lead Notification Template ID</label>
@@ -3222,6 +3225,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const field = document.getElementById('demoMockupField');
             if (modeEl && field) {
                 field.style.display = modeEl.value === 'demo' ? 'block' : 'none';
+            }
+
+            const isDemo = modeEl && modeEl.value === 'demo';
+            const prospectInput = document.getElementById('prospectEmailTemplateId');
+            const prospectWrapper = document.getElementById('prospectTemplateWrapper');
+            const prospectNote = document.getElementById('prospectTemplateInactiveNote');
+            if (prospectInput && prospectWrapper && prospectNote) {
+                prospectInput.disabled = isDemo;
+                prospectWrapper.style.opacity = isDemo ? '0.4' : '1';
+                prospectInput.style.cursor = isDemo ? 'not-allowed' : 'text';
+                prospectNote.style.display = isDemo ? 'block' : 'none';
             }
         }
 
