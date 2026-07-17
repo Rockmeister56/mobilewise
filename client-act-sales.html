@@ -163,7 +163,22 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       <strong style="color:var(--green);">📬 Load Today's Batch from Tommy</strong><br>
       Pulls the 20 most recent leads Tommy has emailed that you haven't worked yet.
     </div>
-    <button class="btn btn-amber" onclick="loadTodaysBatch()">⚡ Load Today's 20</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button class="btn btn-amber" onclick="loadTodaysBatch()">⚡ Load Today's 20</button>
+      <button class="btn btn-ghost" id="selectModeBtn" onclick="toggleSelectMode()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">☑️ Select Leads</button>
+      <button class="btn btn-ghost" onclick="downloadVoicemailCSV()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">📞 Export All for Voicemail</button>
+    </div>
+  </div>
+  <div id="selectionBar" style="display:none;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:12px 18px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <input type="checkbox" id="selectAllCb" onchange="toggleSelectAll(this)" style="width:16px;height:16px;accent-color:#a855f7;cursor:pointer;">
+      <span style="font-size:0.82rem;color:rgba(255,255,255,0.7);">Select All Visible</span>
+      <span style="font-size:0.85rem;font-weight:700;color:#a855f7;" id="selCountLabel">0 selected</span>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" onclick="downloadSelectedVoicemail()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">📞 Export Selected for Voicemail</button>
+      <button class="btn btn-ghost" onclick="clearSelection()" style="font-size:0.72rem;">✕ Clear</button>
+    </div>
   </div>
 
   <div class="section-hdr">
@@ -403,7 +418,8 @@ function renderQueueItem(l,today){
   return `<div class="queue-item ${cls}">
     <div class="qi-top">
       <div class="qi-left">
-        <div class="qi-company">${esc(l.company_name||"\u2014")}</div>
+        <input type="checkbox" class="lead-cb" data-id="${l.id}" style="display:none;width:15px;height:15px;accent-color:#a855f7;cursor:pointer;margin-right:4px;vertical-align:middle;" onchange="toggleLeadSelect(${l.id},this)">
+        <div class="qi-company" style="display:inline;">${esc(l.company_name||"\u2014")}</div>
         ${l.lead_id?`<div style="font-size:12px;color:#0ea5e9;font-family:monospace;font-weight:600;margin-top:2px;letter-spacing:0.5px;">${esc(l.lead_id)}</div>`:""}
         <div class="qi-contact">${esc(l.contact_name||"")}</div>
         <div class="qi-meta">
@@ -513,6 +529,12 @@ function renderQueue(){
     out+=newLeads.map(l=>renderQueueItem(l,today)).join("");
   }
   c.innerHTML=out;
+  if (selectMode) {
+    document.querySelectorAll('.lead-cb').forEach(function(cb) {
+      cb.style.display = 'inline-block';
+      if (selectedLeads.has(parseInt(cb.dataset.id))) cb.checked = true;
+    });
+  }
 }
 
 function renderPipeline(){
@@ -597,7 +619,8 @@ function renderCalendar(){
     return `<div class="queue-item ${isToday2?"zoom-today":""}">
       <div class="qi-top">
         <div class="qi-left">
-          <div class="qi-company">${esc(l.company_name||"\u2014")}</div>
+          <input type="checkbox" class="lead-cb" data-id="${l.id}" style="display:none;width:15px;height:15px;accent-color:#a855f7;cursor:pointer;margin-right:4px;vertical-align:middle;" onchange="toggleLeadSelect(${l.id},this)">
+        <div class="qi-company" style="display:inline;">${esc(l.company_name||"\u2014")}</div>
           <div class="qi-contact">${esc(l.contact_name||"")}</div>
           <div class="qi-meta">
             ${isToday2?'<span class="qi-tag" style="color:#a855f7;border-color:rgba(168,85,247,0.3);background:rgba(168,85,247,0.08);">TODAY</span>':""}
@@ -847,4 +870,109 @@ function cpNum(id){
   });
 }
 window.cpNum=cpNum;
+
+// ── VOICEMAIL EXPORT ──────────────────────────────────────
+function downloadVoicemailCSV() {
+  var dead = ['💰 Closed Won','❌ Closed Lost','🚫 Do Not Call'];
+  var indF = document.getElementById('queueIndustry') ? document.getElementById('queueIndustry').value : '';
+  var leads = allLeads.filter(function(l) {
+    if (!l.phone) return false;
+    if (indF && (l.industry||'Mortgage') !== indF) return false;
+    if (dead.indexOf(l.sales_status||'') !== -1) return false;
+    return true;
+  });
+  if (!leads.length) { toast('No leads with phone numbers in queue'); return; }
+  var csv = '';
+  leads.forEach(function(l) {
+    var phone = (l.phone||'').replace(/\D/g,'');
+    var firstName = (l.contact_name||'').split(' ')[0] || 'Friend';
+    if (phone.length >= 10) csv += phone + ',' + firstName + '\n';
+  });
+  if (!csv) { toast('No valid phone numbers found'); return; }
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'voicemail-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('📞 Downloaded ' + leads.length + ' numbers for voicemail drop');
+}
+
+// ── SELECTION MODE ────────────────────────────────────────
+var selectedLeads = new Set();
+var selectMode = false;
+
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  var btn = document.getElementById('selectModeBtn');
+  var bar = document.getElementById('selectionBar');
+  if (selectMode) {
+    btn.textContent = '✕ Cancel Select';
+    btn.style.color = '#ef4444';
+    btn.style.borderColor = 'rgba(239,68,68,0.4)';
+    bar.style.display = 'flex';
+    document.querySelectorAll('.lead-cb').forEach(function(cb) { cb.style.display = 'inline-block'; });
+  } else {
+    btn.textContent = '☑️ Select Leads';
+    btn.style.color = '#a855f7';
+    btn.style.borderColor = 'rgba(168,85,247,0.4)';
+    bar.style.display = 'none';
+    clearSelection();
+  }
+}
+
+function toggleLeadSelect(id, cb) {
+  if (cb.checked) selectedLeads.add(id);
+  else { selectedLeads.delete(id); document.getElementById('selectAllCb').checked = false; }
+  updateSelCount();
+}
+
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.lead-cb').forEach(function(leadCb) {
+    leadCb.checked = cb.checked;
+    var id = parseInt(leadCb.dataset.id);
+    if (cb.checked) selectedLeads.add(id);
+    else selectedLeads.delete(id);
+  });
+  updateSelCount();
+}
+
+function updateSelCount() {
+  var el = document.getElementById('selCountLabel');
+  if (el) el.textContent = selectedLeads.size + ' selected';
+}
+
+function clearSelection() {
+  selectedLeads.clear();
+  document.querySelectorAll('.lead-cb').forEach(function(cb) {
+    cb.checked = false;
+    if (!selectMode) cb.style.display = 'none';
+  });
+  var allCb = document.getElementById('selectAllCb');
+  if (allCb) allCb.checked = false;
+  updateSelCount();
+}
+
+function downloadSelectedVoicemail() {
+  if (!selectedLeads.size) { toast('No leads selected — check the boxes first'); return; }
+  var leads = allLeads.filter(function(l) { return selectedLeads.has(l.id) && l.phone; });
+  if (!leads.length) { toast('No selected leads have phone numbers'); return; }
+  var csv = '';
+  leads.forEach(function(l) {
+    var phone = (l.phone||'').replace(/\D/g,'');
+    var firstName = (l.contact_name||'').split(' ')[0] || 'Friend';
+    if (phone.length >= 10) csv += phone + ',' + firstName + '\n';
+  });
+  if (!csv) { toast('No valid phone numbers found'); return; }
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'voicemail-selected-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('📞 Downloaded ' + selectedLeads.size + ' selected leads for voicemail');
+}
+
+window.toggleSelectMode = toggleSelectMode;
+window.toggleSelectAll = toggleSelectAll;
+window.toggleLeadSelect = toggleLeadSelect;
+window.clearSelection = clearSelection;
+window.downloadVoicemailCSV = downloadVoicemailCSV;
+window.downloadSelectedVoicemail = downloadSelectedVoicemail;
 </script>
