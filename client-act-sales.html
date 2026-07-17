@@ -414,7 +414,7 @@ function renderQueueItem(l,today){
         </div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
-        <div class="qi-phone">${l.phone?`<a href="tel:${esc(l.phone.replace(/\D/g,""))}">${esc(l.phone)}</a>` <button onclick=\"cpNum(${l.id})\" style=\"background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;border-radius:10px;padding:1px 7px;font-size:0.65rem;font-weight:700;cursor:pointer;font-family:inherit;\">&#128203;</button>:"\u2014"}</div>
+        <div class="qi-phone">${l.phone?`<a href="tel:${esc(l.phone.replace(/\D/g,""))}">${esc(l.phone)}</a>`:"\u2014"}</div>
         ${l.website?`<div style="margin-top:3px;"><a href="${esc(l.website)}" target="_blank" style="font-size:0.68rem;color:#0ea5e9;text-decoration:none;">\uD83C\uDF10 Site</a></div>`:""}
         ${l.email?`<div style="margin-top:3px;"><a href="mailto:${esc(l.email)}" style="font-size:0.68rem;color:#34a853;text-decoration:none;">\u2709\uFE0F ${esc(l.email)}</a></div>`:""}
       </div>
@@ -836,14 +836,6 @@ window.openActionModal=openActionModal;window.openNoteModal=openNoteModal;
 window.openZoomModal=openZoomModal;window.openDeadModal=openDeadModal;
 window.saveModal=saveModal;window.closeModal=closeModal;
 window.renderQueue=renderQueue;window.renderPipeline=renderPipeline;window.renderAll=renderAll;
-
-function cpNum(id){
-  var l=allLeads.find(function(x){return x.id===id;});
-  if(!l||!l.phone) return;
-  var n=l.phone.replace(/\D/g,'');
-  navigator.clipboard.writeText(n).then(function(){
-    toast('\uD83D\uDCCB Copied: '+n);
-  });
-}
-window.cpNum=cpNum;
 </script>
+</body>
+</html>
