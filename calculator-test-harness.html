@@ -409,14 +409,6 @@
         <input id="mc-income" type="number" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
       </div>
       <div class="calc-field">
-        <label class="calc-label">💼 Time at Current Employer</label>
-        <input id="mc-employment" type="text" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
-      </div>
-      <div class="calc-field">
-        <label class="calc-label">📅 Purchase Timeline</label>
-        <input id="mc-timeline" type="text" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
-      </div>
-      <div class="calc-field">
         <label class="calc-label">🏦 Down Payment (%)</label>
         <input id="mc-down-pct" type="number" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
       </div>
@@ -424,24 +416,36 @@
         <label class="calc-label">💳 Monthly Obligations (cars, loans, credit cards)</label>
         <input id="mc-debt" type="number" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
       </div>
-      <div class="calc-field">
-        <label class="calc-label">🏦 Loan Type</label>
-        <select id="mc-loan-type" class="calc-select" onchange="calcMortgage()">
-          <option value="conventional" selected>Conventional</option>
-          <option value="fha">FHA</option>
-          <option value="va">VA</option>
-          <option value="jumbo">Jumbo</option>
-          <option value="usda">USDA</option>
-        </select>
+      <div class="two-col">
+        <div class="calc-field">
+          <label class="calc-label">💼 Time at Employer</label>
+          <input id="mc-employment" type="text" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
+        </div>
+        <div class="calc-field">
+          <label class="calc-label">📅 Timeline</label>
+          <input id="mc-timeline" type="text" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
+        </div>
       </div>
-      <div class="calc-field">
-        <label class="calc-label">📊 Credit Score</label>
-        <select id="mc-credit" class="calc-select" onchange="calcMortgage()">
-          <option value="0.5">Excellent (760+)</option>
-          <option value="0.25" selected>Good (700–759)</option>
-          <option value="0">Fair (640–699)</option>
-          <option value="-0.5">Poor (580–639)</option>
-        </select>
+      <div class="two-col">
+        <div class="calc-field">
+          <label class="calc-label">🏦 Loan Type</label>
+          <select id="mc-loan-type" class="calc-select" onchange="calcMortgage()">
+            <option value="conventional" selected>Conventional</option>
+            <option value="fha">FHA</option>
+            <option value="va">VA</option>
+            <option value="jumbo">Jumbo</option>
+            <option value="usda">USDA</option>
+          </select>
+        </div>
+        <div class="calc-field">
+          <label class="calc-label">📊 Credit Score</label>
+          <select id="mc-credit" class="calc-select" onchange="calcMortgage()">
+            <option value="0.5">Excellent (760+)</option>
+            <option value="0.25" selected>Good (700–759)</option>
+            <option value="0">Fair (640–699)</option>
+            <option value="-0.5">Poor (580–639)</option>
+          </select>
+        </div>
       </div>
 
       <!-- Hidden — not shown on the real calculator, but still used by the math -->
