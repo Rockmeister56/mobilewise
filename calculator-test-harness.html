@@ -777,7 +777,6 @@ window.calcMortgage = function() {
   var de = document.getElementById('mc-dti');
   if(de) { de.textContent = dti+'%'; de.style.color = parseFloat(dti)<=28?'#34a853':parseFloat(dti)<=43?'#f8c400':'#f44336'; }
   var ve = document.getElementById('mc-verdict');
-  if(ve) ve.textContent = parseFloat(dti)<=28?'✅ Strong profile — you qualify well!':parseFloat(dti)<=43?'⚠️ Good profile. Reducing debt could improve your range.':'📋 Higher DTI — let\'s talk through your options.';
 
   // Save results
   var creditLabels = {'0.5':'Excellent (760+)','0.25':'Good (700-759)','0':'Fair (640-699)','-0.5':'Poor (580-639)'};
