@@ -147,13 +147,38 @@
     padding: 24px;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 16px;
     overflow-y: auto;
     max-height: 100vh;
   }
 
+  /* Phone-shaped 9:16 recording frame — record your screen cropped to this box */
+  .phone-frame {
+    width: 1080px;
+    height: 1920px;
+    background: #000;
+    border: 10px solid #1a1a1a;
+    border-radius: 42px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 0 2px rgba(255,255,255,0.05);
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone-frame::-webkit-scrollbar { width: 6px; }
+  .phone-frame::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+  .recording-hint {
+    color: rgba(255,255,255,0.35);
+    font-size: 0.7rem;
+    text-align: center;
+    max-width: 450px;
+  }
+
   /* ── Calculator styles (identical to bridge output) ── */
   #calc-wrapper {
+    width: 100%;
     background: rgba(10,15,30,0.98);
     border-radius: 20px;
     overflow: hidden;
@@ -301,16 +326,18 @@
     <div class="quick-scripts">
       <button class="script-btn tess" onclick="sendTess('First — what is your approximate annual income? Just give me a ballpark number.')">💬 Ask: Annual Income</button>
       <button class="script-btn tess" onclick="sendTess('I heard one hundred twenty thousand dollars. Is that correct?')">🔁 Heard: $120K income</button>
+      <button class="script-btn tess" onclick="sendTess('Great — and how long have you been with your current employer?')">💬 Ask: Employment Duration</button>
+      <button class="script-btn tess" onclick="sendTess('I heard three years. Is that correct?')">🔁 Heard: 3 years</button>
+      <button class="script-btn tess" onclick="sendTess('Perfect. And how soon are you looking to buy?')">💬 Ask: Purchase Timeline</button>
+      <button class="script-btn tess" onclick="sendTess('I heard in the next few months. Is that correct?')">🔁 Heard: Next few months</button>
       <button class="script-btn tess" onclick="sendTess('And how much do you have available for a down payment — give me a dollar amount if you can, or a percentage works too.')">💬 Ask: Down Payment</button>
-      <button class="script-btn tess" onclick="sendTess('I heard forty thousand dollars. Is that correct?')">🔁 Heard: $40K down</button>
+      <button class="script-btn tess" onclick="sendTess('I heard ten percent. Is that correct?')">🔁 Heard: 10% down</button>
       <button class="script-btn tess" onclick="sendTess('Approximately how much do you pay each month in debt payments — car loans, student loans, credit cards?')">💬 Ask: Monthly Debt</button>
       <button class="script-btn tess" onclick="sendTess('I heard five hundred dollars. Is that correct?')">🔁 Heard: $500 debt</button>
+      <button class="script-btn tess" onclick="sendTess('What type of loan are you looking for?')">💬 Ask: Loan Type</button>
+      <button class="script-btn tess" onclick="sendTess('I heard Conventional. Is that correct?')">🔁 Heard: Conventional</button>
       <button class="script-btn tess" onclick="sendTess('How would you describe your credit score — Excellent, Good, Fair, or Poor?')">💬 Ask: Credit Score</button>
       <button class="script-btn tess" onclick="sendTess('I heard Good, which is seven hundred to seven hundred fifty-nine. Is that correct?')">🔁 Heard: Good credit</button>
-      <button class="script-btn tess" onclick="sendTess('Do you prefer a 30-year, 20-year, or 15-year mortgage?')">💬 Ask: Loan Term</button>
-      <button class="script-btn tess" onclick="sendTess('I heard thirty-year. Is that correct?')">🔁 Heard: 30yr</button>
-      <button class="script-btn tess" onclick="sendTess('Last one — do you have a specific interest rate in mind, or should I use today&apos;s current market rate?')">💬 Ask: Interest Rate</button>
-      <button class="script-btn tess" onclick="sendTess('I will use the current market rate for you.')">🔁 Current rate</button>
     </div>
   </div>
 
@@ -321,12 +348,13 @@
       <button class="script-btn user" onclick="sendUser('Yes.')">✅ Yes</button>
       <button class="script-btn user" onclick="sendUser('No.')">❌ No</button>
       <button class="script-btn user" onclick="sendUser('$120,000')">💰 $120,000</button>
+      <button class="script-btn user" onclick="sendUser('Three years.')">💼 3 years</button>
+      <button class="script-btn user" onclick="sendUser('In the next few months.')">📅 Next few months</button>
       <button class="script-btn user" onclick="sendUser('Ten percent.')">📊 Ten percent</button>
       <button class="script-btn user" onclick="sendUser('$500')">💳 $500 debt</button>
       <button class="script-btn user" onclick="sendUser('None.')">🚫 No debt</button>
+      <button class="script-btn user" onclick="sendUser('Conventional.')">🏦 Conventional</button>
       <button class="script-btn user" onclick="sendUser('Good.')">⭐ Good credit</button>
-      <button class="script-btn user" onclick="sendUser('Thirty.')">📅 30 years</button>
-      <button class="script-btn user" onclick="sendUser('The best rate available.')">📈 Best rate</button>
       <button class="script-btn user" onclick="sendUser('Brett Duncan')">👤 Name</button>
     </div>
   </div>
@@ -361,7 +389,9 @@
 <!-- RIGHT: CALCULATOR -->
 <div class="calc-panel">
   <div class="panel-title">🏠 Live Calculator (bridge code running directly)</div>
+  <div class="recording-hint">📹 Crop your screen recording to this frame for a clean mobile-style video</div>
 
+  <div class="phone-frame">
   <div id="calc-wrapper">
     <div class="calc-header">
       <div class="calc-header-left">
@@ -379,15 +409,33 @@
         <input id="mc-income" type="number" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
       </div>
       <div class="calc-field">
-        <label class="calc-label">🏦 Down Payment ($)</label>
-        <input id="mc-down" type="number" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
+        <label class="calc-label">💼 Time at Current Employer</label>
+        <input id="mc-employment" type="text" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
       </div>
       <div class="calc-field">
-        <label class="calc-label">💳 Monthly Debt Payments</label>
-        <input id="mc-debt" type="number" class="calc-input" placeholder="Car, student, credit card..." oninput="calcMortgage()">
+        <label class="calc-label">📅 Purchase Timeline</label>
+        <input id="mc-timeline" type="text" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
       </div>
       <div class="calc-field">
-        <label class="calc-label">📊 Credit Score Range</label>
+        <label class="calc-label">🏦 Down Payment (%)</label>
+        <input id="mc-down-pct" type="number" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
+      </div>
+      <div class="calc-field">
+        <label class="calc-label">💳 Monthly Obligations (cars, loans, credit cards)</label>
+        <input id="mc-debt" type="number" class="calc-input" placeholder="Enter or speak..." oninput="calcMortgage()">
+      </div>
+      <div class="calc-field">
+        <label class="calc-label">🏦 Loan Type</label>
+        <select id="mc-loan-type" class="calc-select" onchange="calcMortgage()">
+          <option value="conventional" selected>Conventional</option>
+          <option value="fha">FHA</option>
+          <option value="va">VA</option>
+          <option value="jumbo">Jumbo</option>
+          <option value="usda">USDA</option>
+        </select>
+      </div>
+      <div class="calc-field">
+        <label class="calc-label">📊 Credit Score</label>
         <select id="mc-credit" class="calc-select" onchange="calcMortgage()">
           <option value="0.5">Excellent (760+)</option>
           <option value="0.25" selected>Good (700–759)</option>
@@ -395,19 +443,11 @@
           <option value="-0.5">Poor (580–639)</option>
         </select>
       </div>
-      <div class="two-col">
-        <div class="calc-field">
-          <label class="calc-label">📅 Loan Term</label>
-          <select id="mc-term" class="calc-select" onchange="calcMortgage()">
-            <option value="30" selected>30 Years</option>
-            <option value="20">20 Years</option>
-            <option value="15">15 Years</option>
-          </select>
-        </div>
-        <div class="calc-field">
-          <label class="calc-label">📈 Rate %</label>
-          <input id="mc-rate" type="number" step="0.05" value="7.25" class="calc-input" oninput="calcMortgage()">
-        </div>
+
+      <!-- Hidden — not shown on the real calculator, but still used by the math -->
+      <div style="display:none;">
+        <select id="mc-term"><option value="30" selected>30 Years</option></select>
+        <input id="mc-rate" type="number" value="7.25">
       </div>
 
       <div class="calc-results">
@@ -438,8 +478,9 @@
       <div class="disclaimer">Results are estimates. Actual qualification depends on full credit review.</div>
     </div>
   </div>
+  </div>
 
-  <!-- _calcResults dump -->
+  <!-- _calcResults dump — kept outside the phone frame; for your reference while testing, not part of the recorded video -->
   <div>
     <div class="panel-title" style="margin-bottom:8px;">_calcResults (what goes in the email)</div>
     <div class="state-display" id="calcResultsDisplay" style="font-size:0.7rem;line-height:1.9;">—</div>
@@ -536,11 +577,12 @@ class PreQualificationController {
     else if (lowerText.includes('phone')) this.currentField = 'phone';
     else if (lowerText.includes('annual income') || lowerText.includes('annual salary')) this.currentField = 'annualIncome';
     else if (lowerText.includes('monthly income') || lowerText.includes('gross monthly')) this.currentField = 'monthlyIncome';
+    else if (lowerText.includes('how long') && (lowerText.includes('employ') || lowerText.includes('job') || lowerText.includes('current position'))) this.currentField = 'employmentDuration';
+    else if (lowerText.includes('how soon') || lowerText.includes('timeline') || lowerText.includes('when are you looking') || lowerText.includes('time frame')) this.currentField = 'purchaseTimeline';
     else if (lowerText.includes('monthly debt') || lowerText.includes('debt payment') || lowerText.includes('car payment') || lowerText.includes('monthly obligation')) this.currentField = 'monthlyDebt';
     else if (lowerText.includes('putting down') || lowerText.includes('down payment') || lowerText.includes('how much down')) this.currentField = 'downPayment';
+    else if (lowerText.includes('type of loan') || lowerText.includes('loan type') || lowerText.includes('va loan') || lowerText.includes('fha') || lowerText.includes('conventional') || lowerText.includes('jumbo')) this.currentField = 'loanType';
     else if (lowerText.includes('credit score')) this.currentField = 'creditScore';
-    else if (lowerText.includes('loan term') || lowerText.includes('how many years') || lowerText.includes('30-year') || lowerText.includes('fifteen-year')) this.currentField = 'loanTerm';
-    else if (lowerText.includes('interest rate') || lowerText.includes('current rate') || lowerText.includes('rate in mind')) this.currentField = 'interestRate';
 
     if (this.currentField) {
       log('system', `🎯 Expecting answer for: ${this.currentField}`);
@@ -604,23 +646,46 @@ window.populateCalcField = function(fieldName, spokenValue) {
       return true;
     }
   } else if (fieldName === 'downPayment') {
+    el = document.getElementById('mc-down-pct');
+    if (!el) return false;
     if (lower.includes('percent') || lower.includes('%')) {
       var pct = window.parseSpokenNumber(spokenValue);
-      if (pct) {
-        var incomeEl = document.getElementById('mc-income');
-        var income = incomeEl ? parseFloat(incomeEl.value) || 85000 : 85000;
-        var estHome = income * 3.5;
-        var dollarDown = Math.round(estHome * pct / 100);
-        el = document.getElementById('mc-down');
-        if (el) { el.value = dollarDown; flashField('mc-down'); calcMortgage(); }
-        log('system', `📊 ${pct}% down = $${dollarDown.toLocaleString()}`);
+      if (pct !== null) {
+        el.value = Math.round(pct);
+        flashField('mc-down-pct');
+        calcMortgage();
         return true;
       }
     }
     num = window.parseSpokenNumber(spokenValue);
-    if (num) {
-      el = document.getElementById('mc-down');
-      if (el) { el.value = Math.round(num); flashField('mc-down'); calcMortgage(); }
+    if (num !== null) {
+      var incomeEl = document.getElementById('mc-income');
+      var income = incomeEl ? parseFloat(incomeEl.value) || 85000 : 85000;
+      var estHome = income * 3.5;
+      var pctFromDollars = estHome > 0 ? (num / estHome) * 100 : 0;
+      el.value = Math.round(pctFromDollars);
+      flashField('mc-down-pct');
+      calcMortgage();
+      log('system', `📊 $${num.toLocaleString()} ≈ ${Math.round(pctFromDollars)}% down`);
+      return true;
+    }
+  } else if (fieldName === 'employmentDuration') {
+    el = document.getElementById('mc-employment');
+    if (el) { el.value = spokenValue.trim(); flashField('mc-employment'); return true; }
+  } else if (fieldName === 'purchaseTimeline') {
+    el = document.getElementById('mc-timeline');
+    if (el) { el.value = spokenValue.trim(); flashField('mc-timeline'); return true; }
+  } else if (fieldName === 'loanType') {
+    var lt = lower;
+    el = document.getElementById('mc-loan-type');
+    if (el) {
+      if (lt.includes('va') || lt.includes('veteran') || lt.includes('military')) el.value = 'va';
+      else if (lt.includes('fha')) el.value = 'fha';
+      else if (lt.includes('jumbo')) el.value = 'jumbo';
+      else if (lt.includes('usda') || lt.includes('rural')) el.value = 'usda';
+      else el.value = 'conventional';
+      flashField('mc-loan-type');
+      calcMortgage();
       return true;
     }
   } else if (fieldName === 'monthlyDebt') {
@@ -681,18 +746,22 @@ window.populateCalcField = function(fieldName, spokenValue) {
 // ── calcMortgage ──
 window.calcMortgage = function() {
   var income = parseFloat(document.getElementById('mc-income')?.value) || 0;
-  var down = parseFloat(document.getElementById('mc-down')?.value) || 0;
+  var downPct = parseFloat(document.getElementById('mc-down-pct')?.value) || 0;
   var debt = parseFloat(document.getElementById('mc-debt')?.value) || 0;
   var creditAdj = parseFloat(document.getElementById('mc-credit')?.value) || 0;
   var term = parseInt(document.getElementById('mc-term')?.value) || 30;
   var rate = parseFloat(document.getElementById('mc-rate')?.value) - creditAdj;
+  var loanTypeEl = document.getElementById('mc-loan-type');
+  var loanType = loanTypeEl ? loanTypeEl.value : 'conventional';
+  var employmentDuration = document.getElementById('mc-employment')?.value || '';
+  var purchaseTimeline = document.getElementById('mc-timeline')?.value || '';
   if (!income) return;
   var mr = rate/100/12, n = term*12, gm = income/12;
   var maxHousingPayment = (gm * 0.43) - debt;
   if (maxHousingPayment < gm * 0.1) maxHousingPayment = gm * 0.1;
   var mp = Math.min(maxHousingPayment, gm * 0.28);
   var maxLoan = mr > 0 ? mp*(1-Math.pow(1+mr,-n))/mr : mp*n;
-  var maxHome = maxLoan + down;
+  var maxHome = downPct < 100 ? maxLoan / (1 - downPct/100) : maxLoan;
   var pmt = mr > 0 ? maxLoan*(mr*Math.pow(1+mr,n))/(Math.pow(1+mr,n)-1) : maxLoan/n;
   var dti = gm > 0 ? (((pmt+debt)/gm)*100).toFixed(1) : 0;
   var fmt = v => '$' + Math.round(v).toLocaleString();
@@ -712,7 +781,10 @@ window.calcMortgage = function() {
   window._calcResults = {
     income: income ? '$'+parseInt(income).toLocaleString() : 'Not provided',
     debt: debt ? '$'+parseInt(debt).toLocaleString()+'/mo' : '$0/mo',
-    down: down ? '$'+parseInt(down).toLocaleString() : 'Not provided',
+    down: downPct ? downPct+'%' : 'Not provided',
+    loanType: loanType || 'Not provided',
+    employmentDuration: employmentDuration || 'Not provided',
+    purchaseTimeline: purchaseTimeline || 'Not provided',
     credit: creditSel ? (creditLabels[creditSel.value] || 'Not provided') : 'Not provided',
     term: termSel ? termSel.value+' Years' : '30 Years',
     rate: document.getElementById('mc-rate')?.value ? document.getElementById('mc-rate').value+'%' : 'Not provided',
@@ -844,11 +916,27 @@ async function runFullScript() {
   await delay(600);
   sendUser('Yes.');
   await delay(600);
+  sendTess('Great — and how long have you been with your current employer?');
+  await delay(600);
+  sendUser('About three years.');
+  await delay(600);
+  sendTess('I heard three years. Is that correct?');
+  await delay(600);
+  sendUser('Yes.');
+  await delay(600);
+  sendTess('Perfect. And how soon are you looking to buy — right away, in the next few months, or are you just exploring your options for now?');
+  await delay(600);
+  sendUser('In the next few months.');
+  await delay(600);
+  sendTess('I heard in the next few months. Is that correct?');
+  await delay(600);
+  sendUser('Yes.');
+  await delay(600);
   sendTess('And how much do you have available for a down payment — give me a dollar amount if you can, or a percentage works too.');
   await delay(600);
-  sendUser('$40,000');
+  sendUser('Ten percent.');
   await delay(600);
-  sendTess('I heard forty thousand dollars. Is that correct?');
+  sendTess('I heard ten percent. Is that correct?');
   await delay(600);
   sendUser('Yes.');
   await delay(600);
@@ -860,27 +948,21 @@ async function runFullScript() {
   await delay(600);
   sendUser('Yes.');
   await delay(600);
-  sendTess('How would you describe your credit score — Excellent, Good, Fair, or Poor?');
+  sendTess('What type of loan are you looking for? For example — Conventional, FHA, VA if you\'re a veteran, Jumbo, or USDA?');
+  await delay(600);
+  sendUser('Conventional.');
+  await delay(600);
+  sendTess('I heard Conventional. Is that correct?');
+  await delay(600);
+  sendUser('Yes.');
+  await delay(600);
+  sendTess('And last — how would you describe your credit score? Excellent is 760 or above, Good is 700 to 759, Fair is 640 to 699, or Poor is 580 to 639.');
   await delay(600);
   sendUser('Good.');
   await delay(600);
   sendTess('I heard Good, which is seven hundred to seven hundred fifty-nine. Is that correct?');
   await delay(600);
   sendUser('Yes.');
-  await delay(600);
-  sendTess('Do you prefer a 30-year, 20-year, or 15-year mortgage?');
-  await delay(600);
-  sendUser('Thirty.');
-  await delay(600);
-  sendTess('I heard thirty-year. Is that correct?');
-  await delay(600);
-  sendUser('Yes.');
-  await delay(600);
-  sendTess('Last one — do you have a specific interest rate in mind, or should I use today\'s current market rate?');
-  await delay(600);
-  sendUser('The best rate available.');
-  await delay(600);
-  sendTess('I will use the current market rate for you.');
   await delay(400);
   log('success', '✅ Full script complete — check calculator fields and _calcResults above!');
 }
@@ -894,8 +976,11 @@ function resetAll() {
   window._pendingHeardValue = null;
   document.getElementById('transcriptLog').innerHTML = '<span class="log-system">Reset — ready for new test.</span><br>';
   document.getElementById('mc-income').value = '';
-  document.getElementById('mc-down').value = '';
+  document.getElementById('mc-employment').value = '';
+  document.getElementById('mc-timeline').value = '';
+  document.getElementById('mc-down-pct').value = '';
   document.getElementById('mc-debt').value = '';
+  document.getElementById('mc-loan-type').value = 'conventional';
   document.getElementById('mc-credit').value = '0.25';
   document.getElementById('mc-term').value = '30';
   document.getElementById('mc-rate').value = '7.25';
