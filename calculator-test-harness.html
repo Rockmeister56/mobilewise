@@ -771,12 +771,6 @@ window.calcMortgage = function() {
   var dti = gm > 0 ? (((pmt+debt)/gm)*100).toFixed(1) : 0;
   var fmt = v => '$' + Math.round(v).toLocaleString();
 
-  var hp = document.getElementById('mc-home-price'); if(hp) hp.textContent = fmt(maxHome*0.9)+'–'+fmt(maxHome);
-  var mp2 = document.getElementById('mc-monthly'); if(mp2) mp2.textContent = fmt(pmt)+'/mo';
-  var la = document.getElementById('mc-loan'); if(la) la.textContent = fmt(maxLoan);
-  var de = document.getElementById('mc-dti');
-  if(de) { de.textContent = dti+'%'; de.style.color = parseFloat(dti)<=28?'#34a853':parseFloat(dti)<=43?'#f8c400':'#f44336'; }
-
   // Save results
   var creditLabels = {'0.5':'Excellent (760+)','0.25':'Good (700-759)','0':'Fair (640-699)','-0.5':'Poor (580-639)'};
   var creditSel = document.getElementById('mc-credit');
