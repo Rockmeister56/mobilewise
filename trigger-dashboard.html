@@ -3861,7 +3861,7 @@ async function exportBridgeOnly() {
         code += '                        this.answers[this.currentField] = this.pendingValue;\n';
         code += '                        console.log("✅ Confirmed:", this.currentField, "=", this.pendingValue);\n';
         code += '                        // 🏠 If calculator is open, auto-populate the matching field\n';
-        code += '                        var calcFields = ["annualIncome","monthlyIncome","downPayment","creditScore","loanTerm","loanType","monthlyDebt"];\n';
+        code += '                        var calcFields = ["annualIncome","monthlyIncome","downPayment","creditScore","loanTerm","loanType","monthlyDebt","employmentDuration","purchaseTimeline"];\n';
         code += '                        if (calcFields.indexOf(this.currentField) !== -1 && typeof window.populateCalcField === "function") {\n';
         code += '                            var populated = window.populateCalcField(this.currentField, this.pendingValue);\n';
         code += '                            if (populated) console.log("🏠 Calculator field populated:", this.currentField);\n';
@@ -3961,6 +3961,10 @@ async function exportBridgeOnly() {
         code += '                this.currentField = "loanType"; window._lastCalcField = "loanType";\n';
         code += '            } else if (lowerText.includes("special requests")) {\n';
         code += '                this.currentField = "specialRequests";\n';
+        code += '            } else if (lowerText.includes("how long") && (lowerText.includes("employ") || lowerText.includes("job") || lowerText.includes("current position"))) {\n';
+        code += '                this.currentField = "employmentDuration"; window._lastCalcField = "employmentDuration";\n';
+        code += '            } else if (lowerText.includes("how soon") || lowerText.includes("timeline") || lowerText.includes("when are you looking") || lowerText.includes("time frame")) {\n';
+        code += '                this.currentField = "purchaseTimeline"; window._lastCalcField = "purchaseTimeline";\n';
         code += '            } else if (lowerText.includes("anything else")) {\n';
         code += '                this.expectingClosingResponse = true;\n';
         code += '                console.log("🎯 Expecting closing response (Yes/No)");\n';
@@ -4086,6 +4090,8 @@ async function exportBridgeOnly() {
         code += '                        calc_down_payment:    calcData.down       || "Not provided",\n';
         code += '                        calc_monthly_debt:    calcData.debt       || "Not provided",\n';
         code += '                        calc_loan_type:       calcData.loanType   || "Not provided",\n';
+        code += '                        calc_employment_duration: calcData.employmentDuration || "Not provided",\n';
+        code += '                        calc_purchase_timeline:   calcData.purchaseTimeline   || "Not provided",\n';
         code += '                        calc_credit_score:    calcData.credit     || "Not provided",\n';
         code += '                        calc_loan_term:       calcData.term       || "Not provided",\n';
         code += '                        calc_home_price:      calcData.homePrice  || "Not provided",\n';
@@ -4131,6 +4137,8 @@ async function exportBridgeOnly() {
         code += '                    calc_down_payment:    calcData.down       || "Not provided",\n';
         code += '                    calc_monthly_debt:    calcData.debt       || "Not provided",\n';
         code += '                    calc_loan_type:       calcData.loanType   || "Not provided",\n';
+        code += '                    calc_employment_duration: calcData.employmentDuration || "Not provided",\n';
+        code += '                    calc_purchase_timeline:   calcData.purchaseTimeline   || "Not provided",\n';
         code += '                    calc_credit_score:    calcData.credit     || "Not provided",\n';
         code += '                    calc_loan_term:       calcData.term       || "Not provided",\n';
         code += '                    calc_home_price:      calcData.homePrice  || "Not provided",\n';
@@ -4237,6 +4245,8 @@ async function exportBridgeOnly() {
         code += '        var grid = document.createElement("div");\n';
         code += '        grid.style.cssText = "display:grid;gap:14px;";\n';
         code += '        grid.appendChild(mcField("💰 Annual Income","mc-income","number","",null,false,null));\n';
+        code += '        grid.appendChild(mcField("💼 Time at Current Employer","mc-employment","text","",null,false,null));\n';
+        code += '        grid.appendChild(mcField("📅 Purchase Timeline","mc-timeline","text","",null,false,null));\n';
         code += '        grid.appendChild(mcField("🏦 Down Payment (%)","mc-down-pct","number","",null,false,null));\n';
         code += '        grid.appendChild(mcField("💳 Monthly Obligations (cars, loans, credit cards)","mc-debt","number","",null,false,null));\n';
         code += '        grid.appendChild(mcField("🏦 Loan Type","mc-loan-type",null,null,null,true,[\n';
@@ -4326,6 +4336,8 @@ async function exportBridgeOnly() {
         code += '                                calc_down_payment:    calcData.down       || "Not provided",\n';
         code += '                                calc_monthly_debt:    calcData.debt       || "Not provided",\n';
         code += '                                calc_loan_type:       calcData.loanType   || "Not provided",\n';
+        code += '                                calc_employment_duration: calcData.employmentDuration || "Not provided",\n';
+        code += '                                calc_purchase_timeline:   calcData.purchaseTimeline   || "Not provided",\n';
         code += '                                calc_credit_score:    calcData.credit     || "Not provided",\n';
         code += '                                calc_loan_term:       calcData.term       || "Not provided",\n';
         code += '                                calc_home_price:      calcData.homePrice  || "Not provided",\n';
@@ -4361,6 +4373,8 @@ async function exportBridgeOnly() {
         code += '                                calc_down_payment:    calcData.down       || "Not provided",\n';
         code += '                                calc_monthly_debt:    calcData.debt       || "Not provided",\n';
         code += '                                calc_loan_type:       calcData.loanType   || "Not provided",\n';
+        code += '                                calc_employment_duration: calcData.employmentDuration || "Not provided",\n';
+        code += '                                calc_purchase_timeline:   calcData.purchaseTimeline   || "Not provided",\n';
         code += '                                calc_credit_score:    calcData.credit     || "Not provided",\n';
         code += '                                calc_loan_term:       calcData.term       || "Not provided",\n';
         code += '                                calc_home_price:      calcData.homePrice  || "Not provided",\n';
@@ -4535,6 +4549,12 @@ async function exportBridgeOnly() {
         code += '                window.calcMortgage();\n';
         code += '                return true;\n';
         code += '            }\n';
+        code += '        } else if (fieldName === "employmentDuration") {\n';
+        code += '            var el = document.getElementById("mc-employment");\n';
+        code += '            if (el) { el.value = spokenValue.trim(); return true; }\n';
+        code += '        } else if (fieldName === "purchaseTimeline") {\n';
+        code += '            var el = document.getElementById("mc-timeline");\n';
+        code += '            if (el) { el.value = spokenValue.trim(); return true; }\n';
         code += '        }\n';
         code += '        return false;\n';
         code += '    };\n';
@@ -4544,6 +4564,8 @@ async function exportBridgeOnly() {
         code += '        var downPct=parseFloat(document.getElementById("mc-down-pct")?.value)||0;\n';
         code += '        var loanTypeEl=document.getElementById("mc-loan-type");\n';
         code += '        var loanType=loanTypeEl?loanTypeEl.value:"conventional";\n';
+        code += '        var employmentDuration=document.getElementById("mc-employment")?.value||"";\n';
+        code += '        var purchaseTimeline=document.getElementById("mc-timeline")?.value||"";\n';
         code += '        var debt=parseFloat(document.getElementById("mc-debt")?.value)||0;\n';
         code += '        var creditAdj=parseFloat(document.getElementById("mc-credit")?.value)||0;\n';
         code += '        var term=parseInt(document.getElementById("mc-term")?.value)||30;\n';
@@ -4580,6 +4602,8 @@ async function exportBridgeOnly() {
         code += '            term: term+" Years",\n';
         code += '            rate: rate ? rate.toFixed(2)+"%" : "Not provided",\n';
         code += '            loanType: loanType || "Not provided",\n';
+        code += '            employmentDuration: employmentDuration || "Not provided",\n';
+        code += '            purchaseTimeline: purchaseTimeline || "Not provided",\n';
         code += '            homePrice: hp ? hp.textContent : "Not provided",\n';
         code += '            monthly: mp2 ? mp2.textContent : "Not provided",\n';
         code += '            loanAmount: la ? la.textContent : "Not provided",\n';
