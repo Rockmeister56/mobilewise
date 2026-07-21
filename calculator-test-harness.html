@@ -499,7 +499,26 @@
         </div>
       </div>
 
-      <button class="cta-btn">📨 Send My Results →</button>
+      <button class="cta-btn" id="nextStepBtn" onclick="showNextStepOptions()">➡️ Next Step</button>
+
+      <div id="nextStepOptions" style="display:none;">
+        <div style="text-align:center;color:rgba(255,255,255,0.6);font-size:0.78rem;margin:14px 0 10px;">How would you like to proceed?</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <button class="cta-btn" style="margin:0;background:linear-gradient(135deg,#3a4050,#2a2f3f);color:#fff;font-size:0.85rem;padding:13px 8px;" onclick="chooseEmailPath()">📧 Email My Results</button>
+          <button class="cta-btn" style="margin:0;background:linear-gradient(135deg,#34a853,#2d8e46);font-size:0.85rem;padding:13px 8px;" onclick="choosePhonePath()">📞 Connect Now</button>
+        </div>
+      </div>
+
+      <div id="emailConfirmArea" style="display:none;text-align:center;margin-top:14px;padding:16px;background:rgba(52,168,83,0.1);border:1px solid rgba(52,168,83,0.4);border-radius:12px;">
+        <div style="font-size:1.3rem;margin-bottom:6px;">✅</div>
+        <div style="color:#fff;font-weight:600;font-size:0.92rem;">Your quote is on its way!</div>
+        <div style="color:rgba(255,255,255,0.6);font-size:0.78rem;margin-top:4px;">Check your inbox in the next few minutes.</div>
+      </div>
+
+      <div id="phoneConnectArea" style="display:none;text-align:center;margin-top:14px;padding:16px;background:rgba(52,168,83,0.1);border:1px solid rgba(52,168,83,0.4);border-radius:12px;">
+        <div style="color:rgba(255,255,255,0.7);font-size:0.82rem;margin-bottom:12px;">Our loan expert is standing by right now.</div>
+        <a href="tel:9492285263" style="display:block;background:linear-gradient(135deg,#f8c400,#d4a000);color:#0a0f1e;text-decoration:none;padding:14px;border-radius:12px;font-weight:800;font-size:1rem;">📞 Call (949) 228-5263 Now</a>
+      </div>
       <div class="disclaimer">Results are estimates. Actual qualification depends on full credit review.</div>
     </div>
   </div>
@@ -1014,6 +1033,33 @@ async function runFullScript() {
   log('success', '✅ Full script complete — check calculator fields and _calcResults above!');
 }
 
+function showNextStepOptions() {
+  document.getElementById('nextStepBtn').style.display = 'none';
+  document.getElementById('nextStepOptions').style.display = 'block';
+  log('system', '➡️ Next Step clicked — presenting email vs. live connect options');
+}
+
+function sendLeadToMortgageCompany() {
+  // The lead always gets sent to the mortgage company first, regardless of
+  // which option the prospect picks next — the live-connect option doesn't
+  // replace the lead notification, it happens in addition to it.
+  log('success', '📨 Lead sent to mortgage company — ' + JSON.stringify(window._calcResults));
+}
+
+function chooseEmailPath() {
+  sendLeadToMortgageCompany();
+  document.getElementById('nextStepOptions').style.display = 'none';
+  document.getElementById('emailConfirmArea').style.display = 'block';
+  log('system', '📧 Prospect chose email — quote confirmation shown');
+}
+
+function choosePhonePath() {
+  sendLeadToMortgageCompany();
+  document.getElementById('nextStepOptions').style.display = 'none';
+  document.getElementById('phoneConnectArea').style.display = 'block';
+  log('success', '📞 Prospect chose live connect — this is now a live-transfer-quality lead');
+}
+
 function resetAll() {
   window.preQualController = new PreQualificationController();
   window._calcModeActive = false;
@@ -1035,6 +1081,10 @@ function resetAll() {
   document.getElementById('mc-monthly').textContent = '—';
   document.getElementById('mc-chances-tag').textContent = '—';
   document.getElementById('mc-chances-tag').style.color = 'rgba(255,255,255,0.5)';
+  document.getElementById('nextStepBtn').style.display = 'block';
+  document.getElementById('nextStepOptions').style.display = 'none';
+  document.getElementById('emailConfirmArea').style.display = 'none';
+  document.getElementById('phoneConnectArea').style.display = 'none';
   document.getElementById('mc-chances-marker').style.left = '0%';
   document.getElementById('calcResultsDisplay').textContent = '—';
   updateState();
