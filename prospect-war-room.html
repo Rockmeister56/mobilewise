@@ -420,6 +420,8 @@ function renderLeads() {
         ${l.maps_url?`<a class="lbtn lbtn-b" href="${esc(l.maps_url)}" target="_blank">📍 Maps</a>`:'—'}
         <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent((l.company_name||'')+'  NMLS number broker')}" target="_blank"
           style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);margin-top:4px;display:inline-block;">🔍 NMLS</a>
+        <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent((l.company_name||'')+' webmaster')}" target="_blank"
+          style="background:rgba(14,165,233,0.12);color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);margin-top:4px;display:inline-block;">🌐 WM</a>
       </td>
       <td><span style="font-size:0.7rem;padding:3px 9px;border-radius:12px;white-space:nowrap;background:${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.15)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.15)':'rgba(52,168,83,0.1)'};color:${(l.industry||'Mortgage')==='Legal'?'#ce93d8':(l.industry||'Mortgage')==='Tax Resolution'?'#ffb74d':'#81c784'};border:1px solid ${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.4)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.4)':'rgba(52,168,83,0.3)'};">${(l.industry||'Mortgage')==='Legal'?'⚖️ Legal':(l.industry||'Mortgage')==='Tax Resolution'?'💼 Tax':'🏠 Mortgage'}</span></td>
       <td>
