@@ -3518,7 +3518,7 @@ async function exportBridgeOnly() {
         code += '            "smartScreen": ' + JSON.stringify(config.modules?.smartScreen || { images: [] }) + ',\n';
         code += '            "testimonial": ' + JSON.stringify(config.modules?.testimonial || { groups: [] }) + ',\n';
         code += '            "videoVault": ' + JSON.stringify(config.modules?.videoVault || { videos: [] }) + ',\n';
-        code += '            "mortgageCalc": ' + JSON.stringify(config.modules?.mortgageCalc || { enabled: false, triggerPhrase: 'let me show you what you can qualify for', defaultRate: 7.25, defaultTerm: 30 }) + ',\n';
+        code += '            "mortgageCalc": ' + JSON.stringify(config.modules?.mortgageCalc || { enabled: false, triggerPhrase: "let me show you what you can qualify for", defaultRate: 7.25, defaultTerm: 30 }) + ',\n';
         code += '            "websiteInfo": ' + JSON.stringify(config.modules?.websiteInfo || { triggers: [] }) + '\n';
         code += '        }\n';
         code += '    };\n\n';
