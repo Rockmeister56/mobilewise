@@ -3699,35 +3699,6 @@ async function exportBridgeOnly() {
         code += '        }\n';
         code += '    `;\n';
         code += '    document.head.appendChild(style);\n';
-        
-                       // Helper Functions
-        code += '    function createSplashWidget() {\n';
-        code += '        const widget = document.createElement(\'lemon-slice-widget\');\n';
-        code += '        let clientId = window.BotemiaConfig?.id;\n';
-        code += '        if (!clientId) { console.error("❌ CRITICAL: BotemiaConfig ID missing!"); return null; }\n';
-        code += '        widget.setAttribute(\'client-id\', clientId);\n';
-        code += '        widget.clientId = clientId;\n';
-        code += '        const sessionId = \'session-\' + crypto.randomUUID();\n';
-        code += '        window.tessSessionId = sessionId;\n';
-        code += '        widget.setAttribute(\'room-id\', sessionId);\n';
-        code += '        widget.roomId = sessionId;\n';
-        code += '        widget.setAttribute(\'agent-id\', \'' + (config.modules?.splashScreen?.agentId || config.agentId) + '\');\n';
-        code += '        widget.agentId = \'' + (config.modules?.splashScreen?.agentId || config.agentId) + '\';\n';
-        code += '        const apiKey = "sk_lemon_Tleyq2zh6NoMpllEHf7mYNRxzIED6YcP";\n';
-        code += '        widget.setAttribute(\'api-key\', apiKey);\n';
-        code += '        widget.apiKey = apiKey;\n';
-        code += '        widget.setAttribute(\'muted\', \'true\');\n';
-        code += '        widget.muted = true;\n';
-        code += '        widget.setAttribute(\'suppress-audio\', \'true\');\n';
-        code += '        widget.setAttribute(\'initial-state\', \'active\');\n';
-        code += '        widget.setAttribute(\'inline\', \'\');\n';
-        code += '        widget.setAttribute(\'custom-minimized-width\', \'280\');\n';
-        code += '        widget.setAttribute(\'custom-minimized-height\', \'400\');\n';
-        code += '        widget.setAttribute(\'hide-ui\', \'\');\n';
-        code += '        widget.setAttribute(\'suppress-initial-message\', \'true\');\n';
-        code += '        widget.id = \'splash-widget\';\n';
-        code += '        return widget;\n';
-        code += '    }\n\n';
 
                 // ===== INTERVIEW LISTENER MODE =====
         // Questions are now handled by LemonSlice Knowledge Base
@@ -5617,8 +5588,17 @@ code += '\n';
         code += '\n';
         code += '        const navySection = page.querySelector(\'.splash-navy\');\n';
         code += '        const container = document.getElementById(\'splashAvatarContainer\');\n';
-        code += '        const splashWidget = createSplashWidget();\n';
-        code += '        container.appendChild(splashWidget);\n';
+        code += '        const tessVideoUrl = window.BotemiaConfig?.modules?.splashScreen?.tessVideoUrl;\n';
+        code += '        if (tessVideoUrl) {\n';
+        code += '            const splashVid = document.createElement(\'video\');\n';
+        code += '            splashVid.src = tessVideoUrl;\n';
+        code += '            splashVid.autoplay = true;\n';
+        code += '            splashVid.muted = true;\n';
+        code += '            splashVid.loop = true;\n';
+        code += '            splashVid.playsInline = true;\n';
+        code += '            splashVid.setAttribute(\'playsinline\', \'\');\n';
+        code += '            splashVid.style.cssText = \'width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;\';\n';
+        code += '            container.appendChild(splashVid);\n';
         code += '        container.appendChild(document.getElementById(\'splash-preloader\')); // ensure preloader stays on top, last in DOM order\n';
         code += '\n';
         code += '        setTimeout(function() {\n';
@@ -5690,12 +5670,6 @@ code += '\n';
         code += '            console.warn("⚠️ Mic permission request on click failed or was denied:", e);\n';
         code += '        }\n';
         code += '\n';
-        code += '        const splashWidget = document.getElementById(\'splash-widget\');\n';
-        code += '        if (splashWidget) {\n';
-        code += '            splashWidget.innerHTML = \'\';\n';
-        code += '            if (splashWidget.parentNode) splashWidget.parentNode.removeChild(splashWidget);\n';
-        code += '        }\n';
-        code += '        \n';
         code += '        const overlay = document.getElementById(\'splashOverlay\');\n';
         code += '        if (overlay) overlay.remove();\n';
         code += '\n';
