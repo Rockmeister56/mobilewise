@@ -1545,7 +1545,7 @@
         </div>
         <div class="field">
             <label><i class="fas fa-bullhorn"></i> Trigger Phrase</label>
-            <input type="text" id="mortgageCalcTrigger" value="let me show you what you can qualify for"
+            <input type="text" id="mortgageCalcTrigger" value=""
                 placeholder="e.g. let me show you what you qualify for"
                 style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;color:white;">
             <p style="color:#aaa;font-size:0.75rem;margin-top:4px;">Tess says this phrase to trigger the calculator overlay</p>
@@ -2142,7 +2142,7 @@ preQualification: {
 },
 mortgageCalc: {
     enabled: document.getElementById('mortgageCalcEnabled')?.checked || false,
-    triggerPhrase: document.getElementById('mortgageCalcTrigger')?.value || 'let me show you what you can qualify for',
+    triggerPhrase: document.getElementById('mortgageCalcTrigger')?.value || '',
     defaultRate: parseFloat(document.getElementById('mortgageCalcRate')?.value) || 7.25,
     defaultTerm: parseInt(document.getElementById('mortgageCalcTerm')?.value) || 30
 },
@@ -3518,7 +3518,7 @@ async function exportBridgeOnly() {
         code += '            "smartScreen": ' + JSON.stringify(config.modules?.smartScreen || { images: [] }) + ',\n';
         code += '            "testimonial": ' + JSON.stringify(config.modules?.testimonial || { groups: [] }) + ',\n';
         code += '            "videoVault": ' + JSON.stringify(config.modules?.videoVault || { videos: [] }) + ',\n';
-        code += '            "mortgageCalc": ' + JSON.stringify(config.modules?.mortgageCalc || { enabled: false, triggerPhrase: "let me show you what you can qualify for", defaultRate: 7.25, defaultTerm: 30 }) + ',\n';
+        code += '            "mortgageCalc": ' + JSON.stringify(config.modules?.mortgageCalc || { enabled: false, triggerPhrase: "", defaultRate: 7.25, defaultTerm: 30 }) + ',\n';
         code += '            "websiteInfo": ' + JSON.stringify(config.modules?.websiteInfo || { triggers: [] }) + '\n';
         code += '        }\n';
         code += '    };\n\n';
