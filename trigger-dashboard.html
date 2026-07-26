@@ -2145,6 +2145,8 @@ mortgageCalc: {
     triggerPhrase: document.getElementById('mortgageCalcTrigger')?.value || 'let me show you what you can qualify for',
     defaultRate: parseFloat(document.getElementById('mortgageCalcRate')?.value) || 7.25,
     defaultTerm: parseInt(document.getElementById('mortgageCalcTerm')?.value) || 30
+    var savedTrigger = localStorage.getItem('mortgageCalcTrigger');
+    if (savedTrigger) document.getElementById('mortgageCalcTrigger').value = savedTrigger;
 },
 analyticsBaseline: {
     baselineLeads: parseInt(document.getElementById('analyticsBaselineLeads')?.value) || 20,
@@ -2540,6 +2542,7 @@ const supabaseData = {
         .from('clients')
         .upsert(supabaseData, { onConflict: 'client_id' })
         .then(response => {
+            localStorage.setItem('mortgageCalcTrigger', document.getElementById('mortgageCalcTrigger').value);
             console.log('✅ Saved to Supabase:', response);
             this.updateStatus('Synced with Supabase', 'success');
         })
