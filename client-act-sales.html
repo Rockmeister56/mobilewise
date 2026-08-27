@@ -74,7 +74,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .btn-amber{background:linear-gradient(135deg,var(--accent),#d97706);color:#000;}
 .btn-ghost{background:rgba(255,255,255,0.06);border:1px solid var(--border);color:rgba(255,255,255,0.65);}
 .btn-ghost:hover{background:rgba(255,255,255,0.1);}
-/* CALENDAR */
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .cal-month{font-size:1.1rem;font-weight:700;color:var(--text);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
@@ -89,7 +88,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .cal-event{background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4);border-radius:6px;padding:3px 6px;font-size:0.65rem;color:var(--purple);font-weight:600;margin-bottom:3px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:background 0.15s;}
 .cal-event:hover{background:rgba(168,85,247,0.35);}
 .cal-event.zoom-done{background:rgba(100,116,139,0.2);border-color:rgba(100,116,139,0.3);color:#94a3b8;}
-/* MODAL */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:16px;}
 .modal-bg.open{display:flex;}
 .modal{background:var(--surface);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
@@ -145,9 +143,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="tab" onclick="showTab('pipeline')" id="tab-pipeline">🔥 Pipeline</div>
   <div class="tab" onclick="showTab('all')" id="tab-all">📊 All Leads</div>
   <div class="tab" onclick="showTab('zooms')" id="tab-zooms">📅 Zoom Calendar <span class="tab-badge" id="badge-zooms" style="background:var(--purple);">—</span></div>
+  <div class="tab" onclick="showTab('closed')" id="tab-closed">✅ Ready for Setup <span class="tab-badge" id="badge-closed" style="background:var(--green);">—</span></div>
 </div>
 
-<!-- QUEUE -->
 <div class="panel active" id="panel-queue">
   <div class="stats">
     <div class="stat"><div class="stat-n" id="sq-new" style="color:var(--green)">—</div><div class="stat-l">New Today</div></div>
@@ -204,7 +202,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div id="queueList"><div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">Click <strong style="color:var(--accent);">Load Today's 20</strong> to pull your leads from Tommy — or scroll down to see leads already in your pipeline.</div></div>
 </div>
 
-<!-- PIPELINE -->
 <div class="panel" id="panel-pipeline">
   <div class="section-hdr" style="margin-bottom:16px;">
     <div class="section-title">Sales Pipeline</div>
@@ -218,7 +215,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="pipeline" id="pipelineBoard"></div>
 </div>
 
-<!-- ALL LEADS -->
 <div class="panel" id="panel-all">
   <div class="fbar">
     <input type="text" id="allSearch" placeholder="🔍 Search..." oninput="renderAll()">
@@ -246,7 +242,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div id="allList"><div class="empty"><div class="empty-icon">📊</div>Load your queue first to see leads here.</div></div>
 </div>
 
-<!-- ZOOM CALENDAR -->
 <div class="panel" id="panel-zooms">
   <div class="cal-nav">
     <button class="btn btn-ghost" onclick="calPrev()" style="padding:6px 14px;">← Prev</button>
@@ -265,7 +260,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-<!-- ACTION MODAL -->
+<div class="panel" id="panel-closed">
+  <div class="section-hdr">
+    <div class="section-title">Closed Deals — Ready for Setup</div>
+  </div>
+  <div style="font-size:0.8rem;color:var(--muted);margin-bottom:16px;line-height:1.5;">
+    Real contact info for deals you've actually closed — pulled from here when you're ready to set someone up in the Trigger Dashboard. Nothing here creates a client automatically.
+  </div>
+  <div id="closedDealsList"></div>
+</div>
+
 <div class="modal-bg" id="actionModal">
   <div class="modal">
     <h3 id="modalTitle">Action</h3>
@@ -314,14 +318,13 @@ async function sb(method,table,body=null,query=""){
 document.addEventListener("DOMContentLoaded",async()=>{
   await loadPipelineLeads();
   renderCalendar();
+  loadClosedDeals();
 });
 
-// Load all leads already in Brett's pipeline (previously loaded batches)
 async function loadPipelineLeads(){
   try{
     const data=await sb("GET","leads","","?order=created_at.desc&limit=3000&status=eq.\uD83D\uDCE7 Emailed&sales_status=not.is.null");
     if(Array.isArray(data)) allLeads=[...allLeads,...data];
-    // Also load hot leads and zooms regardless of emailed status
     const active=await sb("GET","leads","","?order=created_at.desc&limit=1000&sales_status=in.(\uD83D\uDD25 Hot,\uD83D\uDCC5 Zoom Scheduled,\u2705 Zoom Complete,\uD83D\uDCC4 Proposal Sent,\uD83D\uDCB0 Closed Won)");
     if(Array.isArray(active)){
       active.forEach(l=>{if(!allLeads.find(x=>x.id===l.id)) allLeads.push(l);});
@@ -336,7 +339,6 @@ async function loadPipelineLeads(){
   }
 }
 
-// Load Today's 20 — pulls newest Emailed leads Brett hasn't touched yet
 async function loadTodaysBatch(){
   const btn=event.target;
   btn.disabled=true; btn.textContent="Loading...";
@@ -349,7 +351,6 @@ async function loadTodaysBatch(){
       btn.disabled=false; btn.textContent="\u26A1 Load Today's 20";
       return;
     }
-    // Mark them as New in sales pipeline
     const ids=fresh.map(l=>l.id);
     await sb("PATCH","leads",{sales_status:"\uD83C\uDD95 New"},`?id=in.(${ids.join(",")})`);
     fresh.forEach(l=>{
@@ -369,12 +370,72 @@ async function refreshAll(){
   toast("Refreshed \u2713");
 }
 
+// ===== READY FOR SETUP: real, closed-deal contact info, staged and =====
+// ===== waiting until you're ready to actually create the client. =====
+async function loadClosedDeals(){
+  const listEl=document.getElementById("closedDealsList");
+  listEl.innerHTML='<div class="empty"><div class="empty-icon">\u23F3</div><div>Loading...</div></div>';
+  try{
+    const deals=await sb("GET","revuee_closed_deals","","?order=closed_at.desc&limit=200");
+    if(!Array.isArray(deals)||!deals.length){
+      listEl.innerHTML='<div class="empty"><div class="empty-icon">\uD83D\uDCED</div><div>No closed deals yet \u2014 mark one Closed Won from your queue and it\u2019ll show up here.</div></div>';
+      document.getElementById("badge-closed").textContent="0";
+      return;
+    }
+    const pending=deals.filter(d=>d.onboarding_status==="pending");
+    document.getElementById("badge-closed").textContent=pending.length;
+
+    listEl.innerHTML=deals.map(d=>{
+      const isPending=d.onboarding_status==="pending";
+      return `<div class="queue-item" style="border-left:3px solid ${isPending?"var(--green)":"rgba(255,255,255,0.15)"};${isPending?"":"opacity:0.55;"}">
+        <div class="qi-top">
+          <div class="qi-left">
+            <div class="qi-company">${esc(d.company_name||"\u2014")}</div>
+            <div class="qi-contact">${esc(d.contact_name||"")}</div>
+            <div class="qi-meta">
+              <span class="qi-tag" style="color:${isPending?"#22c55e":"#94a3b8"};border-color:${isPending?"rgba(34,197,94,0.3)":"rgba(148,163,184,0.2)"};background:${isPending?"rgba(34,197,94,0.08)":"rgba(148,163,184,0.06)"};">${isPending?"\u23F3 PENDING SETUP":"\u2705 SET UP"}</span>
+              <span class="qi-tag" style="color:#0ea5e9;border-color:rgba(14,165,233,0.25);background:rgba(14,165,233,0.07);">${esc(d.industry||"")}</span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            ${d.email?`<div style="font-size:0.8rem;color:#34a853;">\u2709\uFE0F ${esc(d.email)}</div>`:""}
+            ${d.phone?`<div style="font-size:0.8rem;color:var(--accent);margin-top:2px;">${esc(d.phone)}</div>`:""}
+          </div>
+        </div>
+        ${d.sales_notes?`<div class="qi-note-box">\uD83D\uDCAC ${esc(d.sales_notes)}</div>`:""}
+        <div class="qi-actions">
+          ${d.email?`<button class="qa qa-note" onclick="copyDealEmail('${esc(d.email)}')">\uD83D\uDCCB Copy Email</button>`:""}
+          ${isPending?`<button class="qa qa-call" onclick="markDealSetUp('${d.id}')">\u2705 Mark Set Up</button>`:""}
+        </div>
+      </div>`;
+    }).join("");
+  }catch(e){
+    console.error("Failed to load closed deals:",e);
+    listEl.innerHTML='<div class="empty"><div class="empty-icon">\u26A0\uFE0F</div><div>Could not load closed deals.</div></div>';
+  }
+}
+
+function copyDealEmail(email){
+  navigator.clipboard.writeText(email).then(function(){ toast("\uD83D\uDCCB Email copied!"); });
+}
+
+async function markDealSetUp(id){
+  await sb("PATCH","revuee_closed_deals",{onboarding_status:"completed"},`?id=eq.${id}`);
+  toast("\u2705 Marked as set up");
+  loadClosedDeals();
+}
+
+window.copyDealEmail=copyDealEmail;
+window.markDealSetUp=markDealSetUp;
+window.loadClosedDeals=loadClosedDeals;
+
 function showTab(n){
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   document.getElementById("panel-"+n).classList.add("active");
   document.getElementById("tab-"+n).classList.add("active");
   if(n==="zooms") renderCalendar();
+  if(n==="closed") loadClosedDeals();
 }
 
 function updateBadges(){
@@ -492,7 +553,6 @@ function renderQueue(){
     if(sortBy==="status"){
       return (a.sales_status||"").localeCompare(b.sales_status||"");
     }
-    // Default: priority sort
     const p=l=>{
       if(l.follow_up_date&&l.follow_up_date<today) return 0;
       if(l.zoom_date&&l.zoom_date.slice(0,10)===today) return 1;
@@ -501,7 +561,6 @@ function renderQueue(){
     };
     return p(a)-p(b);
   });
-  // Update stats
   document.getElementById("sq-new").textContent=allLeads.filter(l=>(!l.sales_status||l.sales_status==="\uD83C\uDD95 New")).length;
   document.getElementById("sq-cb").textContent=allLeads.filter(l=>l.follow_up_date&&l.follow_up_date<=today&&!dead.includes(l.sales_status)).length;
   document.getElementById("sq-zoom").textContent=allLeads.filter(l=>l.zoom_date&&l.zoom_date.slice(0,10)===today).length;
@@ -510,15 +569,12 @@ function renderQueue(){
   document.getElementById("sq-total").textContent=allLeads.filter(l=>!dead.includes(l.sales_status||"\uD83C\uDD95 New")).length;
   const c=document.getElementById("queueList");
   if(!leads.length){c.innerHTML='<div class="empty"><div class="empty-icon">\uD83C\uDF89</div><div>Queue is clear! Nothing needs attention right now.</div></div>';return;}
-
-  // Split into sections: Callbacks due + Zooms today vs New leads
   const callbacks=leads.filter(l=>{
     const ss=l.sales_status||"";
     return (l.follow_up_date&&l.follow_up_date<=today&&ss!=="\uD83C\uDD95 New")
         || (l.zoom_date&&l.zoom_date.slice(0,10)===today);
   });
   const newLeads=leads.filter(l=>!callbacks.includes(l));
-
   let out="";
   if(callbacks.length){
     out+=`<div style="font-size:0.7rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;padding:6px 0;border-bottom:1px solid rgba(245,158,11,0.2);">\uD83D\uDCDE ${callbacks.length} Callback${callbacks.length!==1?"s":""} & Zoom${callbacks.filter(l=>l.zoom_date&&l.zoom_date.slice(0,10)===today).length?"s":""} Due Today</div>`;
@@ -569,7 +625,6 @@ function renderAll(){
   c.innerHTML=`<div style="margin-bottom:10px;font-size:0.75rem;color:var(--muted);">${leads.length} leads</div>`+leads.map(l=>renderQueueItem(l,today)).join("");
 }
 
-// CALENDAR
 function renderCalendar(){
   const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
   document.getElementById("calMonthLabel").textContent=`${months[calMonth]} ${calYear}`;
@@ -580,7 +635,6 @@ function renderCalendar(){
   const zooms=allLeads.filter(l=>l.zoom_date);
   const grid=document.getElementById("calGrid");
   grid.innerHTML="";
-  // Build 6 weeks
   let day=1; let nextDay=1;
   for(let i=0;i<42;i++){
     const cell=document.createElement("div");
@@ -607,7 +661,6 @@ function renderCalendar(){
     }
     grid.appendChild(cell);
   }
-  // Upcoming zooms list below calendar
   const now=new Date().toISOString();
   const upcoming=zooms.filter(l=>l.zoom_date>=now).sort((a,b)=>a.zoom_date.localeCompare(b.zoom_date)).slice(0,10);
   const zl=document.getElementById("zoomListBelow");
@@ -646,11 +699,9 @@ function renderCalendar(){
 function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
 
-// ACTIONS
 async function logCall(id,type){
   const l=allLeads.find(x=>x.id===id); if(!l) return;
   if(type==="spoke"){openActionModal(id);return;}
-  // Open callback scheduler instead of auto-setting 2 days
   openCallbackModal(id, type);
 }
 
@@ -727,7 +778,6 @@ async function setStatus(id,status){
   renderQueue();renderPipeline();renderAll();renderCalendar();updateBadges();
 }
 
-// MODALS
 function openActionModal(id){
   modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
   const firstName = (modalLead.contact_name||"").split(" ")[0]||"";
@@ -813,14 +863,12 @@ async function saveModal(){
   if(statusEl) patch.sales_status=statusEl.value;
   if(zoomEl) patch.zoom_link=zoomEl.value||null;
 
-  // Zoom scheduled
   if(zoomdateEl&&zoomdateEl.value){
     patch.zoom_date=new Date(zoomdateEl.value).toISOString();
     if(!patch.sales_status||patch.sales_status==="\uD83C\uDD95 New")
       patch.sales_status="\uD83D\uDCC5 Zoom Scheduled";
   }
 
-  // Callback modal (voicemail or no answer) — always use the date picker
   const isCallback = statusEl && (
     statusEl.value.includes("Voicemail") ||
     statusEl.value.includes("No Answer")
@@ -843,6 +891,28 @@ async function saveModal(){
 
   await sb("PATCH","leads",patch,`?id=eq.${modalLead.id}`);
   Object.assign(modalLead,patch);
+
+  // ===== BRIDGE TO REVUEE: the moment a deal is marked Closed Won, export
+  // their real contact info to the staging table — nothing here creates a
+  // client automatically, this just makes their info ready and waiting. =====
+  if(patch.sales_status==="\uD83D\uDCB0 Closed Won"){
+    try{
+      await sb("POST","revuee_closed_deals",{
+        original_lead_id: modalLead.id,
+        company_name: modalLead.company_name||null,
+        contact_name: modalLead.contact_name||null,
+        email: modalLead.email||null,
+        phone: modalLead.phone||null,
+        industry: modalLead.industry||"Mortgage",
+        sales_notes: modalLead.sales_notes||null
+      });
+      toast("\uD83D\uDCB0 Closed Won \u2014 sent to Ready for Setup!");
+    }catch(e){
+      console.error("Failed to export closed deal:",e);
+      toast("Saved, but export to Revuee failed \u2014 check console");
+    }
+  }
+
   closeModal();
   toast("Saved \u2713");
   renderQueue();renderPipeline();renderAll();renderCalendar();updateBadges();
@@ -871,7 +941,6 @@ function cpNum(id){
 }
 window.cpNum=cpNum;
 
-// ── VOICEMAIL EXPORT ──────────────────────────────────────
 function downloadVoicemailCSV() {
   var dead = ['💰 Closed Won','❌ Closed Lost','🚫 Do Not Call'];
   var indF = document.getElementById('queueIndustry') ? document.getElementById('queueIndustry').value : '';
@@ -896,7 +965,6 @@ function downloadVoicemailCSV() {
   toast('📞 Downloaded ' + leads.length + ' numbers for voicemail drop');
 }
 
-// ── SELECTION MODE ────────────────────────────────────────
 var selectedLeads = new Set();
 var selectMode = false;
 
@@ -976,3 +1044,5 @@ window.clearSelection = clearSelection;
 window.downloadVoicemailCSV = downloadVoicemailCSV;
 window.downloadSelectedVoicemail = downloadSelectedVoicemail;
 </script>
+</body>
+</html>
