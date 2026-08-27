@@ -120,9 +120,55 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   .cal-grid{gap:2px;}
   .cal-day{min-height:50px;}
 }
+.pw-gate-screen {
+    position: fixed; inset: 0; z-index: 999999;
+    background: #050a12; display: flex; align-items: center; justify-content: center;
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+.pw-gate-card {
+    background: rgba(18,28,46,0.95); border: 1px solid rgba(248,196,0,0.2);
+    border-radius: 16px; padding: 40px; max-width: 360px; width: 90%; text-align: center;
+}
+.pw-gate-card h1 { color: #f8c400; font-size: 1.3rem; margin-bottom: 20px; }
+.pw-gate-card input {
+    width: 100%; padding: 12px 14px; margin-bottom: 14px;
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px; color: white; font-size: 0.95rem; box-sizing: border-box;
+}
+.pw-gate-card button {
+    width: 100%; padding: 12px; background: #f8c400; color: #0a0f1e;
+    border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem;
+}
+.pw-gate-error { color: #f44336; font-size: 0.82rem; margin-top: 10px; display: none; }
 </style>
 </head>
 <body>
+<div class="pw-gate-screen" id="pwGateScreen">
+    <div class="pw-gate-card">
+        <h1>🔒 Client Act</h1>
+        <input type="password" id="pwGateInput" placeholder="Password" onkeydown="if(event.key==='Enter')pwGateCheck()">
+        <button onclick="pwGateCheck()">Enter</button>
+        <div class="pw-gate-error" id="pwGateError">Incorrect password.</div>
+    </div>
+</div>
+<script>
+(function() {
+    const PW_GATE_PASSWORD = "revuee@1956";
+    const PW_GATE_SESSION_KEY = "revuee_admin_unlocked";
+    if (sessionStorage.getItem(PW_GATE_SESSION_KEY) === "true") {
+        document.getElementById("pwGateScreen").style.display = "none";
+    }
+    window.pwGateCheck = function() {
+        const input = document.getElementById("pwGateInput").value;
+        if (input === PW_GATE_PASSWORD) {
+            sessionStorage.setItem(PW_GATE_SESSION_KEY, "true");
+            document.getElementById("pwGateScreen").style.display = "none";
+        } else {
+            document.getElementById("pwGateError").style.display = "block";
+        }
+    };
+})();
+</script>
 
 <div class="nav">
   <div class="nav-brand">
@@ -370,8 +416,9 @@ async function refreshAll(){
   toast("Refreshed \u2713");
 }
 
-// ===== READY FOR SETUP: real, closed-deal contact info, staged and =====
-// ===== waiting until you're ready to actually create the client. =====
+// ===== READY FOR SETUP: read-only view — the full action workflow (send
+// agreement, payment tracking, mark set up) lives in the Master Dashboard
+// now. This is just a quick status check from Sales Empire. =====
 async function loadClosedDeals(){
   const listEl=document.getElementById("closedDealsList");
   listEl.innerHTML='<div class="empty"><div class="empty-icon">\u23F3</div><div>Loading...</div></div>';
@@ -382,18 +429,28 @@ async function loadClosedDeals(){
       document.getElementById("badge-closed").textContent="0";
       return;
     }
-    const pending=deals.filter(d=>d.onboarding_status==="pending");
-    document.getElementById("badge-closed").textContent=pending.length;
+    const notSetUp=deals.filter(d=>d.onboarding_status!=="completed");
+    document.getElementById("badge-closed").textContent=notSetUp.length;
+
+    const statusLabels={
+      pending:{label:"\u23F3 PENDING",color:"#94a3b8"},
+      agreement_sent:{label:"\uD83D\uDCC4 AGREEMENT SENT",color:"#0ea5e9"},
+      signed:{label:"\u270D\uFE0F SIGNED",color:"#a855f7"},
+      awaiting_deposit:{label:"\uD83D\uDCB3 AWAITING DEPOSIT",color:"#f59e0b"},
+      paid:{label:"\uD83D\uDCB0 PAID",color:"#22c55e"},
+      completed:{label:"\u2705 SET UP",color:"#22c55e"}
+    };
 
     listEl.innerHTML=deals.map(d=>{
-      const isPending=d.onboarding_status==="pending";
-      return `<div class="queue-item" style="border-left:3px solid ${isPending?"var(--green)":"rgba(255,255,255,0.15)"};${isPending?"":"opacity:0.55;"}">
+      const status=d.onboarding_status||"pending";
+      const s=statusLabels[status]||statusLabels.pending;
+      return `<div class="queue-item" style="border-left:3px solid ${s.color};${status==='completed'?'opacity:0.55;':''}">
         <div class="qi-top">
           <div class="qi-left">
             <div class="qi-company">${esc(d.company_name||"\u2014")}</div>
             <div class="qi-contact">${esc(d.contact_name||"")}</div>
             <div class="qi-meta">
-              <span class="qi-tag" style="color:${isPending?"#22c55e":"#94a3b8"};border-color:${isPending?"rgba(34,197,94,0.3)":"rgba(148,163,184,0.2)"};background:${isPending?"rgba(34,197,94,0.08)":"rgba(148,163,184,0.06)"};">${isPending?"\u23F3 PENDING SETUP":"\u2705 SET UP"}</span>
+              <span class="qi-tag" style="color:${s.color};border-color:${s.color}40;background:${s.color}12;">${s.label}</span>
               <span class="qi-tag" style="color:#0ea5e9;border-color:rgba(14,165,233,0.25);background:rgba(14,165,233,0.07);">${esc(d.industry||"")}</span>
             </div>
           </div>
@@ -405,7 +462,6 @@ async function loadClosedDeals(){
         ${d.sales_notes?`<div class="qi-note-box">\uD83D\uDCAC ${esc(d.sales_notes)}</div>`:""}
         <div class="qi-actions">
           ${d.email?`<button class="qa qa-note" onclick="copyDealEmail('${esc(d.email)}')">\uD83D\uDCCB Copy Email</button>`:""}
-          ${isPending?`<button class="qa qa-call" onclick="markDealSetUp('${d.id}')">\u2705 Mark Set Up</button>`:""}
         </div>
       </div>`;
     }).join("");
@@ -419,14 +475,7 @@ function copyDealEmail(email){
   navigator.clipboard.writeText(email).then(function(){ toast("\uD83D\uDCCB Email copied!"); });
 }
 
-async function markDealSetUp(id){
-  await sb("PATCH","revuee_closed_deals",{onboarding_status:"completed"},`?id=eq.${id}`);
-  toast("\u2705 Marked as set up");
-  loadClosedDeals();
-}
-
 window.copyDealEmail=copyDealEmail;
-window.markDealSetUp=markDealSetUp;
 window.loadClosedDeals=loadClosedDeals;
 
 function showTab(n){
