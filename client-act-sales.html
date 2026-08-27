@@ -498,7 +498,6 @@ function renderQueueItem(l,today){
       </div>
     </div>
     ${l.notes?`<div style="margin-top:8px;font-size:0.72rem;color:rgba(255,255,255,0.55);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);line-height:1.5;"><span style="font-size:0.62rem;color:#0ea5e9;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Tommy's Notes · </span>${esc(l.notes)}</div>`:""}
-    ${l.reviews?`<div style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(52,168,83,0.08);border:1px solid rgba(52,168,83,0.25);border-radius:20px;"><span style="font-size:0.7rem;color:#34a853;font-weight:700;">⭐ ${l.reviews} Google Reviews</span><span style="font-size:0.65rem;color:rgba(255,255,255,0.35);">· Revuee opportunity</span></div>`:""}
     ${zoomBox}${noteBox}${fuBox}
     <div class="qi-actions">
       <button class="qa qa-call" onclick="logCall(${l.id},'spoke')">\u2705 Spoke With</button>
@@ -507,6 +506,7 @@ function renderQueueItem(l,today){
       <button class="qa qa-zoom" onclick="openZoomModal(${l.id})">\uD83D\uDCC5 Schedule Zoom</button>
       <button class="qa qa-hot" onclick="setStatus(${l.id},'\uD83D\uDD25 Hot')">\uD83D\uDD25 Hot</button>
       <button class="qa qa-note" onclick="openNoteModal(${l.id})">\uD83D\uDCDD Note</button>
+      <button class="qa qa-call" onclick="markClosedWon(${l.id})" style="color:#22c55e;border-color:rgba(34,197,94,0.35);background:rgba(34,197,94,0.08);">💰 Won</button>
       <button class="qa qa-dead" onclick="openDeadModal(${l.id})">\u274C Dead</button>
     </div>
   </div>`;
@@ -778,6 +778,33 @@ async function setStatus(id,status){
   toast(`Marked ${status}`);
   renderQueue();renderPipeline();renderAll();renderCalendar();updateBadges();
 }
+
+// ===== One direct click for a win — no need to go through a button called
+// "Dead" to record a sale. Same export logic as the Close Deal modal. =====
+async function markClosedWon(id){
+  const l=allLeads.find(x=>x.id===id); if(!l) return;
+  const wonStatus="\uD83D\uDCB0 Closed Won";
+  await sb("PATCH","leads",{sales_status:wonStatus},`?id=eq.${id}`);
+  l.sales_status=wonStatus;
+
+  try{
+    await sb("POST","revuee_closed_deals",{
+      original_lead_id: l.id,
+      company_name: l.company_name||null,
+      contact_name: l.contact_name||null,
+      email: l.email||null,
+      phone: l.phone||null,
+      industry: l.industry||"Mortgage",
+      sales_notes: l.sales_notes||null
+    });
+    toast("\uD83D\uDCB0 Closed Won \u2014 sent to Ready for Setup!");
+  }catch(e){
+    console.error("Failed to export closed deal:",e);
+    toast("Marked Won, but export to Revuee failed \u2014 check console");
+  }
+  renderQueue();renderPipeline();renderAll();renderCalendar();updateBadges();
+}
+window.markClosedWon=markClosedWon;
 
 function openActionModal(id){
   modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
