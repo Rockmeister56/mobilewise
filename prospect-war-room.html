@@ -157,6 +157,8 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <select id="sortSelect" onchange="renderLeads()">
       <option value="mw_asc">🔢 MW# Low → High</option>
       <option value="mw_desc">🔢 MW# High → Low</option>
+      <option value="reviews_desc">⭐ Reviews High → Low</option>
+      <option value="reviews_asc">⭐ Reviews Low → High</option>
       <option value="newest">🕐 Newest First</option>
       <option value="company">🔤 Company A–Z</option>
     </select>
@@ -376,7 +378,9 @@ function renderLeads() {
   if (sortV === 'mw_asc')  data.sort((a,b)=>(a.lead_id||'').localeCompare(b.lead_id||'', undefined, {numeric:true}));
   if (sortV === 'mw_desc') data.sort((a,b)=>(b.lead_id||'').localeCompare(a.lead_id||'', undefined, {numeric:true}));
   if (sortV === 'newest')  data.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
-  if (sortV === 'company') data.sort((a,b)=>(a.company_name||'').localeCompare(b.company_name||''));
+  if (sortV === 'company')       data.sort((a,b)=>(a.company_name||'').localeCompare(b.company_name||''));
+  if (sortV === 'reviews_desc')  data.sort((a,b)=>parseInt(b.reviews||0)-parseInt(a.reviews||0));
+  if (sortV === 'reviews_asc')   data.sort((a,b)=>parseInt(a.reviews||0)-parseInt(b.reviews||0));
 
   const tbody = document.getElementById('leadsBody');
   const empty = document.getElementById('leadsEmpty');
