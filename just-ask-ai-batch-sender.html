@@ -134,7 +134,7 @@ textarea{resize:vertical;line-height:1.6;}
       <label style="font-weight:700;color:#f8c400;margin-bottom:8px;display:block;">🎯 Select Campaign</label>
       <select id="campaignSelect" onchange="loadCampaign()" style="width:100%;padding:10px 14px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:white;font-size:0.92rem;font-family:inherit;outline:none;cursor:pointer;">
         <option value="justaskai">🎙️ MobileWise AI — Just Ask AI (Mortgage Conversion)</option>
-        <option value="revuee">⭐ Revuee — Google Reviews &amp; Referrals</option>
+        <option value="revuee" selected>⭐ Revuee — Google Reviews &amp; Referrals</option>
       </select>
       <p class="hint" style="margin-top:8px;">Switching campaigns loads the correct subject line, header, video link and letter automatically. Use <strong style="color:#f8c400;">[ReviewCount]</strong> in the Revuee letter for dynamic review counts.</p>
     </div>
@@ -143,36 +143,52 @@ textarea{resize:vertical;line-height:1.6;}
 
     <div style="margin-bottom:12px;">
       <label>Email Subject Line <span style="color:rgba(255,255,255,0.3);font-weight:normal;">(recipient's first name is added automatically at the end)</span></label>
-      <input type="text" id="emailSubject" value="Hi [FirstName], it's Tess — I left you a voicemail, this is why">
+      <input type="text" id="emailSubject" value="Hi [FirstName], Google is ranking your competitors above you">
       <p class="hint">Preview: <span id="subjectPreview" style="color:#f8c400;">Hi John! - It's Tess, AI Co-Host of the "Just Ask AI" Podcast</span></p>
     </div>
 
     <div style="margin-bottom:12px;">
       <label>Email Header Line (the bold headline inside the email)</label>
-      <input type="text" id="emailHeader" value="Is AI Boosting Leads 6X for Mortgage Brokers?">
+      <input type="text" id="emailHeader" value="Google Ranks Businesses That Get Reviewed — Meet Revuee">
     </div>
 
     <div>
       <label>Outreach Letter (same for all leads in this batch)</label>
-      <textarea id="dynamicLetter" rows="8">Hi, I'm Tess — the AI co-host of Just Ask AI.
+      <textarea id="dynamicLetter" rows="8">Hi [FirstName],
 
-I left you a voicemail earlier today because our Mobile Analysis Report shows you're leaving BIG money on the table, and believe me you're not alone.
+Google ranks businesses that get reviewed.
 
-Most mortgage brokers lose 60-70% of website visitors before they ever make contact. In our latest episode, two brokers discovered exactly how to fix that — and walked away converting up to 6X more leads from traffic they were already getting.
+Meet Revuee.
 
-No new ad spend. No new purchased leads. Just a smarter way to convert 6x more web visitors into pre-qualified leads, with a fully trained Web sales assistant... Me!
+After analyzing your Google Business Profile, we noticed your business currently has [ReviewCount] Google reviews — and in your market, that's quietly costing you new clients every single day to competitors with stronger review profiles.
 
-Watch the episode, try our free AI Conversion Calculator, and if the numbers make sense for your business — grab a quick Zoom with our team to see exactly how it works on your site.
+Here's what most business owners don't realize: Google doesn't just count reviews — it actively rewards businesses that respond to them. Yet less than 10% of businesses respond to a single review. That gap is exactly where your competitors are beating you without you even knowing it.
+
+Here's what Revuee does for your business:
+
+Captures Google Reviews Automatically — no awkward asks, no manual follow-up. Revuee reaches your customers at the right moment and makes leaving a review effortless.
+
+Refer a Friend via SMS — Revuee incentivizes your satisfied customers to refer friends directly from their SMS contact list, turning every happy client into a referral engine working for you 24/7.
+
+Video Testimonials Published Everywhere — real customers, real stories, automatically published to Facebook, Instagram, your website and blogs. Social proof that never sleeps.
+
+Responds to Every Review Automatically — Google rewards businesses that engage with their reviews. Revuee handles every response professionally so you never miss one.
+
+Four revenue streams from one platform. Most businesses are leaving all four on the table.
+
+[FirstName], your competitors are getting reviewed right now.
+
+Ready to see how painless the whole process is? Watch the demo below.
 
 Warmly,
-Tess
-AI Co-Host, Just Ask AI
-Powered by Mobile Wise AI</textarea>
+Brett Duncan
+AI Conversion Specialist
+MobileWise AI · 949-357-0655</textarea>
     </div>
 
     <div style="margin-top:14px;">
       <label>Landing Page URL (used in header image link & Watch Episode button)</label>
-      <input type="text" id="landingPage" value="https://www.youtube.com/watch?v=nqws6SCbvu8">
+      <input type="text" id="landingPage" value="https://www.youtube.com/shorts/UCqvbwS7Reo">
     </div>
   </div>
 
@@ -229,12 +245,13 @@ function parseLeadsFromText(raw, fileName) {
   for (const line of lines) {
     // Skip header row
     if (line.toLowerCase().startsWith('firstname') || line.toLowerCase().startsWith('first name')) continue;
-    // Handle quoted CSV: "John", "john@email.com"
-    const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g, '').trim());
-    const name  = parts[0] || '';
-    const email = parts[1] || '';
+    // Handle quoted CSV with trailing commas and spaces (Google Sheets format)
+    const parts = line.split(',').map(p => p.trim().replace(/^"+|\s*,*\s*"+$/g, '').replace(/,$/, '').trim());
+    const name    = parts[0] || '';
+    const email   = parts[1] || '';
+    const reviews = parts[2] || '';
     if (name && email && email.includes('@')) {
-      leads.push({ name, email, status: 'pending' });
+      leads.push({ name, email, reviews, status: 'pending' });
     }
   }
 
