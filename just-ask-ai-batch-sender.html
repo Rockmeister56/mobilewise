@@ -209,8 +209,9 @@ MobileWise AI
 emailjs.init('7-9oxa3UC3uKxtqGM');
 
 const EMAILJS_SERVICE = 'service_b9bppgb';
-const EMAILJS_TEMPLATE_JUSTASKAI = 'template_f6j78g6';
-const EMAILJS_TEMPLATE_REVUEE    = 'template_ww2hq5q';
+const EMAILJS_TEMPLATE_JUSTASKAI   = 'template_f6j78g6';
+const EMAILJS_TEMPLATE_REVUEE     = 'template_ww2hq5q';
+const EMAILJS_TEMPLATE_REVUEE_TXT = 'template_h7ar1lf';
 
 let leads = [];
 
@@ -459,11 +460,12 @@ async function sendBatch() {
         .trim();
 
       // Determine campaign
-      const campaign = document.getElementById('campaignSelect') ? document.getElementById('campaignSelect').value : 'revuee';
-      const isRevuee  = campaign === 'revuee' || campaign === 'revuee_plain';
-      const templateId = isRevuee ? EMAILJS_TEMPLATE_REVUEE : EMAILJS_TEMPLATE_JUSTASKAI;
-      const replyTo    = isRevuee ? 'revuee56@gmail.com' : 'mobilewise.ai@gmail.com';
-      const fromName   = 'Mobile-Wise AI';
+      const campaign = document.getElementById('campaignSelect') ? document.getElementById('campaignSelect').value : 'revuee_plain';
+      const isRevuee      = campaign === 'revuee' || campaign === 'revuee_plain';
+      const isRevuePlain  = campaign === 'revuee_plain';
+      const templateId    = isRevuePlain ? EMAILJS_TEMPLATE_REVUEE_TXT : (campaign === 'revuee' ? EMAILJS_TEMPLATE_REVUEE : EMAILJS_TEMPLATE_JUSTASKAI);
+      const replyTo       = isRevuee ? 'revuee56@gmail.com' : 'mobilewise.ai@gmail.com';
+      const fromName      = 'Mobile-Wise AI';
 
       // Replace dynamic tokens in letter
       let letterText = document.getElementById('dynamicLetter').value.trim();
@@ -476,8 +478,8 @@ async function sendBatch() {
         reply_to:       replyTo,
         subject:        personalizedSubject,
         name:           lead.name,
-        message:        emailHTML,
-        email_header:   document.getElementById('emailHeader').value.trim(),
+        message:        isRevuePlain ? '' : emailHTML,
+        email_header:   isRevuePlain ? '' : document.getElementById('emailHeader').value.trim(),
         dynamic_letter: letterText,
         landing_page:   document.getElementById('landingPage').value.trim(),
         review_count:   lead.reviews || '',
