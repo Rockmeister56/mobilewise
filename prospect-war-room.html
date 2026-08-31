@@ -603,11 +603,12 @@ async function exportForEmail() {
   );
   if (!confirmed) return;
 
-  // Build CSV: FirstName and Email only
-  let csv = 'FirstName,Email\n';
+  // Build CSV: FirstName, Email, Reviews
+  let csv = 'FirstName,Email,Reviews\n';
   batch.forEach(l => {
     const firstName = (l.contact_name || '').split(' ')[0] || 'there';
-    csv += `"${firstName.replace(/"/g,'')}", "${(l.email||'').replace(/"/g,'')}"\n`;
+    const reviews   = l.reviews || '';
+    csv += `"${firstName.replace(/"/g,'')}", "${(l.email||'').replace(/"/g,'')}", "${reviews}"\n`;
   });
 
   // Download CSV
