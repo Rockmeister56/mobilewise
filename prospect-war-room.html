@@ -184,6 +184,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <div class="tbl-wrap">
       <table>
         <thead><tr>
+          <th style="width:30px;text-align:center;color:rgba(168,85,247,0.8);font-size:0.72rem;">#</th>
           <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;" title="Select all"></th>
           <th>MW ID</th>
           <th>Contact</th>
@@ -398,7 +399,10 @@ function renderLeads() {
   tbody.innerHTML = data.map((l,i) => {
     const si = STATUS_FLOW.indexOf(l.status);
     const sc = si >= 0 ? STATUS_CLASS[si] : 's0';
-    return `<tr>
+    const rowNum   = i + 1;
+    const isFirst20 = rowNum <= 20;
+    return `<tr style="${isFirst20 ? 'border-left:3px solid rgba(168,85,247,0.7);background:rgba(168,85,247,0.03);' : ''}">
+      <td style="font-size:0.7rem;font-weight:700;text-align:center;color:${isFirst20 ? '#a855f7' : 'rgba(255,255,255,0.2)'};">${rowNum}</td>
       <td><input type="checkbox" class="lead-check" data-id="${l.id}" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;"></td>
       <td style="color:#34a853;font-size:0.7rem;font-weight:700;white-space:nowrap;font-family:monospace;">${esc(l.lead_id||'—')}</td>
       <td>
@@ -954,18 +958,18 @@ window.sendApptToBrett      = sendApptToBrett;
 
 <!-- SCRIPT MODAL -->
 <div id="scriptModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;align-items:center;justify-content:center;padding:16px;">
-  <div style="background:#071628;border:1px solid rgba(168,85,247,0.4);border-radius:20px;padding:24px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;">
+  <div style="background:#071628;border:1px solid rgba(168,85,247,0.4);border-radius:20px;padding:28px;width:100%;max-width:740px;max-height:90vh;overflow-y:auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <div style="font-size:1rem;font-weight:700;color:#a855f7;">Calling Script</div>
       <button onclick="closeScriptModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;font-family:inherit;">X</button>
     </div>
     <div id="scriptProspectInfo" style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.85rem;line-height:1.7;color:rgba(255,255,255,0.8);"></div>
-    <div style="font-size:0.8rem;line-height:1.9;color:rgba(255,255,255,0.75);">
-      <div style="font-size:0.7rem;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Gatekeeper Opener</div>
+    <div style="font-size:0.92rem;line-height:2;color:rgba(255,255,255,0.85);">
+      <div style="font-size:0.75rem;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Gatekeeper Opener</div>
       <div id="scriptGatekeeper" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:14px;border-left:3px solid #a855f7;font-style:italic;"></div>
-      <div style="font-size:0.7rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">When Prospect Answers</div>
+      <div style="font-size:0.75rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">When Prospect Answers</div>
       <div id="scriptProspect" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:14px;border-left:3px solid #22c55e;font-style:italic;"></div>
-      <div style="font-size:0.7rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Common Objections</div>
+      <div style="font-size:0.75rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Common Objections</div>
       <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:16px;border-left:3px solid #f59e0b;">
         <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">Not interested</strong><br><em>I completely respect that — are you happy with where you're showing up on Google right now? Most of our clients said the same until they saw what 20 more reviews did for their ranking. It's a free 15-minute call — would next week work?</em></div>
         <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">How much does it cost?</strong><br><em>That's exactly what the Zoom is for — Brett customizes it based on your business size. Most clients find it pays for itself in the first month. Can I get you on his calendar?</em></div>
