@@ -922,6 +922,15 @@ async function sendApptToBrett() {
 }
 
 // Expose functions
+// Script font zoom
+let scriptFontSize = 0.92;
+function scriptZoom(dir) {
+  scriptFontSize = Math.min(1.4, Math.max(0.7, scriptFontSize + (dir * 0.08)));
+  const el = document.getElementById('scriptTextBody');
+  if (el) el.style.fontSize = scriptFontSize + 'rem';
+}
+window.scriptZoom = scriptZoom;
+
 window.toggleApptView       = toggleApptView;
 window.exportToAppointmentQueue = exportToAppointmentQueue;
 window.loadApptLeads        = loadApptLeads;
@@ -961,10 +970,14 @@ window.sendApptToBrett      = sendApptToBrett;
   <div style="background:#071628;border:1px solid rgba(168,85,247,0.4);border-radius:20px;padding:28px;width:100%;max-width:740px;max-height:90vh;overflow-y:auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <div style="font-size:1rem;font-weight:700;color:#a855f7;">Calling Script</div>
-      <button onclick="closeScriptModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;font-family:inherit;">X</button>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button onclick="scriptZoom(-1)" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:2px 8px;cursor:pointer;font-family:inherit;font-size:0.85rem;font-weight:700;">A-</button>
+        <button onclick="scriptZoom(1)" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:2px 8px;cursor:pointer;font-family:inherit;font-size:1rem;font-weight:700;">A+</button>
+        <button onclick="closeScriptModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;font-family:inherit;line-height:28px;text-align:center;">X</button>
+      </div>
     </div>
     <div id="scriptProspectInfo" style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.85rem;line-height:1.7;color:rgba(255,255,255,0.8);"></div>
-    <div style="font-size:0.92rem;line-height:2;color:rgba(255,255,255,0.85);">
+    <div id="scriptTextBody" style="font-size:0.92rem;line-height:2;color:rgba(255,255,255,0.85);">
       <div style="font-size:0.75rem;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Gatekeeper Opener</div>
       <div id="scriptGatekeeper" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:14px;border-left:3px solid #a855f7;font-style:italic;"></div>
       <div style="font-size:0.75rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">When Prospect Answers</div>
