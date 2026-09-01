@@ -115,9 +115,12 @@ tr:hover td{background:rgba(52,168,83,0.03);}
   <div class="nav-right">
     <button class="btn btn-ghost" onclick="loadLeads()">🔄 Refresh</button>
     <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
-    <button class="btn btn-ghost" onclick="toggleApptView()" id="apptViewBtn" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">📞 Appointment Setter</button>
     <button class="btn btn-ghost" onclick="exportForEmail()" style="background:rgba(248,196,0,0.1);border-color:rgba(248,196,0,0.4);color:#f8c400;">📧 Export for Email Batch</button>
-    <button class="btn btn-ghost" onclick="exportToAppointmentQueue()" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">🔔 Export to Appointment Queue</button>
+    <button class="btn btn-ghost" onclick="exportToAppointmentQueue()" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">🔔 Appointment Queue</button>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <input type="number" id="exportCount" value="60" min="1" max="500" style="width:65px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.3);border-radius:20px;color:#0ea5e9;font-size:0.78rem;padding:6px 10px;outline:none;font-family:inherit;text-align:center;">
+      <button class="btn btn-ghost" onclick="exportToBrett()" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.35);color:#0ea5e9;">📤 Export to Brett</button>
+    </div>
     <div class="conn-dot" id="connDot">Connecting...</div>
   </div>
 </div>
@@ -134,7 +137,6 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <div class="stat"><div class="stat-val" id="st-closed" style="color:#4caf50">—</div><div class="stat-lbl">💰 Closed</div></div>
   </div>
 
-  <div id="mainContent">
   <!-- WEEK TABS -->
   <div class="week-bar" id="weekBar">
     <div class="week-chip active" onclick="selectWeek('all',this)">📋 All Weeks</div>
@@ -184,7 +186,6 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <div class="tbl-wrap">
       <table>
         <thead><tr>
-          <th style="width:30px;text-align:center;color:rgba(168,85,247,0.8);font-size:0.72rem;">#</th>
           <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;" title="Select all"></th>
           <th>MW ID</th>
           <th>Contact</th>
@@ -238,7 +239,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
 const SB_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
 
-const STATUS_FLOW  = ['🟢 New','⏳ Queue','📧 Emailed','✅ Called','🔥 Hot','💰 Closed','❌ Not Interested','🔔 Appointment Queue'];
+const STATUS_FLOW  = ['🟢 New','⏳ Queue','📧 Emailed','✅ Called','🔥 Hot','💰 Closed','❌ Not Interested'];
 const STATUS_CLASS = ['s0','s1','s2','s3','s4','s5','s6'];
 
 let allLeads   = [];
@@ -399,10 +400,7 @@ function renderLeads() {
   tbody.innerHTML = data.map((l,i) => {
     const si = STATUS_FLOW.indexOf(l.status);
     const sc = si >= 0 ? STATUS_CLASS[si] : 's0';
-    const rowNum   = i + 1;
-    const isFirst20 = rowNum <= 20;
-    return `<tr style="${isFirst20 ? 'border-left:3px solid rgba(168,85,247,0.7);background:rgba(168,85,247,0.03);' : ''}">
-      <td style="font-size:0.7rem;font-weight:700;text-align:center;color:${isFirst20 ? '#a855f7' : 'rgba(255,255,255,0.2)'};">${rowNum}</td>
+    return `<tr>
       <td><input type="checkbox" class="lead-check" data-id="${l.id}" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;"></td>
       <td style="color:#34a853;font-size:0.7rem;font-weight:700;white-space:nowrap;font-family:monospace;">${esc(l.lead_id||'—')}</td>
       <td>
@@ -574,6 +572,56 @@ function toast(msg) {
   setTimeout(()=>t.classList.remove('show'), 2500);
 }
 
+async function exportToBrett() {
+  const countInput = document.getElementById('exportCount');
+  const count = parseInt(countInput ? countInput.value : 60) || 60;
+
+  // Get current filtered leads that have phone numbers and haven't been exported yet
+  const search  = document.getElementById('searchInput').value.toLowerCase();
+  const cityF   = document.getElementById('cityFilter').value;
+  const indF    = document.getElementById('industryFilter').value;
+
+  let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  data = data.filter(l => l.status !== '📦 Archived');
+  if (search) data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
+  if (cityF)  data = data.filter(l=>l.city===cityF);
+  if (indF)   data = data.filter(l=>(l.industry||'Mortgage')===indF);
+
+  // Only grab leads that have a phone number and haven't been sent to Brett yet
+  const eligible = data.filter(l => l.phone && l.status !== '📧 Emailed');
+  const batch    = eligible.slice(0, count);
+
+  if (!batch.length) {
+    alert('No eligible leads found in current view.\n\nMake sure leads have phone numbers and haven\'t already been exported.');
+    return;
+  }
+
+  const confirmed = confirm(
+    `Export ${batch.length} lead${batch.length!==1?'s':''} to Brett\'s Sales Dashboard?\n\n` +
+    `This will:\n` +
+    `✅ Mark ${batch.length} leads as 📧 Emailed\n` +
+    `✅ Send them to Brett\'s queue instantly\n` +
+    `✅ Brett uses these for his voicemail drop today\n\n` +
+    `Continue?`
+  );
+  if (!confirmed) return;
+
+  const ids = batch.map(l => l.id);
+  try {
+    await sb('PATCH', 'leads',
+      { status: '📧 Emailed', scraped_date: new Date().toISOString().slice(0,10) },
+      `?id=in.(${ids.join(',')})`
+    );
+    batch.forEach(l => { l.status = '📧 Emailed'; });
+    renderLeads();
+    updateStats();
+    toast(`✅ ${batch.length} leads sent to Brett's queue`);
+  } catch(e) {
+    console.error('Export to Brett failed:', e);
+    toast('Export failed — try again');
+  }
+}
+
 async function exportForEmail() {
   // Get currently visible leads that have an email address
   const search  = document.getElementById('searchInput').value.toLowerCase();
@@ -707,312 +755,6 @@ document.addEventListener('change', e => {
   if (e.target.classList.contains('lead-check')) updateBulkBar();
 });
 window.closeModal=closeModal; window.copyModal=copyModal; window.exportCSV=exportCSV;
-
-// ═══════════════════════════════════════════════════════════
-// APPOINTMENT SETTER SYSTEM
-// ═══════════════════════════════════════════════════════════
-
-let apptLeads = [];
-let currentApptLead = null;
-
-// ── Toggle between main view and appointment setter view ──
-function toggleApptView() {
-  const panel = document.getElementById('panel-appt');
-  const main  = document.getElementById('mainContent');
-  const btn   = document.getElementById('apptViewBtn');
-  if (panel.style.display === 'none' || !panel.style.display) {
-    panel.style.display = 'block';
-    if (main) main.style.display = 'none';
-    btn.textContent = '← Back to War Room';
-    btn.style.background = 'rgba(255,255,255,0.06)';
-    btn.style.color = 'rgba(255,255,255,0.65)';
-    loadApptLeads();
-  } else {
-    panel.style.display = 'none';
-    if (main) main.style.display = 'block';
-    btn.textContent = '📞 Appointment Setter';
-    btn.style.background = 'rgba(168,85,247,0.1)';
-    btn.style.color = '#a855f7';
-  }
-}
-
-// ── Export selected leads to Appointment Queue ──
-async function exportToAppointmentQueue() {
-  const checked = document.querySelectorAll('.lead-check:checked');
-  if (!checked.length) {
-    // If none checked use current visible filtered leads
-    const visible = allLeads.filter(l => {
-      const ss = l.status || '';
-      return !['📦 Archived','❌ Not Interested','💰 Closed'].includes(ss) && l.phone;
-    }).slice(0, 20);
-    if (!visible.length) { toast('No leads available to export'); return; }
-    const ids = visible.map(l => l.id);
-    await markAsApptQueue(ids, visible.length);
-    return;
-  }
-  const ids = Array.from(checked).map(cb => parseInt(cb.dataset.id));
-  await markAsApptQueue(ids, ids.length);
-}
-
-async function markAsApptQueue(ids, count) {
-  const confirmed = confirm(`Export ${count} lead${count!==1?'s':''} to Appointment Queue?\n\nThis will tag them as 🔔 Appointment Queue and make them available to Tommy's setters.`);
-  if (!confirmed) return;
-  try {
-    await sb('PATCH', 'leads', {status: '🔔 Appointment Queue'}, `?id=in.(${ids.join(',')})`);
-    ids.forEach(id => {
-      const l = allLeads.find(x => x.id === id);
-      if (l) l.status = '🔔 Appointment Queue';
-    });
-    toast(`🔔 ${count} lead${count!==1?'s':''} sent to Appointment Queue`);
-    renderLeads();
-    updateStats();
-  } catch(e) { toast('Error exporting to queue — try again'); console.error(e); }
-}
-
-// ── Load Appointment Queue leads ──
-async function loadApptLeads() {
-  const listEl = document.getElementById('apptLeadsList');
-  listEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);">Loading...</div>';
-  try {
-    apptLeads = await sb('GET', 'leads', '', '?status=eq.🔔 Appointment Queue&order=created_at.desc&limit=200');
-    if (!Array.isArray(apptLeads)) apptLeads = [];
-    renderApptLeads();
-    updateApptStats();
-  } catch(e) { listEl.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;">Failed to load — check connection</div>'; }
-}
-
-function updateApptStats() {
-  document.getElementById('appt-total').textContent = apptLeads.length;
-  document.getElementById('appt-set').textContent = apptLeads.filter(l=>l.sales_status==='📅 Zoom Scheduled').length;
-  document.getElementById('appt-noanswer').textContent = apptLeads.filter(l=>l.sales_status==='📞 Called — No Answer').length;
-  document.getElementById('appt-notint').textContent = apptLeads.filter(l=>l.sales_status==='❌ Not Interested').length;
-}
-
-// ── Render appointment leads ──
-function renderApptLeads() {
-  const listEl = document.getElementById('apptLeadsList');
-  if (!apptLeads.length) {
-    listEl.innerHTML = '<div style="text-align:center;padding:60px;color:rgba(255,255,255,0.3);"><div style="font-size:2.5rem;margin-bottom:12px;">📞</div><div>No leads in appointment queue yet.<br>Export leads from the war room to get started.</div></div>';
-    return;
-  }
-  listEl.innerHTML = apptLeads.map(l => `
-    <div style="background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:16px;margin-bottom:10px;transition:border-color 0.2s;" onmouseover="this.style.borderColor='rgba(168,85,247,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;">
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:0.95rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(l.company_name||'—')}</div>
-          <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:2px;">${esc(l.contact_name||'')}</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
-            ${l.reviews?`<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:600;color:#34a853;border:1px solid rgba(52,168,83,0.3);background:rgba(52,168,83,0.08);">⭐ ${l.reviews} Reviews</span>`:''}
-            ${l.city?`<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#94a3b8;border:1px solid rgba(148,163,184,0.2);background:rgba(148,163,184,0.06);">📍 ${esc(l.city)}</span>`:''}
-            ${l.sales_status?`<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#a855f7;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.08);">${esc(l.sales_status)}</span>`:''}
-          </div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div style="font-size:0.9rem;font-weight:700;color:#f59e0b;">${l.phone||'—'}</div>
-          ${l.email?`<div style="font-size:0.68rem;color:#34a853;margin-top:3px;">${esc(l.email)}</div>`:''}
-        </div>
-      </div>
-      ${l.notes?`<div style="font-size:0.72rem;color:rgba(255,255,255,0.45);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);margin-bottom:10px;"><span style="color:#0ea5e9;font-weight:700;font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;">Tommy's Notes · </span>${esc(l.notes)}</div>`:''}
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button onclick="openScriptModal(${l.id})" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;">📋 View Script &amp; Call</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ── Open script modal ──
-function openScriptModal(id) {
-  currentApptLead = apptLeads.find(l => l.id === id);
-  if (!currentApptLead) return;
-  const l = currentApptLead;
-  const setter = document.getElementById('setterName').value;
-  const firstName = (l.contact_name||'Prospect').split(' ')[0];
-
-  document.getElementById('scriptProspectInfo').innerHTML = `
-    <strong style="color:#a855f7;">${esc(l.company_name||'—')}</strong> &nbsp;·&nbsp; ${esc(firstName)} &nbsp;·&nbsp;
-    <a href="tel:${(l.phone||'').replace(/\D/g,'')}" style="color:#f59e0b;font-weight:700;text-decoration:none;">${esc(l.phone||'—')}</a>
-    ${l.reviews?`&nbsp;·&nbsp; <span style="color:#34a853;">⭐ ${l.reviews} reviews</span>`:''}
-  `;
-
-  document.getElementById('scriptGatekeeper').innerHTML = `
-    "Hi, this is <strong>${setter}</strong> with Revuee — I'm following up on a voicemail I left for <strong>${firstName}</strong>. Could you let them know <strong>${setter}</strong> with Revuee is on the phone? It's regarding an urgent matter about their Google reviews."<br><br>
-    <em style="color:#f59e0b;">If asked for more info:</em> "We're a preferred solution provider for Google Business Profile and I need to speak with ${firstName} regarding an important issue affecting their client reviews — it involves the Google review algorithm. Could you please let them know it's time sensitive?"
-  `;
-
-  document.getElementById('scriptProspect').innerHTML = `
-    "Hi <strong>${firstName}</strong>, this is <strong>${setter}</strong> with Revuee — I'm following up on a voicemail I left you regarding your Google Business Profile. Do you have just two minutes? I think you'll want to hear this."<br><br>
-    <em style="color:#f59e0b;">If asked what it's about:</em> "We analyzed your Google profile and noticed you currently have <strong>${l.reviews||'a limited number of'} reviews</strong>. In your market that's putting you at a disadvantage — we have a solution that fixes that automatically and I wanted to get you connected with Brett Duncan, our specialist, for a quick 15-minute Zoom. No cost, no obligation."
-  `;
-
-  document.getElementById('scriptModal').style.display = 'flex';
-}
-
-function closeScriptModal() {
-  document.getElementById('scriptModal').style.display = 'none';
-  currentApptLead = null;
-}
-
-// ── Log call outcome (no answer / vm / not interested) ──
-async function logApptCall(type) {
-  if (!currentApptLead) return;
-  const statusMap = {
-    noanswer:    '📞 Called — No Answer',
-    voicemail:   '📱 Left Voicemail',
-    notinterested: '❌ Not Interested'
-  };
-  const newStatus = statusMap[type];
-  try {
-    await sb('PATCH', 'leads', {
-      sales_status: newStatus,
-      last_called:  new Date().toISOString(),
-      call_attempts: (currentApptLead.call_attempts||0) + 1
-    }, `?id=eq.${currentApptLead.id}`);
-    currentApptLead.sales_status = newStatus;
-    toast(`Logged: ${newStatus}`);
-    closeScriptModal();
-    loadApptLeads();
-  } catch(e) { toast('Error logging call'); }
-}
-
-// ── Open appointment booking form ──
-function openApptForm() {
-  if (!currentApptLead) return;
-  const l = currentApptLead;
-  const firstName = (l.contact_name||'Prospect').split(' ')[0];
-  document.getElementById('apptFormInfo').innerHTML = `Booking Zoom for <strong style="color:#fff;">${esc(firstName)}</strong> at <strong style="color:#fff;">${esc(l.company_name||'')}</strong>`;
-  document.getElementById('apptDateTime').value = '';
-  document.getElementById('apptNotes').value = '';
-  document.getElementById('scriptModal').style.display = 'none';
-  document.getElementById('apptFormModal').style.display = 'flex';
-}
-
-function closeApptForm() {
-  document.getElementById('apptFormModal').style.display = 'none';
-  document.getElementById('scriptModal').style.display = 'flex';
-}
-
-// ── Send appointment to Brett's sales dashboard ──
-async function sendApptToBrett() {
-  if (!currentApptLead) return;
-  const dateVal  = document.getElementById('apptDateTime').value;
-  const notes    = document.getElementById('apptNotes').value;
-  const setter   = document.getElementById('setterName').value;
-
-  if (!dateVal) { alert('Please select a date and time for the Zoom.'); return; }
-
-  const zoomDate = new Date(dateVal).toISOString();
-  const fullNotes = `[Set by ${setter}] ${notes}`.trim();
-
-  try {
-    await sb('PATCH', 'leads', {
-      sales_status:   '📅 Zoom Scheduled',
-      zoom_date:      zoomDate,
-      zoom_link:      'https://calendly.com/mobilewise-ai/30min',
-      sales_notes:    fullNotes,
-      status:         '📧 Emailed',
-      last_called:    new Date().toISOString(),
-      call_attempts:  (currentApptLead.call_attempts||0) + 1
-    }, `?id=eq.${currentApptLead.id}`);
-
-    closeApptForm();
-    closeScriptModal();
-    toast(`✅ Appointment sent to Brett! Zoom: ${new Date(zoomDate).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}`);
-    loadApptLeads();
-  } catch(e) { toast('Error sending appointment — try again'); console.error(e); }
-}
-
-// Expose functions
-// Script font zoom
-let scriptFontSize = 0.92;
-function scriptZoom(dir) {
-  scriptFontSize = Math.min(1.4, Math.max(0.7, scriptFontSize + (dir * 0.08)));
-  const el = document.getElementById('scriptTextBody');
-  if (el) el.style.fontSize = scriptFontSize + 'rem';
-}
-window.scriptZoom = scriptZoom;
-
-window.toggleApptView       = toggleApptView;
-window.exportToAppointmentQueue = exportToAppointmentQueue;
-window.loadApptLeads        = loadApptLeads;
-window.openScriptModal      = openScriptModal;
-window.closeScriptModal     = closeScriptModal;
-window.logApptCall          = logApptCall;
-window.openApptForm         = openApptForm;
-window.closeApptForm        = closeApptForm;
-window.sendApptToBrett      = sendApptToBrett;
 </script>
-<!-- APPOINTMENT SETTER PANEL -->
-<div id="panel-appt" style="display:none;padding:20px;max-width:1400px;margin:0 auto;">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-    <div>
-      <div style="font-size:1.1rem;font-weight:700;color:#a855f7;">📞 Appointment Setter</div>
-      <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:2px;">Leads tagged for appointment setting</div>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center;">
-      <select id="setterName" style="background:#071628;border:1px solid rgba(168,85,247,0.3);border-radius:20px;color:#a855f7;font-size:0.78rem;padding:7px 14px;outline:none;font-family:inherit;">
-        <option value="Tommy">Tommy</option>
-        <option value="Ave">Ave</option>
-      </select>
-      <button onclick="loadApptLeads()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:8px 16px;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">Refresh</button>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
-    <div style="background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:#a855f7;" id="appt-total">0</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">In Queue</div></div>
-    <div style="background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:#22c55e;" id="appt-set">0</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Appointments Set</div></div>
-    <div style="background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:#f59e0b;" id="appt-noanswer">0</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">No Answer</div></div>
-    <div style="background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:#ef4444;" id="appt-notint">0</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Not Interested</div></div>
-  </div>
-  <div id="apptLeadsList"><div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">Click Refresh to load appointment queue leads</div></div>
-</div>
-
-<!-- SCRIPT MODAL -->
-<div id="scriptModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;align-items:center;justify-content:center;padding:16px;">
-  <div style="background:#071628;border:1px solid rgba(168,85,247,0.4);border-radius:20px;padding:28px;width:100%;max-width:740px;max-height:90vh;overflow-y:auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div style="font-size:1rem;font-weight:700;color:#a855f7;">Calling Script</div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <button onclick="scriptZoom(-1)" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:2px 8px;cursor:pointer;font-family:inherit;font-size:0.85rem;font-weight:700;">A-</button>
-        <button onclick="scriptZoom(1)" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:2px 8px;cursor:pointer;font-family:inherit;font-size:1rem;font-weight:700;">A+</button>
-        <button onclick="closeScriptModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;font-family:inherit;line-height:28px;text-align:center;">X</button>
-      </div>
-    </div>
-    <div id="scriptProspectInfo" style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.85rem;line-height:1.7;color:rgba(255,255,255,0.8);"></div>
-    <div id="scriptTextBody" style="font-size:0.92rem;line-height:2;color:rgba(255,255,255,0.85);">
-      <div style="font-size:0.75rem;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Gatekeeper Opener</div>
-      <div id="scriptGatekeeper" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:14px;border-left:3px solid #a855f7;font-style:italic;"></div>
-      <div style="font-size:0.75rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">When Prospect Answers</div>
-      <div id="scriptProspect" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:14px;border-left:3px solid #22c55e;font-style:italic;"></div>
-      <div style="font-size:0.75rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Common Objections</div>
-      <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:16px;border-left:3px solid #f59e0b;">
-        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">Not interested</strong><br><em>I completely respect that — are you happy with where you're showing up on Google right now? Most of our clients said the same until they saw what 20 more reviews did for their ranking. It's a free 15-minute call — would next week work?</em></div>
-        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">How much does it cost?</strong><br><em>That's exactly what the Zoom is for — Brett customizes it based on your business size. Most clients find it pays for itself in the first month. Can I get you on his calendar?</em></div>
-        <div><strong style="color:#f59e0b;">Send me an email</strong><br><em>Absolutely — and I actually just sent one over. But I'd hate for you to miss this — it only takes 15 minutes and Brett will show you exactly what's happening on your Google profile. What day works best?</em></div>
-      </div>
-    </div>
-    <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Call Outcome</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button onclick="openApptForm()" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:#22c55e;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;">Set Appointment</button>
-      <button onclick="logApptCall('noanswer')" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;">No Answer</button>
-      <button onclick="logApptCall('voicemail')" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#f59e0b;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;">Left VM</button>
-      <button onclick="logApptCall('notinterested')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;">Not Interested</button>
-    </div>
-  </div>
-</div>
-
-<!-- APPOINTMENT FORM MODAL -->
-<div id="apptFormModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:400;align-items:center;justify-content:center;padding:16px;">
-  <div style="background:#071628;border:1px solid rgba(34,197,94,0.4);border-radius:20px;padding:24px;width:100%;max-width:460px;">
-    <div style="font-size:1rem;font-weight:700;color:#22c55e;margin-bottom:16px;">Book Appointment</div>
-    <div id="apptFormInfo" style="font-size:0.82rem;color:rgba(255,255,255,0.6);margin-bottom:16px;"></div>
-    <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Zoom Date and Time</label>
-    <input type="datetime-local" id="apptDateTime" style="width:100%;background:#030b14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.85rem;padding:10px 12px;outline:none;margin-bottom:14px;font-family:inherit;">
-    <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Notes for Brett</label>
-    <textarea id="apptNotes" rows="3" placeholder="What did they say? Key details Brett should know..." style="width:100%;background:#030b14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.85rem;padding:10px 12px;outline:none;resize:vertical;font-family:inherit;line-height:1.6;"></textarea>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
-      <button onclick="closeApptForm()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);padding:8px 18px;border-radius:20px;font-size:0.8rem;cursor:pointer;font-family:inherit;">Cancel</button>
-      <button onclick="sendApptToBrett()" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#000;font-weight:700;padding:8px 20px;border-radius:20px;font-size:0.8rem;cursor:pointer;font-family:inherit;">Send to Brett</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>

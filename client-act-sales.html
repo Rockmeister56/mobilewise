@@ -208,9 +208,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       Pulls the 20 most recent leads Tommy has emailed that you haven't worked yet.
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      <button class="btn btn-amber" onclick="loadTodaysBatch()">⚡ Load Today's 20</button>
+      <button class="btn btn-amber" onclick="loadTodaysBatch()">⚡ Load Today's Batch</button>
       <button class="btn btn-ghost" id="selectModeBtn" onclick="toggleSelectMode()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">☑️ Select Leads</button>
       <button class="btn btn-ghost" onclick="downloadVoicemailCSV()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">📞 Export All for Voicemail</button>
+      <button class="btn btn-ghost" onclick="flushNewLeads()" style="border-color:rgba(239,68,68,0.4);color:#ef4444;">🗑️ Flush New Leads</button>
     </div>
   </div>
   <div id="selectionBar" style="display:none;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:12px 18px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
@@ -1114,6 +1115,39 @@ function downloadSelectedVoicemail() {
   a.click();
   toast('📞 Downloaded ' + selectedLeads.size + ' selected leads for voicemail');
 }
+
+async function flushNewLeads() {
+  const newLeads = allLeads.filter(l => !l.sales_status || l.sales_status === '🆕 New');
+  if (!newLeads.length) {
+    toast('No New leads to flush');
+    return;
+  }
+  const confirmed = confirm(
+    `Flush ${newLeads.length} New lead${newLeads.length!==1?'s':''} from your dashboard?\n\n` +
+    `This will:\n` +
+    `✅ Remove all 🆕 New leads from your queue\n` +
+    `✅ Reset their status so Tommy can re-export tomorrow\n` +
+    `✅ Keep all Contacted, Zoom Scheduled, Hot and Won leads safe\n\n` +
+    `Continue?`
+  );
+  if (!confirmed) return;
+
+  const ids = newLeads.map(l => l.id);
+  try {
+    await sb('PATCH', 'leads', {
+      sales_status:   null,
+      follow_up_date: null
+    }, `?id=in.(${ids.join(',')})`);
+    // Remove from local array
+    allLeads = allLeads.filter(l => !ids.includes(l.id));
+    toast(`🗑️ ${newLeads.length} New leads flushed — dashboard is clean`);
+    renderQueue(); renderPipeline(); renderAll(); updateBadges();
+  } catch(e) {
+    toast('Flush failed — try again');
+    console.error(e);
+  }
+}
+window.flushNewLeads = flushNewLeads;
 
 window.toggleSelectMode = toggleSelectMode;
 window.toggleSelectAll = toggleSelectAll;
