@@ -1125,16 +1125,20 @@ async function buildAndSendReport(l) {
   var industry = l.industry || 'Mortgage';
   var companyName = l.company_name || '';
 
+  // Strip state suffix from city for matching e.g. "Burlington" matches "Burlington, VT"
+  var cityBase = city.split(',')[0].trim();
+
   try {
     var competitors = await sb('GET','leads','',
-      '?city=eq.'+encodeURIComponent(city)+
+      '?city=like.'+encodeURIComponent(cityBase+'%')+
       '&industry=eq.'+encodeURIComponent(industry)+
       '&order=reviews.desc&limit=10&reviews=gte.1'
     );
     if (!Array.isArray(competitors) || !competitors.length) {
-      // Fallback - use allLeads filtered by city
+      // Fallback - use allLeads filtered by city base name
       competitors = allLeads.filter(function(x){
-        return x.city===city && (x.industry||'Mortgage')===industry && x.reviews>0;
+        var xCity = (x.city||'').split(',')[0].trim();
+        return xCity===cityBase && (x.industry||'Mortgage')===industry && x.reviews>0;
       }).sort(function(a,b){return (b.reviews||0)-(a.reviews||0);}).slice(0,10);
     }
     if (!competitors.length) {
