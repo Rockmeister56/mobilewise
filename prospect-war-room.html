@@ -1118,7 +1118,7 @@ async function openReportPreview(id) {
   await buildAndSendReport(l);
 }
 
-async function buildAndSendReport(l) {
+async function buildAndSendReport(l, viewOnly) {
 
   // Get competitors from same city and industry
   var city     = l.city || '';
@@ -1234,6 +1234,14 @@ async function buildAndSendReport(l) {
       +'<th style="color:#fff;padding:10px 14px;text-align:right;font-size:0.78rem;">Reviews</th>'
       +'</tr></thead><tbody>'+tableRows+'</tbody></table>';
 
+    // If view only - just display don't send
+    if (viewOnly) {
+      var previewBody = document.getElementById('reportPreviewBody');
+      if (previewBody) previewBody.innerHTML = html;
+      lastReportHtml = html;
+      lastReportLeadId = l.id;
+      return;
+    }
     toast('Sending report to '+l.email+'...');
 
     await emailjs.send('service_b9bppgb', 'template_xemftmn', {
@@ -1281,14 +1289,19 @@ function viewSentReport(leadId) {
   var body    = document.getElementById('reportPreviewBody');
   var sendBtn = document.getElementById('sendReportBtn');
   sendBtn.style.display = 'none';
+  modal.style.display = 'flex';
+
   if (leadId === lastReportLeadId && lastReportHtml) {
     body.innerHTML = lastReportHtml;
   } else {
-    body.innerHTML = '<div style="padding:40px;text-align:center;color:#666;">Click below to regenerate the report.<br><br>'
-      + '<button onclick="closeReportModal();openReportPreview(' + leadId + ');" '
-      + 'style="background:#a855f7;border:none;color:#fff;padding:10px 20px;border-radius:20px;font-weight:700;cursor:pointer;">Regenerate Report</button></div>';
+    body.innerHTML = '<div style="padding:40px;text-align:center;color:#666;font-size:0.9rem;">Building report...</div>';
+    var l = allLeads.find(function(x){return x.id===leadId;}) || apptLeads.find(function(x){return x.id===leadId;});
+    if (l) {
+      buildAndSendReport(l, true);
+    } else {
+      body.innerHTML = '<div style="padding:40px;text-align:center;color:#c00;">Lead not found — please refresh and try again.</div>';
+    }
   }
-  modal.style.display = 'flex';
 }
 
 
