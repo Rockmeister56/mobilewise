@@ -895,7 +895,8 @@ function renderApptCard(l,today){
     +(cn?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.45);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);margin-bottom:10px;">'+esc(cn)+'</div>':'')
     +(l.sales_notes?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:6px 10px;background:rgba(168,85,247,0.04);border-radius:6px;border-left:2px solid rgba(168,85,247,0.2);margin-bottom:10px;font-style:italic;">'+esc(l.sales_notes)+'</div>':'')
     +'<button onclick="openScriptModal('+l.id+')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;">📋 View Script &amp; Call</button>'
-    +(l.email?'<button onclick="openReportPreview('+l.id+')" style="background:rgba(52,168,83,0.12);border:1px solid rgba(52,168,83,0.35);color:#34a853;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;margin-left:6px;">📊 Send Report</button>':'')'
+    +(l.email?'<button onclick="openReportPreview('+l.id+')" style="background:rgba(52,168,83,0.12);border:1px solid rgba(52,168,83,0.35);color:#34a853;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;margin-left:6px;">📊 Send Report</button>':'')
+    +((l.email&&(l.sales_notes||'').indexOf('[Report sent')!==-1)?'<button onclick="viewSentReport('+l.id+')" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:#22c55e;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;margin-left:6px;">👁 View Report</button>':'')
   +'</div>';
 }
 
@@ -1265,13 +1266,7 @@ function showReportConfirmation(email, company, rank, city, reviews, gap, previe
 
 function sendReport() {}
 
-window.openReportPreview = openReportPreview;
-window.viewSentReport = viewSentReport;
-window.closeReportModal  = closeReportModal;
-window.sendReport        = sendReport;
-</script>
-</body>
-</html>function viewSentReport(leadId) {
+function viewSentReport(leadId) {
   var modal   = document.getElementById('reportModal');
   var body    = document.getElementById('reportPreviewBody');
   var sendBtn = document.getElementById('sendReportBtn');
@@ -1286,3 +1281,11 @@ window.sendReport        = sendReport;
   modal.style.display = 'flex';
 }
 
+
+window.openReportPreview = openReportPreview;
+window.viewSentReport = viewSentReport;
+window.closeReportModal  = closeReportModal;
+window.sendReport        = sendReport;
+</script>
+</body>
+</html>
