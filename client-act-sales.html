@@ -369,26 +369,20 @@ document.addEventListener("DOMContentLoaded",async()=>{
 
 async function loadPipelineLeads(){
   try{
-    // Appointments only — load active pipeline leads
-    const active=await sb("GET","leads","","?order=zoom_date.asc&limit=1000&sales_status=in.(\uD83D\uDCC5 Zoom Scheduled,\u2705 Zoom Complete,\uD83D\uDCAC Contacted,\uD83D\uDCC4 Proposal Sent,\uD83D\uDD25 Hot,\uD83D\uDCB0 Closed Won)");
-    if(Array.isArray(active)){
-      active.forEach(l=>{if(!allLeads.find(x=>x.id===l.id)) allLeads.push(l);});
-    }
-    // Also load any new zoom scheduled leads from setters
-    const fresh=await sb("GET","leads","","?order=created_at.desc&limit=500&sales_status=eq.\uD83D\uDCC5 Zoom Scheduled");
-    if(Array.isArray(fresh)){
-      fresh.forEach(l=>{if(!allLeads.find(x=>x.id===l.id)) allLeads.push(l);});
-    }
-    allLeads.forEach(l=>{if(!l.sales_status) l.sales_status="\uD83C\uDD95 New";});
+    const statuses=['📅 Zoom Scheduled','✅ Zoom Complete','💬 Contacted','📄 Proposal Sent','🔥 Hot','💰 Closed Won'];
+    const q='?order=created_at.desc&limit=1000&sales_status=in.('+statuses.map(s=>encodeURIComponent(s)).join(',')+')'
+    const active=await sb("GET","leads","",q);
+    if(Array.isArray(active)){active.forEach(l=>{if(!allLeads.find(x=>x.id===l.id))allLeads.push(l);});}
+    allLeads.forEach(l=>{if(!l.sales_status)l.sales_status="🆕 New";});
     document.getElementById("connDot").textContent="● Live";
     document.getElementById("connDot").style.color="#22c55e";
-    renderQueue(); renderPipeline(); renderAll(); renderCalendar(); updateBadges();
+    renderQueue();renderPipeline();renderAll();renderCalendar();updateBadges();
   }catch(e){
     document.getElementById("connDot").textContent="● Error";
     document.getElementById("connDot").style.color="#ef4444";
+    console.error('loadPipelineLeads error:',e);
   }
 }
-
 async function loadTodaysBatch(){
   const btn=event.target;
   btn.disabled=true; btn.textContent="Loading...";
