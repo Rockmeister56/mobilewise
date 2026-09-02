@@ -115,7 +115,6 @@ tr:hover td{background:rgba(52,168,83,0.03);}
   <div class="nav-right">
     <button class="btn btn-ghost" onclick="loadLeads()">🔄 Refresh</button>
     <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
-
     <button class="btn btn-ghost" onclick="exportToAppointmentQueue()" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">🔔 Appointment Queue</button>
     <div style="display:flex;align-items:center;gap:6px;">
       <input type="number" id="exportCount" value="60" min="1" max="500" style="width:65px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.3);border-radius:20px;color:#0ea5e9;font-size:0.78rem;padding:6px 10px;outline:none;font-family:inherit;text-align:center;">
@@ -599,66 +598,132 @@ async function exportToBrett() {
   }
 
   const confirmed = confirm(
-    `Export ${batch.length} lead${batch.length!==1?'s':''} for today\'s campaign?\n\n` +
+    `Export ${batch.length} lead${batch.length!==1?'s':''} to Brett\'s Sales Dashboard?\n\n` +
     `This will:\n` +
-    `✅ Download Voicemail CSV (phone, name) for Sly Broadcasting\n` +
-    `✅ Download Email CSV (name, email, reviews) for batch sender\n` +
-    `✅ Tag all ${batch.length} leads as Appointment Queue for setters\n\n` +
+    `✅ Mark ${batch.length} leads as 📧 Emailed\n` +
+    `✅ Send them to Brett\'s queue instantly\n` +
+    `✅ Brett uses these for his voicemail drop today\n\n` +
     `Continue?`
   );
   if (!confirmed) return;
 
   const ids = batch.map(l => l.id);
-
-  // ── Download 1: Voicemail CSV (phone,firstname) for Sly Broadcasting ──
-  let vmCsv = '';
-  batch.forEach(l => {
-    const phone = (l.phone||'').replace(/\D/g,'');
-    const firstName = (l.contact_name||'').split(' ')[0] || 'Friend';
+  // Download 1: Voicemail CSV
+  var vmCsv = '';
+  batch.forEach(function(l) {
+    var phone = (l.phone||'').replace(/\D/g,'');
+    var firstName = (l.contact_name||'').split(' ')[0] || 'Friend';
     if (phone.length >= 10) vmCsv += phone + ',' + firstName + '\n';
   });
   if (vmCsv) {
-    const a1 = document.createElement('a');
+    var a1 = document.createElement('a');
     a1.href = URL.createObjectURL(new Blob([vmCsv],{type:'text/csv'}));
-    a1.download = `voicemail-${new Date().toISOString().slice(0,10)}.csv`;
+    a1.download = 'voicemail-' + new Date().toISOString().slice(0,10) + '.csv';
     a1.click();
   }
 
-  // ── Download 2: Email CSV (firstname,email,reviews) for batch sender ──
-  const withEmail = batch.filter(l => l.email && l.email.trim());
+  // Download 2: Email CSV
+  var withEmail = batch.filter(function(l) { return l.email && l.email.trim(); });
   if (withEmail.length) {
-    let emailCsv = 'FirstName,Email,Reviews\n';
-    withEmail.forEach(l => {
-      const firstName = (l.contact_name||'').split(' ')[0] || 'Friend';
-      emailCsv += `"${firstName.replace(/"/g,'')}","${(l.email||'').replace(/"/g,'')}","${l.reviews||''}"\n`;
+    var emailCsv = 'FirstName,Email,Reviews\n';
+    withEmail.forEach(function(l) {
+      var fn = (l.contact_name||'').split(' ')[0] || 'Friend';
+      emailCsv += '"' + fn.replace(/"/g,'') + '","' + (l.email||'').replace(/"/g,'') + '","' + (l.reviews||'') + '"\n';
     });
-    setTimeout(() => {
-      const a2 = document.createElement('a');
+    setTimeout(function() {
+      var a2 = document.createElement('a');
       a2.href = URL.createObjectURL(new Blob([emailCsv],{type:'text/csv'}));
-      a2.download = `email-batch-${new Date().toISOString().slice(0,10)}.csv`;
+      a2.download = 'email-batch-' + new Date().toISOString().slice(0,10) + '.csv';
       a2.click();
-    }, 500);
+    }, 600);
   }
 
-  // ── Tag leads as Appointment Queue in Supabase ──
+  // Tag as Appointment Queue
   try {
     await sb('PATCH', 'leads',
       { status: '🔔 Appointment Queue', scraped_date: new Date().toISOString().slice(0,10) },
-      `?id=in.(${ids.join(',')})`
+      '?id=in.(' + ids.join(',') + ')'
     );
-    batch.forEach(l => { l.status = '🔔 Appointment Queue'; });
+    batch.forEach(function(l) { l.status = '🔔 Appointment Queue'; });
     renderLeads();
     updateStats();
-    const emailCount = withEmail.length;
-    const vmCount = batch.filter(l => (l.phone||'').replace(/\D/g,'').length >= 10).length;
-    toast(`✅ Done! ${vmCount} voicemail · ${emailCount} email · ${batch.length} in appointment queue`);
+    var vm = batch.filter(function(l){ return (l.phone||'').replace(/\D/g,'').length>=10; }).length;
+    toast('Done! ' + vm + ' voicemail · ' + withEmail.length + ' email · ' + batch.length + ' in appointment queue');
   } catch(e) {
     console.error('Export failed:', e);
-    toast('CSVs downloaded but Supabase tag failed — try refresh');
+    toast('CSVs downloaded but tag failed — refresh and retry');
   }
 }
 
+async function exportForEmail() {
+  // Get currently visible leads that have an email address
+  const search  = document.getElementById('searchInput').value.toLowerCase();
+  const statusF = document.getElementById('statusFilter').value;
+  const cityF   = document.getElementById('cityFilter').value;
 
+  let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  data = data.filter(l=>l.status !== '📦 Archived');
+  if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
+  if (statusF) data = data.filter(l=>l.status===statusF);
+  if (cityF)   data = data.filter(l=>l.city===cityF);
+  const indF = document.getElementById('industryFilter').value;
+  if (indF) data = data.filter(l=>(l.industry||'Mortgage')===indF);
+
+  // Only leads with emails — skip already emailed
+  const withEmail = data.filter(l => l.email && l.email.trim() && l.status !== '📧 Emailed');
+  const noEmail   = data.length - withEmail.length;
+
+  if (!withEmail.length) {
+    alert('No leads with email addresses in the current view, or all have already been emailed.\n\nMake sure Tommy has added emails before exporting.');
+    return;
+  }
+
+  // Cap at 20 for batch sender
+  const batch = withEmail.slice(0, 20);
+
+  const confirmed = confirm(
+    `Ready to export ${batch.length} leads for email batch.\n\n` +
+    `This will:\n` +
+    `✅ Download the CSV for your email bulk sender\n` +
+    `✅ Mark these ${batch.length} leads as 📧 Emailed in Supabase\n` +
+    `✅ Send them to Brett\'s sales queue automatically\n\n` +
+    `Continue?`
+  );
+  if (!confirmed) return;
+
+  // Build CSV: FirstName, Email, Reviews
+  let csv = 'FirstName,Email,Reviews\n';
+  batch.forEach(l => {
+    const firstName = (l.contact_name || '').split(' ')[0] || 'there';
+    const reviews   = l.reviews || '';
+    csv += `"${firstName.replace(/"/g,'')}", "${(l.email||'').replace(/"/g,'')}", "${reviews}"\n`;
+  });
+
+  // Download CSV
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `email-batch-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+
+  // Mark all 20 as Emailed in Supabase simultaneously
+  // Update in batches by ID
+  const ids = batch.map(l=>l.id);
+  try {
+    await sb('PATCH','leads',
+      { status: '📧 Emailed', scraped_date: new Date().toISOString().slice(0,10) },
+      `?id=in.(${ids.join(',')})`
+    );
+    // Update local state
+    batch.forEach(l => { l.status = '📧 Emailed'; });
+    renderLeads();
+    updateStats();
+    const remaining = withEmail.length - batch.length;
+    toast(`✅ ${batch.length} leads emailed + sent to Brett's queue${remaining ? ' · ' + remaining + ' more ready' : ''}`);
+  } catch(e) {
+    console.error('Failed to update Supabase:', e);
+    toast('CSV downloaded but Supabase update failed — refresh and try again');
+  }
+}
 
 // ── Bulk selection ───────────────────────────────────────
 function toggleSelectAll(cb) {
@@ -723,321 +788,18 @@ document.addEventListener('change', e => {
   if (e.target.classList.contains('lead-check')) updateBulkBar();
 });
 window.closeModal=closeModal; window.copyModal=copyModal; window.exportCSV=exportCSV;
-
-// ═══════════════════════════════════════════════════════════
-// APPOINTMENT SETTER SYSTEM
-// ═══════════════════════════════════════════════════════════
-
-let apptLeads = [];
-let currentApptLead = null;
-let scriptFontSize = 0.92;
-
-function scriptZoom(dir) {
-  scriptFontSize = Math.min(1.4, Math.max(0.7, scriptFontSize + (dir * 0.08)));
-  const el = document.getElementById('scriptTextBody');
-  if (el) el.style.fontSize = scriptFontSize + 'rem';
-}
-
-function toggleApptView() {
-  const panel = document.getElementById('panel-appt');
-  const main  = document.getElementById('mainContent');
-  const btn   = document.getElementById('apptViewBtn');
-  if (!panel) return;
-  if (panel.style.display === 'none' || !panel.style.display) {
-    panel.style.display = 'block';
-    if (main) main.style.display = 'none';
-    btn.textContent = 'Back to War Room';
-    btn.style.background = 'rgba(255,255,255,0.06)';
-    btn.style.color = 'rgba(255,255,255,0.65)';
-    loadApptLeads();
-  } else {
-    panel.style.display = 'none';
-    if (main) main.style.display = 'block';
-    btn.textContent = 'Appointment Setter';
-    btn.style.background = 'rgba(168,85,247,0.1)';
-    btn.style.color = '#a855f7';
-  }
-}
-
-async function loadApptLeads() {
-  const listEl = document.getElementById('apptLeadsList');
-  listEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);">Loading...</div>';
-  try {
-    apptLeads = await sb('GET', 'leads', '', '?status=eq.%F0%9F%94%94%20Appointment%20Queue&order=created_at.desc&limit=200');
-    if (!Array.isArray(apptLeads)) apptLeads = [];
-    renderApptLeads();
-    updateApptStats();
-  } catch(e) {
-    listEl.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;">Failed to load — check connection</div>';
-  }
-}
-
-function updateApptStats() {
-  document.getElementById('appt-total').textContent   = apptLeads.length;
-  document.getElementById('appt-set').textContent     = apptLeads.filter(l=>l.sales_status==='📅 Zoom Scheduled').length;
-  document.getElementById('appt-noanswer').textContent= apptLeads.filter(l=>l.sales_status==='📞 Called — No Answer').length;
-  document.getElementById('appt-notint').textContent  = apptLeads.filter(l=>l.sales_status==='❌ Not Interested').length;
-}
-
-function renderApptLeads() {
-  const listEl    = document.getElementById('apptLeadsList');
-  const cbListEl  = document.getElementById('callbacksList');
-  const cbSection = document.getElementById('callbacksSection');
-  const setterF   = document.getElementById('setterFilter') ? document.getElementById('setterFilter').value : '';
-  const statusF   = document.getElementById('apptStatusFilter') ? document.getElementById('apptStatusFilter').value : '';
-  const today     = new Date().toISOString().slice(0,10);
-
-  if (!apptLeads.length) {
-    listEl.innerHTML = '<div style="text-align:center;padding:60px;color:rgba(255,255,255,0.3);"><div style="font-size:2.5rem;margin-bottom:12px;">📞</div><div>No leads in appointment queue yet.<br>Use the Export button in the war room to add leads.</div></div>';
-    if (cbSection) cbSection.style.display = 'none';
-    return;
-  }
-
-  // Callbacks due today
-  const callbacks = apptLeads.filter(l => l.follow_up_date && l.follow_up_date <= today &&
-    !['❌ Not Interested','📅 Zoom Scheduled'].includes(l.sales_status||''));
-  const myCallbacks = setterF ? callbacks.filter(l => (l.notes||'').includes('[Setter: ' + setterF + ']')) : callbacks;
-
-  if (cbListEl && myCallbacks.length) {
-    cbSection.style.display = 'block';
-    cbListEl.innerHTML = myCallbacks.map(l => renderApptCard(l, today)).join('');
-  } else if (cbSection) {
-    cbSection.style.display = 'none';
-  }
-
-  let data = [...apptLeads];
-  if (setterF) data = data.filter(l => (l.notes||'').includes('[Setter: ' + setterF + ']'));
-  if (statusF === 'callbacks') data = data.filter(l => l.follow_up_date && l.follow_up_date <= today);
-  else if (statusF === 'new')    data = data.filter(l => !l.sales_status || !l.call_attempts);
-  else if (statusF === 'vm')     data = data.filter(l => l.sales_status === '📱 Left Voicemail');
-  else if (statusF === 'noanswer') data = data.filter(l => l.sales_status === '📞 Called — No Answer');
-  else if (statusF === 'set')    data = data.filter(l => l.sales_status === '📅 Zoom Scheduled');
-  else if (statusF === 'notint') data = data.filter(l => l.sales_status === '❌ Not Interested');
-
-  const label = document.getElementById('apptLeadsLabel');
-  if (label) label.textContent = data.length + ' Lead' + (data.length!==1?'s':'') + ' in Queue';
-
-  listEl.innerHTML = data.length
-    ? data.map(l => renderApptCard(l, today)).join('')
-    : '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">No leads match this filter.</div>';
-}
-
-function renderApptCard(l, today) {
-  const isCallback  = l.follow_up_date && l.follow_up_date <= today;
-  const setterMatch = (l.notes||'').match(/\[Setter: ([^\]]+)\]/);
-  const assignedTo  = setterMatch ? setterMatch[1] : null;
-  const attempts    = l.call_attempts || 0;
-  const cleanNotes  = (l.notes||'').replace(/\[Setter:[^\]]+\]/g,'').trim();
-  return '<div style="background:#071628;border:1px solid ' + (isCallback?'rgba(245,158,11,0.4)':'rgba(255,255,255,0.07)') + ';border-left:3px solid ' + (isCallback?'#f59e0b':'rgba(168,85,247,0.4)') + ';border-radius:14px;padding:16px;margin-bottom:10px;">' +
-    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;">' +
-      '<div style="flex:1;min-width:0;">' +
-        '<div style="font-size:0.95rem;font-weight:700;color:#fff;">' + esc(l.company_name||'—') + '</div>' +
-        '<div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:2px;">' + esc(l.contact_name||'') + '</div>' +
-        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">' +
-          (l.reviews?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:600;color:#34a853;border:1px solid rgba(52,168,83,0.3);background:rgba(52,168,83,0.08);">⭐ ' + l.reviews + ' Reviews</span>':'') +
-          (l.city?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#94a3b8;border:1px solid rgba(148,163,184,0.2);">📍 ' + esc(l.city) + '</span>':'') +
-          (l.sales_status?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#a855f7;border:1px solid rgba(168,85,247,0.3);">' + esc(l.sales_status) + '</span>':'') +
-          (assignedTo?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);">👤 ' + esc(assignedTo) + '</span>':'') +
-          (attempts>0?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#f59e0b;border:1px solid rgba(245,158,11,0.25);">' + attempts + ' attempt' + (attempts!==1?'s':'') + '</span>':'') +
-          (isCallback?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:700;color:#f59e0b;border:1px solid rgba(245,158,11,0.4);background:rgba(245,158,11,0.1);">⚠️ CALLBACK DUE</span>':'') +
-          (l.follow_up_date&&!isCallback?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#f59e0b;border:1px solid rgba(245,158,11,0.2);">📅 ' + l.follow_up_date + '</span>':'') +
-        '</div>' +
-      '</div>' +
-      '<div style="text-align:right;flex-shrink:0;">' +
-        '<div style="font-size:0.9rem;font-weight:700;color:#f59e0b;">' + (l.phone||'—') + '</div>' +
-        (l.email?'<div style="font-size:0.68rem;color:#34a853;margin-top:3px;">' + esc(l.email) + '</div>':'') +
-      '</div>' +
-    '</div>' +
-    (cleanNotes?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.45);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);margin-bottom:10px;"><span style="color:#0ea5e9;font-weight:700;font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;">Notes · </span>' + esc(cleanNotes) + '</div>':'') +
-    (l.sales_notes?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:6px 10px;background:rgba(168,85,247,0.04);border-radius:6px;border-left:2px solid rgba(168,85,247,0.2);margin-bottom:10px;font-style:italic;">' + esc(l.sales_notes) + '</div>':'') +
-    '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
-      '<button onclick="openScriptModal(' + l.id + ')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;">View Script & Call</button>' +
-    '</div>' +
-  '</div>';
-}
-
-function openScriptModal(id) {
-  currentApptLead = apptLeads.find(function(l) { return l.id === id; });
-  if (!currentApptLead) return;
-  var l = currentApptLead;
-  var setter = document.getElementById('setterName').value;
-  var firstName = (l.contact_name || 'Prospect').split(' ')[0];
-  var reviewText = l.reviews ? l.reviews + ' reviews' : 'a limited number of reviews';
-
-  document.getElementById('scriptProspectInfo').innerHTML =
-    '<strong style="color:#a855f7;">' + esc(l.company_name||'—') + '</strong> &nbsp;·&nbsp; ' + esc(firstName) +
-    ' &nbsp;·&nbsp; <a href="tel:' + (l.phone||'').replace(/\D/g,'') + '" style="color:#f59e0b;font-weight:700;text-decoration:none;">' + esc(l.phone||'—') + '</a>' +
-    (l.reviews ? ' &nbsp;·&nbsp; <span style="color:#34a853;">⭐ ' + l.reviews + ' reviews</span>' : '');
-
-  document.getElementById('scriptGatekeeper').innerHTML =
-    '"Hi, this is ' + setter + ' with Revuee — I am following up on a voicemail I left for ' + firstName + '. Could you let them know ' + setter + ' with Revuee is on the phone? It is regarding an urgent matter about their Google reviews."' +
-    '<br><br><em style="color:#f59e0b;">If asked for more info:</em> ' +
-    '"We are a preferred solution provider for Google Business Profile and I need to speak with ' + firstName + ' regarding an important issue affecting their client reviews — it involves the Google review algorithm. Could you please let them know it is time sensitive?"';
-
-  document.getElementById('scriptProspect').innerHTML =
-    '"Hi ' + firstName + ', this is ' + setter + ' with Revuee — I am following up on a voicemail I left you regarding your Google Business Profile. Do you have just two minutes?"' +
-    '<br><br><em style="color:#f59e0b;">If asked what it is about:</em> ' +
-    '"We analyzed your Google profile and noticed you currently have <strong>' + reviewText + '</strong>. In your market that is putting you at a disadvantage — we have a solution that fixes that automatically and I wanted to get you connected with Brett Duncan for a quick 15-minute Zoom. No cost, no obligation."';
-
-  document.getElementById('scriptModal').style.display = 'flex';
-}
-
-function closeScriptModal() {
-  document.getElementById('scriptModal').style.display = 'none';
-  currentApptLead = null;
-}
-
-async function logApptCall(type) {
-  if (!currentApptLead) return;
-  const setter = document.getElementById('setterName').value;
-  const statusMap = {
-    noanswer:      '📞 Called — No Answer',
-    voicemail:     '📱 Left Voicemail',
-    notinterested: '❌ Not Interested'
-  };
-  const newStatus = statusMap[type];
-  const days = type === 'voicemail' ? 3 : type === 'noanswer' ? 2 : null;
-  const fuDate = days ? (() => { const d = new Date(); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); })() : null;
-  const setterNote = '[Setter: ' + setter + ' · ' + new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}) + '] ' + newStatus + (fuDate?' · Callback: '+fuDate:'');
-  const existingNotes = currentApptLead.notes || '';
-  const updatedNotes = existingNotes ? existingNotes + ' | ' + setterNote : setterNote;
-  try {
-    const patch = {
-      sales_status:   newStatus,
-      last_called:    new Date().toISOString(),
-      call_attempts:  (currentApptLead.call_attempts||0) + 1,
-      notes:          updatedNotes,
-      follow_up_date: fuDate || currentApptLead.follow_up_date || null
-    };
-    await sb('PATCH', 'leads', patch, '?id=eq.' + currentApptLead.id);
-    Object.assign(currentApptLead, patch);
-    const cbMsg = fuDate ? ' · Callback set for ' + fuDate : '';
-    toast('Logged: ' + newStatus + cbMsg);
-    closeScriptModal();
-    loadApptLeads();
-  } catch(e) { toast('Error logging call'); }
-}
-
-function openApptForm() {
-  if (!currentApptLead) return;
-  const l = currentApptLead;
-  const firstName = (l.contact_name||'Prospect').split(' ')[0];
-  document.getElementById('apptFormInfo').innerHTML = 'Booking Zoom for <strong style="color:#fff;">' + esc(firstName) + '</strong> at <strong style="color:#fff;">' + esc(l.company_name||'') + '</strong>';
-  document.getElementById('apptDateTime').value = '';
-  document.getElementById('apptNotes').value = '';
-  document.getElementById('scriptModal').style.display = 'none';
-  document.getElementById('apptFormModal').style.display = 'flex';
-}
-
-function closeApptForm() {
-  document.getElementById('apptFormModal').style.display = 'none';
-  document.getElementById('scriptModal').style.display = 'flex';
-}
-
-async function sendApptToBrett() {
-  if (!currentApptLead) return;
-  const dateVal = document.getElementById('apptDateTime').value;
-  const notes   = document.getElementById('apptNotes').value;
-  const setter  = document.getElementById('setterName').value;
-  if (!dateVal) { alert('Please select a date and time for the Zoom.'); return; }
-  const zoomDate  = new Date(dateVal).toISOString();
-  const fullNotes = '[Set by ' + setter + '] ' + notes;
-  try {
-    await sb('PATCH', 'leads', {
-      sales_status:   '📅 Zoom Scheduled',
-      zoom_date:      zoomDate,
-      zoom_link:      'https://calendly.com/mobilewise-ai/30min',
-      sales_notes:    fullNotes,
-      status:         '📧 Emailed',
-      last_called:    new Date().toISOString(),
-      call_attempts:  (currentApptLead.call_attempts||0) + 1
-    }, '?id=eq.' + currentApptLead.id);
-    closeApptForm();
-    closeScriptModal();
-    const label = new Date(zoomDate).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
-    toast('Appointment sent to Brett! Zoom: ' + label);
-    loadApptLeads();
-  } catch(e) { toast('Error sending appointment — try again'); }
-}
-
-window.toggleApptView       = toggleApptView;
-window.loadApptLeads        = loadApptLeads;
-window.renderApptLeads      = renderApptLeads;
-window.openScriptModal      = openScriptModal;
-window.closeScriptModal     = closeScriptModal;
-window.logApptCall          = logApptCall;
-window.openApptForm         = openApptForm;
-window.closeApptForm        = closeApptForm;
-window.sendApptToBrett      = sendApptToBrett;
-window.scriptZoom           = scriptZoom;
-
-// ── Export selected leads to Appointment Queue ──
-async function exportToAppointmentQueue() {
-  const checked = document.querySelectorAll('.lead-check:checked');
-  let ids = [];
-  let count = 0;
-  if (checked.length) {
-    ids = Array.from(checked).map(cb => parseInt(cb.dataset.id));
-    count = ids.length;
-  } else {
-    // Use current visible leads if none selected
-    const visible = allLeads.filter(l => l.phone && l.status !== '📦 Archived').slice(0, 20);
-    ids = visible.map(l => l.id);
-    count = ids.length;
-  }
-  if (!count) { toast('No leads to export — select some first'); return; }
-  const confirmed = confirm('Tag ' + count + ' lead' + (count!==1?'s':'') + ' as Appointment Queue?');
-  if (!confirmed) return;
-  try {
-    await sb('PATCH', 'leads', {status: '🔔 Appointment Queue'}, '?id=in.(' + ids.join(',') + ')');
-    ids.forEach(function(id) {
-      var l = allLeads.find(function(x) { return x.id === id; });
-      if (l) l.status = '🔔 Appointment Queue';
-    });
-    toast('🔔 ' + count + ' leads tagged as Appointment Queue');
-    renderLeads();
-    updateStats();
-  } catch(e) { toast('Error — try again'); }
-}
-
-window.exportToAppointmentQueue = exportToAppointmentQueue;
-window.exportToBrett = exportToBrett;
-window.toggleApptView = toggleApptView;
-window.loadApptLeads = loadApptLeads;
-window.renderApptLeads = renderApptLeads;
-window.openScriptModal = openScriptModal;
-window.closeScriptModal = closeScriptModal;
-window.logApptCall = logApptCall;
-window.openApptForm = openApptForm;
-window.closeApptForm = closeApptForm;
-window.sendApptToBrett = sendApptToBrett;
-window.scriptZoom = scriptZoom;
 </script>
+</body>
+</html>
+
 <div id="panel-appt" style="display:none;padding:20px;max-width:1400px;margin:0 auto;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-    <div><div style="font-size:1.1rem;font-weight:700;color:#a855f7;">📞 Appointment Setter</div></div>
+    <div><div style="font-size:1.1rem;font-weight:700;color:#a855f7;">📞 Appointment Setter</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:2px;">Leads tagged for appointment setting</div></div>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-      <select id="setterName" style="background:#071628;border:1px solid rgba(168,85,247,0.3);border-radius:20px;color:#a855f7;font-size:0.78rem;padding:7px 14px;outline:none;font-family:inherit;">
-        <option value="Tommy">Tommy</option>
-        <option value="Ave">Ave</option>
-        <option value="Brett">Brett</option>
-      </select>
-      <select id="setterFilter" onchange="renderApptLeads()" style="background:#071628;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:rgba(255,255,255,0.7);font-size:0.78rem;padding:7px 14px;outline:none;font-family:inherit;">
-        <option value="">All Setters</option>
-        <option value="Tommy">Tommy Only</option>
-        <option value="Ave">Ave Only</option>
-        <option value="Brett">Brett Only</option>
-      </select>
-      <select id="apptStatusFilter" onchange="renderApptLeads()" style="background:#071628;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:rgba(255,255,255,0.7);font-size:0.78rem;padding:7px 14px;outline:none;font-family:inherit;">
-        <option value="">All Statuses</option>
-        <option value="new">Not Called Yet</option>
-        <option value="callbacks">Callbacks Due Today</option>
-        <option value="vm">Left Voicemail</option>
-        <option value="noanswer">No Answer</option>
-        <option value="set">Appointment Set</option>
-        <option value="notint">Not Interested</option>
-      </select>
-      <button onclick="loadApptLeads()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:8px 16px;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">Refresh</button>
+      <select id="setterName" style="background:#071628;border:1px solid rgba(168,85,247,0.3);border-radius:20px;color:#a855f7;font-size:0.78rem;padding:7px 14px;outline:none;font-family:inherit;"><option value="Tommy">Tommy</option><option value="Ave">Ave</option><option value="Brett">Brett</option></select>
+      <select id="setterFilter" onchange="renderApptLeads()" style="background:#071628;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:rgba(255,255,255,0.7);font-size:0.78rem;padding:7px 14px;outline:none;font-family:inherit;"><option value="">All Setters</option><option value="Tommy">Tommy Only</option><option value="Ave">Ave Only</option><option value="Brett">Brett Only</option></select>
+      <select id="apptStatusFilter" onchange="renderApptLeads()" style="background:#071628;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:rgba(255,255,255,0.7);font-size:0.78rem;padding:7px 14px;outline:none;font-family:inherit;"><option value="">All Statuses</option><option value="new">Not Called Yet</option><option value="callbacks">Callbacks Due</option><option value="vm">Left Voicemail</option><option value="noanswer">No Answer</option><option value="set">Appointment Set</option><option value="notint">Not Interested</option></select>
+      <button onclick="loadApptLeads()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:8px 16px;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🔄 Refresh</button>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
@@ -1046,10 +808,7 @@ window.scriptZoom = scriptZoom;
     <div style="background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:#f59e0b;" id="appt-noanswer">0</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">No Answer</div></div>
     <div style="background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:#ef4444;" id="appt-notint">0</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Not Interested</div></div>
   </div>
-  <div id="callbacksSection" style="display:none;margin-bottom:20px;">
-    <div style="font-size:0.72rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;padding:6px 0;border-bottom:1px solid rgba(245,158,11,0.2);">Callbacks Due Today</div>
-    <div id="callbacksList"></div>
-  </div>
+  <div id="callbacksSection" style="display:none;margin-bottom:20px;"><div style="font-size:0.72rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;padding:6px 0;border-bottom:1px solid rgba(245,158,11,0.2);">Callbacks Due Today</div><div id="callbacksList"></div></div>
   <div style="font-size:0.72rem;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;padding:6px 0;border-bottom:1px solid rgba(168,85,247,0.2);" id="apptLeadsLabel">All Leads in Queue</div>
   <div id="apptLeadsList"><div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">Click Refresh to load appointment queue leads</div></div>
 </div>
@@ -1072,9 +831,9 @@ window.scriptZoom = scriptZoom;
       <div id="scriptProspect" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:14px;border-left:3px solid #22c55e;"></div>
       <div style="font-size:0.75rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Common Objections</div>
       <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:16px;border-left:3px solid #f59e0b;">
-        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">Not interested</strong><br><em>I completely respect that — are you happy with where you are showing up on Google right now? Most of our clients said the same until they saw what 20 more reviews did for their ranking. Free 15-minute call — would next week work?</em></div>
-        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">How much does it cost?</strong><br><em>That is exactly what the Zoom is for — Brett customizes it based on your business size. Most clients find it pays for itself in the first month. Can I get you on his calendar?</em></div>
-        <div><strong style="color:#f59e0b;">Send me an email</strong><br><em>Absolutely — I actually just sent one over. But I would hate for you to miss this — it only takes 15 minutes and Brett will show you exactly what is happening on your Google profile. What day works best?</em></div>
+        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">Not interested</strong><br><em>I completely respect that. Are you happy with where you are showing up on Google right now? Most of our clients said the same until they saw what 20 more reviews did for their ranking. Free 15-minute call. Would next week work?</em></div>
+        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">How much does it cost?</strong><br><em>That is exactly what the Zoom is for. Brett customizes it based on your business size. Most clients find it pays for itself in the first month. Can I get you on his calendar?</em></div>
+        <div><strong style="color:#f59e0b;">Send me an email</strong><br><em>Absolutely. I actually just sent one over. But I would hate for you to miss this. It only takes 15 minutes and Brett will show you exactly what is happening on your Google profile. What day works best?</em></div>
       </div>
     </div>
     <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Call Outcome</div>
@@ -1101,5 +860,232 @@ window.scriptZoom = scriptZoom;
     </div>
   </div>
 </div>
+
+<script>
+var apptLeads = [];
+var currentApptLead = null;
+var scriptFontSize = 0.92;
+
+function scriptZoom(dir) {
+  scriptFontSize = Math.min(1.4, Math.max(0.7, scriptFontSize + (dir * 0.08)));
+  var el = document.getElementById('scriptTextBody');
+  if (el) el.style.fontSize = scriptFontSize + 'rem';
+}
+
+function toggleApptView() {
+  var panel = document.getElementById('panel-appt');
+  var main  = document.getElementById('mainContent');
+  var btn   = document.getElementById('apptViewBtn');
+  if (!panel) { alert('Panel not found'); return; }
+  if (panel.style.display === 'none' || panel.style.display === '') {
+    panel.style.display = 'block';
+    if (main) main.style.display = 'none';
+    btn.textContent = 'Back to War Room';
+    btn.style.color = 'rgba(255,255,255,0.65)';
+    btn.style.background = 'rgba(255,255,255,0.06)';
+    loadApptLeads();
+  } else {
+    panel.style.display = 'none';
+    if (main) main.style.display = 'block';
+    btn.textContent = 'Appointment Setter';
+    btn.style.color = '#a855f7';
+    btn.style.background = 'rgba(168,85,247,0.1)';
+  }
+}
+
+async function loadApptLeads() {
+  var listEl = document.getElementById('apptLeadsList');
+  listEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);">Loading...</div>';
+  try {
+    var result = await sb('GET', 'leads', null, '?status=eq.' + encodeURIComponent('🔔 Appointment Queue') + '&order=created_at.desc&limit=200');
+    apptLeads = Array.isArray(result) ? result : [];
+    renderApptLeads();
+    updateApptStats();
+  } catch(e) {
+    console.error('loadApptLeads error:', e);
+    listEl.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;">Failed to load — check connection</div>';
+  }
+}
+
+function updateApptStats() {
+  document.getElementById('appt-total').textContent    = apptLeads.length;
+  document.getElementById('appt-set').textContent      = apptLeads.filter(function(l){return l.sales_status==='📅 Zoom Scheduled';}).length;
+  document.getElementById('appt-noanswer').textContent = apptLeads.filter(function(l){return l.sales_status==='📞 Called — No Answer';}).length;
+  document.getElementById('appt-notint').textContent   = apptLeads.filter(function(l){return l.sales_status==='❌ Not Interested';}).length;
+}
+
+function renderApptLeads() {
+  var listEl    = document.getElementById('apptLeadsList');
+  var cbListEl  = document.getElementById('callbacksList');
+  var cbSection = document.getElementById('callbacksSection');
+  var setterF   = document.getElementById('setterFilter').value;
+  var statusF   = document.getElementById('apptStatusFilter').value;
+  var today     = new Date().toISOString().slice(0,10);
+
+  if (!apptLeads.length) {
+    if (cbSection) cbSection.style.display = 'none';
+    listEl.innerHTML = '<div style="text-align:center;padding:60px;color:rgba(255,255,255,0.3);"><div style="font-size:2.5rem;margin-bottom:12px;">📞</div><div>No leads in appointment queue yet.<br>Use the Export button to add leads.</div></div>';
+    return;
+  }
+
+  var callbacks = apptLeads.filter(function(l) {
+    return l.follow_up_date && l.follow_up_date <= today && ['📞 Called — No Answer','📱 Left Voicemail'].includes(l.sales_status||'');
+  });
+  if (cbSection && callbacks.length) {
+    cbSection.style.display = 'block';
+    cbListEl.innerHTML = callbacks.map(function(l){ return renderApptCard(l, today); }).join('');
+  } else if (cbSection) {
+    cbSection.style.display = 'none';
+  }
+
+  var data = apptLeads.slice();
+  if (setterF) data = data.filter(function(l){ return (l.notes||'').indexOf('[Setter: '+setterF+']') !== -1; });
+  if (statusF === 'new')       data = data.filter(function(l){ return !l.sales_status || !l.call_attempts; });
+  else if (statusF === 'vm')        data = data.filter(function(l){ return l.sales_status === '📱 Left Voicemail'; });
+  else if (statusF === 'noanswer')  data = data.filter(function(l){ return l.sales_status === '📞 Called — No Answer'; });
+  else if (statusF === 'set')       data = data.filter(function(l){ return l.sales_status === '📅 Zoom Scheduled'; });
+  else if (statusF === 'notint')    data = data.filter(function(l){ return l.sales_status === '❌ Not Interested'; });
+  else if (statusF === 'callbacks') data = data.filter(function(l){ return l.follow_up_date && l.follow_up_date <= today; });
+
+  var label = document.getElementById('apptLeadsLabel');
+  if (label) label.textContent = data.length + ' Lead' + (data.length!==1?'s':'') + ' in Queue';
+
+  listEl.innerHTML = data.length
+    ? data.map(function(l){ return renderApptCard(l, today); }).join('')
+    : '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">No leads match this filter.</div>';
+}
+
+function renderApptCard(l, today) {
+  var isCallback  = l.follow_up_date && l.follow_up_date <= today;
+  var attempts    = l.call_attempts || 0;
+  var sm = (l.notes||'').match(/\[Setter: ([^\]]+)\]/);
+  var assignedTo  = sm ? sm[1] : null;
+  var cleanNotes  = (l.notes||'').replace(/\[Setter:[^\]]+\]/g,'').replace(/\|/g,'').trim();
+
+  return '<div style="background:#071628;border:1px solid '+(isCallback?'rgba(245,158,11,0.4)':'rgba(255,255,255,0.07)')+';border-left:3px solid '+(isCallback?'#f59e0b':'rgba(168,85,247,0.5)')+';border-radius:14px;padding:16px;margin-bottom:10px;">'
+    +'<div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;">'
+      +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:0.95rem;font-weight:700;color:#fff;">'+esc(l.company_name||'—')+'</div>'
+        +'<div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:2px;">'+esc(l.contact_name||'')+'</div>'
+        +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">'
+          +(l.reviews?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#34a853;border:1px solid rgba(52,168,83,0.3);background:rgba(52,168,83,0.08);">⭐ '+l.reviews+' Reviews</span>':'')
+          +(l.city?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#94a3b8;border:1px solid rgba(148,163,184,0.2);">📍 '+esc(l.city)+'</span>':'')
+          +(l.sales_status?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#a855f7;border:1px solid rgba(168,85,247,0.3);">'+esc(l.sales_status)+'</span>':'')
+          +(assignedTo?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);">👤 '+esc(assignedTo)+'</span>':'')
+          +(attempts>0?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#f59e0b;border:1px solid rgba(245,158,11,0.25);">'+attempts+' attempt'+(attempts!==1?'s':'')+'</span>':'')
+          +(isCallback?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);">⚠️ CALLBACK DUE</span>':'')
+          +(l.follow_up_date&&!isCallback?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#f59e0b;border:1px solid rgba(245,158,11,0.2);">📅 '+l.follow_up_date+'</span>':'')
+        +'</div>'
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0;">'
+        +'<div style="font-size:0.9rem;font-weight:700;color:#f59e0b;">'+(l.phone||'—')+'</div>'
+        +(l.email?'<div style="font-size:0.68rem;color:#34a853;margin-top:3px;">'+esc(l.email)+'</div>':'')
+      +'</div>'
+    +'</div>'
+    +(cleanNotes?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.45);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);margin-bottom:10px;"><span style="color:#0ea5e9;font-weight:700;font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;">Notes: </span>'+esc(cleanNotes)+'</div>':'')
+    +(l.sales_notes?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:6px 10px;background:rgba(168,85,247,0.04);border-radius:6px;border-left:2px solid rgba(168,85,247,0.2);margin-bottom:10px;font-style:italic;">'+esc(l.sales_notes)+'</div>':'')
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;">'
+      +'<button onclick="openScriptModal('+l.id+')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;">📋 View Script &amp; Call</button>'
+    +'</div>'
+  +'</div>';
+}
+
+function openScriptModal(id) {
+  currentApptLead = null;
+  for (var i=0; i<apptLeads.length; i++) { if (apptLeads[i].id===id) { currentApptLead=apptLeads[i]; break; } }
+  if (!currentApptLead) return;
+  var l = currentApptLead;
+  var setter = document.getElementById('setterName').value;
+  var firstName = (l.contact_name||'Prospect').split(' ')[0];
+  var reviewText = l.reviews ? l.reviews + ' reviews' : 'a limited number of reviews';
+
+  document.getElementById('scriptProspectInfo').innerHTML =
+    '<strong style="color:#a855f7;">'+esc(l.company_name||'—')+'</strong> &nbsp;·&nbsp; '+esc(firstName)+
+    ' &nbsp;·&nbsp; <a href="tel:'+(l.phone||'').replace(/\D/g,'')+'" style="color:#f59e0b;font-weight:700;text-decoration:none;">'+esc(l.phone||'—')+'</a>'+
+    (l.reviews?' &nbsp;·&nbsp; <span style="color:#34a853;">⭐ '+l.reviews+' reviews</span>':'');
+
+  document.getElementById('scriptGatekeeper').innerHTML =
+    '"Hi, this is '+setter+' with Revuee. I am following up on a voicemail I left for '+firstName+'. Could you let them know '+setter+' with Revuee is on the phone? It is regarding an urgent matter about their Google reviews."'+
+    '<br><br><em style="color:#f59e0b;">If asked for more info:</em> '+
+    '"We are a preferred solution provider for Google Business Profile. I need to speak with '+firstName+' regarding an important issue with the Google review algorithm affecting their ranking. Could you let them know it is time sensitive?"';
+
+  document.getElementById('scriptProspect').innerHTML =
+    '"Hi '+firstName+', this is '+setter+' with Revuee. I am following up on a voicemail about your Google Business Profile. Do you have two minutes?"'+
+    '<br><br><em style="color:#f59e0b;">If asked what it is about:</em> '+
+    '"We analyzed your profile and noticed you have '+reviewText+'. In your market that is costing you leads every day to competitors with stronger ratings. I want to connect you with Brett Duncan for a quick 15-minute Zoom. No cost, no obligation."';
+
+  document.getElementById('scriptModal').style.display = 'flex';
+}
+
+function closeScriptModal() {
+  document.getElementById('scriptModal').style.display = 'none';
+  currentApptLead = null;
+}
+
+async function logApptCall(type) {
+  if (!currentApptLead) return;
+  var setter = document.getElementById('setterName').value;
+  var statusMap = { noanswer: '📞 Called — No Answer', voicemail: '📱 Left Voicemail', notinterested: '❌ Not Interested' };
+  var newStatus = statusMap[type];
+  var days = type==='voicemail' ? 3 : type==='noanswer' ? 2 : null;
+  var fuDate = null;
+  if (days) { var d=new Date(); d.setDate(d.getDate()+days); fuDate=d.toISOString().slice(0,10); }
+  var noteTag = ' [Setter: '+setter+' '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})+']';
+  var updatedNotes = (currentApptLead.notes||'') + noteTag;
+  try {
+    var patch = { sales_status: newStatus, last_called: new Date().toISOString(), call_attempts: (currentApptLead.call_attempts||0)+1, notes: updatedNotes };
+    if (fuDate) patch.follow_up_date = fuDate;
+    await sb('PATCH','leads',patch,'?id=eq.'+currentApptLead.id);
+    Object.assign(currentApptLead, patch);
+    toast('Logged: '+newStatus+(fuDate?' · Callback: '+fuDate:''));
+    closeScriptModal();
+    loadApptLeads();
+  } catch(e) { toast('Error logging call'); }
+}
+
+function openApptForm() {
+  if (!currentApptLead) return;
+  var firstName = (currentApptLead.contact_name||'Prospect').split(' ')[0];
+  document.getElementById('apptFormInfo').innerHTML = 'Booking Zoom for <strong style="color:#fff;">'+esc(firstName)+'</strong> at <strong style="color:#fff;">'+esc(currentApptLead.company_name||'')+'</strong>';
+  document.getElementById('apptDateTime').value = '';
+  document.getElementById('apptNotes').value = '';
+  document.getElementById('scriptModal').style.display = 'none';
+  document.getElementById('apptFormModal').style.display = 'flex';
+}
+
+function closeApptForm() {
+  document.getElementById('apptFormModal').style.display = 'none';
+  document.getElementById('scriptModal').style.display = 'flex';
+}
+
+async function sendApptToBrett() {
+  if (!currentApptLead) return;
+  var dateVal = document.getElementById('apptDateTime').value;
+  var notes   = document.getElementById('apptNotes').value;
+  var setter  = document.getElementById('setterName').value;
+  if (!dateVal) { alert('Please select a date and time.'); return; }
+  var zoomDate  = new Date(dateVal).toISOString();
+  var fullNotes = '[Set by '+setter+'] '+notes;
+  try {
+    await sb('PATCH','leads',{
+      sales_status:'📅 Zoom Scheduled', zoom_date:zoomDate,
+      zoom_link:'https://calendly.com/mobilewise-ai/30min',
+      sales_notes:fullNotes, status:'📧 Emailed',
+      last_called:new Date().toISOString(),
+      call_attempts:(currentApptLead.call_attempts||0)+1
+    },'?id=eq.'+currentApptLead.id);
+    closeApptForm(); closeScriptModal();
+    toast('Appointment sent to Brett! ' + new Date(zoomDate).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
+    loadApptLeads();
+  } catch(e) { toast('Error — try again'); }
+}
+
+window.toggleApptView=toggleApptView; window.loadApptLeads=loadApptLeads;
+window.renderApptLeads=renderApptLeads; window.openScriptModal=openScriptModal;
+window.closeScriptModal=closeScriptModal; window.logApptCall=logApptCall;
+window.openApptForm=openApptForm; window.closeApptForm=closeApptForm;
+window.sendApptToBrett=sendApptToBrett; window.scriptZoom=scriptZoom;
+window.exportToAppointmentQueue=exportToAppointmentQueue;
+</script>
 </body>
 </html>
