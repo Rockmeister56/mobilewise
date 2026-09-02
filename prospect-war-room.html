@@ -120,7 +120,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
       <input type="number" id="exportCount" value="60" min="1" max="500" style="width:65px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.3);border-radius:20px;color:#0ea5e9;font-size:0.78rem;padding:6px 10px;outline:none;font-family:inherit;text-align:center;">
       <button class="btn btn-ghost" onclick="exportToBrett()" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.35);color:#0ea5e9;">📤 Export to Brett</button>
     </div>
-    <button class="btn btn-ghost" onclick="toggleApptView()" id="apptViewBtn" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">📞 Appointment Setter</button>
+    <button class="btn btn-ghost" id="apptViewBtn" onclick="toggleApptView()" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">📞 Appointment Setter</button>
     <div class="conn-dot" id="connDot">Connecting...</div>
   </div>
 </div>
@@ -608,51 +608,39 @@ async function exportToBrett() {
   if (!confirmed) return;
 
   const ids = batch.map(l => l.id);
-  // Download 1: Voicemail CSV
-  var vmCsv = '';
-  batch.forEach(function(l) {
-    var phone = (l.phone||'').replace(/\D/g,'');
-    var firstName = (l.contact_name||'').split(' ')[0] || 'Friend';
-    if (phone.length >= 10) vmCsv += phone + ',' + firstName + '\n';
+
+  // 1. Voicemail CSV
+  let vmCsv = '';
+  batch.forEach(l => {
+    const ph = (l.phone||'').replace(/\D/g,'');
+    const fn = (l.contact_name||'').split(' ')[0]||'Friend';
+    if (ph.length>=10) vmCsv += ph+','+fn+'\n';
   });
   if (vmCsv) {
-    var a1 = document.createElement('a');
-    a1.href = URL.createObjectURL(new Blob([vmCsv],{type:'text/csv'}));
-    a1.download = 'voicemail-' + new Date().toISOString().slice(0,10) + '.csv';
+    const a1=document.createElement('a');
+    a1.href=URL.createObjectURL(new Blob([vmCsv],{type:'text/csv'}));
+    a1.download='voicemail-'+new Date().toISOString().slice(0,10)+'.csv';
     a1.click();
   }
 
-  // Download 2: Email CSV
-  var withEmail = batch.filter(function(l) { return l.email && l.email.trim(); });
+  // 2. Email CSV
+  const withEmail=batch.filter(l=>l.email&&l.email.trim());
   if (withEmail.length) {
-    var emailCsv = 'FirstName,Email,Reviews\n';
-    withEmail.forEach(function(l) {
-      var fn = (l.contact_name||'').split(' ')[0] || 'Friend';
-      emailCsv += '"' + fn.replace(/"/g,'') + '","' + (l.email||'').replace(/"/g,'') + '","' + (l.reviews||'') + '"\n';
+    let ec='FirstName,Email,Reviews\n';
+    withEmail.forEach(l=>{
+      const fn=(l.contact_name||'').split(' ')[0]||'Friend';
+      ec+='"'+fn.replace(/"/g,'')+'","'+(l.email||'').replace(/"/g,'')+'","'+(l.reviews||'')+'"\n';
     });
-    setTimeout(function() {
-      var a2 = document.createElement('a');
-      a2.href = URL.createObjectURL(new Blob([emailCsv],{type:'text/csv'}));
-      a2.download = 'email-batch-' + new Date().toISOString().slice(0,10) + '.csv';
-      a2.click();
-    }, 600);
+    setTimeout(()=>{ const a2=document.createElement('a'); a2.href=URL.createObjectURL(new Blob([ec],{type:'text/csv'})); a2.download='email-batch-'+new Date().toISOString().slice(0,10)+'.csv'; a2.click(); },600);
   }
 
-  // Tag as Appointment Queue
+  // 3. Tag as Appointment Queue
   try {
-    await sb('PATCH', 'leads',
-      { status: '🔔 Appointment Queue', scraped_date: new Date().toISOString().slice(0,10) },
-      '?id=in.(' + ids.join(',') + ')'
-    );
-    batch.forEach(function(l) { l.status = '🔔 Appointment Queue'; });
-    renderLeads();
-    updateStats();
-    var vm = batch.filter(function(l){ return (l.phone||'').replace(/\D/g,'').length>=10; }).length;
-    toast('Done! ' + vm + ' voicemail · ' + withEmail.length + ' email · ' + batch.length + ' in appointment queue');
-  } catch(e) {
-    console.error('Export failed:', e);
-    toast('CSVs downloaded but tag failed — refresh and retry');
-  }
+    await sb('PATCH','leads',{status:'🔔 Appointment Queue',scraped_date:new Date().toISOString().slice(0,10)},'?id=in.('+ids.join(',')+')');
+    batch.forEach(l=>{l.status='🔔 Appointment Queue';});
+    renderLeads(); updateStats();
+    toast('✅ '+batch.length+' leads: voicemail CSV + email CSV + appointment queue tagged');
+  } catch(e) { console.error(e); toast('CSVs downloaded but tag failed'); }
 }
 
 async function exportForEmail() {
@@ -788,10 +776,198 @@ document.addEventListener('change', e => {
   if (e.target.classList.contains('lead-check')) updateBulkBar();
 });
 window.closeModal=closeModal; window.copyModal=copyModal; window.exportCSV=exportCSV;
-</script>
-</body>
-</html>
 
+// ── APPOINTMENT SETTER ─────────────────────────────────────
+var apptLeads=[], currentApptLead=null, scriptFontSize=0.92;
+
+function scriptZoom(dir){
+  scriptFontSize=Math.min(1.4,Math.max(0.7,scriptFontSize+(dir*0.08)));
+  var el=document.getElementById('scriptTextBody');
+  if(el) el.style.fontSize=scriptFontSize+'rem';
+}
+
+function toggleApptView(){
+  var panel=document.getElementById('panel-appt');
+  var main=document.getElementById('mainContent');
+  var btn=document.getElementById('apptViewBtn');
+  if(!panel){console.error('panel-appt not found');return;}
+  if(panel.style.display==='block'){
+    panel.style.display='none';
+    if(main) main.style.display='block';
+    btn.textContent='📞 Appointment Setter';
+    btn.style.color='#a855f7';
+    btn.style.background='rgba(168,85,247,0.1)';
+  } else {
+    panel.style.display='block';
+    if(main) main.style.display='none';
+    btn.textContent='← Back to War Room';
+    btn.style.color='rgba(255,255,255,0.65)';
+    btn.style.background='rgba(255,255,255,0.06)';
+    loadApptLeads();
+  }
+}
+
+async function exportToAppointmentQueue(){
+  var checked=document.querySelectorAll('.lead-check:checked');
+  var ids=checked.length ? Array.from(checked).map(function(cb){return parseInt(cb.dataset.id);}) : allLeads.filter(function(l){return l.phone&&l.status!=='📦 Archived';}).slice(0,20).map(function(l){return l.id;});
+  if(!ids.length){toast('No leads to tag');return;}
+  if(!confirm('Tag '+ids.length+' lead'+(ids.length!==1?'s':'')+' as Appointment Queue?')) return;
+  try{
+    await sb('PATCH','leads',{status:'🔔 Appointment Queue'},'?id=in.('+ids.join(',')+')');
+    ids.forEach(function(id){var l=allLeads.find(function(x){return x.id===id;});if(l)l.status='🔔 Appointment Queue';});
+    renderLeads();updateStats();toast('🔔 '+ids.length+' tagged as Appointment Queue');
+  }catch(e){toast('Error — try again');}
+}
+
+async function loadApptLeads(){
+  var el=document.getElementById('apptLeadsList');
+  el.innerHTML='<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);">Loading...</div>';
+  try{
+    var r=await sb('GET','leads',null,'?status=eq.'+encodeURIComponent('🔔 Appointment Queue')+'&order=created_at.desc&limit=200');
+    apptLeads=Array.isArray(r)?r:[];
+    renderApptLeads();
+    updateApptStats();
+  }catch(e){console.error(e);el.innerHTML='<div style="text-align:center;padding:30px;color:#ef4444;">Failed to load</div>';}
+}
+
+function updateApptStats(){
+  document.getElementById('appt-total').textContent=apptLeads.length;
+  document.getElementById('appt-set').textContent=apptLeads.filter(function(l){return l.sales_status==='📅 Zoom Scheduled';}).length;
+  document.getElementById('appt-noanswer').textContent=apptLeads.filter(function(l){return l.sales_status==='📞 Called — No Answer';}).length;
+  document.getElementById('appt-notint').textContent=apptLeads.filter(function(l){return l.sales_status==='❌ Not Interested';}).length;
+}
+
+function renderApptLeads(){
+  var el=document.getElementById('apptLeadsList');
+  var cbEl=document.getElementById('callbacksList');
+  var cbSec=document.getElementById('callbacksSection');
+  var sf=document.getElementById('setterFilter').value;
+  var stf=document.getElementById('apptStatusFilter').value;
+  var today=new Date().toISOString().slice(0,10);
+  if(!apptLeads.length){
+    if(cbSec)cbSec.style.display='none';
+    el.innerHTML='<div style="text-align:center;padding:60px;color:rgba(255,255,255,0.3);"><div style="font-size:2.5rem;margin-bottom:12px;">📞</div><div>No leads in appointment queue.<br>Use Export to Brett to add leads.</div></div>';
+    return;
+  }
+  var cbs=apptLeads.filter(function(l){return l.follow_up_date&&l.follow_up_date<=today&&(l.sales_status==='📞 Called — No Answer'||l.sales_status==='📱 Left Voicemail');});
+  if(cbSec&&cbs.length){cbSec.style.display='block';cbEl.innerHTML=cbs.map(function(l){return renderApptCard(l,today);}).join('');}
+  else if(cbSec){cbSec.style.display='none';}
+  var data=apptLeads.slice();
+  if(sf) data=data.filter(function(l){return (l.notes||'').indexOf('[Setter:'+sf+']')!==-1;});
+  if(stf==='new') data=data.filter(function(l){return !l.call_attempts;});
+  else if(stf==='vm') data=data.filter(function(l){return l.sales_status==='📱 Left Voicemail';});
+  else if(stf==='noanswer') data=data.filter(function(l){return l.sales_status==='📞 Called — No Answer';});
+  else if(stf==='set') data=data.filter(function(l){return l.sales_status==='📅 Zoom Scheduled';});
+  else if(stf==='notint') data=data.filter(function(l){return l.sales_status==='❌ Not Interested';});
+  else if(stf==='callbacks') data=data.filter(function(l){return l.follow_up_date&&l.follow_up_date<=today;});
+  var lbl=document.getElementById('apptLeadsLabel');
+  if(lbl) lbl.textContent=data.length+' Lead'+(data.length!==1?'s':'')+' in Queue';
+  el.innerHTML=data.length?data.map(function(l){return renderApptCard(l,today);}).join(''):'<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">No leads match this filter.</div>';
+}
+
+function renderApptCard(l,today){
+  var isCB=l.follow_up_date&&l.follow_up_date<=today;
+  var att=l.call_attempts||0;
+  var sm=(l.notes||'').match(/\[Setter:([^\]]+)\]/);
+  var who=sm?sm[1]:null;
+  var cn=(l.notes||'').replace(/\[Setter:[^\]]+\]/g,'').replace(/\|/g,'').trim();
+  return '<div style="background:#071628;border:1px solid '+(isCB?'rgba(245,158,11,0.4)':'rgba(255,255,255,0.07)')+';border-left:3px solid '+(isCB?'#f59e0b':'rgba(168,85,247,0.5)')+';border-radius:14px;padding:16px;margin-bottom:10px;">'
+    +'<div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;">'
+      +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:0.95rem;font-weight:700;color:#fff;">'+esc(l.company_name||'—')+'</div>'
+        +'<div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:2px;">'+esc(l.contact_name||'')+'</div>'
+        +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">'
+          +(l.reviews?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#34a853;border:1px solid rgba(52,168,83,0.3);">⭐ '+l.reviews+' Reviews</span>':'')
+          +(l.city?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#94a3b8;border:1px solid rgba(148,163,184,0.2);">📍 '+esc(l.city)+'</span>':'')
+          +(l.sales_status?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#a855f7;border:1px solid rgba(168,85,247,0.3);">'+esc(l.sales_status)+'</span>':'')
+          +(who?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);">👤 '+esc(who)+'</span>':'')
+          +(att>0?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#f59e0b;border:1px solid rgba(245,158,11,0.25);">'+att+' attempt'+(att!==1?'s':'')+'</span>':'')
+          +(isCB?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);">⚠️ CALLBACK DUE</span>':'')
+        +'</div>'
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0;">'
+        +'<div style="font-size:0.9rem;font-weight:700;color:#f59e0b;">'+(l.phone||'—')+'</div>'
+        +(l.email?'<div style="font-size:0.68rem;color:#34a853;margin-top:3px;">'+esc(l.email)+'</div>':'')
+      +'</div>'
+    +'</div>'
+    +(cn?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.45);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);margin-bottom:10px;">'+esc(cn)+'</div>':'')
+    +(l.sales_notes?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:6px 10px;background:rgba(168,85,247,0.04);border-radius:6px;border-left:2px solid rgba(168,85,247,0.2);margin-bottom:10px;font-style:italic;">'+esc(l.sales_notes)+'</div>':'')
+    +'<button onclick="openScriptModal('+l.id+')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;">📋 View Script &amp; Call</button>'
+  +'</div>';
+}
+
+function openScriptModal(id){
+  currentApptLead=null;
+  for(var i=0;i<apptLeads.length;i++){if(apptLeads[i].id===id){currentApptLead=apptLeads[i];break;}}
+  if(!currentApptLead) return;
+  var l=currentApptLead;
+  var setter=document.getElementById('setterName').value;
+  var fn=(l.contact_name||'Prospect').split(' ')[0];
+  var rv=l.reviews?l.reviews+' reviews':'a limited number of reviews';
+  document.getElementById('scriptProspectInfo').innerHTML='<strong style="color:#a855f7;">'+esc(l.company_name||'—')+'</strong> &nbsp;·&nbsp; '+esc(fn)+' &nbsp;·&nbsp; <a href="tel:'+(l.phone||'').replace(/\D/g,'')+'" style="color:#f59e0b;font-weight:700;text-decoration:none;">'+esc(l.phone||'—')+'</a>'+(l.reviews?' &nbsp;·&nbsp; <span style="color:#34a853;">⭐ '+l.reviews+'</span>':'');
+  document.getElementById('scriptGatekeeper').innerHTML='"Hi, this is '+setter+' with Revuee. I am following up on a voicemail I left for '+fn+'. Could you let them know '+setter+' with Revuee is on the phone? It is regarding an urgent matter about their Google reviews."<br><br><em style="color:#f59e0b;">If asked for more info:</em> "We are a preferred solution provider for Google Business Profile and I need to speak with '+fn+' regarding an important issue with the Google review algorithm affecting their ranking. Could you let them know it is time sensitive?"';
+  document.getElementById('scriptProspect').innerHTML='"Hi '+fn+', this is '+setter+' with Revuee. I am following up on a voicemail about your Google Business Profile. Do you have two minutes?"<br><br><em style="color:#f59e0b;">If asked what it is about:</em> "We analyzed your profile and noticed you have '+rv+'. In your market that is costing you leads every day to competitors with stronger ratings. I want to connect you with Brett Duncan for a quick 15-minute Zoom. No cost, no obligation."';
+  document.getElementById('scriptModal').style.display='flex';
+}
+
+function closeScriptModal(){document.getElementById('scriptModal').style.display='none';currentApptLead=null;}
+
+async function logApptCall(type){
+  if(!currentApptLead) return;
+  var setter=document.getElementById('setterName').value;
+  var sm={noanswer:'📞 Called — No Answer',voicemail:'📱 Left Voicemail',notinterested:'❌ Not Interested'};
+  var ns=sm[type];
+  var days=type==='voicemail'?3:type==='noanswer'?2:null;
+  var fu=null;
+  if(days){var d=new Date();d.setDate(d.getDate()+days);fu=d.toISOString().slice(0,10);}
+  var patch={sales_status:ns,last_called:new Date().toISOString(),call_attempts:(currentApptLead.call_attempts||0)+1,notes:(currentApptLead.notes||'')+' [Setter:'+setter+']'};
+  if(fu) patch.follow_up_date=fu;
+  try{
+    await sb('PATCH','leads',patch,'?id=eq.'+currentApptLead.id);
+    Object.assign(currentApptLead,patch);
+    toast('Logged: '+ns+(fu?' · Callback: '+fu:''));
+    closeScriptModal();loadApptLeads();
+  }catch(e){toast('Error logging call');}
+}
+
+function openApptForm(){
+  if(!currentApptLead) return;
+  var fn=(currentApptLead.contact_name||'Prospect').split(' ')[0];
+  document.getElementById('apptFormInfo').innerHTML='Booking Zoom for <strong style="color:#fff;">'+esc(fn)+'</strong> at <strong style="color:#fff;">'+esc(currentApptLead.company_name||'')+'</strong>';
+  document.getElementById('apptDateTime').value='';
+  document.getElementById('apptNotes').value='';
+  document.getElementById('scriptModal').style.display='none';
+  document.getElementById('apptFormModal').style.display='flex';
+}
+
+function closeApptForm(){document.getElementById('apptFormModal').style.display='none';document.getElementById('scriptModal').style.display='flex';}
+
+async function sendApptToBrett(){
+  if(!currentApptLead) return;
+  var dv=document.getElementById('apptDateTime').value;
+  var notes=document.getElementById('apptNotes').value;
+  var setter=document.getElementById('setterName').value;
+  if(!dv){alert('Please select a date and time.');return;}
+  var zd=new Date(dv).toISOString();
+  try{
+    await sb('PATCH','leads',{sales_status:'📅 Zoom Scheduled',zoom_date:zd,zoom_link:'https://calendly.com/mobilewise-ai/30min',sales_notes:'[Set by '+setter+'] '+notes,status:'📧 Emailed',last_called:new Date().toISOString(),call_attempts:(currentApptLead.call_attempts||0)+1},'?id=eq.'+currentApptLead.id);
+    closeApptForm();closeScriptModal();
+    toast('Appointment sent to Brett! '+new Date(zd).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
+    loadApptLeads();
+  }catch(e){toast('Error — try again');}
+}
+
+window.toggleApptView=toggleApptView;window.exportToAppointmentQueue=exportToAppointmentQueue;
+window.loadApptLeads=loadApptLeads;window.renderApptLeads=renderApptLeads;
+window.openScriptModal=openScriptModal;window.closeScriptModal=closeScriptModal;
+window.logApptCall=logApptCall;window.openApptForm=openApptForm;
+window.closeApptForm=closeApptForm;window.sendApptToBrett=sendApptToBrett;window.scriptZoom=scriptZoom;
+
+</script>
+
+<div id="mainContent-marker" style="display:none;"></div>
+
+</div><!-- end mainContent -->
 <div id="panel-appt" style="display:none;padding:20px;max-width:1400px;margin:0 auto;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
     <div><div style="font-size:1.1rem;font-weight:700;color:#a855f7;">📞 Appointment Setter</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:2px;">Leads tagged for appointment setting</div></div>
@@ -818,9 +994,9 @@ window.closeModal=closeModal; window.copyModal=copyModal; window.exportCSV=expor
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <div style="font-size:1rem;font-weight:700;color:#a855f7;">Calling Script</div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <button onclick="scriptZoom(-1)" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:2px 8px;cursor:pointer;font-family:inherit;font-size:0.85rem;font-weight:700;">A-</button>
-        <button onclick="scriptZoom(1)" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:2px 8px;cursor:pointer;font-family:inherit;font-size:1rem;font-weight:700;">A+</button>
-        <button onclick="closeScriptModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;font-family:inherit;line-height:30px;text-align:center;">X</button>
+        <button onclick="scriptZoom(-1)" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:2px 8px;cursor:pointer;font-size:0.85rem;font-weight:700;">A-</button>
+        <button onclick="scriptZoom(1)" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:2px 8px;cursor:pointer;font-size:1rem;font-weight:700;">A+</button>
+        <button onclick="closeScriptModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;line-height:30px;text-align:center;">X</button>
       </div>
     </div>
     <div id="scriptProspectInfo" style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.85rem;line-height:1.7;color:rgba(255,255,255,0.8);"></div>
@@ -831,17 +1007,17 @@ window.closeModal=closeModal; window.copyModal=copyModal; window.exportCSV=expor
       <div id="scriptProspect" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:14px;border-left:3px solid #22c55e;"></div>
       <div style="font-size:0.75rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Common Objections</div>
       <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:16px;border-left:3px solid #f59e0b;">
-        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">Not interested</strong><br><em>I completely respect that. Are you happy with where you are showing up on Google right now? Most of our clients said the same until they saw what 20 more reviews did for their ranking. Free 15-minute call. Would next week work?</em></div>
-        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">How much does it cost?</strong><br><em>That is exactly what the Zoom is for. Brett customizes it based on your business size. Most clients find it pays for itself in the first month. Can I get you on his calendar?</em></div>
-        <div><strong style="color:#f59e0b;">Send me an email</strong><br><em>Absolutely. I actually just sent one over. But I would hate for you to miss this. It only takes 15 minutes and Brett will show you exactly what is happening on your Google profile. What day works best?</em></div>
+        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">Not interested</strong><br><em>I completely respect that. Are you happy with where you are showing up on Google? Most clients said the same until they saw what 20 more reviews did. Free 15-minute call. Would next week work?</em></div>
+        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">How much does it cost?</strong><br><em>That is exactly what the Zoom is for. Brett customizes it for your business. Most clients find it pays for itself in the first month. Can I get you on his calendar?</em></div>
+        <div><strong style="color:#f59e0b;">Send me an email</strong><br><em>Absolutely. I just sent one over. But it only takes 15 minutes and Brett will show you exactly what is happening on your Google profile. What day works best?</em></div>
       </div>
     </div>
     <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Call Outcome</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button onclick="openApptForm()" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:#22c55e;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;">Set Appointment</button>
-      <button onclick="logApptCall('noanswer')" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;">No Answer</button>
-      <button onclick="logApptCall('voicemail')" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#f59e0b;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;">Left VM</button>
-      <button onclick="logApptCall('notinterested')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;">Not Interested</button>
+      <button onclick="openApptForm()" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:#22c55e;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">Set Appointment</button>
+      <button onclick="logApptCall('noanswer')" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">No Answer</button>
+      <button onclick="logApptCall('voicemail')" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#f59e0b;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">Left VM</button>
+      <button onclick="logApptCall('notinterested')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">Not Interested</button>
     </div>
   </div>
 </div>
@@ -851,264 +1027,14 @@ window.closeModal=closeModal; window.copyModal=copyModal; window.exportCSV=expor
     <div style="font-size:1rem;font-weight:700;color:#22c55e;margin-bottom:16px;">Book Appointment</div>
     <div id="apptFormInfo" style="font-size:0.82rem;color:rgba(255,255,255,0.6);margin-bottom:16px;"></div>
     <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Zoom Date and Time</label>
-    <input type="datetime-local" id="apptDateTime" style="width:100%;background:#030b14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.85rem;padding:10px 12px;outline:none;margin-bottom:14px;font-family:inherit;">
+    <input type="datetime-local" id="apptDateTime" style="width:100%;background:#030b14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.85rem;padding:10px 12px;outline:none;margin-bottom:14px;">
     <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Notes for Brett</label>
-    <textarea id="apptNotes" rows="3" placeholder="What did they say? Key details Brett should know..." style="width:100%;background:#030b14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.85rem;padding:10px 12px;outline:none;resize:vertical;font-family:inherit;line-height:1.6;"></textarea>
+    <textarea id="apptNotes" rows="3" placeholder="Key details Brett should know..." style="width:100%;background:#030b14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.85rem;padding:10px 12px;outline:none;resize:vertical;line-height:1.6;"></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
-      <button onclick="closeApptForm()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);padding:8px 18px;border-radius:20px;font-size:0.8rem;cursor:pointer;font-family:inherit;">Cancel</button>
-      <button onclick="sendApptToBrett()" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#000;font-weight:700;padding:8px 20px;border-radius:20px;font-size:0.8rem;cursor:pointer;font-family:inherit;">Send to Brett</button>
+      <button onclick="closeApptForm()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);padding:8px 18px;border-radius:20px;font-size:0.8rem;cursor:pointer;">Cancel</button>
+      <button onclick="sendApptToBrett()" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#000;font-weight:700;padding:8px 20px;border-radius:20px;font-size:0.8rem;cursor:pointer;">Send to Brett</button>
     </div>
   </div>
 </div>
-
-<script>
-var apptLeads = [];
-var currentApptLead = null;
-var scriptFontSize = 0.92;
-
-function scriptZoom(dir) {
-  scriptFontSize = Math.min(1.4, Math.max(0.7, scriptFontSize + (dir * 0.08)));
-  var el = document.getElementById('scriptTextBody');
-  if (el) el.style.fontSize = scriptFontSize + 'rem';
-}
-
-function toggleApptView() {
-  var panel = document.getElementById('panel-appt');
-  var main  = document.getElementById('mainContent');
-  var btn   = document.getElementById('apptViewBtn');
-  if (!panel) { alert('Panel not found'); return; }
-  if (panel.style.display === 'none' || panel.style.display === '') {
-    panel.style.display = 'block';
-    if (main) main.style.display = 'none';
-    btn.textContent = 'Back to War Room';
-    btn.style.color = 'rgba(255,255,255,0.65)';
-    btn.style.background = 'rgba(255,255,255,0.06)';
-    loadApptLeads();
-  } else {
-    panel.style.display = 'none';
-    if (main) main.style.display = 'block';
-    btn.textContent = 'Appointment Setter';
-    btn.style.color = '#a855f7';
-    btn.style.background = 'rgba(168,85,247,0.1)';
-  }
-}
-
-async function loadApptLeads() {
-  var listEl = document.getElementById('apptLeadsList');
-  listEl.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);">Loading...</div>';
-  try {
-    var result = await sb('GET', 'leads', null, '?status=eq.' + encodeURIComponent('🔔 Appointment Queue') + '&order=created_at.desc&limit=200');
-    apptLeads = Array.isArray(result) ? result : [];
-    renderApptLeads();
-    updateApptStats();
-  } catch(e) {
-    console.error('loadApptLeads error:', e);
-    listEl.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;">Failed to load — check connection</div>';
-  }
-}
-
-function updateApptStats() {
-  document.getElementById('appt-total').textContent    = apptLeads.length;
-  document.getElementById('appt-set').textContent      = apptLeads.filter(function(l){return l.sales_status==='📅 Zoom Scheduled';}).length;
-  document.getElementById('appt-noanswer').textContent = apptLeads.filter(function(l){return l.sales_status==='📞 Called — No Answer';}).length;
-  document.getElementById('appt-notint').textContent   = apptLeads.filter(function(l){return l.sales_status==='❌ Not Interested';}).length;
-}
-
-function renderApptLeads() {
-  var listEl    = document.getElementById('apptLeadsList');
-  var cbListEl  = document.getElementById('callbacksList');
-  var cbSection = document.getElementById('callbacksSection');
-  var setterF   = document.getElementById('setterFilter').value;
-  var statusF   = document.getElementById('apptStatusFilter').value;
-  var today     = new Date().toISOString().slice(0,10);
-
-  if (!apptLeads.length) {
-    if (cbSection) cbSection.style.display = 'none';
-    listEl.innerHTML = '<div style="text-align:center;padding:60px;color:rgba(255,255,255,0.3);"><div style="font-size:2.5rem;margin-bottom:12px;">📞</div><div>No leads in appointment queue yet.<br>Use the Export button to add leads.</div></div>';
-    return;
-  }
-
-  var callbacks = apptLeads.filter(function(l) {
-    return l.follow_up_date && l.follow_up_date <= today && ['📞 Called — No Answer','📱 Left Voicemail'].includes(l.sales_status||'');
-  });
-  if (cbSection && callbacks.length) {
-    cbSection.style.display = 'block';
-    cbListEl.innerHTML = callbacks.map(function(l){ return renderApptCard(l, today); }).join('');
-  } else if (cbSection) {
-    cbSection.style.display = 'none';
-  }
-
-  var data = apptLeads.slice();
-  if (setterF) data = data.filter(function(l){ return (l.notes||'').indexOf('[Setter: '+setterF+']') !== -1; });
-  if (statusF === 'new')       data = data.filter(function(l){ return !l.sales_status || !l.call_attempts; });
-  else if (statusF === 'vm')        data = data.filter(function(l){ return l.sales_status === '📱 Left Voicemail'; });
-  else if (statusF === 'noanswer')  data = data.filter(function(l){ return l.sales_status === '📞 Called — No Answer'; });
-  else if (statusF === 'set')       data = data.filter(function(l){ return l.sales_status === '📅 Zoom Scheduled'; });
-  else if (statusF === 'notint')    data = data.filter(function(l){ return l.sales_status === '❌ Not Interested'; });
-  else if (statusF === 'callbacks') data = data.filter(function(l){ return l.follow_up_date && l.follow_up_date <= today; });
-
-  var label = document.getElementById('apptLeadsLabel');
-  if (label) label.textContent = data.length + ' Lead' + (data.length!==1?'s':'') + ' in Queue';
-
-  listEl.innerHTML = data.length
-    ? data.map(function(l){ return renderApptCard(l, today); }).join('')
-    : '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">No leads match this filter.</div>';
-}
-
-function renderApptCard(l, today) {
-  var isCallback  = l.follow_up_date && l.follow_up_date <= today;
-  var attempts    = l.call_attempts || 0;
-  var sm = (l.notes||'').match(/\[Setter: ([^\]]+)\]/);
-  var assignedTo  = sm ? sm[1] : null;
-  var cleanNotes  = (l.notes||'').replace(/\[Setter:[^\]]+\]/g,'').replace(/\|/g,'').trim();
-
-  return '<div style="background:#071628;border:1px solid '+(isCallback?'rgba(245,158,11,0.4)':'rgba(255,255,255,0.07)')+';border-left:3px solid '+(isCallback?'#f59e0b':'rgba(168,85,247,0.5)')+';border-radius:14px;padding:16px;margin-bottom:10px;">'
-    +'<div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;">'
-      +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-size:0.95rem;font-weight:700;color:#fff;">'+esc(l.company_name||'—')+'</div>'
-        +'<div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:2px;">'+esc(l.contact_name||'')+'</div>'
-        +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">'
-          +(l.reviews?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#34a853;border:1px solid rgba(52,168,83,0.3);background:rgba(52,168,83,0.08);">⭐ '+l.reviews+' Reviews</span>':'')
-          +(l.city?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#94a3b8;border:1px solid rgba(148,163,184,0.2);">📍 '+esc(l.city)+'</span>':'')
-          +(l.sales_status?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#a855f7;border:1px solid rgba(168,85,247,0.3);">'+esc(l.sales_status)+'</span>':'')
-          +(assignedTo?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);">👤 '+esc(assignedTo)+'</span>':'')
-          +(attempts>0?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#f59e0b;border:1px solid rgba(245,158,11,0.25);">'+attempts+' attempt'+(attempts!==1?'s':'')+'</span>':'')
-          +(isCallback?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);">⚠️ CALLBACK DUE</span>':'')
-          +(l.follow_up_date&&!isCallback?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#f59e0b;border:1px solid rgba(245,158,11,0.2);">📅 '+l.follow_up_date+'</span>':'')
-        +'</div>'
-      +'</div>'
-      +'<div style="text-align:right;flex-shrink:0;">'
-        +'<div style="font-size:0.9rem;font-weight:700;color:#f59e0b;">'+(l.phone||'—')+'</div>'
-        +(l.email?'<div style="font-size:0.68rem;color:#34a853;margin-top:3px;">'+esc(l.email)+'</div>':'')
-      +'</div>'
-    +'</div>'
-    +(cleanNotes?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.45);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);margin-bottom:10px;"><span style="color:#0ea5e9;font-weight:700;font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;">Notes: </span>'+esc(cleanNotes)+'</div>':'')
-    +(l.sales_notes?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:6px 10px;background:rgba(168,85,247,0.04);border-radius:6px;border-left:2px solid rgba(168,85,247,0.2);margin-bottom:10px;font-style:italic;">'+esc(l.sales_notes)+'</div>':'')
-    +'<div style="display:flex;gap:6px;flex-wrap:wrap;">'
-      +'<button onclick="openScriptModal('+l.id+')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;">📋 View Script &amp; Call</button>'
-    +'</div>'
-  +'</div>';
-}
-
-function openScriptModal(id) {
-  currentApptLead = null;
-  for (var i=0; i<apptLeads.length; i++) { if (apptLeads[i].id===id) { currentApptLead=apptLeads[i]; break; } }
-  if (!currentApptLead) return;
-  var l = currentApptLead;
-  var setter = document.getElementById('setterName').value;
-  var firstName = (l.contact_name||'Prospect').split(' ')[0];
-  var reviewText = l.reviews ? l.reviews + ' reviews' : 'a limited number of reviews';
-
-  document.getElementById('scriptProspectInfo').innerHTML =
-    '<strong style="color:#a855f7;">'+esc(l.company_name||'—')+'</strong> &nbsp;·&nbsp; '+esc(firstName)+
-    ' &nbsp;·&nbsp; <a href="tel:'+(l.phone||'').replace(/\D/g,'')+'" style="color:#f59e0b;font-weight:700;text-decoration:none;">'+esc(l.phone||'—')+'</a>'+
-    (l.reviews?' &nbsp;·&nbsp; <span style="color:#34a853;">⭐ '+l.reviews+' reviews</span>':'');
-
-  document.getElementById('scriptGatekeeper').innerHTML =
-    '"Hi, this is '+setter+' with Revuee. I am following up on a voicemail I left for '+firstName+'. Could you let them know '+setter+' with Revuee is on the phone? It is regarding an urgent matter about their Google reviews."'+
-    '<br><br><em style="color:#f59e0b;">If asked for more info:</em> '+
-    '"We are a preferred solution provider for Google Business Profile. I need to speak with '+firstName+' regarding an important issue with the Google review algorithm affecting their ranking. Could you let them know it is time sensitive?"';
-
-  document.getElementById('scriptProspect').innerHTML =
-    '"Hi '+firstName+', this is '+setter+' with Revuee. I am following up on a voicemail about your Google Business Profile. Do you have two minutes?"'+
-    '<br><br><em style="color:#f59e0b;">If asked what it is about:</em> '+
-    '"We analyzed your profile and noticed you have '+reviewText+'. In your market that is costing you leads every day to competitors with stronger ratings. I want to connect you with Brett Duncan for a quick 15-minute Zoom. No cost, no obligation."';
-
-  document.getElementById('scriptModal').style.display = 'flex';
-}
-
-function closeScriptModal() {
-  document.getElementById('scriptModal').style.display = 'none';
-  currentApptLead = null;
-}
-
-async function logApptCall(type) {
-  if (!currentApptLead) return;
-  var setter = document.getElementById('setterName').value;
-  var statusMap = { noanswer: '📞 Called — No Answer', voicemail: '📱 Left Voicemail', notinterested: '❌ Not Interested' };
-  var newStatus = statusMap[type];
-  var days = type==='voicemail' ? 3 : type==='noanswer' ? 2 : null;
-  var fuDate = null;
-  if (days) { var d=new Date(); d.setDate(d.getDate()+days); fuDate=d.toISOString().slice(0,10); }
-  var noteTag = ' [Setter: '+setter+' '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})+']';
-  var updatedNotes = (currentApptLead.notes||'') + noteTag;
-  try {
-    var patch = { sales_status: newStatus, last_called: new Date().toISOString(), call_attempts: (currentApptLead.call_attempts||0)+1, notes: updatedNotes };
-    if (fuDate) patch.follow_up_date = fuDate;
-    await sb('PATCH','leads',patch,'?id=eq.'+currentApptLead.id);
-    Object.assign(currentApptLead, patch);
-    toast('Logged: '+newStatus+(fuDate?' · Callback: '+fuDate:''));
-    closeScriptModal();
-    loadApptLeads();
-  } catch(e) { toast('Error logging call'); }
-}
-
-function openApptForm() {
-  if (!currentApptLead) return;
-  var firstName = (currentApptLead.contact_name||'Prospect').split(' ')[0];
-  document.getElementById('apptFormInfo').innerHTML = 'Booking Zoom for <strong style="color:#fff;">'+esc(firstName)+'</strong> at <strong style="color:#fff;">'+esc(currentApptLead.company_name||'')+'</strong>';
-  document.getElementById('apptDateTime').value = '';
-  document.getElementById('apptNotes').value = '';
-  document.getElementById('scriptModal').style.display = 'none';
-  document.getElementById('apptFormModal').style.display = 'flex';
-}
-
-function closeApptForm() {
-  document.getElementById('apptFormModal').style.display = 'none';
-  document.getElementById('scriptModal').style.display = 'flex';
-}
-
-async function sendApptToBrett() {
-  if (!currentApptLead) return;
-  var dateVal = document.getElementById('apptDateTime').value;
-  var notes   = document.getElementById('apptNotes').value;
-  var setter  = document.getElementById('setterName').value;
-  if (!dateVal) { alert('Please select a date and time.'); return; }
-  var zoomDate  = new Date(dateVal).toISOString();
-  var fullNotes = '[Set by '+setter+'] '+notes;
-  try {
-    await sb('PATCH','leads',{
-      sales_status:'📅 Zoom Scheduled', zoom_date:zoomDate,
-      zoom_link:'https://calendly.com/mobilewise-ai/30min',
-      sales_notes:fullNotes, status:'📧 Emailed',
-      last_called:new Date().toISOString(),
-      call_attempts:(currentApptLead.call_attempts||0)+1
-    },'?id=eq.'+currentApptLead.id);
-    closeApptForm(); closeScriptModal();
-    toast('Appointment sent to Brett! ' + new Date(zoomDate).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
-    loadApptLeads();
-  } catch(e) { toast('Error — try again'); }
-}
-
-window.toggleApptView=toggleApptView; window.loadApptLeads=loadApptLeads;
-window.renderApptLeads=renderApptLeads; window.openScriptModal=openScriptModal;
-window.closeScriptModal=closeScriptModal; window.logApptCall=logApptCall;
-window.openApptForm=openApptForm; window.closeApptForm=closeApptForm;
-window.sendApptToBrett=sendApptToBrett; window.scriptZoom=scriptZoom;
-window.exportToAppointmentQueue=exportToAppointmentQueue;
-
-async function exportToAppointmentQueue() {
-  var checked = document.querySelectorAll('.lead-check:checked');
-  var ids = [];
-  if (checked.length) {
-    ids = Array.from(checked).map(function(cb){ return parseInt(cb.dataset.id); });
-  } else {
-    var visible = allLeads.filter(function(l){ return l.phone && l.status !== '📦 Archived'; }).slice(0,20);
-    ids = visible.map(function(l){ return l.id; });
-  }
-  if (!ids.length) { toast('No leads to tag — select some first'); return; }
-  var confirmed = confirm('Tag ' + ids.length + ' lead' + (ids.length!==1?'s':'') + ' as Appointment Queue?');
-  if (!confirmed) return;
-  try {
-    await sb('PATCH','leads',{status:'🔔 Appointment Queue'},'?id=in.('+ids.join(',')+')');
-    ids.forEach(function(id){
-      var l=allLeads.find(function(x){return x.id===id;});
-      if(l) l.status='🔔 Appointment Queue';
-    });
-    renderLeads(); updateStats();
-    toast('🔔 ' + ids.length + ' leads tagged as Appointment Queue');
-  } catch(e) { toast('Error — try again'); }
-}
-</script>
 </body>
 </html>
