@@ -1086,6 +1086,29 @@ window.closeScriptModal=closeScriptModal; window.logApptCall=logApptCall;
 window.openApptForm=openApptForm; window.closeApptForm=closeApptForm;
 window.sendApptToBrett=sendApptToBrett; window.scriptZoom=scriptZoom;
 window.exportToAppointmentQueue=exportToAppointmentQueue;
+
+async function exportToAppointmentQueue() {
+  var checked = document.querySelectorAll('.lead-check:checked');
+  var ids = [];
+  if (checked.length) {
+    ids = Array.from(checked).map(function(cb){ return parseInt(cb.dataset.id); });
+  } else {
+    var visible = allLeads.filter(function(l){ return l.phone && l.status !== '📦 Archived'; }).slice(0,20);
+    ids = visible.map(function(l){ return l.id; });
+  }
+  if (!ids.length) { toast('No leads to tag — select some first'); return; }
+  var confirmed = confirm('Tag ' + ids.length + ' lead' + (ids.length!==1?'s':'') + ' as Appointment Queue?');
+  if (!confirmed) return;
+  try {
+    await sb('PATCH','leads',{status:'🔔 Appointment Queue'},'?id=in.('+ids.join(',')+')');
+    ids.forEach(function(id){
+      var l=allLeads.find(function(x){return x.id===id;});
+      if(l) l.status='🔔 Appointment Queue';
+    });
+    renderLeads(); updateStats();
+    toast('🔔 ' + ids.length + ' leads tagged as Appointment Queue');
+  } catch(e) { toast('Error — try again'); }
+}
 </script>
 </body>
 </html>
