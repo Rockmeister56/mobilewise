@@ -204,14 +204,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
   <div class="load-banner">
     <div class="load-banner-text">
-      <strong style="color:var(--green);">📬 Load Today's Batch from Tommy</strong><br>
-      Pulls the 20 most recent leads Tommy has emailed that you haven't worked yet.
+      <strong style="color:var(--green);">📅 Appointments Only</strong><br>
+      Leads appear here when Tommy, Ave or Brett book a Zoom. Refresh to see latest.
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      <button class="btn btn-amber" onclick="loadTodaysBatch()">⚡ Load Today's Batch</button>
+      <button class="btn btn-amber" onclick="refreshAll()">🔄 Refresh</button>
       <button class="btn btn-ghost" id="selectModeBtn" onclick="toggleSelectMode()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">☑️ Select Leads</button>
-      <button class="btn btn-ghost" onclick="downloadVoicemailCSV()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">📞 Export All for Voicemail</button>
-      <button class="btn btn-ghost" onclick="flushNewLeads()" style="border-color:rgba(239,68,68,0.4);color:#ef4444;">🗑️ Flush New Leads</button>
+      <button class="btn btn-ghost" onclick="downloadVoicemailCSV()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">📞 Export Voicemail CSV</button>
     </div>
   </div>
   <div id="selectionBar" style="display:none;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:12px 18px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
@@ -246,7 +245,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       </select>
     </div>
   </div>
-  <div id="queueList"><div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">Click <strong style="color:var(--accent);">Load Today's 20</strong> to pull your leads from Tommy — or scroll down to see leads already in your pipeline.</div></div>
+  <div id="queueList"><div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">Your booked appointments appear here automatically. Click <strong style="color:var(--accent);">Refresh</strong> to load the latest.</div></div>
 </div>
 
 <div class="panel" id="panel-pipeline">
@@ -370,11 +369,15 @@ document.addEventListener("DOMContentLoaded",async()=>{
 
 async function loadPipelineLeads(){
   try{
-    const data=await sb("GET","leads","","?order=created_at.desc&limit=3000&status=eq.\uD83D\uDCE7 Emailed&sales_status=not.is.null");
-    if(Array.isArray(data)) allLeads=[...allLeads,...data];
-    const active=await sb("GET","leads","","?order=created_at.desc&limit=1000&sales_status=in.(\uD83D\uDD25 Hot,\uD83D\uDCC5 Zoom Scheduled,\u2705 Zoom Complete,\uD83D\uDCC4 Proposal Sent,\uD83D\uDCB0 Closed Won)");
+    // Appointments only — load active pipeline leads
+    const active=await sb("GET","leads","","?order=zoom_date.asc&limit=1000&sales_status=in.(\uD83D\uDCC5 Zoom Scheduled,\u2705 Zoom Complete,\uD83D\uDCAC Contacted,\uD83D\uDCC4 Proposal Sent,\uD83D\uDD25 Hot,\uD83D\uDCB0 Closed Won)");
     if(Array.isArray(active)){
       active.forEach(l=>{if(!allLeads.find(x=>x.id===l.id)) allLeads.push(l);});
+    }
+    // Also load any new zoom scheduled leads from setters
+    const fresh=await sb("GET","leads","","?order=created_at.desc&limit=500&sales_status=eq.\uD83D\uDCC5 Zoom Scheduled");
+    if(Array.isArray(fresh)){
+      fresh.forEach(l=>{if(!allLeads.find(x=>x.id===l.id)) allLeads.push(l);});
     }
     allLeads.forEach(l=>{if(!l.sales_status) l.sales_status="\uD83C\uDD95 New";});
     document.getElementById("connDot").textContent="● Live";
