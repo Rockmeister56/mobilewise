@@ -707,7 +707,7 @@ function renderCalendar(){
       const dateStr=`${calYear}-${String(calMonth+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
       const dayZooms=zooms.filter(l=>l.zoom_date&&l.zoom_date.slice(0,10)===dateStr);
       if(dayZooms.length) cell.classList.add("has-zoom");
-      cell.innerHTML=`<div class="cal-day-num">${day}</div>`+dayZooms.map(l=>`<div class="cal-event${l.sales_status==="\u2705 Zoom Complete"?" zoom-done":""}" onclick="openActionModal(${l.id})" title="${esc(l.company_name||"")}">\uD83D\uDCC5 ${new Date(l.zoom_date).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})} ${esc((l.company_name||"").slice(0,14))}</div>`).join("");
+      cell.innerHTML=`<div class="cal-day-num">${day}</div>`+dayZooms.map(l=>`<div class="cal-event${l.sales_status==="\u2705 Zoom Complete"?" zoom-done":""}" onclick="openActionModal(${l.id})" title="${esc(l.company_name||"")} ${l.reviews?'⭐ '+l.reviews+' reviews':''}">\uD83D\uDCC5 ${new Date(l.zoom_date).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})} ${esc((l.company_name||"").slice(0,14))}${l.reviews?' ⭐'+l.reviews:''}</div>`).join("");
       day++;
     } else {
       cell.innerHTML=`<div class="cal-day-num" style="color:rgba(255,255,255,0.15);">${nextDay}</div>`;
@@ -871,6 +871,7 @@ function openActionModal(id){
         ${firstName?`<div style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:2px;">👤 ${esc(firstName)}</div>`:""}
         <div style="font-size:0.72rem;color:var(--muted);">${esc(modalLead.company_name||"")}</div>
         ${modalLead.phone?`<a href="tel:${esc(modalLead.phone.replace(/\D/g,""))}" style="font-size:1rem;font-weight:700;color:var(--accent);text-decoration:none;display:block;margin-top:4px;">${esc(modalLead.phone)}</a>`:""}
+        ${modalLead.reviews?`<div style="margin-top:6px;"><span style="font-size:0.78rem;font-weight:700;color:#34a853;padding:3px 10px;background:rgba(52,168,83,0.1);border:1px solid rgba(52,168,83,0.3);border-radius:20px;">⭐ ${modalLead.reviews} Google Reviews</span></div>`:""}
       </div>
       <div style="text-align:right;">
         <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Call Attempts</div>
