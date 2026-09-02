@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>emailjs.init('7-9oxa3UC3uKxtqGM');</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mobile Wise AI — Sales War Room</title>
@@ -1106,6 +1108,8 @@ window.closeApptForm=closeApptForm;window.sendApptToBrett=sendApptToBrett;window
 // ═══════════════════════════════════════════════════════════
 
 var currentReportLead = null;
+var lastReportHtml = '';
+var lastReportLeadId = null;
 
 async function openReportPreview(id) {
   var l = allLeads.find(function(x){return x.id===id;}) || apptLeads.find(function(x){return x.id===id;});
@@ -1229,7 +1233,7 @@ async function buildAndSendReport(l) {
 
     toast('Sending report to '+l.email+'...');
 
-    await emailjs.send('service_lemonslice', 'template_xemftmn', {
+    await emailjs.send('service_b9bppgb', 'template_xemftmn', {
       user_email:       l.email,
       reply_to:         'revuee56@gmail.com',
       from_name:        'Revuee by MobileWise AI',
