@@ -432,6 +432,8 @@ function renderLeads() {
           style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);margin-top:4px;display:inline-block;">🔍 NMLS</a>
         <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent((l.company_name||'')+' webmaster')}" target="_blank"
           style="background:rgba(14,165,233,0.12);color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);margin-top:4px;display:inline-block;">🌐 WM</a>
+        ${l.email?`<a class="lbtn" onclick="openReportPreview(${l.id});return false;" href="#"
+          style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">📊 Report</a>`:''}
       </td>
       <td><span style="font-size:0.7rem;padding:3px 9px;border-radius:12px;white-space:nowrap;background:${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.15)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.15)':'rgba(52,168,83,0.1)'};color:${(l.industry||'Mortgage')==='Legal'?'#ce93d8':(l.industry||'Mortgage')==='Tax Resolution'?'#ffb74d':'#81c784'};border:1px solid ${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.4)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.4)':'rgba(52,168,83,0.3)'};">${(l.industry||'Mortgage')==='Legal'?'⚖️ Legal':(l.industry||'Mortgage')==='Tax Resolution'?'💼 Tax':'🏠 Mortgage'}</span></td>
       <td>
@@ -893,6 +895,7 @@ function renderApptCard(l,today){
     +(cn?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.45);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);margin-bottom:10px;">'+esc(cn)+'</div>':'')
     +(l.sales_notes?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:6px 10px;background:rgba(168,85,247,0.04);border-radius:6px;border-left:2px solid rgba(168,85,247,0.2);margin-bottom:10px;font-style:italic;">'+esc(l.sales_notes)+'</div>':'')
     +'<button onclick="openScriptModal('+l.id+')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;">📋 View Script &amp; Call</button>'
+    +(l.email?'<button onclick="openReportPreview('+l.id+')" style="background:rgba(52,168,83,0.12);border:1px solid rgba(52,168,83,0.35);color:#34a853;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;margin-left:6px;">📊 Send Report</button>':'')'
   +'</div>';
 }
 
@@ -1067,3 +1070,219 @@ window.closeApptForm=closeApptForm;window.sendApptToBrett=sendApptToBrett;window
 </div>
 </body>
 </html>
+
+<!-- ═══════════════ REPORT PREVIEW MODAL ═══════════════ -->
+<div id="reportModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:500;align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;position:relative;">
+
+    <!-- Modal header -->
+    <div style="background:#1a3a5c;border-radius:16px 16px 0 0;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="color:#fff;font-weight:700;font-size:1rem;">📊 Competitive Review Analysis — Preview</div>
+      <button onclick="closeReportModal()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1rem;line-height:30px;text-align:center;">X</button>
+    </div>
+
+    <!-- Email preview -->
+    <div id="reportPreviewBody" style="padding:0;"></div>
+
+    <!-- Action bar -->
+    <div style="padding:16px 24px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;background:#f9f9f9;border-radius:0 0 16px 16px;">
+      <div style="font-size:0.78rem;color:#666;" id="reportSendTo"></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="closeReportModal()" style="background:#eee;border:none;color:#333;padding:10px 20px;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+        <button onclick="sendReport()" id="sendReportBtn" style="background:#f8c400;border:none;color:#0a0f1e;padding:10px 24px;border-radius:20px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;">📤 Send to Prospect</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// COMPETITIVE REPORT SYSTEM
+// ═══════════════════════════════════════════════════════════
+
+var currentReportLead = null;
+
+async function openReportPreview(id) {
+  var l = allLeads.find(function(x){return x.id===id;}) || apptLeads.find(function(x){return x.id===id;});
+  if (!l) { toast('Lead not found'); return; }
+  if (!l.email) { toast('No email address for this lead — add one first'); return; }
+  currentReportLead = l;
+  // Send directly — no preview modal
+  await buildAndSendReport(l);
+}
+
+async function buildAndSendReport(l) {
+
+  // Get competitors from same city and industry
+  var city     = l.city || '';
+  var industry = l.industry || 'Mortgage';
+  var companyName = l.company_name || '';
+
+  try {
+    var competitors = await sb('GET','leads','',
+      '?city=eq.'+encodeURIComponent(city)+
+      '&industry=eq.'+encodeURIComponent(industry)+
+      '&order=reviews.desc&limit=10&reviews=gte.1'
+    );
+    if (!Array.isArray(competitors) || !competitors.length) {
+      // Fallback - use allLeads filtered by city
+      competitors = allLeads.filter(function(x){
+        return x.city===city && (x.industry||'Mortgage')===industry && x.reviews>0;
+      }).sort(function(a,b){return (b.reviews||0)-(a.reviews||0);}).slice(0,10);
+    }
+    if (!competitors.length) {
+      body.innerHTML = '<div style="padding:40px;text-align:center;color:#c00;">No competitor data found for '+esc(city)+'. Make sure this market has been scraped.</div>';
+      return;
+    }
+
+    // Build ranked table
+    var leaderReviews = competitors[0].reviews || 0;
+    var prospectReviews = l.reviews || 0;
+    var gap = leaderReviews - prospectReviews;
+    var rank = 1;
+    var prospectRank = 'unranked';
+    var medals = ['🥇','🥈','🥉'];
+
+    var tableRows = '';
+    competitors.forEach(function(c, i) {
+      var isProspect = c.company_name === companyName || c.id === l.id;
+      if (isProspect) prospectRank = (i+1)+'th out of '+competitors.length;
+      var medal = i < 3 ? medals[i] : (i+1)+'.';
+      var rowStyle = isProspect
+        ? 'background:#fff8e1;font-weight:700;color:#1a3a5c;border-left:4px solid #f8c400;'
+        : (i===0?'color:#22863a;font-weight:600;':'');
+      var youTag = isProspect ? ' <span style="background:#f8c400;color:#0a0f1e;font-size:0.65rem;padding:1px 6px;border-radius:8px;font-weight:700;">YOU</span>' : '';
+      tableRows += '<tr style="'+rowStyle+'">'
+        +'<td style="padding:10px 14px;border-bottom:1px solid #eee;">'+medal+'</td>'
+        +'<td style="padding:10px 14px;border-bottom:1px solid #eee;">'+esc(c.company_name||'—')+youTag+'</td>'
+        +'<td style="padding:10px 14px;border-bottom:1px solid #eee;text-align:right;">⭐ '+(c.reviews||0)+'</td>'
+        +'</tr>';
+    });
+
+    // If prospect not in list add them
+    if (prospectRank === 'unranked' && prospectReviews > 0) {
+      prospectRank = 'outside top 10';
+      tableRows += '<tr style="background:#fff8e1;font-weight:700;color:#1a3a5c;border-left:4px solid #f8c400;">'
+        +'<td style="padding:10px 14px;">—</td>'
+        +'<td style="padding:10px 14px;">'+esc(companyName)+' <span style="background:#f8c400;color:#0a0f1e;font-size:0.65rem;padding:1px 6px;border-radius:8px;font-weight:700;">YOU</span></td>'
+        +'<td style="padding:10px 14px;text-align:right;">⭐ '+prospectReviews+'</td>'
+        +'</tr>';
+    }
+
+    var firstName = (l.contact_name||'').split(' ')[0] || 'there';
+
+    // Build preview HTML
+    var html = '<div style="font-family:Arial,sans-serif;color:#333;">'
+      // Header image
+      +'<a href="https://zoom4ai.us" target="_blank"><img src="https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/public/email-headers/revuee-email2.jpg" style="width:100%;display:block;"></a>'
+      +'<div style="padding:28px 36px;">'
+        +'<p style="font-size:1.05rem;color:#1a3a5c;">Hi '+esc(firstName)+',</p>'
+        +'<h1 style="font-size:1.35rem;color:#1a3a5c;margin-bottom:4px;">Your Google Review Ranking in '+esc(city)+'</h1>'
+        +'<p style="font-size:0.9rem;color:#666;margin-bottom:20px;">We analyzed the top '+competitors.length+' '+esc(industry)+' companies in your market. Here is exactly where <strong>'+esc(companyName)+'</strong> stands today.</p>'
+        // Table
+        +'<div style="font-size:0.7rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">📊 '+esc(city)+' Market — Ranked by Google Reviews</div>'
+        +'<table style="width:100%;border-collapse:collapse;margin-bottom:24px;">'
+          +'<thead><tr style="background:#1a3a5c;">'
+            +'<th style="color:#fff;padding:10px 14px;text-align:left;font-size:0.78rem;">Rank</th>'
+            +'<th style="color:#fff;padding:10px 14px;text-align:left;font-size:0.78rem;">Company</th>'
+            +'<th style="color:#fff;padding:10px 14px;text-align:right;font-size:0.78rem;">Reviews</th>'
+          +'</tr></thead>'
+          +'<tbody>'+tableRows+'</tbody>'
+        +'</table>'
+        // Gap box
+        +'<div style="background:#fef3cd;border:1px solid #f8c400;border-radius:8px;padding:16px 20px;margin-bottom:24px;">'
+          +'<h3 style="margin:0 0 6px;font-size:0.95rem;color:#1a3a5c;">⚠️ Your Market Position</h3>'
+          +'<p style="margin:0;font-size:0.85rem;color:#555;line-height:1.6;"><strong>'+esc(companyName)+'</strong> is ranked <strong>'+prospectRank+'</strong> with <strong>'+prospectReviews+' Google reviews</strong>. The market leader has <strong>'+leaderReviews+' reviews</strong> — a gap of <strong>'+gap+' reviews</strong>.</p>'
+          +'<p style="margin:8px 0 0;font-size:0.85rem;color:#555;">Companies in the top 3 receive over <strong>70% of all local search clicks</strong>. Every day without action your competitors pull further ahead.</p>'
+        +'</div>'
+        // What Revuee does
+        +'<h2 style="font-size:1.05rem;color:#1a3a5c;">How Revuee Closes This Gap Automatically</h2>'
+        +'<p style="font-size:0.88rem;color:#555;line-height:1.8;">⭐ <strong>Captures Google Reviews Automatically</strong> — no awkward asks, no manual follow-up.<br>'
+        +'📲 <strong>Refer a Friend via SMS</strong> — turns happy clients into a referral engine.<br>'
+        +'🎥 <strong>Video Testimonials</strong> — published to Facebook, Instagram, your website and blogs.<br>'
+        +'💬 <strong>Responds to Every Review</strong> — Google rewards businesses that engage.</p>'
+        // CTA
+        +'<h2 style="font-size:1.05rem;color:#1a3a5c;margin-top:24px;">Ready to Move Up in Your Market?</h2>'
+        +'<p style="font-size:0.88rem;color:#555;">Book a no-obligation Zoom consultation and we will show you exactly how Revuee moves the needle for <strong>'+esc(companyName)+'</strong>.</p>'
+        +'<div style="text-align:center;margin-top:16px;">'
+          +'<a href="https://zoom4ai.us" style="display:inline-block;padding:14px 32px;background:#f8c400;color:#0a0f1e;border-radius:6px;text-decoration:none;font-weight:700;font-size:1rem;">📅 Schedule Your Free Zoom Consultation</a>'
+        +'</div>'
+        +'<p style="color:#999;font-size:0.78rem;margin-top:24px;text-align:center;">No cost. No obligation. Just a conversation about what is possible.</p>'
+      +'</div>'
+      +'<div style="background:#f4f6f9;padding:16px 36px;text-align:center;font-size:0.72rem;color:#999;border-radius:0 0 16px 16px;">'
+        +'<p>Brett Duncan | AI Conversion Specialist | MobileWise AI</p>'
+        +'<p>949-357-0655 | revuee56@gmail.com</p>'
+      +'</div>'
+    +'</div>';
+
+    // Send immediately
+    var tableHtml = '<table style="width:100%;border-collapse:collapse;">'
+      +'<thead><tr style="background:#1a3a5c;">'
+      +'<th style="color:#fff;padding:10px 14px;text-align:left;font-size:0.78rem;">Rank</th>'
+      +'<th style="color:#fff;padding:10px 14px;text-align:left;font-size:0.78rem;">Company</th>'
+      +'<th style="color:#fff;padding:10px 14px;text-align:right;font-size:0.78rem;">Reviews</th>'
+      +'</tr></thead><tbody>'+tableRows+'</tbody></table>';
+
+    toast('Sending report to '+l.email+'...');
+
+    await emailjs.send('service_lemonslice', 'template_xemftmn', {
+      user_email:       l.email,
+      reply_to:         'revuee56@gmail.com',
+      from_name:        'Revuee by MobileWise AI',
+      subject:          firstName+', here is your Google Review ranking in '+city,
+      prospect_name:    firstName,
+      company_name:     companyName,
+      city:             city,
+      industry:         industry,
+      market_table:     tableHtml,
+      prospect_rank:    prospectRank,
+      prospect_reviews: String(prospectReviews),
+      leader_reviews:   String(leaderReviews),
+      reviews_gap:      String(gap)
+    });
+
+    // Show confirmation popup
+    showReportConfirmation(l.email, companyName, prospectRank, city, prospectReviews, gap, html);
+
+  } catch(e) {
+    console.error(e);
+    toast('Report failed — check connection and try again');
+  }
+}
+
+function closeReportModal() {
+  document.getElementById('reportModal').style.display = 'none';
+  currentReportLead = null;
+}
+
+function showReportConfirmation(email, company, rank, city, reviews, gap, previewHtml, leadId) {
+  lastReportHtml = previewHtml;
+  lastReportLeadId = leadId;
+  toast('Report sent to '+email+' ✅ — click View Report on the lead card to go over it with them');
+  renderLeads();
+  if (typeof renderApptLeads === 'function') renderApptLeads();
+}
+
+function sendReport() {}
+
+window.openReportPreview = openReportPreview;
+window.viewSentReport = viewSentReport;
+window.closeReportModal  = closeReportModal;
+window.sendReport        = sendReport;
+</script>
+</body>
+</html>function viewSentReport(leadId) {
+  var modal   = document.getElementById('reportModal');
+  var body    = document.getElementById('reportPreviewBody');
+  var sendBtn = document.getElementById('sendReportBtn');
+  sendBtn.style.display = 'none';
+  if (leadId === lastReportLeadId && lastReportHtml) {
+    body.innerHTML = lastReportHtml;
+  } else {
+    body.innerHTML = '<div style="padding:40px;text-align:center;color:#666;">Click below to regenerate the report.<br><br>'
+      + '<button onclick="closeReportModal();openReportPreview(' + leadId + ');" '
+      + 'style="background:#a855f7;border:none;color:#fff;padding:10px 20px;border-radius:20px;font-weight:700;cursor:pointer;">Regenerate Report</button></div>';
+  }
+  modal.style.display = 'flex';
+}
+
