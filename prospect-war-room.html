@@ -857,24 +857,27 @@ function renderApptCard(l, today) {
 }
 
 function openScriptModal(id) {
-  currentApptLead = apptLeads.find(l => l.id === id);
+  currentApptLead = apptLeads.find(function(l) { return l.id === id; });
   if (!currentApptLead) return;
-  const l = currentApptLead;
-  const setter = document.getElementById('setterName').value;
-  const firstName = (l.contact_name||'Prospect').split(' ')[0];
+  var l = currentApptLead;
+  var setter = document.getElementById('setterName').value;
+  var firstName = (l.contact_name || 'Prospect').split(' ')[0];
+  var reviewText = l.reviews ? l.reviews + ' reviews' : 'a limited number of reviews';
 
   document.getElementById('scriptProspectInfo').innerHTML =
     '<strong style="color:#a855f7;">' + esc(l.company_name||'—') + '</strong> &nbsp;·&nbsp; ' + esc(firstName) +
     ' &nbsp;·&nbsp; <a href="tel:' + (l.phone||'').replace(/\D/g,'') + '" style="color:#f59e0b;font-weight:700;text-decoration:none;">' + esc(l.phone||'—') + '</a>' +
-    (l.reviews?' &nbsp;·&nbsp; <span style="color:#34a853;">⭐ ' + l.reviews + ' reviews</span>':'');
+    (l.reviews ? ' &nbsp;·&nbsp; <span style="color:#34a853;">⭐ ' + l.reviews + ' reviews</span>' : '');
 
   document.getElementById('scriptGatekeeper').innerHTML =
-    '"Hi, this is <strong>' + setter + '</strong> with Revuee — I'm following up on a voicemail I left for <strong>' + firstName + '</strong>. Could you let them know <strong>' + setter + '</strong> with Revuee is on the phone? It's regarding an urgent matter about their Google reviews."<br><br>' +
-    '<em style="color:#f59e0b;">If asked for more info:</em> "We're a preferred solution provider for Google Business Profile and I need to speak with ' + firstName + ' regarding an important issue affecting their client reviews — it involves the Google review algorithm. Could you please let them know it's time sensitive?"';
+    '"Hi, this is ' + setter + ' with Revuee — I am following up on a voicemail I left for ' + firstName + '. Could you let them know ' + setter + ' with Revuee is on the phone? It is regarding an urgent matter about their Google reviews."' +
+    '<br><br><em style="color:#f59e0b;">If asked for more info:</em> ' +
+    '"We are a preferred solution provider for Google Business Profile and I need to speak with ' + firstName + ' regarding an important issue affecting their client reviews — it involves the Google review algorithm. Could you please let them know it is time sensitive?"';
 
   document.getElementById('scriptProspect').innerHTML =
-    '"Hi <strong>' + firstName + '</strong>, this is <strong>' + setter + '</strong> with Revuee — I'm following up on a voicemail I left you regarding your Google Business Profile. Do you have just two minutes?"<br><br>' +
-    '<em style="color:#f59e0b;">If asked what it's about:</em> "We analyzed your Google profile and noticed you currently have <strong>' + (l.reviews||'a limited number of') + ' reviews</strong>. In your market that's putting you at a disadvantage — we have a solution that fixes that automatically and I wanted to get you connected with Brett Duncan for a quick 15-minute Zoom. No cost, no obligation."';
+    '"Hi ' + firstName + ', this is ' + setter + ' with Revuee — I am following up on a voicemail I left you regarding your Google Business Profile. Do you have just two minutes?"' +
+    '<br><br><em style="color:#f59e0b;">If asked what it is about:</em> ' +
+    '"We analyzed your Google profile and noticed you currently have <strong>' + reviewText + '</strong>. In your market that is putting you at a disadvantage — we have a solution that fixes that automatically and I wanted to get you connected with Brett Duncan for a quick 15-minute Zoom. No cost, no obligation."';
 
   document.getElementById('scriptModal').style.display = 'flex';
 }
