@@ -369,10 +369,18 @@ document.addEventListener("DOMContentLoaded",async()=>{
 
 async function loadPipelineLeads(){
   try{
-    const statuses=['📅 Zoom Scheduled','✅ Zoom Complete','💬 Contacted','📄 Proposal Sent','🔥 Hot','💰 Closed Won'];
-    const q='?order=created_at.desc&limit=1000&sales_status=in.('+statuses.map(s=>encodeURIComponent(s)).join(',')+')'
-    const active=await sb("GET","leads","",q);
-    if(Array.isArray(active)){active.forEach(l=>{if(!allLeads.find(x=>x.id===l.id))allLeads.push(l);});}
+    // Load each active status separately to avoid emoji encoding issues in Supabase in.()
+    const results = await Promise.all([
+      sb("GET","leads","","?order=created_at.desc&limit=500&sales_status=eq.%F0%9F%93%85%20Zoom%20Scheduled"),
+      sb("GET","leads","","?order=created_at.desc&limit=200&sales_status=eq.%E2%9C%85%20Zoom%20Complete"),
+      sb("GET","leads","","?order=created_at.desc&limit=200&sales_status=eq.%F0%9F%92%AC%20Contacted"),
+      sb("GET","leads","","?order=created_at.desc&limit=200&sales_status=eq.%F0%9F%93%84%20Proposal%20Sent"),
+      sb("GET","leads","","?order=created_at.desc&limit=200&sales_status=eq.%F0%9F%94%A5%20Hot"),
+      sb("GET","leads","","?order=created_at.desc&limit=200&sales_status=eq.%F0%9F%92%B0%20Closed%20Won")
+    ]);
+    results.forEach(r=>{
+      if(Array.isArray(r)) r.forEach(l=>{if(!allLeads.find(x=>x.id===l.id))allLeads.push(l);});
+    });
     allLeads.forEach(l=>{if(!l.sales_status)l.sales_status="🆕 New";});
     document.getElementById("connDot").textContent="● Live";
     document.getElementById("connDot").style.color="#22c55e";
@@ -454,7 +462,8 @@ async function loadClosedDeals(){
           </div>
           <div style="text-align:right;">
             ${d.email?`<div style="font-size:0.8rem;color:#34a853;">\u2709\uFE0F ${esc(d.email)}</div>`:""}
-            ${d.phone?`<div style="font-size:0.8rem;color:var(--accent);margin-top:2px;">${esc(d.phone)}</div>`:""}
+        ${l.address?`<div style="margin-top:3px;font-size:0.65rem;color:rgba(255,255,255,0.35);">${esc(l.address)}</div>`:""}
+        ${l.address?`<div style="margin-top:3px;font-size:0.65rem;color:rgba(255,255,255,0.35);">${esc(l.address)}</div>`:""}
           </div>
         </div>
         ${d.sales_notes?`<div class="qi-note-box">\uD83D\uDCAC ${esc(d.sales_notes)}</div>`:""}
@@ -566,13 +575,10 @@ function renderQueue(){
   const dead=["\uD83D\uDCB0 Closed Won","\u274C Closed Lost","\uD83D\uDEAB Do Not Call"];
   let leads=allLeads.filter(l=>{
     if(indF&&(l.industry||"Mortgage")!==indF) return false;
-    const ss=l.sales_status||"\uD83C\uDD95 New";
+    const ss=l.sales_status||"🆕 New";
     if(dead.includes(ss)) return false;
-    if(ss==="\uD83C\uDD95 New") return true;
-    if(ss==="\uD83D\uDD25 Hot") return true;
-    if(l.follow_up_date&&l.follow_up_date<=today) return true;
-    if(l.zoom_date&&l.zoom_date.slice(0,10)===today) return true;
-    return false;
+    // Show all active pipeline leads
+    return true;
   });
   const sortBy = document.getElementById("queueSort") ? document.getElementById("queueSort").value : "priority";
   leads.sort((a,b)=>{
