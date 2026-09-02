@@ -1034,8 +1034,13 @@ window.closeApptForm=closeApptForm;window.sendApptToBrett=sendApptToBrett;window
   <div style="background:#071628;border:1px solid rgba(34,197,94,0.4);border-radius:20px;padding:24px;width:100%;max-width:460px;">
     <div style="font-size:1rem;font-weight:700;color:#22c55e;margin-bottom:16px;">Book Appointment</div>
     <div id="apptFormInfo" style="font-size:0.82rem;color:rgba(255,255,255,0.6);margin-bottom:16px;"></div>
-    <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Zoom Date</label>
-    <input type="date" id="apptDate" style="width:100%;background:#030b14;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:1rem;padding:10px 12px;outline:none;margin-bottom:12px;cursor:pointer;font-family:inherit;">
+    <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Zoom Date — click to open calendar</label>
+    <div style="position:relative;margin-bottom:12px;">
+      <input type="date" id="apptDate"
+        style="width:100%;background:#0a1f35;border:2px solid rgba(168,85,247,0.4);border-radius:8px;color:#fff;font-size:1.1rem;padding:12px 16px;outline:none;cursor:pointer;font-family:inherit;box-sizing:border-box;"
+        onclick="this.showPicker()"
+      >
+    </div>
     <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Zoom Time</label>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
       <select id="apptHour" style="background:#030b14;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:0.9rem;padding:10px 8px;outline:none;font-family:inherit;cursor:pointer;text-align:center;">
