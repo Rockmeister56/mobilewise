@@ -934,7 +934,10 @@ function openApptForm(){
   if(!currentApptLead) return;
   var fn=(currentApptLead.contact_name||'Prospect').split(' ')[0];
   document.getElementById('apptFormInfo').innerHTML='Booking Zoom for <strong style="color:#fff;">'+esc(fn)+'</strong> at <strong style="color:#fff;">'+esc(currentApptLead.company_name||'')+'</strong>';
-  document.getElementById('apptDateTime').value='';
+  document.getElementById('apptDate').value='';
+  document.getElementById('apptHour').value='10';
+  document.getElementById('apptMin').value='00';
+  document.getElementById('apptAmPm').value='PM';
   document.getElementById('apptNotes').value='';
   document.getElementById('scriptModal').style.display='none';
   document.getElementById('apptFormModal').style.display='flex';
@@ -944,11 +947,16 @@ function closeApptForm(){document.getElementById('apptFormModal').style.display=
 
 async function sendApptToBrett(){
   if(!currentApptLead) return;
-  var dv=document.getElementById('apptDateTime').value;
+  var dateVal=document.getElementById('apptDate').value;
+  var hour=parseInt(document.getElementById('apptHour').value);
+  var min=document.getElementById('apptMin').value;
+  var ampm=document.getElementById('apptAmPm').value;
   var notes=document.getElementById('apptNotes').value;
   var setter=document.getElementById('setterName').value;
-  if(!dv){alert('Please select a date and time.');return;}
-  var zd=new Date(dv).toISOString();
+  if(!dateVal){alert('Please select a date.');return;}
+  if(ampm==='PM'&&hour!==12) hour+=12;
+  if(ampm==='AM'&&hour===12) hour=0;
+  var zd=new Date(dateVal+'T'+String(hour).padStart(2,'0')+':'+min+':00').toISOString();
   try{
     await sb('PATCH','leads',{sales_status:'📅 Zoom Scheduled',zoom_date:zd,zoom_link:'https://calendly.com/mobilewise-ai/30min',sales_notes:'[Set by '+setter+'] '+notes,status:'📧 Emailed',last_called:new Date().toISOString(),call_attempts:(currentApptLead.call_attempts||0)+1},'?id=eq.'+currentApptLead.id);
     closeApptForm();closeScriptModal();
@@ -1026,8 +1034,24 @@ window.closeApptForm=closeApptForm;window.sendApptToBrett=sendApptToBrett;window
   <div style="background:#071628;border:1px solid rgba(34,197,94,0.4);border-radius:20px;padding:24px;width:100%;max-width:460px;">
     <div style="font-size:1rem;font-weight:700;color:#22c55e;margin-bottom:16px;">Book Appointment</div>
     <div id="apptFormInfo" style="font-size:0.82rem;color:rgba(255,255,255,0.6);margin-bottom:16px;"></div>
-    <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Zoom Date and Time</label>
-    <input type="datetime-local" id="apptDateTime" style="width:100%;background:#030b14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.85rem;padding:10px 12px;outline:none;margin-bottom:14px;">
+    <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Zoom Date</label>
+    <input type="date" id="apptDate" style="width:100%;background:#030b14;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:1rem;padding:10px 12px;outline:none;margin-bottom:12px;cursor:pointer;font-family:inherit;">
+    <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Zoom Time</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+      <select id="apptHour" style="background:#030b14;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:0.9rem;padding:10px 8px;outline:none;font-family:inherit;cursor:pointer;text-align:center;">
+        <option value="8">8</option><option value="9">9</option><option value="10" selected>10</option>
+        <option value="11">11</option><option value="12">12</option><option value="1">1</option>
+        <option value="2">2</option><option value="3">3</option><option value="4">4</option>
+        <option value="5">5</option><option value="6">6</option>
+      </select>
+      <select id="apptMin" style="background:#030b14;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:0.9rem;padding:10px 8px;outline:none;font-family:inherit;cursor:pointer;text-align:center;">
+        <option value="00">:00</option><option value="15">:15</option>
+        <option value="30">:30</option><option value="45">:45</option>
+      </select>
+      <select id="apptAmPm" style="background:#030b14;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:0.9rem;padding:10px 8px;outline:none;font-family:inherit;cursor:pointer;text-align:center;">
+        <option value="AM">AM</option><option value="PM" selected>PM</option>
+      </select>
+    </div>
     <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Notes for Brett</label>
     <textarea id="apptNotes" rows="3" placeholder="Key details Brett should know..." style="width:100%;background:#030b14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.85rem;padding:10px 12px;outline:none;resize:vertical;line-height:1.6;"></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
