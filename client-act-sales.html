@@ -849,6 +849,8 @@ async function markClosedWon(id){
       email: l.email||null,
       phone: l.phone||null,
       industry: l.industry||"Mortgage",
+      city: l.city||null,
+      website: l.website||null,
       sales_notes: l.sales_notes||null
     });
     toast("\uD83D\uDCB0 Closed Won \u2014 sent to Ready for Setup!");
@@ -987,6 +989,8 @@ async function saveModal(){
         email: modalLead.email||null,
         phone: modalLead.phone||null,
         industry: modalLead.industry||"Mortgage",
+        city: modalLead.city||null,
+        website: modalLead.website||null,
         sales_notes: modalLead.sales_notes||null
       });
       toast("\uD83D\uDCB0 Closed Won \u2014 sent to Ready for Setup!");
