@@ -910,8 +910,28 @@ function openScriptModal(id){
   var fn=(l.contact_name||'Prospect').split(' ')[0];
   var rv=l.reviews?l.reviews+' reviews':'a limited number of reviews';
   document.getElementById('scriptProspectInfo').innerHTML='<strong style="color:#a855f7;">'+esc(l.company_name||'—')+'</strong> &nbsp;·&nbsp; '+esc(fn)+' &nbsp;·&nbsp; <a href="tel:'+(l.phone||'').replace(/\D/g,'')+'" style="color:#f59e0b;font-weight:700;text-decoration:none;">'+esc(l.phone||'—')+'</a>'+(l.reviews?' &nbsp;·&nbsp; <span style="color:#34a853;">⭐ '+l.reviews+'</span>':'');
-  document.getElementById('scriptGatekeeper').innerHTML='"Hi, this is '+setter+' with Revuee. I am following up on a voicemail and email correspondence with '+fn+'. Is he around for a quick call?"'+'<br><br><em style="color:#f59e0b;">If asked for more info:</em> '+'"Absolutely — we introduced Revuee to '+fn+' as a Google Review Partner. I am following up on a Google Review red flag. If you would let him know, that would be great — thanks."'+'<br><br><em style="color:#f59e0b;">If not available:</em> '+'"No problem. Please tell '+fn+' I am sending over a Red Flag Analysis Report that will explain everything. My number is on there — thank you."';
-  document.getElementById('scriptProspect').innerHTML='"Hey '+fn+', '+setter+' with Revuee — we are the team behind the 5-star Google review platform. Did my email happen to come through?"'+'<br><br><em style="color:#f59e0b;">If no:</em> '+'"No problem — I will keep it quick. The reason I reached out is that your '+rv+' are quietly sending about 20% of your potential leads straight to your competitors. Are you in front of your computer right now?"'+'<br><br><em style="color:#f59e0b;">If no time / not interested:</em> '+'"I completely understand. But before we part ways, let me send you a free Competition Analysis Report showing the top 10 mortgage companies in your area pulling leads away from you right now. Can I send that over?" <strong style="color:#34a853;">← Click Send Report now!</strong>'+'<br><br><em style="color:#f59e0b;">When they say yes — send report — then say:</em> '+'"Would you mind checking your email right now? There is one thing I want to point out that will make a huge difference with your review problem."'+'<br><br><em style="color:#f59e0b;">When they open the email:</em> '+'"As you can see '+fn+', there are ten mortgage companies in your market getting the lion share of leads right now. But here is the good news — we can turn that around with Revuee. Can our Google Review expert get just 10 minutes with you?"'+'<br><br><em style="color:#f59e0b;">If they still say no:</em> '+'"No problem at all. Just click the header of the email I sent — it will show you how easy it is to boost your Google reviews and customer referrals. Have a great day '+fn+'."';
+  document.getElementById('scriptGatekeeper').innerHTML=
+    '"Is '+fn+' around?"'
+    +'<br><br><em style="color:#f59e0b;">May I ask who is calling?</em> '
+    +'"Yea, tell him Tommy is on the line — they will know what it is in reference to."'
+    +'<br><br><em style="color:#f59e0b;">What is this regarding?</em> '
+    +'"Personal business — '+fn+' will know."'
+    +'<br><br><em style="color:#f59e0b;">What company are you with?</em> '
+    +'"It is the same company on the correspondence email — that is Revuee, spelled R-E-V-U-E-E. '+fn+' will know what it is in reference to."'
+    +'<br><br><em style="color:#f59e0b;">What is this regarding? (again)</em> '
+    +'"It is regarding a red flag on his Google Business Account. If you would please let '+fn+' know I am on hold, that would be great — thanks."'
+    +'<br><br><em style="color:#f59e0b;">If not available:</em> '
+    +'"Remember that red flag I mentioned? Tell '+fn+' I am sending over a follow-up Red Flag Analysis Report that will explain everything. My number is on there — thank you."';
+  document.getElementById('scriptProspect').innerHTML=
+    '"Hey '+fn+', it is Tommy with Revuee — the 5-star Google review app as shown on the email I sent. You did receive that right?"'
+    +'<br><br><em style="color:#f59e0b;">If no:</em> '
+    +'"No problem — I will keep it brief '+fn+'. Currently your local listing is losing up to 50% of your Google leads to your local competitors. And I want to prove that is currently happening and show you how to fix it. Can I get you to open up your email real quick?" <strong style="color:#34a853;">← Click Send Report now!</strong>'
+    +'<br><br><em style="color:#f59e0b;">When they open the email:</em> '
+    +'"As you can see '+fn+', there are ten mortgage companies in '+esc(l.city||'your area')+' getting the lion share of the leads right now and it all comes down to inadequate reviews. But here is the good news — we can turn that around with Revuee in 30 days or less. If you can give our Google Review expert just ten minutes at your convenience, I can help you schedule that right now if that works for you?"'
+    +'<br><br><em style="color:#f59e0b;">How can you do that?</em> '
+    +'"That is what our review lead expert is going to go over with you. But I can tell you this — there is absolutely nothing else on the market like it today. And it will not only put your Google reviews on autopilot, it will also boost your customer referrals to a level you would not believe if I told you."'
+    +'<br><br><em style="color:#f59e0b;">If still no:</em> '
+    +'"No problem at all. Just click the header of the email I sent — it will show you how easy it is to boost not only your Google reviews but your customer referrals too. I think you will be impressed. Have a great rest of your day '+fn+'."';
   document.getElementById('scriptModal').style.display='flex';
 }
 
@@ -1024,10 +1044,10 @@ window.closeApptForm=closeApptForm;window.sendApptToBrett=sendApptToBrett;window
       <div id="scriptProspect" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:14px;border-left:3px solid #22c55e;"></div>
       <div style="font-size:0.75rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Common Objections</div>
       <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:16px;border-left:3px solid #f59e0b;">
-        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">Not interested / No time</strong><br><em>"I completely understand. But before we part ways, let me send you something valuable — a free Competition Analysis Report showing the top 10 mortgage companies in your area pulling leads away from you right now. Can I send that over?"</em></div>
-        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">How much does it cost?</strong><br><em>"That is exactly what the 10-minute call is for — Brett customizes it based on your business. Most clients find it pays for itself in the first month. Can I get you on his calendar?"</em></div>
-        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">Send me an email</strong><br><em>"I just sent it over — would you mind checking right now? There is one thing I want to point out that will make a huge difference with your review problem."</em></div>
-        <div><strong style="color:#f59e0b;">After they open the email</strong><br><em>"As you can see, there are ten companies in your market getting the lion's share of leads. We can turn that around with Revuee. Can our Google Review expert get just 10 minutes with you?"</em></div>
+        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">No time / Not interested</strong><br><em>"I completely understand. But before we part ways, let me send you something valuable — a free Competition Analysis Report showing the top 10 mortgage companies in your area currently winning over 50% of the leads you should be getting."</em> <strong style="color:#34a853;">← Send Report now!</strong></div>
+        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">How can you do that?</strong><br><em>"That is what our review lead expert is going to go over with you. There is absolutely nothing else on the market like it today — it puts your Google reviews on autopilot AND boosts customer referrals to a level you would not believe."</em></div>
+        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">How much does it cost?</strong><br><em>"That is exactly what the 10-minute call covers — Brett customizes it for your business. Most clients find it pays for itself in the first month. I can schedule that right now if it works for you?"</em></div>
+        <div><strong style="color:#f59e0b;">Still no after email</strong><br><em>"No problem at all. Just click the header of the email — it will show you how easy it is to boost your Google reviews AND customer referrals. I think you will be impressed. Have a great rest of your day!"</em></div>
       </div>
     </div>
     <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Call Outcome</div>
