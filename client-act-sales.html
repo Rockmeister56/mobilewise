@@ -1456,6 +1456,25 @@ function buildROIEmailHTML(d) {
     +'</table>';
 }
 
+function openROIForLead(id) {
+  var l = allLeads.find(function(x){return x.id===id;});
+  if (!l) return;
+  // Pre-fill prospect info
+  var fn = (l.contact_name||'').split(' ')[0] || '';
+  document.getElementById('roi-name').value    = fn;
+  document.getElementById('roi-company').value = l.company_name || '';
+  document.getElementById('roi-email').value   = l.email || '';
+  document.getElementById('roi-city').value    = l.city || '';
+  // Pre-fill reviews if available
+  if (l.reviews) document.getElementById('roi-reviews').value = l.reviews;
+  // Switch to ROI tab
+  showTab('roi');
+  // Scroll to top
+  window.scrollTo({top:0, behavior:'smooth'});
+  toast('📈 ROI Calculator loaded for ' + (l.company_name||fn));
+}
+window.openROIForLead = openROIForLead;
+
 window.calcROI = calcROI;
 window.sendROIReport = sendROIReport;
 </script>
