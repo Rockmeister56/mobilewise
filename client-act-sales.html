@@ -567,6 +567,7 @@ function renderQueueItem(l,today){
       <button class="qa qa-note" onclick="openNoteModal(${l.id})">\uD83D\uDCDD Note</button>
       <button class="qa qa-call" onclick="markClosedWon(${l.id})" style="color:#22c55e;border-color:rgba(34,197,94,0.35);background:rgba(34,197,94,0.08);">💰 Won</button>
       <button class="qa qa-dead" onclick="openDeadModal(${l.id})">\u274C Dead</button>
+      <button class="qa" onclick="openROIForLead(${l.id})" style="color:#f59e0b;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08);">📈 ROI Report</button>
     </div>
   </div>`;
 }
@@ -747,6 +748,7 @@ function renderCalendar(){
         <button class="qa qa-call" onclick="setStatus(${l.id},'\u2705 Zoom Complete')">\u2705 Complete</button>
         <button class="qa qa-zoom" onclick="openZoomModal(${l.id})">\u270F\uFE0F Reschedule</button>
         <button class="qa qa-note" onclick="openNoteModal(${l.id})">\uD83D\uDCDD Note</button>
+        <button class="qa" onclick="openROIForLead(${l.id})" style="color:#f59e0b;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08);">📈 ROI Report</button>
       </div>
       ${l.sales_notes?`<div class="qi-note-box">\uD83D\uDCAC ${esc(l.sales_notes)}</div>`:""}
     </div>`;
@@ -884,6 +886,9 @@ function openActionModal(id){
       </div>
     </div>`;
   document.getElementById("modalBody").innerHTML+=`
+    <div style="text-align:right;margin-bottom:14px;">
+      <button onclick="closeModal();openROIForLead(${modalLead.id});" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;padding:8px 16px;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">📈 Open ROI Calculator</button>
+    </div>
     <label>Stage</label>
     <select id="m-status">${STAGES.map(s=>`<option value="${s.key}" ${(modalLead.sales_status||"\uD83C\uDD95 New")===s.key?"selected":""}>${s.key}</option>`).join("")}</select>
     <label>Follow-up Date</label>
