@@ -1174,144 +1174,263 @@ window.downloadSelectedVoicemail = downloadSelectedVoicemail;
 
 <!-- ROI CALCULATOR PANEL -->
 <div class="panel" id="panel-roi">
-  <div style="max-width:860px;margin:0 auto;">
+  <div style="max-width:900px;margin:0 auto;">
 
     <!-- Header -->
     <div style="text-align:center;margin-bottom:28px;">
-      <img src="https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/public/web-images/logo4.PNG" style="height:60px;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;">
+      <img src="https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/public/web-images/logo4.PNG" style="height:60px;display:block;margin:0 auto 12px;">
       <div style="font-size:1.4rem;font-weight:700;color:var(--accent);">Revenue Growth Calculator</div>
-      <div style="font-size:0.82rem;color:var(--muted);margin-top:4px;">Show your prospect exactly what their business looks like after adding all three services</div>
+      <div style="font-size:0.82rem;color:var(--muted);margin-top:4px;">Show your prospect exactly what their business looks like after adding all three MobileWise AI services</div>
     </div>
 
     <!-- Prospect Info -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;">
-      <div style="font-size:0.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">Prospect Info</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;">
+      <div style="font-size:0.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">👤 Prospect Info</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
         <div>
-          <label style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Prospect Name</label>
-          <input type="text" id="roi-name" placeholder="John Martinez" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem;padding:9px 12px;outline:none;font-family:inherit;">
+          <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">First Name</label>
+          <input type="text" id="roi-name" placeholder="John" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem;padding:8px 12px;outline:none;font-family:inherit;box-sizing:border-box;">
         </div>
         <div>
-          <label style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Company Name</label>
-          <input type="text" id="roi-company" placeholder="Cornerstone Mortgage" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem;padding:9px 12px;outline:none;font-family:inherit;">
+          <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Company</label>
+          <input type="text" id="roi-company" placeholder="Cornerstone Mortgage" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem;padding:8px 12px;outline:none;font-family:inherit;box-sizing:border-box;">
         </div>
         <div>
-          <label style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Email Address</label>
-          <input type="email" id="roi-email" placeholder="john@cornerstone.com" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem;padding:9px 12px;outline:none;font-family:inherit;">
+          <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Email</label>
+          <input type="email" id="roi-email" placeholder="john@company.com" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem;padding:8px 12px;outline:none;font-family:inherit;box-sizing:border-box;">
         </div>
         <div>
-          <label style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">City / Market</label>
-          <input type="text" id="roi-city" placeholder="Mission Viejo, CA" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem;padding:9px 12px;outline:none;font-family:inherit;">
+          <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">City / Market</label>
+          <input type="text" id="roi-city" placeholder="Mission Viejo, CA" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem;padding:8px 12px;outline:none;font-family:inherit;box-sizing:border-box;">
         </div>
       </div>
     </div>
 
-    <!-- Current Numbers -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;">
-      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">📊 Current State — Where You Are Now</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+    <!-- Current Business Numbers -->
+    <div style="background:var(--surface);border:1px solid rgba(239,68,68,0.3);border-top:3px solid #ef4444;border-radius:14px;padding:20px;margin-bottom:14px;">
+      <div style="font-size:0.7rem;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;">📊 Current Business — Where You Are Now</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
         <div>
-          <label style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Loans Closed / Month</label>
-          <input type="number" id="roi-loans" placeholder="5" min="1" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:9px 12px;outline:none;font-family:inherit;">
+          <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Loans Closed / Month</label>
+          <input type="number" id="roi-loans" placeholder="5" min="1" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:8px 12px;outline:none;font-family:inherit;box-sizing:border-box;">
         </div>
         <div>
-          <label style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Avg Commission / Loan</label>
+          <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Avg Commission / Loan</label>
           <div style="position:relative;">
-            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.9rem;">$</span>
-            <input type="number" id="roi-commission" placeholder="5000" min="0" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:9px 12px 9px 22px;outline:none;font-family:inherit;">
+            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);">$</span>
+            <input type="number" id="roi-commission" placeholder="5000" min="0" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:8px 12px 8px 22px;outline:none;font-family:inherit;box-sizing:border-box;">
           </div>
         </div>
         <div>
-          <label style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Website Visitors / Month</label>
-          <input type="number" id="roi-visitors" placeholder="500" min="0" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:9px 12px;outline:none;font-family:inherit;">
+          <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Website Visitors / Month</label>
+          <input type="number" id="roi-visitors" placeholder="500" min="0" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:8px 12px;outline:none;font-family:inherit;box-sizing:border-box;">
         </div>
         <div>
-          <label style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Google Reviews Today</label>
-          <input type="number" id="roi-reviews" placeholder="31" min="0" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:9px 12px;outline:none;font-family:inherit;">
-        </div>
-        <div>
-          <label style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Monthly Ad Budget (Google)</label>
+          <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Lead-to-Close Rate</label>
           <div style="position:relative;">
-            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.9rem;">$</span>
-            <input type="number" id="roi-adbudget" placeholder="3125" min="0" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:9px 12px 9px 22px;outline:none;font-family:inherit;">
-          </div>
-        </div>
-        <div>
-          <label style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Lead-to-Close Rate</label>
-          <div style="position:relative;">
-            <input type="number" id="roi-closerate" placeholder="10" min="1" max="100" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:9px 22px 9px 12px;outline:none;font-family:inherit;">
-            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.9rem;">%</span>
+            <input type="number" id="roi-closerate" placeholder="10" min="1" max="100" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:8px 22px 8px 12px;outline:none;font-family:inherit;box-sizing:border-box;">
+            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);">%</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Results -->
+    <!-- Revuee Section -->
+    <div style="background:var(--surface);border:1px solid rgba(245,158,11,0.3);border-top:3px solid var(--accent);border-radius:14px;padding:20px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:0.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;">⭐ Service 1 — Revuee Google Reviews &amp; Referrals</div>
+        <div style="font-size:0.72rem;color:var(--muted);">Investment: <strong style="color:var(--accent);">$300/month</strong></div>
+      </div>
+      <div style="font-size:0.82rem;color:var(--muted);margin-bottom:12px;">Captures reviews automatically, SMS referral engine, video testimonials, responds to every review. Conservative estimate: <strong style="color:var(--text);">+15% lift</strong> in referrals and leads.</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Extra Loans/Mo</div>
+          <div style="font-size:1.3rem;font-weight:700;color:var(--green);" id="r-loans">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Gross Extra Revenue</div>
+          <div style="font-size:1.3rem;font-weight:700;color:var(--green);" id="r-gross">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Monthly Cost</div>
+          <div style="font-size:1.3rem;font-weight:700;color:var(--accent);">$300</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Net Monthly Gain</div>
+          <div style="font-size:1.3rem;font-weight:700;color:var(--green);" id="r-net">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Google Maps Ad Section -->
+    <div style="background:var(--surface);border:1px solid rgba(14,165,233,0.3);border-top:3px solid var(--accent2);border-radius:14px;padding:20px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:0.7rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:2px;">📍 Service 2 — Google Maps Sponsored Ad</div>
+        <div style="font-size:0.72rem;color:var(--muted);">Mgmt fee: <strong style="color:var(--accent);">$200/month</strong> + ad spend</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;">
+        <div>
+          <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Local Cost Per Click (CPC)</label>
+          <div style="position:relative;">
+            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);">$</span>
+            <input type="number" id="roi-cpc" placeholder="30" min="1" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid rgba(14,165,233,0.3);border-radius:8px;color:var(--text);font-size:1rem;padding:8px 12px 8px 22px;outline:none;font-family:inherit;box-sizing:border-box;">
+          </div>
+          <div style="font-size:0.62rem;color:var(--muted);margin-top:3px;">Research via Google Keyword Planner</div>
+        </div>
+        <div>
+          <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Monthly Ad Budget</label>
+          <div style="position:relative;">
+            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);">$</span>
+            <input type="number" id="roi-adbudget" placeholder="3000" min="0" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid rgba(14,165,233,0.3);border-radius:8px;color:var(--text);font-size:1rem;padding:8px 12px 8px 22px;outline:none;font-family:inherit;box-sizing:border-box;">
+          </div>
+          <div style="font-size:0.62rem;color:var(--muted);margin-top:3px;">What prospect can afford per month</div>
+        </div>
+        <div>
+          <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Click-to-Lead Rate</label>
+          <div style="position:relative;">
+            <input type="number" id="roi-ctl" placeholder="8" min="1" max="100" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid rgba(14,165,233,0.3);border-radius:8px;color:var(--text);font-size:1rem;padding:8px 22px 8px 12px;outline:none;font-family:inherit;box-sizing:border-box;">
+            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);">%</span>
+          </div>
+          <div style="font-size:0.62rem;color:var(--muted);margin-top:3px;">Industry avg: 8% for optimized map listings</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Clicks/Month</div>
+          <div style="font-size:1.2rem;font-weight:700;color:var(--accent2);" id="g-clicks">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Leads/Month</div>
+          <div style="font-size:1.2rem;font-weight:700;color:var(--accent2);" id="g-leads">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Loans Closed</div>
+          <div style="font-size:1.2rem;font-weight:700;color:var(--green);" id="g-loans">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Total Cost</div>
+          <div style="font-size:1.2rem;font-weight:700;color:var(--accent);" id="g-cost">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Net Monthly Gain</div>
+          <div style="font-size:1.2rem;font-weight:700;color:var(--green);" id="g-net">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MobileWise AI Sales Assistant Section -->
+    <div style="background:var(--surface);border:1px solid rgba(168,85,247,0.3);border-top:3px solid var(--purple);border-radius:14px;padding:20px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:0.7rem;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:2px;">🤖 Service 3 — MobileWise AI Sales Assistant</div>
+        <div style="font-size:0.72rem;color:var(--muted);">Fee: <strong style="color:var(--accent);">$150 per extra loan delivered</strong></div>
+      </div>
+      <div style="font-size:0.82rem;color:var(--muted);margin-bottom:14px;">Converts website visitors into pre-qualified leads at <strong style="color:var(--purple);">6× your current rate</strong>. You only pay per extra loan — no loan, no fee.</div>
+
+      <!-- Side by side comparison -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div style="background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:16px;">
+          <div style="font-size:0.68rem;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Without MobileWise AI</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="text-align:center;">
+              <div style="font-size:0.6rem;color:var(--muted);margin-bottom:2px;">Conversion Rate</div>
+              <div style="font-size:1rem;font-weight:700;color:#ef4444;" id="mw-without-rate">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.6rem;color:var(--muted);margin-bottom:2px;">Leads/Month</div>
+              <div style="font-size:1rem;font-weight:700;color:#ef4444;" id="mw-without-leads">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.6rem;color:var(--muted);margin-bottom:2px;">Loans Closed</div>
+              <div style="font-size:1rem;font-weight:700;color:#ef4444;" id="mw-without-loans">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.6rem;color:var(--muted);margin-bottom:2px;">Monthly Revenue</div>
+              <div style="font-size:1rem;font-weight:700;color:#ef4444;" id="mw-without-rev">—</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.3);border-radius:10px;padding:16px;">
+          <div style="font-size:0.68rem;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">✅ With MobileWise AI (6× Boost)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div style="text-align:center;">
+              <div style="font-size:0.6rem;color:var(--muted);margin-bottom:2px;">Conversion Rate</div>
+              <div style="font-size:1rem;font-weight:700;color:var(--purple);" id="mw-with-rate">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.6rem;color:var(--muted);margin-bottom:2px;">Leads/Month</div>
+              <div style="font-size:1rem;font-weight:700;color:var(--purple);" id="mw-with-leads">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.6rem;color:var(--muted);margin-bottom:2px;">Loans Closed</div>
+              <div style="font-size:1rem;font-weight:700;color:var(--purple);" id="mw-with-loans">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.6rem;color:var(--muted);margin-bottom:2px;">Monthly Revenue</div>
+              <div style="font-size:1rem;font-weight:700;color:var(--purple);" id="mw-with-rev">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Extra Loans/Mo</div>
+          <div style="font-size:1.2rem;font-weight:700;color:var(--purple);" id="mw-extra-loans">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Gross Extra Revenue</div>
+          <div style="font-size:1.2rem;font-weight:700;color:var(--green);" id="mw-gross">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">AI Fee</div>
+          <div style="font-size:1.2rem;font-weight:700;color:var(--accent);" id="mw-fee">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Net Monthly Gain</div>
+          <div style="font-size:1.2rem;font-weight:700;color:var(--green);" id="mw-net">—</div>
+        </div>
+      </div>
+
+      <!-- Killer close line -->
+      <div id="killerClose" style="display:none;margin-top:14px;padding:14px 18px;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:10px;font-size:0.82rem;color:var(--text);line-height:1.7;font-style:italic;" id="killer-close-box"></div>
+    </div>
+
+    <!-- Grand Total -->
     <div id="roiResults" style="display:none;">
-
-      <!-- Three service cards -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
-
-        <!-- Revuee -->
-        <div style="background:var(--surface);border:1px solid rgba(245,158,11,0.3);border-top:3px solid var(--accent);border-radius:14px;padding:18px;">
-          <div style="font-size:0.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">⭐ Revuee</div>
-          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:8px;">+15% referral & review lift</div>
-          <div style="font-size:1.4rem;font-weight:700;color:var(--green);" id="revuee-extra">—</div>
-          <div style="font-size:0.68rem;color:var(--muted);margin-bottom:12px;">extra / month</div>
-          <div style="font-size:0.78rem;color:var(--muted);">Extra loans: <strong id="revuee-loans" style="color:var(--text);">—</strong></div>
-          <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;font-size:0.72rem;color:var(--muted);">Investment: <strong style="color:var(--accent);">$300/mo</strong></div>
-        </div>
-
-        <!-- Google Maps Ad -->
-        <div style="background:var(--surface);border:1px solid rgba(14,165,233,0.3);border-top:3px solid var(--accent2);border-radius:14px;padding:18px;">
-          <div style="font-size:0.7rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">📍 Google Map Pack Ad</div>
-          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:8px;">Top 4 placement · $25 CPC</div>
-          <div style="font-size:1.4rem;font-weight:700;color:var(--green);" id="maps-extra">—</div>
-          <div style="font-size:0.68rem;color:var(--muted);margin-bottom:12px;">net extra / month</div>
-          <div style="font-size:0.78rem;color:var(--muted);">Extra loans: <strong id="maps-loans" style="color:var(--text);">—</strong></div>
-          <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;font-size:0.72rem;color:var(--muted);">Mgmt fee: <strong style="color:var(--accent);">$200/mo</strong> + ad spend</div>
-        </div>
-
-        <!-- MobileWise AI -->
-        <div style="background:var(--surface);border:1px solid rgba(168,85,247,0.3);border-top:3px solid var(--purple);border-radius:14px;padding:18px;">
-          <div style="font-size:0.7rem;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🤖 MobileWise AI</div>
-          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:8px;">Website conversion ×10</div>
-          <div style="font-size:1.4rem;font-weight:700;color:var(--green);" id="mw-extra">—</div>
-          <div style="font-size:0.68rem;color:var(--muted);margin-bottom:12px;">net extra / month</div>
-          <div style="font-size:0.78rem;color:var(--muted);">Extra loans: <strong id="mw-loans" style="color:var(--text);">—</strong></div>
-          <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;font-size:0.72rem;color:var(--muted);">Fee: <strong style="color:var(--accent);">$150/extra loan</strong></div>
-        </div>
-      </div>
-
-      <!-- Grand total box -->
-      <div style="background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(168,85,247,0.1));border:2px solid var(--accent);border-radius:16px;padding:24px;margin-bottom:16px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;text-align:center;">
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(168,85,247,0.12));border:2px solid var(--accent);border-radius:16px;padding:24px;margin-bottom:16px;">
+        <div style="font-size:0.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;text-align:center;margin-bottom:16px;">📈 Total Revenue Projection</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;text-align:center;margin-bottom:16px;">
           <div>
-            <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Current Monthly</div>
-            <div style="font-size:1.5rem;font-weight:700;color:#ef4444;" id="total-current">—</div>
+            <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Current Monthly</div>
+            <div style="font-size:1.4rem;font-weight:700;color:#ef4444;" id="total-current">—</div>
           </div>
           <div>
-            <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Projected Monthly</div>
-            <div style="font-size:1.5rem;font-weight:700;color:var(--green);" id="total-projected">—</div>
+            <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Projected Monthly</div>
+            <div style="font-size:1.4rem;font-weight:700;color:var(--green);" id="total-projected">—</div>
           </div>
           <div>
-            <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Investment</div>
-            <div style="font-size:1.5rem;font-weight:700;color:var(--accent);" id="total-investment">—</div>
+            <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Investment</div>
+            <div style="font-size:1.4rem;font-weight:700;color:var(--accent);" id="total-investment">—</div>
           </div>
           <div>
-            <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">12-Month Net Gain</div>
-            <div style="font-size:1.5rem;font-weight:700;color:var(--purple);" id="total-annual">—</div>
+            <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Net Monthly Gain</div>
+            <div style="font-size:1.4rem;font-weight:700;color:var(--green);" id="total-net">—</div>
+          </div>
+          <div>
+            <div style="font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">12-Month Net Gain</div>
+            <div style="font-size:1.4rem;font-weight:700;color:var(--purple);" id="total-annual">—</div>
           </div>
         </div>
-        <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid rgba(245,158,11,0.2);">
+        <div style="text-align:center;padding-top:16px;border-top:1px solid rgba(245,158,11,0.2);">
           <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px;">Return on Investment</div>
-          <div style="font-size:2.2rem;font-weight:700;color:var(--accent);" id="total-roi">—</div>
+          <div style="font-size:2.8rem;font-weight:700;color:var(--accent);line-height:1;" id="total-roi">—</div>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px;">Every dollar invested returns <span id="roi-dollar">—</span> in new revenue</div>
         </div>
       </div>
 
-      <!-- Send report button -->
-      <div style="text-align:center;">
-        <button onclick="sendROIReport()" style="background:linear-gradient(135deg,var(--accent),#d97706);border:none;color:#000;font-weight:700;font-size:1rem;padding:14px 40px;border-radius:30px;cursor:pointer;font-family:inherit;">📤 Send ROI Report to Prospect</button>
+      <!-- Send button -->
+      <div style="text-align:center;padding-bottom:20px;">
+        <button onclick="sendROIReport()" style="background:linear-gradient(135deg,var(--accent),#d97706);border:none;color:#000;font-weight:700;font-size:1rem;padding:14px 44px;border-radius:30px;cursor:pointer;font-family:inherit;">📤 Send ROI Report to Prospect</button>
         <div style="font-size:0.72rem;color:var(--muted);margin-top:8px;" id="roi-send-status"></div>
       </div>
     </div>
@@ -1319,99 +1438,131 @@ window.downloadSelectedVoicemail = downloadSelectedVoicemail;
     <!-- Empty state -->
     <div id="roiEmpty" style="text-align:center;padding:40px;color:var(--muted);">
       <div style="font-size:2.5rem;margin-bottom:12px;">📈</div>
-      <div>Fill in the prospect numbers above to generate their ROI projection</div>
+      <div>Fill in the prospect numbers above to see their revenue projection update in real time</div>
     </div>
 
   </div>
 </div>
-</body>
-</html>
 
 <script>
 // ═══════════════════════════════════════════════════════════
-// ROI CALCULATOR
+// ROI CALCULATOR — MOBILEWISE AI
 // ═══════════════════════════════════════════════════════════
 
-function fmt(n) {
-  return '$' + Math.round(n).toLocaleString();
-}
+function fmt(n){ return '$' + Math.round(n).toLocaleString(); }
+function fmtDec(n){ return n % 1 === 0 ? n.toString() : n.toFixed(1); }
 
 function calcROI() {
-  var loans      = parseFloat(document.getElementById('roi-loans').value) || 0;
-  var commission = parseFloat(document.getElementById('roi-commission').value) || 0;
-  var visitors   = parseFloat(document.getElementById('roi-visitors').value) || 0;
-  var adBudget   = parseFloat(document.getElementById('roi-adbudget').value) || 0;
-  var closeRate  = (parseFloat(document.getElementById('roi-closerate').value) || 10) / 100;
+  var loans      = parseFloat(document.getElementById('roi-loans').value)      || 0;
+  var commission = parseFloat(document.getElementById('roi-commission').value)  || 0;
+  var visitors   = parseFloat(document.getElementById('roi-visitors').value)    || 0;
+  var closeRate  = (parseFloat(document.getElementById('roi-closerate').value)  || 10) / 100;
+  var cpc        = parseFloat(document.getElementById('roi-cpc').value)         || 0;
+  var adBudget   = parseFloat(document.getElementById('roi-adbudget').value)    || 0;
+  var ctl        = (parseFloat(document.getElementById('roi-ctl').value)        || 8)  / 100;
 
   if (!loans || !commission) {
     document.getElementById('roiResults').style.display = 'none';
-    document.getElementById('roiEmpty').style.display = 'block';
+    document.getElementById('roiEmpty').style.display   = 'block';
     return;
   }
 
   var currentRevenue = loans * commission;
 
-  // ── REVUEE: +15% referral lift ──
-  var revueeExtraLoans   = loans * 0.15;
-  var revueeGross        = revueeExtraLoans * commission;
-  var revueeCost         = 300;
-  var revueeNet          = revueeGross - revueeCost;
+  // ── REVUEE ──
+  var rExtraLoans = loans * 0.15;
+  var rGross      = rExtraLoans * commission;
+  var rCost       = 300;
+  var rNet        = rGross - rCost;
+  document.getElementById('r-loans').textContent = fmtDec(rExtraLoans);
+  document.getElementById('r-gross').textContent = fmt(rGross);
+  document.getElementById('r-net').textContent   = fmt(rNet);
 
   // ── GOOGLE MAPS AD ──
-  // $25 CPC, 8% click-to-lead, user's close rate
-  var cpc            = 25;
-  var clickToLead    = 0.08;
-  var mapsLeads      = (adBudget / cpc) * clickToLead;
-  var mapsLoans      = mapsLeads * closeRate;
-  var mapsGross      = mapsLoans * commission;
-  var mapsCost       = adBudget + 200; // ad spend + mgmt fee
-  var mapsNet        = mapsGross - mapsCost;
+  var gClicks = cpc > 0 ? adBudget / cpc : 0;
+  var gLeads  = gClicks * ctl;
+  var gLoans  = gLeads * closeRate;
+  var gGross  = gLoans * commission;
+  var gCost   = adBudget + 200;
+  var gNet    = gGross - gCost;
+  document.getElementById('g-clicks').textContent = Math.round(gClicks);
+  document.getElementById('g-leads').textContent  = fmtDec(gLeads);
+  document.getElementById('g-loans').textContent  = fmtDec(gLoans);
+  document.getElementById('g-cost').textContent   = fmt(gCost);
+  document.getElementById('g-net').textContent    = fmt(gNet);
 
-  // ── MOBILEWISE AI: website conversion x10 ──
-  // Current: visitors × 1% = leads, × closeRate = loans
-  // New:     visitors × 10% = leads, × closeRate = loans
-  var currentWebLeads = visitors * 0.01;
-  var newWebLeads     = visitors * 0.10;
-  var extraWebLeads   = newWebLeads - currentWebLeads;
-  var mwExtraLoans    = extraWebLeads * closeRate;
-  var mwGross         = mwExtraLoans * commission;
-  var mwCost          = mwExtraLoans * 150; // $150 per extra loan
-  var mwNet           = mwGross - mwCost;
+  // ── MOBILEWISE AI SALES ASSISTANT ──
+  // Current conversion (estimate 1% if visitors provided)
+  var currentConv  = visitors > 0 ? 0.01 : 0;
+  var boostedConv  = currentConv * 6;
+  var withoutLeads = visitors * currentConv;
+  var withLeads    = visitors * boostedConv;
+  var withoutLoans = withoutLeads * closeRate;
+  var withLoans    = withLeads * closeRate;
+  var withoutRev   = withoutLoans * commission;
+  var withRev      = withLoans * commission;
+  var mwExtraLoans = withLoans - withoutLoans;
+  var mwGross      = mwExtraLoans * commission;
+  var mwFee        = mwExtraLoans * 150;
+  var mwNet        = mwGross - mwFee;
 
-  // ── TOTALS ──
-  var totalInvestment = revueeCost + mapsCost + mwCost;
-  var totalExtraRevenue = revueeNet + mapsNet + mwNet;
-  var projectedRevenue = currentRevenue + totalExtraRevenue;
-  var annualGain = totalExtraRevenue * 12;
-  var roi = totalInvestment > 0 ? (totalExtraRevenue / totalInvestment) * 100 : 0;
+  document.getElementById('mw-without-rate').textContent  = (currentConv*100).toFixed(1)+'%';
+  document.getElementById('mw-without-leads').textContent = fmtDec(withoutLeads);
+  document.getElementById('mw-without-loans').textContent = fmtDec(withoutLoans);
+  document.getElementById('mw-without-rev').textContent   = fmt(withoutRev);
+  document.getElementById('mw-with-rate').textContent     = (boostedConv*100).toFixed(1)+'%';
+  document.getElementById('mw-with-leads').textContent    = fmtDec(withLeads);
+  document.getElementById('mw-with-loans').textContent    = fmtDec(withLoans);
+  document.getElementById('mw-with-rev').textContent      = fmt(withRev);
+  document.getElementById('mw-extra-loans').textContent   = fmtDec(mwExtraLoans);
+  document.getElementById('mw-gross').textContent         = fmt(mwGross);
+  document.getElementById('mw-fee').textContent           = fmt(mwFee);
+  document.getElementById('mw-net').textContent           = fmt(mwNet);
 
-  // ── UPDATE UI ──
-  document.getElementById('revuee-loans').textContent  = revueeExtraLoans.toFixed(1);
-  document.getElementById('revuee-extra').textContent  = fmt(revueeNet);
-  document.getElementById('maps-loans').textContent    = mapsLoans.toFixed(1);
-  document.getElementById('maps-extra').textContent    = fmt(mapsNet);
-  document.getElementById('mw-loans').textContent      = mwExtraLoans.toFixed(1);
-  document.getElementById('mw-extra').textContent      = fmt(mwNet);
+  // Killer close line
+  if (adBudget > 0 && gLoans > 0) {
+    var killerEl = document.getElementById('killerClose');
+    killerEl.style.display = 'block';
+    killerEl.innerHTML = '💡 <strong>The closer:</strong> "You are already spending '
+      + fmt(adBudget) + '/month on ads generating ' + fmtDec(gLeads) + ' leads. '
+      + 'Without the MobileWise AI Sales Assistant you close ' + fmtDec(gLoans) + ' loans from that spend. '
+      + 'With it you close ' + fmtDec(gLoans * 6) + ' loans from the exact same ad spend. '
+      + 'The assistant pays for itself on the very first extra loan."';
+  }
+
+  // ── GRAND TOTALS ──
+  var totalNet        = rNet + gNet + mwNet;
+  var totalInvestment = rCost + gCost + mwFee;
+  var projected       = currentRevenue + totalNet;
+  var annual          = totalNet * 12;
+  var roi             = totalInvestment > 0 ? (totalNet / totalInvestment) * 100 : 0;
+  var roiMultiple     = totalInvestment > 0 ? (totalNet / totalInvestment + 1).toFixed(1) : '—';
+
   document.getElementById('total-current').textContent    = fmt(currentRevenue);
-  document.getElementById('total-projected').textContent  = fmt(projectedRevenue);
+  document.getElementById('total-projected').textContent  = fmt(projected);
   document.getElementById('total-investment').textContent = fmt(totalInvestment);
-  document.getElementById('total-annual').textContent     = fmt(annualGain);
+  document.getElementById('total-net').textContent        = fmt(totalNet);
+  document.getElementById('total-annual').textContent     = fmt(annual);
   document.getElementById('total-roi').textContent        = Math.round(roi) + '%';
+  document.getElementById('roi-dollar').textContent       = roiMultiple + 'x';
 
   document.getElementById('roiResults').style.display = 'block';
   document.getElementById('roiEmpty').style.display   = 'none';
 
-  // Store for email
+  // Store for email send
   window._roiData = {
     name: document.getElementById('roi-name').value || 'there',
     company: document.getElementById('roi-company').value || 'Your Company',
     email: document.getElementById('roi-email').value || '',
     city: document.getElementById('roi-city').value || 'your market',
-    loans, commission, visitors, adBudget, closeRate: closeRate*100,
-    currentRevenue, projectedRevenue, totalInvestment, annualGain, roi: Math.round(roi),
-    revueeExtraLoans: revueeExtraLoans.toFixed(1), revueeNet,
-    mapsLoans: mapsLoans.toFixed(1), mapsNet,
-    mwExtraLoans: mwExtraLoans.toFixed(1), mwNet
+    loans, commission, visitors, closeRate: closeRate*100,
+    cpc, adBudget, ctl: ctl*100,
+    currentRevenue, projected, totalInvestment, totalNet, annual,
+    roi: Math.round(roi), roiMultiple,
+    rExtraLoans: fmtDec(rExtraLoans), rNet,
+    gClicks: Math.round(gClicks), gLeads: fmtDec(gLeads), gLoans: fmtDec(gLoans), gCost, gNet,
+    mwExtraLoans: fmtDec(mwExtraLoans), mwFee, mwNet,
+    withoutLoans: fmtDec(withoutLoans), withLoans: fmtDec(withLoans)
   };
 }
 
@@ -1419,69 +1570,58 @@ async function sendROIReport() {
   var d = window._roiData;
   if (!d) { toast('Fill in the numbers first'); return; }
   if (!d.email) { toast('Add the prospect email address first'); return; }
-
   var btn = document.querySelector('[onclick="sendROIReport()"]');
-  btn.textContent = 'Sending...';
-  btn.disabled = true;
+  btn.textContent = 'Sending...'; btn.disabled = true;
 
-  var emailBody = buildROIEmailHTML(d);
+  var tableHtml = '<table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;">'
+    +'<tr style="background:#1a3a5c;"><th style="color:#fff;padding:12px;text-align:left;font-size:0.8rem;">Service</th><th style="color:#fff;padding:12px;text-align:center;font-size:0.8rem;">Extra Loans/Mo</th><th style="color:#fff;padding:12px;text-align:right;font-size:0.8rem;">Net Extra Revenue</th><th style="color:#fff;padding:12px;text-align:right;font-size:0.8rem;">Monthly Cost</th></tr>'
+    +'<tr style="background:#fff8e1;"><td style="padding:12px;font-weight:700;border-bottom:1px solid #eee;">⭐ Revuee — Google Reviews &amp; Referrals</td><td style="padding:12px;text-align:center;border-bottom:1px solid #eee;">+'+d.rExtraLoans+'</td><td style="padding:12px;text-align:right;border-bottom:1px solid #eee;color:#22863a;font-weight:700;">'+fmt(d.rNet)+'</td><td style="padding:12px;text-align:right;border-bottom:1px solid #eee;">$300</td></tr>'
+    +'<tr><td style="padding:12px;font-weight:700;border-bottom:1px solid #eee;">📍 Google Maps Sponsored Ad ('+d.gClicks+' clicks → '+d.gLeads+' leads → '+d.gLoans+' loans)</td><td style="padding:12px;text-align:center;border-bottom:1px solid #eee;">+'+d.gLoans+'</td><td style="padding:12px;text-align:right;border-bottom:1px solid #eee;color:#22863a;font-weight:700;">'+fmt(d.gNet)+'</td><td style="padding:12px;text-align:right;border-bottom:1px solid #eee;">'+fmt(d.gCost)+'</td></tr>'
+    +'<tr style="background:#fff8e1;"><td style="padding:12px;font-weight:700;">🤖 MobileWise AI Sales Assistant ('+d.withoutLoans+' → '+d.withLoans+' loans/mo)</td><td style="padding:12px;text-align:center;">+'+d.mwExtraLoans+'</td><td style="padding:12px;text-align:right;color:#22863a;font-weight:700;">'+fmt(d.mwNet)+'</td><td style="padding:12px;text-align:right;">'+fmt(d.mwFee)+'</td></tr>'
+    +'</table>';
 
   try {
     await emailjs.send('service_b9bppgb', 'template_xhxswiu', {
-      user_email:    d.email,
-      reply_to:      'mobilewise.ai@gmail.com',
-      from_name:     'Brett Duncan | MobileWise AI',
-      subject:       d.name + ', here is your Revenue Growth Projection from MobileWise AI',
-      prospect_name: d.name,
-      company_name:  d.company,
-      city:          d.city,
-      roi_report:    emailBody,
+      user_email:        d.email,
+      reply_to:          'mobilewise.ai@gmail.com',
+      from_name:         'Brett Duncan | MobileWise AI',
+      subject:           d.name + ', here is your Revenue Growth Projection from MobileWise AI',
+      prospect_name:     d.name,
+      company_name:      d.company,
+      city:              d.city,
+      roi_report:        tableHtml,
       current_revenue:   fmt(d.currentRevenue),
-      projected_revenue: fmt(d.projectedRevenue),
-      annual_gain:       fmt(d.annualGain),
+      projected_revenue: fmt(d.projected),
+      annual_gain:       fmt(d.annual),
       roi_pct:           d.roi + '%'
     });
     toast('📈 ROI Report sent to ' + d.email + ' ✅');
-    document.getElementById('roi-send-status').textContent = 'Sent to ' + d.email + ' — ' + new Date().toLocaleTimeString();
+    document.getElementById('roi-send-status').textContent = '✅ Sent to ' + d.email + ' at ' + new Date().toLocaleTimeString();
   } catch(e) {
     console.error(e);
-    toast('Send failed — check EmailJS connection');
+    toast('Send failed — check EmailJS');
   }
   btn.textContent = '📤 Send ROI Report to Prospect';
   btn.disabled = false;
 }
 
-function buildROIEmailHTML(d) {
-  var f = function(n){ return '$' + Math.round(n).toLocaleString(); };
-  return '<table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;">'
-    +'<tr style="background:#1a3a5c;"><th style="color:#fff;padding:12px;text-align:left;font-size:0.8rem;">Service</th><th style="color:#fff;padding:12px;text-align:center;font-size:0.8rem;">Extra Loans/Mo</th><th style="color:#fff;padding:12px;text-align:right;font-size:0.8rem;">Net Extra Revenue</th><th style="color:#fff;padding:12px;text-align:right;font-size:0.8rem;">Monthly Investment</th></tr>'
-    +'<tr style="background:#fff8e1;"><td style="padding:12px;font-weight:700;">⭐ Revuee — Google Reviews &amp; Referrals</td><td style="padding:12px;text-align:center;">+'+d.revueeExtraLoans+'</td><td style="padding:12px;text-align:right;color:#22863a;font-weight:700;">'+f(d.revueeNet)+'</td><td style="padding:12px;text-align:right;">$300</td></tr>'
-    +'<tr><td style="padding:12px;font-weight:700;">📍 Google Maps Sponsored Ad</td><td style="padding:12px;text-align:center;">+'+d.mapsLoans+'</td><td style="padding:12px;text-align:right;color:#22863a;font-weight:700;">'+f(d.mapsNet)+'</td><td style="padding:12px;text-align:right;">$200 + ad spend</td></tr>'
-    +'<tr style="background:#fff8e1;"><td style="padding:12px;font-weight:700;">🤖 MobileWise AI — Website Conversion ×10</td><td style="padding:12px;text-align:center;">+'+d.mwExtraLoans+'</td><td style="padding:12px;text-align:right;color:#22863a;font-weight:700;">'+f(d.mwNet)+'</td><td style="padding:12px;text-align:right;">$150/extra loan</td></tr>'
-    +'</table>';
-}
-
 function openROIForLead(id) {
   var l = allLeads.find(function(x){return x.id===id;});
   if (!l) return;
-  // Pre-fill prospect info
   var fn = (l.contact_name||'').split(' ')[0] || '';
   document.getElementById('roi-name').value    = fn;
   document.getElementById('roi-company').value = l.company_name || '';
   document.getElementById('roi-email').value   = l.email || '';
   document.getElementById('roi-city').value    = l.city || '';
-  // Pre-fill reviews if available
-  if (l.reviews) document.getElementById('roi-reviews').value = l.reviews;
-  // Switch to ROI tab
+  if (l.reviews) document.getElementById('roi-reviews') && (document.getElementById('roi-reviews').value = l.reviews);
   showTab('roi');
-  // Scroll to top
-  window.scrollTo({top:0, behavior:'smooth'});
+  window.scrollTo({top:0,behavior:'smooth'});
   toast('📈 ROI Calculator loaded for ' + (l.company_name||fn));
 }
-window.openROIForLead = openROIForLead;
 
-window.calcROI = calcROI;
-window.sendROIReport = sendROIReport;
+window.calcROI        = calcROI;
+window.sendROIReport  = sendROIReport;
+window.openROIForLead = openROIForLead;
 </script>
 </body>
 </html>
