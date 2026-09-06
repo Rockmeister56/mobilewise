@@ -1235,7 +1235,7 @@ window.downloadSelectedVoicemail = downloadSelectedVoicemail;
         <div>
           <label style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:4px;">Current Website Conversion Rate</label>
           <div style="position:relative;">
-            <input type="number" id="roi-convrate" placeholder="2" min="0.1" max="100" step="0.1" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:8px 22px 8px 12px;outline:none;font-family:inherit;box-sizing:border-box;">
+            <input type="number" id="roi-convrate" placeholder="3" min="1" max="100" step="1" oninput="calcROI()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;padding:8px 22px 8px 12px;outline:none;font-family:inherit;box-sizing:border-box;">
             <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);">%</span>
           </div>
           <div style="font-size:0.6rem;color:var(--muted);margin-top:3px;">% of visitors who contact you now</div>
@@ -1469,7 +1469,7 @@ function calcROI() {
   var commission  = parseFloat(document.getElementById('roi-commission').value)  || 0;
   var visitors    = parseFloat(document.getElementById('roi-visitors').value)    || 0;
   var closeRate   = (parseFloat(document.getElementById('roi-closerate').value)  || 10) / 100;
-  var convRate    = parseFloat(document.getElementById('roi-convrate').value)    || 2;
+  var convRate    = Math.round(parseFloat(document.getElementById('roi-convrate').value) || 3);
   var cpc         = parseFloat(document.getElementById('roi-cpc').value)         || 0;
   var adBudget    = parseFloat(document.getElementById('roi-adbudget').value)    || 0;
   var ctl         = (parseFloat(document.getElementById('roi-ctl').value)        || 8) / 100;
@@ -1532,7 +1532,7 @@ function calcROI() {
   // Takes Google Ads leads AND website leads — shows
   // what happens when AI converts both at 6x
   // ══════════════════════════════════════════════════
-  var boostedRate = convRate * 6;  // e.g. 3% x 6 = 18%
+  var boostedRate = convRate * 6;  // e.g. 3 x 6 = 18 (whole number percent)
 
   // --- Website leads ---
   var webLeadsNow  = visitors * (convRate / 100);      // e.g. 500 x 0.03 = 15
@@ -1567,7 +1567,7 @@ function calcROI() {
   document.getElementById('mw-without-leads').textContent = fmtDec(webLeadsNow + gLeads);
   document.getElementById('mw-without-loans').textContent = fmtDec(totalLoansNow);
   document.getElementById('mw-without-rev').textContent   = fmt(totalRevNow);
-  document.getElementById('mw-with-rate').textContent     = boostedRate + '%';
+  document.getElementById('mw-with-rate').textContent     = (convRate * 6) + '%';
   document.getElementById('mw-with-leads').textContent    = fmtDec(webLeadsAI + gLeads);
   document.getElementById('mw-with-loans').textContent    = fmtDec(totalLoansAI);
   document.getElementById('mw-with-rev').textContent      = fmt(totalRevAI);
