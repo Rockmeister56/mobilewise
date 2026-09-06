@@ -1632,6 +1632,7 @@ function calcROI() {
     city: document.getElementById('roi-city').value || 'your market',
     loans, commission, visitors, closeRate: closeRate * 100,
     convRate, boostedRate, cpc, adBudget, ctl: ctl * 100,
+    rExtraLoans: fmtDec(rExtraLoans), rGross, rCost, rNet,
     gClicks, gLeads: fmtDec(gLeads), gLoans: fmtDec(gLoans), gCost, gNet,
     webLeadsNow: fmtDec(webLeadsNow), webLeadsAI: fmtDec(webLeadsAI),
     webLoansNow: fmtDec(webLoansNow), webLoansAI: fmtDec(webLoansAI),
@@ -1650,52 +1651,55 @@ async function sendROIReport() {
   var btn = document.querySelector('[onclick="sendROIReport()"]');
   btn.textContent = 'Sending...'; btn.disabled = true;
 
-  var tableHtml = '<table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;">'
-    // Header
+  var f2 = function(n){ return '$' + Math.round(n).toLocaleString(); };
+  var tableHtml = ''
+    +'<table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;">'
+    // Header row
     +'<tr style="background:#1a3a5c;">'
     +'<th style="color:#fff;padding:12px 14px;text-align:left;font-size:0.8rem;">Service</th>'
     +'<th style="color:#fff;padding:12px 14px;text-align:center;font-size:0.8rem;">Extra Loans/Mo</th>'
     +'<th style="color:#fff;padding:12px 14px;text-align:right;font-size:0.8rem;">Net Extra Revenue</th>'
     +'<th style="color:#fff;padding:12px 14px;text-align:right;font-size:0.8rem;">Monthly Cost</th>'
     +'</tr>'
-    // Revuee
+    // Revuee row
     +'<tr style="background:#fff8e1;">'
     +'<td style="padding:12px 14px;border-bottom:1px solid #eee;">'
     +'<div style="font-weight:700;color:#1a3a5c;margin-bottom:4px;">⭐ Revuee — Google Reviews &amp; Referrals</div>'
-    +'<div style="font-size:0.78rem;color:#777;line-height:1.5;">Based on your '+d.loans+' loans/month × 20% referral lift = +'+d.rExtraLoans+' extra loans. '
-    +'BrightLocal 2024: businesses using automated review programs see 20% more leads from word-of-mouth and referrals. '
+    +'<div style="font-size:0.78rem;color:#777;line-height:1.5;">Based on your '+d.loans+' loans/month × 20% referral lift = +'+d.rExtraLoans+' extra loans/month. '
+    +'BrightLocal 2024: businesses using automated review programs see 20% more leads from referrals. '
     +'Revuee SMS referral engine turns each satisfied client into an active referral source.</div>'
     +'</td>'
     +'<td style="padding:12px 14px;text-align:center;border-bottom:1px solid #eee;font-weight:700;font-size:1.1rem;">+'+d.rExtraLoans+'</td>'
-    +'<td style="padding:12px 14px;text-align:right;border-bottom:1px solid #eee;color:#22863a;font-weight:700;font-size:1.1rem;">'+fmt(d.rNet)+'</td>'
+    +'<td style="padding:12px 14px;text-align:right;border-bottom:1px solid #eee;color:#22863a;font-weight:700;font-size:1.1rem;">'+f2(d.rNet)+'</td>'
     +'<td style="padding:12px 14px;text-align:right;border-bottom:1px solid #eee;color:#555;">$300/mo</td>'
     +'</tr>'
-    // Google Maps
+    // Google Ads row
     +'<tr>'
     +'<td style="padding:12px 14px;border-bottom:1px solid #eee;">'
     +'<div style="font-weight:700;color:#1a3a5c;margin-bottom:4px;">📍 Google Maps Sponsored Ad — Top 4 Placement</div>'
     +'<div style="font-size:0.78rem;color:#777;line-height:1.5;">'
-    +'$'+d.adBudget+'/mo budget ÷ $'+d.cpc+' CPC = <strong>'+d.gClicks+' clicks</strong> × '+d.ctl+'% click-to-lead = <strong>'+d.gLeads+' qualified leads</strong> × '+d.closeRate+'% close rate = <strong>'+d.gLoans+' extra loans/mo</strong>. '
-    +'Google data: top-4 map pack captures 70%+ of all local search clicks. '
-    +'76% of local searchers visit a business within 24 hours (Google, 2024).</div>'
+    +'$'+d.adBudget+'/mo budget ÷ $'+d.cpc+' CPC = '+d.gClicks+' clicks × '+d.ctl+'% CTL = '+d.gLeads+' leads × '+d.closeRate+'% close = '+d.gLoans+' loans/mo. '
+    +'Total cost (ad spend + $200 mgmt fee) = '+f2(d.gCost)+'. '
+    +(d.gNet < 0 ? 'Note: Without MobileWise AI the ads generate a loss of '+f2(Math.abs(d.gNet))+'/mo — see MobileWise AI row below.' : 'Net gain: '+f2(d.gNet)+'/mo.')
+    +'</div>'
     +'</td>'
     +'<td style="padding:12px 14px;text-align:center;border-bottom:1px solid #eee;font-weight:700;font-size:1.1rem;">+'+d.gLoans+'</td>'
-    +'<td style="padding:12px 14px;text-align:right;border-bottom:1px solid #eee;color:#22863a;font-weight:700;font-size:1.1rem;">'+fmt(d.gNet)+'</td>'
-    +'<td style="padding:12px 14px;text-align:right;border-bottom:1px solid #eee;color:#555;">'+fmt(d.gCost)+'/mo</td>'
+    +'<td style="padding:12px 14px;text-align:right;border-bottom:1px solid #eee;font-weight:700;font-size:1.1rem;color:'+(d.gNet >= 0 ? '#22863a' : '#ef4444')+';">'+f2(d.gNet)+'</td>'
+    +'<td style="padding:12px 14px;text-align:right;border-bottom:1px solid #eee;color:#555;">'+f2(d.gCost)+'/mo</td>'
     +'</tr>'
-    // MobileWise AI
+    // MobileWise AI row
     +'<tr style="background:#fff8e1;">'
     +'<td style="padding:12px 14px;">'
     +'<div style="font-weight:700;color:#1a3a5c;margin-bottom:4px;">🤖 MobileWise AI Sales Assistant — Website Conversion ×6</div>'
     +'<div style="font-size:0.78rem;color:#777;line-height:1.5;">'
-    +'Your current website conversion rate is '+d.convRate+'%. The MobileWise AI Sales Assistant multiplies that by 6× giving you a <strong>'+d.boostedConvRate+'% conversion rate</strong>. '
-    +''+d.visitors+' monthly visitors × '+d.convRate+'% = <strong>'+d.withoutLoans+' loans today</strong> vs '+d.visitors+' visitors × '+d.boostedConvRate+'% = <strong>'+d.withLoans+' loans/mo with AI</strong> — that is '+d.mwExtraLoans+' extra loans per month from the same traffic you already have. '
-    +'Drift 2023: AI sales assistants deliver 6-10× conversion improvement. '
-    +'Harvard Business Review: responding to leads within 5 minutes increases conversion by 900% — the MobileWise AI Sales Assistant responds in under 3 seconds, 24 hours a day, 7 days a week.</div>'
+    +'Your website converts at '+d.convRate+'% today. MobileWise AI multiplies that to '+d.boostedRate+'% — '
+    +d.visitors+' monthly visitors now generate '+d.webLeadsAI+' leads instead of '+d.webLeadsNow+'. '
+    +'Combined with ad leads: '+d.totalLoansNow+' loans/mo without AI → '+d.totalLoansAI+' loans/mo with AI = '+d.mwExtraLoans+' extra loans. '
+    +'Drift 2023: AI sales assistants deliver 6-10× conversion. Harvard Business Review: instant response = 900% conversion boost.</div>'
     +'</td>'
     +'<td style="padding:12px 14px;text-align:center;font-weight:700;font-size:1.1rem;">+'+d.mwExtraLoans+'</td>'
-    +'<td style="padding:12px 14px;text-align:right;color:#22863a;font-weight:700;font-size:1.1rem;">'+fmt(d.mwNet)+'</td>'
-    +'<td style="padding:12px 14px;text-align:right;color:#555;">'+fmt(d.mwFee)+'/mo</td>'
+    +'<td style="padding:12px 14px;text-align:right;color:#22863a;font-weight:700;font-size:1.1rem;">'+f2(d.mwNet)+'</td>'
+    +'<td style="padding:12px 14px;text-align:right;color:#555;">'+f2(d.mwFee)+'/mo</td>'
     +'</tr>'
     +'</table>';
 
