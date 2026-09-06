@@ -1560,14 +1560,18 @@ function calcROI() {
   var mwNet         = mwGross - mwFee;
 
   // Update comparison boxes
-  document.getElementById('mw-without-rate').textContent  = convRate.toFixed(1) + '%';
+  // convRate is the raw % user entered (e.g. 3 = 3%, 18 = 18%)
+  // boostedRate = convRate * 6 (e.g. 3 * 6 = 18)
+  // Display raw numbers — NO additional division
+  document.getElementById('mw-without-rate').textContent  = convRate + '%';
   document.getElementById('mw-without-leads').textContent = fmtDec(webLeadsNow + gLeads);
   document.getElementById('mw-without-loans').textContent = fmtDec(totalLoansNow);
   document.getElementById('mw-without-rev').textContent   = fmt(totalRevNow);
-  document.getElementById('mw-with-rate').textContent     = boostedRate.toFixed(1) + '%';
+  document.getElementById('mw-with-rate').textContent     = boostedRate + '%';
   document.getElementById('mw-with-leads').textContent    = fmtDec(webLeadsAI + gLeads);
   document.getElementById('mw-with-loans').textContent    = fmtDec(totalLoansAI);
   document.getElementById('mw-with-rev').textContent      = fmt(totalRevAI);
+  console.log('ROI Debug — convRate:', convRate, 'boostedRate:', boostedRate, 'webLeadsNow:', webLeadsNow, 'webLeadsAI:', webLeadsAI);
 
   // Update bottom summary
   document.getElementById('mw-extra-loans').textContent   = fmtDec(mwExtraLoans);
