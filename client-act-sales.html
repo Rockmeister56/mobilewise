@@ -1464,13 +1464,15 @@ function fmt(n){ return '$' + Math.round(n).toLocaleString(); }
 function fmtDec(n){ return n % 1 === 0 ? n.toString() : n.toFixed(1); }
 
 function calcROI() {
-  var loans      = parseFloat(document.getElementById('roi-loans').value)      || 0;
-  var commission = parseFloat(document.getElementById('roi-commission').value)  || 0;
-  var visitors   = parseFloat(document.getElementById('roi-visitors').value)    || 0;
-  var closeRate  = (parseFloat(document.getElementById('roi-closerate').value)  || 10) / 100;
-  var cpc        = parseFloat(document.getElementById('roi-cpc').value)         || 0;
-  var adBudget   = parseFloat(document.getElementById('roi-adbudget').value)    || 0;
-  var ctl        = (parseFloat(document.getElementById('roi-ctl').value)        || 8)  / 100;
+  // ── INPUTS ──
+  var loans       = parseFloat(document.getElementById('roi-loans').value)      || 0;
+  var commission  = parseFloat(document.getElementById('roi-commission').value)  || 0;
+  var visitors    = parseFloat(document.getElementById('roi-visitors').value)    || 0;
+  var closeRate   = (parseFloat(document.getElementById('roi-closerate').value)  || 10) / 100;
+  var convRate    = parseFloat(document.getElementById('roi-convrate').value)    || 2;
+  var cpc         = parseFloat(document.getElementById('roi-cpc').value)         || 0;
+  var adBudget    = parseFloat(document.getElementById('roi-adbudget').value)    || 0;
+  var ctl         = (parseFloat(document.getElementById('roi-ctl').value)        || 8) / 100;
 
   if (!loans || !commission) {
     document.getElementById('roiResults').style.display = 'none';
@@ -1480,133 +1482,162 @@ function calcROI() {
 
   var currentRevenue = loans * commission;
 
-  // ── REVUEE ── 20% lift from reviews + referral engine
+  // ══════════════════════════════════════════════════
+  // SERVICE 1 — REVUEE (20% referral lift)
+  // ══════════════════════════════════════════════════
   var rExtraLoans = loans * 0.20;
   var rGross      = rExtraLoans * commission;
   var rCost       = 300;
   var rNet        = rGross - rCost;
+
   document.getElementById('r-loans').textContent = fmtDec(rExtraLoans);
   document.getElementById('r-gross').textContent = fmt(rGross);
   document.getElementById('r-net').textContent   = fmt(rNet);
 
-  // ── GOOGLE MAPS AD ── (Gemini methodology)
-  var gClicks       = cpc > 0 ? adBudget / cpc : 0;  // budget / CPC = clicks
-  var gLeads        = gClicks * ctl;                   // clicks x CTL = leads
-  var gLoans        = gLeads * closeRate;              // leads x close rate = loans
-  var gGross        = gLoans * commission;             // loans x commission = revenue
-  var gCost         = adBudget + 200;                  // ad spend + mgmt fee
-  var gNet          = gGross - gCost;                  // can be negative without AI
-  var gBreakEven    = Math.ceil(gCost / commission);   // loans needed to break even
-  var gNetColor     = gNet >= 0 ? 'var(--green)' : '#ef4444';
+  // ══════════════════════════════════════════════════
+  // SERVICE 2 — GOOGLE ADS (standalone, no AI)
+  // ══════════════════════════════════════════════════
+  var gClicks    = cpc > 0 ? Math.round(adBudget / cpc) : 0;
+  var gLeads     = gClicks * ctl;
+  var gLoans     = gLeads * closeRate;
+  var gRevenue   = gLoans * commission;
+  var gCost      = adBudget + 200;
+  var gNet       = gRevenue - gCost;
 
-  document.getElementById('g-clicks').textContent = Math.round(gClicks);
+  document.getElementById('g-clicks').textContent = gClicks;
   document.getElementById('g-leads').textContent  = fmtDec(gLeads);
   document.getElementById('g-loans').textContent  = fmtDec(gLoans);
   document.getElementById('g-cost').textContent   = fmt(gCost);
   document.getElementById('g-net').textContent    = (gNet >= 0 ? '' : '-') + '$' + Math.abs(Math.round(gNet)).toLocaleString();
-  document.getElementById('g-net').style.color    = gNetColor;
-  // Show break-even note
+  document.getElementById('g-net').style.color    = gNet >= 0 ? 'var(--green)' : '#ef4444';
+
   var gBreakEl = document.getElementById('g-breakeven');
   if (gBreakEl) {
+    gBreakEl.style.display = 'block';
     if (gNet < 0) {
-      gBreakEl.style.display = 'block';
-      gBreakEl.innerHTML = '⚠️ <strong>At '+fmtDec(gLoans)+' loans/mo you need '+gBreakEven+' loans to break even on ad spend.</strong> '
-        +'This is where the <strong style="color:var(--purple);">MobileWise AI Sales Assistant</strong> changes everything — '
-        +'it converts those same '+fmtDec(gLeads)+' leads at 6× the rate, turning a losing campaign into a winning one.';
+      gBreakEl.innerHTML = '⚠️ <strong>Without MobileWise AI these ads lose ' + fmt(Math.abs(gNet)) + '/month.</strong> '
+        + 'This is exactly why most brokers quit paid ads — the leads do not convert fast enough. '
+        + 'See Section 3 below to see how MobileWise AI flips this to a massive profit.';
+      gBreakEl.style.background = 'rgba(239,68,68,0.06)';
+      gBreakEl.style.borderColor = 'rgba(239,68,68,0.25)';
     } else {
-      gBreakEl.style.display = 'block';
-      gBreakEl.innerHTML = '✅ <strong>Profitable at current close rate.</strong> Add MobileWise AI to multiply returns further.';
+      gBreakEl.innerHTML = '✅ <strong>Profitable at current close rate.</strong> MobileWise AI makes it even more profitable — see Section 3.';
+      gBreakEl.style.background = 'rgba(34,197,94,0.06)';
+      gBreakEl.style.borderColor = 'rgba(34,197,94,0.25)';
     }
   }
 
-  // ── MOBILEWISE AI SALES ASSISTANT ──
-  // WEBSITE ONLY — keeps it clean and separate from Google Ads section
-  // convRateInput is the percentage the user enters e.g. they enter 3 meaning 3%
-  var convRateInput   = parseFloat(document.getElementById('roi-convrate').value) || 2;
-  var boostedRate     = convRateInput * 6;          // 3 x 6 = 18 (percent)
-  var webWithoutLeads = visitors * (convRateInput / 100); // 500 x 0.03 = 15 leads
-  var webWithLeads    = visitors * (boostedRate / 100);   // 500 x 0.18 = 90 leads
-  var webWithoutLoans = webWithoutLeads * closeRate;       // 15 x 0.10 = 1.5 loans
-  var webWithLoans    = webWithLeads * closeRate;          // 90 x 0.10 = 9.0 loans
-  var withoutRev      = webWithoutLoans * commission;
-  var withRev         = webWithLoans * commission;
-  var mwExtraLoans    = webWithLoans - webWithoutLoans;   // 9.0 - 1.5 = 7.5 extra loans
-  var mwGross         = mwExtraLoans * commission;
-  var mwFee           = mwExtraLoans * 150;
-  var mwNet           = mwGross - mwFee;
-  // Keep these for killer close and email
-  var adsWithoutLoans = gLoans;
-  var adsWithLoans    = gLoans;
-  var adsExtraLoans   = 0;
-  var webWithoutLoans_stored = webWithoutLoans;
-  var webWithLoans_stored    = webWithLoans;
+  // ══════════════════════════════════════════════════
+  // SERVICE 3 — MOBILEWISE AI SALES ASSISTANT
+  // Takes Google Ads leads AND website leads — shows
+  // what happens when AI converts both at 6x
+  // ══════════════════════════════════════════════════
+  var boostedRate = convRate * 6;  // e.g. 3% x 6 = 18%
 
-  document.getElementById('mw-without-rate').textContent  = convRateInput.toFixed(1)+'%';
-  document.getElementById('mw-without-leads').textContent = fmtDec(webWithoutLeads);
-  document.getElementById('mw-without-loans').textContent = fmtDec(webWithoutLoans);
-  document.getElementById('mw-without-rev').textContent   = fmt(withoutRev);
-  document.getElementById('mw-with-rate').textContent     = boostedRate.toFixed(1)+'%';
-  document.getElementById('mw-with-leads').textContent    = fmtDec(webWithLeads);
-  document.getElementById('mw-with-loans').textContent    = fmtDec(webWithLoans);
-  document.getElementById('mw-with-rev').textContent      = fmt(withRev);
+  // --- Website leads ---
+  var webLeadsNow  = visitors * (convRate / 100);      // e.g. 500 x 0.03 = 15
+  var webLeadsAI   = visitors * (boostedRate / 100);   // e.g. 500 x 0.18 = 90
+  var webLoansNow  = webLeadsNow * closeRate;           // e.g. 15 x 0.10 = 1.5
+  var webLoansAI   = webLeadsAI * closeRate;            // e.g. 90 x 0.10 = 9.0
+
+  // --- Google Ads leads (AI converts 6x more) ---
+  var adsLoansNow  = gLoans;                            // baseline from Section 2
+  var adsLoansAI   = gLeads * (closeRate * 6);          // same leads, 6x close rate
+  var adsExtraLoans = adsLoansAI - adsLoansNow;
+
+  // --- Without AI total (website + ads baseline) ---
+  var totalLoansNow = webLoansNow + adsLoansNow;
+  var totalRevNow   = totalLoansNow * commission;
+
+  // --- With AI total ---
+  var totalLoansAI  = webLoansAI + adsLoansAI;
+  var totalRevAI    = totalLoansAI * commission;
+
+  // --- Extra from AI ---
+  var mwExtraLoans  = totalLoansAI - totalLoansNow;
+  var mwGross       = mwExtraLoans * commission;
+  var mwFee         = mwExtraLoans * 150;
+  var mwNet         = mwGross - mwFee;
+
+  // Update comparison boxes
+  document.getElementById('mw-without-rate').textContent  = convRate.toFixed(1) + '%';
+  document.getElementById('mw-without-leads').textContent = fmtDec(webLeadsNow + gLeads);
+  document.getElementById('mw-without-loans').textContent = fmtDec(totalLoansNow);
+  document.getElementById('mw-without-rev').textContent   = fmt(totalRevNow);
+  document.getElementById('mw-with-rate').textContent     = boostedRate.toFixed(1) + '%';
+  document.getElementById('mw-with-leads').textContent    = fmtDec(webLeadsAI + gLeads);
+  document.getElementById('mw-with-loans').textContent    = fmtDec(totalLoansAI);
+  document.getElementById('mw-with-rev').textContent      = fmt(totalRevAI);
+
+  // Update bottom summary
   document.getElementById('mw-extra-loans').textContent   = fmtDec(mwExtraLoans);
   document.getElementById('mw-gross').textContent         = fmt(mwGross);
   document.getElementById('mw-fee').textContent           = fmt(mwFee);
   document.getElementById('mw-net').textContent           = fmt(mwNet);
 
-  // Killer close line
-  if (visitors > 0 && convRateInput > 0) {
-    var killerEl = document.getElementById('killerClose');
+  // Killer close
+  var killerEl = document.getElementById('killerClose');
+  if (killerEl && (adBudget > 0 || visitors > 0)) {
     killerEl.style.display = 'block';
-    killerEl.innerHTML = '💡 <strong style="color:var(--accent);">The Closer — say this on the call:</strong>'
-      + '<br><br>"Right now your website converts at ' + convRateInput.toFixed(1) + '% — '
-      + 'meaning ' + fmtDec(webWithoutLeads) + ' of your ' + Math.round(visitors) + ' monthly visitors actually reach out to you. '
-      + 'The MobileWise AI Sales Assistant multiplies that to ' + boostedRate.toFixed(1) + '% — '
-      + 'that is <strong>' + fmtDec(webWithLeads) + ' leads</strong> from the same traffic you are already getting. '
-      + 'At your close rate that is <strong>' + fmtDec(webWithLoans) + ' loans per month</strong> instead of ' + fmtDec(webWithoutLoans) + '. '
-      + 'You pay us $150 per extra loan delivered — if we do not deliver, you do not pay."';
+    var msg = '💡 <strong style="color:var(--accent);">Say this on the call:</strong><br><br>';
+    if (adBudget > 0 && gNet < 0) {
+      msg += '"Right now your ' + fmt(adBudget) + ' ad spend generates ' + fmtDec(gLeads) + ' leads but only closes '
+        + fmtDec(gLoans) + ' loans — costing you ' + fmt(Math.abs(gNet)) + ' a month. '
+        + 'The MobileWise AI Sales Assistant converts those exact same leads at 6× the rate — '
+        + fmtDec(gLoans) + ' loans becomes ' + fmtDec(adsLoansAI) + ' loans from the same ad spend. '
+        + 'Add ' + fmtDec(webLoansAI - webLoansNow) + ' more loans from your website traffic '
+        + 'and you go from losing ' + fmt(Math.abs(gNet)) + ' to gaining ' + fmt(mwNet) + ' net every single month. '
+        + 'We charge $150 per extra loan delivered. If we do not deliver, you do not pay."';
+    } else if (visitors > 0) {
+      msg += '"Your website converts at ' + convRate.toFixed(1) + '% today — '
+        + fmtDec(webLeadsNow) + ' leads from ' + Math.round(visitors) + ' monthly visitors. '
+        + 'MobileWise AI takes that to ' + boostedRate.toFixed(1) + '% — '
+        + fmtDec(webLeadsAI) + ' leads from the same traffic. '
+        + 'That is ' + fmtDec(mwExtraLoans) + ' extra loans per month at $150 each. '
+        + 'We do not get paid unless you get loans."';
+    }
+    killerEl.innerHTML = msg;
   }
 
-  // ── GRAND TOTALS ──
+  // ══════════════════════════════════════════════════
+  // GRAND TOTALS
+  // ══════════════════════════════════════════════════
   var totalNet        = rNet + gNet + mwNet;
   var totalInvestment = rCost + gCost + mwFee;
-  var projected       = currentRevenue + totalNet;
+  var projected       = currentRevenue + rExtraLoans * commission + mwGross;
   var annual          = totalNet * 12;
-  var roi             = totalInvestment > 0 ? (totalNet / totalInvestment) * 100 : 0;
-  var roiMultiple     = totalInvestment > 0 ? (totalNet / totalInvestment + 1).toFixed(1) : '—';
+  var roi             = totalInvestment > 0 ? Math.round((totalNet / totalInvestment) * 100) : 0;
+  var roiMultiple     = totalInvestment > 0 ? (totalNet / totalInvestment + 1).toFixed(1) + 'x' : '—';
 
   document.getElementById('total-current').textContent    = fmt(currentRevenue);
   document.getElementById('total-projected').textContent  = fmt(projected);
   document.getElementById('total-investment').textContent = fmt(totalInvestment);
   document.getElementById('total-net').textContent        = fmt(totalNet);
   document.getElementById('total-annual').textContent     = fmt(annual);
-  document.getElementById('total-roi').textContent        = Math.round(roi) + '%';
-  document.getElementById('roi-dollar').textContent       = roiMultiple + 'x';
+  document.getElementById('total-roi').textContent        = roi + '%';
+  document.getElementById('roi-dollar').textContent       = roiMultiple;
 
   document.getElementById('roiResults').style.display = 'block';
   document.getElementById('roiEmpty').style.display   = 'none';
 
-  // Store for email send
+  // Store for email
   window._roiData = {
     name: document.getElementById('roi-name').value || 'there',
-    convRate: convRateInput,
-    boostedConvRate: boostedRate.toFixed(1),
     company: document.getElementById('roi-company').value || 'Your Company',
     email: document.getElementById('roi-email').value || '',
     city: document.getElementById('roi-city').value || 'your market',
-    loans, commission, visitors, closeRate: closeRate*100,
-    cpc, adBudget, ctl: ctl*100,
-    currentRevenue, projected, totalInvestment, totalNet, annual,
-    roi: Math.round(roi), roiMultiple,
-    rExtraLoans: fmtDec(rExtraLoans), rNet,
-    gClicks: Math.round(gClicks), gLeads: fmtDec(gLeads), gLoans: fmtDec(gLoans), gCost, gNet,
-    mwExtraLoans: fmtDec(mwExtraLoans), mwFee, mwNet,
-    webWithoutLeads: fmtDec(webWithoutLeads), webWithLeads: fmtDec(webWithLeads),
-    webWithoutLoans: fmtDec(webWithoutLoans), webWithLoans: fmtDec(webWithLoans),
-    convRateInput: convRateInput, boostedRate: boostedRate,
-    withoutLoans: fmtDec(withoutLoans), withLoans: fmtDec(withLoans)
+    loans, commission, visitors, closeRate: closeRate * 100,
+    convRate, boostedRate, cpc, adBudget, ctl: ctl * 100,
+    gClicks, gLeads: fmtDec(gLeads), gLoans: fmtDec(gLoans), gCost, gNet,
+    webLeadsNow: fmtDec(webLeadsNow), webLeadsAI: fmtDec(webLeadsAI),
+    webLoansNow: fmtDec(webLoansNow), webLoansAI: fmtDec(webLoansAI),
+    adsLoansNow: fmtDec(adsLoansNow), adsLoansAI: fmtDec(adsLoansAI),
+    totalLoansNow: fmtDec(totalLoansNow), totalLoansAI: fmtDec(totalLoansAI),
+    mwExtraLoans: fmtDec(mwExtraLoans), mwGross, mwFee, mwNet,
+    currentRevenue, projected, totalInvestment, totalNet, annual, roi, roiMultiple
   };
 }
+
 
 async function sendROIReport() {
   var d = window._roiData;
