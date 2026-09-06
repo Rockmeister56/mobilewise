@@ -1325,6 +1325,7 @@ window.downloadSelectedVoicemail = downloadSelectedVoicemail;
           <div style="font-size:1.2rem;font-weight:700;color:var(--green);" id="g-net">—</div>
         </div>
       </div>
+      <div id="g-breakeven" style="display:none;margin-top:12px;padding:12px 16px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:10px;font-size:0.82rem;color:var(--text);line-height:1.6;"></div>
     </div>
 
     <!-- MobileWise AI Sales Assistant Section -->
@@ -1488,30 +1489,59 @@ function calcROI() {
   document.getElementById('r-gross').textContent = fmt(rGross);
   document.getElementById('r-net').textContent   = fmt(rNet);
 
-  // ── GOOGLE MAPS AD ──
-  var gClicks = cpc > 0 ? adBudget / cpc : 0;
-  var gLeads  = gClicks * ctl;
-  var gLoans  = gLeads * closeRate;
-  var gGross  = gLoans * commission;
-  var gCost   = adBudget + 200;
-  var gNet    = gGross - gCost;
+  // ── GOOGLE MAPS AD ── (Gemini methodology)
+  var gClicks       = cpc > 0 ? adBudget / cpc : 0;  // budget / CPC = clicks
+  var gLeads        = gClicks * ctl;                   // clicks x CTL = leads
+  var gLoans        = gLeads * closeRate;              // leads x close rate = loans
+  var gGross        = gLoans * commission;             // loans x commission = revenue
+  var gCost         = adBudget + 200;                  // ad spend + mgmt fee
+  var gNet          = gGross - gCost;                  // can be negative without AI
+  var gBreakEven    = Math.ceil(gCost / commission);   // loans needed to break even
+  var gNetColor     = gNet >= 0 ? 'var(--green)' : '#ef4444';
+
   document.getElementById('g-clicks').textContent = Math.round(gClicks);
   document.getElementById('g-leads').textContent  = fmtDec(gLeads);
   document.getElementById('g-loans').textContent  = fmtDec(gLoans);
   document.getElementById('g-cost').textContent   = fmt(gCost);
-  document.getElementById('g-net').textContent    = fmt(gNet);
+  document.getElementById('g-net').textContent    = (gNet >= 0 ? '' : '-') + '$' + Math.abs(Math.round(gNet)).toLocaleString();
+  document.getElementById('g-net').style.color    = gNetColor;
+  // Show break-even note
+  var gBreakEl = document.getElementById('g-breakeven');
+  if (gBreakEl) {
+    if (gNet < 0) {
+      gBreakEl.style.display = 'block';
+      gBreakEl.innerHTML = '⚠️ <strong>At '+fmtDec(gLoans)+' loans/mo you need '+gBreakEven+' loans to break even on ad spend.</strong> '
+        +'This is where the <strong style="color:var(--purple);">MobileWise AI Sales Assistant</strong> changes everything — '
+        +'it converts those same '+fmtDec(gLeads)+' leads at 6× the rate, turning a losing campaign into a winning one.';
+    } else {
+      gBreakEl.style.display = 'block';
+      gBreakEl.innerHTML = '✅ <strong>Profitable at current close rate.</strong> Add MobileWise AI to multiply returns further.';
+    }
+  }
 
   // ── MOBILEWISE AI SALES ASSISTANT ──
-  // convRateInput is already a percentage e.g. 3 means 3%
-  // Multiply by 6 to get boosted percentage e.g. 3% x 6 = 18%
+  // convRateInput = user-entered percentage e.g. 3 means 3%
+  // MobileWise AI boosts BOTH website conversion AND Google Ads lead conversion by 6x
   var convRateInput  = parseFloat(document.getElementById('roi-convrate').value) || 2;
-  var boostedRate    = convRateInput * 6; // e.g. 3% x 6 = 18%
-  var currentConv    = convRateInput / 100; // convert to decimal for math
-  var boostedConv    = boostedRate / 100;   // convert to decimal for math
-  var withoutLeads   = visitors * currentConv; // e.g. 500 x 0.03 = 15 leads
-  var withLeads      = visitors * boostedConv; // e.g. 500 x 0.18 = 90 leads
-  var withoutLoans   = withoutLeads * closeRate;
-  var withLoans      = withLeads * closeRate;
+  var boostedRate    = convRateInput * 6; // 3% x 6 = 18%
+  var currentConv    = convRateInput / 100; // 0.03
+  var boostedConv    = boostedRate / 100;   // 0.18
+
+  // WEBSITE LEADS: without vs with AI
+  var webWithoutLeads = visitors * currentConv;         // e.g. 500 x 0.03 = 15
+  var webWithLeads    = visitors * boostedConv;          // e.g. 500 x 0.18 = 90
+  var webWithoutLoans = webWithoutLeads * closeRate;
+  var webWithLoans    = webWithLeads * closeRate;
+
+  // GOOGLE ADS LEADS: MobileWise AI also converts 6x more of ad leads
+  // gLeads already calculated above - AI converts them 6x better
+  var adsWithoutLoans = gLeads * closeRate;             // baseline ad loans (same as gLoans)
+  var adsWithLoans    = gLeads * closeRate * 6;         // 6x close rate on ad leads with AI
+  var adsExtraLoans   = adsWithLoans - adsWithoutLoans;
+
+  // COMBINED totals
+  var withoutLoans   = webWithoutLoans + adsWithoutLoans;
+  var withLoans      = webWithLoans + adsWithLoans;
   var withoutRev     = withoutLoans * commission;
   var withRev        = withLoans * commission;
   var mwExtraLoans   = withLoans - withoutLoans;
@@ -1520,11 +1550,11 @@ function calcROI() {
   var mwNet          = mwGross - mwFee;
 
   document.getElementById('mw-without-rate').textContent  = convRateInput.toFixed(1)+'%';
-  document.getElementById('mw-without-leads').textContent = fmtDec(withoutLeads);
+  document.getElementById('mw-without-leads').textContent = fmtDec(webWithoutLeads + gLeads);
   document.getElementById('mw-without-loans').textContent = fmtDec(withoutLoans);
   document.getElementById('mw-without-rev').textContent   = fmt(withoutRev);
   document.getElementById('mw-with-rate').textContent     = boostedRate.toFixed(1)+'%';
-  document.getElementById('mw-with-leads').textContent    = fmtDec(withLeads);
+  document.getElementById('mw-with-leads').textContent    = fmtDec(webWithLeads + gLeads);
   document.getElementById('mw-with-loans').textContent    = fmtDec(withLoans);
   document.getElementById('mw-with-rev').textContent      = fmt(withRev);
   document.getElementById('mw-extra-loans').textContent   = fmtDec(mwExtraLoans);
@@ -1533,14 +1563,16 @@ function calcROI() {
   document.getElementById('mw-net').textContent           = fmt(mwNet);
 
   // Killer close line
-  if (adBudget > 0 && gLoans > 0) {
+  if (adBudget > 0 && gLeads > 0) {
     var killerEl = document.getElementById('killerClose');
     killerEl.style.display = 'block';
-    killerEl.innerHTML = '💡 <strong>The closer:</strong> "You are already spending '
-      + fmt(adBudget) + '/month on ads generating ' + fmtDec(gLeads) + ' leads. '
-      + 'Without the MobileWise AI Sales Assistant you close ' + fmtDec(gLoans) + ' loans from that spend. '
-      + 'With it you close ' + fmtDec(gLoans * 6) + ' loans from the exact same ad spend. '
-      + 'The assistant pays for itself on the very first extra loan."';
+    killerEl.innerHTML = '💡 <strong style="color:var(--accent);">The Closer — say this on the call:</strong>'
+      + '<br><br>"You are spending ' + fmt(adBudget) + '/month on ads generating ' + fmtDec(gLeads) + ' leads. '
+      + 'Right now you close ' + fmtDec(adsWithoutLoans) + ' loans from those leads. '
+      + 'With the MobileWise AI Sales Assistant working those exact same leads, you close ' + fmtDec(adsWithLoans) + ' loans — '
+      + 'that is <strong>' + fmtDec(adsExtraLoans) + ' extra loans</strong> from ad spend you are already committed to. '
+      + 'Add in ' + fmtDec(webWithLoans - webWithoutLoans) + ' more loans from your website traffic and the AI assistant '
+      + 'pays for itself many times over on the very first month."';
   }
 
   // ── GRAND TOTALS ──
@@ -1577,6 +1609,8 @@ function calcROI() {
     rExtraLoans: fmtDec(rExtraLoans), rNet,
     gClicks: Math.round(gClicks), gLeads: fmtDec(gLeads), gLoans: fmtDec(gLoans), gCost, gNet,
     mwExtraLoans: fmtDec(mwExtraLoans), mwFee, mwNet,
+    webWithoutLoans: fmtDec(webWithoutLoans), webWithLoans: fmtDec(webWithLoans),
+    adsWithoutLoans: fmtDec(adsWithoutLoans), adsWithLoans: fmtDec(adsWithLoans),
     withoutLoans: fmtDec(withoutLoans), withLoans: fmtDec(withLoans)
   };
 }
