@@ -1502,26 +1502,28 @@ function calcROI() {
   document.getElementById('g-net').textContent    = fmt(gNet);
 
   // ── MOBILEWISE AI SALES ASSISTANT ──
-  // Use actual conversion rate entered by Brett
-  var convRateInput = parseFloat(document.getElementById('roi-convrate').value) || 2;
-  var currentConv   = visitors > 0 ? (convRateInput / 100) : 0;
-  var boostedConv   = currentConv * 6;
-  var withoutLeads = visitors * currentConv;
-  var withLeads    = visitors * boostedConv;
-  var withoutLoans = withoutLeads * closeRate;
-  var withLoans    = withLeads * closeRate;
-  var withoutRev   = withoutLoans * commission;
-  var withRev      = withLoans * commission;
-  var mwExtraLoans = withLoans - withoutLoans;
-  var mwGross      = mwExtraLoans * commission;
-  var mwFee        = mwExtraLoans * 150;
-  var mwNet        = mwGross - mwFee;
+  // convRateInput is already a percentage e.g. 3 means 3%
+  // Multiply by 6 to get boosted percentage e.g. 3% x 6 = 18%
+  var convRateInput  = parseFloat(document.getElementById('roi-convrate').value) || 2;
+  var boostedRate    = convRateInput * 6; // e.g. 3% x 6 = 18%
+  var currentConv    = convRateInput / 100; // convert to decimal for math
+  var boostedConv    = boostedRate / 100;   // convert to decimal for math
+  var withoutLeads   = visitors * currentConv; // e.g. 500 x 0.03 = 15 leads
+  var withLeads      = visitors * boostedConv; // e.g. 500 x 0.18 = 90 leads
+  var withoutLoans   = withoutLeads * closeRate;
+  var withLoans      = withLeads * closeRate;
+  var withoutRev     = withoutLoans * commission;
+  var withRev        = withLoans * commission;
+  var mwExtraLoans   = withLoans - withoutLoans;
+  var mwGross        = mwExtraLoans * commission;
+  var mwFee          = mwExtraLoans * 150;
+  var mwNet          = mwGross - mwFee;
 
-  document.getElementById('mw-without-rate').textContent  = (currentConv*100).toFixed(1)+'%';
+  document.getElementById('mw-without-rate').textContent  = convRateInput.toFixed(1)+'%';
   document.getElementById('mw-without-leads').textContent = fmtDec(withoutLeads);
   document.getElementById('mw-without-loans').textContent = fmtDec(withoutLoans);
   document.getElementById('mw-without-rev').textContent   = fmt(withoutRev);
-  document.getElementById('mw-with-rate').textContent     = (boostedConv*100).toFixed(1)+'%';
+  document.getElementById('mw-with-rate').textContent     = boostedRate.toFixed(1)+'%';
   document.getElementById('mw-with-leads').textContent    = fmtDec(withLeads);
   document.getElementById('mw-with-loans').textContent    = fmtDec(withLoans);
   document.getElementById('mw-with-rev').textContent      = fmt(withRev);
@@ -1564,7 +1566,7 @@ function calcROI() {
   window._roiData = {
     name: document.getElementById('roi-name').value || 'there',
     convRate: convRateInput,
-    boostedConvRate: (boostedConv*100).toFixed(1),
+    boostedConvRate: boostedRate.toFixed(1),
     company: document.getElementById('roi-company').value || 'Your Company',
     email: document.getElementById('roi-email').value || '',
     city: document.getElementById('roi-city').value || 'your market',
@@ -1624,10 +1626,10 @@ async function sendROIReport() {
     +'<td style="padding:12px 14px;">'
     +'<div style="font-weight:700;color:#1a3a5c;margin-bottom:4px;">🤖 MobileWise AI Sales Assistant — Website Conversion ×6</div>'
     +'<div style="font-size:0.78rem;color:#777;line-height:1.5;">'
-    +'Your current '+d.convRate+'% website conversion × 6 = <strong>'+d.boostedConvRate+'% new rate</strong>. '
-    +''+d.visitors+' monthly visitors × '+d.convRate+'% = '+d.withoutLoans+' loans today → '+d.visitors+' visitors × '+d.boostedConvRate+'% = <strong>'+d.withLoans+' loans/mo with AI</strong>. '
+    +'Your current website conversion rate is '+d.convRate+'%. The MobileWise AI Sales Assistant multiplies that by 6× giving you a <strong>'+d.boostedConvRate+'% conversion rate</strong>. '
+    +''+d.visitors+' monthly visitors × '+d.convRate+'% = <strong>'+d.withoutLoans+' loans today</strong> vs '+d.visitors+' visitors × '+d.boostedConvRate+'% = <strong>'+d.withLoans+' loans/mo with AI</strong> — that is '+d.mwExtraLoans+' extra loans per month from the same traffic you already have. '
     +'Drift 2023: AI sales assistants deliver 6-10× conversion improvement. '
-    +'Harvard Business Review: responding to leads within 5 min increases conversion by 900% — the MobileWise AI responds in under 3 seconds, 24/7.</div>'
+    +'Harvard Business Review: responding to leads within 5 minutes increases conversion by 900% — the MobileWise AI Sales Assistant responds in under 3 seconds, 24 hours a day, 7 days a week.</div>'
     +'</td>'
     +'<td style="padding:12px 14px;text-align:center;font-weight:700;font-size:1.1rem;">+'+d.mwExtraLoans+'</td>'
     +'<td style="padding:12px 14px;text-align:right;color:#22863a;font-weight:700;font-size:1.1rem;">'+fmt(d.mwNet)+'</td>'
