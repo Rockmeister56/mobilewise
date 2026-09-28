@@ -568,6 +568,7 @@ function renderQueueItem(l,today){
       <button class="qa qa-note" onclick="openNoteModal(${l.id})">\uD83D\uDCDD Note</button>
       <button class="qa qa-call" onclick="markClosedWon(${l.id})" style="color:#22c55e;border-color:rgba(34,197,94,0.35);background:rgba(34,197,94,0.08);">💰 Won</button>
       <button class="qa qa-dead" onclick="openDeadModal(${l.id})">\u274C Dead</button>
+      <button class="qa" onclick="archiveLead(${l.id})" style="color:#94a3b8;border-color:rgba(148,163,184,0.3);background:rgba(148,163,184,0.06);font-size:0.68rem;">📦 Archive</button>
       <button class="qa" onclick="deleteLead(${l.id})" style="color:#ef4444;border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.06);font-size:0.68rem;">🗑️ Delete</button>
       <button class="qa" onclick="openROIForLead(${l.id})" style="color:#f59e0b;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08);">📈 ROI Report</button>
     </div>
@@ -1195,6 +1196,22 @@ function downloadEmailCSV() {
   toast('📧 Downloaded ' + leads.length + ' emails');
 }
 window.downloadEmailCSV = downloadEmailCSV;
+
+async function archiveLead(id) {
+  var lead = allLeads.find(function(l){ return l.id===id; });
+  var name = lead ? (lead.company_name || 'this lead') : 'this lead';
+  try {
+    await sb('PATCH','leads',{sales_status:'📦 Archived'},'?id=eq.'+id);
+    // Remove from active view locally
+    allLeads = allLeads.filter(function(l){ return l.id!==id; });
+    renderQueue(); renderPipeline(); renderAll(); updateBadges();
+    toast('📦 ' + name + ' archived — off your list');
+  } catch(e) {
+    toast('Archive failed — try again');
+    console.error(e);
+  }
+}
+window.archiveLead = archiveLead;
 
 async function deleteLead(id) {
   var lead = allLeads.find(function(l){ return l.id===id; });
