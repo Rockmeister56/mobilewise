@@ -399,7 +399,7 @@ async function loadTodaysBatch(){
   btn.disabled=true; btn.textContent="Loading...";
   try{
     const fresh=await sb("GET","leads","",
-      "?order=created_at.desc&limit=20&status=eq.\uD83D\uDCE7 Emailed&or=(sales_status.is.null,sales_status.eq.New)"
+      "?order=created_at.desc&limit=200&status=eq.%F0%9F%93%A7%20Emailed"
     );
     if(!Array.isArray(fresh)||!fresh.length){
       toast("No new leads from Tommy yet — check back soon");

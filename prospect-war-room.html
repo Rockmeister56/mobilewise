@@ -645,12 +645,12 @@ async function exportToBrett() {
     setTimeout(()=>{ const a2=document.createElement('a'); a2.href=URL.createObjectURL(new Blob([ec],{type:'text/csv'})); a2.download='email-batch-'+new Date().toISOString().slice(0,10)+'.csv'; a2.click(); },600);
   }
 
-  // 3. Tag as Appointment Queue
+  // 3. Mark as Emailed + push to Brett's Client Act queue
   try {
     await sb('PATCH','leads',{status:'📧 Emailed',sales_status:'🆕 New',scraped_date:new Date().toISOString().slice(0,10)},'?id=in.('+ids.join(',')+')');
     batch.forEach(l=>{l.status='📧 Emailed';});
     renderLeads(); updateStats();
-    toast('✅ '+batch.length+' leads exported — voicemail CSV + email CSV downloaded, marked as 📧 Emailed');
+    toast('✅ '+batch.length+' leads exported — voicemail CSV + email CSV downloaded, sent to Client Act');
   } catch(e) { console.error(e); toast('CSVs downloaded but tag failed'); }
 }
 
