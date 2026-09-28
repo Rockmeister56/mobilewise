@@ -534,6 +534,7 @@ function renderQueueItem(l,today){
   const gbpRaw=(l.gbp_score===null||l.gbp_score===undefined||l.gbp_score==="")?null:parseInt(l.gbp_score,10);
   const gbp=(gbpRaw===null||isNaN(gbpRaw))?null:gbpRaw;
   const gbpC=gbp===null?null:(gbp>=70?"#22c55e":gbp>=50?"#f59e0b":"#ef4444");
+  const hasScan=gbp!==null;
   const gbpTag=gbp===null?"":`<span class="qi-tag" style="font-size:0.8rem;font-weight:800;padding:3px 11px;letter-spacing:0.3px;color:${gbpC};border-color:${gbpC}55;background:${gbpC}18;">GBP ${gbp}/100</span>`;
   const indIcon=ind==="Legal"?"\u2696\uFE0F":ind==="Tax Resolution"?"\uD83D\uDCBC":"\uD83C\uDFE0";
   let urgTag="";
@@ -565,8 +566,14 @@ function renderQueueItem(l,today){
         ${l.email?`<div style="margin-top:3px;"><a href="mailto:${esc(l.email)}" style="font-size:0.68rem;color:#34a853;text-decoration:none;">\u2709\uFE0F ${esc(l.email)}</a></div>`:""}
       </div>
     </div>
-    ${l.notes?`<div style="margin-top:8px;font-size:0.72rem;color:rgba(255,255,255,0.55);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);line-height:1.5;"><span style="font-size:0.62rem;color:#0ea5e9;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Tommy's Notes · </span>${esc(l.notes)}</div>`:""}
-    ${l.reviews?`<div style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(52,168,83,0.08);border:1px solid rgba(52,168,83,0.25);border-radius:20px;"><span style="font-size:0.7rem;color:#34a853;font-weight:700;">⭐ ${l.reviews} Google Reviews</span><span style="font-size:0.65rem;color:rgba(255,255,255,0.35);">· Revuee opportunity</span></div>`:""}
+    ${hasScan?`<div style="margin-top:9px;padding:10px 13px;background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.18);border-radius:8px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;">
+      <span style="font-size:0.95rem;font-weight:800;color:${gbpC};letter-spacing:0.3px;">GBP ${gbp}/100</span>
+      <span style="font-size:0.85rem;font-weight:700;color:#34a853;">⭐ ${(l.rating||l.rating===0)?esc(Number(l.rating).toFixed(1))+" · ":""}${l.reviews||0} reviews</span>
+      ${l.address?`<span style="font-size:0.82rem;color:rgba(255,255,255,0.7);">📍 ${esc(l.address)}</span>`:""}
+    </div>`:""}
+    ${l.notes?`<div style="margin-top:8px;font-size:0.82rem;color:rgba(255,255,255,0.7);padding:10px 13px;background:rgba(14,165,233,0.05);border-radius:8px;border-left:3px solid rgba(14,165,233,0.3);line-height:1.65;white-space:pre-line;"><span style="display:block;font-size:0.63rem;color:#0ea5e9;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">${hasScan?"Scan report":"Tommy's Notes"}</span>${esc(l.notes)}</div>`:""}
+    ${l.call_script?`<div style="margin-top:8px;padding:10px 13px;background:rgba(168,85,247,0.07);border:1px solid rgba(168,85,247,0.2);border-radius:8px;"><span style="display:block;font-size:0.63rem;color:#a855f7;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">📞 Opening script</span><span style="font-size:0.84rem;line-height:1.65;color:rgba(255,255,255,0.78);font-style:italic;">${esc(l.call_script)}</span></div>`:""}
+    ${(l.reviews&&!hasScan)?`<div style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(52,168,83,0.08);border:1px solid rgba(52,168,83,0.25);border-radius:20px;"><span style="font-size:0.7rem;color:#34a853;font-weight:700;">⭐ ${l.reviews} Google Reviews</span><span style="font-size:0.65rem;color:rgba(255,255,255,0.35);">· Revuee opportunity</span></div>`:""}
     ${zoomBox}${noteBox}${fuBox}
     <div class="qi-actions">
       <button class="qa qa-call" onclick="logCall(${l.id},'spoke')">\u2705 Spoke With</button>
