@@ -120,6 +120,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <div style="display:flex;align-items:center;gap:6px;">
       <input type="number" id="exportCount" value="60" min="1" max="500" style="width:65px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.3);border-radius:20px;color:#0ea5e9;font-size:0.78rem;padding:6px 10px;outline:none;font-family:inherit;text-align:center;">
       <button class="btn btn-ghost" onclick="exportToBrett()" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.35);color:#0ea5e9;">📤 Export to Brett</button>
+      <button class="btn btn-ghost" onclick="resetCurrentViewToNew()" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);color:#f59e0b;">↩️ Reset to New</button>
     </div>
     <button class="btn btn-ghost" id="apptViewBtn" onclick="toggleApptView()" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">📞 Appointment Setter</button>
     <div class="conn-dot" id="connDot">Connecting...</div>
@@ -653,6 +654,33 @@ async function exportToBrett() {
     toast('✅ '+batch.length+' leads exported — voicemail CSV + email CSV downloaded, sent to Client Act');
   } catch(e) { console.error(e); toast('CSVs downloaded but tag failed'); }
 }
+
+async function resetCurrentViewToNew() {
+  // Build the same filtered view exportToBrett uses
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const cityF  = document.getElementById('cityFilter').value;
+  const indF   = document.getElementById('industryFilter').value;
+
+  let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  data = data.filter(l => l.status !== '📦 Archived');
+  if (search) data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
+  if (cityF)  data = data.filter(l=>l.city===cityF);
+  if (indF)   data = data.filter(l=>(l.industry||'Mortgage')===indF);
+
+  if (!data.length) { toast('No leads in current view to reset'); return; }
+
+  const cityLabel = cityF || indF || 'current view';
+  if (!confirm(`Reset ${data.length} leads in ${cityLabel} back to 🟢 New?\n\nThis lets you re-export them to Brett.`)) return;
+
+  const ids = data.map(l=>l.id);
+  try {
+    await sb('PATCH','leads',{status:'🟢 New',sales_status:null},'?id=in.('+ids.join(',')+')');
+    data.forEach(l=>{ l.status='🟢 New'; l.sales_status=null; });
+    renderLeads(); updateStats();
+    toast('↩️ '+data.length+' leads reset to 🟢 New — ready to re-export');
+  } catch(e) { console.error(e); toast('Reset failed — try again'); }
+}
+window.resetCurrentViewToNew = resetCurrentViewToNew;
 
 async function exportForEmail() {
   // Get currently visible leads that have an email address
