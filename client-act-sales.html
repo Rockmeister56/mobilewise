@@ -527,6 +527,14 @@ function renderQueueItem(l,today){
   else if(ss==="\uD83D\uDD25 Hot") cls="urgent";
   const c=ssColor(ss);
   const ind=l.industry||"Mortgage";
+
+  // GBP score badge. Only drawn when there is a score - leads that did not
+  // come from the market scanner have none, and an empty badge reading
+  // "GBP /100" would look like something had gone wrong.
+  const gbpRaw=(l.gbp_score===null||l.gbp_score===undefined||l.gbp_score==="")?null:parseInt(l.gbp_score,10);
+  const gbp=(gbpRaw===null||isNaN(gbpRaw))?null:gbpRaw;
+  const gbpC=gbp===null?null:(gbp>=70?"#22c55e":gbp>=50?"#f59e0b":"#ef4444");
+  const gbpTag=gbp===null?"":`<span class="qi-tag" style="font-size:0.8rem;font-weight:800;padding:3px 11px;letter-spacing:0.3px;color:${gbpC};border-color:${gbpC}55;background:${gbpC}18;">GBP ${gbp}/100</span>`;
   const indIcon=ind==="Legal"?"\u2696\uFE0F":ind==="Tax Resolution"?"\uD83D\uDCBC":"\uD83C\uDFE0";
   let urgTag="";
   if(isOverdue) urgTag=`<span class="qi-tag" style="color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);">\u26A0\uFE0F CALLBACK OVERDUE</span>`;
@@ -543,6 +551,7 @@ function renderQueueItem(l,today){
         ${l.lead_id?`<div style="font-size:12px;color:#0ea5e9;font-family:monospace;font-weight:600;margin-top:2px;letter-spacing:0.5px;">${esc(l.lead_id)}</div>`:""}
         <div class="qi-contact">${esc(l.contact_name||"")}</div>
         <div class="qi-meta">
+          ${gbpTag}
           ${urgTag}
           <span class="qi-tag" style="color:${c};border-color:${c}40;background:${c}12;">${esc(ss)}</span>
           <span class="qi-tag" style="color:#0ea5e9;border-color:rgba(14,165,233,0.25);background:rgba(14,165,233,0.07);">${indIcon} ${esc(ind)}</span>
@@ -568,6 +577,7 @@ function renderQueueItem(l,today){
       <button class="qa qa-note" onclick="openNoteModal(${l.id})">\uD83D\uDCDD Note</button>
       <button class="qa qa-call" onclick="markClosedWon(${l.id})" style="color:#22c55e;border-color:rgba(34,197,94,0.35);background:rgba(34,197,94,0.08);">💰 Won</button>
       <button class="qa qa-dead" onclick="openDeadModal(${l.id})">\u274C Dead</button>
+      ${l.audit_url?`<a class="qa" href="${esc(l.audit_url)}" target="_blank" rel="noopener noreferrer" style="color:#a855f7;border-color:rgba(168,85,247,0.35);background:rgba(168,85,247,0.08);text-decoration:none;display:inline-block;">🔍 GBP Audit</a>`:""}
       <button class="qa" onclick="archiveLead(${l.id})" style="color:#94a3b8;border-color:rgba(148,163,184,0.3);background:rgba(148,163,184,0.06);font-size:0.68rem;">📦 Archive</button>
       <button class="qa" onclick="deleteLead(${l.id})" style="color:#ef4444;border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.06);font-size:0.68rem;">🗑️ Delete</button>
       <button class="qa" onclick="openROIForLead(${l.id})" style="color:#f59e0b;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08);">📈 ROI Report</button>
