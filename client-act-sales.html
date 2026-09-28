@@ -212,6 +212,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
       <button class="btn btn-amber" onclick="refreshAll()">🔄 Refresh</button>
       <button class="btn btn-ghost" id="selectModeBtn" onclick="toggleSelectMode()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">☑️ Select Leads</button>
+      <button class="btn btn-ghost" onclick="loadTodaysBatch()" style="border-color:rgba(14,165,233,0.5);color:#0ea5e9;font-weight:700;">⚡ Load Today's Leads</button>
       <button class="btn btn-ghost" onclick="downloadVoicemailCSV()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">📞 Export Voicemail CSV</button>
       <button class="btn btn-ghost" onclick="downloadEmailCSV()" style="border-color:rgba(52,168,83,0.4);color:#34a853;">📧 Export Email CSV</button>
     </div>
