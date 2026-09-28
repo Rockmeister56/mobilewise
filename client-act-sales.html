@@ -331,6 +331,54 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
+
+<div id="scriptModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#071628;border:1px solid rgba(168,85,247,0.4);border-radius:20px;padding:24px;width:100%;max-width:780px;max-height:92vh;overflow-y:auto;">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;">
+      <div style="font-size:1.05rem;font-weight:700;color:#a855f7;">Calling Script</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button onclick="scriptZoom(-1)" title="Smaller text" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:3px 10px;cursor:pointer;font-size:0.85rem;font-weight:700;font-family:inherit;">A-</button>
+        <button onclick="scriptZoom(1)" title="Bigger text" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:3px 10px;cursor:pointer;font-size:1.05rem;font-weight:700;font-family:inherit;">A+</button>
+        <button onclick="closeScriptModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;line-height:1;text-align:center;font-family:inherit;">X</button>
+      </div>
+    </div>
+
+    <div id="scriptProspectInfo" style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:12px 16px;margin-bottom:10px;font-size:0.88rem;line-height:1.8;color:rgba(255,255,255,0.85);"></div>
+
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+      <label style="font-size:0.72rem;font-weight:700;color:#34a853;text-transform:uppercase;letter-spacing:1px;">Their email</label>
+      <input id="scriptEmailInput" type="email" placeholder="ask for it on the call&hellip;"
+        style="flex:1;min-width:200px;background:rgba(255,255,255,0.05);border:1px solid rgba(52,168,83,0.35);border-radius:8px;color:#fff;font-size:0.9rem;padding:7px 12px;outline:none;font-family:inherit;">
+      <button id="scriptSendReportBtn" onclick="sendGbpReport()" style="background:rgba(52,168,83,0.18);border:1px solid rgba(52,168,83,0.45);color:#34a853;padding:7px 16px;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">📊 Send GBP Report</button>
+      <a id="scriptAuditBtn" href="#" target="_blank" rel="noopener noreferrer" style="display:none;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.35);color:#a855f7;padding:7px 16px;border-radius:20px;font-size:0.78rem;font-weight:700;text-decoration:none;font-family:inherit;white-space:nowrap;">👁 Open report</a>
+    </div>
+
+    <div id="scriptTextBody" style="font-size:0.95rem;line-height:1.95;color:rgba(255,255,255,0.88);">
+      <div style="font-size:0.75rem;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Gatekeeper Opener</div>
+      <div id="scriptGatekeeper" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:14px 16px;margin-bottom:16px;border-left:3px solid #a855f7;"></div>
+
+      <div style="font-size:0.75rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">When Prospect Answers</div>
+      <div id="scriptProspect" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:14px 16px;margin-bottom:16px;border-left:3px solid #22c55e;"></div>
+
+      <div style="font-size:0.75rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Common Objections</div>
+      <div id="scriptObjections" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:14px 16px;margin-bottom:18px;border-left:3px solid #f59e0b;"></div>
+    </div>
+
+    <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Call Outcome</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="qa qa-zoom" onclick="scriptThen(openZoomModal)">📅 Set Appointment</button>
+      <button class="qa qa-call" onclick="scriptThen(function(id){logCall(id,'spoke');})">✅ Spoke With</button>
+      <button class="qa qa-vm"   onclick="scriptThen(function(id){logCall(id,'noanswer');})">📞 No Answer</button>
+      <button class="qa qa-vm"   onclick="scriptThen(function(id){logCall(id,'voicemail');})">📱 Left VM</button>
+      <button class="qa qa-hot"  onclick="scriptThen(function(id){setStatus(id,'🔥 Hot');})">🔥 Hot</button>
+      <button class="qa qa-note" onclick="scriptThen(openNoteModal)">📝 Note</button>
+      <button class="qa qa-dead" onclick="scriptThen(openDeadModal)">❌ Dead</button>
+    </div>
+
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -578,10 +626,10 @@ function renderQueueItem(l,today){
       ${l.address?`<span style="font-size:0.82rem;color:rgba(255,255,255,0.7);">📍 ${esc(l.address)}</span>`:""}
     </div>`:""}
     ${l.notes?`<div style="margin-top:8px;font-size:0.82rem;color:rgba(255,255,255,0.7);padding:10px 13px;background:rgba(14,165,233,0.05);border-radius:8px;border-left:3px solid rgba(14,165,233,0.3);line-height:1.65;white-space:pre-line;"><span style="display:block;font-size:0.63rem;color:#0ea5e9;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">${hasScan?"Scan report":"Tommy's Notes"}</span>${esc(l.notes)}</div>`:""}
-    ${l.call_script?`<div style="margin-top:8px;padding:10px 13px;background:rgba(168,85,247,0.07);border:1px solid rgba(168,85,247,0.2);border-radius:8px;"><span style="display:block;font-size:0.63rem;color:#a855f7;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">📞 Opening script</span><span style="font-size:0.84rem;line-height:1.65;color:rgba(255,255,255,0.78);font-style:italic;">${esc(l.call_script)}</span></div>`:""}
     ${(l.reviews&&!hasScan)?`<div style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(52,168,83,0.08);border:1px solid rgba(52,168,83,0.25);border-radius:20px;"><span style="font-size:0.7rem;color:#34a853;font-weight:700;">⭐ ${l.reviews} Google Reviews</span><span style="font-size:0.65rem;color:rgba(255,255,255,0.35);">· Revuee opportunity</span></div>`:""}
     ${zoomBox}${noteBox}${fuBox}
     <div class="qi-actions">
+      <button class="qa" onclick="openScriptModal(${l.id})" style="color:#a855f7;border-color:rgba(168,85,247,0.45);background:rgba(168,85,247,0.14);font-weight:700;">\uD83D\uDCCB Script &amp; Call</button>
       <button class="qa qa-call" onclick="logCall(${l.id},'spoke')">\u2705 Spoke With</button>
       <button class="qa qa-call" onclick="logCall(${l.id},'noanswer')">\uD83D\uDCDE No Answer</button>
       <button class="qa qa-vm" onclick="logCall(${l.id},'voicemail')">\uD83D\uDCF1 Left VM</button>
@@ -1042,6 +1090,386 @@ async function saveModal(){
 
 function closeModal(){document.getElementById("actionModal").classList.remove("open");modalLead=null;}
 document.getElementById("actionModal").addEventListener("click",e=>{if(e.target===document.getElementById("actionModal")) closeModal();});
+
+
+// ============================================================================
+// CALLING SCRIPT
+//
+// Ported from the Sales War Room's Appointment Setter, with three changes:
+//   - the gatekeeper is kept as it was, with the company name swapped
+//   - the Revuee body is replaced with the LocalHome Network pitch
+//   - the outcome buttons call Client Act's own functions instead of
+//     re-implementing them, so there is one way to book a Zoom, not two
+//
+// ----------------------------------------------------------------------
+// EDITING THE WORDS
+//
+// Everything said on the phone is in SCRIPT below, as plain text. No code
+// in it. Open this file in any text editor, find SCRIPT, rewrite the
+// sentences. The script is the same for every prospect by design - the
+// only things that change per lead are the GBP score and review count,
+// and those sit in the header at the top of the popup, not in the words.
+//
+// Two rules when editing:
+//   - keep the quotes straight ("), not curly, or the line will break
+//   - a line starting with > renders as an orange prompt label
+//
+// If you ever DO want a line to fill itself in per prospect, these tokens
+// still work anywhere in the text below:
+//
+//   {{caller}}   whoever is calling - CALLER_NAME, just below
+//   {{company}}  {{city}}  {{category}}  {{gbp}}  {{reviews}}
+// ----------------------------------------------------------------------
+
+var CALLER_NAME = 'Brett';
+var CALLER_PHONE = '949-357-0655';
+
+var SCRIPT = {
+
+  // ---- GATEKEEPER -------------------------------------------------------
+  gatekeeper: [
+    '"Is the owner around?"',
+    '',
+    '>May I ask who is calling?',
+    '"Yea, tell him {{caller}} is on the line — they will know what it is in reference to."',
+    '',
+    '>What is this regarding?',
+    '"Personal business — he will know."',
+    '',
+    '>What company are you with?',
+    '"It is the same company on the correspondence email — that is LocalHome Network. He will know what it is in reference to."',
+    '',
+    '>What is this regarding? (again)',
+    '"It is regarding a red flag on his Google Business Profile. If you would please let him know I am on hold, that would be great — thanks."',
+    '',
+    '>If not available:',
+    '"Remember that red flag I mentioned? Tell him I am sending over a follow-up Google Business Profile report that will explain everything. My number is on there — thank you."'
+  ],
+
+  // ---- WHEN THEY PICK UP ------------------------------------------------
+  // FIRST DRAFT - replace with your own wording.
+  prospect: [
+    '"Hey, thanks for taking my call, it’s {{caller}} with LocalHome Network. I know a cold call is an interruption, so give me 30 seconds and if it is not for you I will let you go. Fair enough?"',
+    '',
+    '>If yes:',
+    '"I ran your Google Business Profile this morning. The score is at the top of my screen and it is not where it needs to be — that is costing you leads to competitors right now. But that is not really why I called."',
+    '',
+    '>The actual offer:',
+    '"We are building a referral network in your area — one business per category, invitation only. One landscaper, one roofer, one electrician, and so on. Everybody in it refers to everybody else and links to each other online, which is what moves you up in Google. Your category is open right now."',
+    '',
+    '>Why them:',
+    '"I am not calling everybody. I called you because of where your profile scored — the network fixes exactly what is wrong with it, and you would be in front of every other partner and their whole customer list from day one."',
+    '',
+    '>The ask:',
+    '"Founding members get the first 60 days free, so there is no risk in looking at it. Can I send you the profile report so you can see the score for yourself, and we find ten minutes this week?"',
+    '',
+    '>How much is it?',
+    '"Ninety-nine a month after the free trial, and one business per category means once your category is taken it is gone. That is the whole model — it only works if it stays exclusive."',
+    '',
+    '>Still no:',
+    '"No problem at all. Let me send the report anyway so you can see where you stand on Google — costs you nothing and it is yours to keep. Have a good one."'
+  ],
+
+  // ---- OBJECTIONS -------------------------------------------------------
+  objections: [
+    '>I already get plenty of referrals',
+    '"Good — then you are exactly who the other partners want. This is not about finding you work, it is about being the only one in your category the other businesses around you can send people to."',
+    '',
+    '>Is this an ad thing? Am I buying leads?',
+    '"No. No ad spend, no lead fees, no commission on referrals. Members refer to each other because they are in the same network, and gifts are optional."',
+    '',
+    '>I need to think about it',
+    '"Of course. The only thing with a clock on it is the category spot — one per area, and I am calling others this week. Let me send the report and we can talk after you have looked at it."',
+    '',
+    '>Send me something first',
+    '"That is exactly what I would like to do. What is the best email?"  ← then hit GBP Audit'
+  ]
+};
+
+var scriptLead = null;
+var scriptFontSize = 0.95;
+
+// A-/A+ from the War Room. Same range, same step.
+function scriptZoom(dir) {
+  scriptFontSize = Math.min(1.5, Math.max(0.75, scriptFontSize + (dir * 0.08)));
+  var el = document.getElementById('scriptTextBody');
+  if (el) el.style.fontSize = scriptFontSize + 'rem';
+}
+
+// Turns a SCRIPT section into HTML: fills the tokens, makes >lines into the
+// orange prompt labels, blank entries into paragraph breaks.
+function scriptRender(lines, l) {
+  var map = {
+    '{{company}}':    l.company_name || 'the business',
+    '{{city}}':       l.city || 'your area',
+    '{{category}}':   l.industry || 'business',
+    '{{gbp}}':        (l.gbp_score === null || l.gbp_score === undefined || l.gbp_score === '')
+                        ? '—' : l.gbp_score,
+    '{{reviews}}':    (l.reviews || 0),
+    '{{caller}}':     CALLER_NAME
+  };
+
+  return lines.map(function (raw) {
+    if (!raw) return '<div style="height:11px;"></div>';
+
+    // Check for the > marker on the RAW line. Escaping first would turn it
+    // into &gt; and the test would never match, which is exactly what went
+    // wrong the first time: every prompt rendered as body text with a
+    // stray arrow in front of it.
+    var isPrompt = raw.charAt(0) === '>';
+    var body = isPrompt ? raw.slice(1) : raw;
+
+    // Escape, then substitute, escaping each value as it goes in. The other
+    // order would let a business name containing < or & break the markup.
+    var t = esc(body);
+    Object.keys(map).forEach(function (k) {
+      t = t.split(k).join(esc(String(map[k])));
+    });
+
+    if (isPrompt) {
+      return '<div style="color:#f59e0b;font-style:italic;font-weight:600;margin-top:2px;">'
+           + t + '</div>';
+    }
+    return '<div>' + t + '</div>';
+  }).join('');
+}
+
+function openScriptModal(id) {
+  scriptLead = allLeads.find(function (l) { return l.id === id; });
+  if (!scriptLead) return;
+  var l = scriptLead;
+
+  // The two numbers that change per prospect, big and at the top where they
+  // can be read at a glance mid-call. Everything below this is the same
+  // script every time.
+  var gbp = (l.gbp_score === null || l.gbp_score === undefined || l.gbp_score === '')
+              ? null : parseInt(l.gbp_score, 10);
+  var gc  = gbp === null ? '#94a3b8' : gbp >= 70 ? '#22c55e' : gbp >= 50 ? '#f59e0b' : '#ef4444';
+
+  document.getElementById('scriptProspectInfo').innerHTML =
+      '<div style="font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:8px;">'
+    +   esc(l.company_name || '\u2014')
+    +   (l.city ? ' <span style="font-size:0.8rem;font-weight:400;color:rgba(255,255,255,0.45);">'
+          + esc(l.city) + '</span>' : '')
+    + '</div>'
+    + '<div style="display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;">'
+    +   (gbp === null ? ''
+        : '<span><span style="font-size:1.6rem;font-weight:800;color:' + gc + ';line-height:1;">'
+          + gbp + '</span><span style="font-size:0.8rem;color:rgba(255,255,255,0.45);">/100 GBP</span></span>')
+    +   '<span><span style="font-size:1.6rem;font-weight:800;color:#34a853;line-height:1;">'
+    +     (l.reviews || 0)
+    +   '</span><span style="font-size:0.8rem;color:rgba(255,255,255,0.45);">'
+    +     ' review' + ((l.reviews || 0) === 1 ? '' : 's') + '</span></span>'
+    +   (l.phone ? '<a href="tel:' + esc((l.phone || '').replace(/\D/g, ''))
+          + '" style="font-size:1.05rem;font-weight:700;color:#f59e0b;text-decoration:none;">'
+          + esc(l.phone) + '</a>' : '')
+    + '</div>';
+
+  var emailIn = document.getElementById('scriptEmailInput');
+  emailIn.value = l.email || '';
+  emailIn.style.borderColor = 'rgba(52,168,83,0.35)';
+
+  var sendBtn = document.getElementById('scriptSendReportBtn');
+  sendBtn.disabled = false;
+  sendBtn.style.color = '#34a853';
+  sendBtn.textContent = '\uD83D\uDCCA Send GBP Report';
+
+  var auditBtn = document.getElementById('scriptAuditBtn');
+  if (l.audit_url) { auditBtn.style.display = 'inline-block'; auditBtn.href = l.audit_url; }
+  else             { auditBtn.style.display = 'none'; }
+
+  scriptPaint();
+  document.getElementById('scriptTextBody').style.fontSize = scriptFontSize + 'rem';
+  document.getElementById('scriptModal').style.display = 'flex';
+}
+
+function scriptPaint() {
+  if (!scriptLead) return;
+  document.getElementById('scriptGatekeeper').innerHTML = scriptRender(SCRIPT.gatekeeper, scriptLead);
+  document.getElementById('scriptProspect').innerHTML   = scriptRender(SCRIPT.prospect,   scriptLead);
+  document.getElementById('scriptObjections').innerHTML = scriptRender(SCRIPT.objections, scriptLead);
+}
+
+
+// ============================================================================
+// SEND GBP REPORT
+//
+// Sends the prospect their Google Business Profile report mid-call, through
+// the EmailJS account Client Act already uses for the ROI report.
+//
+// ---------------------------------------------------------------------------
+// ONE-TIME SETUP: create the EmailJS template, then put its ID here.
+// The template HTML is in gbp-report-email.html - paste it into EmailJS,
+// save, copy the template ID it gives you, and replace the line below.
+// ---------------------------------------------------------------------------
+var GBP_REPORT_TEMPLATE = 'template_7feahcr';
+
+// Pulls the bullet list out of the scan notes. The scanner writes them under
+// a "Top gaps:" heading; if that heading is not there - an older lead, or one
+// whose notes were edited by hand - the email simply leaves the section out
+// rather than guessing.
+function gbpGapsFrom(notes) {
+  if (!notes) return [];
+  var i = notes.indexOf('Top gaps:');
+  if (i === -1) return [];
+  return notes.slice(i + 9).split('\n')
+    .map(function (x) { return x.replace(/^[\s•*-]+/, '').trim(); })
+    .filter(function (x) { return x.length > 0; })
+    .slice(0, 5);
+}
+
+// Email HTML. Tables and inline styles only - Gmail and Outlook strip
+// flexbox, grid and <style> blocks, so anything built with divs collapses
+// into a single column of unstyled text.
+function gbpReportHtml(l) {
+  var score = (l.gbp_score === null || l.gbp_score === undefined || l.gbp_score === '')
+                ? null : parseInt(l.gbp_score, 10);
+  var col   = score === null ? '#777' : score >= 70 ? '#22863a' : score >= 50 ? '#b26a00' : '#c0392b';
+  var verdict = score === null ? ''
+              : score >= 70 ? 'Solid, with room to widen the gap.'
+              : score >= 50 ? 'Middle of the pack - competitors are catching up.'
+              : 'Below where it needs to be to compete locally.';
+
+  var h = '<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">';
+
+  if (score !== null) {
+    h += '<tr><td align="center" style="padding:22px 14px;background:#f7f9fc;border-radius:10px;">'
+      +    '<div style="font-size:13px;color:#777;letter-spacing:1px;text-transform:uppercase;">'
+      +      'Google Business Profile score</div>'
+      +    '<div style="font-size:54px;font-weight:800;color:' + col + ';line-height:1.1;margin:6px 0;">'
+      +      score + '<span style="font-size:22px;color:#999;">/100</span></div>'
+      +    '<div style="font-size:14px;color:#555;">' + esc(verdict) + '</div>'
+      +  '</td></tr>';
+  }
+
+  h += '<tr><td style="padding:18px 0 6px;">'
+    +    '<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">'
+    +      '<tr>'
+    +        '<td style="padding:10px 14px;background:#fff;border:1px solid #e6e9ef;font-size:14px;color:#555;">'
+    +          'Google reviews</td>'
+    +        '<td style="padding:10px 14px;background:#fff;border:1px solid #e6e9ef;font-size:15px;'
+    +          'font-weight:700;color:#1a3a5c;text-align:right;">'
+    +          (l.reviews || 0) + (l.rating ? '  (' + esc(String(l.rating)) + ' stars)' : '') + '</td>'
+    +      '</tr>'
+    +      (l.address ? '<tr>'
+    +        '<td style="padding:10px 14px;background:#fff;border:1px solid #e6e9ef;font-size:14px;color:#555;">'
+    +          'Listing address</td>'
+    +        '<td style="padding:10px 14px;background:#fff;border:1px solid #e6e9ef;font-size:14px;'
+    +          'color:#1a3a5c;text-align:right;">' + esc(l.address) + '</td>'
+    +      '</tr>' : '')
+    +    '</table>'
+    +  '</td></tr>';
+
+  var gaps = gbpGapsFrom(l.notes);
+  if (gaps.length) {
+    h += '<tr><td style="padding:14px 0 4px;">'
+      +    '<div style="font-size:13px;font-weight:700;color:#1a3a5c;text-transform:uppercase;'
+      +      'letter-spacing:1px;margin-bottom:8px;">What is holding the profile back</div>';
+    gaps.forEach(function (g) {
+      h += '<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-bottom:6px;">'
+        +    '<tr><td width="22" valign="top" style="padding:8px 0 8px 12px;background:#fff8e1;'
+        +      'font-size:15px;color:#b26a00;">&bull;</td>'
+        +    '<td style="padding:8px 14px 8px 4px;background:#fff8e1;font-size:14px;color:#5a4a20;'
+        +      'line-height:1.5;">' + esc(g) + '</td></tr>'
+        +  '</table>';
+    });
+    h += '</td></tr>';
+  }
+
+  return h + '</table>';
+}
+
+async function sendGbpReport() {
+  if (!scriptLead) return;
+  var l = scriptLead;
+
+  var input = document.getElementById('scriptEmailInput');
+  var to = (input.value || '').trim();
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) {
+    input.style.borderColor = '#ef4444';
+    input.focus();
+    toast('Enter their email address first');
+    return;
+  }
+  input.style.borderColor = 'rgba(52,168,83,0.35)';
+
+  if (GBP_REPORT_TEMPLATE.indexOf('PASTE_ID') !== -1) {
+    toast('EmailJS template not set yet — see GBP_REPORT_TEMPLATE in this file');
+    return;
+  }
+
+  var btn = document.getElementById('scriptSendReportBtn');
+  var label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  try {
+    await emailjs.send('service_b9bppgb', GBP_REPORT_TEMPLATE, {
+      user_email:    to,
+      reply_to:      'mobilewise.ai@gmail.com',
+      from_name:     CALLER_NAME + ' | LocalHome Network',
+      subject:       'Your Google Business Profile report'
+                     + (l.company_name ? ' — ' + l.company_name : ''),
+      company_name:  l.company_name || '',
+      city:          l.city || '',
+      gbp_score:     (l.gbp_score === null || l.gbp_score === undefined) ? '' : String(l.gbp_score),
+      reviews:       String(l.reviews || 0),
+      gbp_report:    gbpReportHtml(l),
+      // Their live audit page. The email carries a snapshot; this link is
+      // the full thing, and it keeps working after the call.
+      report_link:   l.audit_url || '',
+      caller_name:   CALLER_NAME,
+      caller_phone:  CALLER_PHONE
+    });
+
+    btn.textContent = '✅ Sent to ' + to;
+    btn.style.color = '#22c55e';
+    toast('📊 Report sent to ' + to);
+
+    // Keep the address. Places never gives one, so an email typed during a
+    // call is the only one this lead will ever have.
+    if (to !== (l.email || '')) {
+      l.email = to;
+      try {
+        await sb('PATCH', 'leads', {email: to}, '?id=eq.' + l.id);
+        renderQueue(); renderPipeline(); renderAll();
+      } catch (e) {
+        console.error('email save failed:', e);
+        toast('Report sent, but the address did not save');
+      }
+    }
+
+  } catch (e) {
+    console.error('GBP report send failed:', e);
+    btn.disabled = false;
+    btn.textContent = label;
+    // EmailJS rejects with {status,text}; ordinary errors use .message.
+    toast('Send failed: ' + (e.text || e.message || 'check EmailJS'));
+  }
+}
+
+window.sendGbpReport = sendGbpReport;
+
+function closeScriptModal() {
+  document.getElementById('scriptModal').style.display = 'none';
+  scriptLead = null;
+}
+
+// The outcome buttons hand off to the functions Client Act already has,
+// rather than repeating their logic here. One booking flow, one place that
+// sets a status, one set of rules about callback dates.
+function scriptThen(fn) {
+  var id = scriptLead ? scriptLead.id : null;
+  closeScriptModal();
+  if (id !== null) fn(id);
+}
+
+window.openScriptModal = openScriptModal;
+window.closeScriptModal = closeScriptModal;
+window.scriptZoom = scriptZoom;
+window.scriptPaint = scriptPaint;
+window.scriptThen = scriptThen;
 
 function esc(s){if(!s)return"";return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2800);}
