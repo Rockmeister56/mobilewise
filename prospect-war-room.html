@@ -249,7 +249,7 @@ let activeWeek = 'all';
 let modalText  = '';
 
 // ── Supabase ──────────────────────────────────────────────
-async function sb(method, table, body=null, query='') {
+async async function sb(method, table, body=null, query='') {
   const res = await fetch(`${SB_URL}/rest/v1/${table}${query}`, {
     method,
     headers:{
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Load Leads ────────────────────────────────────────────
 // Step 1: Only fetch distinct week labels on startup — no lead data yet
-async function loadLeads() {
+async async function loadLeads() {
   document.getElementById('leadsLoading').style.display = 'block';
   document.getElementById('leadsBody').innerHTML = '';
   document.getElementById('leadsEmpty').style.display = 'none';
@@ -311,7 +311,7 @@ async function loadLeads() {
 }
 
 // ── Week Tabs — built from label list only, no lead data needed ──
-function buildWeekTabs(weeks, ind) {
+async function buildWeekTabs(weeks, ind) {
   const bar = document.getElementById('weekBar');
   bar.innerHTML = '';
   weeks.forEach(w => {
@@ -577,74 +577,89 @@ function toast(msg) {
 }
 
 async function exportToBrett() {
-  const countInput = document.getElementById('exportCount');
-  const count = parseInt(countInput ? countInput.value : 60) || 60;
+  // Use exactly what is currently on screen — city filter, week, search all already applied
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const cityF  = document.getElementById('cityFilter').value;
+  const indF   = document.getElementById('industryFilter').value;
 
-  // Get current filtered leads that have phone numbers and haven't been exported yet
-  const search  = document.getElementById('searchInput').value.toLowerCase();
-  const cityF   = document.getElementById('cityFilter').value;
-  const indF    = document.getElementById('industryFilter').value;
-
-  let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  let data = activeWeek === 'all' ? allLeads : allLeads.filter(l => l.week_label === activeWeek);
   data = data.filter(l => l.status !== '📦 Archived');
-  if (search) data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
-  if (cityF)  data = data.filter(l=>l.city===cityF);
-  if (indF)   data = data.filter(l=>(l.industry||'Mortgage')===indF);
+  if (search) data = data.filter(l => (l.company_name + l.contact_name + l.city + (l.email||'')).toLowerCase().includes(search));
+  if (cityF)  data = data.filter(l => l.city === cityF);
+  if (indF)   data = data.filter(l => (l.industry || 'Mortgage') === indF);
 
-  // Only grab leads that have a phone number and haven't been sent to Brett yet
-  const eligible = data.filter(l => l.phone && l.status !== '📧 Emailed');
-  const batch    = eligible.slice(0, count);
+  // Only leads not already emailed
+  const eligible = data.filter(l => l.status !== '📧 Emailed');
+  const batch    = eligible; // Export ALL that are visible, not capped
 
   if (!batch.length) {
-    alert('No eligible leads found in current view.\n\nMake sure leads have phone numbers and haven\'t already been exported.');
+    alert('No leads to export.\n\nAll leads in this view may already be marked Emailed, or no leads are loaded yet.\n\nTip: Select a city and date range first.');
     return;
   }
 
+  const cityLabel = cityF || 'All Cities';
   const confirmed = confirm(
-    `Export ${batch.length} lead${batch.length!==1?'s':''} to Brett\'s Sales Dashboard?\n\n` +
-    `This will:\n` +
-    `✅ Mark ${batch.length} leads as 📧 Emailed\n` +
-    `✅ Send them to Brett\'s queue instantly\n` +
-    `✅ Brett uses these for his voicemail drop today\n\n` +
-    `Continue?`
+    'Export ' + batch.length + ' lead' + (batch.length !== 1 ? 's' : '') + ' from ' + cityLabel + '?\n\n' +
+    'This will:\n' +
+    '✅ Download a voicemail CSV (phone + first name)\n' +
+    '✅ Download an email CSV (name + email)\n' +
+    '✅ Mark all ' + batch.length + ' leads as Emailed in the system\n\n' +
+    'Continue?'
   );
   if (!confirmed) return;
 
   const ids = batch.map(l => l.id);
+  const today = new Date().toISOString().slice(0, 10);
 
-  // 1. Voicemail CSV
-  let vmCsv = '';
+  // 1. Voicemail drop CSV — phone + first name
+  let vmCsv = 'Phone,FirstName\n';
   batch.forEach(l => {
-    const ph = (l.phone||'').replace(/\D/g,'');
-    const fn = (l.contact_name||'').split(' ')[0]||'Friend';
-    if (ph.length>=10) vmCsv += ph+','+fn+'\n';
+    const ph = (l.phone || '').replace(/\D/g, '');
+    const fn = (l.contact_name || '').split(' ')[0] || 'Friend';
+    if (ph.length >= 10) vmCsv += ph + ',' + fn + '\n';
   });
-  if (vmCsv) {
-    const a1=document.createElement('a');
-    a1.href=URL.createObjectURL(new Blob([vmCsv],{type:'text/csv'}));
-    a1.download='voicemail-'+new Date().toISOString().slice(0,10)+'.csv';
-    a1.click();
-  }
+  const a1 = document.createElement('a');
+  a1.href     = URL.createObjectURL(new Blob([vmCsv], {type: 'text/csv'}));
+  a1.download = 'brett-voicemail-' + cityLabel.replace(/\s/g,'-') + '-' + today + '.csv';
+  a1.click();
 
-  // 2. Email CSV
-  const withEmail=batch.filter(l=>l.email&&l.email.trim());
+  // 2. Email CSV — first name + email + company + city
+  const withEmail = batch.filter(l => l.email && l.email.trim());
   if (withEmail.length) {
-    let ec='FirstName,Email,Reviews\n';
-    withEmail.forEach(l=>{
-      const fn=(l.contact_name||'').split(' ')[0]||'Friend';
-      ec+='"'+fn.replace(/"/g,'')+'","'+(l.email||'').replace(/"/g,'')+'","'+(l.reviews||'')+'"\n';
+    let ec = 'FirstName,LastName,Email,Company,City,Phone,Reviews\n';
+    withEmail.forEach(l => {
+      const parts = (l.contact_name || '').split(' ');
+      const fn = parts[0] || 'Friend';
+      const ln = parts.slice(1).join(' ') || '';
+      ec += '"' + fn.replace(/"/g,'') + '",'
+          + '"' + ln.replace(/"/g,'') + '",'
+          + '"' + (l.email||'').replace(/"/g,'') + '",'
+          + '"' + (l.company_name||'').replace(/"/g,'') + '",'
+          + '"' + (l.city||'').replace(/"/g,'') + '",'
+          + '"' + (l.phone||'').replace(/"/g,'') + '",'
+          + '"' + (l.reviews||'') + '"\n';
     });
-    setTimeout(()=>{ const a2=document.createElement('a'); a2.href=URL.createObjectURL(new Blob([ec],{type:'text/csv'})); a2.download='email-batch-'+new Date().toISOString().slice(0,10)+'.csv'; a2.click(); },600);
+    setTimeout(() => {
+      const a2 = document.createElement('a');
+      a2.href     = URL.createObjectURL(new Blob([ec], {type: 'text/csv'}));
+      a2.download = 'brett-email-' + cityLabel.replace(/\s/g,'-') + '-' + today + '.csv';
+      a2.click();
+    }, 600);
   }
 
-  // 3. Tag as Appointment Queue
+  // 3. Mark all as 📧 Emailed in Supabase
   try {
-    await sb('PATCH','leads',{status:'🔔 Appointment Queue',scraped_date:new Date().toISOString().slice(0,10)},'?id=in.('+ids.join(',')+')');
-    batch.forEach(l=>{l.status='🔔 Appointment Queue';});
-    renderLeads(); updateStats();
-    toast('✅ '+batch.length+' leads: voicemail CSV + email CSV + appointment queue tagged');
-  } catch(e) { console.error(e); toast('CSVs downloaded but tag failed'); }
+    await sb('PATCH', 'leads', {status: '📧 Emailed'}, '?id=in.(' + ids.join(',') + ')');
+    batch.forEach(l => { l.status = '📧 Emailed'; });
+    renderLeads();
+    updateStats();
+    toast('✅ ' + batch.length + ' leads exported — voicemail + email CSVs downloaded, marked as Emailed');
+  } catch(e) {
+    console.error(e);
+    toast('CSVs downloaded — status update failed, check connection');
+  }
 }
+
 
 async function exportForEmail() {
   // Get currently visible leads that have an email address
@@ -734,7 +749,7 @@ function updateBulkBar() {
   }
 }
 
-function clearSelection() {
+async function clearSelection() {
   document.querySelectorAll('.lead-check').forEach(c => c.checked = false);
   const selAll = document.getElementById('selectAll');
   if (selAll) selAll.checked = false;
@@ -935,7 +950,7 @@ function openScriptModal(id){
   document.getElementById('scriptModal').style.display='flex';
 }
 
-function closeScriptModal(){document.getElementById('scriptModal').style.display='none';currentApptLead=null;}
+async function closeScriptModal(){document.getElementById('scriptModal').style.display='none';currentApptLead=null;}
 
 async function logApptCall(type){
   if(!currentApptLead) return;
@@ -968,7 +983,7 @@ function openApptForm(){
   document.getElementById('apptFormModal').style.display='flex';
 }
 
-function closeApptForm(){document.getElementById('apptFormModal').style.display='none';document.getElementById('scriptModal').style.display='flex';}
+async function closeApptForm(){document.getElementById('apptFormModal').style.display='none';document.getElementById('scriptModal').style.display='flex';}
 
 async function sendApptToBrett(){
   if(!currentApptLead) return;
