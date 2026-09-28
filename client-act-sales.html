@@ -466,8 +466,7 @@ async function loadClosedDeals(){
           </div>
           <div style="text-align:right;">
             ${d.email?`<div style="font-size:0.8rem;color:#34a853;">\u2709\uFE0F ${esc(d.email)}</div>`:""}
-        ${l.address?`<div style="margin-top:3px;font-size:0.65rem;color:rgba(255,255,255,0.35);">${esc(l.address)}</div>`:""}
-        ${l.address?`<div style="margin-top:3px;font-size:0.65rem;color:rgba(255,255,255,0.35);">${esc(l.address)}</div>`:""}
+        ${d.address?`<div style="margin-top:3px;font-size:0.65rem;color:rgba(255,255,255,0.35);">${esc(d.address)}</div>`:""}
           </div>
         </div>
         ${d.sales_notes?`<div class="qi-note-box">\uD83D\uDCAC ${esc(d.sales_notes)}</div>`:""}
