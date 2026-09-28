@@ -647,7 +647,7 @@ async function exportToBrett() {
 
   // 3. Tag as Appointment Queue
   try {
-    await sb('PATCH','leads',{status:'📧 Emailed',scraped_date:new Date().toISOString().slice(0,10)},'?id=in.('+ids.join(',')+')');
+    await sb('PATCH','leads',{status:'📧 Emailed',sales_status:'🆕 New',scraped_date:new Date().toISOString().slice(0,10)},'?id=in.('+ids.join(',')+')');
     batch.forEach(l=>{l.status='📧 Emailed';});
     renderLeads(); updateStats();
     toast('✅ '+batch.length+' leads exported — voicemail CSV + email CSV downloaded, marked as 📧 Emailed');

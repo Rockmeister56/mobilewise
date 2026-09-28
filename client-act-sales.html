@@ -213,6 +213,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       <button class="btn btn-amber" onclick="refreshAll()">🔄 Refresh</button>
       <button class="btn btn-ghost" id="selectModeBtn" onclick="toggleSelectMode()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">☑️ Select Leads</button>
       <button class="btn btn-ghost" onclick="downloadVoicemailCSV()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">📞 Export Voicemail CSV</button>
+      <button class="btn btn-ghost" onclick="downloadEmailCSV()" style="border-color:rgba(52,168,83,0.4);color:#34a853;">📧 Export Email CSV</button>
     </div>
   </div>
   <div id="selectionBar" style="display:none;background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:12px 18px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
@@ -567,6 +568,7 @@ function renderQueueItem(l,today){
       <button class="qa qa-note" onclick="openNoteModal(${l.id})">\uD83D\uDCDD Note</button>
       <button class="qa qa-call" onclick="markClosedWon(${l.id})" style="color:#22c55e;border-color:rgba(34,197,94,0.35);background:rgba(34,197,94,0.08);">💰 Won</button>
       <button class="qa qa-dead" onclick="openDeadModal(${l.id})">\u274C Dead</button>
+      <button class="qa" onclick="deleteLead(${l.id})" style="color:#ef4444;border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.06);font-size:0.68rem;">🗑️ Delete</button>
       <button class="qa" onclick="openROIForLead(${l.id})" style="color:#f59e0b;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08);">📈 ROI Report</button>
     </div>
   </div>`;
@@ -1162,6 +1164,54 @@ async function flushNewLeads() {
     console.error(e);
   }
 }
+function downloadEmailCSV() {
+  var dead = ['💰 Closed Won','❌ Closed Lost','🚫 Do Not Call'];
+  var indF = document.getElementById('queueIndustry') ? document.getElementById('queueIndustry').value : '';
+  var leads = allLeads.filter(function(l) {
+    if (!l.email || !l.email.trim()) return false;
+    if (indF && (l.industry||'Mortgage') !== indF) return false;
+    if (dead.indexOf(l.sales_status||'') !== -1) return false;
+    return true;
+  });
+  if (!leads.length) { toast('No leads with email addresses in queue'); return; }
+  var csv = 'FirstName,LastName,Email,Company,City,Phone,Reviews\n';
+  leads.forEach(function(l) {
+    var parts = (l.contact_name||'').split(' ');
+    var fn = parts[0] || 'Friend';
+    var ln = parts.slice(1).join(' ') || '';
+    var ph = (l.phone||'').replace(/\D/g,'');
+    csv += '"'+fn.replace(/"/g,'')+'",'
+         + '"'+ln.replace(/"/g,'')+'",'
+         + '"'+(l.email||'').replace(/"/g,'')+'",'
+         + '"'+(l.company_name||'').replace(/"/g,'')+'",'
+         + '"'+(l.city||'').replace(/"/g,'')+'",'
+         + '"'+ph+'",'
+         + '"'+(l.reviews||'')+'"\n';
+  });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'email-list-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('📧 Downloaded ' + leads.length + ' emails');
+}
+window.downloadEmailCSV = downloadEmailCSV;
+
+async function deleteLead(id) {
+  var lead = allLeads.find(function(l){ return l.id===id; });
+  var name = lead ? (lead.company_name || 'this lead') : 'this lead';
+  if (!confirm('Delete ' + name + '?\n\nThis permanently removes them from Supabase. Cannot be undone.')) return;
+  try {
+    await sb('DELETE','leads',null,'?id=eq.'+id);
+    allLeads = allLeads.filter(function(l){ return l.id!==id; });
+    renderQueue(); renderPipeline(); renderAll(); updateBadges();
+    toast('🗑️ ' + name + ' deleted');
+  } catch(e) {
+    toast('Delete failed — try again');
+    console.error(e);
+  }
+}
+window.deleteLead = deleteLead;
+
 window.flushNewLeads = flushNewLeads;
 
 window.toggleSelectMode = toggleSelectMode;
