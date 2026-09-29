@@ -347,6 +347,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     <div id="scriptProspectInfo" style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:12px 16px;margin-bottom:10px;font-size:0.88rem;line-height:1.8;color:rgba(255,255,255,0.85);"></div>
 
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+      <span id="scriptWhoChip" style="display:none;background:rgba(14,165,233,0.14);border:1px solid rgba(14,165,233,0.4);color:#0ea5e9;padding:6px 13px;border-radius:20px;font-size:0.85rem;font-weight:700;white-space:nowrap;"></span>
       <label style="font-size:0.72rem;font-weight:700;color:#34a853;text-transform:uppercase;letter-spacing:1px;">Their email</label>
       <input id="scriptEmailInput" type="email" placeholder="ask for it on the call&hellip;"
         style="flex:1;min-width:200px;background:rgba(255,255,255,0.05);border:1px solid rgba(52,168,83,0.35);border-radius:8px;color:#fff;font-size:0.9rem;padding:7px 12px;outline:none;font-family:inherit;">
@@ -613,8 +614,9 @@ function renderQueueItem(l,today){
           ${l.city?`<span class="qi-tag" style="color:#94a3b8;border-color:rgba(148,163,184,0.2);background:rgba(148,163,184,0.06);">\uD83D\uDCCD ${esc(l.city)}</span>`:""}
         </div>
       </div>
-      <div style="flex:1 1 auto;display:flex;justify-content:center;align-self:center;min-width:0;padding:0 8px;">
+      <div style="flex:1 1 auto;display:flex;justify-content:center;align-items:center;gap:8px;align-self:center;min-width:0;padding:0 8px;">
         <button onclick="openScriptModal(${l.id})" style="background:rgba(168,85,247,0.16);border:1px solid rgba(168,85,247,0.45);color:#a855f7;padding:12px 26px;border-radius:24px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">\uD83D\uDCCB Script &amp; Call</button>
+        <button onclick="openBrokerModal(${l.id})" title="Name and email of the person to ask for" style="background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.4);color:#0ea5e9;padding:12px 18px;border-radius:24px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">${(l.contact_name||l.email)?`\uD83D\uDC64 ${esc((l.contact_name||l.email).split(" ")[0])}`:"\uD83D\uDC64 + Broker info"}</button>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div class="qi-phone">${l.phone?`<a href="tel:${esc(l.phone.replace(/\D/g,""))}">${esc(l.phone)}</a>`:"\u2014"}</div>
@@ -980,6 +982,33 @@ function openActionModal(id){
   document.getElementById("actionModal").classList.add("open");
 }
 
+// Broker info. Google Places gives a business, never a person - so the name
+// and email of the human who actually answers the phone have to be typed in
+// once, usually straight off an NMLS lookup. Both feed the script popup.
+function openBrokerModal(id){
+  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  const parts=(modalLead.contact_name||"").trim().split(/\s+/);
+  const first=parts[0]||"";
+  const last=parts.slice(1).join(" ");
+  document.getElementById("modalTitle").textContent=
+    `\uD83D\uDC64 Broker info \u2014 ${modalLead.company_name||""}`;
+  document.getElementById("modalBody").innerHTML=`
+    <label>First Name</label>
+    <input type="text" id="m-firstname" placeholder="Vince" value="${esc(first)}">
+    <label>Last Name</label>
+    <input type="text" id="m-lastname" placeholder="Carter" value="${esc(last)}">
+    <label>Email</label>
+    <input type="email" id="m-brokeremail" placeholder="leave blank if you could not find it"
+      value="${esc(modalLead.email||"")}">
+    <div style="font-size:0.72rem;color:var(--muted);margin-top:10px;line-height:1.6;">
+      Whatever you put here shows up in the calling script \u2014 the name to ask
+      for, and the address the GBP report goes to. Both can be left blank and
+      filled in during the call.
+    </div>`;
+  document.getElementById("actionModal").classList.add("open");
+}
+window.openBrokerModal=openBrokerModal;
+
 function openNoteModal(id){
   modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
   document.getElementById("modalTitle").textContent=`\uD83D\uDCDD Note \u2014 ${modalLead.company_name||""}`;
@@ -1028,6 +1057,28 @@ async function saveModal(){
   const fudateEl=get("m-fudate");
   const zoomEl=get("m-zoom");
   const zoomdateEl=get("m-zoomdate");
+
+  // Broker info saves on its own and stops here. It touches no pipeline
+  // field, so it must not fall through into the status, callback and
+  // Closed-Won logic below.
+  const firstEl=get("m-firstname");
+  if(firstEl){
+    const full=[firstEl.value.trim(), (get("m-lastname").value||"").trim()]
+                 .filter(Boolean).join(" ");
+    const mail=(get("m-brokeremail").value||"").trim();
+    const bp={contact_name: full||null, email: mail||null};
+    try{
+      await sb("PATCH","leads",bp,`?id=eq.${modalLead.id}`);
+      Object.assign(modalLead,bp);
+      closeModal();
+      toast(full||mail ? "\u2713 Broker info saved" : "Broker info cleared");
+      renderQueue();renderPipeline();renderAll();
+    }catch(e){
+      console.error("broker save failed:",e);
+      toast("Could not save \u2014 try again");
+    }
+    return;
+  }
 
   if(notesEl) patch.sales_notes=notesEl.value;
   if(statusEl) patch.sales_status=statusEl.value;
@@ -1266,6 +1317,19 @@ function openScriptModal(id) {
           + '" style="font-size:1.05rem;font-weight:700;color:#f59e0b;text-decoration:none;">'
           + esc(l.phone) + '</a>' : '')
     + '</div>';
+
+  // Who to ask for. Filled from the Broker info form; hidden entirely when
+  // there is no name, rather than showing an empty chip.
+  var who = (l.contact_name || '').trim();
+  var chip = document.getElementById('scriptWhoChip');
+  if (who) {
+    chip.style.display = 'inline-block';
+    chip.textContent = '\uD83D\uDC64 ' + who.split(/\s+/)[0];
+    chip.title = who;
+  } else {
+    chip.style.display = 'none';
+    chip.textContent = '';   // so a stale name cannot flash on the next open
+  }
 
   var emailIn = document.getElementById('scriptEmailInput');
   emailIn.value = l.email || '';
