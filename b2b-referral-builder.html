@@ -561,13 +561,39 @@ async function sendInvite(id) {
   var first = (l.contact_name || '').trim().split(/\s+/)[0] || '';
   var city  = l.city || 'your area';
   var cat   = l.industry || 'your category';
-  // "Mike at Cornerstone Mortgage", carried over when the member referred
-  // them. Absent on scanner leads and Tommy's own scrapes, and the letter
-  // reads differently when there is nobody to name.
-  var ref   = (l.referred_by_name || '').trim();
+
+  // "Mike at Cornerstone Mortgage", carried over when a member referred them.
+  var ref = (l.referred_by_name || '').trim();
+
+  // Rows pushed before that column existed have nothing in it, but the note
+  // written at the time still says who referred them - "Warm referral from
+  // Cornerstone Mortgage in Irvine." Recovering the name from there means an
+  // older lead still gets a warm letter instead of a cold one.
+  if (!ref) {
+    var m = /Warm referral from ([^.]+?)(?: in [^.]+)?\./.exec(l.notes || '');
+    if (m) ref = m[1].trim();
+  }
+
+  // The whole point of this email is that it is personal, so a missing first
+  // name is worth one question rather than silently sending "Hi,".
+  if (!first) {
+    var typed = prompt('Who should this be addressed to?\n\n'
+      + 'First name of the person at ' + (l.company_name || 'this business')
+      + '.\nLeave it blank to send without a name.', '');
+    if (typed === null) return;              // cancelled the whole send
+    first = typed.trim().split(/\s+/)[0] || '';
+    if (first) {
+      // Saved, so the next person to touch this lead has the name too.
+      try {
+        await sb('PATCH','leads',{contact_name: typed.trim()},'?id=eq.' + id);
+        l.contact_name = typed.trim();
+      } catch (e) { console.error('Could not save the name:', e); }
+    }
+  }
 
   if (!confirm('Send the LocalHome Network invitation to ' + l.email + '?\n\n'
-             + (ref ? 'It opens by naming ' + ref + ' as the referral.\n' : '')
+             + 'Opens with: ' + (first ? '"Hi ' + first + ',"' : 'no name') + '\n'
+             + 'Referral:   ' + (ref || 'none \u2014 this will read as a cold intro') + '\n\n'
              + 'They get a link to claim the ' + cat + ' spot in ' + city + '.')) return;
 
   var link = APPLY_URL
