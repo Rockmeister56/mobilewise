@@ -486,10 +486,8 @@ function renderLeads() {
         ${l.maps_url?`<a class="lbtn lbtn-b" href="${esc(l.maps_url)}" target="_blank">📍 Maps</a>`:'—'}
         <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent((l.company_name||'')+'  NMLS number broker')}" target="_blank"
           style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);margin-top:4px;display:inline-block;">🔍 NMLS</a>
-        <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent((l.company_name||'')+' webmaster')}" target="_blank"
-          style="background:rgba(14,165,233,0.12);color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);margin-top:4px;display:inline-block;">🌐 WM</a>
-        ${l.email?`<a class="lbtn" onclick="sendInvite(${l.id});return false;" href="#"
-          style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">✉️ Invite</a>`:''}
+        <a class="lbtn" onclick="sendInvite(${l.id});return false;" href="#"
+          style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">✉️ Invite</a>
       </td>
       <td><span style="font-size:0.7rem;padding:3px 9px;border-radius:12px;white-space:nowrap;background:${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.15)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.15)':'rgba(52,168,83,0.1)'};color:${(l.industry||'Mortgage')==='Legal'?'#ce93d8':(l.industry||'Mortgage')==='Tax Resolution'?'#ffb74d':'#81c784'};border:1px solid ${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.4)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.4)':'rgba(52,168,83,0.3)'};">${(l.industry||'Mortgage')==='Legal'?'⚖️ Legal':(l.industry||'Mortgage')==='Tax Resolution'?'💼 Tax':'🏠 Mortgage'}</span></td>
       <td>
@@ -507,6 +505,10 @@ function renderLeads() {
       <td>${l.outreach_msg?`<button class="lbtn lbtn-g" onclick="showOutreach(${l.id})" style="cursor:pointer;border:none;">📧 View</button>`:'—'}</td>
       <td style="font-size:0.7rem;color:rgba(255,255,255,0.3);white-space:nowrap;">${esc(l.week_label||'—')}</td>
       <td>
+        <button class="lbtn" onclick="openBrokerModal(${l.id})"
+          style="background:rgba(14,165,233,0.1);color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);cursor:pointer;margin-right:5px;">
+          ${(l.contact_name||l.email)?`👤 ${esc((l.contact_name||l.email).split(' ')[0])}`:'👤 + Broker'}
+        </button>
         <button class="lbtn" onclick="archiveLead(${l.id})" 
           style="background:rgba(255,152,0,0.1);color:#ff9800;border:1px solid rgba(255,152,0,0.3);cursor:pointer;">
           📦 Archive
@@ -574,7 +576,11 @@ function plainSubject(t) {
 async function sendInvite(id) {
   var l = allLeads.find(function (x) { return x.id === id; });
   if (!l) return;
-  if (!l.email) { toast('Add an email in the Email column first'); return; }
+  if (!l.email) {
+    toast('No email yet \u2014 add one with the \uD83D\uDC64 Broker button');
+    openBrokerModal(id);
+    return;
+  }
 
   var first = (l.contact_name || '').trim().split(/\s+/)[0] || '';
   var city  = l.city || 'your area';
@@ -1195,6 +1201,75 @@ function renderApptCard(l,today){
   +'</div>';
 }
 
+// ── BROKER INFO ────────────────────────────────────────────────────────────
+// The name and email of the person who actually answers the phone. Google
+// Places never supplies either, so on a scanned business both start empty
+// and get filled in from an NMLS lookup or a call.
+//
+// The table columns edit the same two fields; this is the version you reach
+// for when you have both to enter at once and want them in front of you.
+var brokerLeadId = null;
+
+function openBrokerModal(id) {
+  var l = allLeads.find(function (x) { return x.id === id; });
+  if (!l) return;
+  brokerLeadId = id;
+
+  var parts = (l.contact_name || '').trim().split(/\s+/).filter(Boolean);
+  document.getElementById('brokerCompany').textContent =
+    (l.company_name || '') + (l.city ? ' · ' + l.city : '');
+  document.getElementById('brokerFirst').value = parts[0] || '';
+  document.getElementById('brokerLast').value  = parts.slice(1).join(' ');
+  document.getElementById('brokerEmail').value = l.email || '';
+  document.getElementById('brokerModal').style.display = 'flex';
+  setTimeout(function () {
+    var f = document.getElementById('brokerFirst');
+    if (f && f.focus) f.focus();
+  }, 60);
+}
+
+function closeBrokerModal() {
+  document.getElementById('brokerModal').style.display = 'none';
+  brokerLeadId = null;
+}
+
+async function saveBroker() {
+  if (brokerLeadId === null) return;
+  var id = brokerLeadId;
+  var l  = allLeads.find(function (x) { return x.id === id; });
+  if (!l) return;
+
+  var first = (document.getElementById('brokerFirst').value || '').trim();
+  var last  = (document.getElementById('brokerLast').value  || '').trim();
+  var mail  = (document.getElementById('brokerEmail').value || '').trim();
+
+  // An address that is present but malformed is worth stopping for - the
+  // invitation would simply bounce, and nobody would know why.
+  if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) {
+    document.getElementById('brokerEmail').style.borderColor = '#ef4444';
+    toast('That does not look like an email address');
+    return;
+  }
+
+  var full = [first, last].filter(Boolean).join(' ');
+  try {
+    await sb('PATCH','leads',{contact_name: full || null, email: mail || null},
+             '?id=eq.' + id);
+    l.contact_name = full || null;
+    l.email        = mail || null;
+    closeBrokerModal();
+    renderLeads(); updateStats();
+    toast(full || mail ? '✓ Saved' : 'Broker info cleared');
+  } catch (e) {
+    console.error('Broker save failed:', e);
+    toast('Could not save — try again');
+  }
+}
+
+window.openBrokerModal = openBrokerModal;
+window.closeBrokerModal = closeBrokerModal;
+window.saveBroker = saveBroker;
+
 function openScriptModal(id){
   currentApptLead=null;
   for(var i=0;i<apptLeads.length;i++){if(apptLeads[i].id===id){currentApptLead=apptLeads[i];break;}}
@@ -1314,6 +1389,39 @@ window.closeApptForm=closeApptForm;window.sendApptToBrett=sendApptToBrett;window
   <div id="callbacksSection" style="display:none;margin-bottom:20px;"><div style="font-size:0.72rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;padding:6px 0;border-bottom:1px solid rgba(245,158,11,0.2);">Callbacks Due Today</div><div id="callbacksList"></div></div>
   <div style="font-size:0.72rem;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;padding:6px 0;border-bottom:1px solid rgba(168,85,247,0.2);" id="apptLeadsLabel">All Leads in Queue</div>
   <div id="apptLeadsList"><div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">Click Refresh to load appointment queue leads</div></div>
+</div>
+
+
+<div id="brokerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:320;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#071628;border:1px solid rgba(14,165,233,0.4);border-radius:18px;padding:24px;width:100%;max-width:440px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <div style="font-size:1rem;font-weight:700;color:#0ea5e9;">👤 Broker info</div>
+      <button onclick="closeBrokerModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;line-height:1;font-family:inherit;">×</button>
+    </div>
+    <div id="brokerCompany" style="font-size:0.85rem;color:rgba(255,255,255,0.5);margin-bottom:16px;"></div>
+
+    <label style="display:block;font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">First name</label>
+    <input id="brokerFirst" type="text" placeholder="Vince"
+      style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#fff;font-size:0.9rem;padding:9px 12px;outline:none;font-family:inherit;margin-bottom:12px;">
+
+    <label style="display:block;font-size:0.72rem;font-weight:700;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Last name</label>
+    <input id="brokerLast" type="text" placeholder="Carter"
+      style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#fff;font-size:0.9rem;padding:9px 12px;outline:none;font-family:inherit;margin-bottom:12px;">
+
+    <label style="display:block;font-size:0.72rem;font-weight:700;color:#34a853;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Email</label>
+    <input id="brokerEmail" type="email" placeholder="leave blank if you could not find it"
+      style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(52,168,83,0.35);border-radius:8px;color:#fff;font-size:0.9rem;padding:9px 12px;outline:none;font-family:inherit;">
+
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);line-height:1.6;margin-top:12px;">
+      The name is what the invitation opens with. The email is where it goes &mdash;
+      without one, the Invite button has nowhere to send.
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:18px;">
+      <button onclick="saveBroker()" style="flex:1;background:#0ea5e9;border:none;color:#031018;padding:11px;border-radius:10px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:inherit;">Save</button>
+      <button onclick="closeBrokerModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:11px 18px;border-radius:10px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <div id="scriptModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;align-items:center;justify-content:center;padding:16px;">
