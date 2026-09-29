@@ -66,6 +66,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
 .sbadge:hover{transform:scale(1.06);}
 .swarm{background:rgba(168,85,247,0.16);color:#c79bff;border:1px solid rgba(168,85,247,0.45);}
 .swarm-mail{background:rgba(52,168,83,0.14);color:#7fd99a;border:1px solid rgba(52,168,83,0.45);}
+.sinvite{background:rgba(14,165,233,0.14);color:#7dd3fc;border:1px solid rgba(14,165,233,0.45);}
 .s0{background:rgba(52,168,83,0.15);color:#34a853;border-color:#34a853;}
 .s1{background:rgba(255,152,0,0.15);color:#ff9800;border-color:#ff9800;}
 .s2{background:rgba(33,150,243,0.15);color:#2196f3;border-color:#2196f3;}
@@ -163,7 +164,8 @@ tr:hover td{background:rgba(52,168,83,0.03);}
       <option>🟢 New</option><option>⏳ Queue</option><option>📧 Emailed</option>
       <option>✅ Called</option><option>🔥 Hot</option><option>💰 Closed</option>
       <option>🤝 Warm — not contacted</option>
-      <option>📨 Warm — member emailed</option><option>❌ Not Interested</option>
+      <option>📨 Warm — member emailed</option>
+      <option>✉️ Invite sent</option><option>❌ Not Interested</option>
     </select>
     <select id="cityFilter" onchange="renderLeads()">
       <option value="">All Cities</option>
@@ -452,6 +454,7 @@ function renderLeads() {
     var sc = si >= 0 ? STATUS_CLASS[si] : 's0';
     if (l.status === '🤝 Warm — not contacted')  sc = 'swarm';
     if (l.status === '📨 Warm — member emailed') sc = 'swarm-mail';
+    if (l.status === '✉️ Invite sent')            sc = 'sinvite';
     return `<tr>
       <td><input type="checkbox" class="lead-check" data-id="${l.id}" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;"></td>
       <td style="color:#34a853;font-size:0.7rem;font-weight:700;white-space:nowrap;font-family:monospace;">${esc(l.lead_id||'—')}</td>
@@ -483,8 +486,8 @@ function renderLeads() {
           style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);margin-top:4px;display:inline-block;">🔍 NMLS</a>
         <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent((l.company_name||'')+' webmaster')}" target="_blank"
           style="background:rgba(14,165,233,0.12);color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);margin-top:4px;display:inline-block;">🌐 WM</a>
-        ${l.email?`<a class="lbtn" onclick="openReportPreview(${l.id});return false;" href="#"
-          style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">📊 Report</a>`:''}
+        ${l.email?`<a class="lbtn" onclick="sendInvite(${l.id});return false;" href="#"
+          style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">✉️ Invite</a>`:''}
       </td>
       <td><span style="font-size:0.7rem;padding:3px 9px;border-radius:12px;white-space:nowrap;background:${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.15)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.15)':'rgba(52,168,83,0.1)'};color:${(l.industry||'Mortgage')==='Legal'?'#ce93d8':(l.industry||'Mortgage')==='Tax Resolution'?'#ffb74d':'#81c784'};border:1px solid ${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.4)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.4)':'rgba(52,168,83,0.3)'};">${(l.industry||'Mortgage')==='Legal'?'⚖️ Legal':(l.industry||'Mortgage')==='Tax Resolution'?'💼 Tax':'🏠 Mortgage'}</span></td>
       <td>
@@ -527,6 +530,70 @@ function updateStats() {
   document.getElementById('st-hot').textContent     = data.filter(l=>l.status==='🔥 Hot').length;
   document.getElementById('st-closed').textContent  = data.filter(l=>l.status==='💰 Closed').length;
 }
+
+// ── INVITE EMAIL ───────────────────────────────────────────────────────────
+// Replaces the old Report button, which sent the Revuee competitor report -
+// a different product and a different pitch. This sends the same LocalHome
+// Network invitation a member sends from their portal, so someone on the
+// phone can put the link in front of the business while they are still
+// talking to them.
+var APPLY_URL = 'https://localhomenetwork.netlify.app/localhome-apply.html';
+var INVITE_SENT_STATUS = '✉️ Invite sent';
+
+async function sendInvite(id) {
+  var l = allLeads.find(function (x) { return x.id === id; });
+  if (!l) return;
+  if (!l.email) { toast('No email address on this lead'); return; }
+
+  var who = (l.contact_name || '').split(' ')[0] || 'there';
+  var city = l.city || 'your area';
+
+  if (!confirm('Send the LocalHome Network invitation to ' + l.email + '?\n\n'
+             + 'They get a note with a link to claim the '
+             + (l.industry || 'their category') + ' spot in ' + city + '.')) return;
+
+  // Prefilled so the form is most of the way done when they land on it. The
+  // ref carries the member who introduced them, which is how they get the
+  // credit when this business actually joins.
+  var link = APPLY_URL
+    + '?name=' + encodeURIComponent(l.company_name || '')
+    + (l.phone    ? '&phone=' + encodeURIComponent(l.phone) : '')
+    + (l.industry ? '&cat='   + encodeURIComponent(l.industry) : '')
+    + (l.city     ? '&city='  + encodeURIComponent(l.city) : '')
+    + (l.referred_by_member_id ? '&ref=' + encodeURIComponent(l.referred_by_member_id) : '');
+
+  try {
+    await emailjs.send('service_b9bppgb', 'template_h7ar1lf', {
+      user_email: l.email,
+      reply_to:   'pro.refersystem@gmail.com',
+      from_name:  'LocalHome Network',
+      subject:    'Your ' + (l.industry || 'category') + ' spot in ' + city + ' is open',
+      firstname:  who,
+      dynamic_letter:
+          'LocalHome Network is an invitation-only referral group in ' + city
+        + ' \u2014 one business per category.\n\n'
+        + 'Everyone in it refers work to each other, and members link to each '
+        + 'other online, which is what actually moves a business up in Google.\n\n'
+        + 'The ' + (l.industry || 'spot') + ' place in ' + city + ' is open right '
+        + 'now, and founding members get their first 60 days free.\n\n'
+        + 'Here is the link \u2014 most of it is filled in already:\n\n'
+        + link + '\n\n'
+        + 'Someone from the network will call to confirm the spot.\n\n'
+        + 'LocalHome Network\n949-357-0655'
+    });
+
+    // Recorded so nobody sends it twice, and so the table shows at a glance
+    // who has had the invitation.
+    await sb('PATCH','leads',{status: INVITE_SENT_STATUS},'?id=eq.' + id);
+    l.status = INVITE_SENT_STATUS;
+    renderLeads(); updateStats();
+    toast('Invitation sent to ' + l.email + ' \u2713');
+  } catch (e) {
+    console.error('Invite send failed:', e);
+    toast('Could not send: ' + (e.text || e.message || 'check EmailJS'));
+  }
+}
+window.sendInvite = sendInvite;
 
 // ── Status cycle ──────────────────────────────────────────
 async function cycleStatus(id, current) {
