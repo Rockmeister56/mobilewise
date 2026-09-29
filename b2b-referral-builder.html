@@ -48,6 +48,14 @@ select option{background:#0f2b4b;}
 /* TABLE */
 .card{background:rgba(18,28,46,0.8);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);}
 .tbl-wrap{overflow-x:auto;}
+/* The actions column stays pinned to the right edge while the rest of the
+   table scrolls under it, so Archive and Delete are always in reach. */
+.tbl-wrap th:last-child,
+.tbl-wrap td:last-child{
+  position:sticky; right:0; background:#0a1c33;
+  box-shadow:-8px 0 12px -8px rgba(0,0,0,0.75); white-space:nowrap;
+}
+.tbl-wrap th:last-child{ background:#0d2340; z-index:2; }
 table{width:100%;border-collapse:collapse;min-width:1050px;}
 th{text-align:left;padding:12px 10px;color:#34a853;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid rgba(52,168,83,0.2);white-space:nowrap;font-weight:600;}
 td{padding:11px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.82rem;vertical-align:middle;}
@@ -182,6 +190,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <button class="btn btn-ghost" onclick="bulkStatus('🔥 Hot')" style="padding:6px 14px;font-size:0.78rem;background:rgba(244,67,54,0.15);border-color:#f44336;color:#f44336;">🔥 Hot</button>
     <button class="btn btn-ghost" onclick="bulkStatus('💰 Closed')" style="padding:6px 14px;font-size:0.78rem;background:rgba(76,175,80,0.15);border-color:#4caf50;color:#4caf50;">💰 Closed</button>
     <button class="btn btn-ghost" onclick="bulkStatus('📦 Archived')" style="padding:6px 14px;font-size:0.78rem;">📦 Archive</button>
+    <button class="btn btn-ghost" onclick="bulkDelete()" style="padding:6px 14px;font-size:0.78rem;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">🗑 Delete</button>
     <button class="btn btn-ghost" onclick="clearSelection()" style="padding:6px 14px;font-size:0.78rem;margin-left:auto;">✕ Clear</button>
   </div>
 
@@ -205,7 +214,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
           <th>Notes</th>
           <th>Outreach</th>
           <th>Week</th>
-          <th>Archive</th>
+          <th>Actions</th>
         </tr></thead>
         <tbody id="leadsBody"></tbody>
       </table>
@@ -497,6 +506,10 @@ function renderLeads() {
           style="background:rgba(255,152,0,0.1);color:#ff9800;border:1px solid rgba(255,152,0,0.3);cursor:pointer;">
           📦 Archive
         </button>
+        <button class="lbtn" onclick="deleteLead(${l.id},'${esc(l.company_name||'this lead')}')"
+          style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);cursor:pointer;margin-left:5px;">
+          🗑 Delete
+        </button>
       </td>
     </tr>`;
   }).join('');
@@ -536,6 +549,44 @@ async function saveEmail(id, val) {
 }
 
 // ── Save notes ────────────────────────────────────────────
+async function deleteLead(id, companyName) {
+  if (!confirm('Permanently delete "' + companyName + '"?\n\n'
+             + 'This removes the row from the database for good. There is no undo.\n\n'
+             + 'To take it off the list but keep the record, use Archive instead.')) return;
+  try {
+    var res = await sb('DELETE','leads',null,'?id=eq.' + id);
+    if (res && res.ok === false) throw new Error('HTTP ' + res.status);
+    allLeads = allLeads.filter(function (l) { return l.id !== id; });
+    renderLeads(); updateStats();
+    toast('Deleted \u2713');
+  } catch (e) {
+    console.error('Delete failed:', e);
+    toast('Could not delete \u2014 try again');
+  }
+}
+
+async function bulkDelete() {
+  var checked = [...document.querySelectorAll('.lead-check:checked')];
+  if (!checked.length) return;
+  var ids = checked.map(function (c) { return parseInt(c.dataset.id); });
+  if (!confirm('Permanently delete ' + ids.length + ' lead'
+             + (ids.length !== 1 ? 's' : '') + '?\n\n'
+             + 'There is no undo. Use Archive to hide them instead.')) return;
+  var done = 0;
+  for (var i = 0; i < ids.length; i++) {
+    try {
+      await sb('DELETE','leads',null,'?id=eq.' + ids[i]);
+      done++;
+    } catch (e) { console.error('Delete failed for ' + ids[i] + ':', e); }
+  }
+  allLeads = allLeads.filter(function (l) { return ids.indexOf(l.id) === -1; });
+  clearSelection(); renderLeads(); updateStats();
+  toast('Deleted ' + done + ' of ' + ids.length);
+}
+
+window.deleteLead = deleteLead;
+window.bulkDelete = bulkDelete;
+
 async function archiveLead(id, companyName) {
   const confirmed = confirm(`Are you sure you want to archive "${companyName}"?\n\nThis lead will be hidden from the active pipeline but saved in Supabase for future research.`);
   if (!confirmed) return;
