@@ -127,6 +127,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
   <div class="nav-right">
     <button class="btn btn-ghost" onclick="loadLeads()">🔄 Refresh</button>
     <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="btn btn-ghost" onclick="archiveBatch()" style="background:rgba(255,152,0,0.1);border:1px solid rgba(255,152,0,0.35);color:#ff9800;">📦 Archive this batch</button>
     <button class="btn btn-ghost" onclick="exportToAppointmentQueue()" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">🔔 Appointment Queue</button>
     <div style="display:flex;align-items:center;gap:6px;">
       <input type="number" id="exportCount" value="60" min="1" max="500" style="width:65px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.3);border-radius:20px;color:#0ea5e9;font-size:0.78rem;padding:6px 10px;outline:none;font-family:inherit;text-align:center;">
@@ -161,7 +162,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <input class="search-inp" type="text" id="searchInput" placeholder="🔍 Search company, contact, city..." oninput="renderLeads()">
     <select id="statusFilter" onchange="renderLeads()">
       <option value="">All Statuses</option>
-      <option>🟢 New</option><option>⏳ Queue</option><option>📧 Emailed</option>
+      <option>🟢 New</option><option>📞 Voicemail</option><option>⏳ Queue</option><option>📧 Emailed</option>
       <option>✅ Called</option><option>🔥 Hot</option><option>💰 Closed</option>
       <option>🤝 Warm — not contacted</option>
       <option>📨 Warm — member emailed</option>
@@ -187,11 +188,13 @@ tr:hover td{background:rgba(52,168,83,0.03);}
   <div id="bulkBar" style="display:none;background:rgba(248,196,0,0.08);border:1px solid rgba(248,196,0,0.25);border-radius:10px;padding:12px 18px;margin-bottom:12px;display:none;align-items:center;gap:12px;flex-wrap:wrap;">
     <span id="bulkCount" style="font-size:0.82rem;color:#f8c400;font-weight:600;"></span>
     <span style="color:rgba(255,255,255,0.3);font-size:0.8rem;">Mark selected as:</span>
+    <button class="btn btn-ghost" onclick="bulkStatus('📞 Voicemail')" style="padding:6px 14px;font-size:0.78rem;background:rgba(168,85,247,0.12);color:#c79bff;border:1px solid rgba(168,85,247,0.4);">📞 Voicemail</button>
     <button class="btn btn-ghost" onclick="bulkStatus('📧 Emailed')" style="padding:6px 14px;font-size:0.78rem;background:rgba(33,150,243,0.15);border-color:#2196f3;color:#2196f3;">📧 Emailed</button>
     <button class="btn btn-ghost" onclick="bulkStatus('✅ Called')" style="padding:6px 14px;font-size:0.78rem;background:rgba(156,39,176,0.15);border-color:#9c27b0;color:#9c27b0;">✅ Called</button>
     <button class="btn btn-ghost" onclick="bulkStatus('🔥 Hot')" style="padding:6px 14px;font-size:0.78rem;background:rgba(244,67,54,0.15);border-color:#f44336;color:#f44336;">🔥 Hot</button>
     <button class="btn btn-ghost" onclick="bulkStatus('💰 Closed')" style="padding:6px 14px;font-size:0.78rem;background:rgba(76,175,80,0.15);border-color:#4caf50;color:#4caf50;">💰 Closed</button>
     <button class="btn btn-ghost" onclick="bulkStatus('📦 Archived')" style="padding:6px 14px;font-size:0.78rem;">📦 Archive</button>
+    <button class="btn btn-ghost" onclick="downloadVoicemailCSV()" style="padding:6px 14px;font-size:0.78rem;background:rgba(52,168,83,0.12);color:#7fd99a;border:1px solid rgba(52,168,83,0.4);">⬇ Voicemail CSV</button>
     <button class="btn btn-ghost" onclick="bulkDelete()" style="padding:6px 14px;font-size:0.78rem;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">🗑 Delete</button>
     <button class="btn btn-ghost" onclick="clearSelection()" style="padding:6px 14px;font-size:0.78rem;margin-left:auto;">✕ Clear</button>
   </div>
@@ -254,8 +257,8 @@ tr:hover td{background:rgba(52,168,83,0.03);}
 const SB_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
 
-const STATUS_FLOW  = ['🟢 New','⏳ Queue','📧 Emailed','✅ Called','🔥 Hot','💰 Closed','❌ Not Interested'];
-const STATUS_CLASS = ['s0','s1','s2','s3','s4','s5','s6'];
+const STATUS_FLOW  = ['🟢 New','📞 Voicemail','⏳ Queue','📧 Emailed','✅ Called','🔥 Hot','💰 Closed','❌ Not Interested'];
+const STATUS_CLASS = ['s0','s1','s2','s3','s4','s5','s6','s6'];
 
 let allLeads   = [];
 let activeWeek = 'all';
@@ -340,25 +343,74 @@ async function loadLeads() {
 // ── Week Tabs — built from label list only, no lead data needed ──
 // The industry list is the data, not a guess. Three hardcoded trades meant
 // anything the scanner or a member's warm list brought in was unreachable.
+// The full partner list, so the filter offers every category from day one
+// rather than only the handful that happen to have leads in them already.
+// Kept in sync with localhome_categories - the same 73 the Industries screen
+// seeds. Whatever is actually in the data is merged in on top, so a category
+// added later still appears without touching this file.
+var PARTNER_CATEGORIES = [
+  'ADU (Accessory Dwelling Unit) Builder','Appliance Repair Technician',
+  'Appliance Retailer / Showroom Sales Pro','Appraiser',
+  'Architect / Residential Draftsman','Art Consultant / Custom Framer',
+  'Artificial Turf Installer','Awning, Pergola & Shade Structure Installer',
+  'Backup Generator Installer','Battery Storage / Backup Power Specialist',
+  'CPA / Tax Accountant','Cabinet Maker & Refacing Specialist',
+  'Chimney Sweep & Dryer Vent Cleaner','Concrete & Hardscape Contractor',
+  'Custom Closet & Garage Storage Company','Deck & Patio Builder',
+  'Drywall & Texture Specialist','EV Charger Installer','Electrician',
+  'Energy Auditor','Environmental Tester','Estate Planning Attorney',
+  'Fence & Gate Installation Company','Financial Planner / Wealth Advisor',
+  'Fire Sprinkler & Protection Specialist','Flooring Installation Company',
+  'Foundation Repair Specialist','Garage Door Repair Company',
+  'General Contractor','HVAC Contractor','Home Inspector',
+  'Home Insurance Agent','Home Stager','Home Theater & Audio/Visual Installer',
+  'Home Warranty Company','House Cleaning Service',
+  'Insulation & Radiant Barrier Contractor','Interior Designer',
+  'Irrigation & Drainage Specialist','Junk Removal & Hauling Service',
+  'Kitchen & Bathroom Remodeler','Landscape Designer / Architect',
+  'Landscaper / Lawn Maintenance','Local Storage Facility Operator','Locksmith',
+  'Mold & Water Damage Restoration Pro','Moving Company',
+  'Outdoor Kitchen & Fire Pit Specialist','Outdoor Lighting Designer',
+  'Pest Control Operator','Plumber (Service & Repair)','Pool Builder / Designer',
+  'Pool Maintenance Service','Pressure Washing & Roof Cleaning Pro',
+  'Property Manager','Real Estate Agent (Buyer Specialist)',
+  'Real Estate Agent (Listing Specialist)','Real Estate Attorney',
+  'Roofing Contractor','Security System & Alarm Company',
+  'Siding & Stucco Contractor','Smart Home / Home Automation Specialist',
+  'Solar Installation Company','Structural Engineer','Title & Escrow Company',
+  'Tree Service & Arborist','Upholstery & Rug Cleaning Specialist',
+  'Utility Concierge / Setup Service','Water Filtration & Softener Installer',
+  'Waterproofing & Basement/Crawlspace Specialist',
+  'Window & Door Replacement Company','Window Cleaning & Gutter Pro',
+  'Window Treatment / Custom Blinds Specialist'
+];
+
 var industriesBuilt = false;
 async function buildIndustryFilter() {
   if (industriesBuilt) return;
+  var names = PARTNER_CATEGORIES.slice();
   try {
+    // Merge in whatever is actually in the table - a category added to the
+    // network later, or an industry from Tommy's own leads.
     var rows = await sb('GET','leads','',
       '?select=industry&industry=not.is.null&limit=20000&' + B2B_ONLY);
-    if (!Array.isArray(rows)) return;
-    var names = [...new Set(rows.map(function (r) { return r.industry; }).filter(Boolean))]
-                  .sort(function (a, b) { return a.localeCompare(b); });
-    var sel = document.getElementById('industryFilter');
-    var keep = sel.value;
-    sel.innerHTML = '<option value="">All Industries</option>'
-      + names.map(function (n) {
-          return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
-    sel.value = keep;
-    industriesBuilt = true;
+    if (Array.isArray(rows)) {
+      rows.forEach(function (r) {
+        if (r.industry && names.indexOf(r.industry) === -1) names.push(r.industry);
+      });
+    }
   } catch (e) {
-    console.error('Could not build the industry list:', e);
+    console.error('Could not read industries from the data:', e);
   }
+
+  names.sort(function (a, b) { return a.localeCompare(b); });
+  var sel = document.getElementById('industryFilter');
+  var keep = sel.value;
+  sel.innerHTML = '<option value="">All Industries</option>'
+    + names.map(function (n) {
+        return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+  sel.value = keep;
+  industriesBuilt = true;
 }
 
 function buildWeekTabs(weeks, ind) {
@@ -804,6 +856,109 @@ function copyModal(){
     closeModal();
   });
 }
+
+// ── VOICEMAIL CSV ──────────────────────────────────────────────────────────
+// The format the voicemail drop software takes: ten digits, a comma, a first
+// name. No header row, no quoting, nothing else - anything extra and the
+// upload is rejected.
+//
+//   9499406437,David
+//
+// Takes the ticked rows when any are ticked, otherwise everything currently
+// on screen, so "select all then export" and "just export what I am looking
+// at" both do the obvious thing.
+function voicemailRows() {
+  var checked = [...document.querySelectorAll('.lead-check:checked')]
+                  .map(function (c) { return parseInt(c.dataset.id); });
+  if (checked.length) {
+    return allLeads.filter(function (l) { return checked.indexOf(l.id) !== -1; });
+  }
+  var data = (activeWeek === 'all' ? allLeads
+              : allLeads.filter(function (l) { return l.week_label === activeWeek; }))
+             .filter(function (l) { return l.status !== '📦 Archived'; });
+  var cityF = document.getElementById('cityFilter');
+  var statF = document.getElementById('statusFilter');
+  if (cityF && cityF.value) data = data.filter(function (l) { return l.city === cityF.value; });
+  if (statF && statF.value) data = data.filter(function (l) { return l.status === statF.value; });
+  return data;
+}
+
+function downloadVoicemailCSV() {
+  var rows = voicemailRows();
+  if (!rows.length) { toast('Nothing to export'); return; }
+
+  var csv = '', skipped = 0;
+  rows.forEach(function (l) {
+    var ph = (l.phone || '').replace(/\D/g, '');
+    if (ph.length === 11 && ph[0] === '1') ph = ph.slice(1);
+    // A short or missing number would be dialled as garbage, so it is left
+    // out and counted rather than exported as a broken row.
+    if (ph.length !== 10) { skipped++; return; }
+    // First name only. "Friend" is what the drop reads aloud when there is no
+    // name, which is better than reading out a company name.
+    var fn = (l.contact_name || '').trim().split(/\s+/)[0] || 'Friend';
+    csv += ph + ',' + fn.replace(/[,\r\n]/g, '') + '\n';
+  });
+
+  if (!csv) { toast('No usable phone numbers in this batch'); return; }
+
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'voicemail-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+
+  var n = csv.split('\n').length - 1;
+  toast('⬇ ' + n + ' number' + (n === 1 ? '' : 's') + ' exported'
+        + (skipped ? ' · ' + skipped + ' had no usable phone' : ''));
+}
+window.downloadVoicemailCSV = downloadVoicemailCSV;
+
+// ── ARCHIVE A WHOLE BATCH ──────────────────────────────────────────────────
+// A day's scan is one bubble of up to a few hundred rows. Once the blast has
+// gone out and the callbacks are worked, the bubble is done - and ticking
+// three hundred boxes to retire it is not a plan.
+//
+// Archive, not delete: the rows stay, they just stop showing in the pipeline.
+async function archiveBatch() {
+  if (!activeWeek || activeWeek === 'all') {
+    toast('Open a batch first — this archives the one you are looking at');
+    return;
+  }
+  var rows = allLeads.filter(function (l) {
+    return l.week_label === activeWeek && l.status !== '📦 Archived';
+  });
+  if (!rows.length) { toast('Nothing left to archive in this batch'); return; }
+
+  if (!confirm('Archive all ' + rows.length + ' leads in "' + activeWeek + '"?\n\n'
+             + 'They come off the pipeline but stay in the database, and the '
+             + 'batch disappears from the bar once it is empty.\n\n'
+             + 'This does not delete anything.')) return;
+
+  var done = 0, failed = 0;
+  // One request per 200 ids. A single PATCH with three hundred ids makes a
+  // URL long enough for the server to reject outright.
+  var ids = rows.map(function (l) { return l.id; });
+  for (var i = 0; i < ids.length; i += 200) {
+    var slice = ids.slice(i, i + 200);
+    try {
+      await sb('PATCH','leads',{status:'📦 Archived'},'?id=in.(' + slice.join(',') + ')');
+      done += slice.length;
+    } catch (e) {
+      console.error('Archive failed for a slice:', e);
+      failed += slice.length;
+    }
+  }
+
+  allLeads.forEach(function (l) {
+    if (ids.indexOf(l.id) !== -1 && failed === 0) l.status = '📦 Archived';
+  });
+  renderLeads(); updateStats();
+  toast(failed ? 'Archived ' + done + ', ' + failed + ' failed'
+               : '📦 Archived ' + done + ' — batch cleared');
+  // Rebuild the bar: an emptied batch should stop offering itself.
+  loadLeads();
+}
+window.archiveBatch = archiveBatch;
 
 // ── Export CSV ────────────────────────────────────────────
 function exportCSV() {
