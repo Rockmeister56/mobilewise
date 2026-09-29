@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" onload="emailjs.init('7-9oxa3UC3uKxtqGM')"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Wise AI — B2B Referral Builder</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(145deg,#0a1a2a,#0f2b4b);color:#fff;min-height:100vh;}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:rgba(10,20,35,0.95);border-bottom:1px solid rgba(52,168,83,0.2);position:sticky;top:0;z-index:100;}
+.nav-brand{display:flex;align-items:center;gap:12px;}
+.nav-brand h1{font-size:1.25rem;font-weight:700;background:linear-gradient(135deg,#fff,#34a853);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-right{display:flex;align-items:center;gap:16px;}
+.conn-dot{font-size:0.75rem;color:rgba(255,255,255,0.3);}
+
+/* MAIN */
+.main{padding:28px 32px;max-width:2000px;margin:0 auto;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px;}
+.stat{background:rgba(18,28,46,0.8);border-radius:12px;padding:16px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+.stat-val{font-size:1.8rem;font-weight:700;margin-bottom:4px;}
+.stat-lbl{font-size:0.68rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;}
+
+/* WEEK TABS */
+.week-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.week-chip{padding:6px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.78rem;font-weight:600;transition:all 0.2s;white-space:nowrap;}
+.week-chip:hover{border-color:#34a853;color:#34a853;}
+.week-chip.active{background:rgba(52,168,83,0.2);border-color:#34a853;color:#34a853;}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+input[type=text],select{background:#060e1a;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#ddd;font-family:inherit;font-size:0.82rem;padding:8px 14px;outline:none;transition:border-color 0.2s;}
+input[type=text]:focus,select:focus{border-color:#34a853;}
+select option{background:#0f2b4b;}
+.search-inp{width:220px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border:none;border-radius:30px;font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.btn-ghost{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);}
+.btn-ghost:hover{background:rgba(255,255,255,0.13);}
+.btn-green{background:linear-gradient(135deg,#34a853,#2d8e46);color:#fff;}
+.btn-green:hover{transform:translateY(-1px);box-shadow:0 6px 18px -4px rgba(52,168,83,0.5);}
+
+/* TABLE */
+.card{background:rgba(18,28,46,0.8);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:1050px;}
+th{text-align:left;padding:12px 10px;color:#34a853;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid rgba(52,168,83,0.2);white-space:nowrap;font-weight:600;}
+td{padding:11px 10px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.82rem;vertical-align:middle;}
+tr:hover td{background:rgba(52,168,83,0.03);}
+
+/* STATUS */
+.sbadge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;user-select:none;border:1px solid;}
+.sbadge:hover{transform:scale(1.06);}
+.s0{background:rgba(52,168,83,0.15);color:#34a853;border-color:#34a853;}
+.s1{background:rgba(255,152,0,0.15);color:#ff9800;border-color:#ff9800;}
+.s2{background:rgba(33,150,243,0.15);color:#2196f3;border-color:#2196f3;}
+.s3{background:rgba(156,39,176,0.15);color:#9c27b0;border-color:#9c27b0;}
+.s4{background:rgba(244,67,54,0.15);color:#f44336;border-color:#f44336;}
+.s5{background:rgba(76,175,80,0.15);color:#4caf50;border-color:#4caf50;}
+.s6{background:rgba(255,255,255,0.1);color:#aaa;border-color:#666;}
+
+/* LINKS */
+.lbtn{display:inline-block;padding:4px 10px;border-radius:14px;font-size:0.7rem;font-weight:600;text-decoration:none;transition:all 0.2s;white-space:nowrap;}
+.lbtn-g{background:rgba(52,168,83,0.12);color:#34a853;border:1px solid rgba(52,168,83,0.3);}
+.lbtn-g:hover{background:rgba(52,168,83,0.25);}
+.lbtn-b{background:rgba(66,133,244,0.12);color:#4285f4;border:1px solid rgba(66,133,244,0.3);}
+.lbtn-b:hover{background:rgba(66,133,244,0.25);}
+
+/* EMAIL INPUT */
+.email-inp{background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.12);color:#34a853;font-size:0.78rem;width:155px;outline:none;padding:3px 0;font-family:inherit;}
+.email-inp:focus{border-bottom-color:#34a853;}
+.email-inp::placeholder{color:rgba(255,255,255,0.18);font-size:0.72rem;}
+
+/* NOTES INPUT */
+.notes-inp{background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);font-size:0.75rem;width:140px;outline:none;padding:3px 0;font-family:inherit;}
+.notes-inp:focus{border-bottom-color:#34a853;}
+.notes-inp::placeholder{color:rgba(255,255,255,0.15);font-size:0.72rem;}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:200;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:#0d2035;border:1px solid rgba(52,168,83,0.3);border-radius:20px;padding:32px;max-width:620px;width:90%;max-height:80vh;overflow-y:auto;}
+.modal h3{color:#34a853;margin-bottom:16px;font-size:1.05rem;}
+.modal-body{background:rgba(255,255,255,0.04);border-radius:10px;padding:20px;font-size:0.87rem;line-height:1.95;white-space:pre-wrap;border:1px solid rgba(255,255,255,0.07);margin-bottom:20px;color:rgba(255,255,255,0.88);}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+
+/* EMPTY / LOADING */
+.empty{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.3);}
+.empty .icon{font-size:3.5rem;margin-bottom:16px;}
+.loading{text-align:center;padding:40px;color:#34a853;font-size:0.9rem;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:#34a853;color:#fff;padding:12px 22px;border-radius:30px;font-weight:600;font-size:0.85rem;z-index:300;opacity:0;transform:translateY(10px);transition:all 0.3s;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+@media(max-width:900px){.stats-row{grid-template-columns:repeat(3,1fr);}.search-inp{width:160px;}}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr);}.nav{padding:12px 16px;}.main{padding:16px;}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-brand">
+    <span style="font-size:1.5rem;">🏠</span>
+    <div>
+      <h1>Mobile Wise AI — B2B Referral Builder</h1>
+      <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:2px;">Brett Duncan · AI Conversion Specialist · 949-357-0655</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="btn btn-ghost" onclick="loadLeads()">🔄 Refresh</button>
+    <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="btn btn-ghost" onclick="exportToAppointmentQueue()" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">🔔 Appointment Queue</button>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <input type="number" id="exportCount" value="60" min="1" max="500" style="width:65px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.3);border-radius:20px;color:#0ea5e9;font-size:0.78rem;padding:6px 10px;outline:none;font-family:inherit;text-align:center;">
+      <button class="btn btn-ghost" onclick="exportToBrett()" style="background:rgba(14,165,233,0.1);border:1px solid rgba(14,165,233,0.35);color:#0ea5e9;">📤 Export to Brett</button>
+      <button class="btn btn-ghost" onclick="resetCurrentViewToNew()" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);color:#f59e0b;">↩️ Reset to New</button>
+    </div>
+    <button class="btn btn-ghost" id="apptViewBtn" onclick="toggleApptView()" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">📞 Appointment Setter</button>
+    <div class="conn-dot" id="connDot">Connecting...</div>
+  </div>
+</div>
+
+<div id="mainContent">
+<div class="main">
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val" id="st-total" style="color:#34a853">—</div><div class="stat-lbl">Total Leads</div></div>
+    <div class="stat"><div class="stat-val" id="st-new" style="color:#34a853">—</div><div class="stat-lbl">🟢 New</div></div>
+    <div class="stat"><div class="stat-val" id="st-emailed" style="color:#2196f3">—</div><div class="stat-lbl">📧 Emailed</div></div>
+    <div class="stat"><div class="stat-val" id="st-called" style="color:#9c27b0">—</div><div class="stat-lbl">✅ Called</div></div>
+    <div class="stat"><div class="stat-val" id="st-hot" style="color:#f44336">—</div><div class="stat-lbl">🔥 Hot</div></div>
+    <div class="stat"><div class="stat-val" id="st-closed" style="color:#4caf50">—</div><div class="stat-lbl">💰 Closed</div></div>
+  </div>
+
+  <!-- WEEK TABS -->
+  <div class="week-bar" id="weekBar">
+    <div class="week-chip active" onclick="selectWeek('all',this)">📋 All Weeks</div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <input class="search-inp" type="text" id="searchInput" placeholder="🔍 Search company, contact, city..." oninput="renderLeads()">
+    <select id="statusFilter" onchange="renderLeads()">
+      <option value="">All Statuses</option>
+      <option>🟢 New</option><option>⏳ Queue</option><option>📧 Emailed</option>
+      <option>✅ Called</option><option>🔥 Hot</option><option>💰 Closed</option><option>❌ Not Interested</option>
+    </select>
+    <select id="cityFilter" onchange="renderLeads()">
+      <option value="">All Cities</option>
+    </select>
+    <select id="industryFilter" onchange="onIndustryChange()">
+      <option value="" selected>All Industries</option>
+    </select>
+    <select id="sortSelect" onchange="renderLeads()">
+      <option value="mw_asc">🔢 MW# Low → High</option>
+      <option value="mw_desc">🔢 MW# High → Low</option>
+      <option value="reviews_desc">⭐ Reviews High → Low</option>
+      <option value="reviews_asc">⭐ Reviews Low → High</option>
+      <option value="newest">🕐 Newest First</option>
+      <option value="company">🔤 Company A–Z</option>
+    </select>
+  </div>
+
+  <!-- BULK ACTION BAR -->
+  <div id="bulkBar" style="display:none;background:rgba(248,196,0,0.08);border:1px solid rgba(248,196,0,0.25);border-radius:10px;padding:12px 18px;margin-bottom:12px;display:none;align-items:center;gap:12px;flex-wrap:wrap;">
+    <span id="bulkCount" style="font-size:0.82rem;color:#f8c400;font-weight:600;"></span>
+    <span style="color:rgba(255,255,255,0.3);font-size:0.8rem;">Mark selected as:</span>
+    <button class="btn btn-ghost" onclick="bulkStatus('📧 Emailed')" style="padding:6px 14px;font-size:0.78rem;background:rgba(33,150,243,0.15);border-color:#2196f3;color:#2196f3;">📧 Emailed</button>
+    <button class="btn btn-ghost" onclick="bulkStatus('✅ Called')" style="padding:6px 14px;font-size:0.78rem;background:rgba(156,39,176,0.15);border-color:#9c27b0;color:#9c27b0;">✅ Called</button>
+    <button class="btn btn-ghost" onclick="bulkStatus('🔥 Hot')" style="padding:6px 14px;font-size:0.78rem;background:rgba(244,67,54,0.15);border-color:#f44336;color:#f44336;">🔥 Hot</button>
+    <button class="btn btn-ghost" onclick="bulkStatus('💰 Closed')" style="padding:6px 14px;font-size:0.78rem;background:rgba(76,175,80,0.15);border-color:#4caf50;color:#4caf50;">💰 Closed</button>
+    <button class="btn btn-ghost" onclick="bulkStatus('📦 Archived')" style="padding:6px 14px;font-size:0.78rem;">📦 Archive</button>
+    <button class="btn btn-ghost" onclick="clearSelection()" style="padding:6px 14px;font-size:0.78rem;margin-left:auto;">✕ Clear</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;" title="Select all"></th>
+          <th>MW ID</th>
+          <th>Contact</th>
+          <th>Company</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Website</th>
+          <th>Reviews</th>
+          <th>City</th>
+          <th>Maps</th>
+          <th>Industry</th>
+          <th>Status</th>
+          <th>Notes</th>
+          <th>Outreach</th>
+          <th>Week</th>
+          <th>Archive</th>
+        </tr></thead>
+        <tbody id="leadsBody"></tbody>
+      </table>
+    </div>
+    <div class="loading" id="leadsLoading">Loading leads from Supabase...</div>
+    <div class="empty" id="leadsEmpty" style="display:none;">
+      <div class="icon">📋</div>
+      <p>No leads match your filters</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- OUTREACH MODAL -->
+<div class="modal-bg" id="outreachModal">
+  <div class="modal">
+    <h3>📧 Outreach Message</h3>
+    <div class="modal-body" id="modalText"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      <button class="btn btn-green" onclick="copyModal()">📋 Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  MOBILE WISE AI — TOMMY'S WAR ROOM
+//  Supabase direct · no server needed
+// ═══════════════════════════════════════════════════════════
+
+const SB_URL = "https://fcgbusobfdwnpoqyuzoe.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjZ2J1c29iZmR3bnBvcXl1em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNDA2MjMsImV4cCI6MjA4NTkxNjYyM30.FHEZnxuGHSn_Z3gw9d_Txtfz5Jn55J6qonl8rnA3gPk";
+
+const STATUS_FLOW  = ['🟢 New','⏳ Queue','📧 Emailed','✅ Called','🔥 Hot','💰 Closed','❌ Not Interested'];
+const STATUS_CLASS = ['s0','s1','s2','s3','s4','s5','s6'];
+
+let allLeads   = [];
+let activeWeek = 'all';
+let modalText  = '';
+
+// ── Supabase ──────────────────────────────────────────────
+async function sb(method, table, body=null, query='') {
+  const res = await fetch(`${SB_URL}/rest/v1/${table}${query}`, {
+    method,
+    headers:{
+      'Content-Type':'application/json',
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Prefer': method==='POST' ? 'return=representation' : 'return=minimal',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (method === 'GET') {
+    try { return await res.json(); } catch { return []; }
+  }
+  return res;
+}
+
+// ── Init ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadLeads();
+});
+
+// ── Load Leads ────────────────────────────────────────────
+// Step 1: Only fetch distinct week labels on startup — no lead data yet
+async function loadLeads() {
+  document.getElementById('leadsLoading').style.display = 'block';
+  document.getElementById('leadsBody').innerHTML = '';
+  document.getElementById('leadsEmpty').style.display = 'none';
+
+  const ind = document.getElementById('industryFilter').value;
+
+  try {
+    // Fetch ONLY week_label column — tiny query, no lead data downloaded
+    // created_at comes back too so the bubbles can be ordered newest first.
+    // Sorting the labels as text would put "Warm · ..." wherever the alphabet
+    // happens to land it, which is not where today's work is.
+    const weekData = await sb('GET','leads','',
+      '?select=week_label,created_at&week_label=not.is.null&limit=20000'
+      + (ind ? '&industry=eq.' + encodeURIComponent(ind) : '')
+    );
+
+    document.getElementById('connDot').textContent = '● Live';
+    document.getElementById('connDot').style.color = '#34a853';
+
+    // Newest first. Each label is ranked by the most recent row carrying it,
+    // so today's scan or a warm list submitted an hour ago leads, and last
+    // spring's scrape falls to the end instead of loading by default.
+    const newest = {};
+    (weekData||[]).forEach(function (r) {
+      if (!r.week_label) return;
+      var t = r.created_at ? Date.parse(r.created_at) : 0;
+      if (!(r.week_label in newest) || t > newest[r.week_label]) newest[r.week_label] = t;
+    });
+    const weeks = Object.keys(newest).sort(function (a, b) { return newest[b] - newest[a]; });
+
+    buildIndustryFilter();
+
+    buildWeekTabs(weeks, ind);
+
+    // Auto-load most recent week
+    const bar = document.getElementById('weekBar');
+    const firstChip = bar.querySelector('.week-chip[data-week]');
+    if (firstChip) {
+      firstChip.classList.add('active');
+      await loadWeekLeads(firstChip.dataset.week, ind);
+    }
+
+  } catch(e) {
+    document.getElementById('connDot').textContent = '● Connection error';
+    document.getElementById('connDot').style.color = '#f44336';
+    console.error(e);
+  }
+  document.getElementById('leadsLoading').style.display = 'none';
+}
+
+// ── Week Tabs — built from label list only, no lead data needed ──
+// The industry list is the data, not a guess. Three hardcoded trades meant
+// anything the scanner or a member's warm list brought in was unreachable.
+var industriesBuilt = false;
+async function buildIndustryFilter() {
+  if (industriesBuilt) return;
+  try {
+    var rows = await sb('GET','leads','','?select=industry&industry=not.is.null&limit=20000');
+    if (!Array.isArray(rows)) return;
+    var names = [...new Set(rows.map(function (r) { return r.industry; }).filter(Boolean))]
+                  .sort(function (a, b) { return a.localeCompare(b); });
+    var sel = document.getElementById('industryFilter');
+    var keep = sel.value;
+    sel.innerHTML = '<option value="">All Industries</option>'
+      + names.map(function (n) {
+          return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+    sel.value = keep;
+    industriesBuilt = true;
+  } catch (e) {
+    console.error('Could not build the industry list:', e);
+  }
+}
+
+function buildWeekTabs(weeks, ind) {
+  const bar = document.getElementById('weekBar');
+  bar.innerHTML = '';
+  weeks.forEach(w => {
+    bar.innerHTML += `<div class="week-chip" data-week="${esc(w)}" onclick="onWeekClick('${esc(w)}',this)">📅 ${esc(w)}</div>`;
+  });
+}
+
+// ── Week click — fetch ONLY that week from Supabase ──
+async function onWeekClick(w, el) {
+  document.querySelectorAll('.week-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  activeWeek = w;
+  const ind = document.getElementById('industryFilter').value;
+  document.getElementById('leadsLoading').style.display = 'block';
+  document.getElementById('leadsBody').innerHTML = '';
+  await loadWeekLeads(w, ind);
+  document.getElementById('leadsLoading').style.display = 'none';
+}
+
+// ── Fetch leads for one specific week from Supabase ──
+async function loadWeekLeads(week, ind) {
+  try {
+    allLeads = await sb('GET','leads','',
+      '?order=lead_id.asc&limit=5000&week_label=eq.' + encodeURIComponent(week)
+      + (ind ? '&industry=eq.' + encodeURIComponent(ind) : '')
+    );
+    if (!Array.isArray(allLeads)) allLeads = [];
+    buildCityFilter();
+    renderLeads();
+    updateStats();
+  } catch(e) { console.error('Week load error:', e); }
+}
+
+// ── Industry change — rebuild week tabs for new industry ──
+async function onIndustryChange() {
+  allLeads = [];
+  document.getElementById('leadsBody').innerHTML = '';
+  await loadLeads();
+}
+
+function selectWeek(w, el) {
+  activeWeek = w;
+  document.querySelectorAll('.week-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderLeads();
+  updateStats();
+}
+
+function buildCityFilter() {
+  const cities = [...new Set(allLeads.map(l=>l.city).filter(Boolean))].sort();
+  const sel = document.getElementById('cityFilter');
+  sel.innerHTML = '<option value="">All Cities</option>' + cities.map(c=>`<option>${esc(c)}</option>`).join('');
+}
+
+// ── Render ────────────────────────────────────────────────
+function renderLeads() {
+  const search  = document.getElementById('searchInput').value.toLowerCase();
+  const statusF = document.getElementById('statusFilter').value;
+  const cityF   = document.getElementById('cityFilter').value;
+
+  let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  // Always hide archived leads from main pipeline
+  data = data.filter(l=>l.status !== '📦 Archived');
+  if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
+  if (statusF) data = data.filter(l=>l.status===statusF);
+  if (cityF)   data = data.filter(l=>l.city===cityF);
+  const indF = document.getElementById('industryFilter').value;
+  if (indF) data = data.filter(l=>(l.industry||'Mortgage')===indF);
+
+  // Sort
+  const sortV = document.getElementById('sortSelect').value;
+  if (sortV === 'mw_asc')  data.sort((a,b)=>(a.lead_id||'').localeCompare(b.lead_id||'', undefined, {numeric:true}));
+  if (sortV === 'mw_desc') data.sort((a,b)=>(b.lead_id||'').localeCompare(a.lead_id||'', undefined, {numeric:true}));
+  if (sortV === 'newest')  data.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+  if (sortV === 'company')       data.sort((a,b)=>(a.company_name||'').localeCompare(b.company_name||''));
+  if (sortV === 'reviews_desc')  data.sort((a,b)=>parseInt(b.reviews||0)-parseInt(a.reviews||0));
+  if (sortV === 'reviews_asc')   data.sort((a,b)=>parseInt(a.reviews||0)-parseInt(b.reviews||0));
+
+  const tbody = document.getElementById('leadsBody');
+  const empty = document.getElementById('leadsEmpty');
+
+  if (!data.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = data.map((l,i) => {
+    const si = STATUS_FLOW.indexOf(l.status);
+    const sc = si >= 0 ? STATUS_CLASS[si] : 's0';
+    return `<tr>
+      <td><input type="checkbox" class="lead-check" data-id="${l.id}" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;"></td>
+      <td style="color:#34a853;font-size:0.7rem;font-weight:700;white-space:nowrap;font-family:monospace;">${esc(l.lead_id||'—')}</td>
+      <td>
+        <input class="email-inp" value="${esc(l.contact_name||'')}" placeholder="add name..." style="color:#fff;font-weight:600;" onchange="saveName(${l.id},this.value)" onclick="event.stopPropagation()">
+      </td>
+      <td style="max-width:180px;">${esc(l.company_name||'—')}</td>
+      <td>
+        <input class="email-inp" value="${esc(l.phone||'')}" placeholder="add phone..." style="width:130px;" onchange="savePhone(${l.id},this.value)" onclick="event.stopPropagation()">
+      </td>
+      <td>
+        <input class="email-inp"
+          value="${esc(l.email||'')}"
+          placeholder="add email..."
+          onchange="saveEmail(${l.id},this.value)"
+          onclick="event.stopPropagation()">
+      </td>
+      <td>
+        ${l.website
+          ? `<a class="lbtn lbtn-g" href="${esc(l.website)}" target="_blank">🌐 Site</a>
+             <input class="email-inp" value="${esc(l.website)}" placeholder="edit url..." style="margin-top:4px;width:130px;font-size:0.7rem;" onchange="saveWebsite(${l.id},this.value)" onclick="event.stopPropagation()">`
+          : `<input class="email-inp" value="" placeholder="add website..." onchange="saveWebsite(${l.id},this.value)" onclick="event.stopPropagation()">`}
+      </td>
+      <td style="text-align:center;">${l.reviews?`<strong style="color:#34a853;">${l.reviews}</strong>`:'—'}</td>
+      <td style="font-size:0.76rem;color:rgba(255,255,255,0.5);white-space:nowrap;">${esc(l.city||'—')}</td>
+      <td>
+        ${l.maps_url?`<a class="lbtn lbtn-b" href="${esc(l.maps_url)}" target="_blank">📍 Maps</a>`:'—'}
+        <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent((l.company_name||'')+'  NMLS number broker')}" target="_blank"
+          style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);margin-top:4px;display:inline-block;">🔍 NMLS</a>
+        <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent((l.company_name||'')+' webmaster')}" target="_blank"
+          style="background:rgba(14,165,233,0.12);color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);margin-top:4px;display:inline-block;">🌐 WM</a>
+        ${l.email?`<a class="lbtn" onclick="openReportPreview(${l.id});return false;" href="#"
+          style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">📊 Report</a>`:''}
+      </td>
+      <td><span style="font-size:0.7rem;padding:3px 9px;border-radius:12px;white-space:nowrap;background:${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.15)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.15)':'rgba(52,168,83,0.1)'};color:${(l.industry||'Mortgage')==='Legal'?'#ce93d8':(l.industry||'Mortgage')==='Tax Resolution'?'#ffb74d':'#81c784'};border:1px solid ${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.4)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.4)':'rgba(52,168,83,0.3)'};">${(l.industry||'Mortgage')==='Legal'?'⚖️ Legal':(l.industry||'Mortgage')==='Tax Resolution'?'💼 Tax':'🏠 Mortgage'}</span></td>
+      <td>
+        <span class="sbadge ${sc}" onclick="cycleStatus(${l.id},'${esc(l.status||'🟢 New')}')">
+          ${esc(l.status||'🟢 New')}
+        </span>
+      </td>
+      <td>
+        <input class="notes-inp"
+          value="${esc(l.notes||'')}"
+          placeholder="add notes..."
+          onchange="saveNotes(${l.id},this.value)"
+          onclick="event.stopPropagation()">
+      </td>
+      <td>${l.outreach_msg?`<button class="lbtn lbtn-g" onclick="showOutreach(${l.id})" style="cursor:pointer;border:none;">📧 View</button>`:'—'}</td>
+      <td style="font-size:0.7rem;color:rgba(255,255,255,0.3);white-space:nowrap;">${esc(l.week_label||'—')}</td>
+      <td>
+        <button class="lbtn" onclick="archiveLead(${l.id},'${esc(l.company_name||'this lead')}')" 
+          style="background:rgba(255,152,0,0.1);color:#ff9800;border:1px solid rgba(255,152,0,0.3);cursor:pointer;">
+          📦 Archive
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Stats ─────────────────────────────────────────────────
+function updateStats() {
+  const data = (activeWeek==='all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek)).filter(l=>l.status!=='📦 Archived');
+  document.getElementById('st-total').textContent   = data.length;
+  document.getElementById('st-new').textContent     = data.filter(l=>l.status==='🟢 New').length;
+  document.getElementById('st-emailed').textContent = data.filter(l=>l.status==='📧 Emailed').length;
+  document.getElementById('st-called').textContent  = data.filter(l=>l.status==='✅ Called').length;
+  document.getElementById('st-hot').textContent     = data.filter(l=>l.status==='🔥 Hot').length;
+  document.getElementById('st-closed').textContent  = data.filter(l=>l.status==='💰 Closed').length;
+}
+
+// ── Status cycle ──────────────────────────────────────────
+async function cycleStatus(id, current) {
+  const idx  = STATUS_FLOW.indexOf(current);
+  const next = STATUS_FLOW[(idx+1) % STATUS_FLOW.length];
+  await sb('PATCH','leads',{status:next},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.status = next;
+  renderLeads();
+  updateStats();
+  toast('Status updated');
+}
+
+// ── Save email ────────────────────────────────────────────
+async function saveEmail(id, val) {
+  await sb('PATCH','leads',{email:val},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.email = val;
+  toast('Email saved ✓');
+}
+
+// ── Save notes ────────────────────────────────────────────
+async function archiveLead(id, companyName) {
+  const confirmed = confirm(`Are you sure you want to archive "${companyName}"?\n\nThis lead will be hidden from the active pipeline but saved in Supabase for future research.`);
+  if (!confirmed) return;
+  await sb('PATCH','leads',{status:'📦 Archived'},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.status = '📦 Archived';
+  renderLeads();
+  updateStats();
+  toast('Lead archived ✓');
+}
+
+async function saveName(id, val) {
+  await sb('PATCH','leads',{contact_name:val},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.contact_name = val;
+  toast('Name saved ✓');
+}
+
+async function savePhone(id, val) {
+  await sb('PATCH','leads',{phone:val},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.phone = val;
+  toast('Phone saved ✓');
+}
+
+async function saveWebsite(id, val) {
+  // Clean up URL
+  if (val && !val.startsWith('http')) val = 'https://' + val;
+  await sb('PATCH','leads',{website:val},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) { lead.website = val; }
+  renderLeads();
+  toast('Website saved ✓');
+}
+
+async function saveNotes(id, val) {
+  await sb('PATCH','leads',{notes:val},`?id=eq.${id}`);
+  const lead = allLeads.find(l=>l.id===id);
+  if (lead) lead.notes = val;
+  toast('Notes saved ✓');
+}
+
+// ── Outreach modal ────────────────────────────────────────
+function showOutreach(id) {
+  const l = allLeads.find(x=>x.id===id);
+  if (!l) return;
+  modalText = l.outreach_msg || '';
+  document.getElementById('modalText').textContent = modalText;
+  document.getElementById('outreachModal').classList.add('open');
+}
+function closeModal(){ document.getElementById('outreachModal').classList.remove('open'); }
+document.getElementById('outreachModal').addEventListener('click', e=>{
+  if (e.target===document.getElementById('outreachModal')) closeModal();
+});
+function copyModal(){
+  navigator.clipboard.writeText(modalText).then(()=>{
+    toast('Copied to clipboard ✓');
+    closeModal();
+  });
+}
+
+// ── Export CSV ────────────────────────────────────────────
+function exportCSV() {
+  const data = activeWeek==='all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  const cols = ['lead_id','contact_name','company_name','phone','email','website','reviews','address','maps_url','city','status','notes','week_label','outreach_msg'];
+  const hdrs = ['MW_ID','ContactName','CompanyName','Phone','Email','Website','Reviews','Address','MapsURL','City','Status','Notes','Week','OutreachMsg'];
+  let csv = hdrs.join(',') + '\n';
+  data.forEach(l => { csv += cols.map(c=>`"${String(l[c]||'').replace(/"/g,'""')}"`).join(',') + '\n'; });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `mortgage-leads-${activeWeek.replace(/\s/g,'-')}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('CSV downloaded');
+}
+
+// ── Toast ─────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+async function exportToBrett() {
+  const countInput = document.getElementById('exportCount');
+  const count = parseInt(countInput ? countInput.value : 60) || 60;
+
+  // Get current filtered leads that have phone numbers and haven't been exported yet
+  const search  = document.getElementById('searchInput').value.toLowerCase();
+  const cityF   = document.getElementById('cityFilter').value;
+  const indF    = document.getElementById('industryFilter').value;
+
+  let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  data = data.filter(l => l.status !== '📦 Archived');
+  if (search) data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
+  if (cityF)  data = data.filter(l=>l.city===cityF);
+  if (indF)   data = data.filter(l=>(l.industry||'Mortgage')===indF);
+
+  // Only grab leads that have a phone number and haven't been sent to Brett yet
+  const eligible = data.filter(l => l.phone && l.status !== '📧 Emailed');
+  const batch    = eligible.slice(0, count);
+
+  if (!batch.length) {
+    alert('No eligible leads found in current view.\n\nMake sure leads have phone numbers and haven\'t already been exported.');
+    return;
+  }
+
+  const confirmed = confirm(
+    `Export ${batch.length} lead${batch.length!==1?'s':''} to Brett\'s Sales Dashboard?\n\n` +
+    `This will:\n` +
+    `✅ Mark ${batch.length} leads as 📧 Emailed\n` +
+    `✅ Send them to Brett\'s queue instantly\n` +
+    `✅ Brett uses these for his voicemail drop today\n\n` +
+    `Continue?`
+  );
+  if (!confirmed) return;
+
+  const ids = batch.map(l => l.id);
+
+  // 1. Voicemail CSV
+  let vmCsv = '';
+  batch.forEach(l => {
+    const ph = (l.phone||'').replace(/\D/g,'');
+    const fn = (l.contact_name||'').split(' ')[0]||'Friend';
+    if (ph.length>=10) vmCsv += ph+','+fn+'\n';
+  });
+  if (vmCsv) {
+    const a1=document.createElement('a');
+    a1.href=URL.createObjectURL(new Blob([vmCsv],{type:'text/csv'}));
+    a1.download='voicemail-'+new Date().toISOString().slice(0,10)+'.csv';
+    a1.click();
+  }
+
+  // 2. Email CSV
+  const withEmail=batch.filter(l=>l.email&&l.email.trim());
+  if (withEmail.length) {
+    let ec='FirstName,LastName,Email,Company,City,Phone,Reviews\n';
+    withEmail.forEach(l=>{
+      const fn=(l.contact_name||'').split(' ')[0]||'Friend';
+      const ln=(l.contact_name||'').split(' ').slice(1).join(' ')||'';
+      const ph2=(l.phone||'').replace(/\D/g,'');
+      ec+='"'+fn.replace(/"/g,'')+'",'
+        +'"'+ln.replace(/"/g,'')+'",'
+        +'"'+(l.email||'').replace(/"/g,'')+'",'
+        +'"'+(l.company_name||'').replace(/"/g,'')+'",'
+        +'"'+(l.city||'').replace(/"/g,'')+'",'
+        +'"'+ph2+'",'
+        +'"'+(l.reviews||'')+'"\n';
+    });
+    setTimeout(()=>{ const a2=document.createElement('a'); a2.href=URL.createObjectURL(new Blob([ec],{type:'text/csv'})); a2.download='email-batch-'+new Date().toISOString().slice(0,10)+'.csv'; a2.click(); },600);
+  }
+
+  // 3. Mark as Emailed + push to Brett's Client Act queue
+  try {
+    await sb('PATCH','leads',{status:'📧 Emailed',sales_status:'🆕 New',scraped_date:new Date().toISOString().slice(0,10)},'?id=in.('+ids.join(',')+')');
+    batch.forEach(l=>{l.status='📧 Emailed';});
+    renderLeads(); updateStats();
+    toast('✅ '+batch.length+' leads exported — voicemail CSV + email CSV downloaded, sent to Client Act');
+  } catch(e) { console.error(e); toast('CSVs downloaded but tag failed'); }
+}
+
+async function resetCurrentViewToNew() {
+  // Build the same filtered view exportToBrett uses
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const cityF  = document.getElementById('cityFilter').value;
+  const indF   = document.getElementById('industryFilter').value;
+
+  let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  data = data.filter(l => l.status !== '📦 Archived');
+  if (search) data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
+  if (cityF)  data = data.filter(l=>l.city===cityF);
+  if (indF)   data = data.filter(l=>(l.industry||'Mortgage')===indF);
+
+  if (!data.length) { toast('No leads in current view to reset'); return; }
+
+  const cityLabel = cityF || indF || 'current view';
+  if (!confirm(`Reset ${data.length} leads in ${cityLabel} back to 🟢 New?\n\nThis lets you re-export them to Brett.`)) return;
+
+  const ids = data.map(l=>l.id);
+  try {
+    await sb('PATCH','leads',{status:'🟢 New',sales_status:null},'?id=in.('+ids.join(',')+')');
+    data.forEach(l=>{ l.status='🟢 New'; l.sales_status=null; });
+    renderLeads(); updateStats();
+    toast('↩️ '+data.length+' leads reset to 🟢 New — ready to re-export');
+  } catch(e) { console.error(e); toast('Reset failed — try again'); }
+}
+window.resetCurrentViewToNew = resetCurrentViewToNew;
+
+async function exportForEmail() {
+  // Get currently visible leads that have an email address
+  const search  = document.getElementById('searchInput').value.toLowerCase();
+  const statusF = document.getElementById('statusFilter').value;
+  const cityF   = document.getElementById('cityFilter').value;
+
+  let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
+  data = data.filter(l=>l.status !== '📦 Archived');
+  if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
+  if (statusF) data = data.filter(l=>l.status===statusF);
+  if (cityF)   data = data.filter(l=>l.city===cityF);
+  const indF = document.getElementById('industryFilter').value;
+  if (indF) data = data.filter(l=>(l.industry||'Mortgage')===indF);
+
+  // Only leads with emails — skip already emailed
+  const withEmail = data.filter(l => l.email && l.email.trim() && l.status !== '📧 Emailed');
+  const noEmail   = data.length - withEmail.length;
+
+  if (!withEmail.length) {
+    alert('No leads with email addresses in the current view, or all have already been emailed.\n\nMake sure Tommy has added emails before exporting.');
+    return;
+  }
+
+  // Cap at 20 for batch sender
+  const batch = withEmail.slice(0, 20);
+
+  const confirmed = confirm(
+    `Ready to export ${batch.length} leads for email batch.\n\n` +
+    `This will:\n` +
+    `✅ Download the CSV for your email bulk sender\n` +
+    `✅ Mark these ${batch.length} leads as 📧 Emailed in Supabase\n` +
+    `✅ Send them to Brett\'s sales queue automatically\n\n` +
+    `Continue?`
+  );
+  if (!confirmed) return;
+
+  // Build CSV: FirstName, Email, Reviews
+  let csv = 'FirstName,Email,Reviews\n';
+  batch.forEach(l => {
+    const firstName = (l.contact_name || '').split(' ')[0] || 'there';
+    const reviews   = l.reviews || '';
+    csv += `"${firstName.replace(/"/g,'')}", "${(l.email||'').replace(/"/g,'')}", "${reviews}"\n`;
+  });
+
+  // Download CSV
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `email-batch-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+
+  // Mark all 20 as Emailed in Supabase simultaneously
+  // Update in batches by ID
+  const ids = batch.map(l=>l.id);
+  try {
+    await sb('PATCH','leads',
+      { status: '📧 Emailed', scraped_date: new Date().toISOString().slice(0,10) },
+      `?id=in.(${ids.join(',')})`
+    );
+    // Update local state
+    batch.forEach(l => { l.status = '📧 Emailed'; });
+    renderLeads();
+    updateStats();
+    const remaining = withEmail.length - batch.length;
+    toast(`✅ ${batch.length} leads emailed + sent to Brett's queue${remaining ? ' · ' + remaining + ' more ready' : ''}`);
+  } catch(e) {
+    console.error('Failed to update Supabase:', e);
+    toast('CSV downloaded but Supabase update failed — refresh and try again');
+  }
+}
+
+// ── Bulk selection ───────────────────────────────────────
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.lead-check').forEach(c => c.checked = cb.checked);
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const checked = document.querySelectorAll('.lead-check:checked');
+  const bar     = document.getElementById('bulkBar');
+  const count   = document.getElementById('bulkCount');
+  if (checked.length > 0) {
+    bar.style.display = 'flex';
+    count.textContent = `${checked.length} lead${checked.length!==1?'s':''} selected`;
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function clearSelection() {
+  document.querySelectorAll('.lead-check').forEach(c => c.checked = false);
+  const selAll = document.getElementById('selectAll');
+  if (selAll) selAll.checked = false;
+  updateBulkBar();
+}
+
+async function bulkStatus(newStatus) {
+  const checked = [...document.querySelectorAll('.lead-check:checked')];
+  if (!checked.length) return;
+
+  const ids = checked.map(c => parseInt(c.dataset.id));
+  const confirmed = newStatus === '📦 Archived'
+    ? confirm(`Archive ${ids.length} lead${ids.length!==1?'s':''}? They will be hidden from the pipeline.`)
+    : true;
+  if (!confirmed) return;
+
+  // Update Supabase for each selected lead
+  let done = 0;
+  for (const id of ids) {
+    await sb('PATCH','leads',{status:newStatus},`?id=eq.${id}`);
+    const lead = allLeads.find(l=>l.id===id);
+    if (lead) lead.status = newStatus;
+    done++;
+  }
+
+  clearSelection();
+  renderLeads();
+  updateStats();
+  toast(`${done} lead${done!==1?'s':''} marked as ${newStatus}`);
+}
+
+function esc(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+window.loadLeads=loadLeads; window.selectWeek=selectWeek; window.cycleStatus=cycleStatus;
+window.saveEmail=saveEmail; window.saveNotes=saveNotes; window.saveWebsite=saveWebsite; window.saveName=saveName; window.archiveLead=archiveLead; window.savePhone=savePhone; window.showOutreach=showOutreach;
+window.toggleSelectAll=toggleSelectAll; window.bulkStatus=bulkStatus; window.clearSelection=clearSelection;
+
+document.addEventListener('change', e => {
+  if (e.target.classList.contains('lead-check')) updateBulkBar();
+});
+window.closeModal=closeModal; window.copyModal=copyModal; window.exportCSV=exportCSV;
+
+// ── APPOINTMENT SETTER ─────────────────────────────────────
+var apptLeads=[], currentApptLead=null, scriptFontSize=0.92;
+
+function scriptZoom(dir){
+  scriptFontSize=Math.min(1.4,Math.max(0.7,scriptFontSize+(dir*0.08)));
+  var el=document.getElementById('scriptTextBody');
+  if(el) el.style.fontSize=scriptFontSize+'rem';
+}
+
+function toggleApptView(){
+  var panel=document.getElementById('panel-appt');
+  var main=document.getElementById('mainContent');
+  var btn=document.getElementById('apptViewBtn');
+  if(!panel){console.error('panel-appt not found');return;}
+  if(panel.style.display==='block'){
+    panel.style.display='none';
+    if(main) main.style.display='block';
+    btn.textContent='📞 Appointment Setter';
+    btn.style.color='#a855f7';
+    btn.style.background='rgba(168,85,247,0.1)';
+  } else {
+    panel.style.display='block';
+    if(main) main.style.display='none';
+    btn.textContent='← Back to War Room';
+    btn.style.color='rgba(255,255,255,0.65)';
+    btn.style.background='rgba(255,255,255,0.06)';
+    loadApptLeads();
+  }
+}
+
+async function exportToAppointmentQueue(){
+  var checked=document.querySelectorAll('.lead-check:checked');
+  var ids=checked.length ? Array.from(checked).map(function(cb){return parseInt(cb.dataset.id);}) : allLeads.filter(function(l){return l.phone&&l.status!=='📦 Archived';}).slice(0,20).map(function(l){return l.id;});
+  if(!ids.length){toast('No leads to tag');return;}
+  if(!confirm('Tag '+ids.length+' lead'+(ids.length!==1?'s':'')+' as Appointment Queue?')) return;
+  try{
+    await sb('PATCH','leads',{status:'🔔 Appointment Queue'},'?id=in.('+ids.join(',')+')');
+    ids.forEach(function(id){var l=allLeads.find(function(x){return x.id===id;});if(l)l.status='🔔 Appointment Queue';});
+    renderLeads();updateStats();toast('🔔 '+ids.length+' tagged as Appointment Queue');
+  }catch(e){toast('Error — try again');}
+}
+
+async function loadApptLeads(){
+  var el=document.getElementById('apptLeadsList');
+  el.innerHTML='<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.4);">Loading...</div>';
+  try{
+    var r=await sb('GET','leads',null,'?status=eq.'+encodeURIComponent('🔔 Appointment Queue')+'&order=created_at.desc&limit=200');
+    apptLeads=Array.isArray(r)?r:[];
+    renderApptLeads();
+    updateApptStats();
+  }catch(e){console.error(e);el.innerHTML='<div style="text-align:center;padding:30px;color:#ef4444;">Failed to load</div>';}
+}
+
+function updateApptStats(){
+  document.getElementById('appt-total').textContent=apptLeads.length;
+  document.getElementById('appt-set').textContent=apptLeads.filter(function(l){return l.sales_status==='📅 Zoom Scheduled';}).length;
+  document.getElementById('appt-noanswer').textContent=apptLeads.filter(function(l){return l.sales_status==='📞 Called — No Answer';}).length;
+  document.getElementById('appt-notint').textContent=apptLeads.filter(function(l){return l.sales_status==='❌ Not Interested';}).length;
+}
+
+function renderApptLeads(){
+  var el=document.getElementById('apptLeadsList');
+  var cbEl=document.getElementById('callbacksList');
+  var cbSec=document.getElementById('callbacksSection');
+  var sf=document.getElementById('setterFilter').value;
+  var stf=document.getElementById('apptStatusFilter').value;
+  var today=new Date().toISOString().slice(0,10);
+  if(!apptLeads.length){
+    if(cbSec)cbSec.style.display='none';
+    el.innerHTML='<div style="text-align:center;padding:60px;color:rgba(255,255,255,0.3);"><div style="font-size:2.5rem;margin-bottom:12px;">📞</div><div>No leads in appointment queue.<br>Use Export to Brett to add leads.</div></div>';
+    return;
+  }
+  var cbs=apptLeads.filter(function(l){return l.follow_up_date&&l.follow_up_date<=today&&(l.sales_status==='📞 Called — No Answer'||l.sales_status==='📱 Left Voicemail');});
+  if(cbSec&&cbs.length){cbSec.style.display='block';cbEl.innerHTML=cbs.map(function(l){return renderApptCard(l,today);}).join('');}
+  else if(cbSec){cbSec.style.display='none';}
+  var data=apptLeads.slice();
+  if(sf) data=data.filter(function(l){return (l.notes||'').indexOf('[Setter:'+sf+']')!==-1;});
+  if(stf==='new') data=data.filter(function(l){return !l.call_attempts;});
+  else if(stf==='vm') data=data.filter(function(l){return l.sales_status==='📱 Left Voicemail';});
+  else if(stf==='noanswer') data=data.filter(function(l){return l.sales_status==='📞 Called — No Answer';});
+  else if(stf==='set') data=data.filter(function(l){return l.sales_status==='📅 Zoom Scheduled';});
+  else if(stf==='notint') data=data.filter(function(l){return l.sales_status==='❌ Not Interested';});
+  else if(stf==='callbacks') data=data.filter(function(l){return l.follow_up_date&&l.follow_up_date<=today;});
+  var lbl=document.getElementById('apptLeadsLabel');
+  if(lbl) lbl.textContent=data.length+' Lead'+(data.length!==1?'s':'')+' in Queue';
+  el.innerHTML=data.length?data.map(function(l){return renderApptCard(l,today);}).join(''):'<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">No leads match this filter.</div>';
+}
+
+function renderApptCard(l,today){
+  var isCB=l.follow_up_date&&l.follow_up_date<=today;
+  var att=l.call_attempts||0;
+  var sm=(l.notes||'').match(/\[Setter:([^\]]+)\]/);
+  var who=sm?sm[1]:null;
+  var cn=(l.notes||'').replace(/\[Setter:[^\]]+\]/g,'').replace(/\|/g,'').trim();
+  return '<div style="background:#071628;border:1px solid '+(isCB?'rgba(245,158,11,0.4)':'rgba(255,255,255,0.07)')+';border-left:3px solid '+(isCB?'#f59e0b':'rgba(168,85,247,0.5)')+';border-radius:14px;padding:16px;margin-bottom:10px;">'
+    +'<div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;">'
+      +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:0.95rem;font-weight:700;color:#fff;">'+esc(l.company_name||'—')+'</div>'
+        +'<div style="font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:2px;">'+esc(l.contact_name||'')+'</div>'
+        +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">'
+          +(l.reviews?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#34a853;border:1px solid rgba(52,168,83,0.3);">⭐ '+l.reviews+' Reviews</span>':'')
+          +(l.city?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#94a3b8;border:1px solid rgba(148,163,184,0.2);">📍 '+esc(l.city)+'</span>':'')
+          +(l.sales_status?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#a855f7;border:1px solid rgba(168,85,247,0.3);">'+esc(l.sales_status)+'</span>':'')
+          +(who?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);">👤 '+esc(who)+'</span>':'')
+          +(att>0?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;color:#f59e0b;border:1px solid rgba(245,158,11,0.25);">'+att+' attempt'+(att!==1?'s':'')+'</span>':'')
+          +(isCB?'<span style="font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:700;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.4);">⚠️ CALLBACK DUE</span>':'')
+        +'</div>'
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0;">'
+        +'<div style="font-size:0.9rem;font-weight:700;color:#f59e0b;">'+(l.phone||'—')+'</div>'
+        +(l.email?'<div style="font-size:0.68rem;color:#34a853;margin-top:3px;">'+esc(l.email)+'</div>':'')
+      +'</div>'
+    +'</div>'
+    +(cn?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.45);padding:6px 10px;background:rgba(14,165,233,0.05);border-radius:6px;border-left:2px solid rgba(14,165,233,0.25);margin-bottom:10px;">'+esc(cn)+'</div>':'')
+    +(l.sales_notes?'<div style="font-size:0.72rem;color:rgba(255,255,255,0.4);padding:6px 10px;background:rgba(168,85,247,0.04);border-radius:6px;border-left:2px solid rgba(168,85,247,0.2);margin-bottom:10px;font-style:italic;">'+esc(l.sales_notes)+'</div>':'')
+    +'<button onclick="openScriptModal('+l.id+')" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;">📋 View Script &amp; Call</button>'
+    +(l.email?'<button onclick="openReportPreview('+l.id+')" style="background:rgba(52,168,83,0.12);border:1px solid rgba(52,168,83,0.35);color:#34a853;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;margin-left:6px;">📊 Send Report</button>':'')
+    +((l.email&&(l.sales_notes||'').indexOf('[Report sent')!==-1)?'<button onclick="viewSentReport('+l.id+')" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:#22c55e;padding:6px 14px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;margin-left:6px;">👁 View Report</button>':'')
+  +'</div>';
+}
+
+function openScriptModal(id){
+  currentApptLead=null;
+  for(var i=0;i<apptLeads.length;i++){if(apptLeads[i].id===id){currentApptLead=apptLeads[i];break;}}
+  if(!currentApptLead) return;
+  var l=currentApptLead;
+  var setter=document.getElementById('setterName').value;
+  var fn=(l.contact_name||'Prospect').split(' ')[0];
+  var rv=l.reviews?l.reviews+' reviews':'a limited number of reviews';
+  document.getElementById('scriptProspectInfo').innerHTML='<strong style="color:#a855f7;">'+esc(l.company_name||'—')+'</strong> &nbsp;·&nbsp; '+esc(fn)+' &nbsp;·&nbsp; <a href="tel:'+(l.phone||'').replace(/\D/g,'')+'" style="color:#f59e0b;font-weight:700;text-decoration:none;">'+esc(l.phone||'—')+'</a>'+(l.reviews?' &nbsp;·&nbsp; <span style="color:#34a853;">⭐ '+l.reviews+'</span>':'');
+  document.getElementById('scriptGatekeeper').innerHTML=
+    '"Is '+fn+' around?"'
+    +'<br><br><em style="color:#f59e0b;">May I ask who is calling?</em> '
+    +'"Yea, tell him Tommy is on the line — they will know what it is in reference to."'
+    +'<br><br><em style="color:#f59e0b;">What is this regarding?</em> '
+    +'"Personal business — '+fn+' will know."'
+    +'<br><br><em style="color:#f59e0b;">What company are you with?</em> '
+    +'"It is the same company on the correspondence email — that is Revuee, spelled R-E-V-U-E-E. '+fn+' will know what it is in reference to."'
+    +'<br><br><em style="color:#f59e0b;">What is this regarding? (again)</em> '
+    +'"It is regarding a red flag on his Google Business Account. If you would please let '+fn+' know I am on hold, that would be great — thanks."'
+    +'<br><br><em style="color:#f59e0b;">If not available:</em> '
+    +'"Remember that red flag I mentioned? Tell '+fn+' I am sending over a follow-up Red Flag Analysis Report that will explain everything. My number is on there — thank you."';
+  document.getElementById('scriptProspect').innerHTML=
+    '"Hey '+fn+',  thanks for taking my call, it’s Tommy with REVUEE, the preferred Google Review App Company. I know my calls an Interruption to your day, so if I could just get 27 seconds to help solve a huge financial problem you probably dont even know you have. I will make it worth your while.  Are you good with that?"'
+    +'<br><br><em style="color:#f59e0b;">If yes:</em> '
+    +'"Okay '+fn+', here it goes. Currently your local Google listing is losing up to 50% of your Google leads to your local competitors because your reviews are insufficiently doing their job, that we can fix in 30 days or less. So to validate who we are, I would like to send you a competitor analysis report so you can see for yourself who these competitors are and how we can fix your lead quandry with case studies. Does that work for you '+fn+'?" <strong style="color:#34a853;">← Click Send Report now!</strong>'
+    +'<br><br><em style="color:#f59e0b;">If Yes, prompt to open their email:</em> '
+    +'"As you can see '+fn+', there are ten mortgage companies in '+esc(l.city||'your area')+' getting the lion share of the leads right now and it all comes down to inadequate reviews. But here is the good news — we can turn that around with Revuee in 30 days or less. If you can give our Google Review expert just ten minutes at your convenience, I can help you schedule that right now if that works for you?"'
+    +'<br><br><em style="color:#f59e0b;">How can you do that?</em> '
+    +'"That is what our review lead expert is going to go over with you. But I can tell you this — there is absolutely nothing else on the market like it today. And it will not only put your Google reviews on autopilot, it will also boost your customer referrals to a level you would not believe if I told you."'
+    +'<br><br><em style="color:#f59e0b;">If still no:</em> '
+    +'"No problem at all. Just click the header of the email I sent — it will show you how easy it is to boost not only your Google reviews but your customer referrals too. I think you will be impressed. Have a great rest of your day '+fn+'."';
+  document.getElementById('scriptModal').style.display='flex';
+}
+
+function closeScriptModal(){document.getElementById('scriptModal').style.display='none';currentApptLead=null;}
+
+async function logApptCall(type){
+  if(!currentApptLead) return;
+  var setter=document.getElementById('setterName').value;
+  var sm={noanswer:'📞 Called — No Answer',voicemail:'📱 Left Voicemail',notinterested:'❌ Not Interested'};
+  var ns=sm[type];
+  var days=type==='voicemail'?3:type==='noanswer'?2:null;
+  var fu=null;
+  if(days){var d=new Date();d.setDate(d.getDate()+days);fu=d.toISOString().slice(0,10);}
+  var patch={sales_status:ns,last_called:new Date().toISOString(),call_attempts:(currentApptLead.call_attempts||0)+1,notes:(currentApptLead.notes||'')+' [Setter:'+setter+']'};
+  if(fu) patch.follow_up_date=fu;
+  try{
+    await sb('PATCH','leads',patch,'?id=eq.'+currentApptLead.id);
+    Object.assign(currentApptLead,patch);
+    toast('Logged: '+ns+(fu?' · Callback: '+fu:''));
+    closeScriptModal();loadApptLeads();
+  }catch(e){toast('Error logging call');}
+}
+
+function openApptForm(){
+  if(!currentApptLead) return;
+  var fn=(currentApptLead.contact_name||'Prospect').split(' ')[0];
+  document.getElementById('apptFormInfo').innerHTML='Booking Zoom for <strong style="color:#fff;">'+esc(fn)+'</strong> at <strong style="color:#fff;">'+esc(currentApptLead.company_name||'')+'</strong>';
+  document.getElementById('apptDate').value='';
+  document.getElementById('apptHour').value='10';
+  document.getElementById('apptMin').value='00';
+  document.getElementById('apptAmPm').value='PM';
+  document.getElementById('apptNotes').value='';
+  document.getElementById('scriptModal').style.display='none';
+  document.getElementById('apptFormModal').style.display='flex';
+}
+
+function closeApptForm(){document.getElementById('apptFormModal').style.display='none';document.getElementById('scriptModal').style.display='flex';}
+
+async function sendApptToBrett(){
+  if(!currentApptLead) return;
+  var dateVal=document.getElementById('apptDate').value;
+  var hour=parseInt(document.getElementById('apptHour').value);
+  var min=document.getElementById('apptMin').value;
+  var ampm=document.getElementById('apptAmPm').value;
+  var notes=document.getElementById('apptNotes').value;
+  var setter=document.getElementById('setterName').value;
+  if(!dateVal){alert('Please select a date.');return;}
+  if(ampm==='PM'&&hour!==12) hour+=12;
+  if(ampm==='AM'&&hour===12) hour=0;
+  var zd=new Date(dateVal+'T'+String(hour).padStart(2,'0')+':'+min+':00').toISOString();
+  try{
+    await sb('PATCH','leads',{sales_status:'📅 Zoom Scheduled',zoom_date:zd,zoom_link:'https://calendly.com/mobilewise-ai/30min',sales_notes:'[Set by '+setter+'] '+notes,status:'📧 Emailed',last_called:new Date().toISOString(),call_attempts:(currentApptLead.call_attempts||0)+1},'?id=eq.'+currentApptLead.id);
+    closeApptForm();closeScriptModal();
+    toast('Appointment sent to Brett! '+new Date(zd).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}));
+    loadApptLeads();
+  }catch(e){toast('Error — try again');}
+}
+
+window.toggleApptView=toggleApptView;window.exportToAppointmentQueue=exportToAppointmentQueue;
+window.loadApptLeads=loadApptLeads;window.renderApptLeads=renderApptLeads;
+window.openScriptModal=openScriptModal;window.closeScriptModal=closeScriptModal;
+window.logApptCall=logApptCall;window.openApptForm=openApptForm;
+window.closeApptForm=closeApptForm;window.sendApptToBrett=sendApptToBrett;window.scriptZoom=scriptZoom;
+
+</script>
+
+<div id="mainContent-marker" style="display:none;"></div>
+
+</div><!-- end mainContent -->
+<div id="panel-appt" style="display:none;padding:20px;max-width:1400px;margin:0 auto;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+    <div><div style="font-size:1.1rem;font-weight:700;color:#a855f7;">📞 Appointment Setter</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:2px;">Leads tagged for appointment setting</div></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <select id="setterName" style="background:#071628;border:1px solid rgba(168,85,247,0.3);border-radius:20px;color:#a855f7;font-size:0.78rem;padding:7px 14px;outline:none;font-family:inherit;"><option value="Tommy">Tommy</option><option value="Ave">Ave</option><option value="Brett">Brett</option></select>
+      <select id="setterFilter" onchange="renderApptLeads()" style="background:#071628;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:rgba(255,255,255,0.7);font-size:0.78rem;padding:7px 14px;outline:none;font-family:inherit;"><option value="">All Setters</option><option value="Tommy">Tommy Only</option><option value="Ave">Ave Only</option><option value="Brett">Brett Only</option></select>
+      <select id="apptStatusFilter" onchange="renderApptLeads()" style="background:#071628;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:rgba(255,255,255,0.7);font-size:0.78rem;padding:7px 14px;outline:none;font-family:inherit;"><option value="">All Statuses</option><option value="new">Not Called Yet</option><option value="callbacks">Callbacks Due</option><option value="vm">Left Voicemail</option><option value="noanswer">No Answer</option><option value="set">Appointment Set</option><option value="notint">Not Interested</option></select>
+      <button onclick="loadApptLeads()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:#a855f7;padding:8px 16px;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">🔄 Refresh</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+    <div style="background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:#a855f7;" id="appt-total">0</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">In Queue</div></div>
+    <div style="background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:#22c55e;" id="appt-set">0</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Appointments Set</div></div>
+    <div style="background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:#f59e0b;" id="appt-noanswer">0</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">No Answer</div></div>
+    <div style="background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.5rem;font-weight:700;color:#ef4444;" id="appt-notint">0</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px;">Not Interested</div></div>
+  </div>
+  <div id="callbacksSection" style="display:none;margin-bottom:20px;"><div style="font-size:0.72rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;padding:6px 0;border-bottom:1px solid rgba(245,158,11,0.2);">Callbacks Due Today</div><div id="callbacksList"></div></div>
+  <div style="font-size:0.72rem;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;padding:6px 0;border-bottom:1px solid rgba(168,85,247,0.2);" id="apptLeadsLabel">All Leads in Queue</div>
+  <div id="apptLeadsList"><div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">Click Refresh to load appointment queue leads</div></div>
+</div>
+
+<div id="scriptModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#071628;border:1px solid rgba(168,85,247,0.4);border-radius:20px;padding:24px;width:100%;max-width:740px;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-size:1rem;font-weight:700;color:#a855f7;">Calling Script</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button onclick="scriptZoom(-1)" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:2px 8px;cursor:pointer;font-size:0.85rem;font-weight:700;">A-</button>
+        <button onclick="scriptZoom(1)" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);color:#a855f7;border-radius:8px;padding:2px 8px;cursor:pointer;font-size:1rem;font-weight:700;">A+</button>
+        <button onclick="closeScriptModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;line-height:30px;text-align:center;">X</button>
+      </div>
+    </div>
+    <div id="scriptProspectInfo" style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:12px 16px;margin-bottom:12px;font-size:0.85rem;line-height:1.7;color:rgba(255,255,255,0.8);"></div>
+    <div style="text-align:right;margin-bottom:14px;">
+      <button id="scriptReportBtn" onclick="sendReportFromScript()" style="background:rgba(52,168,83,0.15);border:1px solid rgba(52,168,83,0.4);color:#34a853;padding:7px 16px;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">📊 Send Report to Prospect</button>
+      <button id="scriptViewReportBtn" onclick="viewReportFromScript()" style="display:none;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:#22c55e;padding:7px 16px;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;margin-left:6px;">👁 View Report</button>
+    </div>
+    <div id="scriptTextBody" style="font-size:0.92rem;line-height:2;color:rgba(255,255,255,0.85);">
+      <div style="font-size:0.75rem;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Gatekeeper Opener</div>
+      <div id="scriptGatekeeper" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:14px;border-left:3px solid #a855f7;"></div>
+      <div style="font-size:0.75rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">When Prospect Answers</div>
+      <div id="scriptProspect" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:14px;border-left:3px solid #22c55e;"></div>
+      <div style="font-size:0.75rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Common Objections</div>
+      <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px;margin-bottom:16px;border-left:3px solid #f59e0b;">
+        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">No time / Not interested</strong><br><em>"I completely understand. But before we part ways, let me send you something valuable — a free Competition Analysis Report showing the top 10 mortgage companies in your area currently winning over 50% of the leads you should be getting."</em> <strong style="color:#34a853;">← Send Report now!</strong></div>
+        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">How can you do that?</strong><br><em>"That is what our review lead expert is going to go over with you. There is absolutely nothing else on the market like it today — it puts your Google reviews on autopilot AND boosts customer referrals to a level you would not believe."</em></div>
+        <div style="margin-bottom:10px;"><strong style="color:#f59e0b;">How much does it cost?</strong><br><em>"That is exactly what the 10-minute call covers — Brett customizes it for your business. Most clients find it pays for itself in the first month. I can schedule that right now if it works for you?"</em></div>
+        <div><strong style="color:#f59e0b;">Still no after email</strong><br><em>"No problem at all. Just click the header of the email — it will show you how easy it is to boost your Google reviews AND customer referrals. I think you will be impressed. Have a great rest of your day!"</em></div>
+      </div>
+    </div>
+    <div style="font-size:0.7rem;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Call Outcome</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="openApptForm()" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:#22c55e;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">Set Appointment</button>
+      <button onclick="logApptCall('noanswer')" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">No Answer</button>
+      <button onclick="logApptCall('voicemail')" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#f59e0b;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">Left VM</button>
+      <button onclick="logApptCall('notinterested')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">Not Interested</button>
+    </div>
+  </div>
+</div>
+
+<div id="apptFormModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:400;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#071628;border:1px solid rgba(34,197,94,0.4);border-radius:20px;padding:24px;width:100%;max-width:460px;">
+    <div style="font-size:1rem;font-weight:700;color:#22c55e;margin-bottom:16px;">Book Appointment</div>
+    <div id="apptFormInfo" style="font-size:0.82rem;color:rgba(255,255,255,0.6);margin-bottom:16px;"></div>
+    <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Zoom Date — click to open calendar</label>
+    <div style="position:relative;margin-bottom:12px;">
+      <input type="date" id="apptDate"
+        style="width:100%;background:#0a1f35;border:2px solid rgba(168,85,247,0.4);border-radius:8px;color:#fff;font-size:1.1rem;padding:12px 16px;outline:none;cursor:pointer;font-family:inherit;box-sizing:border-box;"
+        onclick="this.showPicker()"
+      >
+    </div>
+    <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Zoom Time</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+      <select id="apptHour" style="background:#030b14;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:0.9rem;padding:10px 8px;outline:none;font-family:inherit;cursor:pointer;text-align:center;">
+        <option value="8">8</option><option value="9">9</option><option value="10" selected>10</option>
+        <option value="11">11</option><option value="12">12</option><option value="1">1</option>
+        <option value="2">2</option><option value="3">3</option><option value="4">4</option>
+        <option value="5">5</option><option value="6">6</option>
+      </select>
+      <select id="apptMin" style="background:#030b14;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:0.9rem;padding:10px 8px;outline:none;font-family:inherit;cursor:pointer;text-align:center;">
+        <option value="00">:00</option><option value="15">:15</option>
+        <option value="30">:30</option><option value="45">:45</option>
+      </select>
+      <select id="apptAmPm" style="background:#030b14;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:#fff;font-size:0.9rem;padding:10px 8px;outline:none;font-family:inherit;cursor:pointer;text-align:center;">
+        <option value="AM">AM</option><option value="PM" selected>PM</option>
+      </select>
+    </div>
+    <label style="font-size:0.7rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Notes for Brett</label>
+    <textarea id="apptNotes" rows="3" placeholder="Key details Brett should know..." style="width:100%;background:#030b14;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.85rem;padding:10px 12px;outline:none;resize:vertical;line-height:1.6;"></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button onclick="closeApptForm()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);padding:8px 18px;border-radius:20px;font-size:0.8rem;cursor:pointer;">Cancel</button>
+      <button onclick="sendApptToBrett()" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#000;font-weight:700;padding:8px 20px;border-radius:20px;font-size:0.8rem;cursor:pointer;">Send to Brett</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+
+<!-- ═══════════════ REPORT PREVIEW MODAL ═══════════════ -->
+<div id="reportModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:500;align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;position:relative;">
+
+    <!-- Modal header -->
+    <div style="background:#1a3a5c;border-radius:16px 16px 0 0;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="color:#fff;font-weight:700;font-size:1rem;">📊 Competitive Review Analysis — Preview</div>
+      <button onclick="closeReportModal()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1rem;line-height:30px;text-align:center;">X</button>
+    </div>
+
+    <!-- Email preview -->
+    <div id="reportPreviewBody" style="padding:0;"></div>
+
+    <!-- Action bar -->
+    <div style="padding:16px 24px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;background:#f9f9f9;border-radius:0 0 16px 16px;">
+      <div style="font-size:0.78rem;color:#666;" id="reportSendTo"></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="closeReportModal()" style="background:#eee;border:none;color:#333;padding:10px 20px;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+        <button onclick="sendReport()" id="sendReportBtn" style="background:#f8c400;border:none;color:#0a0f1e;padding:10px 24px;border-radius:20px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;">📤 Send to Prospect</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// COMPETITIVE REPORT SYSTEM
+// ═══════════════════════════════════════════════════════════
+
+var currentReportLead = null;
+var lastReportHtml = '';
+var lastReportLeadId = null;
+
+async function openReportPreview(id) {
+  var l = allLeads.find(function(x){return x.id===id;}) || apptLeads.find(function(x){return x.id===id;});
+  if (!l) { toast('Lead not found'); return; }
+  if (!l.email) { toast('No email address for this lead — add one first'); return; }
+  currentReportLead = l;
+  await buildAndSendReport(l);
+}
+
+async function buildAndSendReport(l, viewOnly) {
+
+  // Get competitors from same city and industry
+  var city     = l.city || '';
+  var industry = l.industry || 'Mortgage';
+  var companyName = l.company_name || '';
+
+  // Strip state suffix from city for matching e.g. "Burlington" matches "Burlington, VT"
+  var cityBase = city.split(',')[0].trim();
+
+  try {
+    var competitors = await sb('GET','leads','',
+      '?city=like.'+encodeURIComponent(cityBase+'%')+
+      '&industry=eq.'+encodeURIComponent(industry)+
+      '&order=reviews.desc&limit=10&reviews=gte.1'
+    );
+    if (!Array.isArray(competitors) || !competitors.length) {
+      // Fallback - use allLeads filtered by city base name
+      competitors = allLeads.filter(function(x){
+        var xCity = (x.city||'').split(',')[0].trim();
+        return xCity===cityBase && (x.industry||'Mortgage')===industry && x.reviews>0;
+      }).sort(function(a,b){return (b.reviews||0)-(a.reviews||0);}).slice(0,10);
+    }
+    if (!competitors.length) {
+      body.innerHTML = '<div style="padding:40px;text-align:center;color:#c00;">No competitor data found for '+esc(city)+'. Make sure this market has been scraped.</div>';
+      return;
+    }
+
+    // Build ranked table
+    var leaderReviews = competitors[0].reviews || 0;
+    var prospectReviews = l.reviews || 0;
+    var gap = leaderReviews - prospectReviews;
+    var rank = 1;
+    var prospectRank = 'unranked';
+    var medals = ['🥇','🥈','🥉'];
+
+    var tableRows = '';
+    competitors.forEach(function(c, i) {
+      var isProspect = c.company_name === companyName || c.id === l.id;
+      if (isProspect) prospectRank = (i+1)+'th out of '+competitors.length;
+      var medal = i < 3 ? medals[i] : (i+1)+'.';
+      var rowStyle = isProspect
+        ? 'background:#fff8e1;font-weight:700;color:#1a3a5c;border-left:4px solid #f8c400;'
+        : (i===0?'color:#22863a;font-weight:600;':'');
+      var youTag = isProspect ? ' <span style="background:#f8c400;color:#0a0f1e;font-size:0.65rem;padding:1px 6px;border-radius:8px;font-weight:700;">YOU</span>' : '';
+      tableRows += '<tr style="'+rowStyle+'">'
+        +'<td style="padding:10px 14px;border-bottom:1px solid #eee;">'+medal+'</td>'
+        +'<td style="padding:10px 14px;border-bottom:1px solid #eee;">'+esc(c.company_name||'—')+youTag+'</td>'
+        +'<td style="padding:10px 14px;border-bottom:1px solid #eee;text-align:right;">⭐ '+(c.reviews||0)+'</td>'
+        +'</tr>';
+    });
+
+    // If prospect not in list add them
+    if (prospectRank === 'unranked' && prospectReviews > 0) {
+      prospectRank = 'outside top 10';
+      tableRows += '<tr style="background:#fff8e1;font-weight:700;color:#1a3a5c;border-left:4px solid #f8c400;">'
+        +'<td style="padding:10px 14px;">—</td>'
+        +'<td style="padding:10px 14px;">'+esc(companyName)+' <span style="background:#f8c400;color:#0a0f1e;font-size:0.65rem;padding:1px 6px;border-radius:8px;font-weight:700;">YOU</span></td>'
+        +'<td style="padding:10px 14px;text-align:right;">⭐ '+prospectReviews+'</td>'
+        +'</tr>';
+    }
+
+    var firstName = (l.contact_name||'').split(' ')[0] || 'there';
+
+    // Build preview HTML
+    var html = '<div style="font-family:Arial,sans-serif;color:#333;">'
+      // Header image
+      +'<a href="https://zoom4ai.us" target="_blank"><img src="https://fcgbusobfdwnpoqyuzoe.supabase.co/storage/v1/object/public/email-headers/revuee-email2.jpg" style="width:100%;display:block;"></a>'
+      +'<div style="padding:28px 36px;">'
+        +'<p style="font-size:1.05rem;color:#1a3a5c;">Hi '+esc(firstName)+',</p>'
+        +'<h1 style="font-size:1.35rem;color:#1a3a5c;margin-bottom:4px;">Your Google Review Ranking in '+esc(city)+'</h1>'
+        +'<p style="font-size:0.9rem;color:#666;margin-bottom:20px;">We analyzed the top '+competitors.length+' '+esc(industry)+' companies in your market. Here is exactly where <strong>'+esc(companyName)+'</strong> stands today.</p>'
+        // Table
+        +'<div style="font-size:0.7rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">📊 '+esc(city)+' Market — Ranked by Google Reviews</div>'
+        +'<table style="width:100%;border-collapse:collapse;margin-bottom:24px;">'
+          +'<thead><tr style="background:#1a3a5c;">'
+            +'<th style="color:#fff;padding:10px 14px;text-align:left;font-size:0.78rem;">Rank</th>'
+            +'<th style="color:#fff;padding:10px 14px;text-align:left;font-size:0.78rem;">Company</th>'
+            +'<th style="color:#fff;padding:10px 14px;text-align:right;font-size:0.78rem;">Reviews</th>'
+          +'</tr></thead>'
+          +'<tbody>'+tableRows+'</tbody>'
+        +'</table>'
+        // Gap box
+        +'<div style="background:#fef3cd;border:1px solid #f8c400;border-radius:8px;padding:16px 20px;margin-bottom:24px;">'
+          +'<h3 style="margin:0 0 6px;font-size:0.95rem;color:#1a3a5c;">⚠️ Your Market Position</h3>'
+          +'<p style="margin:0;font-size:0.85rem;color:#555;line-height:1.6;"><strong>'+esc(companyName)+'</strong> is ranked <strong>'+prospectRank+'</strong> with <strong>'+prospectReviews+' Google reviews</strong>. The market leader has <strong>'+leaderReviews+' reviews</strong> — a gap of <strong>'+gap+' reviews</strong>.</p>'
+          +'<p style="margin:8px 0 0;font-size:0.85rem;color:#555;">Companies in the top 3 receive over <strong>70% of all local search clicks</strong>. Every day without action your competitors pull further ahead.</p>'
+        +'</div>'
+        // What Revuee does
+        +'<h2 style="font-size:1.05rem;color:#1a3a5c;">How Revuee Closes This Gap Automatically</h2>'
+        +'<p style="font-size:0.88rem;color:#555;line-height:1.8;">⭐ <strong>Captures Google Reviews Automatically</strong> — no awkward asks, no manual follow-up.<br>'
+        +'📲 <strong>Refer a Friend via SMS</strong> — turns happy clients into a referral engine.<br>'
+        +'🎥 <strong>Video Testimonials</strong> — published to Facebook, Instagram, your website and blogs.<br>'
+        +'💬 <strong>Responds to Every Review</strong> — Google rewards businesses that engage.</p>'
+        // CTA
+        +'<h2 style="font-size:1.05rem;color:#1a3a5c;margin-top:24px;">Ready to Move Up in Your Market?</h2>'
+        +'<p style="font-size:0.88rem;color:#555;">Book a no-obligation Zoom consultation and we will show you exactly how Revuee moves the needle for <strong>'+esc(companyName)+'</strong>.</p>'
+        +'<div style="text-align:center;margin-top:16px;">'
+          +'<a href="https://zoom4ai.us" style="display:inline-block;padding:14px 32px;background:#f8c400;color:#0a0f1e;border-radius:6px;text-decoration:none;font-weight:700;font-size:1rem;">📅 Schedule Your Free Zoom Consultation</a>'
+        +'</div>'
+        +'<p style="color:#999;font-size:0.78rem;margin-top:24px;text-align:center;">No cost. No obligation. Just a conversation about what is possible.</p>'
+      +'</div>'
+      +'<div style="background:#f4f6f9;padding:16px 36px;text-align:center;font-size:0.72rem;color:#999;border-radius:0 0 16px 16px;">'
+        +'<p>Brett Duncan | AI Conversion Specialist | MobileWise AI</p>'
+        +'<p>949-357-0655 | revuee56@gmail.com</p>'
+      +'</div>'
+    +'</div>';
+
+    // Send immediately
+    var tableHtml = '<table style="width:100%;border-collapse:collapse;">'
+      +'<thead><tr style="background:#1a3a5c;">'
+      +'<th style="color:#fff;padding:10px 14px;text-align:left;font-size:0.78rem;">Rank</th>'
+      +'<th style="color:#fff;padding:10px 14px;text-align:left;font-size:0.78rem;">Company</th>'
+      +'<th style="color:#fff;padding:10px 14px;text-align:right;font-size:0.78rem;">Reviews</th>'
+      +'</tr></thead><tbody>'+tableRows+'</tbody></table>';
+
+    // If view only - just display don't send
+    if (viewOnly) {
+      var previewBody = document.getElementById('reportPreviewBody');
+      if (previewBody) previewBody.innerHTML = html;
+      lastReportHtml = html;
+      lastReportLeadId = l.id;
+      return;
+    }
+    toast('Sending report to '+l.email+'...');
+
+    await emailjs.send('service_b9bppgb', 'template_xemftmn', {
+      user_email:       l.email,
+      reply_to:         'revuee56@gmail.com',
+      from_name:        'Revuee by MobileWise AI',
+      subject:          firstName+', here is your Google Review ranking in '+city,
+      prospect_name:    firstName,
+      company_name:     companyName,
+      city:             city,
+      industry:         industry,
+      market_table:     tableHtml,
+      prospect_rank:    prospectRank,
+      prospect_reviews: String(prospectReviews),
+      leader_reviews:   String(leaderReviews),
+      reviews_gap:      String(gap)
+    });
+
+    // Show confirmation popup
+    showReportConfirmation(l.email, companyName, prospectRank, city, prospectReviews, gap, html);
+
+  } catch(e) {
+    console.error(e);
+    toast('Report failed — check connection and try again');
+  }
+}
+
+function closeReportModal() {
+  document.getElementById('reportModal').style.display = 'none';
+  currentReportLead = null;
+}
+
+function showReportConfirmation(email, company, rank, city, reviews, gap, previewHtml, leadId) {
+  lastReportHtml = previewHtml;
+  lastReportLeadId = leadId;
+  toast('Report sent to '+email+' ✅ — click View Report on the lead card to go over it with them');
+  renderLeads();
+  if (typeof renderApptLeads === 'function') renderApptLeads();
+}
+
+function sendReport() {}
+
+function viewSentReport(leadId) {
+  var modal   = document.getElementById('reportModal');
+  var body    = document.getElementById('reportPreviewBody');
+  var sendBtn = document.getElementById('sendReportBtn');
+  sendBtn.style.display = 'none';
+  modal.style.display = 'flex';
+
+  if (leadId === lastReportLeadId && lastReportHtml) {
+    body.innerHTML = lastReportHtml;
+  } else {
+    body.innerHTML = '<div style="padding:40px;text-align:center;color:#666;font-size:0.9rem;">Building report...</div>';
+    var l = allLeads.find(function(x){return x.id===leadId;}) || apptLeads.find(function(x){return x.id===leadId;});
+    if (l) {
+      buildAndSendReport(l, true);
+    } else {
+      body.innerHTML = '<div style="padding:40px;text-align:center;color:#c00;">Lead not found — please refresh and try again.</div>';
+    }
+  }
+}
+
+
+function sendReportFromScript() {
+  if (!currentApptLead) return;
+  if (!currentApptLead.email) {
+    toast('No email address for this lead — add one first');
+    return;
+  }
+  var btn = document.getElementById('scriptReportBtn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  openReportPreview(currentApptLead.id).then(function() {
+    btn.textContent = '✅ Report Sent';
+    btn.style.color = '#22c55e';
+    btn.disabled = false;
+    // Show view button
+    var vb = document.getElementById('scriptViewReportBtn');
+    if (vb) vb.style.display = 'inline-block';
+  }).catch(function() {
+    btn.textContent = '📊 Send Report to Prospect';
+    btn.disabled = false;
+  });
+}
+
+function viewReportFromScript() {
+  if (!currentApptLead) return;
+  viewSentReport(currentApptLead.id);
+}
+
+window.sendReportFromScript = sendReportFromScript;
+window.viewReportFromScript = viewReportFromScript;
+window.openReportPreview = openReportPreview;
+window.viewSentReport = viewSentReport;
+window.closeReportModal  = closeReportModal;
+window.sendReport        = sendReport;
+</script>
+</body>
+</html>
