@@ -299,7 +299,7 @@ async function loadLeads() {
     // Sorting the labels as text would put "Warm · ..." wherever the alphabet
     // happens to land it, which is not where today's work is.
     const weekData = await sb('GET','leads','',
-      '?select=week_label,created_at&week_label=not.is.null&limit=20000'
+      '?select=week_label,created_at&week_label=not.is.null&limit=20000&' + B2B_ONLY
       + (ind ? '&industry=eq.' + encodeURIComponent(ind) : '')
     );
 
@@ -344,7 +344,8 @@ var industriesBuilt = false;
 async function buildIndustryFilter() {
   if (industriesBuilt) return;
   try {
-    var rows = await sb('GET','leads','','?select=industry&industry=not.is.null&limit=20000');
+    var rows = await sb('GET','leads','',
+      '?select=industry&industry=not.is.null&limit=20000&' + B2B_ONLY);
     if (!Array.isArray(rows)) return;
     var names = [...new Set(rows.map(function (r) { return r.industry; }).filter(Boolean))]
                   .sort(function (a, b) { return a.localeCompare(b); });
@@ -384,7 +385,8 @@ async function onWeekClick(w, el) {
 async function loadWeekLeads(week, ind) {
   try {
     allLeads = await sb('GET','leads','',
-      '?order=lead_id.asc&limit=5000&week_label=eq.' + encodeURIComponent(week)
+      '?order=lead_id.asc&limit=5000&' + B2B_ONLY
+      + '&week_label=eq.' + encodeURIComponent(week)
       + (ind ? '&industry=eq.' + encodeURIComponent(ind) : '')
     );
     if (!Array.isArray(allLeads)) allLeads = [];
@@ -538,6 +540,22 @@ function updateStats() {
 // phone can put the link in front of the business while they are still
 // talking to them.
 var APPLY_URL = 'https://localhomenetwork.netlify.app/localhome-apply.html';
+
+// ── WHAT THIS PAGE IS FOR ──────────────────────────────────────────────────
+// Building the B2B referral network, and nothing else. Two kinds of lead
+// belong here:
+//
+//   WRM-  warm referrals, introduced by a member
+//   B2B-  businesses sent over from the market scanner
+//
+// Everything else in the leads table - the original Apify scrapes (MW-) and
+// the scanner leads bound for Client Act (LHN-) - belongs to a different job
+// and a different person. They stay in the table, untouched and still there
+// in the backup Sales War Room; they are simply not this page's business.
+//
+// One PostgREST filter, reused by every query on the page, so there is no
+// way for one of them to quietly forget it.
+var B2B_ONLY = 'or=(lead_id.like.WRM-*,lead_id.like.B2B-*)';
 var INVITE_SENT_STATUS = '✉️ Invite sent';
 
 // EmailJS HTML-escapes whatever goes into the Subject field, so a category
