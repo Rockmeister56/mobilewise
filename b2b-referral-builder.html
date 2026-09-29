@@ -365,7 +365,7 @@ function buildWeekTabs(weeks, ind) {
   const bar = document.getElementById('weekBar');
   bar.innerHTML = '';
   weeks.forEach(w => {
-    bar.innerHTML += `<div class="week-chip" data-week="${esc(w)}" onclick="onWeekClick('${esc(w)}',this)">📅 ${esc(w)}</div>`;
+    bar.innerHTML += `<div class="week-chip" data-week="${esc(w)}" onclick="onWeekClick('${escAttr(w)}',this)">📅 ${esc(w)}</div>`;
   });
 }
 
@@ -488,12 +488,12 @@ function renderLeads() {
           style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);margin-top:4px;display:inline-block;">🔍 NMLS</a>
         <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent((l.company_name||'')+' webmaster')}" target="_blank"
           style="background:rgba(14,165,233,0.12);color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);margin-top:4px;display:inline-block;">🌐 WM</a>
-        ${l.email?`<a class="lbtn" onclick="sendInvite(${l.id});return false;" href="#"
-          style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">✉️ Invite</a>`:''}
+        <a class="lbtn" onclick="sendInvite(${l.id});return false;" href="#"
+          style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">✉️ Invite</a>
       </td>
       <td><span style="font-size:0.7rem;padding:3px 9px;border-radius:12px;white-space:nowrap;background:${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.15)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.15)':'rgba(52,168,83,0.1)'};color:${(l.industry||'Mortgage')==='Legal'?'#ce93d8':(l.industry||'Mortgage')==='Tax Resolution'?'#ffb74d':'#81c784'};border:1px solid ${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.4)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.4)':'rgba(52,168,83,0.3)'};">${(l.industry||'Mortgage')==='Legal'?'⚖️ Legal':(l.industry||'Mortgage')==='Tax Resolution'?'💼 Tax':'🏠 Mortgage'}</span></td>
       <td>
-        <span class="sbadge ${sc}" onclick="cycleStatus(${l.id},'${esc(l.status||'🟢 New')}')">
+        <span class="sbadge ${sc}" onclick="cycleStatus(${l.id},'${escAttr(l.status||'🟢 New')}')">
           ${esc(l.status||'🟢 New')}
         </span>
       </td>
@@ -507,11 +507,11 @@ function renderLeads() {
       <td>${l.outreach_msg?`<button class="lbtn lbtn-g" onclick="showOutreach(${l.id})" style="cursor:pointer;border:none;">📧 View</button>`:'—'}</td>
       <td style="font-size:0.7rem;color:rgba(255,255,255,0.3);white-space:nowrap;">${esc(l.week_label||'—')}</td>
       <td>
-        <button class="lbtn" onclick="archiveLead(${l.id},'${esc(l.company_name||'this lead')}')" 
+        <button class="lbtn" onclick="archiveLead(${l.id})" 
           style="background:rgba(255,152,0,0.1);color:#ff9800;border:1px solid rgba(255,152,0,0.3);cursor:pointer;">
           📦 Archive
         </button>
-        <button class="lbtn" onclick="deleteLead(${l.id},'${esc(l.company_name||'this lead')}')"
+        <button class="lbtn" onclick="deleteLead(${l.id})"
           style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);cursor:pointer;margin-left:5px;">
           🗑 Delete
         </button>
@@ -574,7 +574,29 @@ function plainSubject(t) {
 async function sendInvite(id) {
   var l = allLeads.find(function (x) { return x.id === id; });
   if (!l) return;
-  if (!l.email) { toast('No email address on this lead'); return; }
+  // No email is the normal state for a scanned business - Google Places does
+  // not give one out. Asking for it here is the point: Tommy has them on the
+  // phone, gets the address, and the invitation goes out while they are still
+  // talking.
+  if (!l.email) {
+    var typed = prompt('What is the best email for '
+      + (l.company_name || 'this business') + '?\n\n'
+      + 'The invitation goes to this address.', '');
+    if (typed === null) return;
+    typed = typed.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(typed)) {
+      toast(typed ? 'That does not look like an email address' : 'No email, nothing sent');
+      return;
+    }
+    try {
+      await sb('PATCH','leads',{email: typed},'?id=eq.' + id);
+      l.email = typed;
+    } catch (e) {
+      console.error('Could not save the email:', e);
+      toast('Could not save that address \u2014 try again');
+      return;
+    }
+  }
 
   var first = (l.contact_name || '').trim().split(/\s+/)[0] || '';
   var city  = l.city || 'your area';
@@ -689,7 +711,9 @@ async function saveEmail(id, val) {
 }
 
 // ── Save notes ────────────────────────────────────────────
-async function deleteLead(id, companyName) {
+async function deleteLead(id) {
+  var lead = allLeads.find(function (l) { return l.id === id; });
+  var companyName = (lead && lead.company_name) || 'this lead';
   if (!confirm('Permanently delete "' + companyName + '"?\n\n'
              + 'This removes the row from the database for good. There is no undo.\n\n'
              + 'To take it off the list but keep the record, use Archive instead.')) return;
@@ -728,6 +752,10 @@ window.deleteLead = deleteLead;
 window.bulkDelete = bulkDelete;
 
 async function archiveLead(id, companyName) {
+  if (!companyName) {
+    var al = allLeads.find(function (l) { return l.id === id; });
+    companyName = (al && al.company_name) || 'this lead';
+  }
   const confirmed = confirm(`Are you sure you want to archive "${companyName}"?\n\nThis lead will be hidden from the active pipeline but saved in Supabase for future research.`);
   if (!confirmed) return;
   await sb('PATCH','leads',{status:'📦 Archived'},`?id=eq.${id}`);
@@ -1033,6 +1061,20 @@ async function bulkStatus(newStatus) {
   renderLeads();
   updateStats();
   toast(`${done} lead${done!==1?'s':''} marked as ${newStatus}`);
+}
+
+// For a value going into a SINGLE-QUOTED JS string inside a double-quoted
+// HTML attribute - onclick="fn('here')". Escape for JS first, then for HTML:
+// the browser decodes entities before the JS is parsed, so escaping to &#39;
+// would hand the parser a bare apostrophe and break the handler anyway.
+//
+// This is what a week bubble named  Warm · O'Brien Landscaping · Irvine
+// needs in order to be clickable at all.
+function escAttr(s){
+  return esc(String(s == null ? '' : s)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/[\r\n]/g, ' '));
 }
 
 function esc(s){
