@@ -67,6 +67,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
 .swarm{background:rgba(168,85,247,0.16);color:#c79bff;border:1px solid rgba(168,85,247,0.45);}
 .swarm-mail{background:rgba(52,168,83,0.14);color:#7fd99a;border:1px solid rgba(52,168,83,0.45);}
 .sinvite{background:rgba(14,165,233,0.14);color:#7dd3fc;border:1px solid rgba(14,165,233,0.45);}
+.sapplied{background:rgba(34,197,94,0.2);color:#4ade80;border:1px solid rgba(34,197,94,0.6);font-weight:800;}
 .s0{background:rgba(52,168,83,0.15);color:#34a853;border-color:#34a853;}
 .s1{background:rgba(255,152,0,0.15);color:#ff9800;border-color:#ff9800;}
 .s2{background:rgba(33,150,243,0.15);color:#2196f3;border-color:#2196f3;}
@@ -128,6 +129,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <button class="btn btn-ghost" onclick="loadLeads()">🔄 Refresh</button>
     <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
     <button class="btn btn-ghost" onclick="archiveBatch()" style="background:rgba(255,152,0,0.1);border:1px solid rgba(255,152,0,0.35);color:#ff9800;">📦 Archive this batch</button>
+    <button class="btn btn-ghost" onclick="openApplications()" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.45);color:#4ade80;font-weight:700;">🎉 Applications<span id="appsCount"></span></button>
     <button class="btn btn-ghost" onclick="exportToAppointmentQueue()" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">🔔 Appointment Queue</button>
     <div style="display:flex;align-items:center;gap:6px;">
       <input type="number" id="exportCount" value="60" min="1" max="500" style="width:65px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.3);border-radius:20px;color:#0ea5e9;font-size:0.78rem;padding:6px 10px;outline:none;font-family:inherit;text-align:center;">
@@ -166,7 +168,9 @@ tr:hover td{background:rgba(52,168,83,0.03);}
       <option>✅ Called</option><option>🔥 Hot</option><option>💰 Closed</option>
       <option>🤝 Warm — not contacted</option>
       <option>📨 Warm — member emailed</option>
-      <option>✉️ Invite sent</option><option>❌ Not Interested</option>
+      <option>✉️ Invite sent</option>
+      <option>🎉 Applied</option>
+      <option>❌ Not Interested</option>
     </select>
     <select id="cityFilter" onchange="renderLeads()">
       <option value="">All Cities</option>
@@ -284,7 +288,7 @@ async function sb(method, table, body=null, query='') {
 
 // ── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  loadLeads();
+  loadLeads().then(function () { loadApplications(true); });
 });
 
 // ── Load Leads ────────────────────────────────────────────
@@ -301,8 +305,14 @@ async function loadLeads() {
     // created_at comes back too so the bubbles can be ordered newest first.
     // Sorting the labels as text would put "Warm · ..." wherever the alphabet
     // happens to land it, which is not where today's work is.
+    // Archived rows are left out on purpose. A bubble is nothing but the
+    // distinct week_label values found on live rows, so once a batch is
+    // archived there is no live row left carrying that label and the bubble
+    // goes with it. Before this, archiving a batch emptied the table but left
+    // a chip at the top that opened onto nothing.
     const weekData = await sb('GET','leads','',
       '?select=week_label,created_at&week_label=not.is.null&limit=20000&' + B2B_ONLY
+      + '&status=neq.' + encodeURIComponent('📦 Archived')
       + (ind ? '&industry=eq.' + encodeURIComponent(ind) : '')
     );
 
@@ -509,6 +519,7 @@ function renderLeads() {
     if (l.status === '🤝 Warm — not contacted')  sc = 'swarm';
     if (l.status === '📨 Warm — member emailed') sc = 'swarm-mail';
     if (l.status === '✉️ Invite sent')            sc = 'sinvite';
+    if (l.status === '🎉 Applied')                sc = 'sapplied';
     return `<tr>
       <td><input type="checkbox" class="lead-check" data-id="${l.id}" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;"></td>
       <td style="color:#34a853;font-size:0.7rem;font-weight:700;white-space:nowrap;font-family:monospace;">${esc(l.lead_id||'—')}</td>
@@ -586,6 +597,193 @@ function updateStats() {
   document.getElementById('st-hot').textContent     = data.filter(l=>l.status==='🔥 Hot').length;
   document.getElementById('st-closed').textContent  = data.filter(l=>l.status==='💰 Closed').length;
 }
+
+
+// ── APPLICATIONS COMING BACK ───────────────────────────────────────────────
+// Tommy blasts a batch, and some of them apply. Until now that landed in
+// Brett's admin dashboard and nowhere Tommy could see it, so he kept calling
+// people who had already signed up and never saw his own wins.
+//
+// This closes the loop. The applications live in the LocalHome project; the
+// leads live here in VidGuide. Nothing is copied between them - the match is
+// made in the browser, and the only thing written is a status on the lead.
+//
+// WHY NAME MATCHING IS ENOUGH
+//
+// An invite link arrives as ...?name=<company>&city=<city>, so the form is
+// already filled in with the lead's own company name before the applicant
+// touches it. A voicemail blast leaves no link at all, so those people find
+// the form on their own and type the name themselves. Both end up as a
+// business name and a city, which is what appKey() compares - and it compares
+// them loosely enough that "O'Brien & Sons Roofing, Inc." and "OBrien and
+// Sons Roofing" are the same business.
+//
+// The alternative was putting a lead id in the link and having the public
+// apply page write to this database directly. That would need VidGuide's key
+// on a page anyone can view source on - the whole lead table exposed to close
+// a gap that a name match already closes.
+var LH_URL = 'https://odetjszursuaxpapfwcy.supabase.co';
+var LH_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kZXRqc3p1cnN1YXhwYXBmd2N5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4Mzc5NjIsImV4cCI6MjA2NzQxMzk2Mn0.W98nlu4sT5Io8A6pbWkyKVWzjaJYhoLnB31Sd548_PU';
+
+var APPLIED_STATUS = '🎉 Applied';
+var recentApps = [];
+
+// Letters and digits only, lowercased, with the noise words that people add
+// or drop at random taken out first.
+function appKey(name, city) {
+  var n = String(name || '').toLowerCase()
+    .replace(/\b(inc|llc|ltd|co|corp|corporation|company|the|and)\b/g, '')
+    .replace(/[^a-z0-9]/g, '');
+  var c = String(city || '').toLowerCase().replace(/[^a-z]/g, '');
+  if (!n) return '';                       // never match a blank name
+  return n + '|' + c;
+}
+
+// Reads the applications, then checks them against EVERY B2B and warm lead -
+// not just the bubble on screen. An application that comes in for a lead in
+// last Tuesday's batch needs marking whether or not Tommy happens to be
+// looking at last Tuesday.
+async function loadApplications(quiet) {
+  var apps;
+  try {
+    var since = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+    var res = await fetch(LH_URL + '/rest/v1/localhome_applications'
+      + '?select=id,business_name,category,city,first_name,last_name,phone,email,status,created_at'
+      + '&created_at=gte.' + encodeURIComponent(since)
+      + '&order=created_at.desc&limit=500',
+      {headers: {apikey: LH_KEY, Authorization: 'Bearer ' + LH_KEY}});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    apps = await res.json();
+    if (!Array.isArray(apps)) apps = [];
+  } catch (e) {
+    // Never fatal. This page's real job is the pipeline, and the pipeline
+    // works perfectly well without knowing who applied.
+    console.error('Could not read applications:', e);
+    if (!quiet) toast('Could not reach the applications list');
+    return;
+  }
+
+  recentApps = apps;
+  var badge = document.getElementById('appsCount');
+  if (badge) badge.textContent = apps.length ? ' ' + apps.length : '';
+
+  var byKey = {};
+  apps.forEach(function (a) {
+    var k = appKey(a.business_name, a.city);
+    if (k) byKey[k] = a;
+  });
+
+  // A thin index of every lead this page owns: four columns, no notes, no
+  // scripts. Cheap enough to pull on every refresh.
+  var index = [];
+  try {
+    index = await sb('GET', 'leads', '',
+      '?select=id,company_name,city,status&limit=5000&' + B2B_ONLY);
+    if (!Array.isArray(index)) index = [];
+  } catch (e) {
+    console.error('Could not read the lead index:', e);
+    if (!quiet) toast('Could not check the leads against applications');
+    return;
+  }
+
+  var hitIds = [];
+  index.forEach(function (l) {
+    if (l.status === APPLIED_STATUS || l.status === '📦 Archived') return;
+    if (byKey[appKey(l.company_name, l.city)]) hitIds.push(l.id);
+  });
+
+  // One PATCH per slice rather than one per lead. 200 at a time because a
+  // single id=in.(...) list of several hundred makes a URL the server turns
+  // away - the same limit archiveBatch() works within.
+  var marked = 0;
+  for (var i = 0; i < hitIds.length; i += 200) {
+    var slice = hitIds.slice(i, i + 200);
+    try {
+      await sb('PATCH', 'leads', {status: APPLIED_STATUS},
+               '?id=in.(' + slice.join(',') + ')');
+      marked += slice.length;
+    } catch (e) { console.error('Could not mark applied:', e); }
+  }
+
+  // Anything marked that is also in memory gets updated in place, so the
+  // table repaints without a full reload.
+  if (marked) {
+    var set = {};
+    hitIds.forEach(function (id) { set[id] = 1; });
+    allLeads.forEach(function (l) { if (set[l.id]) l.status = APPLIED_STATUS; });
+    renderLeads();
+    updateStats();
+    toast('🎉 ' + marked + ' applied — taken off the call list');
+  } else if (!quiet) {
+    toast(apps.length
+      ? apps.length + ' application' + (apps.length === 1 ? '' : 's')
+        + ' in the last 60 days · none new to mark'
+      : 'No applications yet');
+  }
+}
+window.loadApplications = loadApplications;
+
+// The list itself. Every application of the last 60 days, each one labelled
+// with whether it came off a lead in this pipeline or walked in from
+// somewhere else, so Tommy can see which of these are his.
+function showApplications() {
+  var box = document.getElementById('appsBody');
+
+  if (!recentApps.length) {
+    box.innerHTML = '<div style="padding:34px;text-align:center;color:rgba(255,255,255,0.35);'
+      + 'font-size:0.85rem;">No applications in the last 60 days.</div>';
+  } else {
+    var mine = {};
+    allLeads.forEach(function (l) {
+      var k = appKey(l.company_name, l.city);
+      if (k) mine[k] = 1;
+    });
+
+    box.innerHTML = recentApps.map(function (a) {
+      var isMine = mine[appKey(a.business_name, a.city)];
+      var who = ((a.first_name || '') + ' ' + (a.last_name || '')).trim();
+      return '<div style="display:flex;gap:12px;align-items:center;padding:11px 14px;'
+        + 'border-bottom:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;">'
+        + '<div style="flex:2;min-width:190px;">'
+          + '<div style="font-size:0.86rem;font-weight:700;color:#fff;">'
+            + esc(a.business_name || '—') + '</div>'
+          + '<div style="font-size:0.72rem;color:rgba(255,255,255,0.45);margin-top:2px;">'
+            + esc(who) + (who && a.category ? ' · ' : '') + esc(a.category || '')
+            + (a.city ? ' · ' + esc(a.city) : '') + '</div>'
+        + '</div>'
+        + '<div style="flex:1;min-width:140px;font-size:0.72rem;color:rgba(255,255,255,0.45);">'
+          + (a.phone ? esc(a.phone) + '<br>' : '') + esc(a.email || '')
+        + '</div>'
+        + '<div style="font-size:0.68rem;color:rgba(255,255,255,0.35);white-space:nowrap;">'
+          + (a.created_at
+             ? new Date(a.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric'})
+             : '') + '</div>'
+        + '<div style="font-size:0.68rem;font-weight:700;white-space:nowrap;'
+          + (isMine ? 'color:#22c55e;">✓ off this list'
+                    : 'color:rgba(255,255,255,0.3);">found us on their own')
+        + '</div>'
+      + '</div>';
+    }).join('');
+  }
+
+  document.getElementById('appsModal').style.display = 'flex';
+}
+window.showApplications = showApplications;
+
+// Opens the panel and refreshes at the same time, so the button is one click
+// rather than open-then-refresh.
+async function openApplications() {
+  showApplications();
+  await loadApplications(false);
+  showApplications();
+}
+window.openApplications = openApplications;
+
+function closeApplications() {
+  document.getElementById('appsModal').style.display = 'none';
+}
+window.closeApplications = closeApplications;
+
 
 // ── INVITE EMAIL ───────────────────────────────────────────────────────────
 // Replaces the old Report button, which sent the Revuee competitor report -
@@ -752,6 +950,44 @@ async function saveEmail(id, val) {
 }
 
 // ── Save notes ────────────────────────────────────────────
+// \u2500\u2500 DELETING, HONESTLY \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// A DELETE that removes nothing at all still comes back 204 No Content, which
+// is indistinguishable from one that worked. If row level security has no
+// DELETE policy, every delete from this page is accepted and quietly ignored -
+// the row leaves the screen, and it is still in the database when you refresh.
+// A bubble that will not go away is what that looks like from the outside.
+//
+// Asking for the deleted rows back settles it: what comes back is what was
+// actually removed, so a delete that did nothing can say so.
+async function hardDelete(ids) {
+  var removed = [];
+  for (var i = 0; i < ids.length; i += 100) {
+    var slice = ids.slice(i, i + 100);
+    var res = await fetch(SB_URL + '/rest/v1/leads?id=in.(' + slice.join(',') + ')', {
+      method: 'DELETE',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Prefer': 'return=representation'
+      }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + (await res.text()).slice(0, 200));
+    var rows = await res.json();
+    if (Array.isArray(rows)) rows.forEach(function (r) { removed.push(r.id); });
+  }
+  return removed;
+}
+
+// Said once, when a delete comes back empty, rather than left for you to
+// discover after a refresh.
+function deleteBlockedMessage(n) {
+  return 'The database accepted the request and removed ' + (n === 1 ? 'nothing' : 'nothing')
+    + '.\n\nThat almost always means row level security is on for the leads table '
+    + 'with no DELETE policy, so deletes from this page are ignored silently.\n\n'
+    + 'reset-b2b.sql has the query that confirms it, and the one line that fixes '
+    + 'it. Until then, Archive works and deleting from the SQL editor works.';
+}
+
 async function deleteLead(id) {
   var lead = allLeads.find(function (l) { return l.id === id; });
   var companyName = (lead && lead.company_name) || 'this lead';
@@ -759,14 +995,14 @@ async function deleteLead(id) {
              + 'This removes the row from the database for good. There is no undo.\n\n'
              + 'To take it off the list but keep the record, use Archive instead.')) return;
   try {
-    var res = await sb('DELETE','leads',null,'?id=eq.' + id);
-    if (res && res.ok === false) throw new Error('HTTP ' + res.status);
+    var removed = await hardDelete([id]);
+    if (!removed.length) { alert(deleteBlockedMessage(1)); return; }
     allLeads = allLeads.filter(function (l) { return l.id !== id; });
     renderLeads(); updateStats();
     toast('Deleted \u2713');
   } catch (e) {
     console.error('Delete failed:', e);
-    toast('Could not delete \u2014 try again');
+    toast('Could not delete \u2014 ' + (e.message || 'try again'));
   }
 }
 
@@ -777,16 +1013,30 @@ async function bulkDelete() {
   if (!confirm('Permanently delete ' + ids.length + ' lead'
              + (ids.length !== 1 ? 's' : '') + '?\n\n'
              + 'There is no undo. Use Archive to hide them instead.')) return;
-  var done = 0;
-  for (var i = 0; i < ids.length; i++) {
-    try {
-      await sb('DELETE','leads',null,'?id=eq.' + ids[i]);
-      done++;
-    } catch (e) { console.error('Delete failed for ' + ids[i] + ':', e); }
+  // The old version counted a delete as done the moment the request came back
+  // without throwing, which meant it reported "Deleted 300 of 300" while the
+  // database kept all 300. Only rows the database says it removed are counted
+  // now, and only those leave the screen.
+  var removed;
+  try {
+    removed = await hardDelete(ids);
+  } catch (e) {
+    console.error('Bulk delete failed:', e);
+    toast('Could not delete — ' + (e.message || 'try again'));
+    return;
   }
-  allLeads = allLeads.filter(function (l) { return ids.indexOf(l.id) === -1; });
+
+  if (!removed.length) { alert(deleteBlockedMessage(ids.length)); return; }
+
+  allLeads = allLeads.filter(function (l) { return removed.indexOf(l.id) === -1; });
   clearSelection(); renderLeads(); updateStats();
-  toast('Deleted ' + done + ' of ' + ids.length);
+
+  if (removed.length < ids.length) {
+    toast('Deleted ' + removed.length + ' of ' + ids.length
+          + ' — the rest were refused, check the console');
+  } else {
+    toast('Deleted ' + removed.length + ' ✓');
+  }
 }
 
 window.deleteLead = deleteLead;
@@ -871,11 +1121,19 @@ function voicemailRows() {
   var checked = [...document.querySelectorAll('.lead-check:checked')]
                   .map(function (c) { return parseInt(c.dataset.id); });
   if (checked.length) {
-    return allLeads.filter(function (l) { return checked.indexOf(l.id) !== -1; });
+    // Applied leads are dropped here too, not just below. Select-all ticks
+    // every visible row, and a lead that has already signed up is exactly the
+    // one that must not end up in a voicemail drop.
+    return allLeads.filter(function (l) {
+      return checked.indexOf(l.id) !== -1 && l.status !== '🎉 Applied';
+    });
   }
   var data = (activeWeek === 'all' ? allLeads
               : allLeads.filter(function (l) { return l.week_label === activeWeek; }))
-             .filter(function (l) { return l.status !== '📦 Archived'; });
+             .filter(function (l) {
+               return l.status !== '📦 Archived'
+                   && l.status !== '🎉 Applied';
+             });
   var cityF = document.getElementById('cityFilter');
   var statF = document.getElementById('statusFilter');
   if (cityF && cityF.value) data = data.filter(function (l) { return l.city === cityF.value; });
@@ -1546,6 +1804,34 @@ window.closeApptForm=closeApptForm;window.sendApptToBrett=sendApptToBrett;window
   <div id="apptLeadsList"><div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">Click Refresh to load appointment queue leads</div></div>
 </div>
 
+
+
+<div id="appsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:330;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#071628;border:1px solid rgba(34,197,94,0.4);border-radius:18px;width:100%;max-width:860px;max-height:88vh;display:flex;flex-direction:column;">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px 12px;gap:10px;">
+      <div>
+        <div style="font-size:1.05rem;font-weight:700;color:#22c55e;">🎉 Applications received</div>
+        <div style="font-size:0.74rem;color:rgba(255,255,255,0.4);margin-top:3px;">
+          Last 60 days. Anyone matched to a lead here is marked
+          <strong style="color:#22c55e;">🎉 Applied</strong> and drops out of the
+          voicemail export — stop calling them.
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button onclick="loadApplications(false).then(showApplications)"
+          style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:#22c55e;border-radius:20px;padding:6px 16px;cursor:pointer;font-size:0.78rem;font-weight:700;font-family:inherit;">🔄 Refresh</button>
+        <button onclick="closeApplications()"
+          style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#fff;border-radius:50%;width:28px;height:28px;cursor:pointer;line-height:1;font-family:inherit;">×</button>
+      </div>
+    </div>
+
+    <div id="appsBody" style="overflow-y:auto;border-top:1px solid rgba(255,255,255,0.07);">
+      <div style="padding:34px;text-align:center;color:rgba(255,255,255,0.35);font-size:0.85rem;">Loading…</div>
+    </div>
+
+  </div>
+</div>
 
 <div id="brokerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:320;align-items:center;justify-content:center;padding:16px;">
   <div style="background:#071628;border:1px solid rgba(14,165,233,0.4);border-radius:18px;padding:24px;width:100%;max-width:440px;">
