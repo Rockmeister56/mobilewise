@@ -540,21 +540,36 @@ function updateStats() {
 var APPLY_URL = 'https://localhomenetwork.netlify.app/localhome-apply.html';
 var INVITE_SENT_STATUS = '✉️ Invite sent';
 
+// EmailJS HTML-escapes whatever goes into the Subject field, so a category
+// like "Pool Builder / Designer" arrives as "Pool Builder &#x2F; Designer" in
+// the inbox. The body is inserted raw and is unaffected - this is only the
+// subject. Anything that would be escaped is swapped for a plain equivalent.
+function plainSubject(t) {
+  return String(t || '')
+    .replace(/\s*\/\s*/g, ' – ')   // slash is the one that bit us
+    .replace(/&/g, 'and')
+    .replace(/[<>"']/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 async function sendInvite(id) {
   var l = allLeads.find(function (x) { return x.id === id; });
   if (!l) return;
   if (!l.email) { toast('No email address on this lead'); return; }
 
-  var who = (l.contact_name || '').split(' ')[0] || 'there';
-  var city = l.city || 'your area';
+  var first = (l.contact_name || '').trim().split(/\s+/)[0] || '';
+  var city  = l.city || 'your area';
+  var cat   = l.industry || 'your category';
+  // "Mike at Cornerstone Mortgage", carried over when the member referred
+  // them. Absent on scanner leads and Tommy's own scrapes, and the letter
+  // reads differently when there is nobody to name.
+  var ref   = (l.referred_by_name || '').trim();
 
   if (!confirm('Send the LocalHome Network invitation to ' + l.email + '?\n\n'
-             + 'They get a note with a link to claim the '
-             + (l.industry || 'their category') + ' spot in ' + city + '.')) return;
+             + (ref ? 'It opens by naming ' + ref + ' as the referral.\n' : '')
+             + 'They get a link to claim the ' + cat + ' spot in ' + city + '.')) return;
 
-  // Prefilled so the form is most of the way done when they land on it. The
-  // ref carries the member who introduced them, which is how they get the
-  // credit when this business actually joins.
   var link = APPLY_URL
     + '?name=' + encodeURIComponent(l.company_name || '')
     + (l.phone    ? '&phone=' + encodeURIComponent(l.phone) : '')
@@ -562,37 +577,51 @@ async function sendInvite(id) {
     + (l.city     ? '&city='  + encodeURIComponent(l.city) : '')
     + (l.referred_by_member_id ? '&ref=' + encodeURIComponent(l.referred_by_member_id) : '');
 
+  // A referral email that does not mention the referral is just a cold email
+  // with better targeting. The name goes in the subject, the first line and
+  // the reason they are hearing from us.
+  var subject = ref
+    ? plainSubject(ref + ' suggested I reach out')
+    : plainSubject('The ' + cat + ' spot in ' + city + ' is open');
+
+  var letter =
+      (first ? 'Hi ' + first + ',\n\n' : 'Hi,\n\n')
+    + (ref
+       ? ref + ' thought you would be a good fit for our referral network here '
+         + 'in ' + city + ', so I wanted to reach out personally.\n\n'
+       : 'I wanted to reach out about our referral network here in ' + city + '.\n\n')
+    + 'LocalHome Network is invitation-only — one business per category. '
+    + 'Everyone in it refers work to each other, and members link to each other '
+    + 'online, which is what actually moves a business up in Google.\n\n'
+    + 'The ' + cat + ' spot in ' + city + ' is open right now'
+    + (ref ? ', and ' + ref.split(' at ')[0] + '’s recommendation is why you are '
+             + 'hearing about it first' : '')
+    + '. Founding members get their first 60 days free.\n\n'
+    + 'Here is the link — most of it is filled in already:\n\n'
+    + link + '\n\n'
+    + 'I will give you a call to confirm the spot and answer anything.\n\n'
+    + 'LocalHome Network\n949-357-0655';
+
   try {
     await emailjs.send('service_b9bppgb', 'template_h7ar1lf', {
       user_email: l.email,
       reply_to:   'pro.refersystem@gmail.com',
       from_name:  'LocalHome Network',
-      subject:    'Your ' + (l.industry || 'category') + ' spot in ' + city + ' is open',
-      firstname:  who,
-      dynamic_letter:
-          'LocalHome Network is an invitation-only referral group in ' + city
-        + ' \u2014 one business per category.\n\n'
-        + 'Everyone in it refers work to each other, and members link to each '
-        + 'other online, which is what actually moves a business up in Google.\n\n'
-        + 'The ' + (l.industry || 'spot') + ' place in ' + city + ' is open right '
-        + 'now, and founding members get their first 60 days free.\n\n'
-        + 'Here is the link \u2014 most of it is filled in already:\n\n'
-        + link + '\n\n'
-        + 'Someone from the network will call to confirm the spot.\n\n'
-        + 'LocalHome Network\n949-357-0655'
+      subject:    subject,
+      firstname:  first || 'there',
+      dynamic_letter: letter
     });
 
-    // Recorded so nobody sends it twice, and so the table shows at a glance
-    // who has had the invitation.
     await sb('PATCH','leads',{status: INVITE_SENT_STATUS},'?id=eq.' + id);
     l.status = INVITE_SENT_STATUS;
     renderLeads(); updateStats();
-    toast('Invitation sent to ' + l.email + ' \u2713');
+    toast('Invitation sent to ' + l.email + ' ✓');
   } catch (e) {
     console.error('Invite send failed:', e);
     toast('Could not send: ' + (e.text || e.message || 'check EmailJS'));
   }
 }
+
 window.sendInvite = sendInvite;
 
 // ── Status cycle ──────────────────────────────────────────
