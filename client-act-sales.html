@@ -147,6 +147,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <div class="pw-gate-screen" id="pwGateScreen">
     <div class="pw-gate-card">
         <h1>🔒 Client Act</h1>
+<!-- If this stamp is not what you just uploaded, the browser is serving a
+     cached copy. Ctrl+Shift+R forces it to fetch the new one. -->
+<div style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:2px;"><span style="color:#f59e0b;font-weight:700;">· build 2026-09-29a</span></div>
         <input type="password" id="pwGateInput" placeholder="Password" onkeydown="if(event.key==='Enter')pwGateCheck()">
         <button onclick="pwGateCheck()">Enter</button>
         <div class="pw-gate-error" id="pwGateError">Incorrect password.</div>
@@ -1557,6 +1560,116 @@ function cpNum(id){
 }
 window.cpNum=cpNum;
 
+// ── ONE VOICEMAIL CSV WRITER ───────────────────────────────────────────────
+// Client Act had two of these - the queue export and the selected export -
+// each with its own copy of the rules. Fixing one never fixed the other. The
+// B2B Referral Builder had the same problem and it is what caused a day of
+// files that looked fixed and were not.
+//
+// THE FORMAT:
+//   phone,name        <- header row, always
+//   9497681000,David
+//   8005551212,
+//
+// Column one: EXACTLY ten digits. Not "ten or more" - a number like
+//   8003221217103 is 800-322-1217 with extension 103 glued on, and the old
+//   rule (length >= 10) let it through to be dialled as nonsense.
+// Column two: a first name, or empty. Never "Friend". The drop reads this
+//   field aloud, so anything in it is heard as the person's name.
+//
+// Duplicates are removed, keeping whichever copy has a name. A number twice
+// in the list is the same business twice in the database, and calling them
+// twice is worse than paying for it twice.
+function buildVoicemailCsv(leads) {
+  var seen = {}, order = [], skipped = 0, dupes = 0, blank = 0;
+
+  leads.forEach(function (l) {
+    var ph = (l.phone || '').replace(/\D/g, '');
+    if (ph.length === 11 && ph[0] === '1') ph = ph.slice(1);
+    if (ph.length !== 10) { skipped++; return; }
+
+    var fn = (l.contact_name || '').trim().split(/\s+/)[0] || '';
+    fn = fn.replace(/[",\r\n]/g, ' ').replace(/\s+/g, ' ').trim();
+
+    if (seen[ph] !== undefined) {
+      dupes++;
+      // Upgrade the kept row if this copy is the one carrying a name.
+      if (!seen[ph] && fn) seen[ph] = fn;
+      return;
+    }
+    seen[ph] = fn;
+    order.push(ph);
+  });
+
+  var csv = 'phone,name\n';
+  order.forEach(function (ph) {
+    if (!seen[ph]) blank++;
+    csv += ph + ',' + seen[ph] + '\n';
+  });
+
+  return {csv: csv, wrote: order.length, skipped: skipped, dupes: dupes, blank: blank};
+}
+
+function saveCsv(text, name) {
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], {type: 'text/csv'}));
+  a.download = name;
+  a.click();
+}
+
+// Plain-English account of what was dropped and why, so the number in the
+// file is never a surprise against the number on screen.
+function vmToast(r, total) {
+  var bits = [r.wrote + ' exported'];
+  if (r.dupes)   bits.push(r.dupes + ' duplicate' + (r.dupes === 1 ? '' : 's') + ' removed');
+  if (r.skipped) bits.push(r.skipped + ' bad number' + (r.skipped === 1 ? '' : 's') + ' skipped');
+  if (r.blank)   bits.push(r.blank + ' with no first name');
+  toast('📞 ' + total + ' leads · ' + bits.join(' · '));
+}
+
+
+// ── EMAIL CSV ──────────────────────────────────────────────────────────────
+// THREE COLUMNS, in this order, because that is what the Just Ask AI batch
+// sender reads:
+//
+//   parts[0] -> first name
+//   parts[1] -> email address      <- it checks this one for an "@"
+//   parts[2] -> review count
+//
+// Client Act used to write seven columns - FirstName,LastName,Email,... - so
+// the blaster read LastName as the email address, found no "@", and rejected
+// every single lead. The file looked full and imported nothing. The extra
+// columns were never read; they only pushed the email out of position.
+function buildEmailCsv(leads) {
+  var csv = 'FirstName,Email,Reviews\n', seen = {}, wrote = 0, dupes = 0, blank = 0;
+
+  leads.forEach(function (l) {
+    var em = (l.email || '').trim();
+    if (!em || em.indexOf('@') === -1) return;
+
+    var key = em.toLowerCase();
+    if (seen[key]) { dupes++; return; }
+    seen[key] = 1;
+
+    // The blaster requires a name: its parser is
+    //   if (name && email && email.includes('@'))
+    // so a row with an empty FirstName is thrown away at import without a
+    // word. Leaving it in would mean Brett sends 58 and 12 quietly never go.
+    // Left out here instead, and counted, so the number is known BEFORE the
+    // send rather than discovered afterwards. Add a name on the lead card and
+    // it joins the next export.
+    var fn = (l.contact_name || '').trim().split(/\s+/)[0] || '';
+    if (!fn) { blank++; return; }
+
+    csv += '"' + fn.replace(/"/g, '') + '",'
+         + '"' + em.replace(/"/g, '') + '",'
+         + '"' + String(l.reviews == null ? '' : l.reviews).replace(/"/g, '') + '"\n';
+    wrote++;
+  });
+
+  return {csv: csv, wrote: wrote, dupes: dupes, blank: blank};
+}
+
 function downloadVoicemailCSV() {
   var dead = ['💰 Closed Won','❌ Closed Lost','🚫 Do Not Call'];
   var indF = document.getElementById('queueIndustry') ? document.getElementById('queueIndustry').value : '';
@@ -1567,18 +1680,11 @@ function downloadVoicemailCSV() {
     return true;
   });
   if (!leads.length) { toast('No leads with phone numbers in queue'); return; }
-  var csv = '';
-  leads.forEach(function(l) {
-    var phone = (l.phone||'').replace(/\D/g,'');
-    var firstName = (l.contact_name||'').split(' ')[0] || 'Friend';
-    if (phone.length >= 10) csv += phone + ',' + firstName + '\n';
-  });
-  if (!csv) { toast('No valid phone numbers found'); return; }
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download = 'voicemail-' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
-  toast('📞 Downloaded ' + leads.length + ' numbers for voicemail drop');
+
+  var r = buildVoicemailCsv(leads);
+  if (!r.wrote) { toast('No valid phone numbers found'); return; }
+  saveCsv(r.csv, 'voicemail-' + new Date().toISOString().slice(0,10) + '.csv');
+  vmToast(r, leads.length);
 }
 
 var selectedLeads = new Set();
@@ -1639,18 +1745,11 @@ function downloadSelectedVoicemail() {
   if (!selectedLeads.size) { toast('No leads selected — check the boxes first'); return; }
   var leads = allLeads.filter(function(l) { return selectedLeads.has(l.id) && l.phone; });
   if (!leads.length) { toast('No selected leads have phone numbers'); return; }
-  var csv = '';
-  leads.forEach(function(l) {
-    var phone = (l.phone||'').replace(/\D/g,'');
-    var firstName = (l.contact_name||'').split(' ')[0] || 'Friend';
-    if (phone.length >= 10) csv += phone + ',' + firstName + '\n';
-  });
-  if (!csv) { toast('No valid phone numbers found'); return; }
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download = 'voicemail-selected-' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
-  toast('📞 Downloaded ' + selectedLeads.size + ' selected leads for voicemail');
+
+  var r = buildVoicemailCsv(leads);
+  if (!r.wrote) { toast('No valid phone numbers found'); return; }
+  saveCsv(r.csv, 'voicemail-selected-' + new Date().toISOString().slice(0,10) + '.csv');
+  vmToast(r, leads.length);
 }
 
 async function flushNewLeads() {
@@ -1694,25 +1793,21 @@ function downloadEmailCSV() {
     return true;
   });
   if (!leads.length) { toast('No leads with email addresses in queue'); return; }
-  var csv = 'FirstName,LastName,Email,Company,City,Phone,Reviews\n';
-  leads.forEach(function(l) {
-    var parts = (l.contact_name||'').split(' ');
-    var fn = parts[0] || 'Friend';
-    var ln = parts.slice(1).join(' ') || '';
-    var ph = (l.phone||'').replace(/\D/g,'');
-    csv += '"'+fn.replace(/"/g,'')+'",'
-         + '"'+ln.replace(/"/g,'')+'",'
-         + '"'+(l.email||'').replace(/"/g,'')+'",'
-         + '"'+(l.company_name||'').replace(/"/g,'')+'",'
-         + '"'+(l.city||'').replace(/"/g,'')+'",'
-         + '"'+ph+'",'
-         + '"'+(l.reviews||'')+'"\n';
-  });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download = 'email-list-' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
-  toast('📧 Downloaded ' + leads.length + ' emails');
+
+  var r = buildEmailCsv(leads);
+  if (!r.wrote) {
+    toast('Nothing to export — none of these have both a first name and an email');
+    return;
+  }
+  saveCsv(r.csv, 'email-list-' + new Date().toISOString().slice(0,10) + '.csv');
+
+  // The left-out count matters more here than on the voicemail side: the
+  // batch sender drops a nameless row without saying so, so a lead with no
+  // first name would simply never be emailed.
+  var bits = [r.wrote + ' exported'];
+  if (r.dupes) bits.push(r.dupes + ' duplicate email' + (r.dupes === 1 ? '' : 's') + ' removed');
+  if (r.blank) bits.push(r.blank + ' left out — no first name');
+  toast('📧 ' + leads.length + ' leads · ' + bits.join(' · '));
 }
 window.downloadEmailCSV = downloadEmailCSV;
 
