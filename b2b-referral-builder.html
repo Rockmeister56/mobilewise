@@ -1145,7 +1145,20 @@ function downloadVoicemailCSV() {
   var rows = voicemailRows();
   if (!rows.length) { toast('Nothing to export'); return; }
 
-  var csv = '', skipped = 0, noName = 0;
+  // TWO COLUMNS. phone,name — and a header row, because that is the format
+  // the voicemail system takes.
+  //
+  // Column two is a FIRST NAME and nothing else. Not the business name, not
+  // a stand-in word. Two earlier versions of this put "Friend" and then the
+  // company name in there, and both were wrong: the drop reads that field
+  // aloud, so anything that is not a person's name is heard as one.
+  //
+  // Where there is no first name the field is left empty. An empty field is
+  // honest - the batch then shows exactly how many of these we actually know
+  // a name for, which is the real problem and not something the export can
+  // fix on its own.
+  var csv = 'phone,name\n', skipped = 0, blank = 0, wrote = 0;
+
   rows.forEach(function (l) {
     var ph = (l.phone || '').replace(/\D/g, '');
     if (ph.length === 11 && ph[0] === '1') ph = ph.slice(1);
@@ -1153,38 +1166,26 @@ function downloadVoicemailCSV() {
     // out and counted rather than exported as a broken row.
     if (ph.length !== 10) { skipped++; return; }
 
-    // Column two is the first name where there is one.
-    //
-    // Scanner leads have none - Google Places returns a business, an address
-    // and a phone, never an owner. The old fallback was the word "Friend",
-    // which is how a whole batch came out reading "Friend" three hundred
-    // times. The business name is the thing we always have, and "Hi, Coastal
-    // Roofing" is a real greeting where "Hi, Friend" is an obvious robocall.
-    var fn = (l.contact_name || '').trim().split(/\s+/)[0];
-    var usedCompany = false;
-    if (!fn) { fn = (l.company_name || '').trim(); usedCompany = true; }
-    // Counted only once the row is known to survive - a lead with neither a
-    // name nor a company is dropped, not reported as a company fallback.
-    if (!fn) { skipped++; return; }
-    if (usedCompany) noName++;
-
+    var fn = (l.contact_name || '').trim().split(/\s+/)[0] || '';
     // Commas and line breaks would split the row into columns that are not
     // there, which is the one thing that genuinely corrupts a CSV.
-    csv += ph + ',' + fn.replace(/[",\r\n]/g, ' ').replace(/\s+/g, ' ').trim() + '\n';
+    fn = fn.replace(/[",\r\n]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!fn) blank++;
+
+    csv += ph + ',' + fn + '\n';
+    wrote++;
   });
 
-  if (!csv) { toast('No usable phone numbers in this batch'); return; }
+  if (!wrote) { toast('No usable phone numbers in this batch'); return; }
 
   var a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
   a.download = 'voicemail-' + new Date().toISOString().slice(0, 10) + '.csv';
   a.click();
 
-  // Says how many rows carry a business name rather than a person, so it is
-  // known before the drop goes out rather than after.
-  var n = csv.split('\n').length - 1;
-  toast('⬇ ' + n + ' number' + (n === 1 ? '' : 's') + ' exported'
-        + (noName ? ' · ' + noName + ' using the business name' : '')
+  // How many have no name is worth knowing before the drop goes out.
+  toast('⬇ ' + wrote + ' number' + (wrote === 1 ? '' : 's') + ' exported'
+        + (blank ? ' · ' + blank + ' with no first name' : '')
         + (skipped ? ' · ' + skipped + ' skipped, no usable phone' : ''));
 }
 window.downloadVoicemailCSV = downloadVoicemailCSV;
