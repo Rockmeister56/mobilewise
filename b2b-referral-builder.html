@@ -56,6 +56,8 @@ tr:hover td{background:rgba(52,168,83,0.03);}
 /* STATUS */
 .sbadge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;user-select:none;border:1px solid;}
 .sbadge:hover{transform:scale(1.06);}
+.swarm{background:rgba(168,85,247,0.16);color:#c79bff;border:1px solid rgba(168,85,247,0.45);}
+.swarm-mail{background:rgba(52,168,83,0.14);color:#7fd99a;border:1px solid rgba(52,168,83,0.45);}
 .s0{background:rgba(52,168,83,0.15);color:#34a853;border-color:#34a853;}
 .s1{background:rgba(255,152,0,0.15);color:#ff9800;border-color:#ff9800;}
 .s2{background:rgba(33,150,243,0.15);color:#2196f3;border-color:#2196f3;}
@@ -151,7 +153,9 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <select id="statusFilter" onchange="renderLeads()">
       <option value="">All Statuses</option>
       <option>🟢 New</option><option>⏳ Queue</option><option>📧 Emailed</option>
-      <option>✅ Called</option><option>🔥 Hot</option><option>💰 Closed</option><option>❌ Not Interested</option>
+      <option>✅ Called</option><option>🔥 Hot</option><option>💰 Closed</option>
+      <option>🤝 Warm — not contacted</option>
+      <option>📨 Warm — member emailed</option><option>❌ Not Interested</option>
     </select>
     <select id="cityFilter" onchange="renderLeads()">
       <option value="">All Cities</option>
@@ -436,7 +440,9 @@ function renderLeads() {
 
   tbody.innerHTML = data.map((l,i) => {
     const si = STATUS_FLOW.indexOf(l.status);
-    const sc = si >= 0 ? STATUS_CLASS[si] : 's0';
+    var sc = si >= 0 ? STATUS_CLASS[si] : 's0';
+    if (l.status === '🤝 Warm — not contacted')  sc = 'swarm';
+    if (l.status === '📨 Warm — member emailed') sc = 'swarm-mail';
     return `<tr>
       <td><input type="checkbox" class="lead-check" data-id="${l.id}" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;"></td>
       <td style="color:#34a853;font-size:0.7rem;font-weight:700;white-space:nowrap;font-family:monospace;">${esc(l.lead_id||'—')}</td>
@@ -500,8 +506,10 @@ function renderLeads() {
 function updateStats() {
   const data = (activeWeek==='all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek)).filter(l=>l.status!=='📦 Archived');
   document.getElementById('st-total').textContent   = data.length;
-  document.getElementById('st-new').textContent     = data.filter(l=>l.status==='🟢 New').length;
-  document.getElementById('st-emailed').textContent = data.filter(l=>l.status==='📧 Emailed').length;
+  document.getElementById('st-new').textContent     =
+    data.filter(l=>l.status==='🟢 New' || l.status==='🤝 Warm — not contacted').length;
+  document.getElementById('st-emailed').textContent =
+    data.filter(l=>l.status==='📧 Emailed' || l.status==='📨 Warm — member emailed').length;
   document.getElementById('st-called').textContent  = data.filter(l=>l.status==='✅ Called').length;
   document.getElementById('st-hot').textContent     = data.filter(l=>l.status==='🔥 Hot').length;
   document.getElementById('st-closed').textContent  = data.filter(l=>l.status==='💰 Closed').length;
