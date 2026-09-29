@@ -488,8 +488,8 @@ function renderLeads() {
           style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);margin-top:4px;display:inline-block;">🔍 NMLS</a>
         <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent((l.company_name||'')+' webmaster')}" target="_blank"
           style="background:rgba(14,165,233,0.12);color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);margin-top:4px;display:inline-block;">🌐 WM</a>
-        <a class="lbtn" onclick="sendInvite(${l.id});return false;" href="#"
-          style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">✉️ Invite</a>
+        ${l.email?`<a class="lbtn" onclick="sendInvite(${l.id});return false;" href="#"
+          style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">✉️ Invite</a>`:''}
       </td>
       <td><span style="font-size:0.7rem;padding:3px 9px;border-radius:12px;white-space:nowrap;background:${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.15)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.15)':'rgba(52,168,83,0.1)'};color:${(l.industry||'Mortgage')==='Legal'?'#ce93d8':(l.industry||'Mortgage')==='Tax Resolution'?'#ffb74d':'#81c784'};border:1px solid ${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.4)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.4)':'rgba(52,168,83,0.3)'};">${(l.industry||'Mortgage')==='Legal'?'⚖️ Legal':(l.industry||'Mortgage')==='Tax Resolution'?'💼 Tax':'🏠 Mortgage'}</span></td>
       <td>
@@ -574,29 +574,7 @@ function plainSubject(t) {
 async function sendInvite(id) {
   var l = allLeads.find(function (x) { return x.id === id; });
   if (!l) return;
-  // No email is the normal state for a scanned business - Google Places does
-  // not give one out. Asking for it here is the point: Tommy has them on the
-  // phone, gets the address, and the invitation goes out while they are still
-  // talking.
-  if (!l.email) {
-    var typed = prompt('What is the best email for '
-      + (l.company_name || 'this business') + '?\n\n'
-      + 'The invitation goes to this address.', '');
-    if (typed === null) return;
-    typed = typed.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(typed)) {
-      toast(typed ? 'That does not look like an email address' : 'No email, nothing sent');
-      return;
-    }
-    try {
-      await sb('PATCH','leads',{email: typed},'?id=eq.' + id);
-      l.email = typed;
-    } catch (e) {
-      console.error('Could not save the email:', e);
-      toast('Could not save that address \u2014 try again');
-      return;
-    }
-  }
+  if (!l.email) { toast('Add an email in the Email column first'); return; }
 
   var first = (l.contact_name || '').trim().split(/\s+/)[0] || '';
   var city  = l.city || 'your area';
@@ -706,8 +684,13 @@ async function cycleStatus(id, current) {
 async function saveEmail(id, val) {
   await sb('PATCH','leads',{email:val},`?id=eq.${id}`);
   const lead = allLeads.find(l=>l.id===id);
+  const had  = !!(lead && lead.email);
   if (lead) lead.email = val;
-  toast('Email saved ✓');
+  // Redraw only when the Invite button's visibility actually changes - going
+  // from no address to one, or back. Redrawing on every edit would be
+  // gratuitous and can pull focus out from under whoever is still typing.
+  if (had !== !!val) renderLeads();
+  toast('Email saved \u2713');
 }
 
 // ── Save notes ────────────────────────────────────────────
