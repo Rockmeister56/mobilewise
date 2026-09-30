@@ -126,7 +126,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
         <!-- Build stamp. If this does not match the build you just uploaded,
              the browser is serving a cached copy and nothing you changed is
              running. Ctrl+Shift+R forces it to fetch the new one. -->
-        <span style="color:#f59e0b;font-weight:700;">· build 2026-09-30b</span></div>
+        <span style="color:#f59e0b;font-weight:700;">· build 2026-09-30c</span></div>
     </div>
   </div>
   <div class="nav-right">
@@ -501,22 +501,18 @@ async function onWeekClick(w, el) {
   document.getElementById('leadsLoading').style.display = 'none';
 }
 
-// A value going into a PostgREST filter has to be double-quoted, or the
-// server reads its punctuation as syntax. A warm bubble is named after the
-// member who sent the referral - "Warm \u00b7 Cornerstone Mortgage, Inc. \u00b7 Irvine" -
-// and that comma is read as the end of the value, so the query matches
-// nothing and the bubble opens onto an empty table. Scan bubbles have no
-// punctuation in them, which is why those kept working.
-function pgQuote(v) {
-  return '"' + String(v == null ? '' : v).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
-}
+// NOTE, 2026-09-30: a previous version wrapped this value in double quotes,
+// on the theory that the comma in "Scan \u00b7 Sep 29, 2026" was breaking the
+// filter. That theory was wrong - that bubble had a comma and worked fine
+// unquoted - and the change stopped it working. Reverted. The empty-state
+// report below replaces the guess with an actual answer.
 
 // ── Fetch leads for one specific week from Supabase ──
 async function loadWeekLeads(week, ind) {
   try {
     allLeads = await sb('GET','leads','',
       '?order=lead_id.asc&limit=5000&' + B2B_ONLY
-      + '&week_label=eq.' + encodeURIComponent(pgQuote(week))
+      + '&week_label=eq.' + encodeURIComponent(week)
       + (ind ? '&industry=eq.' + encodeURIComponent(ind) : '')
     );
     if (!Array.isArray(allLeads)) allLeads = [];
@@ -580,6 +576,39 @@ function renderLeads() {
   if (!data.length) {
     tbody.innerHTML = '';
     empty.style.display = 'block';
+
+    // A blank table is the least useful thing a page can show. This says
+    // what the database actually returned and which filter removed it, so an
+    // empty bubble explains itself instead of becoming a guessing game.
+    var loaded = activeWeek === 'all'
+      ? allLeads.length
+      : allLeads.filter(function (l) { return l.week_label === activeWeek; }).length;
+
+    var why = [];
+    if (!allLeads.length) {
+      why.push('The database returned no leads at all for this batch \u2014 '
+             + 'the rows behind this bubble are gone, and it will disappear on the next Refresh.');
+    } else if (!loaded) {
+      why.push('The database returned ' + allLeads.length + ' lead'
+             + (allLeads.length === 1 ? '' : 's') + ', but none carry the label \u201c'
+             + esc(activeWeek) + '\u201d.');
+    } else {
+      why.push(loaded + ' lead' + (loaded === 1 ? ' is' : 's are') + ' in this batch, '
+             + 'but every one of them is hidden by a filter:');
+      var arch = allLeads.filter(function (l) {
+        return l.week_label === activeWeek && l.status === '\uD83D\uDCE6 Archived';
+      }).length;
+      if (arch && !viewingArchive) why.push('\u2022 ' + arch + ' archived \u2014 use \u201cShow archived\u201d');
+      if (statusF) why.push('\u2022 status filter is set to \u201c' + esc(statusF) + '\u201d');
+      if (cityF)   why.push('\u2022 city filter is set to \u201c' + esc(cityF) + '\u201d');
+      if (indF)    why.push('\u2022 industry filter is set to \u201c' + esc(indF) + '\u201d');
+      if (search)  why.push('\u2022 search box contains \u201c' + esc(search) + '\u201d');
+      if (why.length === 1) why.push('\u2022 \u2014 but no filter is set, which should not happen. '
+                                   + 'Send this message to Claude.');
+    }
+
+    empty.innerHTML = '<div style="padding:26px;text-align:center;color:rgba(255,255,255,0.45);'
+      + 'font-size:0.84rem;line-height:1.9;">' + why.join('<br>') + '</div>';
     return;
   }
   empty.style.display = 'none';
