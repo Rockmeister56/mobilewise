@@ -126,7 +126,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
         <!-- Build stamp. If this does not match the build you just uploaded,
              the browser is serving a cached copy and nothing you changed is
              running. Ctrl+Shift+R forces it to fetch the new one. -->
-        <span style="color:#f59e0b;font-weight:700;">· build 2026-09-29e</span></div>
+        <span style="color:#f59e0b;font-weight:700;">· build 2026-09-30b</span></div>
     </div>
   </div>
   <div class="nav-right">
@@ -162,6 +162,13 @@ tr:hover td{background:rgba(52,168,83,0.03);}
   <!-- WEEK TABS -->
   <div class="week-bar" id="weekBar">
     <div class="week-chip active" onclick="selectWeek('all',this)">📋 All Weeks</div>
+  </div>
+  <!-- Only appears when archived batches exist. Without it an archived batch
+       is unreachable from the page, which is how a day of work can look
+       deleted when it is merely retired. -->
+  <div style="margin:-4px 0 12px;">
+    <button id="archToggle" onclick="toggleArchived()"
+      style="display:none;align-items:center;gap:6px;background:rgba(255,152,0,0.1);border:1px solid rgba(255,152,0,0.35);color:#ff9800;border-radius:20px;padding:5px 14px;cursor:pointer;font-size:0.74rem;font-weight:700;font-family:inherit;"></button>
   </div>
 
   <!-- FILTER BAR -->
@@ -271,6 +278,11 @@ const STATUS_CLASS = ['s0','s1','s2','s3','s4','s5','s6','s6'];
 
 let allLeads   = [];
 let activeWeek = 'all';
+// Which batches are fully archived, and whether the bar is currently showing
+// them. Rebuilt on every load from the data rather than remembered, so it can
+// never drift out of step with the database.
+let archivedWeeks = {};
+let showArchived  = false;
 let modalText  = '';
 
 // ── Supabase ──────────────────────────────────────────────
@@ -310,14 +322,15 @@ async function loadLeads() {
     // created_at comes back too so the bubbles can be ordered newest first.
     // Sorting the labels as text would put "Warm · ..." wherever the alphabet
     // happens to land it, which is not where today's work is.
-    // Archived rows are left out on purpose. A bubble is nothing but the
-    // distinct week_label values found on live rows, so once a batch is
-    // archived there is no live row left carrying that label and the bubble
-    // goes with it. Before this, archiving a batch emptied the table but left
-    // a chip at the top that opened onto nothing.
+    // Archived rows are sorted out HERE, in JavaScript, not in the query.
+    //
+    // The query used to carry &status=neq.📦 Archived, which looks right and
+    // is not: that is SQL, where NULL != 'anything' is NULL rather than true,
+    // so every lead whose status was never set got silently dropped and its
+    // bubble with it. Pulling the status column back and testing it here
+    // treats a missing status as what it is - not archived.
     const weekData = await sb('GET','leads','',
-      '?select=week_label,created_at&week_label=not.is.null&limit=20000&' + B2B_ONLY
-      + '&status=neq.' + encodeURIComponent('📦 Archived')
+      '?select=week_label,created_at,status&week_label=not.is.null&limit=20000&' + B2B_ONLY
       + (ind ? '&industry=eq.' + encodeURIComponent(ind) : '')
     );
 
@@ -327,13 +340,39 @@ async function loadLeads() {
     // Newest first. Each label is ranked by the most recent row carrying it,
     // so today's scan or a warm list submitted an hour ago leads, and last
     // spring's scrape falls to the end instead of loading by default.
-    const newest = {};
+    // Two tallies per label: how many rows it has, and how many of those are
+    // archived. A batch is only "archived" when EVERY row in it is, which is
+    // what "Archive this batch" produces. A part-archived batch is still live
+    // work and keeps its ordinary bubble.
+    const newest = {}, total = {}, arch = {};
     (weekData||[]).forEach(function (r) {
       if (!r.week_label) return;
+      var w = r.week_label;
       var t = r.created_at ? Date.parse(r.created_at) : 0;
-      if (!(r.week_label in newest) || t > newest[r.week_label]) newest[r.week_label] = t;
+      if (!(w in newest) || t > newest[w]) newest[w] = t;
+      total[w] = (total[w] || 0) + 1;
+      if (r.status === '📦 Archived') arch[w] = (arch[w] || 0) + 1;
     });
-    const weeks = Object.keys(newest).sort(function (a, b) { return newest[b] - newest[a]; });
+
+    archivedWeeks = {};
+    Object.keys(total).forEach(function (w) {
+      if ((arch[w] || 0) === total[w]) archivedWeeks[w] = true;
+    });
+
+    const weeks = Object.keys(newest)
+      .filter(function (w) { return showArchived || !archivedWeeks[w]; })
+      .sort(function (a, b) { return newest[b] - newest[a]; });
+
+    // The toggle only appears when there is something behind it, and it says
+    // how many, so an archived batch can always be found again. Nothing this
+    // page hides should ever be unreachable.
+    var nArch = Object.keys(archivedWeeks).length;
+    var tog = document.getElementById('archToggle');
+    if (tog) {
+      tog.style.display = nArch ? 'inline-flex' : 'none';
+      tog.innerHTML = (showArchived ? '👁 Hide archived' : '📦 Show archived')
+                    + ' (' + nArch + ')';
+    }
 
     buildIndustryFilter();
 
@@ -432,9 +471,23 @@ function buildWeekTabs(weeks, ind) {
   const bar = document.getElementById('weekBar');
   bar.innerHTML = '';
   weeks.forEach(w => {
-    bar.innerHTML += `<div class="week-chip" data-week="${esc(w)}" onclick="onWeekClick('${escAttr(w)}',this)">📅 ${esc(w)}</div>`;
+    // An archived batch is labelled as one, so opening a bubble that shows
+    // retired rows is never a surprise.
+    var a = archivedWeeks[w];
+    bar.innerHTML += `<div class="week-chip" data-week="${esc(w)}" onclick="onWeekClick('${escAttr(w)}',this)"`
+      + (a ? ` style="opacity:0.55;border-style:dashed;"` : ``)
+      + `>${a ? '📦' : '📅'} ${esc(w)}${a ? ' <span style="font-size:0.68rem;opacity:0.7;">archived</span>' : ''}</div>`;
   });
 }
+
+// Flips the bar between live batches and archived ones, and re-renders so an
+// archived batch actually shows its rows instead of opening onto nothing.
+function toggleArchived() {
+  showArchived = !showArchived;
+  activeWeek = 'all';
+  loadLeads();
+}
+window.toggleArchived = toggleArchived;
 
 // ── Week click — fetch ONLY that week from Supabase ──
 async function onWeekClick(w, el) {
@@ -448,12 +501,22 @@ async function onWeekClick(w, el) {
   document.getElementById('leadsLoading').style.display = 'none';
 }
 
+// A value going into a PostgREST filter has to be double-quoted, or the
+// server reads its punctuation as syntax. A warm bubble is named after the
+// member who sent the referral - "Warm \u00b7 Cornerstone Mortgage, Inc. \u00b7 Irvine" -
+// and that comma is read as the end of the value, so the query matches
+// nothing and the bubble opens onto an empty table. Scan bubbles have no
+// punctuation in them, which is why those kept working.
+function pgQuote(v) {
+  return '"' + String(v == null ? '' : v).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+}
+
 // ── Fetch leads for one specific week from Supabase ──
 async function loadWeekLeads(week, ind) {
   try {
     allLeads = await sb('GET','leads','',
       '?order=lead_id.asc&limit=5000&' + B2B_ONLY
-      + '&week_label=eq.' + encodeURIComponent(week)
+      + '&week_label=eq.' + encodeURIComponent(pgQuote(week))
       + (ind ? '&industry=eq.' + encodeURIComponent(ind) : '')
     );
     if (!Array.isArray(allLeads)) allLeads = [];
@@ -491,8 +554,11 @@ function renderLeads() {
   const cityF   = document.getElementById('cityFilter').value;
 
   let data = activeWeek === 'all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
-  // Always hide archived leads from main pipeline
-  data = data.filter(l=>l.status !== '📦 Archived');
+  // Archived rows stay hidden while working live batches - but an archived
+  // batch you deliberately opened has to show its rows, or the bubble opens
+  // onto an empty table and the leads look lost.
+  const viewingArchive = showArchived || archivedWeeks[activeWeek];
+  if (!viewingArchive) data = data.filter(l=>l.status !== '📦 Archived');
   if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
   if (statusF) data = data.filter(l=>l.status===statusF);
   if (cityF)   data = data.filter(l=>l.city===cityF);
@@ -993,6 +1059,21 @@ function deleteBlockedMessage(n) {
     + 'it. Until then, Archive works and deleting from the SQL editor works.';
 }
 
+// Deleting rows empties a batch; it does not redraw the row of bubbles at
+// the top, because renderLeads() only ever touches the table. So the last
+// lead in a batch could be deleted and its bubble would sit there until the
+// page was reloaded - looking like a bubble that refuses to go.
+//
+// Rebuilding the bar costs one small query and only happens once the batch
+// on screen is actually empty.
+function refreshBarIfEmptied() {
+  if (!activeWeek || activeWeek === 'all') return;
+  var left = allLeads.filter(function (l) { return l.week_label === activeWeek; });
+  if (left.length) return;
+  activeWeek = 'all';
+  loadLeads();
+}
+
 async function deleteLead(id) {
   var lead = allLeads.find(function (l) { return l.id === id; });
   var companyName = (lead && lead.company_name) || 'this lead';
@@ -1005,6 +1086,7 @@ async function deleteLead(id) {
     allLeads = allLeads.filter(function (l) { return l.id !== id; });
     renderLeads(); updateStats();
     toast('Deleted \u2713');
+    refreshBarIfEmptied();
   } catch (e) {
     console.error('Delete failed:', e);
     toast('Could not delete \u2014 ' + (e.message || 'try again'));
@@ -1035,6 +1117,7 @@ async function bulkDelete() {
 
   allLeads = allLeads.filter(function (l) { return removed.indexOf(l.id) === -1; });
   clearSelection(); renderLeads(); updateStats();
+  refreshBarIfEmptied();
 
   if (removed.length < ids.length) {
     toast('Deleted ' + removed.length + ' of ' + ids.length
