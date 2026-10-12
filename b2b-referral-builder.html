@@ -647,8 +647,9 @@ function renderLeads() {
       <td style="font-size:0.76rem;color:rgba(255,255,255,0.5);white-space:nowrap;">${esc(l.city||'—')}</td>
       <td>
         ${l.maps_url?`<a class="lbtn lbtn-b" href="${esc(l.maps_url)}" target="_blank">📍 Maps</a>`:'—'}
-        <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent((l.company_name||'')+'  NMLS number broker')}" target="_blank"
-          style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);margin-top:4px;display:inline-block;">🔍 NMLS</a>
+        <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent(ownerQuery(l))}" target="_blank"
+          title="Google this business for the owner's name, then type it in the Contact box on this row"
+          style="background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);margin-top:4px;display:inline-block;">👤 Owner</a>
         <a class="lbtn" onclick="sendInvite(${l.id});return false;" href="#"
           style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">✉️ Invite</a>
       </td>
@@ -1560,6 +1561,36 @@ function escAttr(s){
 function esc(s){
   if(!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── WHO ANSWERS THE PHONE ──────────────────────────────────────────────────
+//
+// Google Places gives the business name and number, never a person. On a
+// home-service business the person worth asking for is almost always the
+// owner, and Google's own summary panel usually names them if you ask it
+// in this shape:
+//
+//     YARD DESIGN, Irvine, owner
+//
+// Company, then city, then the word owner. Tested by hand before it was
+// built. It does not work on every business - a franchise or a holding
+// company often returns nothing useful - but on an independent trade it
+// lands often enough to be worth one click instead of a cold "who's in
+// charge there?" on the call.
+//
+// This replaced the NMLS lookup, which was built for mortgage brokers and
+// means nothing on a landscaper.
+//
+// The name goes in the Contact box on the same row, which already saves to
+// contact_name and already rides along in the export.
+function ownerQuery(l) {
+  var parts = [String((l && l.company_name) || '').trim()];
+  var city = String((l && l.city) || '').trim();
+  if (city) parts.push(city);
+  parts.push('owner');
+  // Blank company would search for ", owner" and return noise, so fall back
+  // to whatever the row does have rather than opening a useless tab.
+  return parts.filter(Boolean).join(', ');
 }
 
 window.loadLeads=loadLeads; window.selectWeek=selectWeek; window.cycleStatus=cycleStatus;
