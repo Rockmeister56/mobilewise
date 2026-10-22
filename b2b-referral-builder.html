@@ -184,6 +184,9 @@ tr:hover td{background:rgba(52,168,83,0.03);}
       <option>🎉 Applied</option>
       <option>❌ Not Interested</option>
     </select>
+    <select id="territoryFilter" onchange="onTerritoryChange()" title="Follow up one territory at a time">
+      <option value="">All Territories</option>
+    </select>
     <select id="cityFilter" onchange="renderLeads()">
       <option value="">All Cities</option>
     </select>
@@ -537,6 +540,7 @@ async function loadWeekLeads(week, ind) {
       + (ind ? '&industry=eq.' + encodeURIComponent(ind) : '')
     );
     if (!Array.isArray(allLeads)) allLeads = [];
+    await loadTerritories();
     buildCityFilter();
     renderLeads();
     updateStats();
@@ -559,9 +563,105 @@ function selectWeek(w, el) {
 }
 
 function buildCityFilter() {
-  const cities = [...new Set(allLeads.map(l=>l.city).filter(Boolean))].sort();
+  // Narrowed to the chosen territory, so picking "Central" leaves only
+  // Central's cities here rather than all forty.
+  let cities = [...new Set(allLeads.map(l=>l.city).filter(Boolean))];
+  const tf = document.getElementById('territoryFilter');
+  const picked = tf ? tf.value : '';
+  if (picked === '__none__') {
+    cities = cities.filter(c => !TERR_BY_CITY[normCity(c)]);
+  } else if (picked) {
+    cities = cities.filter(c => (TERR_BY_CITY[normCity(c)] || {}).key === picked);
+  }
   const sel = document.getElementById('cityFilter');
-  sel.innerHTML = '<option value="">All Cities</option>' + cities.map(c=>`<option>${esc(c)}</option>`).join('');
+  const keep = sel.value;
+  cities.sort();
+  sel.innerHTML = '<option value="">All Cities</option>'
+    + cities.map(c=>`<option>${esc(c)}</option>`).join('');
+  if (cities.indexOf(keep) !== -1) sel.value = keep;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  TERRITORIES
+//
+//  Leads live in one Supabase project and carry a city. Territories live
+//  in the LocalHome project. The two are NEVER mixed: this reads the
+//  LocalHome side through LH_URL/LH_KEY - the same pair the applications
+//  lookup already uses - and joins them on the city name in the browser.
+//  No column is added to the leads table and no lead is written.
+//
+//  Why it earns its place: calling back "all over the map" wastes the
+//  day. One territory at a time is how follow-up actually gets done.
+// ══════════════════════════════════════════════════════════════════════
+var TERR_BY_CITY = {};     // normalised city -> {key, label, group}
+var TERR_LIST    = [];
+
+function normCity(c) {
+  return String(c || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+async function loadTerritories() {
+  const sel = document.getElementById('territoryFilter');
+  try {
+    const hdr = { 'apikey': LH_KEY, 'Authorization': 'Bearer ' + LH_KEY };
+    const [tRes, cRes, gRes] = await Promise.all([
+      fetch(LH_URL + '/rest/v1/localhome_territories?select=id,name,group_id,sort_order&order=sort_order', { headers: hdr }),
+      fetch(LH_URL + '/rest/v1/localhome_group_cities?select=city,territory_id', { headers: hdr }),
+      fetch(LH_URL + '/rest/v1/localhome_groups?select=id,name', { headers: hdr })
+    ]);
+    if (!tRes.ok || !cRes.ok) throw new Error('HTTP ' + tRes.status + '/' + cRes.status);
+    const terrs  = await tRes.json();
+    const cities = await cRes.json();
+    const groups = gRes.ok ? await gRes.json() : [];
+    const gName = {};
+    groups.forEach(g => { gName[g.id] = g.name; });
+
+    TERR_BY_CITY = {};
+    TERR_LIST = terrs.map(t => {
+      const own = cities.filter(c => c.territory_id === t.id).map(c => c.city);
+      const entry = { key: String(t.id), label: t.name,
+                      group: gName[t.group_id] || '', cities: own };
+      own.forEach(c => { TERR_BY_CITY[normCity(c)] = entry; });
+      return entry;
+    });
+
+    if (!sel) return;
+    if (!TERR_LIST.length) { sel.style.display = 'none'; return; }
+
+    // Grouped by chapter, so two groups that each have a "North" stay apart.
+    const byGroup = {};
+    TERR_LIST.forEach(t => { (byGroup[t.group] = byGroup[t.group] || []).push(t); });
+    let html = '<option value="">All Territories</option>';
+    Object.keys(byGroup).sort().forEach(g => {
+      html += '<optgroup label="' + esc(g || 'Ungrouped') + '">';
+      byGroup[g].forEach(t => {
+        html += '<option value="' + esc(t.key) + '">' + esc(t.label)
+              + ' (' + t.cities.length + ')</option>';
+      });
+      html += '</optgroup>';
+    });
+    // The off-map bucket. Without it a lead in a city nobody has assigned
+    // to a territory is invisible under every one and looks deleted.
+    html += '<option value="__none__">\u2014 not in any territory \u2014</option>';
+    sel.innerHTML = html;
+    console.log('[builder] ' + TERR_LIST.length + ' territories, '
+      + Object.keys(TERR_BY_CITY).length + ' cities mapped');
+  } catch (e) {
+    console.warn('[builder] territories unavailable:', e && e.message ? e.message : e);
+    if (sel) sel.style.display = 'none';
+  }
+}
+
+function onTerritoryChange() {
+  document.getElementById('cityFilter').value = '';
+  buildCityFilter();
+  renderLeads();
+}
+
+function leadInTerritory(lead, key) {
+  if (!key) return true;
+  const hit = TERR_BY_CITY[normCity(lead.city)];
+  return key === '__none__' ? !hit : !!(hit && hit.key === key);
 }
 
 // ── Render ────────────────────────────────────────────────
@@ -578,6 +678,8 @@ function renderLeads() {
   if (!viewingArchive) data = data.filter(l=>l.status !== '📦 Archived');
   if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
   if (statusF) data = data.filter(l=>l.status===statusF);
+  const terrF = (document.getElementById('territoryFilter') || {}).value || '';
+  if (terrF)   data = data.filter(l=>leadInTerritory(l, terrF));
   if (cityF)   data = data.filter(l=>l.city===cityF);
   const indF = document.getElementById('industryFilter').value;
   if (indF) data = data.filter(l=>(l.industry||'Mortgage')===indF);
@@ -1455,6 +1557,8 @@ async function exportForEmail() {
   data = data.filter(l=>l.status !== '📦 Archived');
   if (search)  data = data.filter(l=>(l.company_name+l.contact_name+l.city+(l.email||'')).toLowerCase().includes(search));
   if (statusF) data = data.filter(l=>l.status===statusF);
+  const terrF = (document.getElementById('territoryFilter') || {}).value || '';
+  if (terrF)   data = data.filter(l=>leadInTerritory(l, terrF));
   if (cityF)   data = data.filter(l=>l.city===cityF);
   const indF = document.getElementById('industryFilter').value;
   if (indF) data = data.filter(l=>(l.industry||'Mortgage')===indF);
