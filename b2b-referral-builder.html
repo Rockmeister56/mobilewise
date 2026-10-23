@@ -112,6 +112,108 @@ tr:hover td{background:rgba(52,168,83,0.03);}
 
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(3,1fr);}.search-inp{width:160px;}}
 @media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr);}.nav{padding:12px 16px;}.main{padding:16px;}}
+
+/* Tap-to-call is phone-only. This default MUST come before the media
+   query below: both selectors are a single class, so on a tie the later
+   rule wins, and declaring it afterwards switched the buttons off at
+   exactly the width they exist for. */
+.m-call{display:none;}
+
+/* ══════════════════════════════════════════════════════════════════
+   PHONE LAYOUT
+
+   Sixteen columns and a 1050px minimum is a spreadsheet, and a
+   spreadsheet on a phone is a pinch-and-drag puzzle. On the road the
+   job is narrower than that: pick a territory, then work down the
+   list calling people.
+
+   So the SAME table is reshaped into cards rather than rendered a
+   second way. One render path, one set of filters, one export - a
+   separate mobile renderer is how a screen and its export quietly
+   stop agreeing.
+
+   Kept: company, contact name, phone, website, city, status.
+   Hidden: MW ID, email, reviews, maps, owner lookup, invite,
+   industry, notes, outreach, week, archive and delete - all still
+   there on a laptop, none of them part of calling someone back.
+   ══════════════════════════════════════════════════════════════════ */
+@media(max-width:760px){
+  .main{padding:12px;}
+  .tbl-wrap{overflow:visible;}
+  table{min-width:0;width:100%;}
+  thead{display:none;}                /* the labels move onto each cell */
+  tbody,tr,td{display:block;width:auto;}
+
+  /* Flex, so the business name can be pulled to the top of the card.
+     The table's column order puts Contact before Company, which is right
+     for a spreadsheet and wrong for a card you are about to ring: you
+     look for the business first, the person second. */
+  tr{
+    display:flex;
+    flex-direction:column;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:14px;
+    padding:12px 14px;
+    margin-bottom:12px;
+  }
+  td.m-title{order:-1;}
+
+  /* Anything without a data-m is desktop-only. */
+  td{border:none !important;padding:5px 0;}
+  td:not([data-m]){display:none;}
+
+  td[data-m]::before{
+    content:attr(data-m);
+    display:block;
+    font-size:0.62rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,0.35);
+    margin-bottom:3px;
+  }
+  /* The company name is the heading of the card, not a labelled field. */
+  td.m-title{font-size:1.02rem;font-weight:700;color:#fff;padding-top:0;}
+  td.m-title::before{display:none;}
+
+  /* Tap targets, not spreadsheet cells. The editable field under a Call
+     or Site button is the same value again, so it is deliberately quieter
+     - it is there to correct a wrong number, not to be read. Two lines of
+     equal weight saying the same thing reads as a rendering fault. */
+  .email-inp{width:100% !important;font-size:0.82rem;padding:7px 0;
+             color:rgba(255,255,255,0.45);}
+  .email-inp:focus{color:#34a853;}
+  .notes-inp{width:100%;}
+  .sbadge{display:inline-block;padding:9px 16px;font-size:0.85rem;}
+  .lbtn{padding:9px 16px;font-size:0.82rem;}
+
+  /* Tap to call. Hidden on a laptop, where a tel: link does nothing
+     useful and the editable field is the point. */
+  .m-call{
+    display:block;
+    background:rgba(52,168,83,0.14);
+    border:1px solid rgba(52,168,83,0.45);
+    color:#34a853;
+    text-decoration:none;
+    font-weight:700;
+    font-size:0.95rem;
+    padding:11px 14px;
+    border-radius:10px;
+    text-align:center;
+    margin-bottom:6px;
+  }
+  .m-call:active{background:rgba(52,168,83,0.3);}
+
+  /* Filters stack and fill the width - a 220px search box next to four
+     dropdowns wraps into an unusable staircase at 390px. */
+  .filter-bar{gap:8px;}
+  .filter-bar > *{flex:1 1 100%;width:100%;}
+  .search-inp{width:100% !important;}
+  select{width:100%;padding:11px 14px;font-size:0.92rem;}
+  input[type=text]{padding:11px 14px;font-size:0.92rem;}
+  /* Territory first: on a phone it is the filter that matters most. */
+  #territoryFilter{order:-1;border-color:rgba(52,168,83,0.45);}
+}
 </style>
 </head>
 <body>
@@ -746,11 +848,12 @@ function renderLeads() {
     return `<tr>
       <td><input type="checkbox" class="lead-check" data-id="${l.id}" style="accent-color:#34a853;width:14px;height:14px;cursor:pointer;"></td>
       <td style="color:#34a853;font-size:0.7rem;font-weight:700;white-space:nowrap;font-family:monospace;">${esc(l.lead_id||'—')}</td>
-      <td>
+      <td data-m="Contact">
         <input class="email-inp" value="${esc(l.contact_name||'')}" placeholder="add name..." style="color:#fff;font-weight:600;" onchange="saveName(${l.id},this.value)" onclick="event.stopPropagation()">
       </td>
-      <td style="max-width:180px;">${esc(l.company_name||'—')}</td>
-      <td>
+      <td data-m="Company" class="m-title" style="max-width:180px;">${esc(l.company_name||'—')}</td>
+      <td data-m="Phone">
+        ${l.phone ? `<a class="m-call" href="tel:${esc(String(l.phone).replace(/[^0-9+]/g,''))}">\u{1F4DE} Call ${esc(l.phone)}</a>` : ''}
         <input class="email-inp" value="${esc(l.phone||'')}" placeholder="add phone..." style="width:130px;" onchange="savePhone(${l.id},this.value)" onclick="event.stopPropagation()">
       </td>
       <td>
@@ -760,14 +863,14 @@ function renderLeads() {
           onchange="saveEmail(${l.id},this.value)"
           onclick="event.stopPropagation()">
       </td>
-      <td>
+      <td data-m="Website">
         ${l.website
           ? `<a class="lbtn lbtn-g" href="${esc(l.website)}" target="_blank">🌐 Site</a>
              <input class="email-inp" value="${esc(l.website)}" placeholder="edit url..." style="margin-top:4px;width:130px;font-size:0.7rem;" onchange="saveWebsite(${l.id},this.value)" onclick="event.stopPropagation()">`
           : `<input class="email-inp" value="" placeholder="add website..." onchange="saveWebsite(${l.id},this.value)" onclick="event.stopPropagation()">`}
       </td>
       <td style="text-align:center;">${l.reviews?`<strong style="color:#34a853;">${l.reviews}</strong>`:'—'}</td>
-      <td style="font-size:0.76rem;color:rgba(255,255,255,0.5);white-space:nowrap;">${esc(l.city||'—')}</td>
+      <td data-m="City" style="font-size:0.76rem;color:rgba(255,255,255,0.5);white-space:nowrap;">${esc(l.city||'—')}</td>
       <td>
         ${l.maps_url?`<a class="lbtn lbtn-b" href="${esc(l.maps_url)}" target="_blank">📍 Maps</a>`:'—'}
         <a class="lbtn" href="https://www.google.com/search?q=${encodeURIComponent(ownerQuery(l))}" target="_blank"
@@ -777,7 +880,7 @@ function renderLeads() {
           style="background:rgba(168,85,247,0.12);color:#a855f7;border:1px solid rgba(168,85,247,0.3);margin-top:4px;display:inline-block;">✉️ Invite</a>
       </td>
       <td><span style="font-size:0.7rem;padding:3px 9px;border-radius:12px;white-space:nowrap;background:${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.15)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.15)':'rgba(52,168,83,0.1)'};color:${(l.industry||'Mortgage')==='Legal'?'#ce93d8':(l.industry||'Mortgage')==='Tax Resolution'?'#ffb74d':'#81c784'};border:1px solid ${(l.industry||'Mortgage')==='Legal'?'rgba(156,39,176,0.4)':(l.industry||'Mortgage')==='Tax Resolution'?'rgba(255,152,0,0.4)':'rgba(52,168,83,0.3)'};">${(l.industry||'Mortgage')==='Legal'?'⚖️ Legal':(l.industry||'Mortgage')==='Tax Resolution'?'💼 Tax':'🏠 Mortgage'}</span></td>
-      <td>
+      <td data-m="Status">
         <span class="sbadge ${sc}" onclick="cycleStatus(${l.id},'${escAttr(l.status||'🟢 New')}')">
           ${esc(l.status||'🟢 New')}
         </span>
