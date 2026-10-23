@@ -502,73 +502,43 @@ async function loadLeads() {
 // ── Week Tabs — built from label list only, no lead data needed ──
 // The industry list is the data, not a guess. Three hardcoded trades meant
 // anything the scanner or a member's warm list brought in was unreachable.
-// The full partner list, so the filter offers every category from day one
-// rather than only the handful that happen to have leads in them already.
-// Kept in sync with localhome_categories - the same 73 the Industries screen
-// seeds. Whatever is actually in the data is merged in on top, so a category
-// added later still appears without touching this file.
-var PARTNER_CATEGORIES = [
-  'Acupuncturist','Appliance Assembly',
-  'Appliance Repair Technician','Appliance Retailer / Showroom Sales Pro',
-  'Appraiser','Architect / Residential Draftsman',
-  'Art & Picture Hanging','Art Consultant / Custom Framer',
-  'Artificial Turf Installer','Awning, Pergola, & Shade Structure Installer',
-  'Backup Generator Installer','Bee, Wasps, Dead Animal Removal',
-  'CPA / Tax Accountant','Cabinet Maker & Refacing Specialist',
-  'Caterers','Ceiling Fan Installation',
-  'Child Psychologist','Chimney Sweep & Dryer Vent Cleaner',
-  'Chiropractor','Commercial Cleaners',
-  'Concrete & Hardscape Contractor','Custom Closet & Garage Storage Company',
-  'DJ / Event Entertainment','Deck & Patio Builder',
-  'Drywall & Texture Specialist','Duct and Vent Cleaning',
-  'EV Charger Installer','Electrician',
-  'Energy Auditor','Estate Planning Attorney',
-  'Family & Marriage Counselor','Family Dentist / Pediatric Dentist',
-  'Fence & Gate Installation Company','Financial Planner / Wealth Advisor',
-  'Flooring Installation Company','Foundation Repair Specialist',
-  'Furnace Repair','Furniture Movers',
-  'Garage Door Repair Company','Gardening',
-  'General Contractor','Gym Equipment Assembly',
-  'HVAC Contractor','Handyman',
-  'Health & Wellness Coach','Holiday Light Hanging',
-  'Home Inspector','Home Insurance Agent',
-  'Home Organization','Home Stager',
-  'Home Theater & Audio/Visual Installer','Home Warranty Company',
-  'House Cleaning Service','Insulation & Radiant Barrier Contractor',
-  'Interior Designer','Irrigation & Drainage Specialist',
-  'Junk Removal','Kitchen & Bathroom Remodeler',
-  'Landscape Designer / Architect','Landscaper / Lawn Maintenance Route Operator',
-  'Life Coaches','Limo Rentals',
-  'Local Storage Facility Operator','Locksmith',
-  'Makeup Artists','Massage Therapist',
-  'Mold & Water Damage Restoration Pro','Moving Company',
-  'Music Lessons','Naturopathic Doctor (ND)',
-  'Non-Medical Home Care / Senior Companionship','Optometrist',
-  'Orthodontist','Outdoor Kitchen & Fire Pit Specialist',
-  'Outdoor Lighting Designer','Pediatrician',
-  'Personal Trainer / Fitness Studio','Pest Control Operator',
-  'Photographer','Physical Therapist',
-  'Piano Movers','Plumber (Service & Repair)',
-  'Pool Builder / Designer','Pool Maintenance / Pool Boy Service',
-  'Pressure Washing & Roof Cleaning Pro','Primary Care Physician (PCP)',
-  'Property Manager','Real Estate Agent (Buyer Specialist)',
-  'Real Estate Agent (Listing Specialist)','Real Estate Attorney',
-  'Registered Dietitian / Nutritionist','Roofing Contractor',
-  'Security Camera Installation','Security System & Alarm Company',
-  'Siding & Stucco Contractor','Smart Home / Home Automation Specialist',
-  'Solar Installation Company','Structural Engineer',
-  'Stump Grinding','TV Mounting',
-  'Thanksgiving Caterers','Title & Escrow Company',
-  'Tree Service & Arborist','Upholstery & Rug Cleaning Specialist',
-  'Water Filtration & Softener Installer','Wedding Planners',
-  'Window & Door Replacement Company','Window Cleaning & Gutter Prowash Specialist',
-  'Window Treatment / Custom Blinds Specialist','Yoga Instructors'
-];
+// The partner list is NOT kept here any more.
+//
+// It lived in this file and in the market scanner, and the seats have been
+// 73, then 110, now 40 - so every change meant editing two copies, and the
+// copies drifted. It now comes from localhome_categories, which is the one
+// place it is defined.
+//
+// Territory seats only. The mortgage seat is the SPONSOR - who the network
+// is sold to - not a partner anyone refers to, so it is deliberately absent.
+var PARTNER_CATEGORIES = [];
+
+async function loadPartnerCategories() {
+  if (PARTNER_CATEGORIES.length) return PARTNER_CATEGORIES;
+  try {
+    var hdr = { 'apikey': LH_KEY, 'Authorization': 'Bearer ' + LH_KEY };
+    var res = await fetch(LH_URL + '/rest/v1/localhome_categories'
+      + '?select=name&active=eq.true&scope=eq.territory&order=name', { headers: hdr });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    PARTNER_CATEGORIES = (await res.json()).map(function (c) { return c.name; });
+    console.log('[builder] ' + PARTNER_CATEGORIES.length + ' partner categories');
+  } catch (e) {
+    // The merge below still adds every industry present in the data, so the
+    // filter keeps working on whatever is actually there.
+    console.warn('[builder] category list unavailable, falling back to what '
+      + 'the leads themselves carry:', e && e.message ? e.message : e);
+    PARTNER_CATEGORIES = [];
+  }
+  return PARTNER_CATEGORIES;
+}
 
 var industriesBuilt = false;
 async function buildIndustryFilter() {
   if (industriesBuilt) return;
+  await loadPartnerCategories();
   var names = PARTNER_CATEGORIES.slice();
+  var isPartner = {};
+  names.forEach(function (n) { isPartner[n] = 1; });
   try {
     // Merge in whatever is actually in the table - a category added to the
     // network later, or an industry from Tommy's own leads.
@@ -583,12 +553,30 @@ async function buildIndustryFilter() {
     console.error('Could not read industries from the data:', e);
   }
 
-  names.sort(function (a, b) { return a.localeCompare(b); });
+  // The 40 first, then anything else the data actually contains. Those
+  // others are the War Room's leads - Mortgage, Legal, Tax Resolution -
+  // which are not partner categories. Dropping them from the dropdown
+  // would leave thousands of rows in the table with no way to filter to
+  // them, so they stay, below a separator, out of the way.
+  var partners = names.filter(function (n) { return isPartner[n]; })
+                      .sort(function (a, b) { return a.localeCompare(b); });
+  var others   = names.filter(function (n) { return !isPartner[n]; })
+                      .sort(function (a, b) { return a.localeCompare(b); });
+
+  function opts(list) {
+    return list.map(function (n) {
+      return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+  }
+
   var sel = document.getElementById('industryFilter');
   var keep = sel.value;
   sel.innerHTML = '<option value="">All Industries</option>'
-    + names.map(function (n) {
-        return '<option value="' + esc(n) + '">' + esc(n) + '</option>'; }).join('');
+    + (partners.length
+        ? '<optgroup label="VIP partner categories">' + opts(partners) + '</optgroup>'
+        : opts(others.length ? [] : names))
+    + (others.length
+        ? '<optgroup label="Other \u2014 already in your data">' + opts(others) + '</optgroup>'
+        : '');
   sel.value = keep;
   industriesBuilt = true;
 }
