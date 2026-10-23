@@ -686,8 +686,24 @@ function buildCityFilter() {
 var TERR_BY_CITY = {};     // normalised city -> {key, label, group}
 var TERR_LIST    = [];
 
+// Real US state codes only. Stripping any trailing two letters would eat the
+// last word of a legitimate city name, so this checks against the actual set.
+var US_STATE = {};
+('AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO '
+ + 'MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY '
+ + 'DC PR VI GU AS MP').split(' ').forEach(function (s) { US_STATE[s] = 1; });
+
+// The scanner stores whatever was typed into the city box. "Mission Viejo, CA",
+// "mission viejo CA" and "Mission  Viejo" are all the same place, but only the
+// bare name is ever in localhome_group_cities - so the state has to come off
+// here or the territory filter silently hides the whole batch.
 function normCity(c) {
-  return String(c || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  var s = String(c || '').trim().replace(/\s+/g, ' ');
+  s = s.replace(/[,\s]+([A-Za-z]{2})\.?$/, function (m, st) {
+    return US_STATE[st.toUpperCase()] ? '' : m;
+  });
+  s = s.replace(/,\s*(california|calif)\.?$/i, '');
+  return s.trim().toLowerCase();
 }
 
 async function loadTerritories() {
@@ -816,6 +832,40 @@ function renderLeads() {
       if (cityF)   why.push('\u2022 city filter is set to \u201c' + esc(cityF) + '\u201d');
       if (indF)    why.push('\u2022 industry filter is set to \u201c' + esc(indF) + '\u201d');
       if (search)  why.push('\u2022 search box contains \u201c' + esc(search) + '\u201d');
+
+      // The territory filter was missing from this list, so a batch hidden
+      // entirely by territory reported "no filter is set" and sent Brett
+      // chasing a bug that was really just a city sitting in another
+      // territory. Name it, then say where those leads actually ARE - the
+      // blank screen should answer the question it raises.
+      if (terrF) {
+        var tLabel = terrF === '__none__'
+          ? '\u2014 not in any territory \u2014'
+          : ((TERR_LIST.filter(function (t) { return t.key === terrF; })[0] || {}).label || terrF);
+        why.push('\u2022 territory filter is set to \u201c' + esc(tLabel) + '\u201d');
+
+        var elsewhere = {};
+        allLeads.forEach(function (l) {
+          if (activeWeek !== 'all' && l.week_label !== activeWeek) return;
+          if (!viewingArchive && l.status === '\ud83d\udce6 Archived') return;
+          var hit = TERR_BY_CITY[normCity(l.city)];
+          var k = hit ? hit.label : 'no territory covers this city';
+          (elsewhere[k] = elsewhere[k] || []).push(l.city || '(no city on the lead)');
+        });
+        Object.keys(elsewhere).sort().forEach(function (k) {
+          var seen = {}, cs = [];
+          elsewhere[k].forEach(function (c) { if (!seen[c]) { seen[c] = 1; cs.push(c); } });
+          why.push('&nbsp;&nbsp;&nbsp;\u21b3 ' + elsewhere[k].length + ' lead'
+                 + (elsewhere[k].length === 1 ? '' : 's') + ' in <b>' + esc(k) + '</b> \u2014 '
+                 + esc(cs.join(', ')));
+        });
+        if (!Object.keys(TERR_BY_CITY).length) {
+          why.push('&nbsp;&nbsp;&nbsp;\u21b3 <b>No cities are mapped to any territory.</b> '
+                 + 'The territory list loaded but localhome_group_cities returned no '
+                 + 'territory_id values \u2014 that is the bug, not this batch.');
+        }
+      }
+
       if (why.length === 1) why.push('\u2022 \u2014 but no filter is set, which should not happen. '
                                    + 'Send this message to Claude.');
     }
