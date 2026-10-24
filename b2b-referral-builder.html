@@ -234,6 +234,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
   <div class="nav-right">
     <button class="btn btn-ghost" onclick="loadLeads()">🔄 Refresh</button>
     <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="btn btn-ghost" onclick="exportToBrett()" title="Download the voicemail CSV and put these leads in Brett's B2B follow-up tab">📤 Export to Brett</button>
     <button class="btn btn-ghost" onclick="archiveBatch()" style="background:rgba(255,152,0,0.1);border:1px solid rgba(255,152,0,0.35);color:#ff9800;">📦 Archive this batch</button>
     <button class="btn btn-ghost" onclick="openApplications()" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.45);color:#4ade80;font-weight:700;">🎉 Applications<span id="appsCount"></span></button>
     <button class="btn btn-ghost" onclick="exportToAppointmentQueue()" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">🔔 Appointment Queue</button>
@@ -1633,18 +1634,128 @@ async function archiveBatch() {
 }
 window.archiveBatch = archiveBatch;
 
+// ══════════════════════════════════════════════════════════════════════
+//  ONE FILTER CHAIN
+//
+//  This used to be copied into renderLeads, exportForEmail and nowhere at
+//  all in exportCSV - which is why narrowing the screen to one territory
+//  and hitting Export CSV handed over the whole batch. Anything that acts
+//  on "what Tommy is looking at" asks here.
+// ══════════════════════════════════════════════════════════════════════
+function visibleLeads(opts) {
+  opts = opts || {};
+  var v = function (id) { return (document.getElementById(id) || {}).value || ''; };
+  var search  = String(v('searchInput')).toLowerCase();
+  var statusF = v('statusFilter');
+  var cityF   = v('cityFilter');
+  var indF    = v('industryFilter');
+  var terrF   = v('territoryFilter');
+
+  var data = activeWeek === 'all'
+    ? allLeads.slice()
+    : allLeads.filter(function (l) { return l.week_label === activeWeek; });
+
+  var withArchived = opts.includeArchived !== undefined
+    ? opts.includeArchived
+    : (showArchived || archivedWeeks[activeWeek]);
+  if (!withArchived) data = data.filter(function (l) { return l.status !== '📦 Archived'; });
+
+  if (search)  data = data.filter(function (l) {
+    return (l.company_name + l.contact_name + l.city + (l.email || '')).toLowerCase().includes(search); });
+  if (statusF) data = data.filter(function (l) { return l.status === statusF; });
+  if (terrF)   data = data.filter(function (l) { return leadInTerritory(l, terrF); });
+  if (cityF)   data = data.filter(function (l) { return l.city === cityF; });
+  if (indF)    data = data.filter(function (l) { return (l.industry || 'Mortgage') === indF; });
+  return data;
+}
+
 // ── Export CSV ────────────────────────────────────────────
-function exportCSV() {
-  const data = activeWeek==='all' ? allLeads : allLeads.filter(l=>l.week_label===activeWeek);
-  const cols = ['lead_id','contact_name','company_name','phone','email','website','reviews','address','maps_url','city','status','notes','week_label','outreach_msg'];
-  const hdrs = ['MW_ID','ContactName','CompanyName','Phone','Email','Website','Reviews','Address','MapsURL','City','Status','Notes','Week','OutreachMsg'];
-  let csv = hdrs.join(',') + '\n';
-  data.forEach(l => { csv += cols.map(c=>`"${String(l[c]||'').replace(/"/g,'""')}"`).join(',') + '\n'; });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download = `mortgage-leads-${activeWeek.replace(/\s/g,'-')}-${new Date().toISOString().slice(0,10)}.csv`;
+var CSV_COLS = ['lead_id','contact_name','company_name','phone','email','website','reviews','address','maps_url','city','status','notes','week_label','outreach_msg'];
+var CSV_HDRS = ['MW_ID','ContactName','CompanyName','Phone','Email','Website','Reviews','Address','MapsURL','City','Status','Notes','Week','OutreachMsg'];
+
+function csvFor(data) {
+  var csv = CSV_HDRS.join(',') + '\n';
+  data.forEach(function (l) {
+    csv += CSV_COLS.map(function (c) {
+      return '"' + String(l[c] == null ? '' : l[c]).replace(/"/g, '""') + '"';
+    }).join(',') + '\n';
+  });
+  return csv;
+}
+
+function downloadCsv(data, prefix) {
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csvFor(data)], { type: 'text/csv' }));
+  a.download = prefix + '-' + activeWeek.replace(/\s/g, '-') + '-'
+             + new Date().toISOString().slice(0, 10) + '.csv';
   a.click();
-  toast('CSV downloaded');
+}
+
+// Plain export. Downloads what is on screen and changes nothing, so Tommy
+// can pull a list to look at without advancing anybody's status.
+function exportCSV() {
+  var data = visibleLeads();
+  if (!data.length) { toast('Nothing to export in the current view'); return; }
+  downloadCsv(data, 'b2b-leads');
+  toast(data.length + ' lead' + (data.length === 1 ? '' : 's') + ' downloaded · nothing changed');
+}
+
+// Export to Brett. Same file, but it also records that these businesses were
+// voicemailed - which is what puts them in the B2B Sales tab of Client Act.
+// exportToBrett() existed before and was deleted on 2026-09-29 because it
+// dropped B2B leads into the mortgage queue. It no longer does: B2B has its
+// own tab, and this writes sales_status rather than status, so Tommy's own
+// board is untouched.
+async function exportToBrett() {
+  var data = visibleLeads();
+  if (!data.length) { alert('Nothing in the current view to send.'); return; }
+
+  // Already handed off = already carrying a sales_status. Sending twice
+  // would reset a lead Brett may have already worked.
+  var fresh = data.filter(function (l) { return !l.sales_status; });
+  var already = data.length - fresh.length;
+
+  if (!fresh.length) {
+    alert('All ' + data.length + ' lead' + (data.length === 1 ? '' : 's')
+        + ' in this view have already been sent to Brett.\n\n'
+        + 'They are in his B2B Sales tab.');
+    return;
+  }
+
+  var terrEl = document.getElementById('territoryFilter');
+  var terrTxt = '';
+  if (terrEl && terrEl.value && terrEl.selectedIndex >= 0) {
+    terrTxt = '\nTerritory: ' + terrEl.options[terrEl.selectedIndex].text;
+  }
+
+  if (!confirm('Send ' + fresh.length + ' lead' + (fresh.length === 1 ? '' : 's')
+      + ' to Brett?' + terrTxt
+      + '\n\nThis downloads the voicemail CSV and marks them "Left Voicemail",'
+      + ' which puts them in his B2B Sales follow-up tab.'
+      + (already ? '\n\n' + already + ' already sent and will be skipped.' : ''))) return;
+
+  var ids = fresh.map(function (l) { return l.id; });
+  try {
+    // Chunked: a few hundred ids in one URL is how a PATCH quietly 414s.
+    for (var i = 0; i < ids.length; i += 50) {
+      var slice = ids.slice(i, i + 50);
+      var res = await sb('PATCH', 'leads',
+        { sales_status: '📱 Left Voicemail', last_called: new Date().toISOString() },
+        '?id=in.(' + slice.join(',') + ')');
+      if (res && res.error) throw new Error(res.error.message || 'PATCH failed');
+    }
+  } catch (e) {
+    console.error('exportToBrett failed:', e);
+    alert('Could not mark the leads as sent, so nothing was downloaded.\n\n'
+        + (e.message || 'Unknown error') + '\n\nTry again, or use Export CSV.');
+    return;
+  }
+
+  fresh.forEach(function (l) { l.sales_status = '📱 Left Voicemail'; });
+  downloadCsv(fresh, 'voicemail-for-brett');
+  toast('✅ ' + fresh.length + ' sent to Brett’s B2B Sales tab'
+      + (already ? ' · ' + already + ' already there' : ''));
+  renderLeads();
 }
 
 // ── Toast ─────────────────────────────────────────────────
