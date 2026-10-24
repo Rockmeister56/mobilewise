@@ -234,7 +234,6 @@ tr:hover td{background:rgba(52,168,83,0.03);}
   <div class="nav-right">
     <button class="btn btn-ghost" onclick="loadLeads()">🔄 Refresh</button>
     <button class="btn btn-ghost" onclick="exportCSV()">⬇ Export CSV</button>
-    <button class="btn btn-ghost" onclick="exportToBrett()" title="Download the voicemail CSV and put these leads in Brett's B2B follow-up tab">📤 Export to Brett</button>
     <button class="btn btn-ghost" onclick="archiveBatch()" style="background:rgba(255,152,0,0.1);border:1px solid rgba(255,152,0,0.35);color:#ff9800;">📦 Archive this batch</button>
     <button class="btn btn-ghost" onclick="openApplications()" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.45);color:#4ade80;font-weight:700;">🎉 Applications<span id="appsCount"></span></button>
     <button class="btn btn-ghost" onclick="exportToAppointmentQueue()" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.4);color:#a855f7;">🔔 Appointment Queue</button>
@@ -317,6 +316,7 @@ tr:hover td{background:rgba(52,168,83,0.03);}
     <button class="btn btn-ghost" onclick="bulkStatus('💰 Closed')" style="padding:6px 14px;font-size:0.78rem;background:rgba(76,175,80,0.15);border-color:#4caf50;color:#4caf50;">💰 Closed</button>
     <button class="btn btn-ghost" onclick="bulkStatus('📦 Archived')" style="padding:6px 14px;font-size:0.78rem;">📦 Archive</button>
     <button class="btn btn-ghost" onclick="downloadVoicemailCSV()" style="padding:6px 14px;font-size:0.78rem;background:rgba(52,168,83,0.12);color:#7fd99a;border:1px solid rgba(52,168,83,0.4);">⬇ Voicemail CSV</button>
+    <button class="btn btn-ghost" onclick="sendToBrett()" title="Mark these as voicemailed so they appear in Brett's B2B Sales follow-up tab. Downloads nothing." style="padding:6px 14px;font-size:0.78rem;background:rgba(168,85,247,0.12);color:#c79bff;border:1px solid rgba(168,85,247,0.4);">📤 Send to Brett</button>
     <button class="btn btn-ghost" onclick="bulkDelete()" style="padding:6px 14px;font-size:0.78rem;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);">🗑 Delete</button>
     <button class="btn btn-ghost" onclick="clearSelection()" style="padding:6px 14px;font-size:0.78rem;margin-left:auto;">✕ Clear</button>
   </div>
@@ -1511,17 +1511,11 @@ function voicemailRows() {
       return checked.indexOf(l.id) !== -1 && l.status !== '🎉 Applied';
     });
   }
-  var data = (activeWeek === 'all' ? allLeads
-              : allLeads.filter(function (l) { return l.week_label === activeWeek; }))
-             .filter(function (l) {
-               return l.status !== '📦 Archived'
-                   && l.status !== '🎉 Applied';
-             });
-  var cityF = document.getElementById('cityFilter');
-  var statF = document.getElementById('statusFilter');
-  if (cityF && cityF.value) data = data.filter(function (l) { return l.city === cityF.value; });
-  if (statF && statF.value) data = data.filter(function (l) { return l.status === statF.value; });
-  return data;
+  // Was its own filter chain and had no territory filter, so narrowing to
+  // Central and hitting Voicemail CSV dropped voicemails on the whole batch.
+  // Same bug as Export CSV had, third copy. It asks visibleLeads now.
+  return visibleLeads({ includeArchived: false })
+    .filter(function (l) { return l.status !== '🎉 Applied'; });
 }
 
 // ── THE ONE VOICEMAIL CSV WRITER ───────────────────────────────────────────
@@ -1700,14 +1694,22 @@ function exportCSV() {
   toast(data.length + ' lead' + (data.length === 1 ? '' : 's') + ' downloaded · nothing changed');
 }
 
-// Export to Brett. Same file, but it also records that these businesses were
-// voicemailed - which is what puts them in the B2B Sales tab of Client Act.
-// exportToBrett() existed before and was deleted on 2026-09-29 because it
+// ── Send to Brett ──────────────────────────────────────────────────────────
+// This DOWNLOADS NOTHING, on purpose. The one voicemail CSV writer is
+// buildVoicemailCsv and it stays that way - a second writer saving over the
+// same filename is the bug the comment above it records, and it was mine to
+// avoid. This only records that these businesses were voicemailed, which is
+// what puts them in the B2B Sales tab of Client Act.
+//
+// It reads voicemailRows(), so it hands over exactly the leads the voicemail
+// CSV just wrote - never a different set.
+//
+// An exportToBrett() existed before and was deleted on 2026-09-29 because it
 // dropped B2B leads into the mortgage queue. It no longer does: B2B has its
 // own tab, and this writes sales_status rather than status, so Tommy's own
 // board is untouched.
-async function exportToBrett() {
-  var data = visibleLeads();
+async function sendToBrett() {
+  var data = voicemailRows();
   if (!data.length) { alert('Nothing in the current view to send.'); return; }
 
   // Already handed off = already carrying a sales_status. Sending twice
@@ -1730,8 +1732,8 @@ async function exportToBrett() {
 
   if (!confirm('Send ' + fresh.length + ' lead' + (fresh.length === 1 ? '' : 's')
       + ' to Brett?' + terrTxt
-      + '\n\nThis downloads the voicemail CSV and marks them "Left Voicemail",'
-      + ' which puts them in his B2B Sales follow-up tab.'
+      + '\n\nMarks them "Left Voicemail" so they appear in his B2B Sales'
+      + ' follow-up tab. Nothing is downloaded — use Voicemail CSV for the drop.'
       + (already ? '\n\n' + already + ' already sent and will be skipped.' : ''))) return;
 
   var ids = fresh.map(function (l) { return l.id; });
@@ -1745,14 +1747,13 @@ async function exportToBrett() {
       if (res && res.error) throw new Error(res.error.message || 'PATCH failed');
     }
   } catch (e) {
-    console.error('exportToBrett failed:', e);
-    alert('Could not mark the leads as sent, so nothing was downloaded.\n\n'
-        + (e.message || 'Unknown error') + '\n\nTry again, or use Export CSV.');
+    console.error('sendToBrett failed:', e);
+    alert('Could not mark the leads as sent.\n\n'
+        + (e.message || 'Unknown error') + '\n\nNothing changed — try again.');
     return;
   }
 
   fresh.forEach(function (l) { l.sales_status = '📱 Left Voicemail'; });
-  downloadCsv(fresh, 'voicemail-for-brett');
   toast('✅ ' + fresh.length + ' sent to Brett’s B2B Sales tab'
       + (already ? ' · ' + already + ' already there' : ''));
   renderLeads();
@@ -1766,11 +1767,18 @@ function toast(msg) {
   setTimeout(()=>t.classList.remove('show'), 2500);
 }
 
-// exportToBrett() was removed 2026-09-29. It sent leads into Brett's Client
-// Act mortgage queue - a different pipeline and a different person's work -
-// and it contained a SECOND voicemail CSV writer that saved over the same
-// filename as the real one. Deleted outright rather than left unwired, so it
-// cannot be called back into service by accident.
+// exportToBrett() was removed 2026-09-29 for two reasons: it sent leads into
+// Brett's Client Act MORTGAGE queue - a different pipeline and a different
+// person's work - and it carried a SECOND voicemail CSV writer that saved
+// over the same filename as the real one.
+//
+// Replaced 2026-10-24 by sendToBrett(), which answers both objections:
+//   - Client Act now has a separate B2B Sales tab, so nothing lands in the
+//     mortgage queue. It writes sales_status; status is Tommy's and is left
+//     alone.
+//   - It writes NO CSV at all. buildVoicemailCsv stays the only writer.
+// It reads voicemailRows(), so it can only hand over the same leads the
+// voicemail CSV wrote.
 
 async function resetCurrentViewToNew() {
   // Same filtered view the toolbar shows

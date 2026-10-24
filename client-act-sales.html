@@ -226,6 +226,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     </div>
     <div style="display:flex;gap:8px;">
       <button class="btn btn-ghost" onclick="downloadSelectedVoicemail()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;">📞 Export Selected for Voicemail</button>
+      <button class="btn btn-ghost" onclick="parkSelected()" title="Take these out of the daily queue without losing them" style="border-color:rgba(100,116,139,0.5);color:#94a3b8;">📂 Park for later</button>
+      <button class="btn btn-ghost" onclick="unparkSelected()" title="Put parked leads back into the queue" style="border-color:rgba(34,197,94,0.35);color:#4ade80;font-size:0.72rem;">↩ Un-park</button>
       <button class="btn btn-ghost" onclick="clearSelection()" style="font-size:0.72rem;">✕ Clear</button>
     </div>
   </div>
@@ -307,6 +309,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       <option>❌ Closed Lost</option>
       <option>🔥 Hot</option>
       <option>🚫 Do Not Call</option>
+      <option>📂 Parked</option>
     </select>
     <select id="allIndustry" onchange="renderAll()">
       <option value="">All Industries</option>
@@ -429,7 +432,17 @@ const STAGES = [
   {key:"\uD83D\uDCB0 Closed Won",        color:"#22c55e"},
   {key:"\u274C Closed Lost",              color:"#64748b"},
   {key:"\uD83D\uDEAB Do Not Call",       color:"#64748b"},
+  // Parked is not a dead end - it is a shelf. A lead here is out of the
+  // daily queue and off the pipeline board, but still in All Leads and one
+  // status change away from coming back. Use it for a batch worth keeping
+  // that should not be in front of you every morning.
+  {key:"\uD83D\uDCC2 Parked",            color:"#64748b"},
 ];
+
+// Statuses the Priority Queue never shows. Parked sits here with the genuine
+// dead ends, which is the whole point of it.
+const QUEUE_HIDDEN = ["\uD83D\uDCB0 Closed Won","\u274C Closed Lost",
+                      "\uD83D\uDEAB Do Not Call","\uD83D\uDCC2 Parked"];
 
 async function sb(method,table,body=null,query=""){
   const res=await fetch(`${SB_URL}/rest/v1/${table}${query}`,{
@@ -486,7 +499,10 @@ async function loadPipelineLeads(){
       // builder; Client Act simply never asked for them, which is why the 200
       // were invisible here.
       sb("GET","leads","","?order=created_at.desc&limit=300&sales_status=eq.%F0%9F%93%B1%20Left%20Voicemail"),
-      sb("GET","leads","","?order=created_at.desc&limit=300&sales_status=eq.%F0%9F%93%9E%20Called%20%E2%80%94%20No%20Answer")
+      sb("GET","leads","","?order=created_at.desc&limit=300&sales_status=eq.%F0%9F%93%9E%20Called%20%E2%80%94%20No%20Answer"),
+      // Parked must be fetched or parking a batch would make it vanish on
+      // the next refresh - which looks exactly like losing it.
+      sb("GET","leads","","?order=created_at.desc&limit=500&sales_status=eq.%F0%9F%93%82%20Parked")
     ]);
     results.forEach(r=>{
       if(Array.isArray(r)) r.forEach(fileLead);
@@ -616,7 +632,7 @@ function updateBadges(){
   const today=new Date().toISOString().slice(0,10);
   const qc=allLeads.filter(l=>{
     const ss=l.sales_status||"\uD83C\uDD95 New";
-    if(["\uD83D\uDCB0 Closed Won","\u274C Closed Lost","\uD83D\uDEAB Do Not Call"].includes(ss)) return false;
+    if(QUEUE_HIDDEN.includes(ss)) return false;
     if(ss==="\uD83C\uDD95 New") return true;
     if(ss==="\uD83D\uDD25 Hot") return true;
     if(l.follow_up_date&&l.follow_up_date<=today) return true;
@@ -776,7 +792,7 @@ function renderB2B(){
 function renderQueue(){
   const today=new Date().toISOString().slice(0,10);
   const indF=document.getElementById("queueIndustry").value;
-  const dead=["\uD83D\uDCB0 Closed Won","\u274C Closed Lost","\uD83D\uDEAB Do Not Call"];
+  const dead=QUEUE_HIDDEN;
   let leads=allLeads.filter(l=>{
     if(indF&&(l.industry||"Mortgage")!==indF) return false;
     const ss=l.sales_status||"🆕 New";
@@ -855,7 +871,7 @@ function renderQueue(){
 function renderPipeline(){
   const indF=document.getElementById("pipeIndustry").value;
   let leads=indF?allLeads.filter(l=>(l.industry||"Mortgage")===indF):allLeads;
-  const dead=["\u274C Closed Lost","\uD83D\uDEAB Do Not Call"];
+  const dead=["\u274C Closed Lost","\uD83D\uDEAB Do Not Call","\uD83D\uDCC2 Parked"];
   leads=leads.filter(l=>!dead.includes(l.sales_status));
   const board=document.getElementById("pipelineBoard");
   const show=STAGES.filter(s=>!dead.includes(s.key));
@@ -1162,6 +1178,7 @@ function openDeadModal(id){
     <select id="m-status">
       <option value="\u274C Closed Lost">\u274C Closed Lost \u2014 Not Interested</option>
       <option value="\uD83D\uDEAB Do Not Call">\uD83D\uDEAB Do Not Call</option>
+      <option value="\uD83D\uDCC2 Parked">\uD83D\uDCC2 Parked</option>
       <option value="\uD83D\uDCB0 Closed Won">\uD83D\uDCB0 Closed Won! \uD83C\uDF89</option>
     </select>
     <label>Notes</label>
@@ -1755,6 +1772,44 @@ function clearSelection() {
   if (allCb) allCb.checked = false;
   updateSelCount();
 }
+
+// ── Park / un-park ────────────────────────────────────────
+// A shelf, not a bin. Parked leads leave the daily queue and the pipeline
+// board but stay in All Leads, so a batch you are not working this month is
+// out of your way without being deleted or marked Do Not Call - which would
+// be a lie about the lead and would follow it around.
+async function setSelectedStatus(status, verb) {
+  if (!selectedLeads.size) { toast('Nothing selected — check the boxes first'); return; }
+  const pools = [allLeads, b2bLeads];
+  const picked = [];
+  pools.forEach(function(p){ p.forEach(function(l){
+    if (selectedLeads.has(l.id)) picked.push(l); }); });
+  if (!picked.length) { toast('Nothing selected on this tab'); return; }
+
+  if (!confirm(verb + ' ' + picked.length + ' lead' + (picked.length===1?'':'s') + '?\n\n'
+      + (status === "📂 Parked"
+         ? 'They leave the daily queue but stay in All Leads, and Un-park brings them back.'
+         : 'They return to the queue as New.'))) return;
+
+  const ids = picked.map(function(l){ return l.id; });
+  try {
+    for (let i = 0; i < ids.length; i += 50) {
+      const slice = ids.slice(i, i + 50);
+      await sb("PATCH","leads",{sales_status:status},`?id=in.(${slice.join(",")})`);
+    }
+  } catch (e) {
+    console.error('setSelectedStatus failed:', e);
+    toast('Could not update those leads — nothing changed');
+    return;
+  }
+  picked.forEach(function(l){ l.sales_status = status; });
+  clearSelection();
+  renderQueue(); renderPipeline(); renderAll(); renderB2B(); updateBadges();
+  toast(verb + 'ed ' + picked.length + ' lead' + (picked.length===1?'':'s'));
+}
+
+function parkSelected(){   return setSelectedStatus("📂 Parked", 'Park'); }
+function unparkSelected(){ return setSelectedStatus("🆕 New",    'Un-park'); }
 
 function downloadSelectedVoicemail() {
   if (!selectedLeads.size) { toast('No leads selected — check the boxes first'); return; }
