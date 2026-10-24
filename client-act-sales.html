@@ -190,6 +190,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div class="tab" onclick="showTab('b2b')" id="tab-b2b">🤝 B2B Sales <span class="tab-badge" id="badge-b2b" style="background:var(--purple);">—</span></div>
   <div class="tab" onclick="showTab('pipeline')" id="tab-pipeline">🔥 Pipeline</div>
   <div class="tab" onclick="showTab('all')" id="tab-all">📊 All Leads</div>
+  <div class="tab" onclick="showTab('parked')" id="tab-parked">📂 Parked <span class="tab-badge" id="badge-parked" style="background:#64748b;">—</span></div>
   <div class="tab" onclick="showTab('zooms')" id="tab-zooms">📅 Zoom Calendar <span class="tab-badge" id="badge-zooms" style="background:var(--purple);">—</span></div>
   <div class="tab" onclick="showTab('closed')" id="tab-closed">✅ Ready for Setup <span class="tab-badge" id="badge-closed" style="background:var(--green);">—</span></div>
   <div class="tab" onclick="showTab('roi')" id="tab-roi">📈 ROI Calculator</div>
@@ -253,6 +254,24 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     </div>
   </div>
   <div id="queueList"><div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">Your booked appointments appear here automatically. Click <strong style="color:var(--accent);">Refresh</strong> to load the latest.</div></div>
+</div>
+
+<!-- PARKED — the shelf. Reachable from the tab bar rather than buried in a
+     status filter, because a pile you cannot see is a pile you will not
+     trust you still have. -->
+<div class="panel" id="panel-parked">
+  <div class="section-hdr">
+    <div class="section-title">Parked — out of the daily queue</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <select id="parkedPool" onchange="renderParked()" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.75rem;padding:6px 12px;outline:none;font-family:inherit;">
+        <option value="">Everything parked</option>
+        <option value="mortgage">🏠 Mortgage only</option>
+        <option value="b2b">🤝 B2B only</option>
+      </select>
+      <button class="btn btn-ghost" onclick="unparkAllShown()" style="border-color:rgba(34,197,94,0.4);color:#4ade80;font-size:0.75rem;">↩ Un-park all shown</button>
+    </div>
+  </div>
+  <div id="parkedList"></div>
 </div>
 
 <!-- B2B SALES — Tommy's voicemail list. Same table as the mortgage
@@ -626,6 +645,7 @@ function showTab(n){
   if(n==="zooms") renderCalendar();
   if(n==="closed") loadClosedDeals();
   if(n==="b2b") renderB2B();
+  if(n==="parked") renderParked();
 }
 
 function updateBadges(){
@@ -642,6 +662,10 @@ function updateBadges(){
   document.getElementById("badge-queue").textContent=qc;
   const zc=allLeads.filter(l=>l.zoom_date&&l.sales_status==="\uD83D\uDCC5 Zoom Scheduled").length;
   document.getElementById("badge-zooms").textContent=zc;
+
+  const pk=document.getElementById("badge-parked");
+  if(pk) pk.textContent=allLeads.concat(b2bLeads)
+    .filter(l=>l.sales_status===PARKED).length;
 
   // B2B counts what is actually waiting on Brett: a follow-up that has come
   // due, or a lead nobody has worked yet. Not the whole 200.
@@ -744,6 +768,56 @@ function renderQueueItem(l,today){
       <button class="qa" onclick="openROIForLead(${l.id})" style="color:#f59e0b;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08);">📈 ROI Report</button>
     </div>
   </div>`;
+}
+
+// Parked tab. Everything on the shelf, from both pipelines, with the count
+// on the tab so it is visible without going looking for it.
+const PARKED = "📂 Parked";
+
+function parkedLeads(){
+  const pool=(document.getElementById("parkedPool")||{}).value||"";
+  const src = pool==="b2b" ? b2bLeads
+            : pool==="mortgage" ? allLeads
+            : allLeads.concat(b2bLeads);
+  return src.filter(l=>l.sales_status===PARKED);
+}
+
+function renderParked(){
+  const el=document.getElementById("parkedList");
+  if(!el) return;
+  const today=new Date().toISOString().slice(0,10);
+  const leads=parkedLeads().sort((a,b)=>
+    (b.created_at||"").localeCompare(a.created_at||""));
+  if(!leads.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">'
+      +'Nothing parked. Leads you shelve from the Queue appear here, and stay until you un-park them.</div>';
+    return;
+  }
+  el.innerHTML='<div style="margin-bottom:12px;color:var(--muted);font-size:0.8rem;">'
+    +leads.length+' lead'+(leads.length===1?'':'s')+' on the shelf. '
+    +'They are out of the daily queue and off the pipeline board, but nothing has been deleted.</div>'
+    +leads.map(l=>renderQueueItem(l,today)).join("");
+}
+
+async function unparkAllShown(){
+  const leads=parkedLeads();
+  if(!leads.length){ toast("Nothing parked to restore"); return; }
+  if(!confirm("Un-park "+leads.length+" lead"+(leads.length===1?"":"s")
+      +"?\n\nThey go back into the daily queue as New.")) return;
+  const ids=leads.map(l=>l.id);
+  try{
+    for(let i=0;i<ids.length;i+=50){
+      const slice=ids.slice(i,i+50);
+      await sb("PATCH","leads",{sales_status:"🆕 New"},`?id=in.(${slice.join(",")})`);
+    }
+  }catch(e){
+    console.error("unparkAllShown failed:",e);
+    toast("Could not restore those leads — nothing changed");
+    return;
+  }
+  leads.forEach(l=>{ l.sales_status="🆕 New"; });
+  renderQueue(); renderPipeline(); renderAll(); renderB2B(); renderParked(); updateBadges();
+  toast("↩ "+leads.length+" back in the queue");
 }
 
 // B2B Sales tab. Reuses renderQueueItem so a card looks and behaves the same
@@ -1804,8 +1878,9 @@ async function setSelectedStatus(status, verb) {
   }
   picked.forEach(function(l){ l.sales_status = status; });
   clearSelection();
-  renderQueue(); renderPipeline(); renderAll(); renderB2B(); updateBadges();
-  toast(verb + 'ed ' + picked.length + ' lead' + (picked.length===1?'':'s'));
+  renderQueue(); renderPipeline(); renderAll(); renderB2B(); renderParked(); updateBadges();
+  toast(verb + 'ed ' + picked.length + ' lead' + (picked.length===1?'':'s')
+      + (status === PARKED ? ' · see the Parked tab' : ''));
 }
 
 function parkSelected(){   return setSelectedStatus("📂 Parked", 'Park'); }
