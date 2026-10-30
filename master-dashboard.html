@@ -134,9 +134,68 @@
         @media (max-width: 480px) {
             .stat-row { grid-template-columns: 1fr; }
         }
+
+        /* ---- added with the Newly Closed tab ---- */
+        .panel { background: rgba(18,28,46,0.7); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); padding: 24px; margin-bottom: 24px; }
+        .panel h3 { color: white; font-size: 1.05rem; margin-bottom: 16px; }
+        .field { margin-bottom: 14px; }
+        .field label { display: block; font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+        .field input { width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 0.9rem; font-family: inherit; }
+        .field input:focus { outline: none; border-color: #f8c400; }
+        .btn-primary { background: #f8c400; color: #0a0f1e; }
+        .deal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        @media (max-width: 760px) { .deal-grid { grid-template-columns: 1fr; } }
+        .badge-agreement { background: rgba(33,150,243,0.15); color: #2196f3; }
+        .badge-signed { background: rgba(168,85,247,0.15); color: #a855f7; }
+        .badge-deposit { background: rgba(255,152,0,0.15); color: #ff9800; }
+        .act-btn { border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.72rem; margin-right: 4px; font-family: inherit; font-weight: 600; }
+
+        /* ---- password gate ---- */
+        .pw-gate-screen { position: fixed; inset: 0; z-index: 999999; background: #050a12; display: flex; align-items: center; justify-content: center; }
+        .pw-gate-card { background: rgba(18,28,46,0.95); border: 1px solid rgba(248,196,0,0.2); border-radius: 16px; padding: 40px; max-width: 360px; width: 90%; text-align: center; }
+        .pw-gate-card h1 { color: #f8c400; font-size: 1.3rem; margin-bottom: 20px; }
+        .pw-gate-card input { width: 100%; padding: 12px 14px; margin-bottom: 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: white; font-size: 0.95rem; box-sizing: border-box; }
+        .pw-gate-card button { width: 100%; padding: 12px; background: #f8c400; color: #0a0f1e; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem; }
+        .pw-gate-error { color: #f44336; font-size: 0.82rem; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
+<!-- ======================================================================
+     PASSWORD GATE
+
+     Keeps a casual visitor out of this screen. Be clear about what it is
+     NOT: the password sits in this file's source, and so does the anon
+     key underneath it, so anyone determined gets past both. It stops
+     someone who finds the URL, nothing more.
+
+     Change MW_GATE_PASSWORD below to something of your own before this
+     goes up, and do not reuse the Revuee one.
+     ====================================================================== -->
+<div class="pw-gate-screen" id="pwGateScreen">
+    <div class="pw-gate-card">
+        <h1>🔒 Master Dashboard</h1>
+        <input type="password" id="pwGateInput" placeholder="Password" onkeydown="if(event.key==='Enter')pwGateCheck()">
+        <button onclick="pwGateCheck()">Enter</button>
+        <div class="pw-gate-error" id="pwGateError">Incorrect password.</div>
+    </div>
+</div>
+<script>
+(function () {
+    const MW_GATE_PASSWORD = "mobilewise@2026";
+    const MW_GATE_SESSION_KEY = "mobilewise_admin_unlocked";
+    if (sessionStorage.getItem(MW_GATE_SESSION_KEY) === "true") {
+        document.getElementById("pwGateScreen").style.display = "none";
+    }
+    window.pwGateCheck = function () {
+        if (document.getElementById("pwGateInput").value === MW_GATE_PASSWORD) {
+            sessionStorage.setItem(MW_GATE_SESSION_KEY, "true");
+            document.getElementById("pwGateScreen").style.display = "none";
+        } else {
+            document.getElementById("pwGateError").style.display = "block";
+        }
+    };
+})();
+</script>
     <div class="container">
         <div class="header">
             <h1>📊 Master Dashboard</h1>
@@ -150,6 +209,7 @@
         <div class="tabs">
             <button class="tab active" onclick="switchTab('performance')">📈 Client Performance</button>
             <button class="tab" onclick="switchTab('billing')">💰 Billing & Invoices</button>
+            <button class="tab" onclick="switchTab('closed')">🎉 Newly Closed <span id="closedBadge" style="background:#22c55e;color:#0a0f1e;border-radius:10px;padding:1px 8px;font-size:0.7rem;font-weight:700;margin-left:4px;">—</span></button>
         </div>
 
         <!-- ==================== PERFORMANCE TAB ==================== -->
@@ -283,6 +343,40 @@
 </div>
         </div>
 
+        <!-- ==================== NEWLY CLOSED TAB ==================== -->
+        <div id="tab-closed" class="tab-content">
+            <div style="font-size:0.85rem; color:rgba(255,255,255,0.5); margin-bottom:16px; line-height:1.55;">
+                Where a deal sits between agreeing to go ahead and being a live client. A sponsor goes in here by hand — signing 10X is part of sponsoring a territory, so there is nothing to sell them first. Send them the agreement from this screen, and when their signature comes back it is matched to them automatically.
+            </div>
+
+            <div class="panel">
+                <h3>➕ Add a deal</h3>
+                <div class="deal-grid">
+                    <div class="field"><label>Company *</label><input type="text" id="ndCompany" placeholder="Cornerstone Mortgage"></div>
+                    <div class="field"><label>Contact name</label><input type="text" id="ndContact" placeholder="Mike Davidson"></div>
+                    <div class="field"><label>Email *</label><input type="email" id="ndEmail" placeholder="mike@cornerstone.com"></div>
+                    <div class="field"><label>Phone</label><input type="text" id="ndPhone" placeholder="(949) 555-0100"></div>
+                    <div class="field"><label>City</label><input type="text" id="ndCity" placeholder="Scottsdale"></div>
+                    <div class="field"><label>Website</label><input type="text" id="ndWebsite" placeholder="cornerstone.com"></div>
+                </div>
+                <button class="btn btn-primary" style="width:100%;padding:13px;margin-top:4px;" onclick="mwAddDeal()">Add to the tray</button>
+                <div id="ndStatus" style="text-align:center;margin-top:10px;font-size:0.85rem;"></div>
+            </div>
+
+            <div class="table-wrap">
+                <div class="table-header">
+                    <h2>Closed Deals</h2>
+                    <button class="btn btn-refresh" onclick="loadClosedDeals()" style="font-size:0.75rem;">🔄 Refresh</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead><tr><th>Company</th><th>Contact</th><th>Email</th><th>Phone</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody id="closedDealsTableBody"><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3); font-size: 0.75rem;">
             Master Dashboard v2.0 · Auto-refreshes every 60 seconds
         </div>
@@ -294,12 +388,87 @@
 
         let supabaseClient;
 
+        /* A Supabase error is an object, not an Error, so logging it raw
+           prints "[object Object]" and the useful part is lost. This pulls
+           out whatever it actually says. */
+        let mwRefreshTimer = null;
+
+        /* Running inside a preview frame rather than on the live site.
+           Those frames replace window.fetch with one that posts the request
+           to the parent page, and a Headers object cannot be copied that
+           way — so every database call fails before it leaves the browser.
+           Nothing is wrong with this page or with Supabase; it just cannot
+           be used from a preview. */
+        function mwIsPreviewBlocked(e) {
+            const raw = String((e && e.message) || e || '');
+            return /DataCloneError|could not be cloned|postMessage/i.test(raw);
+        }
+
+        function mwErrText(e) {
+            if (!e) return 'unknown error';
+            if (typeof e === 'string') return e;
+
+            if (mwIsPreviewBlocked(e)) {
+                return 'This page is running inside a preview, which blocks it '
+                     + 'from reaching the database. Open it at its real address '
+                     + 'on your site and it will load normally.';
+            }
+
+            const bits = [e.message, e.details, e.hint].filter(Boolean);
+            if (e.code) bits.push('(code ' + e.code + ')');
+            if (bits.length) return bits.join(' — ');
+            try { return JSON.stringify(e); } catch (x) { return String(e); }
+        }
+
+        /* Puts the reason on screen as well as in the console. Reading a
+           dashboard should not require opening developer tools. */
+        function mwShowTableError(tbodyId, colspan, what, e) {
+            const msg = mwErrText(e);
+
+            /* Text only. Handing the console the raw error object as a
+               second argument is what printed "[object Object]" after an
+               otherwise readable message. */
+            console.error(what + ': ' + msg);
+
+            /* A preview is never going to start working, so stop retrying
+               every minute and piling up identical errors. */
+            if (mwIsPreviewBlocked(e) && mwRefreshTimer !== null) {
+                clearInterval(mwRefreshTimer);
+                mwRefreshTimer = null;
+                console.error('Auto-refresh stopped. Open this page on your live '
+                            + 'site — it cannot reach the database from a preview.');
+            }
+            const el = document.getElementById(tbodyId);
+            if (el) {
+                el.innerHTML = '<tr><td colspan="' + colspan + '" class="loading" '
+                    + 'style="color:#f44336;line-height:1.6;">' + what + '<br>'
+                    + '<span style="color:rgba(255,255,255,0.55);font-size:0.8rem;">'
+                    + mwEsc(msg) + '</span></td></tr>';
+            }
+        }
+
         async function init() {
             const { createClient } = supabase;
             supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             emailjs.init("7-9oxa3UC3uKxtqGM");
             await loadMasterData();
-            setInterval(loadMasterData, 60000);
+            mwLoadClosedBadge();
+            mwRefreshTimer = setInterval(loadMasterData, 60000);
+        }
+
+        // The count on the Newly Closed tab, so anything waiting shows
+        // without having to open the tab to find out.
+        async function mwLoadClosedBadge() {
+            try {
+                const { data } = await supabaseClient
+                    .from('mobilewise_closed_deals')
+                    .select('id')
+                    .neq('onboarding_status', 'completed');
+                const el = document.getElementById('closedBadge');
+                if (el) el.textContent = (data || []).length || '—';
+            } catch (e) {
+                console.warn('Could not count open deals: ' + mwErrText(e));
+            }
         }
 
         // ==================== TAB SWITCHING ====================
@@ -310,7 +479,358 @@
             document.getElementById(`tab-${tabName}`).classList.add('active');
             
             if (tabName === 'billing') loadBillingData();
+            if (tabName === 'closed') loadClosedDeals();
         }
+
+/* ======================================================================
+   NEWLY CLOSED — agreement out, signature back, client live.
+
+   The chain, and nothing skips a step:
+     pending         added, agreement not sent
+     agreement_sent  the agreement has gone out
+     signed          a signature came back carrying this deal's id
+     paid            deposit received, you tick it
+     completed       set up for real, their client_id recorded
+
+   Where it differs from the Revuee version: 'signed' is not something
+   you tick. The agreement link carries this deal's id, the signature
+   comes back carrying it too, and this screen matches the two on its own
+   when it loads. You are told it happened rather than having to notice.
+   ====================================================================== */
+
+const MW_AGREEMENT_URL = "https://mobile-wise.netlify.app/mobilewise-agreement-signable";
+const MW_AGREEMENT_TEMPLATE = "template_mw_agreement";
+
+const MW_STATUS_LOOK = {
+    pending:        { cls: 'badge-pending',   label: 'Pending' },
+    agreement_sent: { cls: 'badge-agreement', label: 'Agreement sent' },
+    signed:         { cls: 'badge-signed',    label: 'Signed' },
+    paid:           { cls: 'badge-deposit',   label: 'Deposit in' },
+    completed:      { cls: 'badge-paid',      label: 'Set up' }
+};
+
+function mwEsc(str) {
+    const d = document.createElement('div');
+    d.textContent = str == null ? '' : str;
+    return d.innerHTML;
+}
+
+async function mwAddDeal() {
+    const el = document.getElementById('ndStatus');
+    const val = id => (document.getElementById(id).value || '').trim();
+    const company = val('ndCompany'), email = val('ndEmail');
+
+    function say(msg, colour) { el.textContent = msg; el.style.color = colour; }
+
+    if (!company) return say('A company name is needed.', '#f44336');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+        return say('An email address is needed — the agreement has nowhere to go without one.', '#f44336');
+    }
+
+    // Already in the tray? Two deals for one company means two agreements.
+    try {
+        const { data: dupe } = await supabaseClient
+            .from('mobilewise_closed_deals')
+            .select('company_name, onboarding_status')
+            .eq('email', email.toLowerCase())
+            .maybeSingle();
+        if (dupe) {
+            return say(dupe.company_name + ' is already in the tray at "'
+                + (MW_STATUS_LOOK[dupe.onboarding_status] || {}).label + '". Nothing added.', '#ff9800');
+        }
+    } catch (e) { console.warn('Duplicate check failed: ' + mwErrText(e)); }
+
+    say('Adding…', 'rgba(255,255,255,0.5)');
+    try {
+        const { error } = await supabaseClient.from('mobilewise_closed_deals').insert({
+            company_name: company,
+            contact_name: val('ndContact') || null,
+            email:        email.toLowerCase(),
+            phone:        val('ndPhone') || null,
+            city:         val('ndCity') || null,
+            website:      val('ndWebsite') || null,
+            industry:     'Mortgage',
+            source:       'manual',
+            onboarding_status: 'pending'
+        });
+        if (error) throw error;
+        ['ndCompany','ndContact','ndEmail','ndPhone','ndCity','ndWebsite']
+            .forEach(id => document.getElementById(id).value = '');
+        say('✅ ' + company + ' added. Send them the agreement below.', '#4caf50');
+        loadClosedDeals();
+    } catch (err) {
+        console.error('Add deal failed: ' + mwErrText(err));
+        const m = (err && err.message) || '';
+        say(/permission|policy|row-level/i.test(m)
+            ? '❌ The database refused the row — mobilewise_closed_deals needs its policy. Nothing was added.'
+            : '❌ Could not add: ' + m, '#f44336');
+    }
+}
+
+// Any deal waiting on a signature that now has one gets moved along.
+// Matched on deal_id, which the agreement link carried out and the
+// signature carried back — never on company name.
+async function mwMatchSignatures(deals) {
+    const waiting = deals.filter(d => d.onboarding_status === 'agreement_sent');
+    if (!waiting.length) return 0;
+
+    let moved = 0;
+    for (const deal of waiting) {
+        try {
+            const { data: sig } = await supabaseClient
+                .from('agreement_signatures')
+                .select('id, created_at')
+                .eq('deal_id', deal.id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+            if (!sig) continue;
+            await supabaseClient.from('mobilewise_closed_deals')
+                .update({ onboarding_status: 'signed', signed_at: sig.created_at || new Date().toISOString() })
+                .eq('id', deal.id);
+            deal.onboarding_status = 'signed';
+            deal.signed_at = sig.created_at;
+            moved++;
+        } catch (e) {
+            console.warn('Signature check failed for ' + deal.company_name + ': ' + mwErrText(e));
+        }
+    }
+    return moved;
+}
+
+async function updateClosedBadge(deals) {
+    const open = (deals || []).filter(d => d.onboarding_status !== 'completed');
+    const el = document.getElementById('closedBadge');
+    if (el) el.textContent = open.length || '—';
+}
+
+async function loadClosedDeals() {
+    const tbody = document.getElementById('closedDealsTableBody');
+    tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading…</td></tr>';
+
+    let deals = [];
+    try {
+        const { data, error } = await supabaseClient
+            .from('mobilewise_closed_deals')
+            .select('*')
+            .order('closed_at', { ascending: false });
+        if (error) throw error;
+        deals = data || [];
+    } catch (err) {
+        mwShowTableError('closedDealsTableBody', 6,
+            'Could not load the tray. If this is the first run, '
+            + 'SETUP-mobilewise-deals.sql has not been run yet.', err);
+        return;
+    }
+
+    const moved = await mwMatchSignatures(deals);
+    updateClosedBadge(deals);
+
+    if (!deals.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="loading">Nothing in the tray. Add a deal above.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = deals.map(d => {
+        const look = MW_STATUS_LOOK[d.onboarding_status] || MW_STATUS_LOOK.pending;
+        const acts = [];
+
+        if (d.email) {
+            acts.push(`<button class="act-btn" onclick="mwCopy('${mwEsc(d.email)}')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;">📋 Copy email</button>`);
+        }
+        if (d.onboarding_status === 'pending') {
+            acts.push(`<button class="act-btn" onclick="mwSendAgreement('${d.id}', this)" style="background:rgba(33,150,243,0.15);color:#2196f3;">📄 Send agreement</button>`);
+        }
+        if (d.onboarding_status === 'agreement_sent') {
+            acts.push(`<span style="color:rgba(255,255,255,0.4);font-size:0.72rem;margin-right:6px;">Waiting on signature…</span>`);
+            acts.push(`<button class="act-btn" onclick="mwSendAgreement('${d.id}', this)" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;">Send again</button>`);
+        }
+        if (d.onboarding_status === 'signed') {
+            acts.push(`<button class="act-btn" onclick="mwMarkPaid('${d.id}')" style="background:rgba(76,175,80,0.15);color:#4caf50;">✅ Deposit received</button>`);
+        }
+        if (d.onboarding_status === 'paid') {
+            acts.push(`<button class="act-btn" onclick="mwMarkSetUp('${d.id}')" style="background:rgba(76,175,80,0.15);color:#4caf50;">✅ Mark set up</button>`);
+        }
+        if (d.onboarding_status === 'completed' && d.client_id) {
+            acts.push(`<button class="act-btn" onclick="sendWelcomeEmail('${mwEsc(d.client_id)}', '${mwEsc(d.email || '')}')" style="background:rgba(248,196,0,0.15);border:1px solid rgba(248,196,0,0.3);color:#f8c400;">✉️ Send welcome</button>`);
+        }
+
+        return `<tr>
+            <td><strong>${mwEsc(d.company_name || '—')}</strong></td>
+            <td>${mwEsc(d.contact_name || '—')}</td>
+            <td>${d.email ? `<a href="mailto:${mwEsc(d.email)}" style="color:#f8c400;text-decoration:none;">${mwEsc(d.email)}</a>` : '—'}</td>
+            <td>${mwEsc(d.phone || '—')}</td>
+            <td><span class="badge ${look.cls}">${look.label}</span></td>
+            <td>${acts.join('')}</td>
+        </tr>`;
+    }).join('');
+
+    if (moved) {
+        alert(moved === 1
+            ? 'One agreement has come back signed — see the tray.'
+            : moved + ' agreements have come back signed — see the tray.');
+    }
+}
+
+function mwCopy(text) {
+    navigator.clipboard.writeText(text).then(() => alert('Copied: ' + text))
+        .catch(() => prompt('Copy this:', text));
+}
+
+async function mwSendAgreement(dealId, btn) {
+    const was = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+    try {
+        const { data: deal } = await supabaseClient
+            .from('mobilewise_closed_deals')
+            .select('company_name, contact_name, email')
+            .eq('id', dealId)
+            .maybeSingle();
+
+        if (!deal || !deal.email) {
+            alert('This deal has no email on file — the agreement has nowhere to go.');
+            return;
+        }
+
+        // The deal id travels with the link and comes back on the
+        // signature, which is what lets this screen match the two.
+        const link = MW_AGREEMENT_URL + '?deal_id=' + encodeURIComponent(dealId);
+
+        emailjs.init("7-9oxa3UC3uKxtqGM");
+        await emailjs.send("service_b9bppgb", MW_AGREEMENT_TEMPLATE, {
+            to_email:       deal.email,
+            contact_name:   deal.contact_name || 'there',
+            company_name:   deal.company_name || 'your business',
+            agreement_link: link,
+            from_name:      'Brett Duncan',
+            phone:          '949-357-0655'
+        });
+
+        // Only recorded once the email genuinely went. A failed send must
+        // not leave a deal looking as though the agreement is out there.
+        await supabaseClient.from('mobilewise_closed_deals')
+            .update({ onboarding_status: 'agreement_sent', agreement_sent_at: new Date().toISOString() })
+            .eq('id', dealId);
+
+        alert('Agreement emailed to ' + deal.email + '.');
+        loadClosedDeals();
+
+    } catch (err) {
+        console.error('Send agreement failed: ' + mwErrText(err));
+        const t = (err && (err.text || err.message)) || 'unknown error';
+        alert('Not sent: ' + t + '\n\nIf this mentions the template, '
+            + MW_AGREEMENT_TEMPLATE + ' has not been created in EmailJS yet. '
+            + 'The deal is untouched — try again once it is.');
+        if (btn) btn.textContent = was;
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+async function mwMarkPaid(dealId) {
+    if (!confirm('Mark the deposit as received?')) return;
+    const { error } = await supabaseClient.from('mobilewise_closed_deals')
+        .update({ onboarding_status: 'paid', paid_at: new Date().toISOString() })
+        .eq('id', dealId);
+    if (error) { alert('Could not save: ' + error.message); return; }
+    loadClosedDeals();
+}
+
+/* ----------------------------------------------------------------------
+   MARK SET UP — and the bit that makes billing true.
+
+   Their signed baseline, visitor minimum and per-lead rate are sitting in
+   agreement_signatures and have never reached the clients table, so both
+   the invoice maths and the client's own portal have been running on
+   defaults of 20 / 2,000 / $150. This copies what they actually signed
+   onto their client record, at the one moment both are in front of you.
+   ---------------------------------------------------------------------- */
+async function mwMarkSetUp(dealId) {
+    const typed = prompt('What client_id did you create for them in the Trigger Dashboard?');
+    if (!typed || !typed.trim()) {
+        alert('Marking set up needs the real client_id — nothing saved.');
+        return;
+    }
+    const clientId = typed.trim();
+
+    // A typo here would attach the deal to a client that does not exist.
+    const { data: realClient } = await supabaseClient
+        .from('clients').select('client_id, name').eq('client_id', clientId).maybeSingle();
+    if (!realClient) {
+        alert('No client with the ID "' + clientId + '" exists yet.\n\n'
+            + 'Create them in the Trigger Dashboard first, then come back and '
+            + 'try again with that exact client_id.');
+        return;
+    }
+
+    const { data: deal } = await supabaseClient
+        .from('mobilewise_closed_deals').select('*').eq('id', dealId).maybeSingle();
+    if (!deal) { alert('Could not find that deal.'); return; }
+
+    // What they actually signed. Matched on deal_id, falling back to their
+    // email for a deal that was signed before deal_id existed.
+    let sig = null;
+    try {
+        const byDeal = await supabaseClient
+            .from('agreement_signatures')
+            .select('baseline_leads_numeral, min_ppc_visitors_numeral, per_lead_rate, term_selected, created_at')
+            .eq('deal_id', dealId)
+            .order('created_at', { ascending: false }).limit(1).maybeSingle();
+        sig = byDeal.data;
+
+        if (!sig && deal.email) {
+            const byEmail = await supabaseClient
+                .from('agreement_signatures')
+                .select('baseline_leads_numeral, min_ppc_visitors_numeral, per_lead_rate, term_selected, created_at')
+                .ilike('client_email', deal.email)
+                .order('created_at', { ascending: false }).limit(1).maybeSingle();
+            sig = byEmail.data;
+        }
+    } catch (e) { console.warn('Signature lookup failed: ' + mwErrText(e)); }
+
+    let copied = '';
+    if (sig) {
+        // per_lead_rate is stored as it reads on the contract — "$150 per
+        // lead" — so the number has to be pulled out of it.
+        const rate     = parseFloat(String(sig.per_lead_rate || '').replace(/[^0-9.]/g, ''));
+        const baseline = parseInt(sig.baseline_leads_numeral, 10);
+        const visitors = parseInt(sig.min_ppc_visitors_numeral, 10);
+
+        const patch = {};
+        if (Number.isFinite(baseline)) patch.baseline_leads = baseline;
+        if (Number.isFinite(visitors)) patch.baseline_visitors = visitors;
+        if (Number.isFinite(rate) && rate > 0) patch.per_lead_rate = rate;
+
+        if (Object.keys(patch).length) {
+            const { error } = await supabaseClient.from('clients').update(patch).eq('client_id', clientId);
+            if (error) {
+                console.error('Could not copy the signed terms: ' + mwErrText(error));
+                copied = '\n\n⚠️ Their signed figures could NOT be copied onto the client record, '
+                       + 'so billing and their portal will still show the defaults. ' + error.message;
+            } else {
+                copied = '\n\nSigned terms copied onto the client: baseline '
+                       + (patch.baseline_leads ?? '—') + ' leads, '
+                       + (patch.baseline_visitors ?? '—') + ' visitors, $'
+                       + (patch.per_lead_rate ?? '—') + ' per lead'
+                       + (sig.term_selected ? ' (' + sig.term_selected + ')' : '') + '.';
+            }
+        }
+    } else {
+        copied = '\n\n⚠️ No signed agreement was found for this deal, so their baseline, '
+               + 'visitor minimum and rate have been left alone. Billing and their portal '
+               + 'will show 20 / 2,000 / $150 until those are set.';
+    }
+
+    const { error: dealErr } = await supabaseClient.from('mobilewise_closed_deals')
+        .update({ onboarding_status: 'completed', client_id: clientId, completed_at: new Date().toISOString() })
+        .eq('id', dealId);
+    if (dealErr) { alert('Could not save the deal: ' + dealErr.message); return; }
+
+    alert((realClient.name || clientId) + ' is set up.' + copied
+        + '\n\nSend their welcome email from the row when you are ready.');
+    loadClosedDeals();
+    loadMasterData();
+}
 
         // ==================== PERFORMANCE TAB ====================
         async function loadMasterData() {
@@ -390,8 +910,7 @@
                 document.getElementById('statImprovement').textContent = (activeCount > 0 ? (totalImprovement / activeCount) : 0).toFixed(0) + '%';
 
             } catch (e) {
-                console.error('Error:', e);
-                document.getElementById('clientTableBody').innerHTML = '<tr><td colspan="9" class="loading">Error loading data.</td></tr>';
+                mwShowTableError('clientTableBody', 9, 'Could not load client performance', e);
             }
         }
 
@@ -464,8 +983,7 @@
                 document.getElementById('billingOutstanding').textContent = '$' + (totalPending).toLocaleString();
 
             } catch (e) {
-                console.error('Billing error:', e);
-                document.getElementById('billingTableBody').innerHTML = '<tr><td colspan="9" class="loading">Error loading invoices.</td></tr>';
+                mwShowTableError('billingTableBody', 9, 'Could not load invoices', e);
             }
         }
        async function generatePortalLink(clientId) {
@@ -513,14 +1031,18 @@
     );
 }
 
-async function sendWelcomeEmail(clientId) {
+// fallbackEmail is passed by the Newly Closed tab. A client set up from a
+// deal has their email on the deal, but not necessarily in the trigger
+// dashboard's emailConfig yet — without this, the welcome email refuses to
+// send to someone whose address you typed in two steps earlier.
+async function sendWelcomeEmail(clientId, fallbackEmail) {
     // Get client info
     const { data: clientData } = await supabaseClient
         .from('clients')
         .select('name, portal_key, metadata, contact_name')
         .eq('client_id', clientId)
         .single();
-    
+
     if (!clientData) { alert('Client not found'); return; }
     
     // Generate portal key if not set
@@ -531,10 +1053,24 @@ async function sendWelcomeEmail(clientId) {
     }
     
     const metadata = clientData.metadata || {};
-    const clientEmail = metadata?.modules?.emailConfig?.loanOfficerEmail || 
-                        metadata?.modules?.emailConfig?.clientEmail || '';
-    
+    const clientEmail = metadata?.modules?.emailConfig?.loanOfficerEmail ||
+                        metadata?.modules?.emailConfig?.clientEmail ||
+                        (fallbackEmail || '').trim();
+
     if (!clientEmail) { alert('No client email on file. Add one in the trigger dashboard first.'); return; }
+
+    // The access code only works against the email the portal looks them up
+    // by, which is the one in emailConfig. If we are falling back to the
+    // deal's address, say so rather than letting them find out at sign-in.
+    const fromEmailConfig = !!(metadata?.modules?.emailConfig?.loanOfficerEmail
+                            || metadata?.modules?.emailConfig?.clientEmail);
+    if (!fromEmailConfig) {
+        if (!confirm('This client has no email set in the Trigger Dashboard, so the '
+            + 'welcome would go to ' + clientEmail + ' — the address on their deal.\n\n'
+            + 'Their access code is checked against the Trigger Dashboard address when '
+            + 'they sign in, so until that is set they will not get into the portal.\n\n'
+            + 'Send it anyway?')) return;
+    }
     
     const contactName = clientData.contact_name || clientData.name || 'Valued Client';
     
@@ -673,7 +1209,8 @@ async function sendInvoice(id, event) {
         btn.textContent = '✅ Sent';
         loadInvoices();
     } catch (e) {
-        console.error(e);
+        console.error('Send invoice failed: ' + mwErrText(e));
+        alert('Could not send that invoice: ' + mwErrText(e));
         btn.textContent = '❌ Retry';
         btn.disabled = false;
     }
