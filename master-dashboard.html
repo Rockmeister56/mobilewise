@@ -602,20 +602,32 @@ async function mwAddDeal() {
 // Any deal waiting on a signature that now has one gets moved along.
 // Matched on deal_id, which the agreement link carried out and the
 // signature carried back — never on company name.
+/* Set when a signature read fails, so the tray can say so instead of
+   showing "Waiting on signature" for a deal that was signed an hour ago.
+   An agreement nobody has signed and a signature this screen cannot read
+   look identical from here, and only one of them is your problem. */
+let mwSigReadError = '';
+
 async function mwMatchSignatures(deals) {
+    mwSigReadError = '';
     const waiting = deals.filter(d => d.onboarding_status === 'agreement_sent');
     if (!waiting.length) return 0;
 
     let moved = 0;
     for (const deal of waiting) {
         try {
-            const { data: sig } = await supabaseClient
+            // The error is read, not discarded. A blocked or failing read
+            // here returns no rows and no exception, which is impossible to
+            // tell apart from "not signed yet" — and that silence is what
+            // hid a real problem on 31 October.
+            const { data: sig, error } = await supabaseClient
                 .from('agreement_signatures')
                 .select('id, created_at')
                 .eq('deal_id', deal.id)
                 .order('created_at', { ascending: false })
                 .limit(1)
                 .maybeSingle();
+            if (error) throw error;
             if (!sig) continue;
             await supabaseClient.from('mobilewise_closed_deals')
                 .update({ onboarding_status: 'signed', signed_at: sig.created_at || new Date().toISOString() })
@@ -624,7 +636,8 @@ async function mwMatchSignatures(deals) {
             deal.signed_at = sig.created_at;
             moved++;
         } catch (e) {
-            console.warn('Signature check failed for ' + deal.company_name + ': ' + mwErrText(e));
+            mwSigReadError = mwErrText(e);
+            console.warn('Signature check failed for ' + deal.company_name + ': ' + mwSigReadError);
         }
     }
     return moved;
@@ -707,6 +720,19 @@ async function loadClosedDeals() {
             <td>${acts.join('')}</td>
         </tr>`;
     }).join('');
+
+    if (mwSigReadError) {
+        const banner = document.createElement('tr');
+        banner.innerHTML = '<td colspan="6" style="background:rgba(244,67,54,0.12);'
+            + 'border-left:3px solid #f44336;color:#ffb3ad;font-size:0.82rem;'
+            + 'padding:10px 12px;line-height:1.5;">'
+            + '<strong>This screen cannot read the signatures table.</strong><br>'
+            + mwEsc(mwSigReadError)
+            + '<br>Any deal below showing "Waiting on signature" may in fact be '
+            + 'signed — this screen has no way to tell. Run '
+            + 'CHECK-signature-visibility.sql to find out why.</td>';
+        tbody.prepend(banner);
+    }
 
     if (moved) {
         alert(moved === 1
@@ -875,24 +901,62 @@ async function mwMarkSetUp(dealId) {
 
     // What they actually signed. Matched on deal_id, falling back to their
     // email for a deal that was signed before deal_id existed.
-    let sig = null;
+    let sig = null, sigReadFailed = '';
+    const SIG_COLS = 'baseline_leads_numeral, min_ppc_visitors_numeral, '
+                   + 'per_lead_rate, term_selected, created_at';
     try {
         const byDeal = await supabaseClient
-            .from('agreement_signatures')
-            .select('baseline_leads_numeral, min_ppc_visitors_numeral, per_lead_rate, term_selected, created_at')
+            .from('agreement_signatures').select(SIG_COLS)
             .eq('deal_id', dealId)
             .order('created_at', { ascending: false }).limit(1).maybeSingle();
+        if (byDeal.error) throw byDeal.error;
         sig = byDeal.data;
 
         if (!sig && deal.email) {
             const byEmail = await supabaseClient
-                .from('agreement_signatures')
-                .select('baseline_leads_numeral, min_ppc_visitors_numeral, per_lead_rate, term_selected, created_at')
+                .from('agreement_signatures').select(SIG_COLS)
                 .ilike('client_email', deal.email)
                 .order('created_at', { ascending: false }).limit(1).maybeSingle();
+            if (byEmail.error) throw byEmail.error;
             sig = byEmail.data;
         }
-    } catch (e) { console.warn('Signature lookup failed: ' + mwErrText(e)); }
+    } catch (e) {
+        sigReadFailed = mwErrText(e);
+    }
+
+    /* ------------------------------------------------------------------
+       NOTHING PROCEEDS WITHOUT A SIGNATURE TO CHECK AGAINST.
+
+       This used to run the comparison only "if (sig)". That reads as
+       caution and is the opposite: when the signature could not be read
+       the check was skipped and set-up carried on, so the one control
+       protecting the billing figures failed open — silently, and exactly
+       when something was already wrong.
+       ------------------------------------------------------------------ */
+    if (sigReadFailed) {
+        alert('STOP — the signed agreement could not be read, so its figures '
+            + 'cannot be checked.\n\n' + sigReadFailed
+            + '\n\nNothing has been changed. Run CHECK-signature-visibility.sql '
+            + 'to find out why this screen cannot see the signatures table. Do '
+            + 'not set this client up until it can — the comparison against '
+            + 'what they signed is the only thing standing between an altered '
+            + 'figure and the invoice.');
+        return;
+    }
+    if (!sig) {
+        alert('STOP — no signed agreement is on file for ' + (deal.company_name || 'this deal')
+            + '.\n\nNothing has been changed. Either it has not been signed yet, '
+            + 'or the signature did not record. Check the tray status, and if it '
+            + 'says signed, run CHECK-signature-visibility.sql.');
+        return;
+    }
+    if (deal.baseline_leads === null || deal.baseline_leads === undefined) {
+        alert('STOP — this deal has no agreed figures, so there is nothing to '
+            + 'check the signed ones against.\n\nNothing has been changed. Use '
+            + '"Set figures" on the row, then compare it against the signed PDF '
+            + 'before setting them up.');
+        return;
+    }
 
     /* ------------------------------------------------------------------
        The signature is a page the client had open, and a page can be
@@ -904,18 +968,34 @@ async function mwMarkSetUp(dealId) {
        standing between a tampered baseline and a billing basis that runs
        for years. They are an HTML attribute. This is the real check.
        ------------------------------------------------------------------ */
-    if (sig && (deal.baseline_leads !== null && deal.baseline_leads !== undefined)) {
+    // Past the guards above, all three are certain: a signature was read, a
+    // deal was found, and the deal carries figures. So this always runs.
+    {
         const signedBase = parseInt(sig.baseline_leads_numeral, 10);
         const signedVis  = parseInt(sig.min_ppc_visitors_numeral, 10);
         const off = [];
-        if (Number.isFinite(signedBase) && signedBase !== Number(deal.baseline_leads)) {
+
+        // A figure that will not parse is a failure, not a pass. Reading it
+        // as "nothing to compare" would let an empty or garbled value walk
+        // straight through the check it was meant to face.
+        if (!Number.isFinite(signedBase)) {
+            off.push('Baseline — agreed ' + deal.baseline_leads + ', signed value '
+                   + 'unreadable (' + (sig.baseline_leads_numeral || 'empty') + ')');
+        } else if (signedBase !== Number(deal.baseline_leads)) {
             off.push('Baseline — agreed ' + deal.baseline_leads + ', signed ' + signedBase);
         }
-        if (Number.isFinite(signedVis) && deal.min_visitors !== null
-            && signedVis !== Number(deal.min_visitors)) {
+
+        if (deal.min_visitors === null || deal.min_visitors === undefined) {
+            off.push('Visitors — nothing agreed on the deal to compare against');
+        } else if (!Number.isFinite(signedVis)) {
+            off.push('Visitors — agreed ' + Number(deal.min_visitors).toLocaleString()
+                   + ', signed value unreadable ('
+                   + (sig.min_ppc_visitors_numeral || 'empty') + ')');
+        } else if (signedVis !== Number(deal.min_visitors)) {
             off.push('Visitors — agreed ' + Number(deal.min_visitors).toLocaleString()
                    + ', signed ' + signedVis.toLocaleString());
         }
+
         if (off.length) {
             alert('STOP — the signed agreement does not match what you agreed.\n\n'
                 + off.join('\n')
