@@ -608,6 +608,104 @@ async function mwAddDeal() {
    look identical from here, and only one of them is your problem. */
 let mwSigReadError = '';
 
+/* ---------------------------------------------------------------------
+   THE $995 SETUP FEE
+
+   A client who picks the setup-paid plan is shown a Square button on the
+   agreement's success screen, and most will pay there and then. Some will
+   not — they close the tab, or they want to pay from the office. Those
+   people still owe $995 and there has to be a way to chase them, which is
+   what the Send payment link button on a signed row is for.
+
+   A client on the no-setup-fee plan owes nothing at signing, so no link is
+   shown for them at all and their row skips the deposit step entirely.
+
+   PASTE THE SAME SQUARE LINK HERE that you put in the agreement.
+   --------------------------------------------------------------------- */
+const MW_SETUP_PAYMENT_LINK = "https://square.link/u/OqeUdYDG";
+
+/* Name of the EmailJS template that carries the payment link. Create it in
+   EmailJS with the fields: to_email, contact_name, company_name,
+   payment_link, from_name, phone. */
+const MW_PAYMENT_TEMPLATE = "template_mw_payment";
+
+/* Same check the agreement runs. The anon key ships in this page, so a
+   link is never trusted just because it is configured here — if it is not
+   a real Square address it is not shown, and nobody gets sent anywhere
+   unexpected with an invoice in their hand. */
+function mwSquareLink(url) {
+    const u = String(url || '').trim();
+    if (!/^https:\/\//i.test(u)) return '';
+    if (u.indexOf('REPLACE-ME') !== -1) return '';
+    try {
+        const host = new URL(u).hostname.toLowerCase();
+        for (const good of ['square.link', 'squareup.com', 'checkout.square.site']) {
+            if (host === good || host.endsWith('.' + good)) return u;
+        }
+    } catch (e) { /* not a URL at all */ }
+    return '';
+}
+
+/* True when the signed plan is the one that owes $995. */
+function mwOwesSetupFee(term) {
+    return String(term || '').toLowerCase().indexOf('setup paid') !== -1;
+}
+
+async function mwSendPaymentLink(dealId, btn) {
+    const link = mwSquareLink(MW_SETUP_PAYMENT_LINK);
+    if (!link) {
+        alert('No Square link is set on this dashboard yet.\n\nOpen '
+            + 'master-dashboard.html, find MW_SETUP_PAYMENT_LINK near the top '
+            + 'of the script, and paste your $995 Square link between the '
+            + 'quotes. Use the same link you put in the agreement.');
+        return;
+    }
+
+    const was = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+    try {
+        const { data: deal } = await supabaseClient
+            .from('mobilewise_closed_deals')
+            .select('company_name, contact_name, email')
+            .eq('id', dealId).maybeSingle();
+
+        if (!deal || !deal.email) {
+            alert('This deal has no email on file — the link has nowhere to go.');
+            return;
+        }
+        if (!confirm('Email the $995 payment link to ' + deal.email + '?')) return;
+
+        emailjs.init("7-9oxa3UC3uKxtqGM");
+        await emailjs.send("service_b9bppgb", MW_PAYMENT_TEMPLATE, {
+            to_email:     deal.email,
+            contact_name: deal.contact_name || 'there',
+            company_name: deal.company_name || 'your business',
+            payment_link: link,
+            from_name:    'Brett Duncan',
+            phone:        '949-357-0655'
+        });
+        alert('Payment link sent to ' + deal.email + '.\n\nWhen the $995 lands, '
+            + 'click "Mark deposit received" on this row.');
+    } catch (e) {
+        alert('The payment link was NOT sent: ' + mwErrText(e)
+            + '\n\nIf the template is missing, create ' + MW_PAYMENT_TEMPLATE
+            + ' in EmailJS. Nothing has been recorded.');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = was; }
+    }
+}
+
+/* Copies the link so it can go in a message Brett writes himself. */
+function mwCopyPaymentLink() {
+    const link = mwSquareLink(MW_SETUP_PAYMENT_LINK);
+    if (!link) {
+        alert('No Square link is set on this dashboard yet. Paste it into '
+            + 'MW_SETUP_PAYMENT_LINK near the top of the script.');
+        return;
+    }
+    mwCopy(link);
+}
+
 /* Where the signature reads go. The dashboard holds the anon key, and row
    level security quite rightly stops that key reading signed contracts —
    the table has signature images and IP addresses in it. This Edge Function
@@ -653,24 +751,36 @@ async function mwSigFn(payload) {
 async function mwMatchSignatures(deals) {
     mwSigReadError = '';
     const waiting = deals.filter(d => d.onboarding_status === 'agreement_sent');
-    if (!waiting.length) return 0;
 
-    // Preferred route: ask the function about all of them at once.
+    // Already-signed deals are asked about too, not to flip them, but to
+    // learn which plan they signed — that decides whether there is a $995
+    // to collect from them at all.
+    const known = deals.filter(d => d.onboarding_status === 'signed');
+    const asking = waiting.concat(known);
+
+    // Nothing waiting AND nothing signed means there is nothing to ask
+    // about. Returning early on `waiting` alone was a bug: a deal that was
+    // already signed never got its plan looked up, so the row could not
+    // tell whether $995 was owed and fell back to "plan unknown".
+    if (!asking.length) return 0;
+
     try {
         const out = await mwSigFn({
             action: 'status',
-            deal_ids: waiting.map(d => d.id)
+            deal_ids: asking.map(d => d.id)
         });
         if (out) {
             let n = 0;
-            for (const deal of waiting) {
-                const signedAt = out.signed[deal.id];
-                if (!signedAt) continue;
+            for (const deal of asking) {
+                const hit = out.signed[deal.id];
+                if (!hit) continue;
+                deal._signedTerm = hit.term || '';
+                if (deal.onboarding_status !== 'agreement_sent') continue;
                 await supabaseClient.from('mobilewise_closed_deals')
-                    .update({ onboarding_status: 'signed', signed_at: signedAt })
+                    .update({ onboarding_status: 'signed', signed_at: hit.at })
                     .eq('id', deal.id);
                 deal.onboarding_status = 'signed';
-                deal.signed_at = signedAt;
+                deal.signed_at = hit.at;
                 n++;
             }
             return n;
@@ -769,11 +879,26 @@ async function loadClosedDeals() {
             acts.push(`<button class="act-btn" onclick="mwSendAgreement('${d.id}', this)" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;">Send again</button>`);
         }
         if (d.onboarding_status === 'signed') {
-            // "Deposit received" read as a statement of fact rather than a
-            // button to press, which is a fair reading of those two words.
-            // Every action on this row now starts with a verb.
-            acts.push(`<span style="color:rgba(255,255,255,0.4);font-size:0.72rem;margin-right:6px;">Awaiting the $995…</span>`);
-            acts.push(`<button class="act-btn" onclick="mwMarkPaid('${d.id}')" style="background:rgba(76,175,80,0.15);color:#4caf50;">✅ Mark deposit received</button>`);
+            // What happens next depends entirely on which plan they signed.
+            // "Deposit received" also read as a statement of fact rather
+            // than a button, so every action here now starts with a verb.
+            if (mwOwesSetupFee(d._signedTerm)) {
+                acts.push(`<span style="color:rgba(255,255,255,0.4);font-size:0.72rem;margin-right:6px;">Owes $995…</span>`);
+                acts.push(`<button class="act-btn" onclick="mwSendPaymentLink('${d.id}', this)" style="background:rgba(33,150,243,0.15);color:#2196f3;">💳 Send payment link</button>`);
+                acts.push(`<button class="act-btn" onclick="mwCopyPaymentLink()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;">📋 Copy link</button>`);
+                acts.push(`<button class="act-btn" onclick="mwMarkPaid('${d.id}')" style="background:rgba(76,175,80,0.15);color:#4caf50;">✅ Mark deposit received</button>`);
+            } else if (d._signedTerm) {
+                // No setup fee on this plan, so there is nothing to collect
+                // and nothing to chase. Straight to set-up.
+                acts.push(`<span style="color:rgba(255,255,255,0.4);font-size:0.72rem;margin-right:6px;">No setup fee — nothing to collect</span>`);
+                acts.push(`<button class="act-btn" onclick="mwMarkSetUp('${d.id}')" style="background:rgba(76,175,80,0.15);color:#4caf50;">✅ Mark set up</button>`);
+            } else {
+                // Signed, but the plan could not be read. Do not guess which
+                // one it was — guessing wrong either bills a client for a fee
+                // they declined or waives one they owe.
+                acts.push(`<span style="color:#ff9800;font-size:0.72rem;margin-right:6px;">Plan unknown — open the signed PDF</span>`);
+                acts.push(`<button class="act-btn" onclick="mwMarkPaid('${d.id}')" style="background:rgba(76,175,80,0.15);color:#4caf50;">✅ Mark deposit received</button>`);
+            }
         }
         if (d.onboarding_status === 'paid') {
             acts.push(`<button class="act-btn" onclick="mwMarkSetUp('${d.id}')" style="background:rgba(76,175,80,0.15);color:#4caf50;">✅ Mark set up</button>`);
