@@ -608,10 +608,79 @@ async function mwAddDeal() {
    look identical from here, and only one of them is your problem. */
 let mwSigReadError = '';
 
+/* Where the signature reads go. The dashboard holds the anon key, and row
+   level security quite rightly stops that key reading signed contracts —
+   the table has signature images and IP addresses in it. This Edge Function
+   holds the service key and answers two narrow questions instead.
+
+   Same project and the same pattern as analytics-ingest. Deploy it with:
+       supabase functions deploy mw-signature                            */
+const MW_SIG_FN = SUPABASE_URL.replace(/\/+$/, '') + '/functions/v1/mw-signature';
+
+/* Calls the function. Returns null — not an error — when the function is
+   not deployed, so the direct read below still gets its turn and nothing
+   breaks between uploading this page and deploying the function. Anything
+   else it says is reported rather than swallowed. */
+async function mwSigFn(payload) {
+    let res;
+    try {
+        res = await fetch(MW_SIG_FN, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Edge Functions verify a JWT by default; the anon key is
+                // one. It is no secret — it already ships in this page —
+                // but it keeps the endpoint off the open internet.
+                apikey: SUPABASE_ANON_KEY,
+                Authorization: 'Bearer ' + SUPABASE_ANON_KEY
+            },
+            body: JSON.stringify(payload)
+        });
+    } catch (e) {
+        return null;                       // no network, or no function
+    }
+    if (res.status === 404) return null;   // not deployed yet
+    let out;
+    try { out = await res.json(); } catch (e) {
+        throw new Error('The signature function returned something unreadable.');
+    }
+    if (!res.ok || !out.ok) {
+        throw new Error(out && out.error ? out.error : 'the signature function failed');
+    }
+    return out;
+}
+
 async function mwMatchSignatures(deals) {
     mwSigReadError = '';
     const waiting = deals.filter(d => d.onboarding_status === 'agreement_sent');
     if (!waiting.length) return 0;
+
+    // Preferred route: ask the function about all of them at once.
+    try {
+        const out = await mwSigFn({
+            action: 'status',
+            deal_ids: waiting.map(d => d.id)
+        });
+        if (out) {
+            let n = 0;
+            for (const deal of waiting) {
+                const signedAt = out.signed[deal.id];
+                if (!signedAt) continue;
+                await supabaseClient.from('mobilewise_closed_deals')
+                    .update({ onboarding_status: 'signed', signed_at: signedAt })
+                    .eq('id', deal.id);
+                deal.onboarding_status = 'signed';
+                deal.signed_at = signedAt;
+                n++;
+            }
+            return n;
+        }
+    } catch (e) {
+        mwSigReadError = mwErrText(e);
+        return 0;
+    }
+
+    // Fallback: the direct read, for sites where the function is not up yet.
 
     let moved = 0;
     for (const deal of waiting) {
@@ -729,8 +798,9 @@ async function loadClosedDeals() {
             + '<strong>This screen cannot read the signatures table.</strong><br>'
             + mwEsc(mwSigReadError)
             + '<br>Any deal below showing "Waiting on signature" may in fact be '
-            + 'signed — this screen has no way to tell. Run '
-            + 'CHECK-signature-visibility.sql to find out why.</td>';
+            + 'signed — this screen has no way to tell. The usual cause is that '
+            + 'mw-signature.js has not been deployed, or has no service key set '
+            + 'under Site configuration, Environment variables.</td>';
         tbody.prepend(banner);
     }
 
@@ -905,20 +975,27 @@ async function mwMarkSetUp(dealId) {
     const SIG_COLS = 'baseline_leads_numeral, min_ppc_visitors_numeral, '
                    + 'per_lead_rate, term_selected, created_at';
     try {
-        const byDeal = await supabaseClient
-            .from('agreement_signatures').select(SIG_COLS)
-            .eq('deal_id', dealId)
-            .order('created_at', { ascending: false }).limit(1).maybeSingle();
-        if (byDeal.error) throw byDeal.error;
-        sig = byDeal.data;
-
-        if (!sig && deal.email) {
-            const byEmail = await supabaseClient
+        // Preferred route: the function, which can actually see the table.
+        const out = await mwSigFn({ action: 'terms', deal_id: dealId, email: deal.email || '' });
+        if (out) {
+            sig = out.sig;
+        } else {
+            // Fallback for a site where mw-signature.js is not deployed yet.
+            const byDeal = await supabaseClient
                 .from('agreement_signatures').select(SIG_COLS)
-                .ilike('client_email', deal.email)
+                .eq('deal_id', dealId)
                 .order('created_at', { ascending: false }).limit(1).maybeSingle();
-            if (byEmail.error) throw byEmail.error;
-            sig = byEmail.data;
+            if (byDeal.error) throw byDeal.error;
+            sig = byDeal.data;
+
+            if (!sig && deal.email) {
+                const byEmail = await supabaseClient
+                    .from('agreement_signatures').select(SIG_COLS)
+                    .ilike('client_email', deal.email)
+                    .order('created_at', { ascending: false }).limit(1).maybeSingle();
+                if (byEmail.error) throw byEmail.error;
+                sig = byEmail.data;
+            }
         }
     } catch (e) {
         sigReadFailed = mwErrText(e);
@@ -944,10 +1021,14 @@ async function mwMarkSetUp(dealId) {
         return;
     }
     if (!sig) {
-        alert('STOP — no signed agreement is on file for ' + (deal.company_name || 'this deal')
-            + '.\n\nNothing has been changed. Either it has not been signed yet, '
-            + 'or the signature did not record. Check the tray status, and if it '
-            + 'says signed, run CHECK-signature-visibility.sql.');
+        alert('STOP — no signed agreement could be found for '
+            + (deal.company_name || 'this deal')
+            + '.\n\nNothing has been changed. Three things can cause this:\n\n'
+            + '  • it genuinely has not been signed yet\n'
+            + '  • mw-signature.js is not deployed, so this screen cannot see '
+            + 'the signatures table at all\n'
+            + '  • the signature recorded without a deal_id on it\n\n'
+            + 'If the client told you they signed it, it is one of the last two.');
         return;
     }
     if (deal.baseline_leads === null || deal.baseline_leads === undefined) {
