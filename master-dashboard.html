@@ -359,6 +359,22 @@
                     <div class="field"><label>City</label><input type="text" id="ndCity" placeholder="Scottsdale"></div>
                     <div class="field"><label>Website</label><input type="text" id="ndWebsite" placeholder="cornerstone.com"></div>
                 </div>
+
+                <div style="border-top:1px solid rgba(255,255,255,0.07); margin:4px 0 16px; padding-top:16px;">
+                    <div style="font-size:0.8rem; color:#f8c400; font-weight:600; margin-bottom:4px;">What they get billed against</div>
+                    <div style="font-size:0.8rem; color:rgba(255,255,255,0.45); margin-bottom:14px; line-height:1.55;">
+                        Agreed with them before the agreement goes out. These appear on the agreement as fixed text they cannot change, and everything above the baseline is what you invoice for.
+                    </div>
+                    <div class="deal-grid">
+                        <div class="field"><label>Baseline leads / month *</label><input type="number" id="ndBaseline" min="0" placeholder="20"></div>
+                        <div class="field"><label>Minimum visitors / month *</label><input type="number" id="ndVisitors" min="0" placeholder="2000"></div>
+                        <div class="field" style="display:flex;align-items:flex-end;">
+                            <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);line-height:1.5;padding-bottom:10px;">
+                                Their trailing 3-month average from their own form, and the traffic they commit to hold.
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <button class="btn btn-primary" style="width:100%;padding:13px;margin-top:4px;" onclick="mwAddDeal()">Add to the tray</button>
                 <div id="ndStatus" style="text-align:center;margin-top:10px;font-size:0.85rem;"></div>
             </div>
@@ -370,7 +386,7 @@
                 </div>
                 <div style="overflow-x:auto;">
                     <table>
-                        <thead><tr><th>Company</th><th>Contact</th><th>Email</th><th>Phone</th><th>Status</th><th>Action</th></tr></thead>
+                        <thead><tr><th>Company</th><th>Contact</th><th>Email</th><th>Billed above</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="closedDealsTableBody"><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
                     </table>
                 </div>
@@ -527,6 +543,19 @@ async function mwAddDeal() {
         return say('An email address is needed — the agreement has nowhere to go without one.', '#f44336');
     }
 
+    // The two figures the invoice is calculated from. Required at this point
+    // on purpose: the agreement shows them as fixed text, so a deal without
+    // them cannot produce a signable agreement at all.
+    const baseline = val('ndBaseline'), visitors = val('ndVisitors');
+    if (baseline === '' || visitors === '') {
+        return say('Both billing figures are needed. They go on the agreement as '
+            + 'fixed terms, so they have to be agreed before it is sent.', '#f44336');
+    }
+    const baseN = Number(baseline), visN = Number(visitors);
+    if (!Number.isInteger(baseN) || baseN < 0 || !Number.isInteger(visN) || visN < 0) {
+        return say('Both figures must be whole numbers, zero or above.', '#f44336');
+    }
+
     // Already in the tray? Two deals for one company means two agreements.
     try {
         const { data: dupe } = await supabaseClient
@@ -549,12 +578,15 @@ async function mwAddDeal() {
             phone:        val('ndPhone') || null,
             city:         val('ndCity') || null,
             website:      val('ndWebsite') || null,
+            baseline_leads: baseN,
+            min_visitors:   visN,
             industry:     'Mortgage',
             source:       'manual',
             onboarding_status: 'pending'
         });
         if (error) throw error;
-        ['ndCompany','ndContact','ndEmail','ndPhone','ndCity','ndWebsite']
+        ['ndCompany','ndContact','ndEmail','ndPhone','ndCity','ndWebsite',
+         'ndBaseline','ndVisitors']
             .forEach(id => document.getElementById(id).value = '');
         say('✅ ' + company + ' added. Send them the agreement below.', '#4caf50');
         loadClosedDeals();
@@ -658,8 +690,10 @@ async function loadClosedDeals() {
         return `<tr>
             <td><strong>${mwEsc(d.company_name || '—')}</strong></td>
             <td>${mwEsc(d.contact_name || '—')}</td>
-            <td>${d.email ? `<a href="mailto:${mwEsc(d.email)}" style="color:#f8c400;text-decoration:none;">${mwEsc(d.email)}</a>` : '—'}</td>
-            <td>${mwEsc(d.phone || '—')}</td>
+            <td>${d.email ? `<a href="mailto:${mwEsc(d.email)}" style="color:#f8c400;text-decoration:none;">${mwEsc(d.email)}</a>` : '—'}${d.phone ? `<br><span style="color:rgba(255,255,255,0.4);font-size:0.78rem;">${mwEsc(d.phone)}</span>` : ''}</td>
+            <td>${d.baseline_leads === null || d.baseline_leads === undefined
+                   ? '<span style="color:#f44336;">not set</span>'
+                   : `<strong>${d.baseline_leads}</strong> leads<br><span style="color:rgba(255,255,255,0.45);font-size:0.78rem;">${Number(d.min_visitors || 0).toLocaleString()} visitors</span>`}</td>
             <td><span class="badge ${look.cls}">${look.label}</span></td>
             <td>${acts.join('')}</td>
         </tr>`;
@@ -787,6 +821,39 @@ async function mwMarkSetUp(dealId) {
             sig = byEmail.data;
         }
     } catch (e) { console.warn('Signature lookup failed: ' + mwErrText(e)); }
+
+    /* ------------------------------------------------------------------
+       The signature is a page the client had open, and a page can be
+       edited. The deal is what you agreed. So before anything is copied
+       onto the client, the two are compared — and where they disagree,
+       nothing is written and you are told.
+
+       Without this the locked fields on the agreement are the only thing
+       standing between a tampered baseline and a billing basis that runs
+       for years. They are an HTML attribute. This is the real check.
+       ------------------------------------------------------------------ */
+    if (sig && (deal.baseline_leads !== null && deal.baseline_leads !== undefined)) {
+        const signedBase = parseInt(sig.baseline_leads_numeral, 10);
+        const signedVis  = parseInt(sig.min_ppc_visitors_numeral, 10);
+        const off = [];
+        if (Number.isFinite(signedBase) && signedBase !== Number(deal.baseline_leads)) {
+            off.push('Baseline — agreed ' + deal.baseline_leads + ', signed ' + signedBase);
+        }
+        if (Number.isFinite(signedVis) && deal.min_visitors !== null
+            && signedVis !== Number(deal.min_visitors)) {
+            off.push('Visitors — agreed ' + Number(deal.min_visitors).toLocaleString()
+                   + ', signed ' + signedVis.toLocaleString());
+        }
+        if (off.length) {
+            alert('STOP — the signed agreement does not match what you agreed.\n\n'
+                + off.join('\n')
+                + '\n\nNothing has been changed and this deal is still at "Deposit in".\n\n'
+                + 'Open the signed PDF and check it. If the signed figures are the '
+                + 'real ones, update the deal to match and try again. If they are '
+                + 'not, that agreement needs re-signing before anyone is billed on it.');
+            return;
+        }
+    }
 
     let copied = '';
     if (sig) {
