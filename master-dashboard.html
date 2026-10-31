@@ -769,7 +769,11 @@ async function loadClosedDeals() {
             acts.push(`<button class="act-btn" onclick="mwSendAgreement('${d.id}', this)" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;">Send again</button>`);
         }
         if (d.onboarding_status === 'signed') {
-            acts.push(`<button class="act-btn" onclick="mwMarkPaid('${d.id}')" style="background:rgba(76,175,80,0.15);color:#4caf50;">✅ Deposit received</button>`);
+            // "Deposit received" read as a statement of fact rather than a
+            // button to press, which is a fair reading of those two words.
+            // Every action on this row now starts with a verb.
+            acts.push(`<span style="color:rgba(255,255,255,0.4);font-size:0.72rem;margin-right:6px;">Awaiting the $995…</span>`);
+            acts.push(`<button class="act-btn" onclick="mwMarkPaid('${d.id}')" style="background:rgba(76,175,80,0.15);color:#4caf50;">✅ Mark deposit received</button>`);
         }
         if (d.onboarding_status === 'paid') {
             acts.push(`<button class="act-btn" onclick="mwMarkSetUp('${d.id}')" style="background:rgba(76,175,80,0.15);color:#4caf50;">✅ Mark set up</button>`);
