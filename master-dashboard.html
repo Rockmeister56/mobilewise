@@ -670,7 +670,16 @@ async function loadClosedDeals() {
         if (d.email) {
             acts.push(`<button class="act-btn" onclick="mwCopy('${mwEsc(d.email)}')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;">📋 Copy email</button>`);
         }
-        if (d.onboarding_status === 'pending') {
+        // Deals created before the billing columns existed have no figures,
+        // and the Add a deal form is the only other place they can be set.
+        // Without this the row is stuck: it cannot be sent and cannot be
+        // repaired.
+        const figuresMissing = d.baseline_leads === null || d.baseline_leads === undefined
+                            || d.min_visitors  === null || d.min_visitors  === undefined;
+        if (figuresMissing) {
+            acts.push(`<button class="act-btn" onclick="mwSetFigures('${d.id}')" style="background:rgba(244,67,54,0.15);border:1px solid rgba(244,67,54,0.3);color:#f44336;">✎ Set figures</button>`);
+        }
+        if (d.onboarding_status === 'pending' && !figuresMissing) {
             acts.push(`<button class="act-btn" onclick="mwSendAgreement('${d.id}', this)" style="background:rgba(33,150,243,0.15);color:#2196f3;">📄 Send agreement</button>`);
         }
         if (d.onboarding_status === 'agreement_sent') {
@@ -706,6 +715,58 @@ async function loadClosedDeals() {
     }
 }
 
+/* Fills in the two billing figures on a deal that has none — a deal created
+   before those columns existed. Deliberately NOT offered on a deal that
+   already has figures: changing an agreed figure after the fact is exactly
+   what the comparison at "Mark set up" exists to catch, and it should not be
+   one click away. If a set figure is genuinely wrong, change it in SQL,
+   where it leaves a trace and takes a moment's thought. */
+async function mwSetFigures(dealId) {
+    const whole = v => {
+        if (v === null) return null;                 // cancelled
+        const t = String(v).trim();
+        if (t === '') return NaN;
+        const n = Number(t);
+        return (Number.isInteger(n) && n >= 0) ? n : NaN;
+    };
+
+    const base = whole(prompt('Baseline qualified leads per month.\n\n'
+        + 'This is what the client already gets from their own site. Nothing '
+        + 'is billed until Tess beats it.'));
+    if (base === null) return;
+    if (!Number.isFinite(base)) {
+        alert('That has to be a whole number, zero or above. Nothing changed.');
+        return;
+    }
+
+    const vis = whole(prompt('Minimum unique visitors per month.\n\n'
+        + 'The traffic the client commits to sending to the page Tess is on.'));
+    if (vis === null) return;
+    if (!Number.isFinite(vis)) {
+        alert('That has to be a whole number, zero or above. Nothing changed.');
+        return;
+    }
+
+    if (!confirm('Set this deal to:\n\n  Baseline  ' + base + ' leads per month\n'
+        + '  Visitors  ' + vis.toLocaleString() + ' per month\n\n'
+        + 'These go on the agreement as fixed terms the client cannot edit.')) {
+        return;
+    }
+
+    try {
+        const { error } = await supabaseClient
+            .from('mobilewise_closed_deals')
+            .update({ baseline_leads: base, min_visitors: vis })
+            .eq('id', dealId);
+        if (error) throw error;
+    } catch (e) {
+        alert('Could not save the figures: ' + mwErrText(e) + '\n\nNothing changed.');
+        return;
+    }
+
+    await loadClosedDeals();
+}
+
 function mwCopy(text) {
     navigator.clipboard.writeText(text).then(() => alert('Copied: ' + text))
         .catch(() => prompt('Copy this:', text));
@@ -717,12 +778,23 @@ async function mwSendAgreement(dealId, btn) {
     try {
         const { data: deal } = await supabaseClient
             .from('mobilewise_closed_deals')
-            .select('company_name, contact_name, email')
+            .select('company_name, contact_name, email, baseline_leads, min_visitors')
             .eq('id', dealId)
             .maybeSingle();
 
         if (!deal || !deal.email) {
             alert('This deal has no email on file — the agreement has nowhere to go.');
+            return;
+        }
+
+        // An agreement without the two figures on it cannot be signed: the
+        // page blocks signing and tells the client to ring Brett. Better to
+        // stop here than to send a client a document that dead-ends.
+        if (deal.baseline_leads === null || deal.baseline_leads === undefined
+            || deal.min_visitors === null || deal.min_visitors === undefined) {
+            alert('The billing figures are not set on this deal, so the agreement '
+                + 'would arrive unsignable.\n\nUse "Set figures" on the row first, '
+                + 'then send it.');
             return;
         }
 
@@ -848,9 +920,13 @@ async function mwMarkSetUp(dealId) {
             alert('STOP — the signed agreement does not match what you agreed.\n\n'
                 + off.join('\n')
                 + '\n\nNothing has been changed and this deal is still at "Deposit in".\n\n'
-                + 'Open the signed PDF and check it. If the signed figures are the '
-                + 'real ones, update the deal to match and try again. If they are '
-                + 'not, that agreement needs re-signing before anyone is billed on it.');
+                + 'The agreement should carry the figures off the deal, so these two '
+                + 'disagreeing means the document was altered after it left here. The '
+                + 'answer is a fresh agreement on the agreed figures, not a change to '
+                + 'the deal.\n\n'
+                + 'If you are certain the signed figures are the correct ones, change '
+                + 'the deal in SQL — not from this screen. That is deliberate: this is '
+                + 'the one check standing between a changed number and the invoice.');
             return;
         }
     }
