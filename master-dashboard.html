@@ -907,6 +907,9 @@ async function loadClosedDeals() {
             acts.push(`<button class="act-btn" onclick="sendWelcomeEmail('${mwEsc(d.client_id)}', '${mwEsc(d.email || '')}')" style="background:rgba(248,196,0,0.15);border:1px solid rgba(248,196,0,0.3);color:#f8c400;">✉️ Send welcome</button>`);
         }
 
+        // Last, and visually quiet, so it is never the obvious thing to hit.
+        acts.push(`<button class="act-btn" onclick="mwRemoveDeal('${d.id}', '${mwEsc(d.company_name || '')}')" title="Remove this deal from the tray" style="background:transparent;border:1px solid rgba(244,67,54,0.3);color:rgba(244,67,54,0.75);">🗑</button>`);
+
         return `<tr>
             <td><strong>${mwEsc(d.company_name || '—')}</strong></td>
             <td>${mwEsc(d.contact_name || '—')}</td>
@@ -989,6 +992,76 @@ async function mwSetFigures(dealId) {
         return;
     }
 
+    await loadClosedDeals();
+}
+
+/* ---------------------------------------------------------------------
+   REMOVING A DEAL FROM THE TRAY
+
+   Most removals are harmless: a typo, a duplicate, a prospect who went
+   quiet before anything was sent. Those should be one click.
+
+   One is not. A deal that has been SIGNED is half of a contract record —
+   agreement_signatures.deal_id points at it. Delete the deal and the
+   signature is still there, still binding, but orphaned: nothing on any
+   screen can tell you which business it belongs to any more.
+
+   So this asks the function whether a signature exists first, and refuses
+   when one does. If the function cannot answer, it also refuses — the same
+   rule as everywhere else today, because "no signature found" and "could
+   not look" must never be treated as the same answer.
+
+   It never touches agreement_signatures. Nothing in this system deletes a
+   signature.
+   --------------------------------------------------------------------- */
+async function mwRemoveDeal(dealId, company) {
+    const name = company || 'this deal';
+
+    let signed = null, lookFailed = '';
+    try {
+        const out = await mwSigFn({ action: 'status', deal_ids: [dealId] });
+        if (out) {
+            signed = !!out.signed[dealId];
+        } else {
+            lookFailed = 'the signature function is not deployed, so this '
+                       + 'screen cannot check whether anyone has signed.';
+        }
+    } catch (e) {
+        lookFailed = mwErrText(e);
+    }
+
+    if (lookFailed) {
+        alert('Not removing ' + name + '.\n\nBefore deleting a deal this has '
+            + 'to know whether a signed agreement points at it, and right now '
+            + 'it cannot find out:\n\n' + lookFailed
+            + '\n\nNothing has been changed.');
+        return;
+    }
+
+    if (signed) {
+        alert('Not removing ' + name + '.\n\nA signed agreement points at this '
+            + 'deal. Deleting it would leave that signature in place with '
+            + 'nothing to tie it to — the contract would still exist and no '
+            + 'screen could tell you whose it was.\n\n'
+            + 'If this really is test data, clear the signature and the deal '
+            + 'together in SQL, where you can see exactly what is going.');
+        return;
+    }
+
+    if (!confirm('Remove ' + name + ' from the tray?\n\nNothing has been '
+        + 'signed against it, so nothing else is affected. This cannot be '
+        + 'undone.')) return;
+
+    try {
+        const { error } = await supabaseClient
+            .from('mobilewise_closed_deals').delete().eq('id', dealId);
+        if (error) throw error;
+    } catch (e) {
+        alert('Could not remove it: ' + mwErrText(e)
+            + '\n\nIf this says permission denied, the anon key is not allowed '
+            + 'to delete from this table. Clear it in SQL instead.');
+        return;
+    }
     await loadClosedDeals();
 }
 
