@@ -1017,11 +1017,13 @@ async function mwSetFigures(dealId) {
 async function mwRemoveDeal(dealId, company) {
     const name = company || 'this deal';
 
-    let signed = null, lookFailed = '';
+    let signed = null, lookFailed = '', sigAt = '', sigTerm = '';
     try {
         const out = await mwSigFn({ action: 'status', deal_ids: [dealId] });
         if (out) {
-            signed = !!out.signed[dealId];
+            const hit = out.signed[dealId];
+            signed = !!hit;
+            if (hit) { sigAt = hit.at || ''; sigTerm = hit.term || ''; }
         } else {
             lookFailed = 'the signature function is not deployed, so this '
                        + 'screen cannot check whether anyone has signed.';
@@ -1039,12 +1041,38 @@ async function mwRemoveDeal(dealId, company) {
     }
 
     if (signed) {
-        alert('Not removing ' + name + '.\n\nA signed agreement points at this '
-            + 'deal. Deleting it would leave that signature in place with '
-            + 'nothing to tie it to — the contract would still exist and no '
-            + 'screen could tell you whose it was.\n\n'
-            + 'If this really is test data, clear the signature and the deal '
-            + 'together in SQL, where you can see exactly what is going.');
+        // Signed contracts are cleared in SQL, not from a page — see the
+        // note above. But "do it in SQL" with no further help is a dead end,
+        // so the statements come with it, with the id already filled in.
+        let when = '';
+        try {
+            when = sigAt ? new Date(sigAt).toLocaleDateString(undefined,
+                { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+        } catch (e) { when = ''; }
+
+        const sql =
+            '-- Removes ' + (company || 'this deal') + ' and the signed\n'
+          + '-- agreement(s) attached to it. Signatures FIRST — the other\n'
+          + '-- order leaves them behind with nothing to join to.\n'
+          + '-- Run in the SQL editor for the mobile-wise AI project.\n\n'
+          + "delete from public.agreement_signatures\nwhere  deal_id = '"
+          + dealId + "';\n\n"
+          + "delete from public.mobilewise_closed_deals\nwhere  id = '"
+          + dealId + "';\n";
+
+        const ok = confirm('Not removing ' + name + '.\n\n'
+            + 'A signed agreement points at this deal'
+            + (when ? ', signed ' + when : '')
+            + (sigTerm ? ' on the "' + sigTerm + '" plan' : '') + '. Deleting '
+            + 'the deal on its own would leave that signature in place with '
+            + 'nothing to tie it to — still a signed contract, and no screen '
+            + 'able to tell you whose.\n\n'
+            + 'If it really is test data, it has to go in SQL, where both '
+            + 'halves go together and you can see what you are doing.\n\n'
+            + 'Copy the SQL to do that, with this deal already filled in?');
+
+        if (ok) mwCopyQuiet(sql, 'The SQL is on your clipboard. Paste it into '
+            + 'the SQL editor for the mobile-wise AI project, read it, then run it.');
         return;
     }
 
@@ -1063,6 +1091,15 @@ async function mwRemoveDeal(dealId, company) {
         return;
     }
     await loadClosedDeals();
+}
+
+/* Copies without echoing the text back in the alert — fine for an email
+   address, unreadable for a block of SQL. Falls back to a prompt box the
+   text can be selected out of where the clipboard is not available. */
+function mwCopyQuiet(text, message) {
+    navigator.clipboard.writeText(text)
+        .then(() => alert(message))
+        .catch(() => prompt('Copy this:', text));
 }
 
 function mwCopy(text) {
