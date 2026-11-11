@@ -321,6 +321,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <option value="🆕 New">🆕 Not yet called</option>
         <option value="📱 Left Voicemail">📱 Left Voicemail</option>
         <option value="📞 Called — No Answer">📞 No Answer</option>
+        <option value="📨 Director Page Sent">📨 Director page sent</option>
         <option value="📅 Zoom Scheduled">📅 Zoom Scheduled</option>
         <option value="🔥 Hot">🔥 Hot</option>
       </select>
@@ -410,6 +411,31 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   <div id="closedDealsList"></div>
 </div>
 
+<!-- SEND DIRECTOR PAGE (agents) -->
+<div class="modal-bg" id="dirModal">
+  <div class="modal" style="border-color:rgba(14,165,233,0.4);">
+    <h3 style="color:#0ea5e9;">🏡 Send the Territory Director page</h3>
+    <div id="dirWho" style="margin-bottom:6px;"></div>
+    <div id="dirHistory" style="display:none;font-size:0.78rem;color:#38bdf8;background:rgba(14,165,233,0.08);border-radius:8px;padding:8px 11px;margin-top:8px;"></div>
+    <label for="dirEmail">Their email</label>
+    <input id="dirEmail" type="email" placeholder="name@example.com">
+    <label for="dirNote">A line from you (optional)</label>
+    <input id="dirNote" type="text" placeholder="Great talking with you today.">
+    <label>Follow up in</label>
+    <div id="dirDays" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+    <input id="dirDate" type="date" style="margin-top:8px;">
+    <div style="font-size:0.72rem;color:var(--muted);margin-top:8px;line-height:1.5;">
+      Sending marks them <b>📨 Director Page Sent</b>, notes the date, and puts them back in front of you on the follow-up day.
+    </div>
+    <div class="modal-actions" style="flex-wrap:wrap;">
+      <button class="btn btn-ghost" onclick="closeDirectorModal()">Cancel</button>
+      <button class="btn btn-ghost" onclick="copyDirectorLink()">📋 Copy link</button>
+      <a class="btn btn-ghost" id="dirTextBtn" href="#" onclick="return textDirectorLink();" style="text-decoration:none;">💬 Text it</a>
+      <button class="btn" id="dirSendBtn" onclick="emailDirectorPage()" style="background:#0ea5e9;color:#fff;">✉️ Email it</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="actionModal">
   <div class="modal">
     <h3 id="modalTitle">Action</h3>
@@ -489,6 +515,9 @@ const STAGES = [
   {key:"\uD83D\uDCC5 Zoom Scheduled",    color:"#a855f7"},
   {key:"\u2705 Zoom Complete",             color:"#a855f7"},
   {key:"\uD83D\uDCC4 Proposal Sent",     color:"#0ea5e9"},
+  // Agents only: the Territory Director page went out. Kept off the
+  // mortgage pipeline board (agentOnly) so it does not add an empty column.
+  {key:"\uD83D\uDCE8 Director Page Sent", color:"#0ea5e9", agentOnly:true},
   {key:"\uD83D\uDD25 Hot",                color:"#ef4444"},
   {key:"\uD83D\uDCB0 Closed Won",        color:"#22c55e"},
   {key:"\u274C Closed Lost",              color:"#64748b"},
@@ -830,6 +859,7 @@ function renderQueueItem(l,today){
     ${(l.reviews&&!hasScan&&!agt)?`<div style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(52,168,83,0.08);border:1px solid rgba(52,168,83,0.25);border-radius:20px;"><span style="font-size:0.7rem;color:#34a853;font-weight:700;">⭐ ${l.reviews} Google Reviews</span><span style="font-size:0.65rem;color:rgba(255,255,255,0.35);">· Revuee opportunity</span></div>`:""}
     ${zoomBox}${noteBox}${fuBox}
     <div class="qi-actions">
+      ${agt?`<button class="qa" onclick="openDirectorModal(${l.id})" style="color:#0ea5e9;border-color:rgba(14,165,233,0.45);background:rgba(14,165,233,0.1);font-weight:700;">\uD83C\uDFE1 Send Director page</button>`:""}
       <button class="qa qa-call" onclick="logCall(${l.id},'spoke')">\u2705 Spoke With</button>
       <button class="qa qa-call" onclick="logCall(${l.id},'noanswer')">\uD83D\uDCDE No Answer</button>
       <button class="qa qa-vm" onclick="logCall(${l.id},'voicemail')">\uD83D\uDCF1 Left VM</button>
@@ -1158,7 +1188,7 @@ function renderPipeline(){
   const dead=["\u274C Closed Lost","\uD83D\uDEAB Do Not Call","\uD83D\uDCC2 Parked"];
   leads=leads.filter(l=>!dead.includes(l.sales_status));
   const board=document.getElementById("pipelineBoard");
-  const show=STAGES.filter(s=>!dead.includes(s.key));
+  const show=STAGES.filter(s=>!dead.includes(s.key)&&!s.agentOnly);
   board.innerHTML=show.map(stage=>{
     const sl=leads.filter(l=>(l.sales_status||"\uD83C\uDD95 New")===stage.key);
     return `<div class="pipe-col">
@@ -1397,7 +1427,7 @@ function openActionModal(id){
     <label>Zoom Date & Time</label>
     <input type="datetime-local" id="m-zoomdate" value="${modalLead.zoom_date?modalLead.zoom_date.slice(0,16):""}">
     <label>Zoom / Calendly Link</label>
-    <input type="url" id="m-zoom" value="${modalLead.zoom_link||"https://calendly.com/mobilewise-ai/30min"}">
+    <input type="url" id="m-zoom" value="${modalLead.zoom_link||(isAgent(modalLead)?"https://cal.com/brett-duncan-lhn/territory-director-introduction":"https://calendly.com/mobilewise-ai/30min")}">
     <label>Sales Notes</label>
     <textarea id="m-notes" placeholder="Call notes, objections, next steps...">${modalLead.sales_notes||""}</textarea>`;
   document.getElementById("actionModal").classList.add("open");
@@ -1448,7 +1478,7 @@ function openZoomModal(id){
     <label>Date & Time</label>
     <input type="datetime-local" id="m-zoomdate" value="${modalLead.zoom_date?modalLead.zoom_date.slice(0,16):""}">
     <label>Zoom / Calendly Link</label>
-    <input type="url" id="m-zoom" value="${modalLead.zoom_link||"https://calendly.com/mobilewise-ai/30min"}">
+    <input type="url" id="m-zoom" value="${modalLead.zoom_link||(isAgent(modalLead)?"https://cal.com/brett-duncan-lhn/territory-director-introduction":"https://calendly.com/mobilewise-ai/30min")}">
     <label>Meeting Notes</label>
     <textarea id="m-notes" placeholder="What to cover, prospect context...">${modalLead.sales_notes||""}</textarea>`;
   document.getElementById("actionModal").classList.add("open");
@@ -1849,6 +1879,153 @@ function scriptPaint() {
 var DIRECTOR_PAGE = 'https://localhomenetwork.netlify.app/territory-director';
 var DIRECTOR_CALC = 'https://localhomenetwork.netlify.app/territory-director-earnings';
 
+// The email itself. Shared by the card popup and Script & Call.
+async function sendDirectorEmail(l, to, note) {
+  var first = ((l.contact_name || l.company_name || '').trim().split(/\s+/)[0]) || '';
+  await emailjs.send('service_b9bppgb', 'template_h7ar1lf', {
+    user_email:     to,
+    reply_to:       'pro.refersystem@gmail.com',
+    from_name:      'Brett Duncan',
+    subject:        'Becoming a LocalHome Territory Director',
+    firstname:      first,
+    dynamic_letter: (note ? note + '\n\n' : 'Great speaking with you.\n\n')
+      + 'Here is a two-minute video on becoming a LocalHome Network Territory '
+      + 'Director, and what a territory can pay you every month:\n'
+      + DIRECTOR_PAGE + '\n\n'
+      + 'You can also put in your own numbers here:\n' + DIRECTOR_CALC + '\n\n'
+      + 'Any questions, just reply or call me at ' + CALLER_PHONE + '.'
+  });
+}
+
+function shortDay(iso) {
+  return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+function addDays(n) {
+  var d = new Date(); d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+// Records that the page went out: the stage, the follow-up date, and a
+// dated line at the top of the sales notes so the history is on the card.
+var DIR_SENT = '📨 Director Page Sent';
+async function logDirectorSent(l, how, followUp) {
+  var today = addDays(0);
+  var line = '📨 ' + shortDay(today) + ': Director page ' + how
+           + (followUp ? ' · follow up ' + shortDay(followUp) : '');
+  var patch = {
+    sales_status:   DIR_SENT,
+    follow_up_date: followUp || l.follow_up_date || null,
+    sales_notes:    line + (l.sales_notes ? '\n' + l.sales_notes : '')
+  };
+  var res = await sb('PATCH', 'leads', patch, '?id=eq.' + l.id);
+  if (res && res.ok === false) {
+    // If the database will not take the new stage name, keep the rest.
+    console.warn('Director Page Sent stage refused, using Proposal Sent:', res.status);
+    patch.sales_status = '📄 Proposal Sent';
+    res = await sb('PATCH', 'leads', patch, '?id=eq.' + l.id);
+    if (res && res.ok === false) throw new Error('Could not save to Client Act (' + res.status + ')');
+  }
+  Object.assign(l, patch);
+  updateBadges(); renderQueue(); renderPipeline();
+}
+
+// ── the card popup ──
+var dirLead = null, dirFollow = null;
+function openDirectorModal(id) {
+  dirLead = findLead(id); if (!dirLead) return;
+  var l = dirLead;
+  document.getElementById('dirWho').innerHTML =
+      '<div style="font-size:1.05rem;font-weight:700;color:#fff;">' + esc(l.company_name || '') + '</div>'
+    + (l.phone ? '<div style="font-size:0.85rem;color:var(--accent);">' + esc(l.phone) + '</div>' : '');
+  var hist = (l.sales_notes || '').split('\n').filter(function (x) { return /Director page/.test(x); });
+  var h = document.getElementById('dirHistory');
+  h.style.display = hist.length ? 'block' : 'none';
+  h.textContent = hist.length ? 'Already sent: ' + hist.join(' | ') : '';
+  document.getElementById('dirEmail').value = l.email || '';
+  document.getElementById('dirEmail').style.borderColor = '';
+  document.getElementById('dirNote').value = '';
+  var opts = [[2, '2 days'], [3, '3 days'], [5, '5 days'], [7, '1 week']];
+  document.getElementById('dirDays').innerHTML = opts.map(function (o) {
+    return '<button type="button" class="btn btn-ghost" data-d="' + o[0] + '" onclick="pickDirDays(' + o[0] + ')" style="padding:7px 13px;font-size:0.78rem;">'
+      + o[1] + ' <span style="color:var(--muted);font-size:0.68rem;">' + shortDay(addDays(o[0])) + '</span></button>';
+  }).join('');
+  pickDirDays(3);
+  var b = document.getElementById('dirSendBtn'); b.disabled = false; b.textContent = '✉️ Email it';
+  document.getElementById('dirModal').classList.add('open');
+}
+function pickDirDays(n) {
+  dirFollow = addDays(n);
+  document.getElementById('dirDate').value = dirFollow;
+  document.querySelectorAll('#dirDays button').forEach(function (b) {
+    var on = +b.getAttribute('data-d') === n;
+    b.style.borderColor = on ? '#0ea5e9' : '';
+    b.style.color = on ? '#0ea5e9' : '';
+  });
+}
+function dirFollowDate() { return document.getElementById('dirDate').value || dirFollow || addDays(3); }
+function closeDirectorModal() { document.getElementById('dirModal').classList.remove('open'); dirLead = null; }
+
+async function emailDirectorPage() {
+  var l = dirLead; if (!l) return;
+  var input = document.getElementById('dirEmail');
+  var to = (input.value || '').trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) {
+    input.style.borderColor = '#ef4444'; input.focus();
+    toast('Enter their email address first'); return;
+  }
+  var btn = document.getElementById('dirSendBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    await sendDirectorEmail(l, to, (document.getElementById('dirNote').value || '').trim());
+  } catch (e) {
+    console.error('Director page send failed:', e);
+    btn.disabled = false; btn.textContent = '✉️ Email it';
+    toast('Not sent: ' + ((e && (e.text || e.message)) || 'unknown error'));
+    return;
+  }
+  try {
+    if (to !== (l.email || '')) { await sb('PATCH', 'leads', { email: to }, '?id=eq.' + l.id); l.email = to; }
+    var fu = dirFollowDate();
+    await logDirectorSent(l, 'emailed to ' + to, fu);
+    toast('🏡 Sent to ' + to + ' · follow up ' + shortDay(fu));
+  } catch (e) {
+    console.error(e);
+    toast('Email sent, but the follow-up did not save. Set it with No Answer / Left VM.');
+  }
+  closeDirectorModal();
+}
+
+function copyDirectorLink() {
+  var l = dirLead; if (!l) return;
+  var fu = dirFollowDate();
+  navigator.clipboard.writeText(DIRECTOR_PAGE).then(function () {
+    logDirectorSent(l, 'link copied (sent by you)', fu).then(function () {
+      toast('📋 Link copied · follow up ' + shortDay(fu));
+    }, function () { toast('Link copied, but the follow-up did not save'); });
+    closeDirectorModal();
+  }, function () { window.prompt('Copy this link:', DIRECTOR_PAGE); });
+}
+
+// Opens the messages app (phone, or Phone Link on Windows) with the text
+// filled in, and logs it as texted.
+function textDirectorLink() {
+  var l = dirLead; if (!l) return false;
+  var first = ((l.contact_name || l.company_name || '').trim().split(/\s+/)[0]) || '';
+  var note = (document.getElementById('dirNote').value || '').trim();
+  var body = (first ? 'Hi ' + first + ', ' : '') + (note ? note + ' ' : '')
+    + 'here is the two-minute video on becoming a LocalHome Network Territory Director: '
+    + DIRECTOR_PAGE + ' - Brett Duncan, ' + CALLER_PHONE;
+  var num = (l.phone || '').replace(/\D/g, '');
+  document.getElementById('dirTextBtn').href = 'sms:' + num + '?&body=' + encodeURIComponent(body);
+  var fu = dirFollowDate();
+  logDirectorSent(l, 'texted to ' + (l.phone || 'them'), fu).then(function () {
+    toast('💬 Logged as texted · follow up ' + shortDay(fu));
+  }, function () { toast('Text opened, but the follow-up did not save'); });
+  setTimeout(closeDirectorModal, 300);
+  return true;
+}
+
+// ── the button inside Script & Call: same email, logged, 3-day follow-up ──
 async function sendDirectorPage() {
   var l = scriptLead;
   var input = document.getElementById('scriptEmailInput');
@@ -1860,41 +2037,34 @@ async function sendDirectorPage() {
     return;
   }
   input.style.borderColor = 'rgba(52,168,83,0.35)';
-  var first = ((l.contact_name || l.company_name || '').trim().split(/\s+/)[0]) || '';
-
   var btn = document.getElementById('scriptSendReportBtn');
   var label = btn.textContent;
   btn.disabled = true;
   btn.textContent = 'Sending…';
   try {
-    await emailjs.send('service_b9bppgb', 'template_h7ar1lf', {
-      user_email:     to,
-      reply_to:       'pro.refersystem@gmail.com',
-      from_name:      'Brett Duncan',
-      subject:        'Becoming a LocalHome Territory Director',
-      firstname:      first,
-      dynamic_letter: 'Great speaking with you.\n\n'
-        + 'Here is a two-minute video on becoming a LocalHome Network Territory '
-        + 'Director, and what a territory can pay you every month:\n'
-        + DIRECTOR_PAGE + '\n\n'
-        + 'You can also put in your own numbers here:\n' + DIRECTOR_CALC + '\n\n'
-        + 'Any questions, just reply or call me at ' + CALLER_PHONE + '.'
-    });
-    btn.textContent = '✅ Sent to ' + to;
-    btn.style.color = '#22c55e';
-    toast('🏡 Director page sent to ' + to);
-    if (to !== (l.email || '')) {
-      l.email = to;
-      try { await sb('PATCH', 'leads', {email: to}, '?id=eq.' + l.id); renderAgents(); }
-      catch (e) { console.error('email save failed:', e); }
-    }
+    await sendDirectorEmail(l, to, '');
   } catch (e) {
     console.error('Director page send failed:', e);
     btn.disabled = false;
     btn.textContent = label;
     toast('Not sent: ' + ((e && (e.text || e.message)) || 'unknown error'));
+    return;
+  }
+  btn.textContent = '✅ Sent to ' + to;
+  btn.style.color = '#22c55e';
+  try {
+    if (to !== (l.email || '')) { await sb('PATCH', 'leads', { email: to }, '?id=eq.' + l.id); l.email = to; }
+    var fu = addDays(3);
+    await logDirectorSent(l, 'emailed to ' + to, fu);
+    toast('🏡 Sent to ' + to + ' · follow up ' + shortDay(fu));
+  } catch (e) {
+    console.error(e);
+    toast('Email sent, but the follow-up did not save');
   }
 }
+window.openDirectorModal = openDirectorModal; window.closeDirectorModal = closeDirectorModal;
+window.pickDirDays = pickDirDays; window.emailDirectorPage = emailDirectorPage;
+window.copyDirectorLink = copyDirectorLink; window.textDirectorLink = textDirectorLink;
 window.sendDirectorPage = sendDirectorPage;
 window.renderAgents = renderAgents;
 
