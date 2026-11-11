@@ -193,6 +193,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <div class="tabs">
   <div class="tab active" onclick="showTab('queue')" id="tab-queue">📋 Queue <span class="tab-badge" id="badge-queue">—</span></div>
   <div class="tab" onclick="showTab('b2b')" id="tab-b2b">🤝 B2B Sales <span class="tab-badge" id="badge-b2b" style="background:var(--purple);">—</span></div>
+  <div class="tab" onclick="showTab('agents')" id="tab-agents">🏡 Agents <span class="tab-badge" id="badge-agents" style="background:#0ea5e9;">—</span></div>
   <div class="tab" onclick="showTab('pipeline')" id="tab-pipeline">🔥 Pipeline</div>
   <div class="tab" onclick="showTab('all')" id="tab-all">📊 All Leads</div>
   <div class="tab" onclick="showTab('parked')" id="tab-parked">📂 Parked <span class="tab-badge" id="badge-parked" style="background:#64748b;">—</span></div>
@@ -272,6 +273,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <option value="">Everything parked</option>
         <option value="mortgage">🏠 Mortgage only</option>
         <option value="b2b">🤝 B2B only</option>
+        <option value="agents">🏡 Agents only</option>
       </select>
       <input id="parkedSearch" oninput="renderParked()" placeholder="Search company, city, phone…"
              style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.75rem;padding:6px 14px;outline:none;font-family:inherit;min-width:200px;">
@@ -304,6 +306,39 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     </div>
   </div>
   <div id="b2bList"><div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">Tommy's voicemail leads appear here once they carry an outcome. Click <strong style="color:var(--accent);">Refresh</strong> to load the latest.</div></div>
+</div>
+
+<!-- AGENTS — real estate agents being recruited as Territory Directors.
+     Sent here by agent-finder.html as AGT- leads. Same table, same cards,
+     their own script; never mixed into the mortgage queue or B2B. -->
+<div class="panel" id="panel-agents">
+  <div class="section-hdr">
+    <div class="section-title">🏡 Agents — Territory Director recruiting</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <select id="agtStatus" onchange="renderAgents()" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.75rem;padding:6px 12px;outline:none;font-family:inherit;">
+        <option value="">All active agents</option>
+        <option value="due">⏰ Follow-up due</option>
+        <option value="🆕 New">🆕 Not yet called</option>
+        <option value="📱 Left Voicemail">📱 Left Voicemail</option>
+        <option value="📞 Called — No Answer">📞 No Answer</option>
+        <option value="📅 Zoom Scheduled">📅 Zoom Scheduled</option>
+        <option value="🔥 Hot">🔥 Hot</option>
+      </select>
+      <select id="agtGroup" onchange="renderAgents()" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.75rem;padding:6px 12px;outline:none;font-family:inherit;">
+        <option value="">Both groups</option>
+        <option value="mid">Mid-tier (3+ yrs)</option>
+        <option value="new">New &amp; hungry (1–2 yrs)</option>
+      </select>
+      <select id="agtSort" onchange="renderAgents()" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--text);font-size:0.75rem;padding:6px 12px;outline:none;font-family:inherit;">
+        <option value="score">⭐ Best fit first</option>
+        <option value="followup">📅 Follow-up date</option>
+        <option value="company">🔤 Name A→Z</option>
+        <option value="id_asc">🔢 AGT-ID Low → High</option>
+      </select>
+      <a href="agent-finder.html" target="_blank" rel="noopener" class="btn btn-ghost" style="text-decoration:none;border-color:rgba(14,165,233,0.45);color:#0ea5e9;font-size:0.75rem;">＋ Find agents</a>
+    </div>
+  </div>
+  <div id="agentList"><div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">Agents you send from the Agent Finder appear here. Click <strong style="color:var(--accent);">Refresh</strong> to load the latest.</div></div>
 </div>
 
 <div class="panel" id="panel-pipeline">
@@ -411,10 +446,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     </div>
 
     <div id="scriptTextBody" style="font-size:0.95rem;line-height:1.95;color:rgba(255,255,255,0.88);">
-      <div style="font-size:0.75rem;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Gatekeeper Opener</div>
+      <div id="scriptH1" style="font-size:0.75rem;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Gatekeeper Opener</div>
       <div id="scriptGatekeeper" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:14px 16px;margin-bottom:16px;border-left:3px solid #a855f7;"></div>
 
-      <div style="font-size:0.75rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">When Prospect Answers</div>
+      <div id="scriptH2" style="font-size:0.75rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">When Prospect Answers</div>
       <div id="scriptProspect" style="background:rgba(255,255,255,0.03);border-radius:8px;padding:14px 16px;margin-bottom:16px;border-left:3px solid #22c55e;"></div>
 
       <div style="font-size:0.75rem;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Common Objections</div>
@@ -501,8 +536,20 @@ var b2bLeads = [];
 
 function isB2B(l){ return /^B2B-/.test(l && l.lead_id || ""); }
 
+// A third pipeline: real estate agents recruited as Territory Directors,
+// sent by agent-finder.html. Same idea as B2B - filed by prefix, own tab.
+var agentLeads = [];
+function isAgent(l){ return /^AGT-/.test(l && l.lead_id || ""); }
+
+// Every card button used to look its lead up in allLeads only, so on the
+// B2B tab they quietly did nothing. One lookup across all three pipelines.
+function findLead(id){
+  return allLeads.find(x=>x.id===id) || b2bLeads.find(x=>x.id===id)
+      || agentLeads.find(x=>x.id===id);
+}
+
 function fileLead(l){
-  const bucket = isB2B(l) ? b2bLeads : allLeads;
+  const bucket = isAgent(l) ? agentLeads : isB2B(l) ? b2bLeads : allLeads;
   if(!bucket.find(x=>x.id===l.id)) bucket.push(l);
   return l;
 }
@@ -528,13 +575,19 @@ async function loadPipelineLeads(){
       sb("GET","leads","","?order=created_at.desc&limit=300&sales_status=eq.%F0%9F%93%9E%20Called%20%E2%80%94%20No%20Answer"),
       // Parked must be fetched or parking a batch would make it vanish on
       // the next refresh - which looks exactly like losing it.
-      sb("GET","leads","","?order=created_at.desc&limit=500&sales_status=eq.%F0%9F%93%82%20Parked")
+      sb("GET","leads","","?order=created_at.desc&limit=500&sales_status=eq.%F0%9F%93%82%20Parked"),
+      // Every agent, whatever stage. Archived ones are dropped below.
+      sb("GET","leads","","?order=created_at.desc&limit=1000&lead_id=like.AGT-*")
     ]);
     results.forEach(r=>{
-      if(Array.isArray(r)) r.forEach(fileLead);
+      if(Array.isArray(r)) r.forEach(l=>{
+        if(isAgent(l) && l.sales_status==="\uD83D\uDCE6 Archived") return;
+        fileLead(l);
+      });
     });
     allLeads.forEach(l=>{if(!l.sales_status)l.sales_status="🆕 New";});
     b2bLeads.forEach(l=>{if(!l.sales_status)l.sales_status="🆕 New";});
+    agentLeads.forEach(l=>{if(!l.sales_status)l.sales_status="🆕 New";});
     document.getElementById("connDot").textContent="● Live";
     document.getElementById("connDot").style.color="#22c55e";
     renderQueue();renderPipeline();renderAll();renderCalendar();updateBadges();
@@ -564,7 +617,7 @@ async function loadTodaysBatch(){
     await sb("PATCH","leads",{sales_status:"\uD83C\uDD95 New"},`?id=in.(${ids.join(",")})`);
     fresh.forEach(l=>{
       l.sales_status="\uD83C\uDD95 New";
-      const bucket = isB2B(l) ? b2bLeads : allLeads;
+      const bucket = isAgent(l) ? agentLeads : isB2B(l) ? b2bLeads : allLeads;
       const ex = bucket.find(x=>x.id===l.id);
       if(ex) ex.sales_status="\uD83C\uDD95 New"; else bucket.push(l);
     });
@@ -577,7 +630,7 @@ async function loadTodaysBatch(){
 }
 
 async function refreshAll(){
-  allLeads=[];
+  allLeads=[]; agentLeads=[];
   await loadPipelineLeads();
   toast("Refreshed \u2713");
 }
@@ -652,6 +705,7 @@ function showTab(n){
   if(n==="zooms") renderCalendar();
   if(n==="closed") loadClosedDeals();
   if(n==="b2b") renderB2B();
+  if(n==="agents") renderAgents();
   if(n==="parked") renderParked();
 }
 
@@ -671,7 +725,7 @@ function updateBadges(){
   document.getElementById("badge-zooms").textContent=zc;
 
   const pk=document.getElementById("badge-parked");
-  if(pk) pk.textContent=allLeads.concat(b2bLeads)
+  if(pk) pk.textContent=allLeads.concat(b2bLeads, agentLeads)
     .filter(l=>l.sales_status===PARKED).length;
 
   // B2B counts what is actually waiting on Brett: a follow-up that has come
@@ -685,6 +739,22 @@ function updateBadges(){
       return (l.follow_up_date&&l.follow_up_date<=today) || ss==="\uD83C\uDD95 New";
     }).length;
   }
+  updateAgentBadge();
+}
+
+// Agents waiting on you: not called yet, or a follow-up that has come due.
+// updateBadges runs after every status change, so this is also where the
+// Agents panel gets redrawn - one hook instead of one per button.
+function updateAgentBadge(){
+  const ab=document.getElementById("badge-agents");
+  if(!ab) return;
+  const today=new Date().toISOString().slice(0,10);
+  ab.textContent=agentLeads.filter(l=>{
+    const ss=l.sales_status||"\uD83C\uDD95 New";
+    if(AGENT_DEAD.includes(ss)) return false;
+    return (l.follow_up_date&&l.follow_up_date<=today) || ss==="\uD83C\uDD95 New";
+  }).length;
+  renderAgents();
 }
 
 function ssColor(ss){return(STAGES.find(s=>s.key===ss)||{color:"#94a3b8"}).color;}
@@ -701,6 +771,7 @@ function renderQueueItem(l,today){
   else if(ss==="\uD83D\uDD25 Hot") cls="urgent";
   const c=ssColor(ss);
   const ind=l.industry||"Mortgage";
+  const agt=isAgent(l);
 
   // GBP score badge. Only drawn when there is a score - leads that did not
   // come from the market scanner have none, and an empty badge reading
@@ -716,7 +787,7 @@ function renderQueueItem(l,today){
   // is a nonsense search for those. Widen the test if you want it elsewhere.
   const isMortgage=/mortgage|loan|lend|broker|escrow|title/i.test(ind);
   const gbpTag=gbp===null?"":`<span class="qi-tag" style="font-size:0.8rem;font-weight:800;padding:3px 11px;letter-spacing:0.3px;color:${gbpC};border-color:${gbpC}55;background:${gbpC}18;">GBP ${gbp}/100</span>`;
-  const indIcon=ind==="Legal"?"\u2696\uFE0F":ind==="Tax Resolution"?"\uD83D\uDCBC":"\uD83C\uDFE0";
+  const indIcon=agt?"\uD83C\uDFE1":ind==="Legal"?"\u2696\uFE0F":ind==="Tax Resolution"?"\uD83D\uDCBC":"\uD83C\uDFE0";
   let urgTag="";
   if(isOverdue) urgTag=`<span class="qi-tag" style="color:#ef4444;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);">\u26A0\uFE0F CALLBACK OVERDUE</span>`;
   else if(isZoomToday) urgTag=`<span class="qi-tag" style="color:#a855f7;border-color:rgba(168,85,247,0.3);background:rgba(168,85,247,0.08);">\uD83D\uDCC5 ZOOM TODAY</span>`;
@@ -741,12 +812,12 @@ function renderQueueItem(l,today){
       </div>
       <div style="flex:1 1 auto;display:flex;justify-content:center;align-items:center;gap:8px;align-self:center;min-width:0;padding:0 8px;">
         <button onclick="openScriptModal(${l.id})" style="background:rgba(168,85,247,0.16);border:1px solid rgba(168,85,247,0.45);color:#a855f7;padding:12px 26px;border-radius:24px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">\uD83D\uDCCB Script &amp; Call</button>
-        <button onclick="openBrokerModal(${l.id})" title="Name and email of the person to ask for" style="background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.4);color:#0ea5e9;padding:12px 18px;border-radius:24px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">${(l.contact_name||l.email)?`\uD83D\uDC64 ${esc((l.contact_name||l.email).split(" ")[0])}`:"\uD83D\uDC64 + Broker info"}</button>
+        ${agt?"":`<button onclick="openBrokerModal(${l.id})" title="Name and email of the person to ask for" style="background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.4);color:#0ea5e9;padding:12px 18px;border-radius:24px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">${(l.contact_name||l.email)?`\uD83D\uDC64 ${esc((l.contact_name||l.email).split(" ")[0])}`:"\uD83D\uDC64 + Broker info"}</button>`}
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div class="qi-phone">${l.phone?`<a href="tel:${esc(l.phone.replace(/\D/g,""))}">${esc(l.phone)}</a>`:"\u2014"}</div>
         ${l.phone?`<button onclick="cpNum(${l.id})" style="margin-top:4px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;border-radius:10px;padding:2px 10px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:inherit;display:block;width:100%;">📋 Copy Number</button>`:""}
-        ${l.website?`<div style="margin-top:3px;"><a href="${esc(l.website)}" target="_blank" style="font-size:0.68rem;color:#0ea5e9;text-decoration:none;">\uD83C\uDF10 Site</a></div>`:""}
+        ${l.website?`<div style="margin-top:3px;"><a href="${esc(l.website)}" target="_blank" style="font-size:0.68rem;color:#0ea5e9;text-decoration:none;">${agt?"\uD83C\uDFE1 Profile":"\uD83C\uDF10 Site"}</a></div>`:""}
         ${l.email?`<div style="margin-top:3px;"><a href="mailto:${esc(l.email)}" style="font-size:0.68rem;color:#34a853;text-decoration:none;">\u2709\uFE0F ${esc(l.email)}</a></div>`:""}
       </div>
     </div>
@@ -755,8 +826,8 @@ function renderQueueItem(l,today){
       <span style="font-size:0.85rem;font-weight:700;color:#34a853;">⭐ ${(l.rating||l.rating===0)?esc(Number(l.rating).toFixed(1))+" · ":""}${l.reviews||0} reviews</span>
       ${l.address?`<span style="font-size:0.82rem;color:rgba(255,255,255,0.7);">📍 ${esc(l.address)}</span>`:""}
     </div>`:""}
-    ${l.notes?`<div style="margin-top:8px;font-size:0.82rem;color:rgba(255,255,255,0.7);padding:10px 13px;background:rgba(14,165,233,0.05);border-radius:8px;border-left:3px solid rgba(14,165,233,0.3);line-height:1.65;white-space:pre-line;"><span style="display:block;font-size:0.63rem;color:#0ea5e9;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">${hasScan?"Scan report":"Tommy's Notes"}</span>${esc(l.notes)}</div>`:""}
-    ${(l.reviews&&!hasScan)?`<div style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(52,168,83,0.08);border:1px solid rgba(52,168,83,0.25);border-radius:20px;"><span style="font-size:0.7rem;color:#34a853;font-weight:700;">⭐ ${l.reviews} Google Reviews</span><span style="font-size:0.65rem;color:rgba(255,255,255,0.35);">· Revuee opportunity</span></div>`:""}
+    ${l.notes?`<div style="margin-top:8px;font-size:0.82rem;color:rgba(255,255,255,0.7);padding:10px 13px;background:rgba(14,165,233,0.05);border-radius:8px;border-left:3px solid rgba(14,165,233,0.3);line-height:1.65;white-space:pre-line;"><span style="display:block;font-size:0.63rem;color:#0ea5e9;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">${hasScan?"Scan report":agt?"Agent profile":"Tommy's Notes"}</span>${esc(l.notes)}</div>`:""}
+    ${(l.reviews&&!hasScan&&!agt)?`<div style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(52,168,83,0.08);border:1px solid rgba(52,168,83,0.25);border-radius:20px;"><span style="font-size:0.7rem;color:#34a853;font-weight:700;">⭐ ${l.reviews} Google Reviews</span><span style="font-size:0.65rem;color:rgba(255,255,255,0.35);">· Revuee opportunity</span></div>`:""}
     ${zoomBox}${noteBox}${fuBox}
     <div class="qi-actions">
       <button class="qa qa-call" onclick="logCall(${l.id},'spoke')">\u2705 Spoke With</button>
@@ -772,7 +843,7 @@ function renderQueueItem(l,today){
       ${l.maps_url?`<a class="qa" href="${esc(l.maps_url)}" target="_blank" rel="noopener noreferrer" style="color:#4285f4;border-color:rgba(66,133,244,0.35);background:rgba(66,133,244,0.08);text-decoration:none;display:inline-block;">📍 Maps</a>`:""}
       <button class="qa" onclick="archiveLead(${l.id})" style="color:#94a3b8;border-color:rgba(148,163,184,0.3);background:rgba(148,163,184,0.06);font-size:0.68rem;">📦 Archive</button>
       <button class="qa" onclick="deleteLead(${l.id})" style="color:#ef4444;border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.06);font-size:0.68rem;">🗑️ Delete</button>
-      <button class="qa" onclick="openROIForLead(${l.id})" style="color:#f59e0b;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08);">📈 ROI Report</button>
+      ${agt?"":`<button class="qa" onclick="openROIForLead(${l.id})" style="color:#f59e0b;border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.08);">📈 ROI Report</button>`}
     </div>
   </div>`;
 }
@@ -785,7 +856,8 @@ function parkedLeads(){
   const pool=(document.getElementById("parkedPool")||{}).value||"";
   const src = pool==="b2b" ? b2bLeads
             : pool==="mortgage" ? allLeads
-            : allLeads.concat(b2bLeads);
+            : pool==="agents" ? agentLeads
+            : allLeads.concat(b2bLeads, agentLeads);
   let out = src.filter(l=>l.sales_status===PARKED);
 
   const q=String((document.getElementById("parkedSearch")||{}).value||"")
@@ -941,6 +1013,60 @@ function renderB2B(){
       +(b2bLeads.length
         ? b2bLeads.length+" B2B lead"+(b2bLeads.length===1?"":"s")+" loaded, but none match this filter."
         : "No B2B leads yet. They arrive once Tommy's voicemail run writes an outcome in the B2B builder.")
+      +'</div>';
+    return;
+  }
+  el.innerHTML=leads.map(l=>renderQueueItem(l,today)).join("");
+}
+
+// Agents tab. Same cards as everywhere else (renderQueueItem), so the call
+// buttons, follow-ups and Zoom booking all behave the same.
+const AGENT_DEAD=["💰 Closed Won","❌ Closed Lost","🚫 Do Not Call","❌ Not Interested","📂 Parked","📦 Archived"];
+
+// The Agent Finder writes the fit score as "· 78/100" on the first line of
+// the notes, and "New & hungry" or "Mid-tier" right after it.
+function agentScore(l){
+  const m=/(\d{1,3})\/100/.exec(l.notes||"");
+  return m?parseInt(m[1],10):-1;
+}
+function agentGroup(l){
+  const n=l.notes||"";
+  return /New & hungry/.test(n)?"new":/Mid-tier/.test(n)?"mid":"";
+}
+
+function renderAgents(){
+  const el=document.getElementById("agentList");
+  if(!el) return;
+  const today=new Date().toISOString().slice(0,10);
+  const stF=(document.getElementById("agtStatus")||{}).value||"";
+  const grF=(document.getElementById("agtGroup")||{}).value||"";
+
+  let leads=agentLeads.filter(l=>{
+    const ss=l.sales_status||"🆕 New";
+    if(AGENT_DEAD.includes(ss)) return false;
+    if(grF && agentGroup(l)!==grF) return false;
+    if(stF==="due") return !!(l.follow_up_date&&l.follow_up_date<=today);
+    if(stF) return ss===stF;
+    return true;
+  });
+
+  const sortBy=(document.getElementById("agtSort")||{}).value||"score";
+  leads.sort((a,b)=>{
+    if(sortBy==="company") return (a.company_name||"").localeCompare(b.company_name||"");
+    if(sortBy==="followup") return (a.follow_up_date||"9999-12-31").localeCompare(b.follow_up_date||"9999-12-31");
+    if(sortBy==="id_asc"){
+      const na=parseInt((a.lead_id||"").replace(/[^0-9]/g,""))||99999;
+      const nb=parseInt((b.lead_id||"").replace(/[^0-9]/g,""))||99999;
+      return na-nb;
+    }
+    return agentScore(b)-agentScore(a);
+  });
+
+  if(!leads.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">'
+      +(agentLeads.length
+        ? agentLeads.length+" agent"+(agentLeads.length===1?"":"s")+" loaded, but none match this filter."
+        : 'No agents yet. Open the <a href="agent-finder.html" target="_blank" rel="noopener" style="color:#0ea5e9;">Agent Finder</a>, score a few and send them over.')
       +'</div>';
     return;
   }
@@ -1134,13 +1260,13 @@ function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalend
 function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
 
 async function logCall(id,type){
-  const l=allLeads.find(x=>x.id===id); if(!l) return;
+  const l=findLead(id); if(!l) return;
   if(type==="spoke"){openActionModal(id);return;}
   openCallbackModal(id, type);
 }
 
 function openCallbackModal(id, type){
-  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  modalLead=findLead(id); if(!modalLead) return;
   const ns=type==="voicemail"?"\uD83D\uDCF1 Left Voicemail":"\uD83D\uDCDE Called \u2014 No Answer";
   const today=new Date();
   const tomorrow=new Date(); tomorrow.setDate(today.getDate()+1);
@@ -1192,11 +1318,11 @@ async function setCallback(date, status, id){
     sales_status:status,
     follow_up_date:date,
     last_called:new Date().toISOString(),
-    call_attempts:(allLeads.find(l=>l.id===id)||{}).call_attempts||0+1
+    call_attempts:(findLead(id)||{}).call_attempts||0+1
   };
   if(notesEl&&notesEl.value) patch.sales_notes=notesEl.value;
   await sb("PATCH","leads",patch,`?id=eq.${id}`);
-  const l=allLeads.find(x=>x.id===id);
+  const l=findLead(id);
   if(l) Object.assign(l,patch);
   closeModal();
   const d=new Date(date+"T12:00:00");
@@ -1207,7 +1333,7 @@ async function setCallback(date, status, id){
 
 async function setStatus(id,status){
   await sb("PATCH","leads",{sales_status:status},`?id=eq.${id}`);
-  const l=allLeads.find(x=>x.id===id); if(l) l.sales_status=status;
+  const l=findLead(id); if(l) l.sales_status=status;
   toast(`Marked ${status}`);
   renderQueue();renderPipeline();renderAll();renderCalendar();updateBadges();
 }
@@ -1215,7 +1341,7 @@ async function setStatus(id,status){
 // ===== One direct click for a win — no need to go through a button called
 // "Dead" to record a sale. Same export logic as the Close Deal modal. =====
 async function markClosedWon(id){
-  const l=allLeads.find(x=>x.id===id); if(!l) return;
+  const l=findLead(id); if(!l) return;
   const wonStatus="\uD83D\uDCB0 Closed Won";
   await sb("PATCH","leads",{sales_status:wonStatus},`?id=eq.${id}`);
   l.sales_status=wonStatus;
@@ -1242,7 +1368,7 @@ async function markClosedWon(id){
 window.markClosedWon=markClosedWon;
 
 function openActionModal(id){
-  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  modalLead=findLead(id); if(!modalLead) return;
   const firstName = (modalLead.contact_name||"").split(" ")[0]||"";
   const attempts = modalLead.call_attempts||0;
   document.getElementById("modalTitle").textContent=`\uD83D\uDCCB ${modalLead.company_name||"Lead"}`;
@@ -1281,7 +1407,7 @@ function openActionModal(id){
 // and email of the human who actually answers the phone have to be typed in
 // once, usually straight off an NMLS lookup. Both feed the script popup.
 function openBrokerModal(id){
-  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  modalLead=findLead(id); if(!modalLead) return;
   const parts=(modalLead.contact_name||"").trim().split(/\s+/);
   const first=parts[0]||"";
   const last=parts.slice(1).join(" ");
@@ -1305,7 +1431,7 @@ function openBrokerModal(id){
 window.openBrokerModal=openBrokerModal;
 
 function openNoteModal(id){
-  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  modalLead=findLead(id); if(!modalLead) return;
   document.getElementById("modalTitle").textContent=`\uD83D\uDCDD Note \u2014 ${modalLead.company_name||""}`;
   document.getElementById("modalBody").innerHTML=`
     <label>Sales Note</label>
@@ -1316,7 +1442,7 @@ function openNoteModal(id){
 }
 
 function openZoomModal(id){
-  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  modalLead=findLead(id); if(!modalLead) return;
   document.getElementById("modalTitle").textContent=`\uD83D\uDCC5 Schedule Zoom \u2014 ${modalLead.company_name||""}`;
   document.getElementById("modalBody").innerHTML=`
     <label>Date & Time</label>
@@ -1329,7 +1455,7 @@ function openZoomModal(id){
 }
 
 function openDeadModal(id){
-  modalLead=allLeads.find(l=>l.id===id); if(!modalLead) return;
+  modalLead=findLead(id); if(!modalLead) return;
   document.getElementById("modalTitle").textContent=`\u274C Close Lead \u2014 ${modalLead.company_name||""}`;
   document.getElementById("modalBody").innerHTML=`
     <label>Reason</label>
@@ -1535,6 +1661,61 @@ var SCRIPT = {
   ]
 };
 
+// ---- THE AGENT SCRIPT --------------------------------------------------
+// Used instead of SCRIPT when the lead is a real estate agent (AGT-), for
+// recruiting Territory Directors. FIRST DRAFT - rewrite it in your words.
+// Extra tokens here: {{first}} (their first name) and {{phone}} (yours).
+//
+// Keep the RESPA line in the objections as it is: the residual comes from
+// home-service memberships only, never from lenders, title or escrow, and
+// is never tied to a closing.
+var SCRIPT_AGENT = {
+
+  // Agents answer their own cell, so no gatekeeper: this slot is the voicemail.
+  gatekeeper: [
+    '"Hi {{first}}, it is {{caller}} with LocalHome Network. I came across your profile in {{city}}. I am looking for one agent in your area to run a LocalHome territory. It is a monthly residual on top of your real estate business, built on the home-service pros you already refer. I am sending you a two-minute video. My cell is {{phone}}."'
+  ],
+
+  prospect: [
+    '"Hi {{first}}, it is {{caller}} with LocalHome Network. Did I catch you between showings?"',
+    '',
+    '>If they have a minute:',
+    '"I will be quick. I was looking at agents in {{city}} and your profile stood out, the reviews and the way you talk about your community. I am looking for one agent per area to run a LocalHome Network territory."',
+    '',
+    '>What it is:',
+    '"LocalHome is an invitation-only referral network for local home-service businesses. One landscaper, one roofer, one plumber per area. You already know these people; you refer them to your clients every week. As Territory Director you bring them into the network, and you earn a monthly residual on the memberships in your territory."',
+    '',
+    '>Why them:',
+    '"You keep selling homes. This is not a second job. It is getting paid for relationships you already have, and it puts your name in front of every pro in the network, and they all have homeowners asking them for an agent."',
+    '',
+    '>The ask:',
+    '"There is a two-minute video, and a calculator where you put in your own numbers. Can I send it over, and grab twenty minutes on Zoom this week?"',
+    '',
+    '>Still no:',
+    '"No problem at all. I will send the video anyway so you have it. If a territory ever sounds good, my number is on there."'
+  ],
+
+  objections: [
+    '>Is that legal? What about RESPA?',
+    '"Good question, and it is built for it. Your residual comes from home-service memberships, landscapers, roofers, pool companies. No money from lenders, title or escrow ever goes to you, and nothing is tied to a closing."',
+    '',
+    '>How much does it pay?',
+    '"It depends on how many members your territory has. The calculator lets you put in your own numbers. I would rather show you than quote you a number."',
+    '',
+    '>I do not have time',
+    '"That is why it is built this way. You make the introductions to people you already know, and we handle the sign-up from there."',
+    '',
+    '>Is this an MLM?',
+    '"No. There is nothing to buy and no recruiting of recruiters. One director per territory, paid on the memberships in that territory."',
+    '',
+    '>Send me something first',
+    '"Happy to. What is the best email?"  ← then hit Send Director page'
+  ]
+};
+
+// Which script, and what the headings say, for the lead on screen.
+function scriptFor(l) { return isAgent(l) ? SCRIPT_AGENT : SCRIPT; }
+
 var scriptLead = null;
 var scriptFontSize = 0.95;
 
@@ -1555,7 +1736,9 @@ function scriptRender(lines, l) {
     '{{gbp}}':        (l.gbp_score === null || l.gbp_score === undefined || l.gbp_score === '')
                         ? '—' : l.gbp_score,
     '{{reviews}}':    (l.reviews || 0),
-    '{{caller}}':     CALLER_NAME
+    '{{caller}}':     CALLER_NAME,
+    '{{first}}':      ((l.contact_name || l.company_name || '').trim().split(/\s+/)[0]) || 'there',
+    '{{phone}}':      CALLER_PHONE
   };
 
   return lines.map(function (raw) {
@@ -1584,7 +1767,7 @@ function scriptRender(lines, l) {
 }
 
 function openScriptModal(id) {
-  scriptLead = allLeads.find(function (l) { return l.id === id; });
+  scriptLead = findLead(id);
   if (!scriptLead) return;
   var l = scriptLead;
 
@@ -1616,7 +1799,7 @@ function openScriptModal(id) {
 
   // Who to ask for. Filled from the Broker info form; hidden entirely when
   // there is no name, rather than showing an empty chip.
-  var who = (l.contact_name || '').trim();
+  var who = isAgent(l) ? '' : (l.contact_name || '').trim();
   var chip = document.getElementById('scriptWhoChip');
   if (who) {
     chip.style.display = 'inline-block';
@@ -1634,7 +1817,7 @@ function openScriptModal(id) {
   var sendBtn = document.getElementById('scriptSendReportBtn');
   sendBtn.disabled = false;
   sendBtn.style.color = '#34a853';
-  sendBtn.textContent = '\uD83D\uDCCA Send GBP Report';
+  sendBtn.textContent = isAgent(l) ? '\uD83C\uDFE1 Send Director page' : '\uD83D\uDCCA Send GBP Report';
 
   var auditBtn = document.getElementById('scriptAuditBtn');
   if (l.audit_url) { auditBtn.style.display = 'inline-block'; auditBtn.href = l.audit_url; }
@@ -1647,11 +1830,73 @@ function openScriptModal(id) {
 
 function scriptPaint() {
   if (!scriptLead) return;
-  document.getElementById('scriptGatekeeper').innerHTML = scriptRender(SCRIPT.gatekeeper, scriptLead);
-  document.getElementById('scriptProspect').innerHTML   = scriptRender(SCRIPT.prospect,   scriptLead);
-  document.getElementById('scriptObjections').innerHTML = scriptRender(SCRIPT.objections, scriptLead);
+  var sc = scriptFor(scriptLead), agt = isAgent(scriptLead);
+  document.getElementById('scriptH1').textContent = agt ? 'Voicemail (if they do not pick up)' : 'Gatekeeper Opener';
+  document.getElementById('scriptH2').textContent = agt ? 'When the Agent Answers' : 'When Prospect Answers';
+  document.getElementById('scriptGatekeeper').innerHTML = scriptRender(sc.gatekeeper, scriptLead);
+  document.getElementById('scriptProspect').innerHTML   = scriptRender(sc.prospect,   scriptLead);
+  document.getElementById('scriptObjections').innerHTML = scriptRender(sc.objections, scriptLead);
 }
 
+
+// ============================================================================
+// SEND DIRECTOR PAGE (agents only)
+//
+// The Territory Director video page and the earnings calculator, sent
+// through the generic letter template (template_h7ar1lf), the same one the
+// demo app's "Send a landing page" uses.
+// ============================================================================
+var DIRECTOR_PAGE = 'https://localhomenetwork.netlify.app/territory-director';
+var DIRECTOR_CALC = 'https://localhomenetwork.netlify.app/territory-director-earnings';
+
+async function sendDirectorPage() {
+  var l = scriptLead;
+  var input = document.getElementById('scriptEmailInput');
+  var to = (input.value || '').trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) {
+    input.style.borderColor = '#ef4444';
+    input.focus();
+    toast('Enter their email address first');
+    return;
+  }
+  input.style.borderColor = 'rgba(52,168,83,0.35)';
+  var first = ((l.contact_name || l.company_name || '').trim().split(/\s+/)[0]) || '';
+
+  var btn = document.getElementById('scriptSendReportBtn');
+  var label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    await emailjs.send('service_b9bppgb', 'template_h7ar1lf', {
+      user_email:     to,
+      reply_to:       'pro.refersystem@gmail.com',
+      from_name:      'Brett Duncan',
+      subject:        'Becoming a LocalHome Territory Director',
+      firstname:      first,
+      dynamic_letter: 'Great speaking with you.\n\n'
+        + 'Here is a two-minute video on becoming a LocalHome Network Territory '
+        + 'Director, and what a territory can pay you every month:\n'
+        + DIRECTOR_PAGE + '\n\n'
+        + 'You can also put in your own numbers here:\n' + DIRECTOR_CALC + '\n\n'
+        + 'Any questions, just reply or call me at ' + CALLER_PHONE + '.'
+    });
+    btn.textContent = '✅ Sent to ' + to;
+    btn.style.color = '#22c55e';
+    toast('🏡 Director page sent to ' + to);
+    if (to !== (l.email || '')) {
+      l.email = to;
+      try { await sb('PATCH', 'leads', {email: to}, '?id=eq.' + l.id); renderAgents(); }
+      catch (e) { console.error('email save failed:', e); }
+    }
+  } catch (e) {
+    console.error('Director page send failed:', e);
+    btn.disabled = false;
+    btn.textContent = label;
+    toast('Not sent: ' + ((e && (e.text || e.message)) || 'unknown error'));
+  }
+}
+window.sendDirectorPage = sendDirectorPage;
+window.renderAgents = renderAgents;
 
 // ============================================================================
 // SEND GBP REPORT
@@ -1743,6 +1988,7 @@ function gbpReportHtml(l) {
 
 async function sendGbpReport() {
   if (!scriptLead) return;
+  if (isAgent(scriptLead)) return sendDirectorPage();
   var l = scriptLead;
 
   var input = document.getElementById('scriptEmailInput');
@@ -1844,7 +2090,7 @@ window.saveModal=saveModal;window.closeModal=closeModal;
 window.renderQueue=renderQueue;window.renderPipeline=renderPipeline;window.renderAll=renderAll;
 
 function cpNum(id){
-  var lead=allLeads.find(function(x){return x.id===id;});
+  var lead=findLead(id);
   if(!lead||!lead.phone) return;
   var num=lead.phone.replace(/\D/g,'');
   navigator.clipboard.writeText(num).then(function(){
@@ -1938,7 +2184,7 @@ function clearSelection() {
 // be a lie about the lead and would follow it around.
 async function setSelectedStatus(status, verb) {
   if (!selectedLeads.size) { toast('Nothing selected — check the boxes first'); return; }
-  const pools = [allLeads, b2bLeads];
+  const pools = [allLeads, b2bLeads, agentLeads];
   const picked = [];
   pools.forEach(function(p){ p.forEach(function(l){
     if (selectedLeads.has(l.id)) picked.push(l); }); });
@@ -2058,13 +2304,15 @@ function downloadEmailCSV() {
 window.downloadEmailCSV = downloadEmailCSV;
 
 async function archiveLead(id) {
-  var lead = allLeads.find(function(l){ return l.id===id; });
+  var lead = findLead(id);
   var name = lead ? (lead.company_name || 'this lead') : 'this lead';
   try {
     await sb('PATCH','leads',{sales_status:'📦 Archived'},'?id=eq.'+id);
     // Remove from active view locally
     allLeads = allLeads.filter(function(l){ return l.id!==id; });
-    renderQueue(); renderPipeline(); renderAll(); updateBadges();
+    b2bLeads = b2bLeads.filter(function(l){ return l.id!==id; });
+    agentLeads = agentLeads.filter(function(l){ return l.id!==id; });
+    renderQueue(); renderPipeline(); renderAll(); renderB2B(); updateBadges();
     toast('📦 ' + name + ' archived — off your list');
   } catch(e) {
     toast('Archive failed — try again');
@@ -2074,13 +2322,15 @@ async function archiveLead(id) {
 window.archiveLead = archiveLead;
 
 async function deleteLead(id) {
-  var lead = allLeads.find(function(l){ return l.id===id; });
+  var lead = findLead(id);
   var name = lead ? (lead.company_name || 'this lead') : 'this lead';
   if (!confirm('Delete ' + name + '?\n\nThis permanently removes them from Supabase. Cannot be undone.')) return;
   try {
     await sb('DELETE','leads',null,'?id=eq.'+id);
     allLeads = allLeads.filter(function(l){ return l.id!==id; });
-    renderQueue(); renderPipeline(); renderAll(); updateBadges();
+    b2bLeads = b2bLeads.filter(function(l){ return l.id!==id; });
+    agentLeads = agentLeads.filter(function(l){ return l.id!==id; });
+    renderQueue(); renderPipeline(); renderAll(); renderB2B(); updateBadges();
     toast('🗑️ ' + name + ' deleted');
   } catch(e) {
     toast('Delete failed — try again');
@@ -2656,7 +2906,7 @@ async function sendROIReport() {
 }
 
 function openROIForLead(id) {
-  var l = allLeads.find(function(x){return x.id===id;});
+  var l = findLead(id);
   if (!l) return;
   var fn = (l.contact_name||'').split(' ')[0] || '';
   document.getElementById('roi-name').value    = fn;
