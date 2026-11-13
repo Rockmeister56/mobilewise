@@ -322,6 +322,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <option value="📱 Left Voicemail">📱 Left Voicemail</option>
         <option value="📞 Called — No Answer">📞 No Answer</option>
         <option value="📨 Director Page Sent">📨 Director page sent</option>
+        <option value="📝 Qualification Sent">📝 Qualification form sent</option>
         <option value="📅 Zoom Scheduled">📅 Zoom Scheduled</option>
         <option value="🔥 Hot">🔥 Hot</option>
       </select>
@@ -409,6 +410,31 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     Real contact info for deals you've actually closed — pulled from here when you're ready to set someone up in the Trigger Dashboard. Nothing here creates a client automatically.
   </div>
   <div id="closedDealsList"></div>
+</div>
+
+<!-- SEND QUALIFICATION FORM (agents, after the Zoom) -->
+<div class="modal-bg" id="qualModal">
+  <div class="modal" style="border-color:rgba(245,158,11,0.45);">
+    <h3 style="color:#f59e0b;">📝 Send the Territory Director application</h3>
+    <div id="qualWho" style="margin-bottom:6px;"></div>
+    <div id="qualHistory" style="display:none;font-size:0.78rem;color:#fbbf24;background:rgba(245,158,11,0.08);border-radius:8px;padding:8px 11px;margin-top:8px;"></div>
+    <label for="qualEmail">Their email</label>
+    <input id="qualEmail" type="email" placeholder="name@example.com">
+    <label for="qualNote">A line from you (optional)</label>
+    <input id="qualNote" type="text" placeholder="Great talking with you today.">
+    <label>Follow up in</label>
+    <div id="qualDays" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+    <input id="qualDate" type="date" style="margin-top:8px;">
+    <div style="font-size:0.72rem;color:var(--muted);margin-top:8px;line-height:1.5;">
+      The form opens with their name, email, phone and brokerage already filled in. Sending marks them
+      <b>📝 Qualification Sent</b> and sets the follow-up. Their answers arrive in the admin's <b>Directors</b> tab.
+    </div>
+    <div class="modal-actions" style="flex-wrap:wrap;">
+      <button class="btn btn-ghost" onclick="closeQualModal()">Cancel</button>
+      <button class="btn btn-ghost" onclick="copyQualLink()">📋 Copy link</button>
+      <button class="btn" id="qualSendBtn" onclick="emailQualForm()" style="background:#f59e0b;color:#000;">✉️ Email it</button>
+    </div>
+  </div>
 </div>
 
 <!-- SEND DIRECTOR PAGE (agents) -->
@@ -518,6 +544,8 @@ const STAGES = [
   // Agents only: the Territory Director page went out. Kept off the
   // mortgage pipeline board (agentOnly) so it does not add an empty column.
   {key:"\uD83D\uDCE8 Director Page Sent", color:"#0ea5e9", agentOnly:true},
+  // Agents only: Brett sent the Territory Director qualification form after the Zoom.
+  {key:"\uD83D\uDCDD Qualification Sent", color:"#f59e0b", agentOnly:true},
   {key:"\uD83D\uDD25 Hot",                color:"#ef4444"},
   {key:"\uD83D\uDCB0 Closed Won",        color:"#22c55e"},
   {key:"\u274C Closed Lost",              color:"#64748b"},
@@ -860,6 +888,7 @@ function renderQueueItem(l,today){
     ${zoomBox}${noteBox}${fuBox}
     <div class="qi-actions">
       ${agt?`<button class="qa" onclick="openDirectorModal(${l.id})" style="color:#0ea5e9;border-color:rgba(14,165,233,0.45);background:rgba(14,165,233,0.1);font-weight:700;">\uD83C\uDFE1 Send Director page</button>`:""}
+      ${agt?`<button class="qa" onclick="openQualModal(${l.id})" style="color:#f59e0b;border-color:rgba(245,158,11,0.45);background:rgba(245,158,11,0.1);font-weight:700;">\uD83D\uDCDD Send qualification form</button>`:""}
       <button class="qa qa-call" onclick="logCall(${l.id},'spoke')">\u2705 Spoke With</button>
       <button class="qa qa-call" onclick="logCall(${l.id},'noanswer')">\uD83D\uDCDE No Answer</button>
       <button class="qa qa-vm" onclick="logCall(${l.id},'voicemail')">\uD83D\uDCF1 Left VM</button>
@@ -2065,6 +2094,145 @@ async function sendDirectorPage() {
 window.openDirectorModal = openDirectorModal; window.closeDirectorModal = closeDirectorModal;
 window.pickDirDays = pickDirDays; window.emailDirectorPage = emailDirectorPage;
 window.copyDirectorLink = copyDirectorLink; window.textDirectorLink = textDirectorLink;
+
+// ============================================================================
+// SEND QUALIFICATION FORM (agents, after Brett's Zoom)
+//
+// Links to territory-director-qualify.html on the LocalHome site, prefilled
+// with what Client Act already knows. The answers land in LocalHome's
+// localhome_director_applications (admin -> Directors tab); nothing here
+// touches that database, the link is the only thing that crosses.
+// ============================================================================
+var QUAL_PAGE = 'https://localhomenetwork.netlify.app/territory-director-qualify.html';
+var QUAL_SENT = '📝 Qualification Sent';
+
+function qualLink(l, email) {
+  var parts = (l.contact_name || l.company_name || '').trim().split(/\s+/);
+  var m = /Brokerage:\s*([^\n(]+)/.exec(l.notes || '');
+  var q = new URLSearchParams();
+  if (parts[0]) q.set('first', parts[0]);
+  if (parts.length > 1) q.set('last', parts.slice(1).join(' '));
+  if (email) q.set('email', email);
+  if (l.phone) q.set('phone', l.phone);
+  if (m && m[1].trim() && m[1].trim() !== '—') q.set('brokerage', m[1].trim());
+  return QUAL_PAGE + (q.toString() ? '?' + q.toString() : '');
+}
+
+async function logQualSent(l, how, followUp) {
+  var today = addDays(0);
+  var line = '📝 ' + shortDay(today) + ': qualification form ' + how
+           + (followUp ? ' · follow up ' + shortDay(followUp) : '');
+  var patch = {
+    sales_status:   QUAL_SENT,
+    follow_up_date: followUp || l.follow_up_date || null,
+    sales_notes:    line + (l.sales_notes ? '\n' + l.sales_notes : '')
+  };
+  var res = await sb('PATCH', 'leads', patch, '?id=eq.' + l.id);
+  if (res && res.ok === false) {
+    // If the database will not take the new stage name, keep the rest.
+    console.warn('Qualification Sent stage refused, using Hot:', res.status);
+    patch.sales_status = '🔥 Hot';
+    res = await sb('PATCH', 'leads', patch, '?id=eq.' + l.id);
+    if (res && res.ok === false) throw new Error('Could not save to Client Act (' + res.status + ')');
+  }
+  Object.assign(l, patch);
+  updateBadges(); renderQueue(); renderPipeline();
+}
+
+var qualLead = null, qualFollow = null;
+function openQualModal(id) {
+  qualLead = findLead(id); if (!qualLead) return;
+  var l = qualLead;
+  document.getElementById('qualWho').innerHTML =
+      '<div style="font-size:1.05rem;font-weight:700;color:#fff;">' + esc(l.company_name || '') + '</div>'
+    + (l.phone ? '<div style="font-size:0.85rem;color:var(--accent);">' + esc(l.phone) + '</div>' : '');
+  var hist = (l.sales_notes || '').split('\n').filter(function (x) { return /qualification form/.test(x); });
+  var h = document.getElementById('qualHistory');
+  h.style.display = hist.length ? 'block' : 'none';
+  h.textContent = hist.length ? 'Already sent: ' + hist.join(' | ') : '';
+  document.getElementById('qualEmail').value = l.email || '';
+  document.getElementById('qualEmail').style.borderColor = '';
+  document.getElementById('qualNote').value = '';
+  var opts = [[2, '2 days'], [3, '3 days'], [5, '5 days'], [7, '1 week']];
+  document.getElementById('qualDays').innerHTML = opts.map(function (o) {
+    return '<button type="button" class="btn btn-ghost" data-d="' + o[0] + '" onclick="pickQualDays(' + o[0] + ')" style="padding:7px 13px;font-size:0.78rem;">'
+      + o[1] + ' <span style="color:var(--muted);font-size:0.68rem;">' + shortDay(addDays(o[0])) + '</span></button>';
+  }).join('');
+  pickQualDays(3);
+  var b = document.getElementById('qualSendBtn'); b.disabled = false; b.textContent = '✉️ Email it';
+  document.getElementById('qualModal').classList.add('open');
+}
+function pickQualDays(n) {
+  qualFollow = addDays(n);
+  document.getElementById('qualDate').value = qualFollow;
+  document.querySelectorAll('#qualDays button').forEach(function (b) {
+    var on = +b.getAttribute('data-d') === n;
+    b.style.borderColor = on ? '#f59e0b' : '';
+    b.style.color = on ? '#f59e0b' : '';
+  });
+}
+function qualFollowDate() { return document.getElementById('qualDate').value || qualFollow || addDays(3); }
+function closeQualModal() { document.getElementById('qualModal').classList.remove('open'); qualLead = null; }
+
+async function emailQualForm() {
+  var l = qualLead; if (!l) return;
+  var input = document.getElementById('qualEmail');
+  var to = (input.value || '').trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) {
+    input.style.borderColor = '#ef4444'; input.focus();
+    toast('Enter their email address first'); return;
+  }
+  var first = ((l.contact_name || l.company_name || '').trim().split(/\s+/)[0]) || '';
+  var note = (document.getElementById('qualNote').value || '').trim();
+  var btn = document.getElementById('qualSendBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    await emailjs.send('service_b9bppgb', 'template_h7ar1lf', {
+      user_email:     to,
+      reply_to:       'pro.refersystem@gmail.com',
+      from_name:      'Brett Duncan',
+      subject:        'Your Territory Director application',
+      firstname:      first,
+      dynamic_letter: (note ? note + '\n\n' : 'Great talking with you today.\n\n')
+        + 'As promised, here is the short Territory Director application. It takes about '
+        + '5 minutes, and your name and contact details are already filled in:\n'
+        + qualLink(l, to) + '\n\n'
+        + 'Once it is in, I will review it personally and get back to you within two '
+        + 'business days with next steps.\n\n'
+        + 'Any questions, just reply or call me at ' + CALLER_PHONE + '.'
+    });
+  } catch (e) {
+    console.error('Qualification form send failed:', e);
+    btn.disabled = false; btn.textContent = '✉️ Email it';
+    toast('Not sent: ' + ((e && (e.text || e.message)) || 'unknown error'));
+    return;
+  }
+  try {
+    if (to !== (l.email || '')) { await sb('PATCH', 'leads', { email: to }, '?id=eq.' + l.id); l.email = to; }
+    var fu = qualFollowDate();
+    await logQualSent(l, 'emailed to ' + to, fu);
+    toast('📝 Application sent to ' + to + ' · follow up ' + shortDay(fu));
+  } catch (e) {
+    console.error(e);
+    toast('Email sent, but the follow-up did not save.');
+  }
+  closeQualModal();
+}
+
+function copyQualLink() {
+  var l = qualLead; if (!l) return;
+  var email = (document.getElementById('qualEmail').value || '').trim();
+  var link = qualLink(l, email);
+  var fu = qualFollowDate();
+  navigator.clipboard.writeText(link).then(function () {
+    logQualSent(l, 'link copied (sent by you)', fu).then(function () {
+      toast('📋 Link copied · follow up ' + shortDay(fu));
+    }, function () { toast('Link copied, but the follow-up did not save'); });
+    closeQualModal();
+  }, function () { window.prompt('Copy this link:', link); });
+}
+window.openQualModal = openQualModal; window.closeQualModal = closeQualModal;
+window.pickQualDays = pickQualDays; window.emailQualForm = emailQualForm; window.copyQualLink = copyQualLink;
 window.sendDirectorPage = sendDirectorPage;
 window.renderAgents = renderAgents;
 
