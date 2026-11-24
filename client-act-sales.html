@@ -153,6 +153,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     <div class="pw-gate-card">
         <h1>🔒 Client Act</h1>
         <input type="password" id="pwGateInput" placeholder="Password" onkeydown="if(event.key==='Enter')pwGateCheck()">
+        <label style="display:flex;align-items:center;gap:8px;justify-content:center;color:#94a3b8;font-size:0.82rem;margin:4px 0 12px;cursor:pointer;">
+            <input type="checkbox" id="pwRemember" checked style="width:16px;height:16px;margin:0;"> Remember me on this computer for 30 days</label>
         <button onclick="pwGateCheck()">Enter</button>
         <div class="pw-gate-error" id="pwGateError">Incorrect password.</div>
     </div>
@@ -167,9 +169,22 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     // Note: this keeps casual visitors out; it is not bank-grade security.
     const PW_USERS = {
         'c014c62a5826929d458c214aca19238ef0ca1f9c6372b231a4db429fb413af89': 'brett',
-        'ce85683cac472ca79077d0f99576c2a55544fb6dfb8981976ad0449470ffaa24': 'tommy'
+        '5b2ff131c692e94f6b554f67fd2fa9c2e6b0edb341cdf2b15f41ff5e20cf363a': 'tommy'
     };
     const KEY = 'ca_who';
+    // 11-24b: "Remember me" keeps you signed in on this computer for 30 days,
+    // so the password is typed once a month, not every visit. Sign out ends it.
+    const REMEMBER = 'ca_remember', DAYS = 30;
+    try {
+        if (!sessionStorage.getItem(KEY)) {
+            const r = JSON.parse(localStorage.getItem(REMEMBER) || 'null');
+            if (r && r.who && r.until > Date.now() && Object.values(PW_USERS).indexOf(r.who) !== -1) {
+                sessionStorage.setItem(KEY, r.who);
+            } else if (r) {
+                localStorage.removeItem(REMEMBER);
+            }
+        }
+    } catch (e) {}
     const who = sessionStorage.getItem(KEY);
     if (who && Object.values(PW_USERS).indexOf(who) !== -1) {
         document.getElementById("pwGateScreen").style.display = "none";
@@ -186,7 +201,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         const user = PW_USERS[h];
         if (user) {
             sessionStorage.setItem(KEY, user);
-            try { localStorage.setItem('ca_caller', user); } catch (e) {}
+            try {
+                localStorage.setItem('ca_caller', user);
+                const rem = document.getElementById('pwRemember');
+                if (rem && rem.checked) {
+                    localStorage.setItem(REMEMBER, JSON.stringify({ who: user, until: Date.now() + DAYS * 86400000 }));
+                } else {
+                    localStorage.removeItem(REMEMBER);
+                }
+            } catch (e) {}
             location.reload();
         } else {
             document.getElementById("pwGateError").style.display = "block";
@@ -3370,7 +3393,7 @@ window.openROIForLead = openROIForLead;
     b.textContent = '👤 ' + ME.name + ' · sign out';
     b.title = 'Signed in by your password. Sign out to let someone else in on this computer.';
     b.onclick = function () {
-      try { sessionStorage.removeItem('ca_who'); localStorage.removeItem('ca_caller'); } catch (e) {}
+      try { sessionStorage.removeItem('ca_who'); localStorage.removeItem('ca_caller'); localStorage.removeItem('ca_remember'); } catch (e) {}
       location.reload();
     };
     right.insertBefore(b, right.firstChild);
