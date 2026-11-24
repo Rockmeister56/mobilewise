@@ -1749,53 +1749,56 @@ var SCRIPT = {
 
 // ---- THE AGENT SCRIPT --------------------------------------------------
 // Used instead of SCRIPT when the lead is a real estate agent (AGT-), for
-// recruiting Territory Directors. FIRST DRAFT - rewrite it in your words.
-// Extra tokens here: {{first}} (their first name) and {{phone}} (yours).
-//
-// Keep the RESPA line in the objections as it is: the residual comes from
-// home-service memberships only, never from lenders, title or escrow, and
-// is never tied to a closing.
+// recruiting Territory Directors.
+// 23 Nov: Brett's "Realtor Cold Call Script" (LocalHome_Network_Tommy_
+// Realtor_Cold_Call_Script.docx), shared by Brett and Tommy. Same day, four lines
+// reworded on Brett's OK: no income figure, no "10x", no "free" seat (the
+// Director setup fee exists), and "mortgage partner seat" instead of "prominent
+// mortgage sponsor" (not every city has one signed).
+// Fill-ins: {{first}} their first name, {{city}}, {{caller}} who is calling,
+// {{founder}} "our founder, Brett Duncan" for Tommy / "me" for Brett,
+// {{vmback}} the voicemail callback line for whoever is calling.
 var SCRIPT_AGENT = {
 
   // Agents answer their own cell, so no gatekeeper: this slot is the voicemail.
   gatekeeper: [
-    '"Hi {{first}}, it is {{caller}} with LocalHome Network. I came across your profile in {{city}}. I am looking for one agent in your area to run a LocalHome territory. It is a monthly residual on top of your real estate business, built on the home-service pros you already refer. I am sending you a two-minute video. {{callme}}."'
+    '>High-curiosity voicemail (~15 seconds). Do not pitch the webinar.',
+    '"Hi {{first}}, it\'s {{caller}} calling about {{city}}. Your reviews stood out, and I had a quick question about an exclusive, no-competition Realtor spot we\'re opening up to lead a 75-trade local referral network with a local mortgage partner seat here in {{city}}. {{vmback}} Thanks!"'
   ],
 
   prospect: [
-    '"Hi {{first}}, it is {{caller}} with LocalHome Network. Did I catch you between showings?"',
+    '>Step 1: Pattern-interrupt opener',
+    '"Hi {{first}}, this is {{caller}} over at LocalHome Network. I just want to let you know up front—this is a cold call, so if you give me just 30 seconds, allow me to explain, and I think it\'ll be worth your while if referrals are a biggie to you. Fair enough?"',
+    '>(Wait for "Sure" / "Go ahead")',
     '',
-    '>If they have a minute:',
-    '"I will be quick. I was looking at agents in {{city}} and your profile stood out, the reviews and the way you talk about your community. I am looking for one agent per area to run a LocalHome Network territory."',
+    '>Step 2: The 15-second hook',
+    '"Appreciate it. Your reviews in {{city}} stood out. We’re launching an exclusive local referral network of 75 home-service pros—strictly one per trade, zero competition—with a local mortgage partner seat as part of the group."',
+    '"We’re appointing one exclusive Realtor in {{city}} as Territory Director: you hold the only Realtor seat, so 75 local pros have one agent to send their homeowners to: you. Plus a monthly residual on every home-service business in your territory. The webinar walks through exactly how it’s paid."',
+    '"Can I send over a quick pre-recorded Zoom webinar so you can check it out on your own time?"',
     '',
-    '>What it is:',
-    '"LocalHome is an invitation-only referral network for local home-service businesses. One landscaper, one roofer, one plumber per area. You already know these people; you refer them to your clients every week. As Territory Director you bring them into the network, and you earn a monthly residual on the memberships in your territory."',
-    '',
-    '>Why them:',
-    '"You keep selling homes. This is not a second job. It is getting paid for relationships you already have, and it puts your name in front of every pro in the network, and they all have homeowners asking them for an agent."',
-    '',
-    '>The ask:',
-    '"There is a two-minute video, and a calculator where you put in your own numbers. Can I send it over, and grab twenty minutes on Zoom{{withbrett}} this week?"',
-    '',
-    '>Still no:',
-    '"No problem at all. I will send the video anyway so you have it. If a territory ever sounds good, the number is on there."'
+    '>Step 3: Lock in contact info (when they say yes)',
+    '"Awesome. What’s the best email—or is this cell number good to text it to?"  ← then hit Send Director page',
+    '"Perfect. Watch that pre-recorded webinar when you have a few minutes, and if you want to lock in {{city}} before we offer it to another agent, there’s a button right below the video to book a quick call with {{founder}}. Have a great rest of your day, {{first}}!"'
   ],
 
   objections: [
-    '>Is that legal? What about RESPA?',
-    '"Good question, and it is built for it. Your residual comes from home-service memberships, landscapers, roofers, pool companies. No money from lenders, title or escrow ever goes to you, and nothing is tied to a closing."',
+    '>"I really don\'t have time right now."',
+    '"I totally hear you, {{first}}—that’s actually why I’m not asking for a meeting right now. It’s just a quick pre-recorded Zoom webinar you can watch whenever you have a spare few minutes. What’s the best email or cell number to shoot that link to?"',
     '',
-    '>How much does it pay?',
-    '"It depends on how many members your territory has. The calculator lets you put in your own numbers. I would rather show you than quote you a number."',
+    '>"How much is this going to cost?"',
+    '"Good question. There’s a one-time territory setup, and no monthly fee for your own seat. Brett goes through it with you after you’ve watched the webinar. What’s the best email, or is this cell good to text the link to?"',
     '',
-    '>I do not have time',
-    '"That is why it is built this way. You make the introductions to people you already know, and we handle the sign-up from there."',
+    '>"I don\'t have time to run a group / I\'m already in BNI."',
+    '"That’s the beauty of it—there are zero weekly 7:00 AM meetings, and our automated portal and AI outreach help fill the 75 trade seats for you. Even if you\'re already in BNI, you don\'t change a thing—you just lock down the exclusive Realtor seat and collect the residual on top."',
     '',
-    '>Is this an MLM?',
-    '"No. There is nothing to buy and no recruiting of recruiters. One director per territory, paid on the memberships in that territory."',
+    '>"Is this legal? What about RESPA?"',
+    '"100% RESPA-compliant. Your earnings come strictly from home-service business memberships—roofers, plumbers, landscapers. Zero money ever comes from lenders, title, or escrow, and nothing is tied to a real estate closing."',
     '',
-    '>Send me something first',
-    '"Happy to. What is the best email?"  ← then hit Send Director page'
+    '>"Is this an MLM?"',
+    '"Not at all. No downlines, no recruiting recruiters, and nothing to buy into a pyramid. One exclusive Realtor leads one territory with zero competition."',
+    '',
+    '>"Just send me some info first."',
+    '"Happy to—I’ll send you the pre-recorded Zoom webinar right now. What’s your best email, or is this cell number good to text it to?"  ← then hit Send Director page'
   ]
 };
 
@@ -1826,7 +1829,11 @@ function scriptRender(lines, l) {
     '{{first}}':      ((l.contact_name || l.company_name || '').trim().split(/\s+/)[0]) || 'there',
     '{{phone}}':      CALLER_PHONE,
     '{{callme}}':     callMeLine(),
-    '{{withbrett}}':  ME.handsOff ? ' with Brett Duncan' : ''
+    '{{withbrett}}':  ME.handsOff ? ' with Brett Duncan' : '',
+    '{{founder}}':    ME.handsOff ? 'our founder, Brett Duncan' : 'me',
+    '{{vmback}}':     ME.handsOff
+                        ? 'Give our founder Brett a ring back when you have a minute at ' + CALLER_PHONE + '.'
+                        : 'Give me a ring back when you have a minute at ' + CALLER_PHONE + '.'
   };
 
   return lines.map(function (raw) {
