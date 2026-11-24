@@ -159,16 +159,35 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 </div>
 <script>
 (function() {
-    const PW_GATE_PASSWORD = "revuee@1956";
-    const PW_GATE_SESSION_KEY = "revuee_admin_unlocked";
-    if (sessionStorage.getItem(PW_GATE_SESSION_KEY) === "true") {
+    // 11-24: ONE PASSWORD PER PERSON. The password decides who is calling:
+    // Brett's opens Client Act as Brett, Tommy's as Tommy (his name on the
+    // scripts, Agents tab only, no switching to Brett). Only SHA-256
+    // fingerprints of the passwords are in this page, never the passwords.
+    // To add or change a password, ask Claude for its fingerprint.
+    // Note: this keeps casual visitors out; it is not bank-grade security.
+    const PW_USERS = {
+        'c014c62a5826929d458c214aca19238ef0ca1f9c6372b231a4db429fb413af89': 'brett',
+        'ce85683cac472ca79077d0f99576c2a55544fb6dfb8981976ad0449470ffaa24': 'tommy'
+    };
+    const KEY = 'ca_who';
+    const who = sessionStorage.getItem(KEY);
+    if (who && Object.values(PW_USERS).indexOf(who) !== -1) {
         document.getElementById("pwGateScreen").style.display = "none";
+        try { localStorage.setItem('ca_caller', who); } catch (e) {}
     }
-    window.pwGateCheck = function() {
+    async function fingerprint(text) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+        return Array.from(new Uint8Array(buf)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+    }
+    window.pwGateCheck = async function() {
         const input = document.getElementById("pwGateInput").value;
-        if (input === PW_GATE_PASSWORD) {
-            sessionStorage.setItem(PW_GATE_SESSION_KEY, "true");
-            document.getElementById("pwGateScreen").style.display = "none";
+        let h = '';
+        try { h = await fingerprint(input); } catch (e) { console.error('[gate]', e); }
+        const user = PW_USERS[h];
+        if (user) {
+            sessionStorage.setItem(KEY, user);
+            try { localStorage.setItem('ca_caller', user); } catch (e) {}
+            location.reload();
         } else {
             document.getElementById("pwGateError").style.display = "block";
         }
@@ -1667,7 +1686,10 @@ var TEAM = {
   tommy: { name: 'Tommy', full: 'Tommy',        phone: '949-357-0655', agentsOnly: true,  handsOff: true  }
 };
 var CALLER_ID = (function () {
-  try { var v = localStorage.getItem('ca_caller'); return TEAM[v] ? v : ''; } catch (e) { return ''; }
+  try {
+    var v = sessionStorage.getItem('ca_who') || localStorage.getItem('ca_caller');
+    return TEAM[v] ? v : '';
+  } catch (e) { return ''; }
 })();
 var ME = TEAM[CALLER_ID || 'brett'];
 var CALLER_NAME = ME.name;
@@ -3345,8 +3367,12 @@ window.openROIForLead = openROIForLead;
     var b = document.createElement('button');
     b.className = 'btn btn-ghost';
     b.style.cssText = 'padding:6px 12px;font-size:0.75rem;border-color:rgba(248,196,0,.45);color:#f8c400;';
-    b.textContent = '👤 Calling as ' + ME.name + ' · switch';
-    b.onclick = function () { document.getElementById('caWho').classList.add('on'); };
+    b.textContent = '👤 ' + ME.name + ' · sign out';
+    b.title = 'Signed in by your password. Sign out to let someone else in on this computer.';
+    b.onclick = function () {
+      try { sessionStorage.removeItem('ca_who'); localStorage.removeItem('ca_caller'); } catch (e) {}
+      location.reload();
+    };
     right.insertBefore(b, right.firstChild);
   }
 
@@ -3472,6 +3498,16 @@ window.openROIForLead = openROIForLead;
   window.setStatus = async function (id, status) {
     await origSet(id, status);
     try { await stamp(id, status); } catch (e) { console.error('[team] stamp:', e); }
+  };
+  // 11-24: Spoke With, Dead and Schedule Zoom save through the card popup
+  // (saveModal), not setStatus. Stamp those too, with the status chosen.
+  var origSave = window.saveModal;
+  window.saveModal = async function () {
+    var l = modalLead;
+    var st = document.getElementById('m-status');
+    var status = st ? st.value : '';
+    await origSave();
+    if (l && status) { try { await stamp(l.id, status); } catch (e) { console.error('[team] stamp:', e); } }
   };
 
   console.log('[Client Act team v1] calling as ' + (CALLER_ID || '(not chosen)'));
