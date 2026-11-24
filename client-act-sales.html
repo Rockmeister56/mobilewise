@@ -3373,20 +3373,52 @@ window.openROIForLead = openROIForLead;
     sortSel.parentNode.insertBefore(f, sortSel);
   }
 
+  // The owner filter as a list rule, shared by the list and the tab bubble.
+  function ownerFiltered(list) {
+    var sel = document.getElementById('agtOwner');
+    var want = hasOwnerCol() && sel ? sel.value : '';
+    if (!want) return list;
+    var who = want === 'me' ? (CALLER_ID || 'brett') : want;
+    return list.filter(function (l) { return who === 'none' ? !l.assigned_to : l.assigned_to === who; });
+  }
+  // The bubble on the Agents tab counts what the selected filter shows that
+  // needs a call (new, or follow-up due), the same rule as before. So on
+  // "Mine", Tommy's number is Tommy's agents and Brett's is Brett's.
+  function setBadge() {
+    var ab = document.getElementById('badge-agents');
+    if (!ab) return;
+    var today = new Date().toISOString().slice(0, 10);
+    ab.textContent = ownerFiltered(agentLeads).filter(function (l) {
+      var ss = l.sales_status || '🆕 New';
+      if (AGENT_DEAD.includes(ss)) return false;
+      return (l.follow_up_date && l.follow_up_date <= today) || ss === '🆕 New';
+    }).length;
+  }
+
   var origRenderAgents = window.renderAgents;
   window.renderAgents = function () {
     var sel = document.getElementById('agtOwner');
     var on = hasOwnerCol();
     if (sel) sel.style.display = on ? '' : 'none';
     var want = on && sel ? sel.value : '';
-    if (!want) return origRenderAgents();
+    if (!want) { origRenderAgents(); setBadge(); return; }
     var saved = agentLeads;
-    var who = want === 'me' ? (CALLER_ID || 'brett') : want;
-    agentLeads = saved.filter(function (l) {
-      return who === 'none' ? !l.assigned_to : l.assigned_to === who;
-    });
+    var shown = ownerFiltered(saved);
+    agentLeads = shown;
     try { origRenderAgents(); } finally { agentLeads = saved; }
+    // Empty because of the owner filter is not "no agents yet".
+    var el = document.getElementById('agentList');
+    if (el && !shown.length && saved.length) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">'
+        + 'No agents under <b>' + esc(sel.options[sel.selectedIndex].text) + '</b> right now. '
+        + saved.length + ' agent' + (saved.length === 1 ? ' is' : 's are') + ' in Client Act: '
+        + '<a href="#" onclick="document.getElementById(\'agtOwner\').value=\'\';renderAgents();return false;" '
+        + 'style="color:#0ea5e9;">show everyone’s</a>.</div>';
+    }
+    setBadge();
   };
+  var origBadge = window.updateAgentBadge;
+  window.updateAgentBadge = function () { origBadge(); setBadge(); };
 
   var origItem = window.renderQueueItem;
   window.renderQueueItem = function (l, today) {
