@@ -337,7 +337,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <option value="company">🔤 Name A→Z</option>
         <option value="id_asc">🔢 AGT-ID Low → High</option>
       </select>
-      <a href="agent-finder.html" target="_blank" rel="noopener" class="btn btn-ghost" style="text-decoration:none;border-color:rgba(14,165,233,0.45);color:#0ea5e9;font-size:0.75rem;">＋ Find agents</a>
+      <a href="https://localhomenetwork.netlify.app/agent-finder.html" target="_blank" rel="noopener" class="btn btn-ghost" style="text-decoration:none;border-color:rgba(14,165,233,0.45);color:#0ea5e9;font-size:0.75rem;">＋ Find agents</a>
     </div>
   </div>
   <div id="agentList"><div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">Agents you send from the Agent Finder appear here. Click <strong style="color:var(--accent);">Refresh</strong> to load the latest.</div></div>
@@ -1125,7 +1125,7 @@ function renderAgents(){
     el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:0.85rem;">'
       +(agentLeads.length
         ? agentLeads.length+" agent"+(agentLeads.length===1?"":"s")+" loaded, but none match this filter."
-        : 'No agents yet. Open the <a href="agent-finder.html" target="_blank" rel="noopener" style="color:#0ea5e9;">Agent Finder</a>, score a few and send them over.')
+        : 'No agents yet. Open the <a href="https://localhomenetwork.netlify.app/agent-finder.html" target="_blank" rel="noopener" style="color:#0ea5e9;">Agent Finder</a>, score a few and send them over.')
       +'</div>';
     return;
   }
@@ -1655,8 +1655,35 @@ document.getElementById("actionModal").addEventListener("click",e=>{if(e.target=
 //   {{company}}  {{city}}  {{category}}  {{gbp}}  {{reviews}}
 // ----------------------------------------------------------------------
 
-var CALLER_NAME = 'Brett';
-var CALLER_PHONE = '949-357-0655';
+// ── WHO IS CALLING (11-23) ───────────────────────────────────────────
+// Client Act is shared by Brett and Tommy. Each computer or phone remembers
+// who is using it ("Calling as" at the top right switches it). Tommy uses his
+// own name on calls, but hands every agent to Brett: callbacks, the number in
+// emails and texts, and email replies all point to Brett.
+//   agentsOnly: that person sees only the Agents tab (a convenience, not a
+//   lock: anyone with the password can switch to Brett).
+var TEAM = {
+  brett: { name: 'Brett', full: 'Brett Duncan', phone: '949-357-0655', agentsOnly: false, handsOff: false },
+  tommy: { name: 'Tommy', full: 'Tommy',        phone: '949-357-0655', agentsOnly: true,  handsOff: true  }
+};
+var CALLER_ID = (function () {
+  try { var v = localStorage.getItem('ca_caller'); return TEAM[v] ? v : ''; } catch (e) { return ''; }
+})();
+var ME = TEAM[CALLER_ID || 'brett'];
+var CALLER_NAME = ME.name;
+var CALLER_PHONE = ME.phone;
+function callMeLine() {
+  return ME.handsOff ? 'You can reach Brett Duncan, who runs the network, at ' + CALLER_PHONE
+                     : 'My cell is ' + CALLER_PHONE;
+}
+function replyLine() {
+  return ME.handsOff ? 'Any questions, just reply, or call Brett Duncan at ' + CALLER_PHONE + '.'
+                     : 'Any questions, just reply or call me at ' + CALLER_PHONE + '.';
+}
+function caFromName() { return ME.handsOff ? ME.full + ' | LocalHome Network' : 'Brett Duncan'; }
+function caSignOff()  { return ME.handsOff ? ME.full + ', LocalHome Network (Brett Duncan: ' + CALLER_PHONE + ')'
+                                           : 'Brett Duncan, ' + CALLER_PHONE; }
+function whoTag() { return ' · ' + ME.name; }
 
 var SCRIPT = {
 
@@ -1732,7 +1759,7 @@ var SCRIPT_AGENT = {
 
   // Agents answer their own cell, so no gatekeeper: this slot is the voicemail.
   gatekeeper: [
-    '"Hi {{first}}, it is {{caller}} with LocalHome Network. I came across your profile in {{city}}. I am looking for one agent in your area to run a LocalHome territory. It is a monthly residual on top of your real estate business, built on the home-service pros you already refer. I am sending you a two-minute video. My cell is {{phone}}."'
+    '"Hi {{first}}, it is {{caller}} with LocalHome Network. I came across your profile in {{city}}. I am looking for one agent in your area to run a LocalHome territory. It is a monthly residual on top of your real estate business, built on the home-service pros you already refer. I am sending you a two-minute video. {{callme}}."'
   ],
 
   prospect: [
@@ -1748,10 +1775,10 @@ var SCRIPT_AGENT = {
     '"You keep selling homes. This is not a second job. It is getting paid for relationships you already have, and it puts your name in front of every pro in the network, and they all have homeowners asking them for an agent."',
     '',
     '>The ask:',
-    '"There is a two-minute video, and a calculator where you put in your own numbers. Can I send it over, and grab twenty minutes on Zoom this week?"',
+    '"There is a two-minute video, and a calculator where you put in your own numbers. Can I send it over, and grab twenty minutes on Zoom{{withbrett}} this week?"',
     '',
     '>Still no:',
-    '"No problem at all. I will send the video anyway so you have it. If a territory ever sounds good, my number is on there."'
+    '"No problem at all. I will send the video anyway so you have it. If a territory ever sounds good, the number is on there."'
   ],
 
   objections: [
@@ -1797,7 +1824,9 @@ function scriptRender(lines, l) {
     '{{reviews}}':    (l.reviews || 0),
     '{{caller}}':     CALLER_NAME,
     '{{first}}':      ((l.contact_name || l.company_name || '').trim().split(/\s+/)[0]) || 'there',
-    '{{phone}}':      CALLER_PHONE
+    '{{phone}}':      CALLER_PHONE,
+    '{{callme}}':     callMeLine(),
+    '{{withbrett}}':  ME.handsOff ? ' with Brett Duncan' : ''
   };
 
   return lines.map(function (raw) {
@@ -1914,7 +1943,7 @@ async function sendDirectorEmail(l, to, note) {
   await emailjs.send('service_b9bppgb', 'template_h7ar1lf', {
     user_email:     to,
     reply_to:       'pro.refersystem@gmail.com',
-    from_name:      'Brett Duncan',
+    from_name:      caFromName(),
     subject:        'Becoming a LocalHome Territory Director',
     firstname:      first,
     dynamic_letter: (note ? note + '\n\n' : 'Great speaking with you.\n\n')
@@ -1922,7 +1951,7 @@ async function sendDirectorEmail(l, to, note) {
       + 'Director, and what a territory can pay you every month:\n'
       + DIRECTOR_PAGE + '\n\n'
       + 'You can also put in your own numbers here:\n' + DIRECTOR_CALC + '\n\n'
-      + 'Any questions, just reply or call me at ' + CALLER_PHONE + '.'
+      + replyLine()
   });
 }
 
@@ -1939,7 +1968,7 @@ function addDays(n) {
 var DIR_SENT = '📨 Director Page Sent';
 async function logDirectorSent(l, how, followUp) {
   var today = addDays(0);
-  var line = '📨 ' + shortDay(today) + ': Director page ' + how
+  var line = '📨 ' + shortDay(today) + whoTag() + ': Director page ' + how
            + (followUp ? ' · follow up ' + shortDay(followUp) : '');
   var patch = {
     sales_status:   DIR_SENT,
@@ -2043,7 +2072,7 @@ function textDirectorLink() {
   var note = (document.getElementById('dirNote').value || '').trim();
   var body = (first ? 'Hi ' + first + ', ' : '') + (note ? note + ' ' : '')
     + 'here is the two-minute video on becoming a LocalHome Network Territory Director: '
-    + DIRECTOR_PAGE + ' - Brett Duncan, ' + CALLER_PHONE;
+    + DIRECTOR_PAGE + ' - ' + caSignOff();
   var num = (l.phone || '').replace(/\D/g, '');
   document.getElementById('dirTextBtn').href = 'sms:' + num + '?&body=' + encodeURIComponent(body);
   var fu = dirFollowDate();
@@ -2120,7 +2149,7 @@ function qualLink(l, email) {
 
 async function logQualSent(l, how, followUp) {
   var today = addDays(0);
-  var line = '📝 ' + shortDay(today) + ': qualification form ' + how
+  var line = '📝 ' + shortDay(today) + whoTag() + ': qualification form ' + how
            + (followUp ? ' · follow up ' + shortDay(followUp) : '');
   var patch = {
     sales_status:   QUAL_SENT,
@@ -2190,16 +2219,16 @@ async function emailQualForm() {
     await emailjs.send('service_b9bppgb', 'template_h7ar1lf', {
       user_email:     to,
       reply_to:       'pro.refersystem@gmail.com',
-      from_name:      'Brett Duncan',
+      from_name:      caFromName(),
       subject:        'Your Territory Director application',
       firstname:      first,
       dynamic_letter: (note ? note + '\n\n' : 'Great talking with you today.\n\n')
         + 'As promised, here is the short Territory Director application. It takes about '
         + '5 minutes, and your name and contact details are already filled in:\n'
         + qualLink(l, to) + '\n\n'
-        + 'Once it is in, I will review it personally and get back to you within two '
+        + 'Once it is in, ' + (ME.handsOff ? 'Brett Duncan will review it personally and get back to you' : 'I will review it personally and get back to you') + ' within two '
         + 'business days with next steps.\n\n'
-        + 'Any questions, just reply or call me at ' + CALLER_PHONE + '.'
+        + replyLine()
     });
   } catch (e) {
     console.error('Qualification form send failed:', e);
@@ -3261,5 +3290,154 @@ window.calcROI        = calcROI;
 window.sendROIReport  = sendROIReport;
 window.openROIForLead = openROIForLead;
 </script>
+
+<!-- ═══ CLIENT ACT — TEAM v1 (2026-11-23): Brett and Tommy ═══
+     1. "Who's calling?" the first time Client Act opens on a computer or
+        phone (after the password). Remembered on that device; "Calling as"
+        at the top right switches it.
+     2. Tommy sees the Agents tab only (TEAM.tommy.agentsOnly).
+     3. Agents: an owner on each card ("Tommy's" / "Brett's" / "Take it"),
+        and a Mine / Brett's / Tommy's / Not assigned filter. Needs the
+        assigned_to column (SQL from 23 Nov); without it this part stays off.
+     4. Every call result on an agent card adds a dated line with the
+        caller's name, e.g. "📞 Nov 23 · Tommy: Left Voicemail".
+-->
+<style>
+  #caWho{position:fixed;inset:0;z-index:99990;background:rgba(5,10,18,.92);display:none;align-items:center;justify-content:center;
+    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;}
+  #caWho.on{display:flex;}
+  #caWho .box{background:#0f1a2b;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:28px 26px;width:min(380px,92vw);text-align:center;}
+  #caWho h2{color:#f8c400;font-size:1.2rem;margin:0 0 6px;}
+  #caWho p{color:#94a3b8;font-size:.85rem;margin:0 0 18px;}
+  #caWho button{display:block;width:100%;margin:8px 0;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,.15);
+    background:#16243a;color:#fff;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  #caWho button:hover{background:#1d3050;border-color:#f8c400;}
+  .ca-owner{font-size:.72rem;margin:0 0 8px;color:#94a3b8;display:flex;align-items:center;gap:8px;}
+  .ca-owner b{color:#e2e8f0;}
+  .ca-owner button{background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.45);color:#38bdf8;border-radius:12px;
+    padding:2px 10px;font-size:.7rem;cursor:pointer;font-family:inherit;}
+</style>
+<div id="caWho"><div class="box">
+  <h2>Who's calling?</h2>
+  <p>Client Act remembers this on this computer. Your name goes on the scripts and on every note.</p>
+  <button type="button" onclick="caSetCaller('brett')">👤 Brett</button>
+  <button type="button" onclick="caSetCaller('tommy')">👤 Tommy</button>
+</div></div>
+<script>
+(function () {
+  'use strict';
+  window.caSetCaller = function (id) {
+    try { localStorage.setItem('ca_caller', id); } catch (e) {}
+    location.reload();
+  };
+  if (!CALLER_ID) document.getElementById('caWho').classList.add('on');
+
+  // "Calling as" in the top bar.
+  var right = document.querySelector('.nav .nav-right');
+  if (right && CALLER_ID) {
+    var b = document.createElement('button');
+    b.className = 'btn btn-ghost';
+    b.style.cssText = 'padding:6px 12px;font-size:0.75rem;border-color:rgba(248,196,0,.45);color:#f8c400;';
+    b.textContent = '👤 Calling as ' + ME.name + ' · switch';
+    b.onclick = function () { document.getElementById('caWho').classList.add('on'); };
+    right.insertBefore(b, right.firstChild);
+  }
+
+  // Tommy: the Agents tab only.
+  if (ME.agentsOnly && CALLER_ID) {
+    document.querySelectorAll('.tabs .tab').forEach(function (t) {
+      if (t.id !== 'tab-agents') t.style.display = 'none';
+    });
+    var origShow = window.showTab;
+    window.showTab = function () { origShow('agents'); };
+    document.addEventListener('DOMContentLoaded', function () { origShow('agents'); });
+    if (document.readyState !== 'loading') origShow('agents');
+  }
+
+  // ── Owner on agent cards, and the owner filter ──
+  function hasOwnerCol() {
+    return agentLeads.length > 0 && Object.prototype.hasOwnProperty.call(agentLeads[0], 'assigned_to');
+  }
+  function ownerName(v) { return TEAM[v] ? TEAM[v].name : ''; }
+
+  var sortSel = document.getElementById('agtSort');
+  if (sortSel) {
+    var f = document.createElement('select');
+    f.id = 'agtOwner';
+    f.setAttribute('onchange', 'renderAgents()');
+    f.style.cssText = sortSel.getAttribute('style') || '';
+    f.innerHTML = '<option value="">Everyone’s agents</option><option value="me">👤 Mine</option>'
+      + '<option value="brett">Brett’s</option><option value="tommy">Tommy’s</option><option value="none">Not assigned</option>';
+    if (CALLER_ID === 'tommy') f.value = 'me';
+    f.style.display = 'none';            // shown once the column is there
+    sortSel.parentNode.insertBefore(f, sortSel);
+  }
+
+  var origRenderAgents = window.renderAgents;
+  window.renderAgents = function () {
+    var sel = document.getElementById('agtOwner');
+    var on = hasOwnerCol();
+    if (sel) sel.style.display = on ? '' : 'none';
+    var want = on && sel ? sel.value : '';
+    if (!want) return origRenderAgents();
+    var saved = agentLeads;
+    var who = want === 'me' ? (CALLER_ID || 'brett') : want;
+    agentLeads = saved.filter(function (l) {
+      return who === 'none' ? !l.assigned_to : l.assigned_to === who;
+    });
+    try { origRenderAgents(); } finally { agentLeads = saved; }
+  };
+
+  var origItem = window.renderQueueItem;
+  window.renderQueueItem = function (l, today) {
+    var html = origItem(l, today);
+    if (!isAgent(l) || !hasOwnerCol()) return html;
+    var bar = l.assigned_to
+      ? '<div class="ca-owner">👤 <b>' + esc(ownerName(l.assigned_to) || l.assigned_to) + '’s</b> agent'
+        + (CALLER_ID && l.assigned_to !== CALLER_ID ? ' <button type="button" onclick="caTake(' + l.id + ')">Take it</button>' : '')
+        + '</div>'
+      : '<div class="ca-owner">Not assigned <button type="button" onclick="caTake(' + l.id + ')">Take it</button></div>';
+    var i = html.indexOf('>');
+    return i < 0 ? html : html.slice(0, i + 1) + bar + html.slice(i + 1);
+  };
+
+  window.caTake = async function (id) {
+    var me = CALLER_ID || 'brett';
+    var res = await sb('PATCH', 'leads', { assigned_to: me }, '?id=eq.' + id);
+    if (res && res.ok === false) { toast('Could not assign it, try Refresh'); return; }
+    var l = findLead(id); if (l) l.assigned_to = me;
+    toast('👤 Now ' + ME.name + '’s agent');
+    renderAgents();
+  };
+
+  // ── Dated "who called" lines on agent cards ──
+  async function stamp(id, what) {
+    var l = findLead(id);
+    if (!l || !isAgent(l)) return;
+    var day = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    var line = '📞 ' + day + whoTag() + ': ' + String(what || '').replace(/^\S+\s/, '');
+    var notes = line + (l.sales_notes ? '\n' + l.sales_notes : '');
+    var patch = { sales_notes: notes };
+    if (hasOwnerCol() && !l.assigned_to && CALLER_ID) patch.assigned_to = CALLER_ID;
+    var res = await sb('PATCH', 'leads', patch, '?id=eq.' + id);
+    if (res && res.ok === false) return;
+    Object.assign(l, patch);
+    if (document.getElementById('panel-agents').classList.contains('active')) renderAgents();
+  }
+  var origCb = window.setCallback;
+  window.setCallback = async function (date, status, id) {
+    await origCb(date, status, id);
+    try { await stamp(id, status); } catch (e) { console.error('[team] stamp:', e); }
+  };
+  var origSet = window.setStatus;
+  window.setStatus = async function (id, status) {
+    await origSet(id, status);
+    try { await stamp(id, status); } catch (e) { console.error('[team] stamp:', e); }
+  };
+
+  console.log('[Client Act team v1] calling as ' + (CALLER_ID || '(not chosen)'));
+})();
+</script>
+<!-- ═══ END CLIENT ACT — TEAM v1 ═══ -->
 </body>
 </html>
