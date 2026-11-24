@@ -152,11 +152,22 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 <div class="pw-gate-screen" id="pwGateScreen">
     <div class="pw-gate-card">
         <h1>🔒 Client Act</h1>
-        <input type="password" id="pwGateInput" placeholder="Password" onkeydown="if(event.key==='Enter')pwGateCheck()">
-        <label style="display:flex;align-items:center;gap:8px;justify-content:center;color:#94a3b8;font-size:0.82rem;margin:4px 0 12px;cursor:pointer;">
-            <input type="checkbox" id="pwRemember" checked style="width:16px;height:16px;margin:0;"> Remember me on this computer for 30 days</label>
-        <button onclick="pwGateCheck()">Enter</button>
-        <div class="pw-gate-error" id="pwGateError">Incorrect password.</div>
+        <!-- 11-24d: step 1, who are you? -->
+        <div id="pwPick">
+            <div style="color:#94a3b8;font-size:0.9rem;margin:-8px 0 16px;">Who's signing in?</div>
+            <button type="button" onclick="pwGatePick('brett')" style="margin-bottom:10px;">👤 Brett</button>
+            <button type="button" onclick="pwGatePick('tommy')">👤 Tommy</button>
+        </div>
+        <!-- step 2, that person's own password -->
+        <div id="pwStep" style="display:none;">
+            <div id="pwWho" style="color:#e2e8f0;font-size:0.95rem;font-weight:600;margin:-8px 0 12px;"></div>
+            <input type="password" id="pwGateInput" placeholder="Password" onkeydown="if(event.key==='Enter')pwGateCheck()">
+            <label style="display:flex;align-items:center;gap:8px;justify-content:center;color:#94a3b8;font-size:0.82rem;margin:4px 0 12px;cursor:pointer;">
+                <input type="checkbox" id="pwRemember" checked style="width:16px;height:16px;margin:0;"> Remember me on this computer for 30 days</label>
+            <button onclick="pwGateCheck()">Enter</button>
+            <div class="pw-gate-error" id="pwGateError">Incorrect password.</div>
+            <a href="#" onclick="pwGateBack();return false;" style="display:inline-block;margin-top:14px;color:#94a3b8;font-size:0.82rem;">← Not you? Choose again</a>
+        </div>
     </div>
 </div>
 <script>
@@ -194,12 +205,28 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
         return Array.from(new Uint8Array(buf)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
     }
+    // 11-24d: Brett's request: choose Brett or Tommy first, then that
+    // person's own password. The password must belong to the person picked.
+    var picked = '';
+    window.pwGatePick = function (who) {
+        picked = who;
+        document.getElementById('pwPick').style.display = 'none';
+        document.getElementById('pwStep').style.display = 'block';
+        document.getElementById('pwWho').textContent = (who === 'tommy' ? 'Tommy' : 'Brett') + ', enter your password';
+        document.getElementById('pwGateError').style.display = 'none';
+        var i = document.getElementById('pwGateInput'); i.value = ''; i.focus();
+    };
+    window.pwGateBack = function () {
+        picked = '';
+        document.getElementById('pwStep').style.display = 'none';
+        document.getElementById('pwPick').style.display = 'block';
+    };
     window.pwGateCheck = async function() {
         const input = document.getElementById("pwGateInput").value;
         let h = '';
         try { h = await fingerprint(input); } catch (e) { console.error('[gate]', e); }
         const user = PW_USERS[h];
-        if (user) {
+        if (user && (!picked || user === picked)) {
             sessionStorage.setItem(KEY, user);
             try {
                 localStorage.setItem('ca_caller', user);
