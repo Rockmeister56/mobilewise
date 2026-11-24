@@ -3506,6 +3506,20 @@ window.openROIForLead = openROIForLead;
   var origItem = window.renderQueueItem;
   window.renderQueueItem = function (l, today) {
     var html = origItem(l, today);
+    // 11-24g: on agent cards the grey line under the name is the brokerage
+    // (from the "Brokerage:" line the Agent Finder saves), not the name again.
+    if (isAgent(l)) {
+      var bm = /Brokerage:\s*([^\n(]+)/.exec(l.notes || '');
+      var broker = bm ? bm[1].trim() : '';
+      if (broker && broker !== '—') {
+        var tag = '<div class="qi-contact">';
+        var ci = html.indexOf(tag);
+        if (ci > -1) {
+          var ce = html.indexOf('</div>', ci);
+          html = html.slice(0, ci) + tag + '🏢 ' + esc(broker) + html.slice(ce);
+        }
+      }
+    }
     if (!isAgent(l) || !hasOwnerCol()) return html;
     var bar = l.assigned_to
       ? '<div class="ca-owner">👤 <b>' + esc(ownerName(l.assigned_to) || l.assigned_to) + '’s</b> agent'
