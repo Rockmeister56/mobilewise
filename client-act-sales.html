@@ -3564,5 +3564,61 @@ window.openROIForLead = openROIForLead;
 })();
 </script>
 <!-- ═══ END CLIENT ACT — TEAM v1 ═══ -->
+
+<!-- ═══ CLIENT ACT — TRAINING VIDEO v1 (2026-11-24e) ═══
+     "▶ Training video" at the top right opens the Client Act training video
+     in an overlay. Close with the X, Esc, or a click outside; closing stops it.
+     To change the video, change TRAINING_VIDEO_ID below. -->
+<style>
+  #caVid{position:fixed;inset:0;z-index:99980;background:rgba(5,10,18,.88);display:none;align-items:center;justify-content:center;padding:20px;}
+  #caVid.on{display:flex;}
+  #caVid .box{width:100%;max-width:980px;}
+  #caVid .head{display:flex;align-items:center;gap:12px;margin-bottom:10px;color:#fff;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;}
+  #caVid .head b{flex:1;font-size:15px;}
+  #caVid .head a{color:#94a3b8;font-size:12px;}
+  #caVid .x{background:rgba(255,255,255,.14);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:20px;cursor:pointer;}
+  #caVid .frame{position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:12px;overflow:hidden;}
+  #caVid .frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+</style>
+<div id="caVid" role="dialog" aria-modal="true" aria-label="Client Act training video">
+  <div class="box">
+    <div class="head"><b>Client Act training: realtor outreach</b>
+      <a id="caVidYT" href="#" target="_blank" rel="noopener">Open on YouTube</a>
+      <button type="button" class="x" aria-label="Close video" onclick="caVideo(false)">&times;</button></div>
+    <div class="frame" id="caVidFrame"></div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+  var TRAINING_VIDEO_ID = 'p0jiWfQD914';
+  var ov = document.getElementById('caVid');
+  document.getElementById('caVidYT').href = 'https://youtu.be/' + TRAINING_VIDEO_ID;
+  window.caVideo = function (open) {
+    var fr = document.getElementById('caVidFrame');
+    if (open) {
+      fr.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + TRAINING_VIDEO_ID
+        + '?autoplay=1&rel=0&playsinline=1" title="Client Act training" '
+        + 'allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+      ov.classList.add('on');
+    } else {
+      fr.innerHTML = '';                 // removing the player stops the sound
+      ov.classList.remove('on');
+    }
+  };
+  ov.addEventListener('click', function (e) { if (e.target === ov) caVideo(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && ov.classList.contains('on')) caVideo(false); });
+  var right = document.querySelector('.nav .nav-right');
+  if (right) {
+    var b = document.createElement('button');
+    b.className = 'btn btn-ghost';
+    b.style.cssText = 'padding:6px 12px;font-size:0.75rem;border-color:rgba(217,119,6,.6);background:rgba(217,119,6,.15);color:#fbbf24;';
+    b.textContent = '▶ Training video';
+    b.onclick = function () { caVideo(true); };
+    right.insertBefore(b, right.firstChild);
+  }
+})();
+</script>
+<!-- ═══ END CLIENT ACT — TRAINING VIDEO v1 ═══ -->
 </body>
 </html>
