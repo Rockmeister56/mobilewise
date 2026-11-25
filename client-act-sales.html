@@ -406,6 +406,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <option value="company">🔤 Name A→Z</option>
         <option value="id_asc">🔢 AGT-ID Low → High</option>
       </select>
+      <button id="vmExportBtnTab" class="btn btn-ghost" onclick="vmExport()" style="border-color:rgba(168,85,247,0.4);color:#a855f7;font-size:0.75rem;">📤 Export voicemail list</button>
       <a href="https://localhomenetwork.netlify.app/agent-finder.html" target="_blank" rel="noopener" class="btn btn-ghost" style="text-decoration:none;border-color:rgba(14,165,233,0.45);color:#0ea5e9;font-size:0.75rem;">＋ Find agents</a>
     </div>
   </div>
@@ -555,6 +556,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       </div>
     </div>
 
+    <!-- 11-24i: voicemail list. No message from a non-local phone: save the
+         agent here, then export the list as a CSV for the voicemail drop. -->
+    <div id="vmBar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+      <button id="vmAddBtn" onclick="vmAdd()" style="background:rgba(245,158,11,0.16);border:1px solid rgba(245,158,11,0.5);color:#f59e0b;border-radius:20px;padding:8px 16px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">📥 No answer: save to voicemail list</button>
+      <button id="vmExportBtn" onclick="vmExport()" style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.4);color:#a855f7;border-radius:20px;padding:8px 16px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">📤 Export voicemail list</button>
+    </div>
+
     <div id="scriptProspectInfo" style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:12px 16px;margin-bottom:10px;font-size:0.88rem;line-height:1.8;color:rgba(255,255,255,0.85);"></div>
 
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
@@ -642,6 +650,7 @@ async function sb(method,table,body=null,query=""){
 
 document.addEventListener("DOMContentLoaded",async()=>{
   await loadPipelineLeads();
+  try { vmPaint(); } catch (e) {}
   renderCalendar();
   loadClosedDeals();
 });
@@ -1991,6 +2000,7 @@ function openScriptModal(id) {
   else             { auditBtn.style.display = 'none'; }
 
   scriptPaint();
+  vmPaint();
   document.getElementById('scriptTextBody').style.fontSize = scriptFontSize + 'rem';
   document.getElementById('scriptModal').style.display = 'flex';
 }
@@ -2504,6 +2514,111 @@ async function sendGbpReport() {
 }
 
 window.sendGbpReport = sendGbpReport;
+
+// ============================================================================
+// VOICEMAIL LIST (11-24i)
+//
+// Tommy calls from a phone that is not local, so he does not leave messages.
+// When an agent does not answer, "No answer: save to voicemail list" puts
+// them on HIS list (leads.vm_batch = who saved them) and opens the usual No
+// Answer callback. "Export voicemail list" downloads the list as a CSV in the
+// same format as the other voicemail exports (phone,first name; no header
+// row), then takes those people off the list. Only the list entry goes: the
+// card stays, its status becomes Left Voicemail, and a note is added.
+// Brett and Tommy each have their own list.
+// Needs SQL-voicemail-list.sql run once in MobileWise.
+// ============================================================================
+function vmWho() { return CALLER_ID || 'brett'; }
+function vmFirst(l) {
+  var f = ((l.contact_name || '').trim().split(/\s+/)[0] || '').replace(/[",]/g, '');
+  return f || 'Friend';
+}
+
+async function vmCount() {
+  var rows = await sb('GET', 'leads', '', '?select=id&vm_batch=eq.' + vmWho());
+  return Array.isArray(rows) ? rows.length : null;
+}
+
+async function vmPaint() {
+  var l = scriptLead, add = document.getElementById('vmAddBtn');
+  if (add && l) {
+    var on = !!l.vm_batch;
+    add.textContent = on ? '✓ On voicemail list (tap to take off)' : '📥 No answer: save to voicemail list';
+    add.style.color = on ? '#22c55e' : '#f59e0b';
+    add.style.borderColor = on ? 'rgba(34,197,94,0.5)' : 'rgba(245,158,11,0.5)';
+  }
+  var n = await vmCount();
+  ['vmExportBtn', 'vmExportBtnTab'].forEach(function (id) {
+    var b = document.getElementById(id);
+    if (b) b.textContent = '📤 Export voicemail list' + (n ? ' (' + n + ')' : '');
+  });
+}
+
+async function vmAdd() {
+  var l = scriptLead;
+  if (!l) return;
+  if (l.vm_batch) {                       // second tap takes them off again
+    var r0 = await sb('PATCH', 'leads', { vm_batch: null, vm_batch_at: null }, '?id=eq.' + l.id);
+    if (!r0 || !r0.ok) { toast('Could not update the voicemail list'); return; }
+    l.vm_batch = null; l.vm_batch_at = null;
+    toast(vmFirst(l) + ' taken off the voicemail list');
+    vmPaint();
+    return;
+  }
+  if ((l.phone || '').replace(/\D/g, '').length < 10) { toast('No phone number on this card'); return; }
+  var patch = { vm_batch: vmWho(), vm_batch_at: new Date().toISOString() };
+  var res = await sb('PATCH', 'leads', patch, '?id=eq.' + l.id);
+  if (!res || !res.ok) { toast('Could not save. Has the voicemail SQL been run in Supabase?'); return; }
+  Object.assign(l, patch);
+  toast('📥 ' + vmFirst(l) + ' saved to your voicemail list');
+  // Same as pressing No Answer: pick the callback day.
+  scriptThen(function (id) { logCall(id, 'noanswer'); });
+}
+
+async function vmExport() {
+  var rows = await sb('GET', 'leads', '',
+    '?select=id,phone,contact_name,sales_status,sales_notes&vm_batch=eq.' + vmWho() + '&order=vm_batch_at.asc');
+  if (!Array.isArray(rows)) { toast('Could not read the voicemail list. Has the voicemail SQL been run?'); return; }
+  if (!rows.length) { toast('Your voicemail list is empty'); return; }
+  var csv = '', ok = [];
+  rows.forEach(function (r) {
+    var phone = (r.phone || '').replace(/\D/g, '');
+    if (phone.length >= 10) { csv += phone + ',' + vmFirst(r) + '\n'; ok.push(r); }
+  });
+  if (!ok.length) { toast('No valid phone numbers on the list'); return; }
+  if (!confirm('Download ' + ok.length + ' number' + (ok.length === 1 ? '' : 's') + ' for the voicemail drop?\n\n'
+      + 'They come off your voicemail list once downloaded. Their cards stay in Client Act, marked Left Voicemail.')) return;
+
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  var dt = new Date(), ymd = dt.getFullYear() + '-' + ('0' + (dt.getMonth() + 1)).slice(-2) + '-' + ('0' + dt.getDate()).slice(-2);
+  a.download = 'voicemail-' + vmWho() + '-' + ymd + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+
+  var day = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  var NOANS = '📞 Called — No Answer', NEW = '🆕 New', LEFT = '📱 Left Voicemail';
+  var failed = 0;
+  for (var i = 0; i < ok.length; i++) {
+    var r = ok[i];
+    var patch = { vm_batch: null, vm_batch_at: null,
+                  sales_notes: ((r.sales_notes || '').trim() ? r.sales_notes.trim() + '\n' : '') + '📱 Voicemail drop exported ' + day };
+    if (!r.sales_status || r.sales_status === NOANS || r.sales_status === NEW) patch.sales_status = LEFT;
+    var res = await sb('PATCH', 'leads', patch, '?id=eq.' + r.id);
+    if (!res || !res.ok) { failed++; continue; }
+    var l = findLead(r.id);
+    if (l) Object.assign(l, patch);
+  }
+  ['renderQueue', 'renderAgents', 'renderAll', 'updateBadges'].forEach(function (f) {
+    try { if (typeof window[f] === 'function') window[f](); } catch (e) {}
+  });
+  vmPaint();
+  toast(failed ? '📤 Downloaded, but ' + failed + ' could not be taken off the list'
+               : '📤 Downloaded ' + ok.length + ' for the voicemail drop · list cleared');
+}
+
+window.vmAdd = vmAdd;
+window.vmExport = vmExport;
+window.vmPaint = vmPaint;
 
 function closeScriptModal() {
   document.getElementById('scriptModal').style.display = 'none';
